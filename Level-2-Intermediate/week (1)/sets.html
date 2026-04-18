@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>درس المجموعات (Sets) في C++</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            line-height: 1.8;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+        }
+        h1 {
+            color: #1a5276;
+            text-align: center;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 40px;
+            border-right: 4px solid #3498db;
+            padding-right: 10px;
+            background-color: #f4f6f7;
+            padding: 10px 15px 10px 10px;
+            border-radius: 4px;
+        }
+        p {
+            font-size: 16px;
+        }
+        ul {
+            padding-right: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        code {
+            background-color: #f1f2f6;
+            color: #e74c3c;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            direction: ltr;
+            display: inline-block;
+        }
+        pre {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        .box {
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-right: 5px solid;
+        }
+        .box-info { background-color: #e8f8f5; border-color: #1abc9c; color: #2c3e50; }
+        .box-info strong { color: #16a085; }
+        .box-caution { background-color: #fff8e1; border-color: #f1c40f; color: #7f8c8d; }
+        .box-caution strong { color: #f39c12; }
+        .box-warning { background-color: #fdedec; border-color: #e74c3c; color: #7f8c8d; }
+        .box-warning strong { color: #c0392b; }
+        .box-challenge { background-color: #ebf5fb; border-color: #3498db; color: #2c3e50; }
+        .box-challenge strong { color: #2980b9; }
+
+        /* تنسيقات الاختبار التفاعلي */
+        .quiz-question {
+            background-color: #fafafa;
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+        }
+        .quiz-question p {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .quiz-options {
+            list-style-type: none;
+            padding: 0;
+        }
+        .quiz-options li {
+            padding: 10px;
+            margin-bottom: 8px;
+            background-color: #ffffff;
+            border: 2px solid #d5dbdb;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .quiz-options li:hover {
+            background-color: #eef2f3;
+            border-color: #bdc3c7;
+        }
+        /* الألوان عند الإجابة */
+        .quiz-options li.correct {
+            background-color: #d4edda !important;
+            border-color: #28a745 !important;
+            color: #155724;
+            font-weight: bold;
+        }
+        .quiz-options li.wrong {
+            background-color: #f8d7da !important;
+            border-color: #dc3545 !important;
+            color: #721c24;
+        }
+        /* منع النقر بعد الإجابة */
+        .quiz-options.answered li {
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>المجموعات (Sets) في C++</h1>
+        
+        <p>الـ <code>set</code> في C++ هو حاوية لعناصر من نفس النوع ويحقق الخصائص التالية:</p>
+        <ul>
+            <li>يحتوي على <strong>عناصر فريدة</strong> فقط (لا يسمح بالتكرار).</li>
+            <li>يكون <strong>دائمًا مرتبًا</strong> (تصاعدياً بشكل افتراضي).</li>
+            <li>يسمح بالإدراج والحذف والاستعلام <strong>بكفاءة عالية</strong>.</li>
+        </ul>
+
+        <div class="box box-info">
+            <strong>السر خلف الـ set (كيف تعمل؟):</strong><br>
+            حاوية <code>set</code> لا تضع العناصر بجوار بعضها في الذاكرة مثل المصفوفات العادية. بل تستخدم هيكل بيانات متقدم يسمى <strong>شجرة البحث الثنائية (Binary Search Tree)</strong>. هذا التصميم الذكي هو ما يجعلها ترتب العناصر تلقائياً وتمنع التكرار بسرعة فائقة.
+        </div>
+
+        <div class="box box-caution">
+            <strong>تنبيه (Caution):</strong> يمكن أن يحتوي <code>set</code> فقط على أنواع يمكن مقارنتها باستخدام معامل <code>&lt;</code>.
+        </div>
+
+        <h2>الإعلان عن المجموعة (Declaration)</h2>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;set&gt;
+using namespace std;
+
+int main () {
+    set&lt;int&gt; my_int_set;
+    set&lt;double&gt; my_double_set;
+    set&lt;string&gt; my_string_set = {"abc", "def", "ghi"};
+}</code></pre>
+
+        <h2>الحجم (Size)</h2>
+        <p>تعيد الدالة <code>size()</code> عدداً يمثل عدد العناصر الفعلية الموجودة داخل المجموعة.</p>
+<pre><code>set&lt;double&gt; s = {1, 2, 3.2, 32.0 / 10.0};
+cout &lt;&lt; s.size(); // Output: 3 </code></pre>
+        <p><strong>شرح المثال:</strong> العملية الحسابية <code>32.0 / 10.0</code> نتيجتها <code>3.2</code>. وبما أن القيمة <code>3.2</code> تم إدخالها مسبقاً في نفس السطر، سترفض المجموعة هذه القيمة المكررة للحفاظ على قاعدتها. لذلك، حجم المجموعة سيكون 3 عناصر فقط، وليس 4.</p>
+
+        <h2>الإدراج (Insert)</h2>
+        <p>تضيف الدالة <code>insert()</code> عنصرًا إلى الحاوية <strong>فقط إذا لم يكن موجودًا مسبقًا</strong> وتحافظ على ترتيب العناصر.</p>
+<pre><code>set&lt;int&gt; s = {1, 3};
+s.insert(2); // Now s = {1, 2, 3} not {1, 3, 2}
+s.insert(3); // s remains unchanged</code></pre>
+
+        <h2>الحذف (Erase)</h2>
+        <p>تزيل الدالة <code>erase()</code> عنصرًا من الحاوية <strong>فقط إذا كان موجودًا مسبقًا</strong>.</p>
+<pre><code>set&lt;string&gt; s = {"abc", "def"};
+s.erase("xyz"); // s unchanged, "xyz" is not in the set
+s.erase("abc"); // Now s = {"def"}</code></pre>
+
+        <h2>العد والبحث (Count)</h2>
+        <p>تعيد الدالة <code>count()</code> عدد مرات ظهور القيمة. وبما أن التكرار ممنوع، فهي تعمل كإجابة لسؤال (هل العنصر موجود؟): تعيد <code>1</code> إذا كان موجوداً و <code>0</code> إذا لم يكن.</p>
+<pre><code>set&lt;int&gt; s = {1, 2, 3};
+cout &lt;&lt; s.count(2) &lt;&lt; '\n'; // Output: 1
+s.insert(2);
+cout &lt;&lt; s.count(2) &lt;&lt; '\n'; // Output: 1 (No duplicates allowed)
+s.erase(2);
+cout &lt;&lt; s.count(2) &lt;&lt; '\n'; // Output: 0</code></pre>
+
+        <div class="box box-warning">
+            <strong>تحذير (Warning):</strong> على الرغم من أن <code>set</code> لها ترتيب محدد، <strong>لا يمكننا</strong> الوصول إلى عنصر محدد باستخدام الفهارس <code>[]</code> (مثل <code>s[0]</code>). لمعرفة السبب وكيفية الوصول للعناصر، نستخدم حلقات التكرار.
+        </div>
+
+        <h2>التكرار والوصول للعناصر (Looping)</h2>
+        <p>للمرور على جميع العناصر، نستخدم حلقة <code>for</code> المعتمدة على النطاق (Range-based for loop):</p>
+<pre><code>set&lt;string&gt; my_string_set = {"abc", "def", "ghi"};
+for (string s : my_string_set) {
+    cout &lt;&lt; s &lt;&lt; '\n';
+}</code></pre>
+
+        <h2>مثال تطبيقي متكامل (Comprehensive Example)</h2>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;set&gt;
+using namespace std;
+
+int main() {
+    set&lt;int&gt; afak_students;
+
+    afak_students.insert(105);
+    afak_students.insert(101);
+    afak_students.insert(108);
+    afak_students.insert(103);
+    afak_students.insert(101); // Attempt to duplicate
+
+    cout &lt;&lt; "Number of attending students: " &lt;&lt; afak_students.size() &lt;&lt; "\n";
+
+    if (afak_students.count(103) == 1) {
+        cout &lt;&lt; "Student 103 is (Present).\n";
+    }
+
+    afak_students.erase(108);
+
+    cout &lt;&lt; "\nFinal Attendance List:\n";
+    for (int id : afak_students) {
+        cout &lt;&lt; "- Student ID: " &lt;&lt; id &lt;&lt; "\n";
+    }
+
+    return 0;
+}</code></pre>
+
+        <h2>اختبار معلوماتك (Interactive Quiz)</h2>
+        <p>اختر الإجابة الصحيحة لكل من الأسئلة التالية لتختبر فهمك لدرس المجموعات:</p>
+
+        <div class="quiz-question">
+            <p>1. أي من التالي يعتبر من الخصائص الأساسية لحاوية <code>set</code> في C++؟</p>
+            <ul class="quiz-options">
+                <li onclick="checkAnswer(this, false)">أ) تسمح بتكرار العناصر وغير مرتبة.</li>
+                <li data-correct="true" onclick="checkAnswer(this, true)">ب) تمنع تكرار العناصر وترتبها تلقائياً.</li>
+                <li onclick="checkAnswer(this, false)">ج) تعتمد على الفهارس (Indexes) للوصول للعناصر.</li>
+                <li onclick="checkAnswer(this, false)">د) تخزن العناصر في مصفوفة متجاورة في الذاكرة.</li>
+            </ul>
+        </div>
+
+        <div class="quiz-question">
+            <p>2. ما هو هيكل البيانات (Data Structure) الذي تُبنى عليه حاوية <code>set</code> خلف الكواليس؟</p>
+            <ul class="quiz-options">
+                <li onclick="checkAnswer(this, false)">أ) Linked List (القائمة المترابطة)</li>
+                <li onclick="checkAnswer(this, false)">ب) Array (المصفوفة العادية)</li>
+                <li data-correct="true" onclick="checkAnswer(this, true)">ج) Binary Search Tree (شجرة البحث الثنائية)</li>
+                <li onclick="checkAnswer(this, false)">د) Stack (المكدس)</li>
+            </ul>
+        </div>
+
+        <div class="quiz-question">
+            <p>3. ماذا يحدث إذا حاولت استخدام دالة <code>insert()</code> لإضافة عنصر موجود بالفعل في المجموعة؟</p>
+            <ul class="quiz-options">
+                <li onclick="checkAnswer(this, false)">أ) يتوقف البرنامج عن العمل ويظهر خطأ (Error).</li>
+                <li onclick="checkAnswer(this, false)">ب) يتم استبدال العنصر القديم بالعنصر الجديد.</li>
+                <li onclick="checkAnswer(this, false)">ج) يتم إضافة العنصر وتكراره في المجموعة.</li>
+                <li data-correct="true" onclick="checkAnswer(this, true)">د) يتم تجاهل أمر الإضافة وتبقى المجموعة كما هي.</li>
+            </ul>
+        </div>
+
+        <div class="quiz-question">
+            <p>4. ما هو ناتج طباعة <code>s.size()</code> بعد تنفيذ الكود التالي؟<br>
+            <code>set&lt;int&gt; s; s.insert(5); s.insert(5); s.insert(5);</code></p>
+            <ul class="quiz-options">
+                <li onclick="checkAnswer(this, false)">أ) 3</li>
+                <li data-correct="true" onclick="checkAnswer(this, true)">ب) 1</li>
+                <li onclick="checkAnswer(this, false)">ج) 0</li>
+                <li onclick="checkAnswer(this, false)">د) غير معروف</li>
+            </ul>
+        </div>
+
+        <div class="quiz-question">
+            <p>5. هل يمكنك الوصول إلى العنصر الأول في المجموعة باستخدام الكود <code>s[0]</code>؟</p>
+            <ul class="quiz-options">
+                <li onclick="checkAnswer(this, false)">أ) نعم، يمكن ذلك دائماً.</li>
+                <li data-correct="true" onclick="checkAnswer(this, true)">ب) لا، المجموعات لا تدعم الوصول عبر الفهارس (Indexes).</li>
+                <li onclick="checkAnswer(this, false)">ج) نعم، ولكن فقط إذا كانت المجموعة تحتوي على أرقام.</li>
+                <li onclick="checkAnswer(this, false)">د) لا، يجب استخدام الدالة <code>s.at(0)</code> بدلاً من ذلك.</li>
+            </ul>
+        </div>
+
+        <div class="quiz-question">
+            <p>6. ما هي القيم الممكنة التي تعيدها دالة <code>count(x)</code> عند استخدامها مع <code>set</code>؟</p>
+            <ul class="quiz-options">
+                <li onclick="checkAnswer(this, false)">أ) أي رقم صحيح يمثل عدد مرات التكرار.</li>
+                <li onclick="checkAnswer(this, false)">ب) موقع العنصر في الذاكرة.</li>
+                <li data-correct="true" onclick="checkAnswer(this, true)">ج) 0 أو 1 فقط.</li>
+                <li onclick="checkAnswer(this, false)">د) حجم المجموعة الكلي.</li>
+            </ul>
+        </div>
+
+        <div class="quiz-question">
+            <p>7. ماذا يحدث عند استدعاء <code>s.erase(10)</code> إذا كان الرقم 10 غير موجود في المجموعة <code>s</code>؟</p>
+            <ul class="quiz-options">
+                <li onclick="checkAnswer(this, false)">أ) ينهار البرنامج (Crash).</li>
+                <li onclick="checkAnswer(this, false)">ب) يتم إضافة الرقم 10 تلقائياً.</li>
+                <li onclick="checkAnswer(this, false)">ج) يتم حذف أول عنصر في المجموعة.</li>
+                <li data-correct="true" onclick="checkAnswer(this, true)">د) لا يحدث شيء ويستمر البرنامج في العمل بشكل طبيعي.</li>
+            </ul>
+        </div>
+
+        <div class="quiz-question">
+            <p>8. إذا قمنا بإدراج العناصر <code>{10, 5, 20}</code> في مجموعة، بأي ترتيب سيتم طباعتها عند استخدام حلقة <code>for</code>؟</p>
+            <ul class="quiz-options">
+                <li onclick="checkAnswer(this, false)">أ) 10 ثم 5 ثم 20 (حسب ترتيب الإدخال)</li>
+                <li data-correct="true" onclick="checkAnswer(this, true)">ب) 5 ثم 10 ثم 20 (تصاعدياً)</li>
+                <li onclick="checkAnswer(this, false)">ج) 20 ثم 10 ثم 5 (تنازلياً)</li>
+                <li onclick="checkAnswer(this, false)">د) ترتيب عشوائي في كل مرة.</li>
+            </ul>
+        </div>
+
+        <div class="quiz-question">
+            <p>9. ما هو المعامل (Operator) الذي يجب أن يدعمه نوع البيانات لكي يمكن تخزينه داخل <code>set</code>؟</p>
+            <ul class="quiz-options">
+                <li onclick="checkAnswer(this, false)">أ) معامل الجمع <code>+</code></li>
+                <li onclick="checkAnswer(this, false)">ب) معامل المساواة <code>==</code></li>
+                <li data-correct="true" onclick="checkAnswer(this, true)">ج) معامل الأصغر من <code>&lt;</code></li>
+                <li onclick="checkAnswer(this, false)">د) معامل الأكبر من <code>&gt;</code></li>
+            </ul>
+        </div>
+
+        <div class="quiz-question">
+            <p>10. ما هو ناتج <code>s.size()</code> للكود التالي؟<br>
+            <code>set&lt;double&gt; s = {2.5, 2.50, 5.0/2.0};</code></p>
+            <ul class="quiz-options">
+                <li onclick="checkAnswer(this, false)">أ) 3</li>
+                <li onclick="checkAnswer(this, false)">ب) 2</li>
+                <li data-correct="true" onclick="checkAnswer(this, true)">ج) 1</li>
+                <li onclick="checkAnswer(this, false)">د) البرنامج سيظهر خطأ بسبب القسمة.</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <script>
+        function checkAnswer(element, isCorrect) {
+            let parentUl = element.parentElement;
+            
+            // إذا تمت الإجابة على هذا السؤال مسبقاً، لا تفعل شيئاً
+            if (parentUl.classList.contains('answered')) {
+                return;
+            }
+
+            // قفل السؤال بعد الإجابة
+            parentUl.classList.add('answered');
+
+            if (isCorrect) {
+                // إذا كانت الإجابة صحيحة، لونها بالأخضر
+                element.classList.add('correct');
+            } else {
+                // إذا كانت الإجابة خاطئة، لونها بالأحمر
+                element.classList.add('wrong');
+                
+                // وابحث عن الإجابة الصحيحة ولونها بالأخضر ليتعلم الطالب
+                let correctElement = parentUl.querySelector('[data-correct="true"]');
+                if (correctElement) {
+                    correctElement.classList.add('correct');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

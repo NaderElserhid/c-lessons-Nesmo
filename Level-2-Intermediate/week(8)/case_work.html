@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>العمل على الحالات (Case Work) - البرمجة التنافسية</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            /* الألوان الفاتحة والزاهية */
+            --bg-main: #f8fafc; /* رمادي مائل للأزرق الفاتح جداً */
+            --bg-card: #ffffff; /* أبيض نقي */
+            --accent-main: #3b82f6; /* أزرق زاهي مريح */
+            --accent-main-hover: #2563eb;
+            --accent-secondary: #f59e0b; /* برتقالي/ذهبي للتنبيهات */
+            --text-primary: #334155; 
+            --text-secondary: #64748b; 
+            --border-light: #e2e8f0; 
+            --code-bg: #1e293b; /* خلفية داكنة للأكواد لسهولة القراءة */
+            --success: #10b981; 
+            --danger: #ef4444; 
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.8;
+            background-image: radial-gradient(circle at top right, #e0e7ff 0%, transparent 40%);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* العناوين */
+        h1 {
+            font-family: 'Tajawal', sans-serif;
+            font-size: 3em;
+            text-align: center;
+            color: var(--accent-main);
+            margin-bottom: 10px;
+            text-shadow: 0 4px 15px rgba(59, 130, 246, 0.15);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1.2em;
+            margin-bottom: 50px;
+            border-bottom: 2px solid var(--border-light);
+            padding-bottom: 20px;
+        }
+
+        h2 {
+            font-family: 'Tajawal', sans-serif;
+            color: var(--accent-main);
+            font-size: 2em;
+            border-right: 5px solid var(--accent-secondary);
+            padding-right: 15px;
+            margin-top: 50px;
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.08) 0%, transparent 100%);
+            padding-top: 10px;
+            padding-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        /* البطاقات والنصوص */
+        p {
+            font-size: 18px;
+            color: var(--text-primary);
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-light);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        /* الأكواد والشروحات */
+        pre {
+            background-color: var(--code-bg);
+            color: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 16px;
+            border-left: 5px solid var(--accent-main);
+            margin: 20px 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* ألوان Syntax */
+        .kw { color: #c678dd; } /* Keyword */
+        .typ { color: #56b6c2; } /* Type */
+        .str { color: #98c379; } /* String */
+        .com { color: #7f848e; font-style: italic; } /* Comment */
+
+        .explanation-box {
+            background-color: #eff6ff;
+            border-right: 4px solid var(--accent-main);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: -10px;
+            margin-bottom: 30px;
+        }
+
+        .explanation-box h4 {
+            color: var(--accent-main);
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+
+        /* القوائم */
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            position: relative;
+            padding-right: 25px;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        ul li::before {
+            content: "✦";
+            position: absolute;
+            right: 0;
+            color: var(--accent-secondary);
+        }
+
+        /* صناديق الملاحظات */
+        .alert {
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            font-weight: 600;
+            font-size: 17px;
+        }
+        .alert-info {
+            background-color: #e0f2fe;
+            border-right: 4px solid #0ea5e9;
+            color: #0369a1;
+        }
+        .alert-warning {
+            background-color: #fffbeb;
+            border-right: 4px solid var(--accent-secondary);
+            color: #b45309;
+        }
+
+        .intro-story {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-right: 5px solid #22c55e;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            font-size: 19px;
+            color: #166534;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>العمل على الحالات (Case Work)</h1>
+    <div class="subtitle">فن تفكيك المشاكل المعقدة إلى أجزاء بسيطة للسيطرة عليها</div>
+
+    <div class="intro-story">
+        <strong>📖 مقدمة من الواقع:</strong><br>
+        تخيل أنك تعمل مبرمجاً في شركة شحن بضائع، وطُلب منك كتابة برنامج يحسب تكلفة الشحن بناءً على وزن الطرد. 
+        لا توجد "معادلة سحرية واحدة" تناسب كل الأوزان! بل ستلجأ إلى <strong>تقسيم المشكلة لحالات</strong>:<br><br>
+        1️⃣ <strong>الحالة الأولى:</strong> إذا كان الوزن أقل من 1 كغ ⬅️ التكلفة 5 دولارات.<br>
+        2️⃣ <strong>الحالة الثانية:</strong> إذا كان الوزن بين 1 و 5 كغ ⬅️ التكلفة 10 دولارات.<br>
+        3️⃣ <strong>الحالة الثالثة:</strong> إذا كان الوزن أكبر من 5 كغ ⬅️ التكلفة 20 دولاراً.<br><br>
+        أنت هنا لم تخترع خوارزمية معقدة، بل قمت بتطبيق مبدأ <strong>(العمل على الحالات - Case Work)</strong>، وهذا بالضبط ما سنفعله في البرمجة التنافسية!
+    </div>
+
+    <div class="card">
+        <h2>ما هو "العمل على الحالات"؟</h2>
+        <p>
+            في العديد من المسائل، قد ترهق نفسك في محاولة إيجاد "معادلة رياضية واحدة" أو "حلقة تكرارية واحدة" تحل المشكلة بالكامل. في مسائل (Case Work)، تلاحظ أن المواقف المختلفة تتصرف بقواعد مختلفة.
+        </p>
+        <p>لذا، بدلاً من قاعدة عامة معقدة، نقوم بالآتي:</p>
+        <ul>
+            <li>إذا حدثت <strong>الحالة A</strong>، نفذ الكود الخاص بها.</li>
+            <li>إذا حدثت <strong>الحالة B</strong>، نفذ الكود الخاص بها.</li>
+            <li>وهكذا مع الحالة C، و D، إلخ.</li>
+        </ul>
+        <p>ثم في النهاية، إما نجمع إجابات كل الحالات معاً، أو نختار الأفضل بينها (مثلاً القيمة الأكبر أو الأصغر).</p>
+
+        <h3>لماذا نستخدم هذا الأسلوب؟</h3>
+        <ul>
+            <li>يسمح بالتعامل مع <strong>الحالات الخاصة (Edge Cases)</strong> بوضوح تام دون تشويش الكود الأساسي.</li>
+            <li>يُقسم المشكلة الصعبة والضخمة إلى أجزاء صغيرة سهلة الفهم والبرمجة.</li>
+            <li>شائع جداً في مسائل <strong>"العد" (Combinatorics)</strong> أو المسائل ذات النتائج الهندسية المتعددة.</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>مثال 1: المجموع الزوجي (Even or Odd Sum)</h2>
+        <p>
+            لديك عددان $a$ و $b$. يُطلب منك حساب <strong>عدد الأزواج</strong> الممكنة $(x, y)$ بحيث يكون $x \le a$ و $y \le b$، ويكون المجموع $(x + y)$ <strong>عدداً زوجياً</strong>. (بافتراض أن الأرقام تبدأ من 1).
+        </p>
+        <div class="alert alert-info">
+            💡 <strong>تحليل رياضي:</strong> متى يكون مجموع رقمين عدداً زوجياً؟<br>
+            الحالة 1: (زوجي + زوجي = زوجي) ⬅️ مثل $2 + 4 = 6$<br>
+            الحالة 2: (فردي + فردي = زوجي) ⬅️ مثل $3 + 5 = 8$<br>
+            إذن، لإيجاد عدد الأزواج، سنقوم بحساب الأزواج من (الحالة 1) والأزواج من (الحالة 2) ونجمعهما معاً!
+        </div>
+
+<pre>
+<span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="typ">int</span> main() {
+    <span class="typ">int</span> a, b;
+    cin &gt;&gt; a &gt;&gt; b;
+    
+    <span class="com">// حساب عدد الأرقام الزوجية والفردية حتى الرقم a</span>
+    <span class="typ">int</span> evenA = a / 2;
+    <span class="typ">int</span> oddA = a - evenA;
+    
+    <span class="com">// حساب عدد الأرقام الزوجية والفردية حتى الرقم b</span>
+    <span class="typ">int</span> evenB = b / 2;
+    <span class="typ">int</span> oddB = b - evenB;
+    
+    <span class="com">// الحالة 1 (زوجي مع زوجي) + الحالة 2 (فردي مع فردي)</span>
+    <span class="typ">int</span> pairs = (evenA * evenB) + (oddA * oddB);
+    
+    cout &lt;&lt; pairs &lt;&lt; endl;
+    <span class="kw">return</span> <span class="str">0</span>;
+}
+</pre>
+        <div class="explanation-box">
+            <h4>كيف يعمل الكود؟</h4>
+            لمعرفة كم عدداً زوجياً يوجد من 1 إلى $a$، ببساطة نقسم $a$ على 2. (مثال: إذا كان $a = 5$، إذن $5/2 = 2$، وهما الرقمان 2 و 4).<br>
+            ولمعرفة الأعداد الفردية، نطرح الأعداد الزوجية من العدد الكلي $a$.<br>
+            في النهاية، نضرب احتمالات الزوجي ببعضها، واحتمالات الفردي ببعضها، ونجمعهما ليعطينا إجمالي الأزواج الصحيحة. هذا هو العمل على الحالات بأبهى صوره!
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>مثال 2: صلاحية المثلث (Triangle Validity)</h2>
+        <p>
+            مُعطى لك ثلاثة أطوال أضلاع $a, b, c$. حدد إن كانت هذه الأضلاع قادرة على تشكيل مثلث حقيقي أم لا.
+        </p>
+
+        
+
+[Image of triangle inequality theorem geometry]
+
+
+        <div class="alert alert-info">
+            💡 <strong>تحليل رياضي (متباينة المثلث):</strong> لكي تتشكل أضلاع مثلث، يجب أن يكون <strong>مجموع أي ضلعين أكبر تماماً من الضلع الثالث</strong>. أي يجب أن تتحقق الحالات الثلاث معاً:<br>
+            $a + b > c$<br>
+            $a + c > b$<br>
+            $b + c > a$
+        </div>
+
+<pre>
+<span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="typ">int</span> main() {
+    <span class="typ">int</span> a, b, c;
+    cin &gt;&gt; a &gt;&gt; b &gt;&gt; c;
+    
+    <span class="com">// نعتبر مبدئياً أن المثلث صالح (نظام العلم / Flag)</span>
+    <span class="typ">bool</span> ok = <span class="kw">true</span>;
+    
+    <span class="com">// نتحقق من الحالات المعاكسة (إذا فشل أي شرط، نُسقط العلم)</span>
+    <span class="kw">if</span> (b + c &lt;= a) ok = <span class="kw">false</span>;
+    <span class="kw">if</span> (a + c &lt;= b) ok = <span class="kw">false</span>;
+    <span class="kw">if</span> (a + b &lt;= c) ok = <span class="kw">false</span>;
+    
+    <span class="com">// طباعة النتيجة بناءً على حالة العلم النهائية</span>
+    cout &lt;&lt; (ok ? <span class="str">"YES"</span> : <span class="str">"NO"</span>) &lt;&lt; endl;
+    
+    <span class="kw">return</span> <span class="str">0</span>;
+}
+</pre>
+        <div class="explanation-box">
+            <h4>كيف يعمل الكود؟ (نمط العلم - Flag Pattern)</h4>
+            بدلاً من كتابة شرط <code>if</code> طويل ومعقد يحتوي على (AND <code>&&</code>) كثيرة، قمنا بإنشاء متغير منطقي <code>ok</code> وافترضنا أن الإجابة صحيحة. ثم فحصنا الحالات بشكل مستقل. <br>
+            استخدمنا <code>&lt;=</code> لأنه إذا كان مجموع ضلعين أصغر من أو <strong>يساوي</strong> الضلع الثالث، فالمثلث سيفشل وينهار. إذا سقطت أي حالة، نجعل العلم <code>false</code>.
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>مثال 3: تحديد أرباع الإحداثيات (Coordinate Quadrant)</h2>
+        <p>
+            مُعطى لك نقطة بإحداثيات $(x, y)$ على المستوى الديكارتي. اطبع في أي "ربع" (Quadrant) تقع هذه النقطة.
+        </p>
+
+        
+
+        <div class="alert alert-info">
+            💡 <strong>تحليل رياضي:</strong> المستوى الديكارتي مقسم إلى 4 حالات (أرباع)، وحالة خامسة خاصة:<br>
+            الربع الأول: $x$ موجب، $y$ موجب.<br>
+            الربع الثاني: $x$ سالب، $y$ موجب.<br>
+            الربع الثالث: $x$ سالب، $y$ سالب.<br>
+            الربع الرابع: $x$ موجب، $y$ سالب.<br>
+            الحالة الخاصة: إذا كان أحدهما 0، فالنقطة تقع على المحور نفسه.
+        </div>
+
+<pre>
+<span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="typ">int</span> main() {
+    <span class="typ">int</span> x, y;
+    cin &gt;&gt; x &gt;&gt; y;
+    
+    <span class="com">// تفصيل الحالات بدقة باستخدام if و else if</span>
+    <span class="kw">if</span> (x &gt; 0 && y &gt; 0) {
+        cout &lt;&lt; <span class="str">"Quadrant I"</span> &lt;&lt; endl;
+    } 
+    <span class="kw">else if</span> (x &lt; 0 && y &gt; 0) {
+        cout &lt;&lt; <span class="str">"Quadrant II"</span> &lt;&lt; endl;
+    } 
+    <span class="kw">else if</span> (x &lt; 0 && y &lt; 0) {
+        cout &lt;&lt; <span class="str">"Quadrant III"</span> &lt;&lt; endl;
+    } 
+    <span class="kw">else if</span> (x &gt; 0 && y &lt; 0) {
+        cout &lt;&lt; <span class="str">"Quadrant IV"</span> &lt;&lt; endl;
+    } 
+    <span class="kw">else</span> {
+        cout &lt;&lt; <span class="str">"On an axis"</span> &lt;&lt; endl; <span class="com">// إذا كان x أو y يساوي صفراً</span>
+    }
+    
+    <span class="kw">return</span> <span class="str">0</span>;
+}
+</pre>
+        <div class="explanation-box">
+            <h4>كيف يعمل الكود؟</h4>
+            هذا هو التجسيد الحرفي لـ (العمل على الحالات). قمنا بوضع كل ربع في شرط مستقل وواضح لتجنب التداخل. استخدام <code>else if</code> يضمن أنه بمجرد العثور على الربع الصحيح، سيتجاهل البرنامج باقي الشروط ليوفر وقت المعالجة.
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>نصائح ذهبية للعمل على الحالات 🚀</h2>
+        <ul style="color: var(--text-primary);">
+            <li><strong>امنع التداخل:</strong> تأكد أن حالاتك لا تتداخل (Mutually Exclusive). لا ينبغي أن ينطبق شرطان على نفس المدخل في نفس الوقت لتجنب النتائج الخاطئة.</li>
+            <li><strong>لا تترك ثغرات:</strong> تأكد أن حالاتك تغطي جميع الاحتمالات الممكنة (Collectively Exhaustive).</li>
+            <li><strong>احذر من الحالات الحدية (Edge Cases):</strong> في كثير من الأحيان ينسى الطلاب حالة <strong>الصفر (0)</strong> أو المساواة. دائماً اسأل نفسك: ماذا لو كان الإدخال صفراً؟</li>
+            <li><strong>استخدم الورقة والقلم:</strong> قبل كتابة سطر كود واحد، ارسم خريطة ذهنية أو جدولاً لكل الحالات المحتملة لتتأكد من أن منطقك سليم.</li>
+        </ul>
+
+        <div class="alert alert-warning">
+            🎯 <strong>خلاصة سريعة:</strong><br>
+            العمل على الحالات ليس "خوارزمية" أو كوداً يجب حفظه، بل هو <strong>أسلوب تفكير</strong>. وهو ممتاز جداً في بداية رحلتك في حل المشاكل. نصيحتنا لك: عندما تقرأ مسألة وتبدو لك معقدة أو ليس لها قاعدة واحدة ثابتة، اسأل نفسك فوراً: <strong>"ما هي الحالات الممكنة لهذه المسألة؟"</strong> وبذلك تكون قد خطوت خطوتك الأولى نحو الحل!
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

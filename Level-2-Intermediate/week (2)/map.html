@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شرح الخرائط (Maps) في لغة C++</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.8;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 40px;
+            border-right: 4px solid #3498db;
+            padding-right: 10px;
+        }
+        h3 {
+            color: #16a085;
+        }
+        pre {
+            background-color: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 8px;
+            direction: ltr; /* اتجاه الكود من اليسار لليمين */
+            text-align: left;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 15px;
+        }
+        .explanation {
+            background-color: #e8f6f3;
+            padding: 15px 20px;
+            border-right: 4px solid #1abc9c;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        code {
+            background-color: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #c0392b;
+            direction: ltr;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>دليل شامل لفهم الخرائط (Maps) في C++</h1>
+
+    <h2>ما هي الخرائط (Maps)؟</h2>
+    <p>
+        الخريطة (<code>map</code>) في لغة C++ هي نوع من أنواع الحاويات (Containers) المتاحة في مكتبة القوالب القياسية (STL). تقوم هذه الحاوية بتخزين البيانات على شكل <strong>أزواج (Pairs)</strong> تتكون من:
+        <br><code>مفتاح (Key) -> قيمة (Value)</code>.
+    </p>
+    <ul>
+        <li><strong>المفاتيح فريدة:</strong> لا يمكن أن يتكرر نفس المفتاح داخل الخريطة مرتين.</li>
+        <li><strong>الترتيب التلقائي:</strong> تقوم الـ <code>map</code> بترتيب العناصر بداخلها تلقائياً تصاعدياً بناءً على "المفتاح" (Key) باستخدام بنية بيانات الشجرة (غالبًا Red-Black Tree).</li>
+        <li><strong>الوصول السريع:</strong> تتيح لك الوصول إلى أي قيمة بسرعة عالية جداً تعادل تعقيد وقتي $O(\log n)$ بمجرد معرفة المفتاح الخاص بها.</li>
+    </ul>
+
+    <h2>مثال أساسي على استخدام Map</h2>
+<pre>
+#include &lt;iostream&gt;
+#include &lt;map&gt;
+using namespace std;
+
+int main() {
+    map&lt;string, int&gt; ages;
+    
+    ages["Alice"] = 25;
+    ages["Bob"] = 30;
+    ages["Charlie"] = 22;
+    
+    for (auto p : ages) {
+        cout &lt;&lt; p.first &lt;&lt; ": " &lt;&lt; p.second &lt;&lt; endl;
+    }
+    
+    return 0;
+}
+</pre>
+    <div class="explanation">
+        <strong>شرح الكود:</strong><br>
+        في هذا المثال، قمنا بإنشاء خريطة اسمها <code>ages</code> مفتاحها من نوع نص (<code>string</code>) يمثل اسم الشخص، وقيمتها من نوع رقم صحيح (<code>int</code>) تمثل عمره. 
+        أضفنا ثلاثة أشخاص بأعمارهم. عند طباعة العناصر باستخدام حلقة <code>for</code>، ستلاحظ أن الناتج سيُطبع بالترتيب الأبجدي للأسماء (Alice ثم Bob ثم Charlie) لأن الخريطة ترتب البيانات تلقائيًا حسب المفتاح. المخرجات ستكون:<br>
+        <code>Alice: 25</code><br>
+        <code>Bob: 30</code><br>
+        <code>Charlie: 22</code>
+    </div>
+
+    <h2>إنشاء خريطة (Creating a map)</h2>
+    <p>لاستخدام الخرائط في برنامجك، يجب عليك أولاً تضمين المكتبة الخاصة بها:</p>
+<pre>
+#include &lt;map&gt;
+</pre>
+    <p>بعد ذلك، يمكنك الإعلان عن الخريطة وتحديد أنواع البيانات للمفتاح والقيمة كما يلي:</p>
+<pre>
+map&lt;int, string&gt; students;     // المفتاح: رقم صحيح (int)، القيمة: نص (string)
+map&lt;string, double&gt; prices;    // المفتاح: نص (string)، القيمة: رقم عشري (double)
+map&lt;char, int&gt; frequency;      // المفتاح: حرف (char)، القيمة: رقم صحيح (int)
+</pre>
+    <div class="explanation">
+        <strong>شرح الكود:</strong><br>
+        طريقة التعريف مرنة جداً؛ يمكنك دمج أي نوعين من البيانات. الجزء الأول بين الأقواس الزاوية <code>&lt; &gt;</code> يمثل نوع <strong>المفتاح</strong>، والجزء الثاني يمثل نوع <strong>القيمة</strong> المرتبطة بهذا المفتاح.
+    </div>
+
+    <h2>إضافة العناصر والوصول إليها</h2>
+<pre>
+map&lt;string, int&gt; scores;
+scores["Mark"] = 90;          // إضافة عنصر جديد باستخدام الأقواس المربعة []
+cout &lt;&lt; scores["Mark"];       // يطبع: 90
+
+cout &lt;&lt; scores["Unknown"];  // تحذير: هذا سينشئ المفتاح "Unknown" بقيمة افتراضية (0)
+</pre>
+    <div class="explanation">
+        <strong>شرح الكود:</strong><br>
+        نستخدم الأقواس المربعة <code>[]</code> لإضافة قيم جديدة أو تعديل قيم موجودة أو حتى طباعتها. 
+        <strong>ملاحظة هامة:</strong> إذا حاولت طباعة مفتاح غير موجود (مثل <code>"Unknown"</code>)، فإن C++ لن تعطي خطأ، بل ستقوم <em>بإنشاء</em> هذا المفتاح وتعيين قيمة افتراضية له (وهي 0 للأرقام الصحيحة).
+    </div>
+
+    <p>إذا كنت تريد التحقق من وجود مفتاح بدون إنشاءه عن طريق الخطأ، يُفضل استخدام دالة <code>count()</code>:</p>
+<pre>
+if (scores.count("Tom")) {
+    cout &lt;&lt; "Tom is in the map!";
+} else {
+    cout &lt;&lt; "Tom is not found.";
+}
+</pre>
+    <div class="explanation">
+        <strong>شرح الكود:</strong><br>
+        دالة <code>count(key)</code> ترجع الرقم 1 إذا كان المفتاح موجوداً في الخريطة، وترجع 0 إذا لم يكن موجوداً. هذه هي الطريقة الآمنة للتحقق من وجود العناصر.
+    </div>
+
+    <h2>العمليات الشائعة (Common Operations)</h2>
+    <table>
+        <tr>
+            <th>العملية</th>
+            <th>المثال</th>
+            <th>الوصف</th>
+        </tr>
+        <tr>
+            <td><code>m[key]</code></td>
+            <td><code>m["Bob"]</code></td>
+            <td>الوصول إلى القيمة المرتبطة بالمفتاح، أو إنشاؤها بقيمة افتراضية إن لم تكن موجودة.</td>
+        </tr>
+        <tr>
+            <td><code>erase(key)</code></td>
+            <td><code>m.erase("Bob")</code></td>
+            <td>حذف المفتاح والقيمة المرتبطة به من الخريطة.</td>
+        </tr>
+        <tr>
+            <td><code>count(key)</code></td>
+            <td><code>if (m.count("Bob"))</code></td>
+            <td>ترجع 1 إذا كان المفتاح موجوداً، و 0 إذا لم يكن كذلك.</td>
+        </tr>
+        <tr>
+            <td><code>size()</code></td>
+            <td><code>m.size();</code></td>
+            <td>إرجاع عدد العناصر (الأزواج) المخزنة حالياً في الخريطة.</td>
+        </tr>
+        <tr>
+            <td><code>clear()</code></td>
+            <td><code>m.clear();</code></td>
+            <td>حذف جميع العناصر وتفريغ الخريطة بالكامل.</td>
+        </tr>
+        <tr>
+            <td><code>empty()</code></td>
+            <td><code>m.empty();</code></td>
+            <td>ترجع القيمة <code>true</code> إذا كانت الخريطة فارغة، و <code>false</code> إن كان بها عناصر.</td>
+        </tr>
+    </table>
+
+    <h2>مثال عملي: حساب تكرار الكلمات</h2>
+<pre>
+#include &lt;iostream&gt;
+#include &lt;map&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    string text = "apple banana apple orange banana apple";
+    map&lt;string, int&gt; freq;
+    string word = "";
+    
+    for (char c : text) {
+        if (c == ' ') {
+            if (!word.empty()) {
+                freq[word]++; // زيادة تكرار الكلمة
+            }
+            word.clear(); // تصفير المتغير لاستقبال الكلمة التالية
+        } else {
+            word += c; // بناء الكلمة حرفاً بحرف
+        }
+    }
+    if (!word.empty()) freq[word]++; // إضافة الكلمة الأخيرة
+    
+    // طباعة النتائج
+    for (auto p : freq) {
+        cout &lt;&lt; p.first &lt;&lt; ": " &lt;&lt; p.second &lt;&lt; endl;
+    }
+    
+    return 0;
+}
+</pre>
+    <div class="explanation">
+        <strong>شرح الكود:</strong><br>
+        هذا المثال يقوم بقراءة نص طويل ويحسب عدد مرات تكرار كل كلمة فيه. نقوم بالمرور على النص حرفاً بحرف، وعندما نجد "مسافة فارغة" نعرف أن الكلمة قد انتهت فنزيد عدادها في الخريطة باستخدام <code>freq[word]++</code>. الخريطة هنا مثالية لهذا الغرض؛ لأن المفتاح هو "الكلمة"، والقيمة هي "عدد مرات ظهورها". المخرجات ستكون مرتبة أبجدياً:<br>
+        <code>apple: 3</code><br>
+        <code>banana: 2</code><br>
+        <code>orange: 1</code>
+    </div>
+
+    <h2>التكرار عبر الخريطة (Iterating over a map)</h2>
+    <p>يمكنك المرور على عناصر الخريطة بطريقتين أساسيتين:</p>
+    <h3>1. باستخدام حلقة for الحديثة (Range-based for loop):</h3>
+<pre>
+for (auto p : myMap) {
+    cout &lt;&lt; p.first &lt;&lt; " -&gt; " &lt;&lt; p.second &lt;&lt; endl;
+}
+</pre>
+    <div class="explanation">
+        <strong>شرح الكود:</strong><br>
+        الرمز <code>p</code> يمثل الزوج (Pair) في كل دورة. للوصول إلى المفتاح نكتب <code>p.first</code>، وللوصول إلى القيمة نكتب <code>p.second</code>.
+    </div>
+
+    <h3>2. باستخدام المؤشرات (Iterators):</h3>
+<pre>
+for (auto it = myMap.begin(); it != myMap.end(); it++) {
+    cout &lt;&lt; it-&gt;first &lt;&lt; ": " &lt;&lt; it-&gt;second &lt;&lt; endl;
+}
+</pre>
+    <div class="explanation">
+        <strong>شرح الكود:</strong><br>
+        هنا نستخدم مؤشر <code>it</code> يبدأ من العنصر الأول <code>begin()</code> ويستمر حتى نهاية الخريطة <code>end()</code>. لاحظ أننا نستخدم المعامل <code>-&gt;</code> للوصول إلى <code>first</code> و <code>second</code> لأن <code>it</code> هو مؤشر وليس كائناً عادياً.
+    </div>
+
+    <h2>أنواع الخرائط (map مقابل unordered_map)</h2>
+    <table>
+        <tr>
+            <th>النوع</th>
+            <th>يحافظ على الترتيب؟</th>
+            <th>يسمح بالمفاتيح المكررة؟</th>
+            <th>السرعة (متوسط)</th>
+            <th>ملاحظات</th>
+        </tr>
+        <tr>
+            <td><strong><code>map</code></strong></td>
+            <td>نعم</td>
+            <td>لا</td>
+            <td>$O(\log n)$</td>
+            <td>يخزن المفاتيح مرتبة باستخدام شجرة متوازنة (Balanced Tree).</td>
+        </tr>
+        <tr>
+            <td><strong><code>unordered_map</code></strong></td>
+            <td>لا</td>
+            <td>لا</td>
+            <td>$O(1)$</td>
+            <td>سريع جداً في البحث والوصول، يعتمد على الجداول المبعثرة (Hash Tables)، لكن الترتيب يكون عشوائياً.</td>
+        </tr>
+    </table>
+
+    <h3>مثال على <code>unordered_map</code>:</h3>
+<pre>
+#include &lt;iostream&gt;
+#include &lt;unordered_map&gt;
+using namespace std;
+
+int main() {
+    unordered_map&lt;string, int&gt; age;
+    age["Bob"] = 30;
+    age["Alice"] = 25;
+    age["Tom"] = 28;
+    
+    for (auto p : age) {
+        cout &lt;&lt; p.first &lt;&lt; ": " &lt;&lt; p.second &lt;&lt; endl;
+    }
+    
+    return 0;
+}
+</pre>
+    <div class="explanation">
+        <strong>شرح الكود:</strong><br>
+        هنا استخدمنا <code>unordered_map</code> بدلاً من <code>map</code>. الكود هو نفسه تماماً، ولكن المخرجات لن تكون مرتبة أبجدياً بل ستكون بترتيب عشوائي يعتمد على دالة التجزئة (Hash Function) الداخلية. يتميز هذا النوع بسرعة أكبر في إضافة والبحث عن البيانات.<br>
+        <strong>المخرجات (مثال):</strong><br>
+        <code>Bob: 30</code><br>
+        <code>Tom: 28</code><br>
+        <code>Alice: 25</code>
+    </div>
+
+    <h2>أمثلة إضافية (متقدمة قليلاً)</h2>
+    <h3>استخدام دالة <code>find()</code> للبحث الاحترافي:</h3>
+<pre>
+#include &lt;iostream&gt;
+#include &lt;map&gt;
+using namespace std;
+
+int main() {
+    map&lt;string, string&gt; dictionary;
+    dictionary["Car"] = "سيارة";
+    dictionary["House"] = "منزل";
+
+    auto it = dictionary.find("Car");
+    
+    if (it != dictionary.end()) {
+        cout &lt;&lt; "معنى الكلمة هو: " &lt;&lt; it-&gt;second &lt;&lt; endl;
+    } else {
+        cout &lt;&lt; "الكلمة غير موجودة في القاموس" &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre>
+    <div class="explanation">
+        <strong>شرح الكود:</strong><br>
+        دالة <code>find(key)</code> تقوم بالبحث عن المفتاح. إذا وجدته، تُرجع مؤشراً (Iterator) يشير إليه، وإذا لم تجده تُرجع مؤشراً يشير إلى <code>end()</code>. هذه الطريقة أسرع وأكثر احترافية من استخدام دالة <code>count()</code> عندما تحتاج إلى قيمة العنصر بمجرد التأكد من وجوده.
+    </div>
+
+</div>
+
+</body>
+</html>

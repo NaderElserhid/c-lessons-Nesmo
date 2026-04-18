@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تويت كود - Domino Piling</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --cell-size: 40px;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* عنوان تويت كود الكبير */
+        .main-title {
+            text-align: center;
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h2, h3 {
+            color: var(--secondary);
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .problem-statement {
+            background-color: #f1f5f9;
+            padding: 20px;
+            border-radius: 10px;
+            border-right: 5px solid var(--primary);
+            margin-bottom: 30px;
+        }
+
+        .interactive-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #e0f2fe;
+            border-radius: 15px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        input {
+            width: 70px;
+            padding: 8px;
+            font-size: 1.1rem;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        button:hover {
+            background-color: var(--secondary);
+        }
+
+        /* شبكة الرسم */
+        #board {
+            position: relative;
+            background-color: #cbd5e1;
+            border: 2px solid #94a3b8;
+            margin: 20px auto;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .bg-cell {
+            position: absolute;
+            width: var(--cell-size);
+            height: var(--cell-size);
+            background-color: white;
+            box-sizing: border-box;
+            border: 1px solid #e2e8f0;
+        }
+
+        .domino {
+            position: absolute;
+            border-radius: 6px;
+            box-sizing: border-box;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.3);
+            border: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease-in-out;
+            animation: popIn 0.3s ease-out forwards;
+            opacity: 0;
+            transform: scale(0.5);
+        }
+
+        /* فاصل أحجار الدومينو */
+        .domino::after {
+            content: '';
+            position: absolute;
+            background-color: rgba(0,0,0,0.2);
+        }
+        .domino.vertical::after {
+            width: 100%;
+            height: 2px;
+            top: 50%;
+        }
+        .domino.horizontal::after {
+            width: 2px;
+            height: 100%;
+            left: 50%;
+        }
+
+        @keyframes popIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        #result-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #047857;
+            margin-top: 15px;
+        }
+
+        /* تنسيق الكود */
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1rem;
+        }
+
+        .keyword { color: #569cd6; }
+        .type { color: #4ec9b0; }
+        .number { color: #b5cea8; }
+        .string { color: #ce9178; }
+        .comment { color: #6a9955; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="main-title">تويت كود</h1>
+
+        <h2>مسألة: Domino Piling (Codeforces - Easy)</h2>
+        
+        <div class="problem-statement">
+            <h3>وصف المسألة</h3>
+            <p>توجد مصفوفة (شبكة) ثنائية الأبعاد مكوّنة من <strong>M صف</strong> و <strong>N عمود</strong>. لديك عدد غير محدود من قطع الدومينو ذات الحجم <strong>2 × 1</strong>، وتريد وضع أكبر عدد ممكن من هذه القطع في المصفوفة بحيث:</p>
+            <ul>
+                <li>كل قطعة تغطي خانتين كاملتين.</li>
+                <li>لا تتقاطع أي من القطع مع بعضها البعض.</li>
+                <li>يجب أن تكون جميع القطع داخل المصفوفة تماماً.</li>
+            </ul>
+        </div>
+
+        <div class="interactive-section">
+            <h3>الرسم التفاعلي للحل</h3>
+            <p>أدخل عدد الصفوف والأعمدة لتشاهد كيف يتم ترتيب قطع الدومينو خوارزمياً!</p>
+            <div class="controls">
+                <label>الصفوف (M): <input type="number" id="rowsInput" value="3" min="1" max="15"></label>
+                <label>الأعمدة (N): <input type="number" id="colsInput" value="3" min="1" max="15"></label>
+                <button onclick="visualize()">تشغيل المحاكاة</button>
+            </div>
+            
+            <div id="board"></div>
+            <div id="result-text"></div>
+        </div>
+
+        <h3>تحليل الحل (كما شرحته)</h3>
+        <p>في هذه المسألة لدينا 3 حالات رئيسية. لنحللها:</p>
+        <ol>
+            <li><strong>إذا كان عدد الصفوف N زوجياً (N % 2 == 0):</strong><br>
+                يمكننا تغطية المصفوفة كاملة بوضع القطع بشكل عمودي. عدد القطع المستخدمة سيكون <code>(N * M) / 2</code> لأن المصفوفة تحتوي على N×M خانة وكل قطعة تغطي خانتين.
+            </li>
+            <li><strong>إذا كان عدد الأعمدة M زوجياً (M % 2 == 0):</strong><br>
+                يمكننا تغطية المصفوفة كاملة بوضع القطع بشكل أفقي. عدد القطع سيكون <code>(N * M) / 2</code>.
+            </li>
+            <li><strong>إذا كان كلاً من N و M أعداداً فردية:</strong><br>
+                أولًا، نضع القطع بشكل عمودي ابتداءً من الصف الأول، مما يترك صفًا كاملًا غير مغطى (لأن عدد الصفوف فردي). في ذلك الصف نضع القطع بشكل أفقي، فتتبقى خانة واحدة فقط (الزاوية) غير مغطاة. بالتالي عدد القطع المستخدمة سيكون <code>(N * M - 1) / 2</code>.
+            </li>
+        </ol>
+
+        <h3>كود C++</h3>
+        <pre><code><span class="keyword">#include</span> <span class="string">&lt;iostream&gt;</span>
+<span class="keyword">using</span> <span class="keyword">namespace</span> std;
+
+<span class="type">int</span> main() {
+    <span class="type">int</span> N, M;
+    cin &gt;&gt; N &gt;&gt; M;
+
+    <span class="keyword">if</span> (N % <span class="number">2</span> == <span class="number">0</span>) {
+        cout &lt;&lt; (N * M) / <span class="number">2</span> &lt;&lt; endl;
+    }
+    <span class="keyword">else</span> <span class="keyword">if</span> (M % <span class="number">2</span> == <span class="number">0</span>) {
+        cout &lt;&lt; (N * M) / <span class="number">2</span> &lt;&lt; endl;
+    }
+    <span class="keyword">else</span> {
+        cout &lt;&lt; (N * M - <span class="number">1</span>) / <span class="number">2</span> &lt;&lt; endl;
+    }
+    
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</code></pre>
+        <p style="color: #64748b; font-size: 0.9rem;">ملاحظة جانبية لطلابك: بما أن القسمة في لغة C++ للأعداد الصحيحة (Integer Division) تتجاهل الباقي تلقائياً، فإن كتابة <code>cout << (M * N) / 2;</code> مباشرة دون شروط ستعطي نفس النتيجة الصحيحة في جميع الحالات!</p>
+    </div>
+
+    <script>
+        const CELL_SIZE = 40;
+
+        function getRandomColor() {
+            const hue = Math.floor(Math.random() * 360);
+            return `hsl(${hue}, 70%, 60%)`;
+        }
+
+        function visualize() {
+            let m = parseInt(document.getElementById('rowsInput').value); // الصفوف
+            let n = parseInt(document.getElementById('colsInput').value); // الأعمدة
+            
+            // حماية من الأرقام الكبيرة جداً لمنع تعليق المتصفح
+            if(m > 20) m = 20;
+            if(n > 20) n = 20;
+
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            
+            // ضبط حجم الشبكة
+            board.style.width = (n * CELL_SIZE) + 'px';
+            board.style.height = (m * CELL_SIZE) + 'px';
+
+            // رسم مربعات الخلفية (الشبكة الفراغة)
+            for(let i = 0; i < m; i++){
+                for(let j = 0; j < n; j++){
+                    let cell = document.createElement('div');
+                    cell.className = 'bg-cell';
+                    cell.style.top = (i * CELL_SIZE) + 'px';
+                    cell.style.left = (j * CELL_SIZE) + 'px';
+                    board.appendChild(cell);
+                }
+            }
+
+            let delay = 0;
+            let count = 0;
+
+            // دالة مساعدة لرسم الدومينو
+            function placeDomino(r, c, isVertical) {
+                setTimeout(() => {
+                    let dom = document.createElement('div');
+                    dom.className = 'domino ' + (isVertical ? 'vertical' : 'horizontal');
+                    
+                    // إزاحة بسيطة بمقدار 2 بكسل لترك مسافة بين القطع
+                    dom.style.top = (r * CELL_SIZE + 2) + 'px';
+                    dom.style.left = (c * CELL_SIZE + 2) + 'px';
+                    
+                    if(isVertical) {
+                        dom.style.width = (CELL_SIZE - 4) + 'px';
+                        dom.style.height = (CELL_SIZE * 2 - 4) + 'px';
+                    } else {
+                        dom.style.width = (CELL_SIZE * 2 - 4) + 'px';
+                        dom.style.height = (CELL_SIZE - 4) + 'px';
+                    }
+                    
+                    dom.style.backgroundColor = getRandomColor();
+                    board.appendChild(dom);
+                }, delay);
+                delay += 80; // سرعة الحركة (80 ملي ثانية)
+                count++;
+            }
+
+            // تطبيق منطق الحل لملء الشبكة
+            if (m % 2 === 0) {
+                // عدد الصفوف زوجي: نملأها بشكل عمودي
+                for (let c = 0; c < n; c++) {
+                    for (let r = 0; r < m; r += 2) {
+                        placeDomino(r, c, true);
+                    }
+                }
+            } else if (n % 2 === 0) {
+                // عدد الأعمدة زوجي: نملأها بشكل أفقي
+                for (let r = 0; r < m; r++) {
+                    for (let c = 0; c < n; c += 2) {
+                        placeDomino(r, c, false);
+                    }
+                }
+            } else {
+                // كلاهما فردي
+                // نملأ كل الصفوف عدا الأخير بشكل عمودي
+                for (let c = 0; c < n; c++) {
+                    for (let r = 0; r < m - 1; r += 2) {
+                        placeDomino(r, c, true);
+                    }
+                }
+                // نملأ الصف الأخير بشكل أفقي ونترك الخانة الأخيرة
+                for (let c = 0; c < n - 1; c += 2) {
+                    placeDomino(m - 1, c, false);
+                }
+            }
+
+            // إظهار النتيجة بعد انتهاء الحركة
+            setTimeout(() => {
+                document.getElementById('result-text').innerText = `أقصى عدد من القطع هو: ${count} قطعة.`;
+            }, delay + 200);
+        }
+
+        // تشغيل المحاكاة تلقائياً عند فتح الصفحة
+        window.onload = visualize;
+    </script>
+</body>
+</html>

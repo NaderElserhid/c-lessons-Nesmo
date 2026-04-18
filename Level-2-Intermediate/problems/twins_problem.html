@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مسألة التوأم (Twins) - الخوارزميات الجشعة</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-main: #f8fafc; 
+            --bg-card: #ffffff; 
+            --accent-main: #8b5cf6; 
+            --accent-main-hover: #7c3aed;
+            --accent-secondary: #f59e0b; 
+            --text-primary: #1e293b; 
+            --text-secondary: #475569; 
+            --border-light: #e2e8f0; 
+            --code-bg: #0f172a; 
+            --success: #10b981; 
+            --danger: #ef4444; 
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.8;
+            background-image: radial-gradient(circle at top right, #ede9fe 0%, transparent 40%);
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            background-color: var(--bg-card);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            border: 2px dashed var(--accent-main);
+        }
+
+        h1 {
+            font-family: 'Tajawal', sans-serif;
+            color: var(--accent-main);
+            margin: 0 0 10px 0;
+            font-size: 2.5em;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-light);
+            border-right: 5px solid var(--accent-main);
+        }
+
+        .card-title {
+            font-size: 22px;
+            color: var(--accent-secondary);
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .hint-box {
+            background-color: #fffbeb;
+            border-right: 4px solid var(--accent-secondary);
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            color: #b45309;
+            font-weight: 600;
+        }
+
+        /* Interactive Visualizer Styles */
+        .visualizer {
+            background-color: #f1f5f9;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .input-area {
+            margin-bottom: 20px;
+        }
+
+        .input-area input {
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 6px;
+            border: 1px solid #94a3b8;
+            width: 250px;
+            font-family: 'Cairo', sans-serif;
+            text-align: left;
+            direction: ltr;
+        }
+
+        .btn-run {
+            padding: 10px 25px;
+            font-size: 18px;
+            border-radius: 6px;
+            border: none;
+            background-color: var(--accent-secondary);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            transition: background 0.3s;
+        }
+
+        .btn-run:hover { background-color: #d97706; }
+        .btn-run:disabled { background-color: #cbd5e1; cursor: not-allowed; }
+
+        .coin-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+            min-height: 60px;
+        }
+
+        .coin {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #e2e8f0;
+            border: 3px solid #94a3b8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #334155;
+            transition: all 0.3s ease;
+        }
+
+        .coin.selected {
+            background-color: #fde047;
+            border-color: #ca8a04;
+            color: #854d0e;
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba(202, 138, 4, 0.3);
+        }
+
+        .status-panel {
+            display: flex;
+            justify-content: space-around;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .status-my-sum { color: var(--success); }
+        .status-rem-sum { color: var(--danger); }
+        .log-box {
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 16px;
+            color: var(--accent-main);
+            min-height: 25px;
+        }
+
+        /* Code Block */
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 20px;
+            border-radius: 8px;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 16px;
+            margin: 0;
+            border-left: 5px solid var(--accent-main);
+        }
+        .kw { color: #c678dd; } 
+        .typ { color: #56b6c2; } 
+        .str { color: #98c379; } 
+        .com { color: #7f848e; font-style: italic; } 
+
+        .toggle-btn {
+            background-color: var(--accent-main);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            width: 100%;
+            max-width: 300px;
+            transition: 0.3s;
+        }
+        .toggle-btn:hover { background-color: var(--accent-main-hover); }
+        .solution-area { display: none; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="page-header">
+        <h1>مسألة التوأم (Twins) 👯‍♂️</h1>
+        <p style="color: var(--text-secondary); font-size: 18px; margin: 0;">تطبيق كلاسيكي من Codeforces على خوارزميات الجشع (Greedy)</p>
+    </div>
+
+    <div class="card">
+        <h3 class="card-title">📝 نص المسألة</h3>
+        <p>
+            تخيل أنك وأخوك التوأم وجدتما مصفوفة $A$ تحتوي على $n$ من العملات المعدنية بقيم مختلفة. تريدان تقاسم هذه العملات، ولكنك لست عادلاً تماماً! 
+        </p>
+        <p>
+            <strong>المطلوب:</strong> حدد <strong>أقل عدد</strong> من العملات التي يجب عليك اختيارها لنفسك، بحيث يكون مجموع قيم العملات التي تمتلكها <strong>أكبر تماماً</strong> من مجموع قيم العملات المتبقية لأخيك.
+        </p>
+
+        <div class="hint-box">
+            💡 <strong>الفكرة الجشعة (Greedy Logic):</strong><br>
+            بما أننا نريد أخذ "أقل عدد" من العملات لنصل إلى مجموع كبير، فمن المنطقي جداً أن نكون جشعين ونستهدف <strong>العملات ذات القيمة الأكبر دائماً!</strong><br>
+            لذلك: سنقوم أولاً بحساب المجموع الكلي، ثم <strong>نرتب</strong> العملات، ونبدأ بأخذ العملة الأكبر فالأكبر حتى يتفوق مجموعنا على المتبقي.
+        </div>
+    </div>
+
+    <div class="visualizer">
+        <h3 style="color: var(--accent-main); margin-top: 0;">🎮 محاكي الخوارزمية التفاعلي</h3>
+        <p>أدخل قيم العملات مفصولة بمسافة (مثال: 3 3 1 2)، وشاهد كيف تفكر الخوارزمية الجشعة!</p>
+        
+        <div class="input-area">
+            <input type="text" id="arrayInput" value="3 3 1 2" placeholder="أدخل الأرقام هنا...">
+            <button class="btn-run" id="runBtn" onclick="startSimulation()">تشغيل المحاكاة ▶️</button>
+        </div>
+
+        <div class="status-panel">
+            <div>المجموع الكلي: <span id="totalSumLabel">-</span></div>
+            <div class="status-my-sum">مجموعي: <span id="mySumLabel">0</span></div>
+            <div class="status-rem-sum">المتبقي: <span id="remSumLabel">0</span></div>
+            <div>العملات المختارة: <span id="countLabel">0</span></div>
+        </div>
+
+        <div class="coin-container" id="coinsDisplay">
+            </div>
+
+        <div class="log-box" id="logBox">انتظر بدء المحاكاة...</div>
+    </div>
+
+    <button class="toggle-btn" onclick="toggleSolution()">👁️ إظهار كود الحل (C++)</button>
+
+    <div class="solution-area" id="solutionCode">
+<pre>
+<span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;algorithm&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="typ">int</span> main() {
+    <span class="typ">int</span> n;
+    cin &gt;&gt; n;
+    <span class="typ">int</span> a[n];
+    
+    <span class="typ">int</span> total_sum = 0;
+    
+    <span class="com">// 1. قراءة العملات وحساب المجموع الكلي</span>
+    <span class="kw">for</span> (<span class="typ">int</span> i = 0; i &lt; n; i++) {
+        cin &gt;&gt; a[i];
+        total_sum += a[i];
+    }
+    
+    <span class="com">// 2. ترتيب المصفوفة تصاعدياً (من الأصغر للأكبر)</span>
+    sort(a, a + n);
+    
+    <span class="typ">int</span> selected_sum = 0;
+    <span class="typ">int</span> cnt = 0;
+    
+    <span class="com">// 3. المرور العكسي (Greedy: نأخذ من الأكبر إلى الأصغر)</span>
+    <span class="kw">for</span> (<span class="typ">int</span> i = n - 1; i &gt;= 0; i--) {
+        selected_sum += a[i]; <span class="com">// نأخذ العملة الأكبر</span>
+        cnt++;                <span class="com">// نزيد عداد العملات المختارة</span>
+        
+        <span class="com">// إذا أصبح مجموعنا أكبر من المجموع المتبقي، نتوقف!</span>
+        <span class="kw">if</span> (selected_sum &gt; total_sum - selected_sum) {
+            cout &lt;&lt; cnt &lt;&lt; endl;
+            <span class="kw">break</span>;
+        }
+    }
+    <span class="kw">return</span> 0;
+}
+</pre>
+    </div>
+</div>
+
+<script>
+    // إظهار وإخفاء الكود
+    function toggleSolution() {
+        const sol = document.getElementById('solutionCode');
+        const btn = document.querySelector('.toggle-btn');
+        if (sol.style.display === 'block') {
+            sol.style.display = 'none';
+            btn.innerHTML = '👁️ إظهار كود الحل (C++)';
+            btn.style.backgroundColor = 'var(--accent-main)';
+        } else {
+            sol.style.display = 'block';
+            btn.innerHTML = '🙈 إخفاء كود الحل';
+            btn.style.backgroundColor = 'var(--text-secondary)';
+        }
+    }
+
+    // منطق المحاكي التفاعلي
+    async function startSimulation() {
+        const inputStr = document.getElementById('arrayInput').value.trim();
+        if(!inputStr) return;
+
+        const runBtn = document.getElementById('runBtn');
+        runBtn.disabled = true;
+
+        // تحويل النص إلى مصفوفة أرقام
+        let coins = inputStr.split(/\s+/).map(Number).filter(n => !isNaN(n));
+        if(coins.length === 0) {
+            runBtn.disabled = false;
+            return;
+        }
+
+        const totalSum = coins.reduce((a, b) => a + b, 0);
+        let mySum = 0;
+        let count = 0;
+
+        // تحديث الواجهة المبدئية
+        document.getElementById('totalSumLabel').innerText = totalSum;
+        document.getElementById('mySumLabel').innerText = 0;
+        document.getElementById('remSumLabel').innerText = totalSum;
+        document.getElementById('countLabel').innerText = 0;
+        
+        const logBox = document.getElementById('logBox');
+        logBox.innerText = "الخطوة 1: حساب المجموع الكلي وترتيب العملات...";
+
+        // ترتيب العملات تنازلياً للمحاكاة (أسهل بصرياً من اليسار لليمين)
+        coins.sort((a, b) => b - a);
+
+        // رسم العملات
+        const container = document.getElementById('coinsDisplay');
+        container.innerHTML = '';
+        const coinElements = [];
+        
+        coins.forEach(val => {
+            let el = document.createElement('div');
+            el.className = 'coin';
+            el.innerText = val;
+            container.appendChild(el);
+            coinElements.push({ value: val, element: el });
+        });
+
+        await sleep(1500);
+
+        // حلقة الخوارزمية الجشعة
+        for(let i = 0; i < coinElements.length; i++) {
+            let currentCoin = coinElements[i];
+            
+            logBox.innerText = `الخطوة الجشعة: اختيار العملة الأكبر المتاحة (${currentCoin.value})...`;
+            currentCoin.element.classList.add('selected');
+            
+            mySum += currentCoin.value;
+            count++;
+            let remSum = totalSum - mySum;
+
+            document.getElementById('mySumLabel').innerText = mySum;
+            document.getElementById('remSumLabel').innerText = remSum;
+            document.getElementById('countLabel').innerText = count;
+
+            await sleep(1500);
+
+            if (mySum > remSum) {
+                logBox.innerText = `النتيجة: مجموعي (${mySum}) أكبر من المتبقي (${remSum}). توقف! نحتاج إلى ${count} عملات.`;
+                logBox.style.color = "var(--success)";
+                break;
+            } else {
+                logBox.innerText = `مجموعي (${mySum}) ليس أكبر من المتبقي (${remSum}). نأخذ العملة التالية.`;
+                await sleep(1500);
+            }
+        }
+        
+        runBtn.disabled = false;
+    }
+
+    // دالة مساعدة لتأخير التنفيذ (Animation Timing)
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+</script>
+
+</body>
+</html>

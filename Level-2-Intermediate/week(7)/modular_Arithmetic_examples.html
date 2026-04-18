@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار شامل: المحاكاة (Simulation)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            /* الألوان الفاتحة والزاهية */
+            --bg-main: #f0f4f8; 
+            --bg-card: #ffffff; 
+            --accent-main: #2563eb; 
+            --accent-secondary: #f59e0b; 
+            --text-primary: #334155; 
+            --text-secondary: #64748b; 
+            --code-bg: #f8fafc; 
+            --border-light: #e2e8f0; 
+            --success: #10b981; 
+            --danger: #ef4444; 
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            background-image: radial-gradient(circle at top right, #e0e7ff 0%, transparent 40%);
+        }
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-card);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-light);
+        }
+        h2 {
+            text-align: center;
+            color: var(--accent-main);
+            border-bottom: 3px solid var(--accent-secondary);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 800;
+            font-size: 2.2em;
+        }
+        .question-card {
+            background-color: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            position: relative;
+            transition: transform 0.2s;
+        }
+        .question-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(37, 99, 235, 0.3);
+        }
+        .difficulty-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+        }
+        .badge-easy { background-color: var(--success); } 
+        .badge-medium { background-color: var(--accent-secondary); } 
+        .badge-hard { background-color: var(--danger); }
+        
+        .question-text {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            padding-left: 80px; 
+            line-height: 1.6;
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option-btn {
+            background-color: var(--code-bg);
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            padding: 14px 18px;
+            text-align: right;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: var(--text-primary);
+            direction: rtl;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #eff6ff;
+            border-color: var(--accent-main);
+        }
+        .option-btn:disabled { cursor: not-allowed; }
+        
+        .option-btn.correct {
+            background-color: #d1fae5;
+            border-color: var(--success);
+            color: #065f46;
+        }
+        .option-btn.wrong {
+            background-color: #fee2e2;
+            border-color: var(--danger);
+            color: #991b1b;
+        }
+        
+        .explanation-box {
+            display: none;
+            margin-top: 20px;
+            padding: 18px;
+            background-color: #eff6ff;
+            border-right: 5px solid var(--accent-main);
+            border-radius: 8px;
+            font-size: 16px;
+            color: #1e3a8a;
+            animation: fadeIn 0.5s ease-in-out;
+            line-height: 1.7;
+            font-weight: 600;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        code {
+            background-color: #e2e8f0;
+            padding: 3px 7px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            direction: ltr;
+            display: inline-block;
+            color: #b45309;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h2>🎮 اختبار شامل: المحاكاة (Simulation)</h2>
+    <div id="quiz-area"></div>
+</div>
+
+<script>
+    const questions = [
+        // ================= الأسئلة السهلة =================
+        {
+            q: "ما هو المعنى الدقيق لـ 'المحاكاة' (Simulation) في سياق البرمجة التنافسية؟",
+            options: [
+                "استخدام خوارزميات الذكاء الاصطناعي لتوقع النتيجة.", 
+                "تحويل قواعد ووصف المسألة حرفياً إلى كود خطوة بخطوة.", 
+                "استخدام معادلات رياضية معقدة لاختصار الوقت.", 
+                "إيقاف البرنامج مؤقتاً لمشاهدة التنفيذ."
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "المحاكاة تعني ببساطة ترجمة النص المكتوب في المسألة إلى أوامر برمجية (حلقات وشروط) لتقليد ما يحدث بالضبط في الواقع."
+        },
+        {
+            q: "ما هي الهياكل البرمجية الأساسية والأكثر استخداماً عند كتابة كود لمسألة محاكاة؟",
+            options: [
+                "الحلقات التكرارية (Loops) والشروط (If-statements).", 
+                "الأشجار الثنائية (Binary Trees).", 
+                "الدوال العودية المعقدة (Recursion).", 
+                "خوارزميات الترتيب السريع (Quick Sort)."
+            ],
+            answer: 0,
+            difficulty: "سهل",
+            explanation: "بما أننا نقلد أفعالاً متكررة ونأخذ قرارات بناءً على قواعد معينة، فإن الحلقات (while/for) وجمل (if/else) هي كل ما تحتاجه تقريباً."
+        },
+        {
+            q: "متى تكون (المحاكاة الحرفية) هي الحل الأمثل والمقبول للمسألة في المسابقات؟",
+            options: [
+                "عندما تكون المدخلات (Limits) ضخمة جداً تصل لمليار خطوة.", 
+                "عندما يطلب منك إيجاد أقصر مسار في خريطة.", 
+                "عندما تكون القواعد واضحة وعدد خطوات المحاكاة صغيراً ولن يتجاوز وقت التنفيذ المسموح.", 
+                "عندما يطلب منك ترتيب مصفوفة عشوائية."
+            ],
+            answer: 2,
+            difficulty: "سهل",
+            explanation: "المحاكاة ممتازة للمسائل ذات المدخلات الصغيرة (مثلاً N &lt; 10^5)، حيث يمكن للحاسوب تنفيذ كل الخطوات بسرعة وبدون تعقيدات رياضية."
+        },
+        {
+            q: "ما هو العيب الرئيسي والخطير لمسائل المحاكاة إذا تم تنفيذها حرفياً دون تفكير؟",
+            options: [
+                "تستهلك الكثير من الذاكرة (Memory Limit Exceeded).", 
+                "بطء التنفيذ وتجاوز الوقت المسموح (Time Limit Exceeded) إذا كانت الخطوات كثيرة جداً.", 
+                "تتطلب كتابة أكواد طويلة جداً ومعقدة.", 
+                "لا تدعمها لغة C++."
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "الـ TLE هو العدو الأول للمحاكاة. محاكاة مليار خطوة حرفياً في C++ ستستغرق أكثر من ثانية، مما يتطلب إيجاد 'نمط' لاختصار الحل."
+        },
+        {
+            q: "في مسألة 'تحرك روبوت على شبكة 2D'، كيف نمثل عادة إحداثيات وموقع الروبوت برمجياً؟",
+            options: [
+                "باستخدام مصفوفة ذات بُعد واحد.", 
+                "باستخدام دالة رياضية معقدة.", 
+                "باستخدام متغيرين بسيطين (x و y) أو زوج (pair).", 
+                "باستخدام مؤشرات (Pointers) للذاكرة."
+            ],
+            answer: 2,
+            difficulty: "سهل",
+            explanation: "تمثيل الشبكات الثنائية يتطلب ببساطة تتبع موقع الروبوت على المحور السيني (x) والمحور الصادي (y) وتحديثهما مع كل حركة."
+        },
+
+        // ================= الأسئلة المتوسطة =================
+        {
+            q: "في حدسية Collatz (إذا كان n زوجي نقسمه على 2، وإذا فردي نضربه في 3 ونجمع 1)، ماذا ستصبح قيمة n=5 بعد <strong>خطوتين</strong> من المحاكاة؟",
+            options: ["16 ثم 8", "16 ثم 5", "2 ثم 1", "15 ثم 16"],
+            answer: 0,
+            difficulty: "متوسط",
+            explanation: "الخطوة الأولى: 5 فردي، إذن (5 * 3) + 1 = 16. الخطوة الثانية: 16 زوجي، نقسمه على 2 = 8."
+        },
+        {
+            q: "روبوت بدأ من النقطة (0,0) ونفذ الحركات التالية بالترتيب: شمال (N)، شرق (E)، جنوب (S)، غرب (W). أين سيكون موقعه النهائي؟",
+            options: ["(1, 1)", "(0, 0)", "(1, -1)", "(-1, 0)"],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "صعد خطوة للأعلى (y=1)، خطوة لليمين (x=1)، خطوة للأسفل (y=0)، وخطوة لليسار (x=0). لقد دار في مربع وعاد لنقطة البداية (0,0)."
+        },
+        {
+            q: "ما هي أفضل وأسرع طريقة لتصحيح أخطاء (Debugging) كود محاكاة يعطي إجابة خاطئة ولا تعرف السبب؟",
+            options: [
+                "مسح الكود وكتابته من الصفر.", 
+                "طباعة قيم المتغيرات الوسيطة (مثل الإحداثيات) داخل حلقة المحاكاة لمتابعتها خطوة بخطوة.", 
+                "تغيير أنواع البيانات إلى long long وتجربة الحظ.", 
+                "استخدام خوارزمية البحث الثنائي."
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "في المحاكاة، الخطأ قد يحدث في خطوة معينة وسط آلاف الخطوات. طباعة المتغيرات داخل الحلقة يجعلك ترى متى وأين انحرف الروبوت أو اللعبة عن المسار الصحيح."
+        },
+        {
+            q: "إذا كانت المحاكاة تتطلب تنفيذ دورة معينة مليون مرة ($10^6$)، وكل دورة تتطلب البحث في مصفوفة عادية حجمها ألف عنصر ($10^3$). هل ستجتاز هذه المحاكاة حد الثمانية في C++ (1 ثانية)؟",
+            options: [
+                "نعم، ستمر بسهولة.", 
+                "لا، لأن عدد العمليات الكلي هو $10^9$ وهذا بطيء جداً (TLE).", 
+                "لا، بسبب تجاوز الذاكرة (MLE).", 
+                "نعم، فقط إذا استخدمنا long long."
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "عدد العمليات = $10^6 \\times 10^3 = 10^9$. معالج C++ ينفذ حوالي $10^8$ عملية في الثانية، لذا $10^9$ ستأخذ عدة ثوانٍ وتفشل، ويجب تحسين البحث (مثلاً باستخدام Set أو Binary Search)."
+        },
+        {
+            q: "في مسألة محاكاة 'طابور بنك' حيث يدخل عميل من الخلف، ويخرج العميل الذي أُنجزت معاملته من الأمام. ما هو هيكل البيانات (Data Structure) الأنسب في C++؟",
+            options: ["<code>std::stack</code> (المكدس)", "<code>std::vector</code> (القائمة)", "<code>std::queue</code> (الطابور)", "<code>std::set</code> (المجموعة)"],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "هيكل الطابور (queue) مصمم خصيصاً لمبدأ 'الداخل أولاً يخرج أولاً' (FIFO)، وهو يتيح إضافة العملاء من الخلف <code>push</code> وإخراجهم من الأمام <code>pop</code> بكفاءة $O(1)$."
+        },
+
+        // ================= الأسئلة الصعبة =================
+        {
+            q: "في محاكاة لعبة، يُطلب أن يقوم 'أضعف بطل' بضرب 'أقوى بطل' كل ثانية. إذا استخدمنا <code>std::sort</code> لترتيب الأبطال في كل ثانية سيكون التعقيد بطيئاً $O(T \\times N \\log N)$. ما الهيكل البديل لجعله سريعاً $O(T \\log N)$؟",
+            options: [
+                "استخدام مصفوفة عادية <code>int arr[]</code>.", 
+                "استخدام قائمة مرتبطة <code>std::list</code>.", 
+                "استخدام <code>std::multiset</code> أو <code>std::priority_queue</code>.", 
+                "استخدام <code>std::unordered_map</code>."
+            ],
+            answer: 2,
+            difficulty: "صعب",
+            explanation: "المجموعة <code>multiset</code> ترتب العناصر تلقائياً عند كل إضافة أو حذف بتعقيد $O(\\log N)$، مما يغنينا عن إعادة ترتيب المصفوفة بالكامل في كل ثانية."
+        },
+        {
+            q: "إذا طُلب منك محاكاة روبوت يتحرك $10^9$ خطوة، واكتشفت أن الروبوت يعيد تكرار نفس الحركات ويعود لنفس النقطة كل 4 خطوات (نمط متكرر). كيف تحسب موقعه النهائي بسرعة فورية $O(1)$؟",
+            options: [
+                "عن طريق تشغيل حلقة for للمليار خطوة.", 
+                "باستخدام دالة الأس السريع.", 
+                "عن طريق حساب باقي القسمة للمليار على 4 (أي $10^9 \\% 4$) لتخطي الدورات المكررة.", 
+                "لا يمكن حلها في وقت $O(1)$."
+            ],
+            answer: 2,
+            difficulty: "صعب",
+            explanation: "هذا ما يسمى بـ 'اكتشاف الدورة' (Cycle Detection). طالما أنه يعود لنقطة الصفر كل 4 خطوات، فإن ملايين الخطوات تُختصر رياضياً بـ (مجموع الخطوات % طول الدورة)، مما يوفر علينا محاكاة مليار خطوة حرفياً."
+        },
+        {
+            q: "عند محاكاة حركة متكررة بشكل دائري داخل مصفوفة (مثلاً، الوقوف عند العنصر الأخير والتحرك خطوة للأمام فيُرجعك للعنصر الأول). ما هي المعادلة الرياضية الصحيحة إذا كان حجم المصفوفة N وموقعنا الحالي index؟",
+            options: [
+                "<code>index = index + 1;</code>", 
+                "<code>index = (index + 1) % N;</code>", 
+                "<code>index = index % (N + 1);</code>", 
+                "<code>index = N - index;</code>"
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "استخدام المودولو <code>% N</code> يضمن أنه بمجرد وصول المؤشر إلى القيمة N (خارج المصفوفة)، سيعود فوراً إلى الصفر (البداية)، مما يحاكي الحركة الدائرية ببراعة دون شروط معقدة."
+        },
+        {
+            q: "إذا كنت تحاكي حركة شخص على مصفوفة ثنائية الأبعاد (خريطة) <code>grid[R][C]</code>، ما هو <strong>الشرط الأهم</strong> الذي يجب التحقق منه دائماً قبل قراءة القيمة من <code>grid[nx][ny]</code>؟",
+            options: [
+                "التأكد من أن القيمة ليست صفراً.", 
+                "التأكد من أن <code>nx</code> و <code>ny</code> لا تتجاوز حدود المصفوفة (Out of bounds).", 
+                "التأكد من أن المصفوفة مرتبة.", 
+                "التأكد من أن الإحداثيات أرقام موجبة تماماً."
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "الخروج عن حدود المصفوفة (مثلاً محاولة قراءة <code>grid[-1][5]</code> أو <code>grid[R+1][C]</code>) هو السبب رقم واحد لانهيار برامج المحاكاة بحادثة (Segmentation Fault / Runtime Error)."
+        },
+        {
+            q: "في مسائل المحاكاة المعقدة التي تتغير فيها حالة النظام بمرور الوقت (State Machine)، مثل إشارات المرور (أحمر -> أصفر -> أخضر). ما هو الأسلوب البرمجي الأنظف لتجنب تداخل جُمل if-else؟",
+            options: [
+                "استخدام العودية اللانهائية (Infinite Recursion).", 
+                "تعريف الحالات كـ <code>enum</code> واستخدام جملة <code>switch-case</code> للتنقل بينها.", 
+                "كتابة دوال منفصلة لكل سطر كود.", 
+                "استخدام المصفوفات الديناميكية المتداخلة."
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "استخدام <code>enum</code> و <code>switch</code> يجعل محاكاة 'آلة الحالة' (State Machine) مقروءة جداً وخالية من التعقيد، حيث تعرف بدقة في أي حالة أنت وما هي القواعد التي يجب تطبيقها."
+        }
+    ];
+
+    const quizArea = document.getElementById('quiz-area');
+
+    questions.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        
+        let diffClass = item.difficulty === 'سهل' ? 'badge-easy' : (item.difficulty === 'متوسط' ? 'badge-medium' : 'badge-hard');
+        
+        const badge = document.createElement('span');
+        badge.className = `difficulty-badge ${diffClass}`;
+        badge.innerText = item.difficulty;
+        card.appendChild(badge);
+
+        const qTitle = document.createElement('div');
+        qTitle.className = 'question-text';
+        qTitle.innerHTML = `س ${index + 1}: ${item.q}`;
+        card.appendChild(qTitle);
+
+        const optionsGrid = document.createElement('div');
+        optionsGrid.className = 'options-grid';
+
+        const explanationBox = document.createElement('div');
+        explanationBox.className = 'explanation-box';
+        explanationBox.innerHTML = `<strong>💡 الشرح:</strong> ${item.explanation}`;
+
+        item.options.forEach((opt, optIndex) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = opt;
+            
+            if(optIndex === item.answer) {
+                btn.dataset.correct = "true";
+            }
+
+            btn.onclick = function() {
+                const allBtns = optionsGrid.querySelectorAll('.option-btn');
+                allBtns.forEach(b => b.disabled = true);
+
+                if (optIndex === item.answer) {
+                    this.classList.add('correct');
+                } else {
+                    this.classList.add('wrong');
+                    optionsGrid.querySelector('[data-correct="true"]').classList.add('correct');
+                }
+                
+                explanationBox.style.display = 'block';
+            };
+            optionsGrid.appendChild(btn);
+        });
+
+        card.appendChild(optionsGrid);
+        card.appendChild(explanationBox);
+        quizArea.appendChild(card);
+    });
+</script>
+
+</body>
+</html>

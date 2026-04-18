@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار شامل: البحث الثنائي (Binary Search)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #f4f7f6; 
+            --container-bg: #ffffff; 
+            --text-primary: #2c3e50; 
+            --text-secondary: #596275; 
+            --accent-main: #2980b9; 
+            --accent-red: #c0392b; 
+            --accent-green: #27ae60; 
+            --code-bg: #f8f9fa; 
+            --border-color: #e1e8ed; 
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+        }
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--container-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+            border: 1px solid var(--border-color);
+        }
+        h2 {
+            text-align: center;
+            color: var(--accent-main);
+            border-bottom: 3px solid var(--accent-main);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+        }
+        .question-card {
+            background-color: #fdfdfd;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            position: relative;
+        }
+        .difficulty-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+        }
+        .badge-easy { background-color: var(--accent-green); } 
+        .badge-medium { background-color: #f39c12; } 
+        
+        .question-text {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            padding-left: 80px; 
+            line-height: 1.6;
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option-btn {
+            background-color: var(--code-bg);
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            padding: 14px 18px;
+            text-align: right;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #34495e;
+            direction: rtl;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #ecf0f1;
+            border-color: var(--accent-main);
+        }
+        .option-btn:disabled { cursor: not-allowed; }
+        
+        .option-btn.correct {
+            background-color: #d5f5e3;
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+        .option-btn.wrong {
+            background-color: #fadbd8;
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+        
+        /* صندوق الشرح الذي يظهر بعد الإجابة */
+        .explanation-box {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ebf5fb;
+            border-right: 5px solid var(--accent-main);
+            border-radius: 6px;
+            font-size: 16px;
+            color: var(--text-primary);
+            animation: fadeIn 0.5s ease-in-out;
+            line-height: 1.7;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        code {
+            background-color: #ecf0f1;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            direction: ltr;
+            display: inline-block;
+            color: #e83e8c;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h2>🔍 اختبار شامل: البحث الثنائي (Binary Search)</h2>
+    <div id="quiz-area"></div>
+</div>
+
+<script>
+    const questions = [
+        // ================= الأسئلة السهلة =================
+        {
+            q: "ما هو الشرط الأساسي الذي يجب أن يتوفر في المصفوفة لكي تعمل خوارزمية البحث الثنائي بشكل صحيح؟",
+            options: [
+                "يجب أن تكون المصفوفة مرتبة (تصاعدياً أو تنازلياً).", 
+                "يجب أن تحتوي المصفوفة على أرقام موجبة فقط.", 
+                "يجب أن تكون المصفوفة عشوائية تماماً.", 
+                "يجب أن يكون حجم المصفوفة عدداً فردياً."
+            ],
+            answer: 0,
+            difficulty: "سهل",
+            explanation: "البحث الثنائي يعتمد على استبعاد نصف مساحة البحث في كل خطوة، وهذا الاستنتاج المنطقي مستحيل إذا كانت العناصر عشوائية وغير مرتبة."
+        },
+        {
+            q: "ما هو التعقيد الزمني (Time Complexity) لخوارزمية البحث الثنائي في أسوأ الحالات؟",
+            options: ["$O(N)$", "$O(\\log N)$", "$O(1)$", "$O(N \\log N)$"],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "بما أننا نقسم البيانات للنصف باستمرار، فإن عدد الخطوات ينمو بشكل لوغاريتمي بطيء جداً وممتاز، مما يجعله $O(\\log N)$."
+        },
+        {
+            q: "أثناء البحث الثنائي التصاعدي، إذا كان الرقم الموجود في المنتصف (mid) أصغر من الرقم المستهدف، فأين يجب أن نستمر بالبحث؟",
+            options: [
+                "في النصف الأيسر.", 
+                "نتوقف ونبدأ من البداية.", 
+                "في النصف الأيمن.", 
+                "نتخطى العنصر ونبحث في مصفوفة أخرى."
+            ],
+            answer: 2,
+            difficulty: "سهل",
+            explanation: "بما أن الرقم المستهدف أكبر من المنتصف والمصفوفة مرتبة تصاعدياً، فهو بالضرورة يقع في النصف الأيمن."
+        },
+        {
+            q: "في لغة C++، ما هي الدالة المدمجة التي تقوم بالبحث الثنائي وتُرجع قيمة منطقية (true/false) إذا وجدته أم لا؟",
+            options: ["<code>find()</code>", "<code>search()</code>", "<code>lower_bound()</code>", "<code>binary_search()</code>"],
+            answer: 3,
+            difficulty: "سهل",
+            explanation: "هذه هي الدالة المخصصة في مكتبة <code>&lt;algorithm&gt;</code> للتحقق السريع من وجود عنصر باستخدام البحث الثنائي."
+        },
+        {
+            q: "إذا كان لدينا مصفوفة مرتبة تحتوي على 1024 عنصراً، ما هو الحد الأقصى التقريبي لعدد المقارنات في البحث الثنائي؟",
+            options: ["1024", "512", "10", "20"],
+            answer: 2,
+            difficulty: "سهل",
+            explanation: "اللوغاريتم ذو الأساس 2 للرقم 1024 هو 10، مما يعني 10 خطوات كحد أقصى للوصول لأي رقم."
+        },
+
+        // ================= الأسئلة المتوسطة =================
+        {
+            q: "لتجنب مشكلة تجاوز السعة (Integer Overflow) في لغة C++ عند حساب نقطة المنتصف، أي المعادلات التالية هي الأصح؟",
+            options: [
+                "<code>mid = (left + right) / 2</code>", 
+                "<code>mid = left + (right - left) / 2</code>", 
+                "<code>mid = left + right / 2</code>", 
+                "<code>mid = right - left / 2</code>"
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "هذه المعادلة آمنة لأن عملية الطرح تُبقي الرقم صغيراً قبل قسمته على 2، ثم نضيفه لنقطة البداية بشكل آمن لتجنب الـ Overflow."
+        },
+        {
+            q: "ماذا تُرجع الدالة <code>std::lower_bound</code> عند البحث عن القيمة X في مصفوفة مرتبة؟",
+            options: [
+                "مؤشر لأول عنصر $\\ge X$", 
+                "مؤشر لأول عنصر $&gt; X$", 
+                "مؤشر لأول عنصر $= X$", 
+                "مؤشر لآخر عنصر $\\le X$"
+            ],
+            answer: 0,
+            difficulty: "متوسط",
+            explanation: "هذه الدالة ترجع مؤشراً لأول عنصر أكبر من أو يساوي الهدف، وهي من أهم تقنيات البرمجة التنافسية لإيجاد الحدود."
+        },
+        {
+            q: "ماذا تُرجع الدالة <code>std::upper_bound</code> عند البحث عن القيمة X في مصفوفة مرتبة؟",
+            options: [
+                "مؤشر لأول عنصر $\\ge X$", 
+                "مؤشر لأول عنصر $= X$", 
+                "مؤشر لآخر عنصر $&lt; X$", 
+                "مؤشر لأول عنصر $&gt; X$"
+            ],
+            answer: 3,
+            difficulty: "متوسط",
+            explanation: "الدالة ترجع مؤشراً لأول عنصر أكبر تماماً من X، متجاهلة أي مساواة محتملة."
+        },
+        {
+            q: "إذا قمنا باستخدام <code>lower_bound</code> للبحث عن رقم أكبر من جميع الأرقام الموجودة في المصفوفة، ماذا ستُرجع الدالة؟",
+            options: [
+                "ستُرجع خطأ وقت التشغيل (Runtime Error).", 
+                "ستُرجع <code>begin()</code>.", 
+                "ستُرجع <code>end()</code>.", 
+                "ستُرجع المؤشر للعنصر الأخير."
+            ],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "عندما لا تجد الدالة أي عنصر يحقق الشرط، فإنها تُرجع المؤشر <code>end()</code> الذي يدل على ما بعد نهاية النطاق بأمان تام."
+        },
+        {
+            q: "كيف يمكننا معرفة عدد مرات تكرار عنصر معين X في مصفوفة مرتبة بكفاءة $O(\\log N)$ باستخدام دوال C++ الجاهزة؟",
+            options: [
+                "<code>lower_bound(X) - upper_bound(X)</code>", 
+                "<code>binary_search(X)</code>", 
+                "<code>upper_bound(X) - lower_bound(X)</code>", 
+                "لا يمكن ذلك ويجب استخدام حلقة for للعد."
+            ],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "بطرح مؤشر البداية (lower_bound) من مؤشر النهاية (upper_bound) تحصل على مسافة النطاق وهي عدد التكرارات بدقة وسرعة."
+        },
+        {
+            q: "متى نستخدم تقنية 'البحث الثنائي على الإجابة' (Binary Search on Answer) في المسابقات؟",
+            options: [
+                "عندما تكون المصفوفة عشوائية تماماً.", 
+                "عندما يكون فضاء البحث رتيباً (Monotonic).", 
+                "لترتيب المصفوفات ثنائية الأبعاد.", 
+                "عندما نبحث عن نصوص بدلاً من الأرقام."
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "إذا كان الجواب (نعم) لرقم معين يقتضي (نعم) لكل الأرقام الأكبر منه (أو العكس)، يمكننا البحث ثنائياً عن نقطة التحول لأن الشرط رتيب (Monotonic)."
+        },
+        {
+            q: "في حلقة البحث الثنائي <code>while (left &lt;= right)</code>، متى تخرج الحلقة وتُعلن عدم العثور على العنصر؟",
+            options: [
+                "عندما <code>left == right</code>", 
+                "عندما <code>mid == 0</code>", 
+                "عندما يصبح <code>left &gt; right</code>", 
+                "عندما <code>right &lt; 0</code>"
+            ],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "تقاطع المؤشرين (بحيث يصبح اليسار أكبر من اليمين) يعني أن نطاق البحث قد استُنفذ بالكامل وتلاشى دون العثور على العنصر."
+        },
+        {
+            q: "إذا كانت الخوارزمية تُحدّث النطاق الأيسر باستخدام <code>left = mid</code> بدلاً من <code>left = mid + 1</code>، كيف يجب حساب المنتصف لتجنب الدوران اللانهائي (Infinite Loop)؟",
+            options: [
+                "<code>mid = left + (right - left) / 2</code>", 
+                "<code>mid = (left + right) / 3</code>", 
+                "لا يهم كيف نحسبه.", 
+                "<code>mid = left + (right - left + 1) / 2</code>"
+            ],
+            answer: 3,
+            difficulty: "متوسط",
+            explanation: "إضافة 1 تجعل القسمة تُقرب للأعلى (Ceiling). إذا كان الفرق بين المؤشرين 1، فهذا يجبر mid على التحرك لليمين ويمنع الحلقة اللانهائية."
+        },
+        {
+            q: "هل يمكن تطبيق خوارزمية البحث الثنائي على مصفوفة مرتبة تنازلياً (من الأكبر للأصغر)؟",
+            options: [
+                "لا، البحث الثنائي يعمل فقط للمصفوفات التصاعدية.", 
+                "نعم، مع عكس منطق المقارنة وتحريك المؤشرات.", 
+                "نعم، بدون أي تغيير في الكود الافتراضي.", 
+                "لا، يجب استخدام الدالة std::reverse أولاً لترتيبها."
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "الخوارزمية مرنة جداً وتعتمد على الرتابة؛ إذا كانت الأرقام تتناقص، فإن الرقم المستهدف الأصغر من المنتصف سيقع في النصف الأيمن بدلاً من الأيسر."
+        },
+        {
+            q: "للحصول على مؤشر يؤشر على (آخر ظهور) للرقم X في مصفوفة مرتبة تصاعدياً (بافتراض أن X موجود)، أي من التالي يعتبر طريقة صحيحة؟",
+            options: [
+                "<code>lower_bound(X) - 1</code>", 
+                "<code>upper_bound(X) - 1</code>", 
+                "<code>binary_search(X)</code>", 
+                "يجب كتابة حلقة while للبحث من نقطة الـ lower_bound."
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "بما أن <code>upper_bound</code> ترجع أول عنصر أكبر من X، فإن العنصر الذي يسبقه مباشرة (طرح 1) هو آخر ظهور فعلي للرقم X."
+        }
+    ];
+
+    const quizArea = document.getElementById('quiz-area');
+
+    questions.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        
+        let diffClass = item.difficulty === 'سهل' ? 'badge-easy' : 'badge-medium';
+        
+        const badge = document.createElement('span');
+        badge.className = `difficulty-badge ${diffClass}`;
+        badge.innerText = item.difficulty;
+        card.appendChild(badge);
+
+        const qTitle = document.createElement('div');
+        qTitle.className = 'question-text';
+        qTitle.innerHTML = `س ${index + 1}: ${item.q}`;
+        card.appendChild(qTitle);
+
+        const optionsGrid = document.createElement('div');
+        optionsGrid.className = 'options-grid';
+
+        const explanationBox = document.createElement('div');
+        explanationBox.className = 'explanation-box';
+        explanationBox.innerHTML = `<strong>💡 الشرح:</strong> ${item.explanation}`;
+
+        item.options.forEach((opt, optIndex) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = opt;
+            
+            if(optIndex === item.answer) {
+                btn.dataset.correct = "true";
+            }
+
+            btn.onclick = function() {
+                const allBtns = optionsGrid.querySelectorAll('.option-btn');
+                allBtns.forEach(b => b.disabled = true);
+
+                if (optIndex === item.answer) {
+                    this.classList.add('correct');
+                } else {
+                    this.classList.add('wrong');
+                    optionsGrid.querySelector('[data-correct="true"]').classList.add('correct');
+                }
+                
+                explanationBox.style.display = 'block';
+            };
+            optionsGrid.appendChild(btn);
+        });
+
+        card.appendChild(optionsGrid);
+        card.appendChild(explanationBox);
+        quizArea.appendChild(card);
+    });
+</script>
+
+</body>
+</html>

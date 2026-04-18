@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المحاكاة (Simulation) في البرمجة التنافسية</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            /* الألوان الفاتحة والزاهية */
+            --bg-main: #f0f4f8; /* رمادي مائل للأزرق الفاتح جداً (مريح للعين) */
+            --bg-card: #ffffff; /* أبيض نقي للبطاقات */
+            --accent-main: #2563eb; /* أزرق ملكي زاهي */
+            --accent-main-hover: #1d4ed8;
+            --accent-secondary: #f59e0b; /* برتقالي/ذهبي زاهي للانتباه */
+            --text-primary: #334155; /* رمادي داكن للنصوص (أفضل من الأسود الصريح) */
+            --text-secondary: #64748b; /* رمادي متوسط للتفاصيل */
+            --code-bg: #f8fafc; /* خلفية فاتحة جداً لمحاكي الأكواد */
+            --border-light: #e2e8f0; /* حدود ناعمة للبطاقات */
+            --success: #10b981; /* أخضر زاهي */
+            --danger: #ef4444; /* أحمر زاهي */
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.8;
+            background-image: radial-gradient(circle at top right, #e0e7ff 0%, transparent 40%);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* العناوين */
+        h1 {
+            font-family: 'Tajawal', sans-serif;
+            font-size: 3em;
+            text-align: center;
+            color: var(--accent-main);
+            margin-bottom: 10px;
+            text-shadow: 0 4px 15px rgba(37, 99, 235, 0.1);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1.2em;
+            margin-bottom: 50px;
+            border-bottom: 2px solid var(--border-light);
+            padding-bottom: 20px;
+        }
+
+        h2 {
+            font-family: 'Tajawal', sans-serif;
+            color: var(--accent-main);
+            font-size: 2em;
+            border-right: 5px solid var(--accent-secondary);
+            padding-right: 15px;
+            margin-top: 50px;
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.08) 0%, transparent 100%);
+            padding-top: 10px;
+            padding-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        h3 {
+            color: var(--accent-main);
+            font-size: 1.5em;
+            margin-top: 30px;
+        }
+
+        /* البطاقات والنصوص */
+        p {
+            font-size: 18px;
+            color: var(--text-primary);
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-light);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+            border-color: rgba(37, 99, 235, 0.2);
+        }
+
+        /* الأكواد والشروحات */
+        pre {
+            background-color: var(--code-bg);
+            color: #1e293b;
+            padding: 20px;
+            border-radius: 8px;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 16px;
+            border-left: 5px solid var(--accent-main);
+            border: 1px solid var(--border-light);
+            border-left-width: 5px;
+            margin: 20px 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        /* ألوان Syntax مناسبة للثيم الفاتح */
+        .code-comment { color: #16a34a; font-style: italic; }
+        .code-keyword { color: #2563eb; font-weight: bold; }
+        .code-string { color: #d97706; }
+        .code-type { color: #0284c7; }
+
+        .explanation-box {
+            background-color: #eff6ff;
+            border-right: 4px solid var(--accent-main);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: -10px;
+            margin-bottom: 30px;
+        }
+
+        .explanation-box h4 {
+            color: var(--accent-main);
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+
+        /* الجداول والقوائم */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+        }
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-light);
+            direction: ltr;
+        }
+        th {
+            background-color: #f8fafc;
+            color: var(--accent-main);
+            font-weight: 700;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            position: relative;
+            padding-right: 25px;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        ul li::before {
+            content: "✦";
+            position: absolute;
+            right: 0;
+            color: var(--accent-secondary);
+        }
+
+        /* صناديق الملاحظات */
+        .alert {
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            font-weight: 600;
+            font-size: 17px;
+        }
+        .alert-info {
+            background-color: #e0f2fe;
+            border-right: 4px solid #0ea5e9;
+            color: #0369a1;
+        }
+        .alert-warning {
+            background-color: #fef3c7;
+            border-right: 4px solid var(--accent-secondary);
+            color: #b45309;
+        }
+
+        /* تقسيم العيوب والمميزات */
+        .flex-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .flex-box {
+            flex: 1;
+            min-width: 300px;
+            background-color: var(--bg-card);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+        .pros h3 { color: var(--success); }
+        .cons h3 { color: var(--danger); }
+        
+        .pattern-box {
+            background-color: #f8fafc;
+            color: #334155;
+            padding: 20px;
+            border-radius: 8px;
+            direction: ltr;
+            text-align: left;
+            font-family: 'Consolas', monospace;
+            border: 2px dashed var(--accent-secondary);
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>المحاكاة (Simulation)</h1>
+    <div class="subtitle">فن تحويل الواقع والقواعد المنطقية إلى كود برمجي خطوة بخطوة</div>
+
+    <div class="card">
+        <h2>ماذا تعني المحاكاة؟</h2>
+        <p>
+            مشاكل <strong>المحاكاة (Simulation)</strong> تتعلق بتقليد عمليات حقيقية أو منطقية خطوة بخطوة. يُطلب منك في هذه المسائل أن "تحاكي" أو تقلد ما يحدث في السيناريو الموصوف — تمامًا وكأنك تصنع مسرحية صغيرة داخل برنامجك!
+        </p>
+        <p>
+            في البرمجة التنافسية، المحاكاة تعني قراءة قواعد المشكلة بعناية شديدة وتنفيذ كل خطوة كما هي موصوفة <strong>حرفياً</strong>. أنت لست بحاجة لاختراع خوارزمية رياضية معقدة — كل ما عليك فعله هو تكرار ما يحدث باستخدام الحلقات التكرارية (Loops) والشروط (If-conditions).
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>متى نستخدم المحاكاة؟</h2>
+        <p>المحاكاة هي السلاح الأمثل عندما:</p>
+        <ul>
+            <li>تعطيك المشكلة قائمة خطوات أو أفعال مفصلة بوضوح.</li>
+            <li>لا يوجد اختصار رياضي أو معادلة سحرية للوصول للحل.</li>
+            <li>المدخلات (Limits) صغيرة بما يكفي لتشغيل العملية خطوة بخطوة دون استغراق وقت طويل.</li>
+        </ul>
+        
+        <h3>🎮 أمثلة شائعة في المسابقات:</h3>
+        <ul>
+            <li><strong>الألعاب:</strong> محاكاة أدوار في لعبة (Tic-Tac-Toe، حركة ثعبان، لعبة ورق).</li>
+            <li><strong>الحركة على شبكة (Grid):</strong> تتبع حركة روبوتات، سيارات، أو أشخاص على خريطة ثنائية الأبعاد.</li>
+            <li><strong>التحويلات النصية:</strong> إجراء تعديلات متتالية على نصوص (تشذيب، دوران، استبدال).</li>
+            <li><strong>إدارة المهام:</strong> طوابير الانتظار، أو تنفيذ مهام تعتمد على جداول زمنية.</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>النمط العام للمحاكاة (The Pattern)</h2>
+        <p>معظم مسائل المحاكاة مهما اختلفت فكرتها، تتبع هذا القالب الهيكلي البسيط:</p>
+        <div class="pattern-box">
+<span class="code-comment">// 1. تهيئة المتغيرات والحالة الابتدائية</span>
+initialize_variables();
+
+<span class="code-comment">// 2. حلقة المحاكاة (طالما اللعبة لم تنتهِ)</span>
+while (there_are_still_actions_left) {
+    read_next_action();
+    <span class="code-comment">// 3. تحديث المتغيرات بناءً على قواعد المشكلة</span>
+    update_variables_according_to_rules();
+}
+
+<span class="code-comment">// 4. طباعة النتيجة النهائية</span>
+print_final_result();
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>مثال 1: حدسية كولاتز (Collatz Conjecture)</h2>
+        <p>
+            اعتبر العملية الرياضية التالية. ابدأ بعدد صحيح $n$. في كل خطوة:
+        </p>
+        <ul>
+            <li>إذا كان $n$ <strong>زوجيًا</strong>، استبدله بـ $\frac{n}{2}$.</li>
+            <li>إذا كان $n$ <strong>فرديًا</strong>، استبدله بـ $3n + 1$.</li>
+        </ul>
+        <p><strong>المطلوب:</strong> اطبع عدد الخطوات التي استغرقتها العملية قبل أن يصبح $n$ مساويًا لـ $1$.</p>
+        
+        <div class="alert alert-info">
+            💡 <strong>معلومة إضافية:</strong> قد تتساءل هل يجب أن تصل هذه العملية دائماً إلى 1؟ هذه واحدة من أشهر المسائل الرياضية غير المحلولة في التاريخ! لكن يمكننا محاكاتها برمجياً لمعرفة الخطوات لأي رقم نعطيه.
+        </div>
+
+<pre>
+<span class="code-keyword">#include</span> &lt;iostream&gt;
+<span class="code-keyword">using namespace</span> std;
+
+<span class="code-type">int</span> main() {
+    <span class="code-type">long long</span> n;
+    cin &gt;&gt; n;
+    
+    <span class="code-type">int</span> steps = 0; <span class="code-comment">// عداد الخطوات</span>
+    
+    <span class="code-comment">// حلقة المحاكاة: استمر طالما الرقم لم يصل إلى 1</span>
+    <span class="code-keyword">while</span> (n != 1) {
+        <span class="code-keyword">if</span> (n % 2 == 0) {
+            <span class="code-comment">// إذا كان زوجياً</span>
+            n /= 2;
+        } <span class="code-keyword">else</span> {
+            <span class="code-comment">// إذا كان فردياً</span>
+            n = 3 * n + 1;
+        }
+        steps++; <span class="code-comment">// زيادة العداد بعد كل عملية</span>
+    }
+    
+    cout &lt;&lt; steps &lt;&lt; <span class="code-string">"\n"</span>;
+    <span class="code-keyword">return</span> 0;
+}
+</pre>
+        <div class="explanation-box">
+            <h4>شرح الكود:</h4>
+            قمنا بتهيئة المتغير `steps` بـ 0. استخدمنا حلقة `while` التي تعمل كـ "محرك المحاكاة". بداخلها، استخدمنا شرط `if` لترجمة قواعد اللعبة حرفياً (الزوجي نقسمه، والفردي نضربه في 3 ونجمع 1). في كل مرة ننفذ فيها قاعدة، نزيد العداد.
+            <br><br>
+            <strong>تتبع المحاكاة إذا كان n = 3:</strong>
+            <table>
+                <tr><th>الخطوة (Step)</th><th>القيمة (n)</th></tr>
+                <tr><td>0</td><td>3</td></tr>
+                <tr><td>1</td><td>10 (فردي: 3*3+1)</td></tr>
+                <tr><td>2</td><td>5 (زوجي: 10/2)</td></tr>
+                <tr><td>3</td><td>16 (فردي: 5*3+1)</td></tr>
+                <tr><td>4</td><td>8 (زوجي: 16/2)</td></tr>
+                <tr><td>5</td><td>4 (زوجي: 8/2)</td></tr>
+                <tr><td>6</td><td>2 (زوجي: 4/2)</td></tr>
+                <tr><td>7</td><td>1 (زوجي: 2/2)</td></tr>
+            </table>
+            الإجابة النهائية هي <strong>7 خطوات</strong>.
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>مثال 2: الروبوت على الشبكة (Robot on a Grid)</h2>
+        <p>
+            روبوت يبدأ رحلته عند نقطة الأصل $(0, 0)$. يستقبل الروبوت سلسلة من الحركات المكونة من الحروف:
+            (N للشمال، S للجنوب، E للشرق، W للغرب). <strong>المطلوب:</strong> اطبع إحداثياته النهائية $(x, y)$.
+        </p>
+
+<pre>
+<span class="code-keyword">#include</span> &lt;iostream&gt;
+<span class="code-keyword">#include</span> &lt;string&gt;
+<span class="code-keyword">using namespace</span> std;
+
+<span class="code-type">int</span> main() {
+    string moves;
+    cin &gt;&gt; moves;
+    
+    <span class="code-type">int</span> x = 0, y = 0; <span class="code-comment">// نقطة البداية (الحالة الابتدائية)</span>
+    
+    <span class="code-comment">// محاكاة قراءة الحركات واحدة تلو الأخرى</span>
+    <span class="code-keyword">for</span> (<span class="code-type">char</span> c : moves) {
+        <span class="code-keyword">if</span> (c == <span class="code-string">'N'</span>) y++;       <span class="code-comment">// الشمال: زيادة المحور الصادي</span>
+        <span class="code-keyword">else if</span> (c == <span class="code-string">'S'</span>) y--;  <span class="code-comment">// الجنوب: نقصان المحور الصادي</span>
+        <span class="code-keyword">else if</span> (c == <span class="code-string">'E'</span>) x++;  <span class="code-comment">// الشرق: زيادة المحور السيني</span>
+        <span class="code-keyword">else if</span> (c == <span class="code-string">'W'</span>) x--;  <span class="code-comment">// الغرب: نقصان المحور السيني</span>
+    }
+    
+    cout &lt;&lt; x &lt;&lt; <span class="code-string">" "</span> &lt;&lt; y &lt;&lt; endl;
+    <span class="code-keyword">return</span> 0;
+}
+</pre>
+        <div class="explanation-box">
+            <h4>شرح الكود:</h4>
+            هذا تطبيق كلاسيكي للمحاكاة. نقرأ سلسلة الحركات كـ `string`. ثم نمر عليها حرفاً بحرف. المحور $Y$ يمثل الصعود والنزول (N, S)، والم المحور $X$ يمثل اليمين واليسار (E, W). بناءً على الحرف، نقوم بتحديث إحداثيات الروبوت.<br>
+            إذا كان الإدخال <code>NNEEWS</code>، سيصعد الروبوت خطوتين، يذهب يميناً خطوتين، ينزل خطوة، ثم يعود يساراً خطوة، لينتهي عند النقطة <strong>(1, 1)</strong>.
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>مثال 3: محاكاة المعركة (Game Simulation)</h2>
+        <p>
+            يوجد عدة أبطال في اللعبة، ولكلٍّ منهم قوة (Strength) خاصة به. في كل ثانية، يقوم <strong>أضعف بطل</strong> بإلحاق ضرر بـ <strong>أقوى بطل</strong>، ويُقلّل من قوته بمقدار قوة هذا البطل الضعيف. تنتهي اللعبة عندما تصل قوة أحد الأبطال إلى 0 (أو أقل). <strong>المطلوب:</strong> اطبع عدد الثواني التي استمرت فيها اللعبة.
+        </p>
+
+<pre>
+<span class="code-keyword">#include</span> &lt;iostream&gt;
+<span class="code-keyword">#include</span> &lt;vector&gt;
+<span class="code-keyword">#include</span> &lt;algorithm&gt;
+<span class="code-keyword">using namespace</span> std;
+
+<span class="code-type">int</span> main() {
+    <span class="code-type">int</span> n; 
+    cin &gt;&gt; n;
+    
+    vector&lt;<span class="code-type">int</span>&gt; strength(n);
+    <span class="code-keyword">for</span> (<span class="code-type">int</span> i = 0; i &lt; n; i++) cin &gt;&gt; strength[i];
+    
+    <span class="code-type">int</span> seconds = 0;
+    
+    <span class="code-keyword">while</span> (<span class="code-keyword">true</span>) {
+        <span class="code-comment">// ترتيب الأبطال لمعرفة الأضعف (في البداية) والأقوى (في النهاية)</span>
+        sort(strength.begin(), strength.end());
+        
+        <span class="code-comment">// شرط التوقف: إذا مات الأضعف</span>
+        <span class="code-keyword">if</span> (strength[0] &lt;= 0) <span class="code-keyword">break</span>;
+        
+        <span class="code-comment">// الأضعف يضرب الأقوى</span>
+        strength[n-1] -= strength[0];
+        
+        seconds++;
+    }
+    
+    cout &lt;&lt; seconds &lt;&lt; endl;
+    <span class="code-keyword">return</span> 0;
+}
+</pre>
+        <div class="explanation-box">
+            <h4>شرح الكود وتنبيه هام (تحسين المحاكاة):</h4>
+            الكود المكتوب بالأعلى يحاكي العملية <strong>حرفياً</strong>. في كل ثانية، يقوم بترتيب المصفوفة بالكامل `sort` لمعرفة من هو الأضعف ومن هو الأقوى، ثم ينفذ الضربة، ويزيد الثواني.
+            <br><br>
+            <strong style="color: var(--danger);">⚠️ مشكلة في الأداء (TLE):</strong><br>
+            عملية الترتيب المتكررة تأخذ وقتاً $O(N \log N)$ في كل ثانية! إذا استمرت اللعبة لمليون ثانية، سيفشل الكود بسبب بطئه.
+            <br><br>
+            <strong style="color: var(--success);">💡 كيف نسرعها (التجاوز الذكي)؟</strong><br>
+            بدلاً من استخدام المصفوفة والترتيب المستمر، يمكننا استخدام هيكل بيانات يرتب نفسه تلقائياً مثل <code>std::multiset</code> أو <code>priority_queue</code>، مما يقلل وقت البحث عن الأقوى والأضعف إلى $O(\log N)$ فقط لكل ثانية!
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>نصائح ذهبية لمسائل المحاكاة 🚀</h2>
+        <ul style="color: var(--text-primary);">
+            <li><strong>لا تتفلسف، اتبع القواعد:</strong> اتبع الوصف حرفياً. لا تحاول التفكير الزائد باختراع سيناريوهات غير موجودة — فقط نفّذ ما تقوله المشكلة.</li>
+            <li><strong>استخدم الترتيب والنظام:</strong> استخدم الحلقات <code>while/for</code> وجمل <code>if/else</code> واضحة للتعامل مع الحالات المختلفة.</li>
+            <li><strong>الطباعة للتصحيح (Debugging):</strong> إذا كان ناتجك خاطئاً، اطبع قيم المتغيرات (مثل الإحداثيات، أو القوة) داخل حلقة المحاكاة لترى أين ينحرف برنامجك عن السيناريو الصحيح.</li>
+            <li><strong>احذر من الحدود (Boundaries):</strong> في مشاكل الشبكات (Grids)، تأكد دائماً أن روبوتك لا يخرج خارج حدود الخريطة (مثلاً x < 0)، فهذا يسبب خطأ (Out of bounds).</li>
+            <li><strong>القلم والورقة:</strong> قم بمحاكاة البرنامج بالقلم والورق على أصغر مثال (Test case) معطى في المسألة، لتفهم ما يحدث فعلاً قبل أن تكتب حرفاً واحداً من الكود.</li>
+        </ul>
+
+        <div class="alert alert-warning">
+            ⚡ <strong>نصيحة أداء (Performance Hack):</strong><br>
+            أحيانًا، قد تكون المحاكاة بطيئة جدًا إذا كانت العملية تتطلب مليارات الخطوات (مثلاً روبوت يمشي $10^9$ خطوة). في هذه الحالات، لا تقم بمحاكاتها حرفياً!<br>
+            ابحث عن <strong>الأنماط المتكررة (Cycles)</strong>. إذا كان الروبوت يعيد نفس حركته كل 4 خطوات، استخدم <strong>الرياضيات وباقي القسمة (Modulo)</strong> لتجاوز ملايين الخطوات في عملية حسابية واحدة $O(1)$!
+        </div>
+    </div>
+
+    <div class="flex-container">
+        <div class="flex-box pros">
+            <h3>✅ مميزات المحاكاة</h3>
+            <ul>
+                <li><strong>مباشرة جداً:</strong> لا تتطلب معرفة مسبقة بخوارزميات معقدة أو نظريات رياضية.</li>
+                <li><strong>سهلة التنفيذ:</strong> الكود يكون عادة ترجمة مباشرة للنص المكتوب في المسألة.</li>
+                <li><strong>مرنة:</strong> يمكنها التعامل مع أي مجموعة عشوائية من القواعد مهما بدت غريبة.</li>
+            </ul>
+        </div>
+        <div class="flex-box cons">
+            <h3>❌ عيوب المحاكاة</h3>
+            <ul>
+                <li><strong>البطء (TLE):</strong> قد تكون بطيئة جداً وتفشل مع المدخلات الكبيرة إذا نفذت حرفياً.</li>
+                <li><strong>الأخطاء الصغيرة (Bugs):</strong> سهولة ارتكاب أخطاء بسيطة (مثل نسيان تحديث متغير) وسط كثرة القواعد.</li>
+                <li><strong>صعوبة التتبع:</strong> إذا أخطأت في خطوة رقم 100، سيكون من الصعب جداً اكتشاف الخطأ دون تصحيح عميق.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 30px; text-align: center; border-color: rgba(37, 99, 235, 0.2); background-color: #f8fafc;">
+        <h2 style="border: none; background: transparent; padding: 0; margin-top: 0; color: var(--accent-main);">🎯 خلاصة سريعة</h2>
+        <p style="font-size: 20px; margin-bottom: 0;">
+            المحاكاة تعني تقليد العملية خطوة بخطوة. هي الأداة المثالية للمشاكل التي تصف قواعد أو أفعالًا دقيقة. ركّز على تنظيم الحلقات وتحديث المتغيرات بحذر، وتحقق من أمثلة صغيرة يدوياً. وعندما تشعر أن المحاكاة ستأخذ وقتاً أطول من المسموح — <strong>توقف، وابحث عن النمط المخفي!</strong>
+        </p>
+    </div>
+
+</div>
+
+</body>
+</html>

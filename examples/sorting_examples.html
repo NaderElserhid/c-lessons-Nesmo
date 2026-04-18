@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار شامل: الترتيب (Sorting) في C++</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #f4f7f6; 
+            --container-bg: #ffffff; 
+            --text-primary: #2c3e50; 
+            --text-secondary: #596275; 
+            --accent-main: #2980b9; 
+            --accent-red: #c0392b; 
+            --accent-green: #27ae60; 
+            --code-bg: #f8f9fa; 
+            --border-color: #e1e8ed; 
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+        }
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--container-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+            border: 1px solid var(--border-color);
+        }
+        h2 {
+            text-align: center;
+            color: var(--accent-main);
+            border-bottom: 3px solid var(--accent-main);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+        }
+        .question-card {
+            background-color: #fdfdfd;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            position: relative;
+        }
+        .difficulty-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+        }
+        .badge-easy { background-color: var(--accent-green); } 
+        .badge-medium { background-color: #f39c12; } 
+        .badge-hard { background-color: var(--accent-red); }
+        
+        .question-text {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            padding-left: 80px; 
+            line-height: 1.6;
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option-btn {
+            background-color: var(--code-bg);
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            padding: 14px 18px;
+            text-align: right;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #34495e;
+            direction: rtl;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #ecf0f1;
+            border-color: var(--accent-main);
+        }
+        .option-btn:disabled { cursor: not-allowed; }
+        
+        .option-btn.correct {
+            background-color: #d5f5e3;
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+        .option-btn.wrong {
+            background-color: #fadbd8;
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+        
+        /* صندوق الشرح الذي يظهر بعد الإجابة */
+        .explanation-box {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ebf5fb;
+            border-right: 5px solid var(--accent-main);
+            border-radius: 6px;
+            font-size: 16px;
+            color: var(--text-primary);
+            animation: fadeIn 0.5s ease-in-out;
+            line-height: 1.7;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        code {
+            background-color: #ecf0f1;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            direction: ltr;
+            display: inline-block;
+            color: #e83e8c;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h2>📊 اختبار شامل: خوارزميات الترتيب (Sorting)</h2>
+    <div id="quiz-area"></div>
+</div>
+
+<script>
+    const questions = [
+        // ================= الأسئلة السهلة =================
+        {
+            q: "ما هي المكتبة التي يجب تضمينها (include) لاستخدام الدالة المدمجة <code>std::sort</code> في لغة C++؟",
+            options: [
+                "<code>&lt;vector&gt;</code>", 
+                "<code>&lt;algorithm&gt;</code>", 
+                "<code>&lt;sort&gt;</code>", 
+                "<code>&lt;math.h&gt;</code>"
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "دالة الترتيب القوية <code>std::sort</code> وغيرها من دوال الخوارزميات (مثل البحث والقلب) توجد جميعها بداخل مكتبة <code>&lt;algorithm&gt;</code>."
+        },
+        {
+            q: "ما هو الترتيب الافتراضي (Default) الذي تقوم به دالة <code>std::sort</code> إذا لم نمرر لها أي شروط إضافية؟",
+            options: [
+                "ترتيب تنازلي (من الأكبر للأصغر).", 
+                "ترتيب تصاعدي (من الأصغر للأكبر).", 
+                "ترتيب عشوائي.", 
+                "ترتيب حسب وقت إضافة العنصر."
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "بشكل افتراضي، دالة الترتيب تستخدم معامل المقارنة <code>&lt;</code> (أصغر من)، مما ينتج عنه دائماً ترتيب تصاعدي."
+        },
+        {
+            q: "ما هو الكود الصحيح لترتيب قائمة <code>vector&lt;int&gt; v</code> بالكامل؟",
+            options: [
+                "<code>sort(v);</code>", 
+                "<code>v.sort();</code>", 
+                "<code>sort(v.begin(), v.end());</code>", 
+                "<code>sort(v[0], v[n]);</code>"
+            ],
+            answer: 2,
+            difficulty: "سهل",
+            explanation: "دالة <code>std::sort</code> تحتاج إلى مؤشرات (Iterators) لتحديد بداية ونهاية النطاق المراد ترتيبه، لذا نمرر لها <code>v.begin()</code> و <code>v.end()</code>."
+        },
+        {
+            q: "ما هو التعقيد الزمني (Time Complexity) لخوارزميات الترتيب البسيطة مثل (Selection Sort) أو (Bubble Sort)؟",
+            options: ["$O(N)$", "$O(N \\log N)$", "$O(1)$", "$O(N^2)$"],
+            answer: 3,
+            difficulty: "سهل",
+            explanation: "هذه الخوارزميات تعتمد على حلقتين متداخلتين (Nested Loops) للمرور والمقارنة، مما يجعل تعقيدها الزمني $O(N^2)$، وهو بطيء جداً للمصفوفات الكبيرة."
+        },
+        {
+            q: "لماذا نلجأ عادة لترتيب البيانات (Sorting) في البرمجة التنافسية؟",
+            options: [
+                "لتقليل استهلاك الذاكرة (RAM).", 
+                "لتسهيل وتسريع عمليات البحث (مثل البحث الثنائي).", 
+                "ليصبح الكود المكتوب أقصر وأجمل.", 
+                "لتحويل الأرقام السالبة إلى موجبة."
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "الترتيب هو الخطوة الأولى والأهم لتطبيق خوارزميات قوية وسريعة مثل 'البحث الثنائي' (Binary Search) أو خوارزمية 'المؤشرين' (Two Pointers)."
+        },
+
+        // ================= الأسئلة المتوسطة =================
+        {
+            q: "ما هو التعقيد الزمني (Time Complexity) لدالة الترتيب المدمجة <code>std::sort</code> في C++؟",
+            options: ["$O(N^2)$", "$O(N \\log N)$", "$O(N)$", "$O(\\log N)$"],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "دالة <code>std::sort</code> محسنة بشكل كبير جداً، وتضمن لك دائماً أن تقوم بالترتيب في وقت $O(N \\log N)$ حتى في أسوأ الحالات."
+        },
+        {
+            q: "إذا كان لدينا مصفوفة عادية (Array) مكونة من 5 عناصر: <code>int arr[5];</code>. كيف نقوم بترتيبها؟",
+            options: [
+                "<code>sort(arr.begin(), arr.end());</code>", 
+                "<code>sort(arr, arr + 5);</code>", 
+                "<code>sort(arr, 5);</code>", 
+                "<code>arr.sort();</code>"
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "المصفوفات العادية (C-style arrays) لا تمتلك دوال مثل <code>begin()</code>. اسم المصفوفة <code>arr</code> يمثل المؤشر للعنصر الأول، و <code>arr + 5</code> يمثل نقطة النهاية."
+        },
+        {
+            q: "كيف نرتب عناصر <code>vector</code> ترتيباً <strong>تنازلياً</strong> (من الأكبر للأصغر) باستخدام دالة <code>sort</code>؟",
+            options: [
+                "نمرر المعامل <code>less&lt;int&gt;()</code> كعامل ثالث.", 
+                "نستخدم الدالة المخصصة <code>sort_desc()</code>.", 
+                "نمرر المعامل <code>greater&lt;int&gt;()</code> كعامل ثالث.", 
+                "لا يمكننا ذلك، يجب ترتيبها تصاعدياً ثم قلبها."
+            ],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "بتمرير دالة المقارنة الجاهزة <code>greater&lt;int&gt;()</code> نخبر الخوارزمية أن تضع العنصر الأكبر في البداية."
+        },
+        {
+            q: "عند كتابة دالة مقارنة مخصصة (Custom Comparator)، ماذا يجب أن تُرجع الدالة <code>return</code> إذا كان العنصران متساويين تماماً؟",
+            options: [
+                "يجب أن تُرجع <code>true</code>", 
+                "يجب أن تُرجع <code>false</code>", 
+                "يجب أن تُرجع <code>1</code>", 
+                "يجب أن تُرجع <code>-1</code>"
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "حسب قواعد C++ (Strict Weak Ordering)، دالة المقارنة تعني حصرياً (أصغر من تماماً). وبما أن 5 ليست أصغر من 5، يجب أن تُرجع <code>false</code> عند التساوي لمنع انهيار البرنامج."
+        },
+        {
+            q: "ما هو الفرق الرئيسي بين دالتي <code>std::sort</code> و <code>std::stable_sort</code>؟",
+            options: [
+                "<code>stable_sort</code> أسرع بكثير من العادية.", 
+                "<code>stable_sort</code> تحافظ على الترتيب الأصلي (Relative order) للعناصر المتساوية.", 
+                "<code>stable_sort</code> تعمل فقط مع الأرقام، ولا تعمل مع النصوص.", 
+                "لا يوجد أي فرق حقيقي بينهما."
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "الترتيب المستقر (Stable Sort) يضمن أنه إذا كان هناك عنصران متساويان في الشروط، فسيظلان بنفس الترتيب الذي كانا عليه في المصفوفة الأصلية قبل الترتيب. (تأخذ وقتاً وذاكرة أكثر بقليل)."
+        },
+
+        // ================= الأسئلة الصعبة =================
+        {
+            q: "ما هي الخوارزمية الداخلية (Underlying Algorithm) التي تعتمد عليها دالة <code>std::sort</code> المدمجة في معظم مترجمات C++ الحديثة؟",
+            options: [
+                "خوارزمية (Merge Sort) فقط.", 
+                "خوارزمية (Quick Sort) فقط.", 
+                "خوارزمية (Introsort) وهي مزيج ذكي بين Quick, Heap, و Insertion Sort.", 
+                "خوارزمية (Bubble Sort) المحسنة."
+            ],
+            answer: 2,
+            difficulty: "صعب",
+            explanation: "تستخدم C++ خوارزمية (Introsort). تبدأ بـ QuickSort لسرعتها، وإذا لاحظت أن الترتيب يأخذ وقتاً أطول من المتوقع، تتحول تلقائياً إلى HeapSort لضمان تعقيد $O(N \\log N)$."
+        },
+        {
+            q: "إذا أردنا ترتيب <code>vector&lt;string&gt;</code> حسب <strong>طول الكلمة</strong> (الأقصر أولاً)، وإذا تساوى الطول نرتبها <strong>أبجدياً</strong>. كيف يكون شرط المقارنة؟",
+            options: [
+                "<code>if(a.size() != b.size()) return a.size() &lt; b.size(); else return a &lt; b;</code>", 
+                "<code>return a.size() &lt; b.size() && a &lt; b;</code>", 
+                "<code>if(a.size() == b.size()) return a.size() &lt; b.size(); else return a &lt; b;</code>", 
+                "<code>return a &lt; b;</code>"
+            ],
+            answer: 0,
+            difficulty: "صعب",
+            explanation: "هذا نمط كلاسيكي في المسابقات. نتحقق أولاً من الطول: إذا اختلفا، نرتب حسب الطول. إذا لم يختلفا (أي تساوى الطول في الـ else)، نستخدم معامل <code>&lt;</code> لترتيب النصوص أبجدياً."
+        },
+        {
+            q: "ما هو التعقيد الزمني الفعلي لترتيب <code>vector&lt;string&gt;</code> يحتوي على $N$ كلمة، وكل كلمة تتكون من عدد أحرف أقصاه $L$؟",
+            options: [
+                "$O(N \\log N)$", 
+                "$O(N \\log N \\times L)$", 
+                "$O(N \\times L)$", 
+                "$O(N^2 \\times L)$"
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "الترتيب نفسه يحتاج لـ $O(N \\log N)$ مقارنة. ولكن، مقارنة سلسلتين نصيتين ببعضهما (String Comparison) ليس عملية ثابتة $O(1)$ بل يتطلب المرور على أحرف السلسلة $O(L)$. لذا نضربهم ببعض."
+        },
+        {
+            q: "لماذا يُعد إرجاع <code>true</code> في دالة الـ (Custom Comparator) عند تساوي العنصرين خطأً كارثياً؟",
+            options: [
+                "لأنه سيجعل عملية الترتيب أبطأ بكثير.", 
+                "لأنه سيعكس الترتيب ويجعله تنازلياً بدلاً من تصاعدي.", 
+                "لأنه يخالف قاعدة (Strict Weak Ordering) وسيؤدي إلى سلوك غير محدد (Undefined Behavior) وانهيار البرنامج.", 
+                "لأنه سيقوم بحذف العناصر المتساوية من المصفوفة."
+            ],
+            answer: 2,
+            difficulty: "صعب",
+            explanation: "دالة <code>std::sort</code> تتوقع أن يكون الشرط صارماً (Strict). إذا أخبرتها أن 5 أصغر من 5 (عبر إرجاع true)، فقد تدخل في حلقة لانهائية لتبديل المواقع مما يؤدي لخطأ (Segmentation Fault)."
+        },
+        {
+            q: "إذا كان لدينا <code>struct Point { int x, y; };</code>، كيف نجعل دالة <code>std::sort</code> قادرة على ترتيب <code>vector&lt;Point&gt;</code> بناءً على قيمة <code>x</code> دون تمرير دالة خارجية؟",
+            options: [
+                "بإنشاء دالة <code>void sort() { ... }</code> داخل الـ struct.", 
+                "بإعادة تحميل معامل المقارنة داخل الـ struct هكذا: <code>bool operator&lt;(const Point& other) const { return x &lt; other.x; }</code>", 
+                "هذا مستحيل، يجب دائماً تمرير Custom Comparator.", 
+                "بتعريف المتغير <code>x</code> كـ <code>primary_key</code>."
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "تُعرف هذه العملية بـ (Operator Overloading). من خلال تعليم الـ struct كيف يقارن نفسه <code>operator&lt;</code> مع struct آخر من نفس النوع، ستعرف دالة <code>sort</code> الافتراضية كيف تتعامل معه تلقائياً."
+        }
+    ];
+
+    const quizArea = document.getElementById('quiz-area');
+
+    questions.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        
+        let diffClass = item.difficulty === 'سهل' ? 'badge-easy' : (item.difficulty === 'متوسط' ? 'badge-medium' : 'badge-hard');
+        
+        const badge = document.createElement('span');
+        badge.className = `difficulty-badge ${diffClass}`;
+        badge.innerText = item.difficulty;
+        card.appendChild(badge);
+
+        const qTitle = document.createElement('div');
+        qTitle.className = 'question-text';
+        qTitle.innerHTML = `س ${index + 1}: ${item.q}`;
+        card.appendChild(qTitle);
+
+        const optionsGrid = document.createElement('div');
+        optionsGrid.className = 'options-grid';
+
+        const explanationBox = document.createElement('div');
+        explanationBox.className = 'explanation-box';
+        explanationBox.innerHTML = `<strong>💡 الشرح:</strong> ${item.explanation}`;
+
+        item.options.forEach((opt, optIndex) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = opt;
+            
+            if(optIndex === item.answer) {
+                btn.dataset.correct = "true";
+            }
+
+            btn.onclick = function() {
+                const allBtns = optionsGrid.querySelectorAll('.option-btn');
+                allBtns.forEach(b => b.disabled = true);
+
+                if (optIndex === item.answer) {
+                    this.classList.add('correct');
+                } else {
+                    this.classList.add('wrong');
+                    optionsGrid.querySelector('[data-correct="true"]').classList.add('correct');
+                }
+                
+                explanationBox.style.display = 'block';
+            };
+            optionsGrid.appendChild(btn);
+        });
+
+        card.appendChild(optionsGrid);
+        card.appendChild(explanationBox);
+        quizArea.appendChild(card);
+    });
+</script>
+
+</body>
+</html>

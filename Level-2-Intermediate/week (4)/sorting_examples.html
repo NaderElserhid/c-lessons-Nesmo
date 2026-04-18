@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خوارزميات الترتيب (Sorting) في C++</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f4f7f6;
+            color: #2c3e50;
+            line-height: 1.8;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+        }
+        h1 {
+            color: #2980b9;
+            text-align: center;
+            border-bottom: 4px solid #3498db;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #c0392b;
+            margin-top: 50px;
+            border-right: 5px solid #e74c3c;
+            padding-right: 15px;
+            background-color: #fdf2f1;
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+        h3 { color: #16a085; margin-top: 25px; }
+        p { font-size: 17px; }
+        
+        pre {
+            background-color: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 8px;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 15px;
+            border-left: 5px solid #3498db;
+        }
+        
+        .explanation {
+            background-color: #ebf5fb;
+            padding: 15px 20px;
+            border-right: 4px solid #2980b9;
+            border-radius: 5px;
+            margin-top: -10px;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        .highlight {
+            background-color: #fef9e7;
+            padding: 15px;
+            border-radius: 5px;
+            border-right: 4px solid #f1c40f;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+        code {
+            background-color: #f1f2f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #e74c3c;
+            direction: ltr;
+            font-family: monospace;
+            display: inline-block;
+        }
+        .array-box {
+            display: inline-block;
+            background-color: #ecf0f1;
+            padding: 5px 15px;
+            border-radius: 5px;
+            letter-spacing: 2px;
+            font-weight: bold;
+            direction: ltr;
+        }
+        
+        /* تنسيقات قسم الاختبار (Quiz) */
+        .quiz-section {
+            margin-top: 60px;
+            border-top: 3px dashed #bdc3c7;
+            padding-top: 40px;
+        }
+        .question-card {
+            background-color: #fdfdfd;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            position: relative;
+        }
+        .difficulty-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+        }
+        .badge-easy { background-color: #2ecc71; }
+        .badge-medium { background-color: #f39c12; }
+        
+        .question-text {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            padding-left: 60px;
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option-btn {
+            background-color: #f8f9fa;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            padding: 12px 15px;
+            text-align: right;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #34495e;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #ecf0f1;
+            border-color: #3498db;
+        }
+        .option-btn:disabled { cursor: not-allowed; }
+        
+        /* حالات الإجابة للاختبار */
+        .option-btn.correct {
+            background-color: #d5f5e3;
+            border-color: #2ecc71;
+            color: #27ae60;
+        }
+        .option-btn.wrong {
+            background-color: #fadbd8;
+            border-color: #e74c3c;
+            color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>دليل خوارزميات الترتيب (Sorting) في C++</h1>
+
+    <h2>مقدمة نظرية: ما هو الترتيب ولماذا هو مهم؟</h2>
+    <p>
+        <strong>الترتيب (Sorting)</strong> هو عملية تنظيم مجموعة من العناصر في تسلسل محدد مسبقًا. غالباً ما يكون هذا التسلسل تصاعدياً (من الأصغر للأكبر) أو تنازلياً، وإذا كانت العناصر نصوصاً فيتم ترتيبها أبجدياً.
+    </p>
+    <div class="highlight">
+        💡 <strong>لماذا نرتب البيانات؟</strong><br>
+        الترتيب يجعل البيانات أسهل للبحث والمقارنة والمعالجة بكفاءة. على سبيل المثال، خوارزمية البحث السريعة جداً مثل <strong>البحث الثنائي (Binary Search)</strong> لا يمكن أن تعمل إطلاقاً إلا إذا كانت البيانات مرتبة مسبقاً.
+    </div>
+
+    <h2>1. ترتيب الاختيار (Selection Sort)</h2>
+    <p>
+        هذه الخوارزمية هي واحدة من أبسط طرق الترتيب فهماً. تعتمد فكرتها على تقسيم المصفوفة ذهنياً إلى جزأين: جزء مرتب (في البداية يكون فارغاً) وجزء غير مرتب.
+    </p>
+    
+    <h3>كيف تعمل خطوة بخطوة؟</h3>
+    <ol>
+        <li>البحث عن <strong>أصغر عنصر</strong> في الجزء غير المرتب من المصفوفة.</li>
+        <li>تبديل هذا العنصر الصغير مع <strong>أول عنصر</strong> في الجزء غير المرتب.</li>
+        <li>الآن أصبح العنصر الأول في مكانه الصحيح (مرتب). ننتقل للعنصر الثاني ونكرر العملية.</li>
+        <li>تستمر العملية حتى يتم ترتيب جميع العناصر.</li>
+    </ol>
+
+    <h3>مثال توضيحي</h3>
+    <p>لنفترض أن لدينا المصفوفة التالية: <span class="array-box">[5, 8, 3, 4, 2]</span></p>
+    <ul>
+        <li>نجد أصغر عنصر وهو <code>2</code>. نقوم بتبديله مع أول عنصر <code>5</code>. تصبح: <span class="array-box">[2, 8, 3, 4, 5]</span></li>
+        <li>الآن نتجاهل العنصر الأول. نبحث عن الأصغر في الباقي ونجده <code>3</code>. نبدله مع العنصر الثاني <code>8</code>. تصبح: <span class="array-box">[2, 3, 8, 4, 5]</span></li>
+        <li>نبحث عن الأصغر في الباقي ونجده <code>4</code>. نبدله مع العنصر الثالث <code>8</code>. تصبح: <span class="array-box">[2, 3, 4, 8, 5]</span></li>
+        <li>أخيراً، نجد الأصغر بين المتبقي وهو <code>5</code>. نبدله مع <code>8</code>. تصبح المصفوفة مرتبة: <span class="array-box">[2, 3, 4, 5, 8]</span></li>
+    </ul>
+
+    <h3>تنفيذ الترتيب بالاختيار (C++ Code)</h3>
+<pre>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    vector&lt;int&gt; arr = {5, 8, 3, 4, 2};
+    int n = arr.size();
+    
+    // الحلقة الخارجية تمر على كل المواقع
+    for (int i = 0; i &lt; n - 1; i++) {
+        int minIndex = i; // نفترض أن العنصر الحالي هو الأصغر
+        
+        // الحلقة الداخلية تبحث عن العنصر الأصغر الفعلي
+        for (int j = i + 1; j &lt; n; j++) {
+            if (arr[j] &lt; arr[minIndex]) {
+                minIndex = j; // تحديث موقع أصغر عنصر
+            }
+        }
+        // تبديل العنصر الحالي بأصغر عنصر تم العثور عليه
+        swap(arr[i], arr[minIndex]);
+    }
+    
+    // طباعة النتيجة
+    for (int x : arr) 
+        cout &lt;&lt; x &lt;&lt; ' ';
+    cout &lt;&lt; '\n';
+    
+    return 0;
+}
+</pre>
+    <div class="explanation">
+        <strong>شرح الكود:</strong><br>
+        استخدمنا حلقتين متداخلتين. الحلقة <code>i</code> تحدد الموقع الذي نريد وضع العنصر الصحيح فيه. الحلقة <code>j</code> تبحث في باقي المصفوفة عن أصغر عنصر. عندما تجده، تقوم الدالة الجاهزة <code>swap</code> بتبديل مكانهما.
+        <br><strong>التعقيد الزمني:</strong> بما أن هناك حلقتين متداخلتين تمران على العناصر، فإن عدد الخطوات يقارب $n \times n$. لذا فإن التعقيد الزمني هو <strong>$O(n^2)$</strong>. هذا يعتبر بطيئاً جداً للمصفوفات الكبيرة.
+    </div>
+
+    <h2>2. استخدام الدالة الجاهزة المدمجة (std::sort)</h2>
+    <p>
+        في البرمجة الحقيقية والمسابقات التنافسية، لا نكتب خوارزميات الترتيب البطيئة يدوياً. لغة C++ توفر دالة جاهزة ومحسنة جداً اسمها <code>sort</code> موجودة داخل مكتبة <code>&lt;algorithm&gt;</code>.
+    </p>
+
+    <h3>أ) ترتيب القوائم (Vectors)</h3>
+<pre>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt; // ضرورية لاستخدام دالة sort
+
+using namespace std;
+
+int main() {
+    vector&lt;int&gt; arr = {5, 8, 3, 4, 2};
+    
+    // ترتيب الـ vector بأكمله تصاعدياً
+    sort(arr.begin(), arr.end());
+    
+    for (int x : arr) 
+        cout &lt;&lt; x &lt;&lt; ' ';
+    cout &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+    <div class="explanation">
+        <strong>شرح الكود:</strong><br>
+        دالة <code>sort</code> تحتاج إلى معرفة <em>نقطة البداية</em> و<em>نقطة النهاية</em>. نمرر لها <code>arr.begin()</code> لتبدأ من أول عنصر، و <code>arr.end()</code> لتتوقف عند النهاية. النتيجة ترتبت فوراً (2 3 4 5 8).
+    </div>
+
+    <h3>ب) ترتيب المصفوفات العادية (Arrays)</h3>
+<pre>
+#include &lt;iostream&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main() {
+    int n = 5;
+    int arr[] = {5, 8, 3, 4, 2}; 
+    
+    // ترتيب المصفوفة العادية
+    sort(arr, arr + n);
+    
+    for (int i = 0; i &lt; n; i++)
+        cout &lt;&lt; arr[i] &lt;&lt; ' ';
+    cout &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+    <div class="explanation">
+        <strong>شرح الكود:</strong><br>
+        مع المصفوفات العادية لا نملك <code>begin()</code> و <code>end()</code>. لذا نمرر اسم المصفوفة <code>arr</code> (والذي يمثل المؤشر للعنصر الأول)، ونقطة النهاية تكون <code>arr + n</code> (بداية المصفوفة زائد عدد عناصرها).
+    </div>
+
+    <h2>3. الترتيب التنازلي (Descending Order)</h2>
+    <p>الترتيب الافتراضي هو تصاعدي. لجعله تنازلياً (من الأكبر للأصغر)، نمرر معامل مقارنة يسمى <code>greater&lt;int&gt;()</code> كعامل ثالث.</p>
+<pre>
+// للـ Vector
+sort(arr.begin(), arr.end(), greater&lt;int&gt;());
+
+// للمصفوفة العادية
+sort(arr, arr + n, greater&lt;int&gt;());
+
+// طريقة أخرى سريعة للـ vector باستخدام المؤشرات العكسية (Reverse Iterators)
+sort(arr.rbegin(), arr.rend());
+</pre>
+    <div class="explanation">
+        <strong>شرح الكود:</strong><br>
+        <code>greater&lt;int&gt;()</code> يخبر دالة الترتيب أن العنصر الأكبر يجب أن يأتي أولاً. طريقة <code>rbegin()</code> و <code>rend()</code> تجعل الترتيب يبدأ بقراءة المصفوفة من الخلف للأمام مما ينتج ترتيباً عكسياً (8 5 4 3 2).
+    </div>
+
+    <h2>4. الترتيب بمقارنة مخصصة (Custom Comparator)</h2>
+    <p>ماذا لو أردنا ترتيب نصوص ليس أبجدياً، بل <strong>حسب طول الكلمة</strong>؟ هنا نكتب دالة شروط خاصة بنا (Comparator).</p>
+<pre>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+// دالة المقارنة: ترجع true إذا كان a يجب أن يسبق b
+bool comparator_by_length(string a, string b) {
+    if (a.length() &lt; b.length())
+        return true;  // ضع الكلمة الأقصر أولاً
+    else
+        return false;
+}
+
+int main() {
+    vector&lt;string&gt; names = {"Charlie", "Bob", "Alice"};
+    
+    // تمرير دالة المقارنة كمعامل ثالث
+    sort(names.begin(), names.end(), comparator_by_length);
+    
+    for (string s : names) cout &lt;&lt; s &lt;&lt; " ";
+    return 0;
+}
+</pre>
+    <div class="explanation">
+        <strong>شرح الكود:</strong><br>
+        كتبنا دالة <code>comparator_by_length</code> تخبر الخوارزمية: "إذا كان طول الكلمة a أصغر من طول الكلمة b، فالترتيب صحيح (true)، وإلا فقم بتبديلهما".
+        الناتج سيكون: <code>Bob Alice Charlie</code> (مرتبة حسب عدد الحروف: 3، 5، ثم 7 حروف).
+        <br><br>
+        <strong>⚠️ تحذير برمجي خطير:</strong><br>
+        دالة المقارنة يجب أن تتصرف حصرياً كقاعدة "أصغر من تماماً" (Strict Weak Ordering). لا تُرجع أبداً <code>true</code> إذا كان العنصران متساويين، وإلا ستدخل دالة <code>sort</code> في سلوك غير متوقع (Undefined Behavior) وقد تتسبب بانهيار البرنامج!
+    </div>
+
+    <h2>5. التعقيد الزمني لدالة (std::sort)</h2>
+    <p>
+        تستخدم الدالة المدمجة <code>sort</code> خوارزمية هجينة وذكية جداً تسمى <strong>Introsort</strong> (مزيج بين Quick Sort و Heap Sort و Insertion Sort).
+    </p>
+    <div class="highlight">
+        التعقيد الزمني لهذه الدالة هو <strong>$O(n \log n)$</strong>، وهذا أسرع بكثير جداً من $O(n^2)$ الخاصة بترتيب الاختيار، خاصة عندما تكون المدخلات ضخمة.
+    </div>
+
+    <div class="quiz-section">
+        <h2 style="text-align: center; border-right: none; background-color: transparent;">🎯 اختبر معلوماتك: خوارزميات الترتيب في C++</h2>
+        <div id="quiz-area"></div>
+    </div>
+
+</div>
+
+<script>
+    // تم إصلاح الأقواس < و > إلى &lt; و &gt; لتظهر بشكل سليم في الـ HTML
+    const questions = [
+        // === الأسئلة السهلة ===
+        {
+            q: "ما هي المكتبة التي يجب تضمينها (include) لاستخدام دالة الترتيب الجاهزة sort()؟",
+            options: ["&lt;vector&gt;", "&lt;iostream&gt;", "&lt;algorithm&gt;", "&lt;string&gt;"],
+            answer: 2,
+            difficulty: "سهل"
+        },
+        {
+            q: "ما هي الفكرة الأساسية لخوارزمية ترتيب الاختيار (Selection Sort)؟",
+            options: ["تقسيم المصفوفة إلى نصفين وترتيب كل نصف", "البحث المتكرر عن أصغر عنصر ووضعه في بداية الجزء غير المرتب", "ترتيب العناصر بشكل عشوائي حتى تنجح", "مقارنة كل عنصرين متجاورين وتبديلهما باستمرار"],
+            answer: 1,
+            difficulty: "سهل"
+        },
+        {
+            q: "إذا أردت ترتيب قائمة (Vector) اسمها arr ترتيباً تصاعدياً، ما هو الكود الصحيح؟",
+            options: ["sort(arr);", "arr.sort();", "sort(arr.begin(), arr.end());", "sort(arr.front(), arr.back());"],
+            answer: 2,
+            difficulty: "سهل"
+        },
+        {
+            q: "ما هو التعقيد الزمني (Time Complexity) لخوارزمية ترتيب الاختيار (Selection Sort)؟",
+            options: ["$O(1)$", "$O(\\log n)$", "$O(n)$", "$O(n^2)$"],
+            answer: 3,
+            difficulty: "سهل"
+        },
+        {
+            q: "لترتيب العناصر تنازلياً (من الأكبر للأصغر) باستخدام دالة sort الجاهزة، ماذا نستخدم كمعامل ثالث؟",
+            options: ["less&lt;int&gt;()", "greater&lt;int&gt;()", "reverse()", "descending()"],
+            answer: 1,
+            difficulty: "سهل"
+        },
+        
+        // === الأسئلة المتوسطة ===
+        {
+            q: "ما هو التعقيد الزمني (Time Complexity) لدالة الترتيب المدمجة std::sort في لغة C++؟",
+            options: ["$O(n^2)$", "$O(n \\log n)$", "$O(n)$", "$O(\\log n)$"],
+            answer: 1,
+            difficulty: "متوسط"
+        },
+        {
+            q: "لدينا مصفوفة عادية: int arr[5] = {4, 1, 3, 5, 2}; كيف نرتبها بالكامل باستخدام دالة sort؟",
+            options: ["sort(arr.begin(), arr.end());", "sort(arr, 5);", "sort(arr, arr + 5);", "sort(arr[0], arr[4]);"],
+            answer: 2,
+            difficulty: "متوسط"
+        },
+        {
+            q: "عند كتابة دالة مقارنة مخصصة (Custom Comparator)، ماذا يجب أن تُرجع الدالة إذا كان العنصران متساويين تماماً؟",
+            options: ["يجب أن تُرجع true", "يجب أن تُرجع false", "يجب أن تُرجع 1", "لا يهم، كلاهما صحيح"],
+            answer: 1,
+            difficulty: "متوسط"
+        },
+        {
+            q: "أي من الخوارزميات التالية تتطلب أن تكون البيانات \"مرتبة مسبقاً\" لكي تعمل بشكل صحيح؟",
+            options: ["ترتيب الاختيار (Selection Sort)", "البحث الخطي (Linear Search)", "البحث الثنائي (Binary Search)", "لا شيء مما سبق"],
+            answer: 2,
+            difficulty: "متوسط"
+        },
+        {
+            q: "أريد ترتيب كلمات حسب طولها (الكلمة الأقصر أولاً). كيف يبدو شرط دالة المقارنة (Comparator) الصحيح؟",
+            options: ["return a.length() &lt; b.length();", "return a &lt; b;", "return a.length() &gt; b.length();", "return a == b;"],
+            answer: 0,
+            difficulty: "متوسط"
+        }
+    ];
+
+    const quizArea = document.getElementById('quiz-area');
+
+    questions.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        
+        // إضافة شارة الصعوبة
+        const badge = document.createElement('span');
+        badge.className = `difficulty-badge ${item.difficulty === 'سهل' ? 'badge-easy' : 'badge-medium'}`;
+        badge.innerText = item.difficulty;
+        card.appendChild(badge);
+
+        const qTitle = document.createElement('div');
+        qTitle.className = 'question-text';
+        qTitle.innerHTML = `س ${index + 1}: ${item.q}`;
+        card.appendChild(qTitle);
+
+        const optionsGrid = document.createElement('div');
+        optionsGrid.className = 'options-grid';
+
+        item.options.forEach((opt, optIndex) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = opt;
+            
+            if(optIndex === item.answer) {
+                btn.dataset.correct = "true";
+            }
+
+            btn.onclick = function() {
+                // إيقاف تفعيل جميع الأزرار في هذا السؤال بعد الإجابة لمنع تغيير الإجابة
+                const allBtns = optionsGrid.querySelectorAll('.option-btn');
+                allBtns.forEach(b => b.disabled = true);
+
+                if (optIndex === item.answer) {
+                    this.classList.add('correct');
+                } else {
+                    this.classList.add('wrong');
+                    // إظهار الإجابة الصحيحة إذا أخطأ الطالب
+                    optionsGrid.querySelector('[data-correct="true"]').classList.add('correct');
+                }
+            };
+            optionsGrid.appendChild(btn);
+        });
+
+        card.appendChild(optionsGrid);
+        quizArea.appendChild(card);
+    });
+</script>
+
+</body>
+</html>

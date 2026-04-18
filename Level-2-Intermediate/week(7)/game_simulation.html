@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Robot Simulator - Competitive Programming</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-main: #f0f4f8; 
+            --bg-card: #ffffff; 
+            --accent-main: #2563eb; 
+            --accent-secondary: #f59e0b; 
+            --text-primary: #334155; 
+            --text-secondary: #64748b; 
+            --border-light: #e2e8f0; 
+            --success: #10b981; 
+            --danger: #ef4444; 
+            --grid-bg: #e2e8f0;
+            --code-bg: #1e293b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .game-container {
+            background-color: var(--bg-card);
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            border: 1px solid var(--border-light);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .game-container { grid-template-columns: 1fr; }
+        }
+
+        .header-full {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            color: var(--accent-main);
+            margin: 0 0 10px 0;
+            font-size: 2.2em;
+            font-weight: 800;
+        }
+
+        p.desc {
+            color: var(--text-secondary);
+            font-size: 16px;
+            margin: 0;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            background-color: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .cmd-btn {
+            background-color: white;
+            border: 2px solid var(--border-light);
+            padding: 12px;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cmd-btn:hover {
+            border-color: var(--accent-main);
+            color: var(--accent-main);
+            background-color: #eff6ff;
+        }
+
+        .cmd-btn.N { border-top-color: var(--success); }
+        .cmd-btn.S { border-bottom-color: var(--danger); }
+        .cmd-btn.E { border-right-color: var(--accent-secondary); }
+        .cmd-btn.W { border-left-color: var(--accent-main); }
+
+        .queue-box {
+            background-color: white;
+            border: 1px dashed var(--accent-secondary);
+            min-height: 50px;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            align-items: center;
+            font-family: monospace;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--accent-main);
+        }
+
+        .queue-item {
+            background-color: #e0e7ff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid #c7d2fe;
+        }
+        
+        .queue-item.active {
+            background-color: var(--accent-secondary);
+            color: white;
+            border-color: #d97706;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .run-btn {
+            flex: 2;
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .run-btn:hover { background-color: #059669; }
+        .run-btn:disabled { background-color: #9ca3af; cursor: not-allowed; }
+
+        .clear-btn {
+            flex: 1;
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .clear-btn:hover { background-color: #dc2626; }
+
+        /* Simulation Area & Grid */
+        .simulation-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(7, 40px);
+            grid-template-rows: repeat(7, 40px);
+            gap: 2px;
+            background-color: var(--grid-bg);
+            padding: 5px; 
+            border-radius: 8px;
+            border: 2px solid var(--border-light);
+            position: relative;
+        }
+
+        .cell {
+            background-color: white;
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            color: #cbd5e1;
+        }
+
+        .cell.center {
+            background-color: #fef3c7;
+            border: 1px solid var(--accent-secondary);
+        }
+
+        #robot {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            transition: all 0.3s ease;
+            z-index: 10;
+            transform: translate(131px, 131px); 
+        }
+
+        /* Status Panel */
+        .status-panel {
+            margin-top: 20px;
+            background-color: #1e293b;
+            color: #f8fafc;
+            padding: 15px 20px;
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: monospace;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .status-var { color: #38bdf8; font-weight: bold; }
+        .status-val { color: var(--success); font-weight: bold; }
+        
+        .code-preview {
+            margin-top: 15px;
+            background-color: #f1f5f9;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 14px;
+            text-align: left;
+            border-left: 4px solid var(--accent-main);
+        }
+        .code-line { margin: 2px 0; padding: 2px 5px; border-radius: 3px; }
+        .code-line.active { background-color: #bfdbfe; font-weight: bold; }
+
+        /* C++ Code Section */
+        .cpp-code-section {
+            grid-column: 1 / -1;
+            margin-top: 20px;
+            background-color: var(--code-bg);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .cpp-code-section h3 {
+            color: #38bdf8;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        pre {
+            margin: 0;
+            color: #e2e8f0;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 15px;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .kw { color: #c678dd; } /* Keyword */
+        .typ { color: #56b6c2; } /* Type */
+        .str { color: #98c379; } /* String */
+        .com { color: #7f848e; font-style: italic; } /* Comment */
+
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="header-full">
+        <h1>🤖 Interactive Robot Simulator</h1>
+        <p class="desc">Add movement commands to program the robot, and watch the simulation update variables step by step!</p>
+    </div>
+
+    <div class="control-panel">
+        <h3 style="margin-top:0; color:var(--accent-main);">1. Input Commands</h3>
+        <div class="btn-group">
+            <button class="cmd-btn N" onclick="addCommand('N')">N (North) ⬆️</button>
+            <button class="cmd-btn E" onclick="addCommand('E')">E (East) ➡️</button>
+            <button class="cmd-btn W" onclick="addCommand('W')">W (West) ⬅️</button>
+            <button class="cmd-btn S" onclick="addCommand('S')">S (South) ⬇️</button>
+        </div>
+
+        <h3 style="margin-top:0; color:var(--accent-main); font-size: 16px;">Action Queue:</h3>
+        <div class="queue-box" id="queueDisplay">
+            </div>
+
+        <div class="action-btns">
+            <button class="run-btn" id="runBtn" onclick="runSimulation()">▶️ Run Simulation</button>
+            <button class="clear-btn" onclick="resetSimulation()">🔄 Reset</button>
+        </div>
+        
+        <div class="code-preview">
+            <div class="code-line" id="code-N"><span style="color:#2563eb;font-weight:bold;">if</span> (c == 'N') y++;</div>
+            <div class="code-line" id="code-S"><span style="color:#2563eb;font-weight:bold;">else if</span> (c == 'S') y--;</div>
+            <div class="code-line" id="code-E"><span style="color:#2563eb;font-weight:bold;">else if</span> (c == 'E') x++;</div>
+            <div class="code-line" id="code-W"><span style="color:#2563eb;font-weight:bold;">else if</span> (c == 'W') x--;</div>
+        </div>
+    </div>
+
+    <div class="simulation-area">
+        <div class="grid" id="grid">
+            <div id="robot">🤖</div>
+            </div>
+
+        <div class="status-panel">
+            <div><span class="status-var">X:</span> <span class="status-val" id="valX">0</span></div>
+            <div><span class="status-var">Y:</span> <span class="status-val" id="valY">0</span></div>
+            <div><span class="status-var">Step:</span> <span class="status-val" id="valStep">0</span></div>
+        </div>
+        <p id="errorMsg" style="color: var(--danger); font-weight: bold; margin-top: 10px; display: none;">⚠️ Error: Out of bounds!</p>
+    </div>
+
+    <div class="cpp-code-section">
+        <h3>👨‍💻 C++ Implementation</h3>
+<pre>
+<span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;string&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="typ">int</span> main() {
+    <span class="typ">string</span> moves;
+    cin &gt;&gt; moves;
+    
+    <span class="typ">int</span> x = <span class="str">0</span>, y = <span class="str">0</span>; <span class="com">// Starting position at origin (0,0)</span>
+    
+    <span class="com">// Simulation Loop</span>
+    <span class="kw">for</span> (<span class="typ">char</span> c : moves) {
+        <span class="kw">if</span> (c == <span class="str">'N'</span>) y++;       <span class="com">// Move North</span>
+        <span class="kw">else if</span> (c == <span class="str">'S'</span>) y--;  <span class="com">// Move South</span>
+        <span class="kw">else if</span> (c == <span class="str">'E'</span>) x++;  <span class="com">// Move East</span>
+        <span class="kw">else if</span> (c == <span class="str">'W'</span>) x--;  <span class="com">// Move West</span>
+    }
+    
+    <span class="com">// Print final coordinates</span>
+    cout &lt;&lt; x &lt;&lt; <span class="str">" "</span> &lt;&lt; y &lt;&lt; endl;
+    
+    <span class="kw">return</span> <span class="str">0</span>;
+}
+</pre>
+    </div>
+</div>
+
+<script>
+    const gridSize = 7; // 7x7 grid
+    const center = Math.floor(gridSize / 2); // Center index is 3
+    
+    let currentX = 0;
+    let currentY = 0;
+    let commands = [];
+    let isRunning = false;
+
+    // Generate grid cells
+    const gridEl = document.getElementById('grid');
+    for(let r = 0; r < gridSize; r++) {
+        for(let c = 0; c < gridSize; c++) {
+            let cell = document.createElement('div');
+            cell.className = 'cell';
+            if(r === center && c === center) {
+                cell.classList.add('center');
+                cell.innerText = '(0,0)';
+            }
+            gridEl.appendChild(cell);
+        }
+    }
+
+    function updateRobotVisual() {
+        const robot = document.getElementById('robot');
+        const moveX = 131 + (currentX * 42);
+        const moveY = 131 - (currentY * 42); 
+        
+        robot.style.transform = `translate(${moveX}px, ${moveY}px)`;
+        
+        document.getElementById('valX').innerText = currentX;
+        document.getElementById('valY').innerText = currentY;
+    }
+
+    function addCommand(cmd) {
+        if(isRunning) return;
+        commands.push(cmd);
+        renderQueue();
+    }
+
+    function renderQueue() {
+        const box = document.getElementById('queueDisplay');
+        box.innerHTML = '';
+        commands.forEach((c, index) => {
+            const span = document.createElement('span');
+            span.className = 'queue-item';
+            span.id = `cmd-${index}`;
+            span.innerText = c;
+            box.appendChild(span);
+        });
+    }
+
+    function resetSimulation() {
+        commands = [];
+        currentX = 0;
+        currentY = 0;
+        isRunning = false;
+        document.getElementById('runBtn').disabled = false;
+        document.getElementById('valStep').innerText = '0';
+        document.getElementById('errorMsg').style.display = 'none';
+        
+        ['N','S','E','W'].forEach(c => document.getElementById('code-'+c).classList.remove('active'));
+        
+        renderQueue();
+        updateRobotVisual();
+    }
+
+    function runSimulation() {
+        if(commands.length === 0 || isRunning) return;
+        isRunning = true;
+        document.getElementById('runBtn').disabled = true;
+        document.getElementById('errorMsg').style.display = 'none';
+        
+        currentX = 0;
+        currentY = 0;
+        updateRobotVisual();
+        
+        let step = 0;
+
+        const interval = setInterval(() => {
+            if(step >= commands.length) {
+                clearInterval(interval);
+                isRunning = false;
+                document.getElementById('runBtn').disabled = false;
+                ['N','S','E','W'].forEach(c => document.getElementById('code-'+c).classList.remove('active'));
+                return;
+            }
+
+            ['N','S','E','W'].forEach(c => document.getElementById('code-'+c).classList.remove('active'));
+            if(step > 0) document.getElementById(`cmd-${step-1}`).classList.remove('active');
+
+            const cmd = commands[step];
+            document.getElementById(`cmd-${step}`).classList.add('active');
+            document.getElementById('code-'+cmd).classList.add('active');
+
+            let nextX = currentX;
+            let nextY = currentY;
+
+            if (cmd === 'N') nextY++;
+            else if (cmd === 'S') nextY--;
+            else if (cmd === 'E') nextX++;
+            else if (cmd === 'W') nextX--;
+
+            if(Math.abs(nextX) > center || Math.abs(nextY) > center) {
+                document.getElementById('errorMsg').style.display = 'block';
+                clearInterval(interval);
+                isRunning = false;
+                document.getElementById('runBtn').disabled = false;
+                return;
+            }
+
+            currentX = nextX;
+            currentY = nextY;
+            
+            document.getElementById('valStep').innerText = step + 1;
+            updateRobotVisual();
+
+            step++;
+        }, 800);
+    }
+</script>
+
+</body>
+</html>

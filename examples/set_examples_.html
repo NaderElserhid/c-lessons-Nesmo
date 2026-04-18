@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار شامل: المجموعات (Sets) في C++</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #f4f7f6; 
+            --container-bg: #ffffff; 
+            --text-primary: #2c3e50; 
+            --text-secondary: #596275; 
+            --accent-main: #2980b9; 
+            --accent-red: #c0392b; 
+            --accent-green: #27ae60; 
+            --code-bg: #f8f9fa; 
+            --border-color: #e1e8ed; 
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+        }
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--container-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+            border: 1px solid var(--border-color);
+        }
+        h2 {
+            text-align: center;
+            color: var(--accent-main);
+            border-bottom: 3px solid var(--accent-main);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+        }
+        .question-card {
+            background-color: #fdfdfd;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            position: relative;
+        }
+        .difficulty-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+        }
+        .badge-easy { background-color: var(--accent-green); } 
+        .badge-medium { background-color: #f39c12; } 
+        .badge-hard { background-color: var(--accent-red); }
+        
+        .question-text {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            padding-left: 80px; 
+            line-height: 1.6;
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option-btn {
+            background-color: var(--code-bg);
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            padding: 14px 18px;
+            text-align: right;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #34495e;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #ecf0f1;
+            border-color: var(--accent-main);
+        }
+        .option-btn:disabled { cursor: not-allowed; }
+        
+        .option-btn.correct {
+            background-color: #d5f5e3;
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+        .option-btn.wrong {
+            background-color: #fadbd8;
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+        
+        /* صندوق الشرح الذي يظهر بعد الإجابة */
+        .explanation-box {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ebf5fb;
+            border-right: 5px solid var(--accent-main);
+            border-radius: 6px;
+            font-size: 16px;
+            color: var(--text-primary);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        code {
+            background-color: #ecf0f1;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            direction: ltr;
+            display: inline-block;
+            color: #e83e8c;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h2>🎯 اختبار شامل: المجموعات (Sets) في C++</h2>
+    <div id="quiz-area"></div>
+</div>
+
+<script>
+    const questions = [
+        // ================= الأسئلة السهلة =================
+        {
+            q: "ما هي الميزة الأساسية لهيكل البيانات <code>std::set</code> في C++؟",
+            options: [
+                "تسمح بتكرار العناصر وتخزنها بترتيب عشوائي.", 
+                "تمنع تكرار العناصر وتخزنها مرتبة تلقائياً.", 
+                "تخزن العناصر بنظام Key-Value مثل القاموس.", 
+                "تعمل بنظام 'الداخل أولاً يخرج أولاً' (FIFO)."
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "الـ Set في لغة C++ تقوم بوظيفتين أساسيتين خلف الكواليس: تمنع إضافة أي عنصر مكرر، وتقوم بترتيب العناصر (تصاعدياً بشكل افتراضي) فور إضافتها."
+        },
+        {
+            q: "ما هي المكتبة التي يجب تضمينها (include) لاستخدام الـ Sets؟",
+            options: ["<code>&lt;vector&gt;</code>", "<code>&lt;algorithm&gt;</code>", "<code>&lt;set&gt;</code>", "<code>&lt;map&gt;</code>"],
+            answer: 2,
+            difficulty: "سهل",
+            explanation: "يجب كتابة <code>#include &lt;set&gt;</code> في بداية الكود للتمكن من استخدام المجموعات بنوعيها (set و multiset)."
+        },
+        {
+            q: "أي دالة تستخدم لإضافة عنصر جديد إلى الـ <code>set</code>؟",
+            options: ["<code>push_back()</code>", "<code>add()</code>", "<code>append()</code>", "<code>insert()</code>"],
+            answer: 3,
+            difficulty: "سهل",
+            explanation: "نستخدم الدالة <code>insert(value)</code>. دوال مثل <code>push_back</code> تُستخدم مع القوائم (Vectors) التي تعتمد على الإضافة في النهاية، لكن الـ Set ترتب العناصر بنفسها لذلك نستخدم insert."
+        },
+        {
+            q: "هل يمكن الوصول لعناصر الـ <code>set</code> عبر الفهرس (Index) مثل المصفوفات، مثلاً <code>mySet[2]</code>؟",
+            options: ["نعم، يمكن ذلك دائماً.", "لا، الـ set لا تدعم الوصول العشوائي (Random Access).", "نعم، ولكن فقط إذا كانت المصفوفة من نوع int.", "لا، إلا إذا استخدمنا unordered_set."],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "الـ Set مبنية كشجرة (Tree) وليست كمصفوفة متجاورة في الذاكرة، لذا لا يمكنك استخدام الفهرس <code>[]</code>. للوصول للعناصر يجب استخدام المؤشرات (Iterators)."
+        },
+        {
+            q: "ماذا يحدث إذا قمنا باستخدام <code>insert(5)</code> في <code>set</code> يحتوي بالفعل على الرقم 5 مسبقاً؟",
+            options: [
+                "سيحدث خطأ (Error) ويتوقف البرنامج.", 
+                "سيتم إضافة الرقم 5 مرة أخرى ويصبح لدينا رقمان 5.", 
+                "سيتم تجاهل الإضافة ولن يتغير حجم الـ set.", 
+                "سيتم حذف الرقم 5 القديم."
+            ],
+            answer: 2,
+            difficulty: "سهل",
+            explanation: "بما أن الـ Set ترفض التكرار، فإنها ستقوم بتجاهل أمر الإضافة الجديد بهدوء تام دون أن تسبب أي أخطاء في البرنامج، وسيبقى حجمها كما هو."
+        },
+
+        // ================= الأسئلة المتوسطة =================
+        {
+            q: "ما هو التعقيد الزمني (Time Complexity) لعملية الإضافة <code>insert()</code> في الـ <code>std::set</code>؟",
+            options: ["$O(1)$", "$O(\\log n)$", "$O(n)$", "$O(n \\log n)$"],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "عمليات الإضافة، الحذف، والبحث في الـ <code>set</code> العادية تستغرق وقتاً لوغاريتمياً $O(\\log n)$ لأنها مبنية على شجرة بحث ثنائية متزنة (Balanced BST)."
+        },
+        {
+            q: "ما هي أسرع وأفضل طريقة لمعرفة ما إذا كان العنصر <code>x</code> موجوداً داخل الـ <code>set</code>؟",
+            options: [
+                "استخدام حلقة <code>for</code> للمرور على العناصر.", 
+                "استخدام الدالة الجاهزة <code>std::find(s.begin(), s.end(), x)</code>.", 
+                "استخدام الدالة الخاصة بالـ set وهي <code>s.find(x)</code> أو <code>s.count(x)</code>.", 
+                "استخدام <code>s[x] != null</code>"
+            ],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "يجب دائماً استخدام دوال الـ set المدمجة مثل <code>s.count(x)</code> (ترجع 1 إذا وُجد و 0 إذا لم يُوجد) لأن تعقيدها $O(\\log n)$، بينما <code>std::find</code> الخارجية تعقيدها بطيء جداً $O(n)$ مع الـ set."
+        },
+        {
+            q: "كيف نقوم بحذف العنصر ذي القيمة 10 من الـ <code>set</code>؟",
+            options: ["<code>s.remove(10);</code>", "<code>s.erase(10);</code>", "<code>s.delete(10);</code>", "<code>s.pop(10);</code>"],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "الدالة الصحيحة لحذف العناصر من الـ set بالاعتماد على قيمتها أو مؤشرها هي الدالة <code>erase()</code>."
+        },
+        {
+            q: "ما هو هيكل البيانات الأساسي (Underlying Data Structure) الذي تُبنى عليه <code>std::set</code> في معظم مترجمات C++؟",
+            options: [
+                "جدول التجزئة (Hash Table)", 
+                "مصفوفة ديناميكية (Dynamic Array)", 
+                "قائمة مرتبطة مزدوجة (Doubly Linked List)", 
+                "شجرة بحث ثنائية متزنة (مثل Red-Black Tree)"
+            ],
+            answer: 3,
+            difficulty: "متوسط",
+            explanation: "الـ <code>std::set</code> تعتمد على الـ Red-Black Tree، وهذا هو سبب أن عناصرها مرتبة دائماً وأن عملياتها تأخذ وقت $O(\\log n)$."
+        },
+        {
+            q: "كيف نمر على عناصر الـ <code>set</code> بترتيب تنازلي (من الأكبر للأصغر) باستخدام المؤشرات؟",
+            options: [
+                "من <code>s.end()</code> إلى <code>s.begin()</code>", 
+                "من <code>s.rbegin()</code> إلى <code>s.rend()</code>", 
+                "باستخدام الدالة <code>s.reverse()</code> ثم طباعتها", 
+                "لا يمكن ذلك، الـ set تطبع تصاعدياً فقط."
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "باستخدام المؤشرات العكسية (Reverse Iterators)، حيث يؤشر <code>rbegin()</code> على العنصر الأخير (الأكبر)، و <code>rend()</code> على ما قبل الأول."
+        },
+
+        // ================= الأسئلة الصعبة =================
+        {
+            q: "ماذا تُرجع الدالة <code>s.lower_bound(x)</code> عند استدعائها على <code>set</code>؟",
+            options: [
+                "ترجع القيمة العددية لأول عنصر أصغر من x.", 
+                "ترجع مؤشراً (Iterator) لأول عنصر قيمته أكبر من أو تساوي x.", 
+                "ترجع مؤشراً لأول عنصر قيمته أكبر من x تماماً.", 
+                "ترجع عدد العناصر التي تصغر x."
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "دالة <code>lower_bound</code> من أهم الدوال في المسابقات! هي تبحث عن $y \\ge x$ وترجع مؤشراً له، وإذا لم تجده ترجع <code>s.end()</code>. (بينما upper_bound تبحث عن $y &gt; x$)."
+        },
+        {
+            q: "إذا أردنا تخزين كائنات (Objects) من <code>struct</code> مخصص داخل <code>set</code>، ماذا يجب أن نفعل لكي تعمل الخوارزمية بشكل صحيح؟",
+            options: [
+                "لا شيء، الـ set ترتبها عشوائياً.", 
+                "يجب تعريف أو إعادة تحميل المعامل (operator &lt;) داخل الـ struct.", 
+                "يجب إضافة مكتبة &lt;struct&gt;.", 
+                "لا يمكن تخزين struct داخل set إطلاقاً."
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "بما أن الـ Set تقوم بترتيب العناصر، فهي تحتاج إلى طريقة لـ 'مقارنتها'. بالنسبة للأنواع المخصصة (struct/class)، يجب أن نعرّف لها كيف تقارن عنصرين عبر <code>operator&lt;</code>."
+        },
+        {
+            q: "إذا قمت بحذف عنصر من الـ <code>set</code> باستخدام <code>erase()</code>، ماذا يحدث للمؤشرات (Iterators) الأخرى التي تؤشر على عناصر مختلفة في نفس الـ set؟",
+            options: [
+                "تصبح جميع المؤشرات غير صالحة (Invalidated).", 
+                "تصبح المؤشرات التي تأتي بعد العنصر المحذوف غير صالحة.", 
+                "تظل جميع المؤشرات الأخرى صالحة تماماً.", 
+                "يحدث انهيار للبرنامج (Segmentation fault)."
+            ],
+            answer: 2,
+            difficulty: "صعب",
+            explanation: "هذه ميزة قوية في الـ Set المبنية على الأشجار (Node-based containers). حذف عنصر يُتلف المؤشر الخاص به فقط، بينما تظل مؤشرات باقي العناصر في الذاكرة صالحة ولا تتأثر."
+        },
+        {
+            q: "هل يمكنك تعديل قيمة عنصر موجود داخل الـ <code>set</code> مباشرة عبر المؤشر الخاص به (مثلاً <code>*it = 10;</code>)؟",
+            options: [
+                "نعم، كأي هيكل بيانات آخر.", 
+                "لا، لأن عناصر الـ set تكون ثابتة (const) للحفاظ على الترتيب.", 
+                "نعم، ولكن فقط إذا كان الـ set من نوع الأرقام (int).", 
+                "لا، إلا إذا استخدمنا الدالة update()."
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "لا يمكنك التعديل المباشر! لأن تعديل القيمة قد يفسد الترتيب داخل شجرة الـ Set. الطريقة الصحيحة للتعديل هي: حذف العنصر القديم <code>erase</code>، ثم إضافة العنصر الجديد <code>insert</code>."
+        },
+        {
+            q: "ما هو الفرق في التعقيد الزمني بين استخدام <code>s.find(x)</code> (الخاصة بالـ set) واستخدام <code>std::find(s.begin(), s.end(), x)</code> (من مكتبة algorithm)؟",
+            options: [
+                "لا يوجد فرق، كلاهما $O(\\log n)$.", 
+                "كلاهما $O(n)$ وكلاهما بطيء.", 
+                "دالة الـ set تستغرق $O(\\log n)$، بينما دالة algorithm تستغرق $O(n)$ (بطيئة جداً).", 
+                "دالة algorithm أسرع لأنها مجهزة للبحث."
+            ],
+            answer: 2,
+            difficulty: "صعب",
+            explanation: "دالة <code>s.find</code> تستغل هيكل الشجرة المتزنة لتبحث بسرعة $O(\\log n)$. أما <code>std::find</code> فهي دالة عمياء تبدأ من الأول وتبحث عنصراً عنصراً $O(n)$ مما يسبب خطأ TLE في المسابقات."
+        }
+    ];
+
+    const quizArea = document.getElementById('quiz-area');
+
+    questions.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        
+        let diffClass = item.difficulty === 'سهل' ? 'badge-easy' : (item.difficulty === 'متوسط' ? 'badge-medium' : 'badge-hard');
+        
+        const badge = document.createElement('span');
+        badge.className = `difficulty-badge ${diffClass}`;
+        badge.innerText = item.difficulty;
+        card.appendChild(badge);
+
+        const qTitle = document.createElement('div');
+        qTitle.className = 'question-text';
+        qTitle.innerHTML = `س ${index + 1}: ${item.q}`;
+        card.appendChild(qTitle);
+
+        const optionsGrid = document.createElement('div');
+        optionsGrid.className = 'options-grid';
+
+        const explanationBox = document.createElement('div');
+        explanationBox.className = 'explanation-box';
+        explanationBox.innerHTML = `<strong>💡 الشرح:</strong> ${item.explanation}`;
+
+        item.options.forEach((opt, optIndex) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = opt;
+            
+            if(optIndex === item.answer) {
+                btn.dataset.correct = "true";
+            }
+
+            btn.onclick = function() {
+                const allBtns = optionsGrid.querySelectorAll('.option-btn');
+                allBtns.forEach(b => b.disabled = true);
+
+                if (optIndex === item.answer) {
+                    this.classList.add('correct');
+                } else {
+                    this.classList.add('wrong');
+                    optionsGrid.querySelector('[data-correct="true"]').classList.add('correct');
+                }
+                
+                // إظهار مربع الشرح
+                explanationBox.style.display = 'block';
+            };
+            optionsGrid.appendChild(btn);
+        });
+
+        card.appendChild(optionsGrid);
+        card.appendChild(explanationBox);
+        quizArea.appendChild(card);
+    });
+</script>
+
+</body>
+</html>

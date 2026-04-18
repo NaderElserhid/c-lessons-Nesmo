@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شرح خوارزمية فصل الشبكات - تفاعلي</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 10px;
+        }
+        .explanation {
+            background-color: #fdf2e9;
+            padding: 20px;
+            border-right: 5px solid #e67e22;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 1.1em;
+        }
+        
+        /* تنسيق خطوات الحل */
+        .steps-list {
+            background-color: #f9fbfd;
+            padding: 20px 40px;
+            border-radius: 8px;
+            border: 1px solid #d4e6f1;
+            margin-bottom: 30px;
+            line-height: 1.8;
+            font-size: 1.1em;
+        }
+        .steps-list li {
+            margin-bottom: 15px;
+        }
+        .steps-list ul {
+            margin-top: 10px;
+            background-color: #fff;
+            padding: 15px 30px;
+            border-radius: 5px;
+            border: 1px dashed #bdc3c7;
+        }
+        .steps-list strong {
+            color: #2980b9;
+        }
+
+        .simulator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #fff;
+            border: 2px solid #ddd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button.active {
+            background-color: #2c3e50;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        .grid-wrapper {
+            position: relative;
+            display: inline-block;
+            margin: 20px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 70px);
+            grid-template-rows: repeat(4, 70px);
+            gap: 2px;
+            background-color: #bdc3c7;
+            border: 2px solid #34495e;
+        }
+        .cell {
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+            transition: 0.3s;
+        }
+        /* تأثيرات التحديد */
+        .region1 { background-color: #d6eaf8; }
+        .region2 { background-color: #d5f5e3; }
+        .highlight1 { background-color: #3498db !important; color: white; border: 2px solid #2980b9; transform: scale(0.95); }
+        .highlight2 { background-color: #2ecc71 !important; color: white; border: 2px solid #27ae60; transform: scale(0.95); }
+        
+        /* خطوط الفصل */
+        .split-line-horiz, .split-line-vert {
+            position: absolute;
+            background-color: #e74c3c;
+            z-index: 10;
+            transition: 0.3s;
+            box-shadow: 0 0 8px rgba(231, 76, 60, 0.8);
+        }
+        .split-line-horiz { height: 6px; width: 100%; left: 0; }
+        .split-line-vert { width: 6px; height: 100%; top: 0; }
+
+        .status-board {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            background-color: #34495e;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            text-align: center;
+            margin-top: 15px;
+        }
+        .status-box span { display: block; font-size: 0.8em; color: #bdc3c7; }
+        pre { background-color: #282c34; color: #abb2bf; padding: 15px; border-radius: 8px; overflow-x: auto; direction: ltr; text-align: left; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>أفضل شبكتين فرعيتين بدون تقاطع (2D Grid DP)</h1>
+    
+    <div class="explanation">
+        <strong>الفكرة الأساسية للطلاب:</strong><br>
+        نريد إيجاد شبكتين فرعيتين بحجم <code>K x K</code> بأكبر مجموع ممكن، ولكن <strong>بشرط ألا تتقاطعا</strong>.<br>
+        كيف نضمن عدم التقاطع برمجياً؟ السر يكمن في رسم "خط فصل"!<br>
+        إذا لم تتقاطع شبكتان، فهذا يعني حتماً أنه يمكننا رسم <strong>خط أفقي</strong> يفصل بينهما (واحدة فوق الخط والأخرى تحته)، أو <strong>خط عمودي</strong> (واحدة يمين الخط والأخرى يساره).<br>
+        في الكود، نقوم بتجربة جميع خطوط الفصل الممكنة، ونستعين بمصفوفات التخزين المسبق (Prefix Maximums) لمعرفة أكبر شبكة في كل جهة بسرعة فائقة <code>O(1)</code>.
+    </div>
+
+    <h2>1. خطوات الحل المنهجية</h2>
+    <ol class="steps-list">
+        <li>
+            <strong>بناء المصفوفة التراكمية (2D Prefix Sum):</strong> 
+            نبدأ بتجهيز مصفوفة تراكمية للشبكة الأساسية. هذا التكتيك ضروري لتسريع الحسابات، حيث يسمح لنا بإيجاد مجموع عناصر أي مربع فرعي بحجم <code>K x K</code> في خطوة واحدة <code>O(1)</code> بدلاً من المرور على عناصره المتعددة في كل مرة باستخدام حلقات تكرارية مكلفة للوقت.
+        </li>
+        <li>
+            <strong>حساب مجاميع كل المربعات الممكنة:</strong> 
+            نمر على الشبكة باستخدام إحداثيات المصفوفة التراكمية، ونحسب مجموع كل مربع <code>K x K</code> محتمل داخل الشبكة، ثم نقوم بتخزين هذه النتائج الجاهزة في مصفوفة مساعدة (في كودنا أسميناها <code>val</code>).
+        </li>
+        <li>
+            <strong>تجهيز مصفوفات القيم العظمى (Prefix Maximums):</strong> 
+            هنا يكمن جوهر البرمجة الديناميكية في المسألة. نقوم بإنشاء 4 مصفوفات منفصلة لتخزين "أكبر مجموع مربع متوفر" عند قطع الشبكة في اتجاه معين:
+            <ul>
+                <li><code>max_up</code>: تخزن أكبر مجموع لمربع يقع بالكامل "أعلى" من صف معين.</li>
+                <li><code>max_down</code>: تخزن أكبر مجموع لمربع يقع بالكامل "أسفل" من صف معين.</li>
+                <li><code>max_left</code>: تخزن أكبر مجموع لمربع يقع بالكامل "يسار" عمود معين.</li>
+                <li><code>max_right</code>: تخزن أكبر مجموع لمربع يقع بالكامل "يمين" عمود معين.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>تجربة خطوط الفصل وإيجاد الحل الأمثل:</strong> 
+            نمرر حلقة تكرارية لتجربة رسم "خط فصل وهمي" بين كل صفين، ونجمع (القيمة العظمى في الجزء العلوي + القيمة العظمى في الجزء السفلي). ثم نجرب نفس الشيء عمودياً بجمع (الجزء الأيمن + الجزء الأيسر). القيمة الأكبر التي تظهر من بين جميع محاولات الفصل هذه هي الحل النهائي.
+        </li>
+    </ol>
+
+    <h2>2. المحاكي البصري (N=4, K=2)</h2>
+    <p>اختر نوع الفصل (أفقي أو عمودي) ولاحظ كيف تحدد الخوارزمية أكبر شبكة فرعية 2x2 في كل منطقة معزولة:</p>
+    
+    <div class="simulator">
+        <div class="controls">
+            <button id="btn-h1" onclick="splitHorizontal(2)">فصل أفقي (بعد الصف 2)</button>
+            <button id="btn-v1" onclick="splitVertical(2)">فصل عمودي (بعد العمود 2)</button>
+        </div>
+
+        <div class="grid-wrapper">
+            <div class="grid" id="grid">
+                </div>
+            <div id="split-line" style="display:none;"></div>
+        </div>
+
+        <div class="status-board">
+            <div class="status-box"><span>مجموع الشبكة (المنطقة 1)</span><strong id="sum1">-</strong></div>
+            <div class="status-box"><span>مجموع الشبكة (المنطقة 2)</span><strong id="sum2">-</strong></div>
+            <div class="status-box"><span>المجموع الكلي</span><strong id="total-sum" style="color:#f1c40f;">-</strong></div>
+        </div>
+    </div>
+
+    <h2>3. الكود البرمجي (C++)</h2>
+    <pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
+using namespace std;
+
+const long long INF = 2e18;
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int N, K;
+    if (!(cin &gt;&gt; N &gt;&gt; K)) return 0;
+
+    vector&lt;vector&lt;long long&gt;&gt; grid(N + 1, vector&lt;long long&gt;(N + 1, 0));
+    vector&lt;vector&lt;long long&gt;&gt; pref(N + 1, vector&lt;long long&gt;(N + 1, 0));
+
+    for (int i = 1; i &lt;= N; ++i) {
+        for (int j = 1; j &lt;= N; ++j) {
+            cin &gt;&gt; grid[i][j];
+            pref[i][j] = grid[i][j] + pref[i-1][j] + pref[i][j-1] - pref[i-1][j-1];
+        }
+    }
+
+    auto get_sum = [&amp;](int r1, int c1, int r2, int c2) {
+        return pref[r2][c2] - pref[r1-1][c2] - pref[r2][c1-1] + pref[r1-1][c1-1];
+    };
+
+    vector&lt;vector&lt;long long&gt;&gt; val(N + 1, vector&lt;long long&gt;(N + 1, -INF));
+    for (int i = 1; i &lt;= N - K + 1; ++i) {
+        for (int j = 1; j &lt;= N - K + 1; ++j) {
+            val[i][j] = get_sum(i, j, i + K - 1, j + K - 1);
+        }
+    }
+
+    vector&lt;long long&gt; max_up(N + 2, -INF);
+    vector&lt;long long&gt; max_down(N + 2, -INF);
+    vector&lt;long long&gt; max_left(N + 2, -INF);
+    vector&lt;long long&gt; max_right(N + 2, -INF);
+
+    for (int i = K; i &lt;= N; ++i) {
+        long long mx = -INF;
+        int r = i - K + 1; 
+        for (int c = 1; c &lt;= N - K + 1; ++c) mx = max(mx, val[r][c]);
+        max_up[i] = max(max_up[i-1], mx);
+    }
+
+    for (int i = N - K + 1; i &gt;= 1; --i) {
+        long long mx = -INF;
+        int r = i; 
+        for (int c = 1; c &lt;= N - K + 1; ++c) mx = max(mx, val[r][c]);
+        max_down[i] = max(max_down[i+1], mx);
+    }
+
+    for (int j = K; j &lt;= N; ++j) {
+        long long mx = -INF;
+        int c = j - K + 1; 
+        for (int r = 1; r &lt;= N - K + 1; ++r) mx = max(mx, val[r][c]);
+        max_left[j] = max(max_left[j-1], mx);
+    }
+
+    for (int j = N - K + 1; j &gt;= 1; --j) {
+        long long mx = -INF;
+        int c = j; 
+        for (int r = 1; r &lt;= N - K + 1; ++r) mx = max(mx, val[r][c]);
+        max_right[j] = max(max_right[j+1], mx);
+    }
+
+    long long ans = -INF;
+
+    for (int i = K; i &lt;= N - K; ++i) {
+        if (max_up[i] != -INF &amp;&amp; max_down[i+1] != -INF)
+            ans = max(ans, max_up[i] + max_down[i+1]);
+    }
+    
+    for (int j = K; j &lt;= N - K; ++j) {
+        if (max_left[j] != -INF &amp;&amp; max_right[j+1] != -INF)
+            ans = max(ans, max_left[j] + max_right[j+1]);
+    }
+
+    cout &lt;&lt; ans &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+</div>
+
+<script>
+    // بيانات الشبكة الوهمية للشرح
+    const gridData = [
+        [ 5,  8, -2,  1],
+        [ 1,  4,  6,  3],
+        [-3,  2,  9,  5],
+        [ 0,  7,  1,  4]
+    ];
+    const N = 4;
+    const K = 2;
+
+    // تهيئة الشبكة
+    const gridDiv = document.getElementById('grid');
+    for (let r = 0; r < N; r++) {
+        for (let c = 0; c < N; c++) {
+            let cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.id = `cell-${r}-${c}`;
+            cell.innerText = gridData[r][c];
+            gridDiv.appendChild(cell);
+        }
+    }
+
+    function resetGrid() {
+        for (let r = 0; r < N; r++) {
+            for (let c = 0; c < N; c++) {
+                let cell = document.getElementById(`cell-${r}-${c}`);
+                cell.className = 'cell';
+            }
+        }
+        document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    }
+
+    // حساب مجموع المربع
+    function getSquareSum(r, c) {
+        return gridData[r][c] + gridData[r][c+1] + gridData[r+1][c] + gridData[r+1][c+1];
+    }
+
+    function highlightSquare(rStart, cStart, className) {
+        document.getElementById(`cell-${rStart}-${cStart}`).classList.add(className);
+        document.getElementById(`cell-${rStart}-${cStart+1}`).classList.add(className);
+        document.getElementById(`cell-${rStart+1}-${cStart}`).classList.add(className);
+        document.getElementById(`cell-${rStart+1}-${cStart+1}`).classList.add(className);
+    }
+
+    function splitHorizontal(row) {
+        resetGrid();
+        document.getElementById('btn-h1').classList.add('active');
+        
+        // رسم خط الفصل
+        let line = document.getElementById('split-line');
+        line.className = 'split-line-horiz';
+        line.style.display = 'block';
+        line.style.top = `${row * 72 - 2}px`;
+
+        // تلوين المناطق
+        for (let r = 0; r < N; r++) {
+            for (let c = 0; c < N; c++) {
+                document.getElementById(`cell-${r}-${c}`).classList.add(r < row ? 'region1' : 'region2');
+            }
+        }
+
+        // إيجاد أفضل مربع في المنطقة العليا (Region 1)
+        // المتاح هو الصف 0 فقط ليكون بداية مربع 2x2
+        let bestUpSum = -9999, bestUpCol = 0;
+        for (let c = 0; c <= N-K; c++) {
+            let s = getSquareSum(0, c);
+            if (s > bestUpSum) { bestUpSum = s; bestUpCol = c; }
+        }
+        highlightSquare(0, bestUpCol, 'highlight1');
+
+        // إيجاد أفضل مربع في المنطقة السفلى (Region 2)
+        // المتاح هو الصف 2 فقط ليكون بداية مربع 2x2
+        let bestDownSum = -9999, bestDownCol = 0;
+        for (let c = 0; c <= N-K; c++) {
+            let s = getSquareSum(2, c);
+            if (s > bestDownSum) { bestDownSum = s; bestDownCol = c; }
+        }
+        highlightSquare(2, bestDownCol, 'highlight2');
+
+        updateScores(bestUpSum, bestDownSum);
+    }
+
+    function splitVertical(col) {
+        resetGrid();
+        document.getElementById('btn-v1').classList.add('active');
+        
+        // رسم خط الفصل
+        let line = document.getElementById('split-line');
+        line.className = 'split-line-vert';
+        line.style.display = 'block';
+        line.style.left = `${col * 72 - 2}px`;
+
+        // تلوين المناطق
+        for (let r = 0; r < N; r++) {
+            for (let c = 0; c < N; c++) {
+                document.getElementById(`cell-${r}-${c}`).classList.add(c < col ? 'region1' : 'region2');
+            }
+        }
+
+        // المنطقة اليسرى (Region 1)
+        let bestLeftSum = -9999, bestLeftRow = 0;
+        for (let r = 0; r <= N-K; r++) {
+            let s = getSquareSum(r, 0);
+            if (s > bestLeftSum) { bestLeftSum = s; bestLeftRow = r; }
+        }
+        highlightSquare(bestLeftRow, 0, 'highlight1');
+
+        // المنطقة اليمنى (Region 2)
+        let bestRightSum = -9999, bestRightRow = 0;
+        for (let r = 0; r <= N-K; r++) {
+            let s = getSquareSum(r, 2);
+            if (s > bestRightSum) { bestRightSum = s; bestRightRow = r; }
+        }
+        highlightSquare(bestRightRow, 2, 'highlight2');
+
+        updateScores(bestLeftSum, bestRightSum);
+    }
+
+    function updateScores(s1, s2) {
+        document.getElementById('sum1').innerText = s1;
+        document.getElementById('sum2').innerText = s2;
+        document.getElementById('total-sum').innerText = s1 + s2;
+    }
+</script>
+
+</body>
+</html>

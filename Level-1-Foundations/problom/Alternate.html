@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKode | Alternate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+            direction: rtl;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; border-bottom: 1px solid rgba(0, 173, 239, 0.15);
+            position: sticky; top: 0; z-index: 1000;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; }
+        
+        .container { max-width: 900px; margin: 60px auto; padding: 0 25px; }
+
+        .title-section { text-align: center; margin-bottom: 50px; }
+        .title-section h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 5px; }
+        .attribution { color: var(--primary-blue); font-size: 1.2rem; font-weight: 600; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+            text-align: right;
+        }
+
+        .simulator-card {
+            background: white; border-radius: 30px; padding: 50px 40px;
+            text-align: center; box-shadow: var(--soft-shadow);
+            border: 3px dashed #cbd5e1;
+        }
+
+        input {
+            width: 150px; padding: 15px; border: 2px solid #e2e8f0;
+            background: #f8fafc; border-radius: 15px; font-size: 1.5rem; text-align: center;
+            margin-bottom: 25px; outline: none;
+        }
+
+        .btn-calc { background: var(--yellow-gradient); color: white; border: none; padding: 16px 45px; border-radius: 20px; cursor: pointer; font-weight: 800; font-size: 1.1rem; }
+
+        #sequenceArea { 
+            display: flex; flex-wrap: wrap; gap: 15px; 
+            justify-content: center; margin-top: 30px; 
+            flex-direction: row-reverse;
+        }
+        
+        .num-block { 
+            min-width: 120px; padding: 18px; border-radius: 20px; background: white; 
+            border: 2px solid #e2e8f0; text-align: center; animation: popIn 0.4s forwards; opacity: 0; 
+        }
+        
+        .num-val { font-size: 1.6rem; font-weight: 800; color: var(--dark-navy); }
+        .num-sign { font-size: 0.85rem; font-weight: bold; margin-bottom: 8px; }
+        .add { color: var(--primary-blue); border-color: var(--primary-blue); background: #f0f9ff; }
+        .sub { color: var(--primary-yellow); border-color: var(--primary-yellow); background: #fffbeb; }
+        
+        /* إصلاح اتجاه العمليات الحسابية */
+        .op-detail { 
+            font-size: 0.9rem; margin-top: 10px; font-weight: 700; color: #64748b; 
+            padding: 8px; border-top: 1px solid #e2e8f0; 
+            direction: ltr; display: block; unicode-bidi: embed;
+        }
+
+        #finalResult { 
+            margin-top: 40px; padding: 25px; background: #e0f2fe; 
+            border-radius: 20px; border: 2px solid var(--primary-blue);
+            display: none; animation: fadeIn 0.6s;
+        }
+
+        @keyframes popIn { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        #codeArea {
+            display: none; margin-top: 40px; 
+            background: #1e293b; border-radius: 25px; 
+            overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+        }
+        .code-header { background: #0f172a; padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .copy-btn { color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        pre { padding: 35px; color: #e2e8f0; font-family: 'Consolas', monospace; direction: ltr; text-align: left; margin: 0; overflow-x: auto; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button class="btn-calc" style="padding:10px 25px; font-size:0.9rem;" onclick="toggleCode()">
+            <i class="fas fa-terminal"></i> استعراض الكود المصدري
+        </button>
+        <div class="header-right">
+            <div style="text-align:left;">
+                <h3 style="margin:0; font-size:1.1rem;">منصة TweetKode</h3>
+                <p style="margin:0; color:var(--primary-blue); font-size:0.8rem;">للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="title-section">
+            <h1>Alternate</h1>
+            <p class="attribution">هذا الحل مقدم من منصة تويت كود</p>
+        </div>
+
+        <div class="card">
+            <h2 style="margin:0;">وصف المسألة</h2>
+            <p>يتم حساب مجموع الحدود حيث يتبع النمط التكرار: (جمع، جمع، طرح) للحدود المتسلسلة: <br>
+           <div dir="ltr" style="unicode-bidi: embed; font-weight: 800; font-size: 1.3rem; color: #0f172a; text-align: center; margin: 25px 0; letter-spacing: 1px;">
+    1 &middot; n + 2 &middot; (n - 1) - 3 &middot; (n - 2) + 4 &middot; (n - 3) + 5 &middot; (n - 4) - 6 &middot; (n - 5) + ... &plusmn; n &middot; 1
+</div>
+        </div>
+
+        <div class="simulator-card">
+            <h3>مختبر التتبع المتسلسل</h3>
+            <p>أدخل قيمة n:</p>
+            <input type="number" id="nInput" value="6">
+            <div style="margin-bottom: 30px;">
+                <button class="btn-calc" onclick="runSim()">ابدأ المحاكاة</button>
+            </div>
+            <div id="sequenceArea"></div>
+            <div id="finalResult"></div>
+        </div>
+
+        <div id="codeArea">
+            <div class="code-header"><span style="color:#94a3b8;">solution.cpp</span><button class="copy-btn" onclick="copyCode()">نسخ</button></div>
+<pre id="cppCode">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    long long n;
+    cin >> n;
+
+    long long total_sum = 0;
+    for (int i = 1; i <= n; i++) {
+        long long term = (long long)i * (n - i + 1);
+        
+        // النمط المتبع: جمع، جمع، طرح
+        if (i % 3 == 0) {
+            total_sum -= term;
+        } else {
+            total_sum += term;
+        }
+    }
+
+    cout << total_sum << endl;
+    return 0;
+}
+</pre>
+        </div>
+    </div>
+
+    <script>
+        function runSim() {
+            const n = parseInt(document.getElementById('nInput').value);
+            const container = document.getElementById('sequenceArea');
+            const resultDiv = document.getElementById('finalResult');
+            if (isNaN(n) || n < 1) return alert("يرجى إدخال رقم صحيح.");
+            
+            container.innerHTML = ""; resultDiv.style.display = "none";
+            let currentSum = 0;
+
+            for (let i = 1; i <= Math.min(n, 30); i++) {
+                setTimeout(() => {
+                    const isSubtract = (i % 3 === 0);
+                    const termVal = i * (n - i + 1);
+                    const prevSum = currentSum;
+                    
+                    if (isSubtract) currentSum -= termVal;
+                    else currentSum += termVal;
+
+                    const block = document.createElement('div');
+                    block.className = 'num-block ' + (isSubtract ? 'sub' : 'add');
+                    
+                    const signChar = isSubtract ? '-' : '+';
+                    
+                    block.innerHTML = `
+                        <div class="num-sign">${isSubtract ? 'طرح (-)' : 'جمع (+)'}</div>
+                        <div class="num-val">${i} × ${n-i+1}</div>
+                        <div class="op-detail">${prevSum} ${signChar} ${termVal} = ${currentSum}</div>
+                    `;
+                    
+                    container.appendChild(block);
+
+                    if (i === n) {
+                        resultDiv.style.display = "block";
+                        resultDiv.innerHTML = `<div style="font-size:1.4rem; font-weight:800;">النتيجة النهائية للمسألة: <span style="color:var(--primary-yellow)">${currentSum}</span></div>`;
+                    }
+                }, i * 200);
+            }
+        }
+
+        function toggleCode() { const el = document.getElementById('codeArea'); el.style.display = (el.style.display === 'block') ? 'none' : 'block'; }
+        function copyCode() { navigator.clipboard.writeText(document.getElementById('cppCode').innerText).then(() => alert("تم النسخ!")); }
+    </script>
+</body>
+</html>

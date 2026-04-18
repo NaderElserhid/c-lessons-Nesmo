@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الهياكل (Structs) في C++</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-main: #f8fafc; 
+            --bg-card: #ffffff; 
+            --accent-main: #2563eb; /* أزرق ملكي */
+            --accent-secondary: #f59e0b; /* برتقالي/ذهبي */
+            --text-primary: #1e293b; 
+            --text-secondary: #475569; 
+            --border-light: #e2e8f0; 
+            --code-bg: #0f172a; 
+            --code-text: #e2e8f0;
+            --success: #10b981;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.8;
+            background-image: radial-gradient(circle at top left, #eff6ff 0%, transparent 40%);
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            background-color: var(--bg-card);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.08);
+            border: 2px dashed var(--accent-main);
+        }
+
+        h1 {
+            font-family: 'Tajawal', sans-serif;
+            color: var(--accent-main);
+            margin: 0 0 10px 0;
+            font-size: 2.8em;
+        }
+
+        .desc {
+            color: var(--text-secondary);
+            font-size: 18px;
+            margin: 0;
+        }
+
+        .section-card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+            border: 1px solid var(--border-light);
+            border-right: 5px solid var(--accent-main);
+        }
+
+        h2 {
+            font-family: 'Tajawal', sans-serif;
+            color: var(--accent-main);
+            border-bottom: 2px dashed var(--border-light);
+            padding-bottom: 10px;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* تنسيق الأكواد */
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 20px;
+            border-radius: 8px;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 16px;
+            margin: 20px 0;
+            border-left: 5px solid var(--accent-secondary);
+        }
+        .kw { color: #c678dd; } 
+        .typ { color: #56b6c2; } 
+        .str { color: #98c379; } 
+        .com { color: #7f848e; font-style: italic; } 
+
+        /* الملاحظات والشروحات */
+        .info-box {
+            background-color: #eff6ff;
+            border-right: 4px solid var(--accent-main);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 18px;
+        }
+        
+        .alert-box {
+            background-color: #fffbeb;
+            border-right: 4px solid var(--accent-secondary);
+            padding: 15px;
+            border-radius: 8px;
+            color: #b45309;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        /* المحاكي التفاعلي */
+        .interactive-tool {
+            background-color: #f8fafc;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .input-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .input-field label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--text-primary);
+        }
+
+        .input-field input {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #94a3b8;
+            font-family: 'Cairo', sans-serif;
+            width: 150px;
+        }
+
+        .btn-add {
+            padding: 10px 25px;
+            font-size: 18px;
+            background-color: var(--accent-secondary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-weight: bold;
+            transition: 0.3s;
+            margin-top: 29px; /* لمحاذاة الزر مع الحقول */
+        }
+        .btn-add:hover { background-color: #d97706; }
+
+        .memory-box {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 30px;
+            min-height: 150px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px dashed #94a3b8;
+        }
+
+        .struct-card {
+            background-color: #e0f2fe;
+            border: 2px solid #7dd3fc;
+            border-radius: 10px;
+            padding: 15px;
+            width: 180px;
+            text-align: right;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            animation: popIn 0.4s ease-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .struct-title {
+            font-family: monospace;
+            color: #0369a1;
+            font-weight: bold;
+            font-size: 18px;
+            border-bottom: 1px solid #bae6fd;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .struct-member {
+            font-family: monospace;
+            font-size: 14px;
+            color: #334155;
+            margin-bottom: 5px;
+        }
+        .struct-val {
+            color: #b45309;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="page-header">
+        <h1>الهياكل (struct) 📦</h1>
+        <p class="desc">تعلم كيف تصنع أنواع بياناتك المخصصة وتجمع المتغيرات المترابطة في كيان واحد منظم!</p>
+    </div>
+
+    <div class="section-card">
+        <h2><span>🏗️</span> ما هي البنية (struct)؟</h2>
+        <p>
+            في لغة C++، تسمح لك <strong>البنية (struct)</strong> بتجميع عدة أجزاء من البيانات تحت اسم واحد. يمكنك التفكير فيها كـ "صندوق" أو "نموذج" يحتوي على عدة متغيرات مختلفة، وهذه المتغيرات قد تكون من <strong>أنواع مختلفة</strong> (مثل دمج نص <code>string</code> مع رقم <code>int</code> في مكان واحد).
+        </p>
+        <div class="info-box">
+            تُسمى المتغيرات الموجودة داخل الـ struct بـ <strong>الأعضاء (Members)</strong>. الـ struct مفيد جداً عندما تريد تمثيل "كيان" واحد له عدة خصائص (مثل طالب له: اسم، وعمر، ومعدل).
+        </div>
+
+        <h3>الصيغة العامة (Syntax):</h3>
+<pre>
+<span class="kw">struct</span> <span class="typ">TypeName</span> {
+    <span class="typ">type1</span> member_name1;
+    <span class="typ">type2</span> member_name2;
+    <span class="com">// ... يمكن إضافة المزيد</span>
+};
+</pre>
+        <ul>
+            <li><code>TypeName</code>: هو اسم نوع البيانات الجديد الذي تعرّفه أنت.</li>
+            <li>الفاصلة المنقوطة <code>;</code> في نهاية القوس المعقوف <code>}</code> <strong>ضرورية جداً!</strong> وإلا سيظهر لك خطأ برمجي.</li>
+        </ul>
+    </div>
+
+    <div class="section-card">
+        <h2><span>🍎</span> مثال عملي: بنية المنتج (product)</h2>
+        <p>لنفترض أننا نريد تخزين بيانات منتجات في سوبر ماركت. كل منتج له "وزن" و "سعر". بدلاً من تعريف متغيرات منفصلة لكل منتج، سنصنع <code>struct</code> يجمعها:</p>
+
+<pre>
+<span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="com">// 1. تعريف البنية (صنع الصندوق)</span>
+<span class="kw">struct</span> <span class="typ">product</span> {
+    <span class="typ">int</span> weight;     <span class="com">// الوزن بالجرام</span>
+    <span class="typ">double</span> price;   <span class="com">// السعر بالريال</span>
+};
+
+<span class="typ">int</span> main() {
+    <span class="com">// 2. إنشاء كائنات (متغيرات) من هذا النوع الجديد</span>
+    <span class="typ">product</span> apple;
+    <span class="typ">product</span> banana, melon;
+
+    <span class="com">// 3. الوصول للأعضاء وإعطائها قيماً باستخدام عامل النقطة (.)</span>
+    apple.weight = 150;
+    apple.price  = 1.99;
+    
+    banana.weight = 120;
+    banana.price  = 0.99;
+
+    <span class="com">// 4. طباعة القيم</span>
+    cout &lt;&lt; <span class="str">"Apple: "</span>  &lt;&lt; apple.weight  &lt;&lt; <span class="str">" g, "</span> &lt;&lt; apple.price &lt;&lt; <span class="str">" SAR"</span> &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Banana: "</span> &lt;&lt; banana.weight &lt;&lt; <span class="str">" g, "</span> &lt;&lt; banana.price &lt;&lt; <span class="str">" SAR"</span> &lt;&lt; endl;
+    
+    <span class="kw">return</span> 0;
+}
+</pre>
+
+        <h3>الوصول إلى الأعضاء (Accessing Members):</h3>
+        <p>للوصول إلى متغير معين داخل الـ struct، نستخدم <strong>عامل النقطة <code>.</code></strong> (Dot Operator).</p>
+        <ul>
+            <li><code>apple.weight</code> ← تعني "الوزن الخاص بالتفاحة".</li>
+            <li><code>apple.price</code> ← تعني "السعر الخاص بالتفاحة".</li>
+        </ul>
+        <p>يمكنك القراءة من هذه الأعضاء أو التعديل عليها أو طباعتها كما تفعل مع أي متغير عادي تماماً.</p>
+    </div>
+
+    <div class="section-card">
+        <h2><span>⚡</span> اختصار: تعريف الكائنات مع البنية مباشرة</h2>
+        <p>تسمح لك C++ بإنشاء المتغيرات (الكائنات) في نفس اللحظة التي تُعرّف فيها الـ struct، وذلك بكتابة أسماء المتغيرات قبل الفاصلة المنقوطة النهائية:</p>
+<pre>
+<span class="kw">struct</span> <span class="typ">product</span> {
+    <span class="typ">int</span> weight;
+    <span class="typ">double</span> price;
+} apple, banana, melon; <span class="com">// تعريف الكائنات هنا مباشرة!</span>
+</pre>
+        <div class="alert-box">
+            هذه الطريقة مختصرة ومفيدة إذا كنت تعرف مسبقاً أنك ستحتاج إلى هذه المتغيرات المحددة فقط. ولكن في الغالب، يُفضل تعريف الـ struct أولاً، ثم إنشاء المتغيرات داخل الـ <code>main</code> لترتيب الكود.
+        </div>
+    </div>
+
+    <div class="section-card">
+        <h2><span>🎮</span> محاكي الذاكرة: بناء الـ Structs</h2>
+        <div class="interactive-tool">
+            <p>أنت الآن المبرمج! أدخل بيانات المنتج (الاسم، الوزن، السعر)، واضغط "إنشاء <code>product</code>" لترى كيف يتم حجز مساحة مجمعة له في الذاكرة (Memory).</p>
+            
+            <div class="input-group">
+                <div class="input-field">
+                    <label>اسم المنتج (للتوضيح)</label>
+                    <input type="text" id="pName" placeholder="مثال: Orange">
+                </div>
+                <div class="input-field">
+                    <label>Weight (int)</label>
+                    <input type="number" id="pWeight" placeholder="مثال: 200">
+                </div>
+                <div class="input-field">
+                    <label>Price (double)</label>
+                    <input type="number" step="0.01" id="pPrice" placeholder="مثال: 3.50">
+                </div>
+                <button class="btn-add" onclick="createStruct()">إنشاء product +</button>
+            </div>
+
+            <div style="text-align: left; color: var(--text-secondary); font-family: monospace; border-bottom: 1px solid #cbd5e1; padding-bottom: 10px;">
+                الذاكرة المحجوزة (Memory Heap):
+            </div>
+            
+            <div class="memory-box" id="memoryArea">
+                </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function createStruct() {
+        const name = document.getElementById('pName').value.trim() || 'item';
+        const weight = document.getElementById('pWeight').value || '0';
+        const price = document.getElementById('pPrice').value || '0.00';
+
+        const memoryArea = document.getElementById('memoryArea');
+
+        // إنشاء كارد يمثل الـ Struct
+        const card = document.createElement('div');
+        card.className = 'struct-card';
+        
+        card.innerHTML = `
+            <div class="struct-title">product ${name}</div>
+            <div class="struct-member">
+                .weight = <span class="struct-val">${weight}</span>;
+            </div>
+            <div class="struct-member">
+                .price = <span class="struct-val">${price}</span>;
+            </div>
+        `;
+
+        memoryArea.appendChild(card);
+
+        // تفريغ الحقول بعد الإضافة
+        document.getElementById('pName').value = '';
+        document.getElementById('pWeight').value = '';
+        document.getElementById('pPrice').value = '';
+        document.getElementById('pName').focus();
+    }
+</script>
+
+</body>
+</html>

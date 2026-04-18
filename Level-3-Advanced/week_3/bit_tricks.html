@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حيل التعامل مع البِتّات (Bit Manipulation Tricks)</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-main: #f0fdfa; /* Teal خفيف جداً */
+            --bg-card: #ffffff; 
+            --accent-main: #0d9488; /* Teal أساسي */
+            --accent-secondary: #f59e0b; /* برتقالي */
+            --text-primary: #0f172a; 
+            --text-secondary: #475569; 
+            --border-light: #ccfbf1; 
+            --code-bg: #0f172a; 
+            --code-text: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.8;
+            background-image: radial-gradient(circle at top right, #ccfbf1 0%, transparent 40%);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* ترويسة الصفحة */
+        .page-header {
+            text-align: center;
+            background-color: var(--bg-card);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(13, 148, 136, 0.1);
+            border-bottom: 5px solid var(--accent-main);
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-family: 'Tajawal', sans-serif;
+            color: var(--accent-main);
+            margin: 0 0 10px 0;
+            font-size: 2.8em;
+        }
+
+        h2 {
+            font-family: 'Tajawal', sans-serif;
+            color: var(--accent-main);
+            border-right: 4px solid var(--accent-secondary);
+            padding-right: 15px;
+            margin-top: 40px;
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.08) 0%, transparent 100%);
+            padding: 10px 15px;
+            border-radius: 4px;
+        }
+
+        /* البطاقات والأقسام */
+        .section-card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+            border: 1px solid var(--border-light);
+        }
+
+        /* الأكواد البرمجية */
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 20px;
+            border-radius: 8px;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 16px;
+            border-left: 4px solid var(--accent-secondary);
+            margin: 15px 0;
+        }
+        .kw { color: #c678dd; } 
+        .typ { color: #56b6c2; } 
+        .str { color: #98c379; } 
+        .com { color: #7f848e; font-style: italic; } 
+
+        code {
+            background-color: #f1f5f9;
+            color: #b45309;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+            direction: ltr;
+            display: inline-block;
+        }
+
+        /* صناديق الشرح الإضافي */
+        .explanation-box {
+            background-color: #f0fdfa;
+            border-right: 4px solid var(--accent-main);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .explanation-box h4 {
+            color: var(--accent-main);
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1.2em;
+        }
+
+        .math-block {
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 18px;
+            direction: ltr;
+            text-align: left;
+            border: 1px dashed #cbd5e1;
+            margin: 15px 0;
+            white-space: pre;
+        }
+
+        /* المحاكي التفاعلي */
+        .interactive-lab {
+            background-color: #e0f2fe;
+            border: 2px solid #bae6fd;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 40px;
+            text-align: center;
+        }
+        .lab-header {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0369a1;
+            margin-bottom: 25px;
+        }
+        .controls-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+        .control-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .control-item label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #0c4a6e;
+        }
+        .control-item input, .control-item select {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #7dd3fc;
+            font-family: monospace;
+            text-align: center;
+            width: 200px;
+        }
+        .btn-run {
+            background-color: var(--accent-secondary);
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            margin-top: 32px;
+            transition: 0.3s;
+        }
+        .btn-run:hover { background-color: #d97706; }
+        
+        .lab-screen {
+            background-color: #0f172a;
+            color: #10b981;
+            font-family: 'Consolas', monospace;
+            padding: 25px;
+            border-radius: 8px;
+            font-size: 20px;
+            direction: ltr;
+            text-align: left;
+            min-height: 200px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
+            line-height: 1.6;
+        }
+        .lab-comment { color: #64748b; font-size: 16px; font-style: italic; }
+        .highlight { color: #fde047; font-weight: bold; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="page-header">
+        <h1>حيل التعامل مع البِتّات 💡</h1>
+        <p>Bit Manipulation Tricks</p>
+    </div>
+
+    <div class="section-card">
+        <p>سنفترض وجود المتغيرين التاليين في جميع الأمثلة:</p>
+<pre>
+<span class="typ">int</span> x;       <span class="com">// some non-negative integer</span>
+<span class="typ">int</span> k;       <span class="com">// 0-based bit index (0 = least significant bit)</span>
+</pre>
+        <p>وسنستخدم أقنعة (masks) مثل <code>1 &lt;&lt; k</code>، والتي يكون فيها البِت رقم $k$ فقط مساويًا لـ 1.</p>
+    </div>
+
+    <div class="section-card">
+        <h2>1. فحص ما إذا كان البِت $k$ يساوي 1</h2>
+<pre>
+<span class="typ">bool</span> isSet = (x &gt;&gt; k) & 1;
+</pre>
+        <ul>
+            <li><code>x &gt;&gt; k</code>: إزاحة لليمين بحيث ينتقل البِت رقم $k$ إلى أقصى اليمين.</li>
+            <li><code>(x &gt;&gt; k) & 1</code>: تُبقي البِت الأيمن فقط وتصفّر باقي البِتّات.</li>
+        </ul>
+        <p>الناتج يكون <code>0</code> أو <code>1</code>، وهو يعادل <code>false</code> أو <code>true</code> منطقيًا.</p>
+
+        <div class="explanation-box">
+            <h4>💡 مثال وتوضيح:</h4>
+            <p>افحص ما إذا كان البِت رقم 1 في $x$ مُعينًا (يساوي 1).</p>
+<pre>
+<span class="typ">int</span> x = 10;     <span class="com">// 10 = 1010 (in binary)</span>
+<span class="typ">int</span> k = 1;
+<span class="typ">bool</span> isSet = (x &gt;&gt; 1) & 1; 
+<span class="com">// 1010 &gt;&gt; 1 = 0101</span>
+<span class="com">// 0101 & 0001 = 0001 (true)</span>
+</pre>
+            <p><strong>شرح:</strong> بعملية الإزاحة <code>&gt;&gt; 1</code>، تحرك البت الهدف من الموضع 1 ليصبح في الموضع 0 (أقصى اليمين). ثم باستخدام <code>& 1</code> نحن نتجاهل كل البتات الأخرى ونسأل: "هل البت الأول هو 1؟".</p>
+        </div>
+
+        <p>معطى عددان $n$ و $k$، دالة تحدد ما إذا كان البِت رقم $k$ في $n$ مساويًا لـ1:</p>
+<pre>
+<span class="typ">bool</span> kthBitIsSet(<span class="typ">int</span> n, <span class="typ">int</span> k) {
+    <span class="kw">return</span> (n &gt;&gt; k) & 1;
+}
+</pre>
+    </div>
+
+    <div class="section-card">
+        <h2>2. ضبط البِت رقم $k$ إلى 1</h2>
+<pre>
+x |= (1 &lt;&lt; k);
+</pre>
+        <p>العامل <code>|</code> يعيّن البِت إلى 1 إذا كان على الأقل أحد الطرفين يحتوي 1. بهذا نجبر البِت رقم $k$ أن يصبح 1، بينما تبقى باقي البِتّات كما هي.</p>
+        
+        <div class="explanation-box">
+            <h4>💡 مثال وتوضيح:</h4>
+<pre>
+<span class="typ">int</span> x = 4;      <span class="com">// 0100</span>
+x |= (1 &lt;&lt; 0);  <span class="com">// 0100 | 0001 = 0101 (5)</span>
+</pre>
+            <p><strong>شرح:</strong> القناع <code>(1 &lt;&lt; 0)</code> يولد <code>0001</code>. عند عمل بوابة <code>OR</code>، فإن أي بت يقابله <code>0</code> في القناع لن يتأثر وينزل كما هو، بينما البت الذي يقابله <code>1</code> سيتحول إلى <code>1</code> إجبارياً.</p>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <h2>3. تصفير البِت رقم $k$ (جعله 0)</h2>
+<pre>
+x &= ~(1 &lt;&lt; k);
+</pre>
+        <ul>
+            <li><code>1 &lt;&lt; k</code>: قناع فيه البِت رقم $k$ يساوي 1.</li>
+            <li><code>~(1 &lt;&lt; k)</code>: قناع فيه البِت رقم $k$ يساوي 0، وجميع البِتّات الأخرى تساوي 1.</li>
+        </ul>
+        <p>إجراء <code>&</code> مع هذا القناع يقوم بتصفير البِت رقم $k$ فقط.</p>
+        
+        <div class="explanation-box">
+            <h4>💡 مثال وتوضيح:</h4>
+<pre>
+<span class="typ">int</span> x = 13;         <span class="com">// 1101</span>
+x &= ~(1 &lt;&lt; 2);     <span class="com">// ~(0100) = ...1011</span>
+                    <span class="com">// 1101 & 1011 = 1001 (9)</span>
+</pre>
+            <p><strong>شرح:</strong> لكي "نُطفئ" بتاً معيناً دون تدمير الباقي، نحتاج قناعاً كله آحاد <code>1</code> ما عدا موقع البت الهدف يجب أن يكون <code>0</code>. بوابة <code>AND</code> مع <code>1</code> تُبقي الرقم كما هو، بينما <code>AND</code> مع <code>0</code> تُدمره (تُصفره). الآن البِت رقم 2 أصبح 0.</p>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <h2>4. قلب (تبديل) البِت رقم $k$</h2>
+<pre>
+x ^= (1 &lt;&lt; k);
+</pre>
+        <p>العامل <code>^</code> (XOR) يقلب البِت عندما يكون القناع فيه 1:<br>
+        <code>0 ^ 1 = 1</code><br>
+        <code>1 ^ 1 = 0</code></p>
+        
+        <div class="explanation-box">
+            <h4>💡 مثال وتوضيح:</h4>
+<pre>
+<span class="typ">int</span> x = 5;     <span class="com">// 0101</span>
+x ^= (1 &lt;&lt; 2); <span class="com">// 0101 ^ 0100 = 0001 (1)</span>
+</pre>
+            <p><strong>شرح:</strong> البت رقم 2 كان <code>1</code>، وأصبح الآن <code>0</code>. لو أعدنا نفس العملية سينقلب مجدداً ويصبح <code>1</code>.</p>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <h2>5. إزالة أقل بِت معيّن (أقل 1 من اليمين)</h2>
+        <p>هذه حيلة مشهورة جدًّا:</p>
+<pre>
+x = x & (x - 1);
+</pre>
+        <p>هذا السطر يزيل (يُصفّر) أقل بِت معيّن (أول 1 من جهة اليمين) في $x$.</p>
+        
+        <h3>لماذا تعمل هذه الحيلة؟</h3>
+        <p>فكّر ماذا يحدث للبِتّات عندما نطرح 1:</p>
+        <ul>
+            <li>عند تنفيذ <code>x - 1</code>، نمشي من اليمين حتى نجد <strong>أول بِت قيمته 1</strong>.</li>
+            <li>هذا البِت الأقل (أقرب 1 لليمين) يتحوّل إلى <strong>0</strong>.</li>
+            <li>كل البِتّات <strong>التي على يمينه</strong> (والتي كانت 0) تتحوّل إلى <strong>1</strong> (بسبب الاقتراض في الطرح).</li>
+        </ul>
+        <div class="math-block">x:       .... 1 0 0 0 0
+x - 1:   .... 0 1 1 1 1
+-------------------------
+x&(x-1): .... 0 0 0 0 0</div>
+        
+        <div class="explanation-box">
+            <h4>💡 استنتاج رياضي:</h4>
+            <p>عند إجراء AND، أقل بِت معيّن يصبح 0 لأنه <code>1 & 0</code>. كل البِتّات التي على يمينه كانت 0 في $x$ وتعطي <code>0 & 1 = 0</code>. كل البتات التي على يساره متطابقة في الرقمين فتبقى كما هي.</p>
+            <p><strong>مثال:</strong><br>
+            <code>x           = 12 = 1100</code><br>
+            <code>x - 1       = 11 = 1011</code><br>
+            <code>x & (x - 1) =  8 = 1000</code><br>
+            إذًا قمنا بإزالة أقل بِت معيّن (البِت رقم 2).</p>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <h2>6. فحص ما إذا كان $x$ قوة للعدد 2</h2>
+        <p>سنفترض أن $x$ عدد موجب، ونستخدم الحيلة السابقة:</p>
+<pre>
+<span class="typ">bool</span> isPowerOfTwo = (x & (x - 1)) == 0;
+</pre>
+        
+        <div class="explanation-box">
+            <h4>💡 لماذا تعمل هذه الحيلة؟</h4>
+            <p>العدد الذي هو قوة للعدد 2 في الثنائي (1, 10, 100, 1000, …) يحتوي <strong>بِتًا واحدًا فقط</strong> معيّنًا. عند إزالة هذا البت الوحيد باستخدام <code>x & (x - 1)</code>، تصبح القيمة بأكملها 0.</p>
+            <p><strong>أمثلة:</strong><br>
+            $x = 8 \ (1000) \rightarrow 1000 \ \& \ 0111 = 0000$ $\rightarrow$ <strong>قوة للعدد 2.</strong><br>
+            $x = 12 \ (1100) \rightarrow 1100 \ \& \ 1011 = 1000$ $\rightarrow$ ليست 0 $\rightarrow$ <strong>ليس قوة للعدد 2.</strong></p>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <h2>7. الحصول على أقل بِت معيّن فقط</h2>
+<pre>
+<span class="typ">int</span> lowest = x & -x;
+</pre>
+        <p>هنا <code>-x</code> هو المتمّم الثنائي (two’s complement) للعدد $x$.</p>
+        
+        <div class="explanation-box">
+            <h4>💡 الفكرة والمثال:</h4>
+            <p>التعبير <code>x & -x</code> يعزل أقل بِت معيّن (أول 1 من جهة اليمين) ويصفّر جميع البِتّات الأخرى.</p>
+            <p><strong>مثال:</strong><br>
+            <code>x               = 12 = ...00001100</code><br>
+            <code>-x (two's comp) = -12 = ...11110100</code><br>
+            <code>x & -x          =  4 = ...00000100</code><br>
+            أقل بِت معيّن في $x$ يمثّل القيمة 4 (أي البِت رقم 2).</p>
+        </div>
+    </div>
+
+    <div class="section-card" style="background-color: #fffbeb; border-color: #fde68a;">
+        <h2 style="margin-top: 0; color: #b45309; border: none; background: none;">📌 ملخص سريع للحفظ</h2>
+        <ul style="font-size: 18px; line-height: 2; font-weight: bold;">
+            <li>فحص البِت رقم $k$: <code style="float:left; margin-top:5px;">isSet = (x &gt;&gt; k) & 1;</code></li>
+            <li>ضبط البِت رقم $k$ إلى 1: <code style="float:left; margin-top:5px;">x |= (1 &lt;&lt; k);</code></li>
+            <li>تصفير البِت رقم $k$: <code style="float:left; margin-top:5px;">x &= ~(1 &lt;&lt; k);</code></li>
+            <li>قلب (تبديل) البِت رقم $k$: <code style="float:left; margin-top:5px;">x ^= (1 &lt;&lt; k);</code></li>
+            <li>إزالة أقل بِت معيّن: <code style="float:left; margin-top:5px;">x &= (x - 1);</code></li>
+            <li>فحص إذا كان $x$ قوة للعدد 2: <code style="float:left; margin-top:5px;">(x &gt; 0) && (x & (x - 1)) == 0;</code></li>
+            <li>الحصول على أقل بِت معيّن فقط: <code style="float:left; margin-top:5px;">lowest = x & -x;</code></li>
+        </ul>
+        <div style="clear: both;"></div>
+    </div>
+
+    <div class="interactive-lab">
+        <div class="lab-header">🔬 مختبر الحيل التفاعلي (Bit Tricks Lab)</div>
+        <p>جرب تغيير قيم $x$ و $k$ واختر الحيلة لتشاهد كيف ينفذها الكمبيوتر خطوة بخطوة بالصيغة الثنائية!</p>
+        
+        <div class="controls-grid">
+            <div class="control-item">
+                <label>الرقم (x)</label>
+                <input type="number" id="labX" value="12" min="1" max="255">
+            </div>
+            <div class="control-item">
+                <label>مؤشر البت (k)</label>
+                <input type="number" id="labK" value="2" min="0" max="7">
+            </div>
+            <div class="control-item">
+                <label>اختر الحيلة</label>
+                <select id="labTrick">
+                    <option value="check">1. فحص البت k</option>
+                    <option value="set">2. ضبط البت k إلى 1</option>
+                    <option value="clear">3. تصفير البت k</option>
+                    <option value="toggle">4. قلب البت k</option>
+                    <option value="rm_lowest">5. إزالة أقل بت معين</option>
+                    <option value="get_lowest">7. استخراج أقل بت معين</option>
+                </select>
+            </div>
+            <button class="btn-run" onclick="runLab()">نفّذ الكود ▶</button>
+        </div>
+
+        <div class="lab-screen" id="labScreen">
+            <span class="lab-comment">// شاشة المعالجة (Console)</span><br>
+            <span class="lab-comment">// اضغط على "نفّذ الكود" لبدء المحاكاة...</span>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // دالة مساعدة لطباعة 8 بت
+    function to8Bit(num) {
+        return ("00000000" + (num >>> 0).toString(2)).slice(-8);
+    }
+
+    function runLab() {
+        let x = parseInt(document.getElementById('labX').value) || 0;
+        let k = parseInt(document.getElementById('labK').value) || 0;
+        let trick = document.getElementById('labTrick').value;
+        let screen = document.getElementById('labScreen');
+        
+        // منع القيم السالبة لتبسيط العرض
+        x = Math.max(0, Math.min(255, x));
+        k = Math.max(0, Math.min(7, k));
+
+        let output = `<span class="lab-comment">// --- الحالة المبدئية ---</span>\n`;
+        output += `int x = ${x};   <span class="lab-comment">// Binary: <span class="highlight">${to8Bit(x)}</span></span>\n`;
+        output += `int k = ${k};\n\n`;
+
+        let mask, result;
+
+        switch(trick) {
+            case 'check':
+                result = (x >> k) & 1;
+                output += `<span class="lab-comment">// فحص ما إذا كان البت ${k} هو 1</span>\n`;
+                output += `(x >> ${k}) & 1\n`;
+                output += `x >> ${k} = ${to8Bit(x >> k)}\n`;
+                output += `Mask  = ${to8Bit(1)} (AND)\n`;
+                output += `----------------\n`;
+                output += `Res   = 0000000<span class="highlight">${result}</span>  <span class="lab-comment">-> ${result === 1 ? 'true' : 'false'}</span>`;
+                break;
+                
+            case 'set':
+                mask = 1 << k;
+                result = x | mask;
+                output += `<span class="lab-comment">// ضبط البت ${k} إلى 1</span>\n`;
+                output += `x | (1 << ${k})\n`;
+                output += `x     = ${to8Bit(x)}\n`;
+                output += `Mask  = ${to8Bit(mask)} (OR)\n`;
+                output += `----------------\n`;
+                output += `Res   = <span class="highlight">${to8Bit(result)}</span>  <span class="lab-comment">-> Decimal: ${result}</span>`;
+                break;
+
+            case 'clear':
+                let initialMask = 1 << k;
+                mask = ~initialMask;
+                result = x & mask;
+                output += `<span class="lab-comment">// تصفير البت ${k} إلى 0</span>\n`;
+                output += `x & ~(1 << ${k})\n`;
+                output += `x     = ${to8Bit(x)}\n`;
+                output += `~Mask = ${to8Bit(mask & 255)} (AND)\n`;
+                output += `----------------\n`;
+                output += `Res   = <span class="highlight">${to8Bit(result & 255)}</span>  <span class="lab-comment">-> Decimal: ${result}</span>`;
+                break;
+
+            case 'toggle':
+                mask = 1 << k;
+                result = x ^ mask;
+                output += `<span class="lab-comment">// قلب (تبديل) البت ${k}</span>\n`;
+                output += `x ^ (1 << ${k})\n`;
+                output += `x     = ${to8Bit(x)}\n`;
+                output += `Mask  = ${to8Bit(mask)} (XOR)\n`;
+                output += `----------------\n`;
+                output += `Res   = <span class="highlight">${to8Bit(result)}</span>  <span class="lab-comment">-> Decimal: ${result}</span>`;
+                break;
+
+            case 'rm_lowest':
+                result = x & (x - 1);
+                output += `<span class="lab-comment">// إزالة أقل بت معين (أول 1 من اليمين)</span>\n`;
+                output += `x & (x - 1)\n`;
+                output += `x     = ${to8Bit(x)}\n`;
+                output += `x - 1 = ${to8Bit(x - 1)} (AND)\n`;
+                output += `----------------\n`;
+                output += `Res   = <span class="highlight">${to8Bit(result)}</span>  <span class="lab-comment">-> Decimal: ${result}</span>`;
+                break;
+
+            case 'get_lowest':
+                result = x & -x;
+                output += `<span class="lab-comment">// الحصول على أقل بت معين فقط</span>\n`;
+                output += `x & -x\n`;
+                output += `x     = ${to8Bit(x)}\n`;
+                output += `-x    = ${to8Bit(-x & 255)} (AND 2's comp.)\n`;
+                output += `----------------\n`;
+                output += `Res   = <span class="highlight">${to8Bit(result & 255)}</span>  <span class="lab-comment">-> Decimal: ${result}</span>`;
+                break;
+        }
+
+        screen.innerHTML = output.replace(/\n/g, '<br>');
+    }
+</script>
+
+</body>
+</html>

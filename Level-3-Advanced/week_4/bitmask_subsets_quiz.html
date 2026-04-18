@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار شامل: توليد المجموعات الجزئية (Bitmasks)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <style>
+        :root {
+            --bg-main: #f0fdfa; 
+            --bg-card: #ffffff; 
+            --accent-main: #0d9488; /* Teal */
+            --accent-secondary: #f59e0b; 
+            --text-primary: #0f172a; 
+            --text-secondary: #475569; 
+            --code-bg: #f8fafc; 
+            --border-light: #cbd5e1; 
+            --success: #10b981; 
+            --danger: #ef4444; 
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            background-image: radial-gradient(circle at top right, #ccfbf1 0%, transparent 40%);
+        }
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-card);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(13, 148, 136, 0.08);
+            border: 2px solid var(--border-light);
+        }
+        h2 {
+            text-align: center;
+            color: var(--accent-main);
+            border-bottom: 3px dashed var(--border-light);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 800;
+            font-size: 2.2em;
+        }
+        .question-card {
+            background-color: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            position: relative;
+            transition: transform 0.2s;
+        }
+        .question-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(13, 148, 136, 0.4);
+        }
+        .difficulty-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+        }
+        .badge-easy { background-color: var(--success); } 
+        .badge-medium { background-color: var(--accent-secondary); } 
+        .badge-hard { background-color: var(--danger); }
+        
+        .question-text {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            padding-left: 80px; 
+            line-height: 1.6;
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option-btn {
+            background-color: var(--code-bg);
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            padding: 14px 18px;
+            text-align: right;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: var(--text-primary);
+            direction: ltr;
+        }
+        .option-btn > span {
+            display: block;
+            text-align: right;
+            direction: rtl;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #e0f2fe;
+            border-color: var(--accent-main);
+        }
+        .option-btn:disabled { cursor: not-allowed; }
+        
+        .option-btn.correct {
+            background-color: #d1fae5;
+            border-color: var(--success);
+            color: #065f46;
+        }
+        .option-btn.wrong {
+            background-color: #fee2e2;
+            border-color: var(--danger);
+            color: #991b1b;
+        }
+        
+        .explanation-box {
+            display: none;
+            margin-top: 20px;
+            padding: 18px;
+            background-color: #f0fdfa;
+            border-right: 5px solid var(--accent-main);
+            border-radius: 8px;
+            font-size: 16px;
+            color: #0f766e;
+            animation: fadeIn 0.5s ease-in-out;
+            line-height: 1.7;
+            font-weight: 600;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        code {
+            background-color: #e2e8f0;
+            padding: 3px 7px;
+            border-radius: 4px;
+            font-family: monospace;
+            direction: ltr;
+            display: inline-block;
+            color: #b45309;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h2>🧩 اختبار: توليد المجموعات الجزئية (Bitmask Subsets)</h2>
+    <div id="quiz-area"></div>
+</div>
+
+<script>
+    const questions = [
+        // ================= الأسئلة السهلة =================
+        {
+            q: "كم عدد المجموعات الجزئية (Subsets) الممكنة لمصفوفة تحتوي على $n$ من العناصر؟",
+            options: [
+                "$n^2$", 
+                "$2^n$", 
+                "$n!$", 
+                "$2n$"
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "لأن كل عنصر في المصفوفة لديه حالتين فقط: إما أن يكون موجوداً في المجموعة الجزئية أو غير موجود. لذا الاحتمالات هي $2 \\times 2 \\dots \\times 2 = 2^n$."
+        },
+        {
+            q: "في ترميز المجموعات الجزئية باستخدام الأعداد الثنائية، ماذا تعني قيمة البت <code>1</code>؟",
+            options: [
+                "تعني أن العنصر المقابل موجود (مُتضمن) في المجموعة الجزئية.", 
+                "تعني أن العنصر المقابل تم حذفه من المصفوفة.", 
+                "تعني أن المجموعة الجزئية انتهت.", 
+                "تعني أن العنصر المقابل قيمته 1."
+            ],
+            answer: 0,
+            difficulty: "سهل",
+            explanation: "في القناع الثنائي (Bitmask)، نستخدم البتات كـ (مفاتيح تشغيل/إطفاء). 1 يعني (خذ هذا العنصر) و 0 يعني (تجاهل هذا العنصر)."
+        },
+        {
+            q: "ما هو الرقم الثنائي (Bitmask) الذي يمثل (المجموعة الفارغة) لأي مصفوفة؟",
+            options: [
+                "رقم مكون من آحاد بالكامل (مثال: 111).", 
+                "رقم مكون من أصفار بالكامل (مثال: 000).", 
+                "الرقم 1.", 
+                "لا يمكن تمثيل المجموعة الفارغة ثنائياً."
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "المجموعة الفارغة تعني أننا لم نقم باختيار أي عنصر، وبالتالي جميع البتات المقابلة للعناصر يجب أن تكون 0."
+        },
+        {
+            q: "إذا كانت لدينا المصفوفة <code>{A, B, C}</code>، ما هو الرقم الثنائي الذي يمثل المجموعة الجزئية التي تحتوي على كل العناصر؟",
+            options: [
+                "000", 
+                "011", 
+                "100", 
+                "111"
+            ],
+            answer: 3,
+            difficulty: "سهل",
+            explanation: "لاختيار كل العناصر، يجب أن تكون قيمة كل بت مقابلة لعنصر تساوي 1. بما أن لدينا 3 عناصر، فالقناع هو 111 بالثنائي (وهو 7 بالعشري)."
+        },
+        {
+            q: "ما هو التعبير البرمجي الأسرع في C++ لحساب $2^n$ باستخدام البتات؟",
+            options: [
+                "<code>pow(2, n)</code>", 
+                "<code>n &lt;&lt; 2</code>", 
+                "<code>1 &lt;&lt; n</code>", 
+                "<code>2 ^ n</code>"
+            ],
+            answer: 2,
+            difficulty: "سهل",
+            explanation: "عملية الإزاحة لليسار <code>1 &lt;&lt; n</code> تقوم بإزاحة الرقم 1 مقدار n خانة، مما يكافئ تماماً ضرب 1 في $2^n$، وهي أسرع بكثير من استخدام دالة <code>pow</code>."
+        },
+
+        // ================= الأسئلة المتوسطة =================
+        {
+            q: "في الحلقة <code>for(int i = 0; i &lt; (1 &lt;&lt; n); i++)</code>، ماذا يمثل المتغير <code>i</code> رياضياً ومنطقياً؟",
+            options: [
+                "يمثل مؤشر العنصر في المصفوفة الأصلية.", 
+                "يمثل عدد العناصر في المصفوفة الجزئية الحالية.", 
+                "يمثل القناع الثنائي (Bitmask) الذي يحدد حالة جميع العناصر (موجودة أو لا) لمجموعة جزئية واحدة.", 
+                "يمثل مجموع قيم عناصر المصفوفة."
+            ],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "المتغير <code>i</code> يتدرج من $0$ إلى $2^n - 1$. في كل دورة، يمثل تمثيله الثنائي (الأصفار والآحاد المكونة له) التشكيلة الخاصة بعناصر هذه المجموعة الجزئية المحددة."
+        },
+        {
+            q: "لدينا المصفوفة <code>{10, 20, 30}</code> (حيث 10 في المؤشر 0). ما هو الرقم العشري <code>i</code> الذي يولّد المجموعة الجزئية <code>{10, 30}</code>؟",
+            options: [
+                "3", 
+                "5", 
+                "6", 
+                "4"
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "الرقم 10 يقع في المؤشر 0 (البت الأول من اليمين = 1). الرقم 30 يقع في المؤشر 2 (البت الثالث من اليمين = 1). إذن الثنائي هو <code>101</code>، والذي يعادل الرقم العشري 5."
+        },
+        {
+            q: "داخل الحلقة، كيف نتحقق برمجياً مما إذا كان العنصر في المؤشر <code>j</code> موجوداً في المجموعة الجزئية التي يمثلها القناع <code>i</code>؟",
+            options: [
+                "<code>if (i == j)</code>", 
+                "<code>if ((i & (1 &lt;&lt; j)) != 0)</code>", 
+                "<code>if (i | (1 &lt;&lt; j) == 1)</code>", 
+                "<code>if (i &gt;&gt; j == 0)</code>"
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "نحن نستخدم حيلة (فحص البت رقم j). القناع <code>1 &lt;&lt; j</code> يضع 1 في موضع العنصر. بوابة <code>&</code> مع <code>i</code> ستعيد رقماً أكبر من الصفر فقط إذا كان البت موجوداً في <code>i</code>."
+        },
+        {
+            q: "ما هو عدد المجموعات الجزئية الممكنة لمصفوفة تحتوي على 5 عناصر؟",
+            options: [
+                "10", 
+                "25", 
+                "32", 
+                "64"
+            ],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "القاعدة هي $2^n$. إذن $2^5 = 32$ مجموعة جزئية (بما في ذلك المجموعة الفارغة والمجموعة الكاملة)."
+        },
+        {
+            q: "إذا كان القناع الثنائي <code>i = 6</code> (وهو بالثنائي <code>110</code>)، أي العناصر سيتم اختيارها من المصفوفة <code>{A, B, C}</code> (حيث A في المؤشر 0)؟",
+            options: [
+                "العنصر A فقط.", 
+                "العنصران A و B.", 
+                "العنصران B و C.", 
+                "العنصران A و C."
+            ],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "الرقم <code>110</code> يقرأ من اليمين لليسار. البت 0 (للعنصر A) هو 0. البت 1 (للعنصر B) هو 1. البت 2 (للعنصر C) هو 1. إذن سيتم اختيار B و C."
+        },
+
+        // ================= الأسئلة الصعبة =================
+        {
+            q: "ما هو التعقيد الزمني (Time Complexity) الكلي لبرنامج يطبع جميع المجموعات الجزئية لمصفوفة طولها $n$ باستخدام حلقات القناع الثنائي؟",
+            options: [
+                "$O(n^2)$", 
+                "$O(2^n)$", 
+                "$O(n \\cdot 2^n)$", 
+                "$O(n!)$"
+            ],
+            answer: 2,
+            difficulty: "صعب",
+            explanation: "لدينا حلقة خارجية تدور $2^n$ مرة (لكل الأقنعة). وداخلها حلقة داخلية تدور $n$ مرة (للتحقق من كل بت في القناع). إذن التعقيد حاصل ضربهما: $O(n \\cdot 2^n)$."
+        },
+        {
+            q: "إذا أردنا توليد جميع المجموعات الجزئية <strong>ما عدا</strong> المجموعة الفارغة والمجموعة الكاملة (التي تضم كل العناصر)، ما هو التعديل الصحيح لنطاق حلقة <code>i</code>؟",
+            options: [
+                "<code>for(int i = 1; i &lt; (1 &lt;&lt; n) - 1; i++)</code>", 
+                "<code>for(int i = 0; i &lt; (1 &lt;&lt; n); i++)</code>", 
+                "<code>for(int i = 1; i &lt; (1 &lt;&lt; n); i++)</code>", 
+                "<code>for(int i = 0; i &lt; (1 &lt;&lt; n) - 1; i++)</code>"
+            ],
+            answer: 0,
+            difficulty: "صعب",
+            explanation: "نبدأ من <code>i = 1</code> لتجاوز المجموعة الفارغة (i=0). وننتهي قبل <code>(1 &lt;&lt; n) - 1</code> لتجاوز المجموعة الكاملة (التي تكون فيها كل البتات آحاد)."
+        },
+        {
+            q: "إذا أردت طباعة المجموعات الجزئية التي تحتوي على <strong>3 عناصر بالضبط</strong> من مصفوفة، ماذا يجب أن تفحص داخل الحلقة الخارجية قبل طباعة المصفوفة؟",
+            options: [
+                "أتحقق من أن <code>i == 3</code>.", 
+                "أتحقق من أن مجموع العناصر يساوي 3.", 
+                "أتحقق من أن عدد البتات المعينة (Set bits) في القناع <code>i</code> يساوي 3.", 
+                "أتحقق من أن <code>(i & 3) != 0</code>."
+            ],
+            answer: 2,
+            difficulty: "صعب",
+            explanation: "بما أن كل بت 1 يمثل عنصراً واحداً تم اختياره، فإن عدد العناصر في المجموعة الجزئية يساوي عدد الآحاد في القناع الثنائي (i). في C++ يمكن استخدام الدالة المدمجة <code>__builtin_popcount(i) == 3</code>."
+        },
+        {
+            q: "لدينا مصفوفة طولها $n=4$. عندما يكون القناع <code>i = 8</code>، ما هي المجموعة الجزئية التي سيمثلها؟",
+            options: [
+                "المجموعة التي تحتوي على جميع العناصر الـ 4.", 
+                "المجموعة التي تحتوي على العنصر الرابع فقط (المؤشر 3).", 
+                "المجموعة التي تحتوي على العنصر الأول فقط (المؤشر 0).", 
+                "المجموعة الفارغة."
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "الرقم 8 بالصيغة الثنائية هو <code>1000</code>. هذا يعني أن البت رقم 3 فقط هو 1، بينما البتات (0, 1, 2) كلها أصفار. إذن سيمثل العنصر ذو المؤشر 3 فقط."
+        },
+        {
+            q: "لنفترض أنك تريد توليد جميع المجموعات الجزئية، ولكنك تشترط أن يكون العنصر الموجود في المؤشر <code>k</code> <strong>موجوداً دائماً</strong> في جميع المجموعات المطبوعة. أي شرط ستضيفه في بداية حلقة <code>i</code> لتخطي المجموعات المرفوضة؟",
+            options: [
+                "<code>if ((i & (1 &lt;&lt; k)) == 0) continue;</code>", 
+                "<code>if ((i ^ (1 &lt;&lt; k)) == 0) continue;</code>", 
+                "<code>if ((i | (1 &lt;&lt; k)) == 0) continue;</code>", 
+                "<code>if (i == (1 &lt;&lt; k)) continue;</code>"
+            ],
+            answer: 0,
+            difficulty: "صعب",
+            explanation: "نريد التأكد من أن البت رقم <code>k</code> موجود (يساوي 1). إذا كانت نتيجة <code>(i & (1 &lt;&lt; k))</code> تساوي 0، فهذا يعني أن العنصر مفقود في هذا القناع، فنستخدم <code>continue</code> لتخطي هذا القناع وعدم طباعته."
+        }
+    ];
+
+    const quizArea = document.getElementById('quiz-area');
+
+    questions.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        
+        let diffClass = item.difficulty === 'سهل' ? 'badge-easy' : (item.difficulty === 'متوسط' ? 'badge-medium' : 'badge-hard');
+        
+        const badge = document.createElement('span');
+        badge.className = `difficulty-badge ${diffClass}`;
+        badge.innerText = item.difficulty;
+        card.appendChild(badge);
+
+        const qTitle = document.createElement('div');
+        qTitle.className = 'question-text';
+        qTitle.innerHTML = `س ${index + 1}: <span dir="rtl">${item.q}</span>`;
+        card.appendChild(qTitle);
+
+        const optionsGrid = 
+        document.createElement('div');
+        optionsGrid.className = 'options-grid';
+
+
+
+
+
+
+
+
+
+        const explanationBox = document.createElement('div');
+        explanationBox.className = 'explanation-box';
+        explanationBox.innerHTML = `<strong>💡 الشرح:</strong> <span dir="rtl">${item.explanation}</span>`;
+
+        item.options.forEach((opt, optIndex) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<span>${opt}</span>`;
+            
+            if(optIndex === item.answer) {
+                btn.dataset.correct = "true";
+            }
+
+            btn.onclick = function() {
+                const allBtns = optionsGrid.querySelectorAll('.option-btn');
+                allBtns.forEach(b => b.disabled = true);
+
+                if (optIndex === item.answer) {
+                    this.classList.add('correct');
+                } else {
+                    this.classList.add('wrong');
+                    optionsGrid.querySelector('[data-correct="true"]').classList.add('correct');
+                }
+                
+                explanationBox.style.display = 'block';
+                // Trigger MathJax render for the explanation box
+                MathJax.typesetPromise([explanationBox]);
+            };
+            optionsGrid.appendChild(btn);
+        });
+
+        card.appendChild(optionsGrid);
+
+
+
+
+        card.appendChild(explanationBox);
+
+
+
+        quizArea.appendChild(card);
+    });
+    
+    // Initial MathJax render
+    MathJax.typesetPromise();
+</script>
+
+</body>
+</html>

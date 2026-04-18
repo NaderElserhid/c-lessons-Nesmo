@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>توليد المجموعات الجزئية – منهج أولمبياد نسمة</title>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;600;700;900&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #fdfdfd;
+      --surface: #131628;
+      --surface2: #1a1e35;
+      --surface3: #202540;
+      --border: #2a2f52;
+      --accent: #5c7cfa;
+      --accent2: #38d9a9;
+      --accent3: #ffd43b;
+      --accent4: #f06595;
+      --text: #e8ecff;
+      --text-muted: #8892b0;
+      --text-dim: #5a6080;
+      --red: #ff6b6b;
+      --glow: rgba(92, 124, 250, 0.18);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Cairo', sans-serif;
+      font-size: 17px;
+      line-height: 1.9;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─── STAR BACKGROUND ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(92,124,250,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 90%, rgba(56,217,169,0.05) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      position: relative;
+      text-align: center;
+      padding: 72px 24px 56px;
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(92,124,250,0.12) 0%, rgba(56,217,169,0.06) 100%);
+    }
+
+    .badge {
+      display: inline-block;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      padding: 5px 18px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    header h1 {
+      font-family: 'Amiri', serif;
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 30%, var(--accent) 70%, var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+      line-height: 1.4;
+      margin-bottom: 16px;
+    }
+
+    header p.subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 620px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .header-meta {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin-top: 32px;
+      position: relative;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    .meta-item span.dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent2);
+      display: inline-block;
+    }
+
+    /* ─── TOC ─── */
+    .toc-wrap {
+      max-width: 860px;
+      margin: 48px auto 0;
+      padding: 0 24px;
+    }
+
+    .toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 36px;
+    }
+
+    .toc h2 {
+      font-size: 1rem;
+      color: var(--accent2);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .toc ol {
+      padding-right: 20px;
+    }
+
+    .toc li {
+      margin-bottom: 8px;
+      color: var(--text-muted);
+    }
+
+    .toc a {
+      color: var(--text);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .toc a:hover { color: var(--accent); }
+
+    /* ─── MAIN CONTENT ─── */
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 56px 24px 100px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ─── SECTION ─── */
+    .section {
+      margin-bottom: 72px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(24px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .section-label::before {
+      content: '';
+      display: inline-block;
+      width: 28px; height: 2px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    .section h2 {
+      font-family: 'Amiri', serif;
+      font-size: clamp(1.5rem, 3vw, 2.1rem);
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .section p {
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    /* ─── INFO BOX ─── */
+    .info-box {
+      background: var(--surface2);
+      border-right: 4px solid var(--accent);
+      border-radius: 0 12px 12px 0;
+      padding: 20px 24px;
+      margin: 24px 0;
+      position: relative;
+    }
+
+    .info-box.green { border-color: var(--accent2); }
+    .info-box.yellow { border-color: var(--accent3); }
+    .info-box.red { border-color: var(--red); }
+
+    .info-box .label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .info-box.green .label { color: var(--accent2); }
+    .info-box.yellow .label { color: var(--accent3); }
+    .info-box.red .label { color: var(--red); }
+
+    /* ─── TABLE ─── */
+    .table-wrap {
+      overflow-x: auto;
+      margin: 28px 0;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead tr {
+      background: var(--surface3);
+    }
+
+    thead th {
+      padding: 14px 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--accent2);
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    tbody tr:hover { background: var(--surface2); }
+    tbody tr:last-child { border-bottom: none; }
+
+    tbody td {
+      padding: 13px 20px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .bit-cell {
+      font-family: 'Fira Code', monospace;
+      font-size: 1.05rem;
+      letter-spacing: 3px;
+    }
+
+    .bit-1 { color: var(--accent2); font-weight: 600; }
+    .bit-0 { color: var(--text-dim); }
+
+    td.subset-name {
+      font-family: 'Fira Code', monospace;
+      color: var(--accent);
+    }
+
+    td.decimal {
+      font-family: 'Fira Code', monospace;
+      color: var(--accent3);
+      font-weight: 700;
+    }
+
+    /* ─── CODE BLOCK ─── */
+    .code-block {
+      background: #0a0c16;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin: 28px 0;
+    }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background: var(--surface3);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-header .lang {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent2);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .copy-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.78rem;
+      padding: 5px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    pre {
+      padding: 28px 24px;
+      overflow-x: auto;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      line-height: 1.8;
+      color: #cdd6f4;
+    }
+
+    .kw  { color: #cba6f7; }
+    .ty  { color: #89b4fa; }
+    .fn  { color: #a6e3a1; }
+    .cm  { color: #5a6480; font-style: italic; }
+    .nu  { color: var(--accent3); }
+    .st  { color: #f9e2af; }
+    .op  { color: #89dceb; }
+
+    /* ─── OUTPUT BLOCK ─── */
+    .output-block {
+      background: #060810;
+      border: 1px solid #1e2236;
+      border-radius: 14px;
+      overflow: hidden;
+      margin: 28px 0;
+    }
+
+    .output-header {
+      padding: 10px 20px;
+      background: #0e1020;
+      border-bottom: 1px solid #1e2236;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .output-block pre {
+      color: #a6e3a1;
+      padding: 20px 24px;
+      font-size: 0.88rem;
+    }
+
+    /* ─── INTERACTIVE VISUALIZER ─── */
+    .visualizer {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+      margin: 32px 0;
+    }
+
+    .visualizer h3 {
+      font-family: 'Amiri', serif;
+      font-size: 1.35rem;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .visualizer p.desc {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      margin-bottom: 28px;
+    }
+
+    .viz-controls {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .viz-controls label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .viz-input {
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 16px;
+      color: var(--text);
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.95rem;
+      width: 220px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .viz-input:focus { border-color: var(--accent); }
+
+    .viz-btn {
+      background: linear-gradient(135deg, var(--accent), #4361ee);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 28px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .viz-btn:hover { opacity: 0.88; }
+    .viz-btn:active { transform: scale(0.97); }
+
+    .bits-display {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      justify-content: flex-end;
+      direction: ltr;
+      flex-wrap: wrap;
+    }
+
+    .bit-box {
+      width: 52px; height: 52px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .bit-box .bit-val {
+      font-family: 'Fira Code', monospace;
+      font-size: 1.3rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .bit-box .bit-idx {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      margin-top: 3px;
+    }
+
+    .bit-box.active {
+      border-color: var(--accent2);
+      background: rgba(56, 217, 169, 0.12);
+    }
+
+    .bit-box.active .bit-val { color: var(--accent2); }
+    .bit-box.inactive .bit-val { color: var(--text-dim); }
+
+    .viz-result {
+      background: var(--surface2);
+      border-radius: 12px;
+      padding: 20px 24px;
+      min-height: 60px;
+    }
+
+    .viz-result .res-label {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .viz-result .res-set {
+      font-family: 'Fira Code', monospace;
+      font-size: 1.15rem;
+      color: var(--accent);
+    }
+
+    .viz-result .res-num {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* ─── STEP EXPLORER ─── */
+    .step-explorer {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+      margin: 32px 0;
+    }
+
+    .step-explorer h3 {
+      font-family: 'Amiri', serif;
+      font-size: 1.35rem;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+
+    .step-nav {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .step-btn {
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.9rem;
+      padding: 9px 22px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .step-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .step-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .step-counter {
+      font-family: 'Fira Code', monospace;
+      color: var(--text-dim);
+      font-size: 0.88rem;
+    }
+
+    .step-content {
+      background: var(--surface2);
+      border-radius: 14px;
+      padding: 24px 28px;
+    }
+
+    .step-i-label {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .step-i-val {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .step-i-val .i-dec {
+      font-family: 'Fira Code', monospace;
+      font-size: 2rem;
+      color: var(--accent3);
+      font-weight: 700;
+    }
+
+    .step-i-val .i-bin {
+      font-family: 'Fira Code', monospace;
+      font-size: 1.3rem;
+      color: var(--text-muted);
+      letter-spacing: 4px;
+    }
+
+    .step-bits-row {
+      display: flex;
+      gap: 6px;
+      direction: ltr;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .sbit {
+      width: 44px; height: 44px;
+      border-radius: 8px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-family: 'Fira Code', monospace;
+    }
+
+    .sbit .sv { font-size: 1.1rem; font-weight: 700; line-height: 1; }
+    .sbit .se { font-size: 0.65rem; margin-top: 3px; }
+
+    .sbit.s1 {
+      background: rgba(56,217,169,0.15);
+      border: 2px solid var(--accent2);
+    }
+    .sbit.s1 .sv { color: var(--accent2); }
+    .sbit.s1 .se { color: var(--accent2); }
+
+    .sbit.s0 {
+      background: rgba(255,255,255,0.03);
+      border: 2px solid #2a2f52;
+    }
+    .sbit.s0 .sv { color: var(--text-dim); }
+    .sbit.s0 .se { color: #333a58; }
+
+    .step-subset-result {
+      background: var(--surface3);
+      border-radius: 10px;
+      padding: 14px 20px;
+      font-family: 'Fira Code', monospace;
+      font-size: 1.1rem;
+      color: var(--accent);
+    }
+
+    /* ─── FORMULA BOX ─── */
+    .formula {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px 32px;
+      margin: 24px 0;
+      text-align: center;
+    }
+
+    .formula .f-label {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .formula .f-expr {
+      font-family: 'Fira Code', monospace;
+      font-size: 1.5rem;
+      color: var(--accent3);
+    }
+
+    /* ─── GRID CARDS ─── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin: 28px 0;
+    }
+
+    .card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 20px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+    }
+
+    .card .c-icon {
+      font-size: 1.6rem;
+      margin-bottom: 10px;
+    }
+
+    .card .c-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .card .c-desc {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+    }
+
+    /* ─── SUMMARY ─── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 18px;
+      margin: 28px 0;
+    }
+
+    .summary-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px 20px;
+      text-align: center;
+    }
+
+    .summary-card .s-num {
+      font-family: 'Fira Code', monospace;
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .summary-card .s-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* ─── QUIZ ─── */
+    .quiz-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+      margin: 32px 0;
+    }
+
+    .quiz-section h3 {
+      font-family: 'Amiri', serif;
+      font-size: 1.35rem;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .quiz-section p.qdesc {
+      font-size: 0.88rem;
+      color: var(--text-dim);
+      margin-bottom: 28px;
+    }
+
+    .quiz-q {
+      background: var(--surface2);
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-bottom: 20px;
+    }
+
+    .quiz-q .q-text {
+      font-size: 0.98rem;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .quiz-opt {
+      background: var(--surface3);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 18px;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      text-align: right;
+      transition: all 0.18s;
+    }
+
+    .quiz-opt:hover:not(.locked) {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    .quiz-opt.correct {
+      border-color: var(--accent2);
+      background: rgba(56,217,169,0.1);
+      color: var(--accent2);
+    }
+
+    .quiz-opt.wrong {
+      border-color: var(--red);
+      background: rgba(255,107,107,0.08);
+      color: var(--red);
+    }
+
+    .quiz-feedback {
+      margin-top: 12px;
+      font-size: 0.88rem;
+      min-height: 24px;
+    }
+
+    /* ─── DIVIDER ─── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 56px 0;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      text-align: center;
+      padding: 40px 24px;
+      border-top: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    footer span { color: var(--accent); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 600px) {
+      .viz-controls { flex-direction: column; }
+      .viz-input { width: 100%; }
+      .step-i-val .i-dec { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════ HEADER ═══════════════════════ -->
+<header>
+  <div class="badge">المرحلة الثالثة · C++ · أولمبياد نسمة</div>
+  <h1>توليد المجموعات الجزئية<br>باستخدام الأقنعة الثنائية</h1>
+  <p class="subtitle">
+    تقنية أنيقة وفعّالة لاستعراض جميع المجموعات الجزئية الممكنة لأي مصفوفة
+    باستخدام عمليات البتات الثنائية
+  </p>
+  <div class="header-meta">
+    <div class="meta-item"><span class="dot"></span> Bit Masking</div>
+    <div class="meta-item"><span class="dot"></span> Combinatorics</div>
+    <div class="meta-item"><span class="dot"></span> Competitive Programming</div>
+  </div>
+</header>
+
+<!-- ═══════════════════════ TOC ═══════════════════════ -->
+<div class="toc-wrap">
+  <div class="toc">
+    <h2>📚 محتويات الدرس</h2>
+    <ol>
+      <li><a href="#intro">مقدمة: ما هي المجموعات الجزئية؟</a></li>
+      <li><a href="#encoding">ترميز المجموعات الجزئية كأعداد ثنائية</a></li>
+      <li><a href="#table">جدول الترميز التفصيلي</a></li>
+      <li><a href="#algorithm">خوارزمية التوليد</a></li>
+      <li><a href="#code">الكود الكامل مع الشرح</a></li>
+      <li><a href="#interactive">المستكشف التفاعلي</a></li>
+      <li><a href="#examples">أمثلة إضافية متدرجة</a></li>
+      <li><a href="#complexity">التعقيد الزمني والمكاني</a></li>
+      <li><a href="#quiz">اختبر نفسك</a></li>
+    </ol>
+  </div>
+</div>
+
+<!-- ═══════════════════════ MAIN ═══════════════════════ -->
+<main>
+
+  <!-- ─── 1. INTRO ─── -->
+  <div class="section" id="intro">
+    <div class="section-label">القسم الأول</div>
+    <h2>ما هي المجموعة الجزئية؟</h2>
+
+    <p>
+      قبل أن ندخل في تفاصيل الخوارزمية، يجب أن نُرسّخ المفهوم الأساسي جيدًا.
+      <strong>المجموعة الجزئية (Subset)</strong> لأي مجموعة هي مجموعة تحتوي على
+      صفر أو أكثر من عناصر المجموعة الأصلية، دون تكرار وبأي ترتيب.
+    </p>
+
+    <div class="info-box">
+      <div class="label">🔍 تعريف رسمي</div>
+      المجموعة B تُعدّ مجموعة جزئية من المجموعة A إذا كان كل عنصر في B موجودًا أيضًا في A.
+      نُرمز لذلك بالعلامة: <strong>B ⊆ A</strong>
+    </div>
+
+    <p>
+      على سبيل المثال، لو كانت المصفوفة <code>{1, 3, 5, 6, 7}</code>، فإن:
+    </p>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="c-icon">✅</div>
+        <div class="c-title">مجموعة جزئية صحيحة</div>
+        <div class="c-desc"><code>{1, 3}</code> — كلا العنصرين موجودان في المصفوفة الأصلية</div>
+      </div>
+      <div class="card">
+        <div class="c-icon">✅</div>
+        <div class="c-title">مجموعة جزئية صحيحة</div>
+        <div class="c-desc"><code>{3, 5, 7}</code> — العناصر الثلاثة موجودة في المصفوفة</div>
+      </div>
+      <div class="card">
+        <div class="c-icon">✅</div>
+        <div class="c-title">المجموعة الفارغة</div>
+        <div class="c-desc"><code>{}</code> — المجموعة الفارغة مجموعة جزئية من أي مجموعة دائمًا</div>
+      </div>
+      <div class="card">
+        <div class="c-icon">❌</div>
+        <div class="c-title">ليست مجموعة جزئية</div>
+        <div class="c-desc"><code>{1, 4}</code> — العنصر 4 غير موجود في المصفوفة الأصلية</div>
+      </div>
+    </div>
+
+    <div class="info-box yellow">
+      <div class="label">💡 حقيقة مهمة</div>
+      لمصفوفة طولها n، عدد المجموعات الجزئية المختلفة هو <strong>2ⁿ</strong>.
+      فمثلًا لمصفوفة من 3 عناصر يوجد 2³ = 8 مجموعات جزئية.
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ─── 2. ENCODING ─── -->
+  <div class="section" id="encoding">
+    <div class="section-label">القسم الثاني</div>
+    <h2>ترميز المجموعات الجزئية كأعداد ثنائية</h2>
+
+    <p>
+      الفكرة العبقرية هنا هي أننا نُمثّل كل مجموعة جزئية برقم ثنائي.
+      لمصفوفة طولها <strong>n</strong>، يكون لكل مجموعة جزئية رقم ثنائي مكوّن
+      من <strong>n بت</strong>، حيث:
+    </p>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="c-icon">1️⃣</div>
+        <div class="c-title">البت = 1</div>
+        <div class="c-desc">العنصر المقابل لهذا البت <strong>موجود</strong> في المجموعة الجزئية</div>
+      </div>
+      <div class="card">
+        <div class="c-icon">0️⃣</div>
+        <div class="c-title">البت = 0</div>
+        <div class="c-desc">العنصر المقابل لهذا البت <strong>غير موجود</strong> في المجموعة الجزئية</div>
+      </div>
+    </div>
+
+    <p>
+      باستخدام هذا الترميز، تنتقل المجموعات الجزئية لمصفوفة من 3 عناصر
+      من القيمة الثنائية <code>000</code> (المجموعة الفارغة) إلى
+      <code>111</code> (المجموعة الكاملة)، أي من 0 إلى 7 بالنظام العشري.
+    </p>
+
+    <div class="formula">
+      <div class="f-label">عدد المجموعات الجزئية</div>
+      <div class="f-expr">2ⁿ مجموعة (من 0 إلى 2ⁿ − 1)</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ─── 3. TABLE ─── -->
+  <div class="section" id="table">
+    <div class="section-label">القسم الثالث</div>
+    <h2>جدول الترميز التفصيلي للمصفوفة <code>{5, 3, 1}</code></h2>
+
+    <p>
+      لنأخذ المصفوفة <code>a = {5, 3, 1}</code> ذات الحجم n = 3.
+      الجدول التالي يوضح جميع المجموعات الجزئية الثماني مع ترميزها الثنائي والعشري:
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>المجموعة الجزئية</th>
+            <th>الترميز الثنائي (bit₂ bit₁ bit₀)</th>
+            <th>القيمة العشرية</th>
+            <th>تفسير البتات</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="subset-name">{}</td>
+            <td class="bit-cell"><span class="bit-0">0</span><span class="bit-0">0</span><span class="bit-0">0</span></td>
+            <td class="decimal">0</td>
+            <td style="color:var(--text-dim);font-size:0.85rem">لا يوجد أي عنصر</td>
+          </tr>
+          <tr>
+            <td class="subset-name">{5}</td>
+            <td class="bit-cell"><span class="bit-0">0</span><span class="bit-0">0</span><span class="bit-1">1</span></td>
+            <td class="decimal">1</td>
+            <td style="color:var(--text-dim);font-size:0.85rem">البت 0 = 1 ← a[0]=5</td>
+          </tr>
+          <tr>
+            <td class="subset-name">{3}</td>
+            <td class="bit-cell"><span class="bit-0">0</span><span class="bit-1">1</span><span class="bit-0">0</span></td>
+            <td class="decimal">2</td>
+            <td style="color:var(--text-dim);font-size:0.85rem">البت 1 = 1 ← a[1]=3</td>
+          </tr>
+          <tr>
+            <td class="subset-name">{5, 3}</td>
+            <td class="bit-cell"><span class="bit-0">0</span><span class="bit-1">1</span><span class="bit-1">1</span></td>
+            <td class="decimal">3</td>
+            <td style="color:var(--text-dim);font-size:0.85rem">البتان 0 و 1 = 1 ← 5 و 3</td>
+          </tr>
+          <tr>
+            <td class="subset-name">{1}</td>
+            <td class="bit-cell"><span class="bit-1">1</span><span class="bit-0">0</span><span class="bit-0">0</span></td>
+            <td class="decimal">4</td>
+            <td style="color:var(--text-dim);font-size:0.85rem">البت 2 = 1 ← a[2]=1</td>
+          </tr>
+          <tr>
+            <td class="subset-name">{5, 1}</td>
+            <td class="bit-cell"><span class="bit-1">1</span><span class="bit-0">0</span><span class="bit-1">1</span></td>
+            <td class="decimal">5</td>
+            <td style="color:var(--text-dim);font-size:0.85rem">البتان 0 و 2 = 1 ← 5 و 1</td>
+          </tr>
+          <tr>
+            <td class="subset-name">{3, 1}</td>
+            <td class="bit-cell"><span class="bit-1">1</span><span class="bit-1">1</span><span class="bit-0">0</span></td>
+            <td class="decimal">6</td>
+            <td style="color:var(--text-dim);font-size:0.85rem">البتان 1 و 2 = 1 ← 3 و 1</td>
+          </tr>
+          <tr>
+            <td class="subset-name">{5, 3, 1}</td>
+            <td class="bit-cell"><span class="bit-1">1</span><span class="bit-1">1</span><span class="bit-1">1</span></td>
+            <td class="decimal">7</td>
+            <td style="color:var(--text-dim);font-size:0.85rem">جميع البتات = 1 ← المجموعة الكاملة</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-box green">
+      <div class="label">🎯 الاستنتاج الأساسي</div>
+      كل رقم صحيح من 0 إلى 2ⁿ−1 يُمثّل بالضبط مجموعة جزئية واحدة.
+      هذه الخاصية هي جوهر الخوارزمية التي سندرسها.
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ─── 4. ALGORITHM ─── -->
+  <div class="section" id="algorithm">
+    <div class="section-label">القسم الرابع</div>
+    <h2>خوارزمية التوليد خطوة بخطوة</h2>
+
+    <p>
+      لتوليد جميع المجموعات الجزئية، نستخدم حلقتين متداخلتين وعملية التحقق من البت:
+    </p>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="c-icon">🔁</div>
+        <div class="c-title">الحلقة الخارجية</div>
+        <div class="c-desc">
+          تمر بجميع الأعداد من <code>0</code> إلى <code>2ⁿ − 1</code>.
+          كل عدد يُمثّل قناعًا (mask) لمجموعة جزئية معيّنة.
+        </div>
+      </div>
+      <div class="card">
+        <div class="c-icon">🔍</div>
+        <div class="c-title">الحلقة الداخلية</div>
+        <div class="c-desc">
+          تفحص كل بت في القناع من البت 0 إلى البت n−1
+          لتحديد العناصر المُضمَّنة في المجموعة الجزئية.
+        </div>
+      </div>
+      <div class="card">
+        <div class="c-icon">⚡</div>
+        <div class="c-title">عملية AND الثنائية</div>
+        <div class="c-desc">
+          نستخدم <code>i &amp; (1 &lt;&lt; j)</code> للتحقق إن كان البت
+          رقم j مضبوطًا في القناع i.
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <div class="label">🧮 فهم العملية i &amp; (1 &lt;&lt; j)</div>
+      <p style="color:var(--text-muted);margin-bottom:12px">
+        <code>1 &lt;&lt; j</code> تُنشئ عددًا به البت رقم j فقط مضبوطًا على 1. ثم عملية AND تتحقق إن كان هذا البت موجودًا في i:
+      </p>
+      <pre style="background:transparent;padding:0;font-size:0.85rem">i = 6  →  110 (ثنائي)
+j = 1  →  1 << 1 = 010
+AND    →  110 & 010 = 010 ≠ 0  ✓ البت مضبوط!
+
+j = 0  →  1 << 0 = 001
+AND    →  110 & 001 = 000 = 0  ✗ البت غير مضبوط</pre>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ─── 5. CODE ─── -->
+  <div class="section" id="code">
+    <div class="section-label">القسم الخامس</div>
+    <h2>الكود الكامل مع الشرح المفصّل</h2>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang">C++</span>
+        <button class="copy-btn" onclick="copyCode(this)">نسخ الكود</button>
+      </div>
+      <pre id="main-code"><span class="kw">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+  <span class="ty">int</span> n = <span class="nu">3</span>;
+  <span class="ty">int</span> a[<span class="nu">3</span>] = {<span class="nu">5</span>, <span class="nu">3</span>, <span class="nu">1</span>};
+
+  <span class="cm">// نمر بجميع الأعداد من 0 إلى 2^n - 1</span>
+  <span class="cm">// كل عدد i يُمثّل قناعًا لمجموعة جزئية</span>
+  <span class="kw">for</span>(<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; (<span class="nu">1</span> &lt;&lt; n); i++) {
+    cout &lt;&lt; i &lt;&lt; <span class="st">": "</span>;
+
+    <span class="cm">// نتحقق من كل بت في القناع i</span>
+    <span class="kw">for</span>(<span class="ty">int</span> j = <span class="nu">0</span>; j &lt; n; j++) {
+
+      <span class="cm">// هل البت رقم j في العدد i يساوي 1؟</span>
+      <span class="ty">bool</span> set = (i &amp; (<span class="nu">1</span> &lt;&lt; j)) != <span class="nu">0</span>;
+
+      <span class="kw">if</span>(set) {
+        <span class="cm">// نطبع العنصر المقابل للبت</span>
+        cout &lt;&lt; a[j] &lt;&lt; <span class="st">' '</span>;
+      }
+    }
+
+    cout &lt;&lt; endl;
+  }
+}</pre>
+    </div>
+
+    <div class="output-block">
+      <div class="output-header">▶ ناتج التنفيذ</div>
+      <pre>0: 
+1: 5 
+2: 3 
+3: 5 3 
+4: 1 
+5: 5 1 
+6: 3 1 
+7: 5 3 1</pre>
+    </div>
+
+    <div class="info-box green">
+      <div class="label">✨ لماذا نستخدم (1 &lt;&lt; n) بدلًا من pow(2, n) ؟</div>
+      عملية إزاحة البتات <code>(1 &lt;&lt; n)</code> أسرع بكثير من دالة <code>pow()</code>
+      لأنها عملية على مستوى البتات مباشرةً، وتُعطي نتيجة صحيحة دقيقة بدون
+      مشاكل الأرقام العشرية.
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ─── 6. INTERACTIVE ─── -->
+  <div class="section" id="interactive">
+    <div class="section-label">القسم السادس</div>
+    <h2>الأدوات التفاعلية</h2>
+
+    <!-- Bit Toggle Visualizer -->
+    <div class="visualizer">
+      <h3>🎮 أداة القناع الثنائي التفاعلية</h3>
+      <p class="desc">أدخل عناصر المصفوفة، ثم انقر على البتات لاختيار المجموعة الجزئية</p>
+
+      <div class="viz-controls">
+        <div>
+          <label>عناصر المصفوفة (مفصولة بمسافات)</label>
+          <input class="viz-input" id="arr-input" type="text" value="5 3 1" placeholder="مثال: 2 4 6 8" />
+        </div>
+        <button class="viz-btn" onclick="initViz()">تحديث</button>
+      </div>
+
+      <div id="bits-container" class="bits-display"></div>
+      <div class="viz-result">
+        <div class="res-label">المجموعة الجزئية المختارة</div>
+        <div class="res-set" id="viz-result-set">{ }</div>
+        <div class="res-num" id="viz-result-num">القيمة الثنائية: 000 | العشرية: 0</div>
+      </div>
+    </div>
+
+    <!-- Step Explorer -->
+    <div class="step-explorer">
+      <h3>🔬 مستكشف خطوات الخوارزمية</h3>
+      <p style="font-size:0.88rem;color:var(--text-dim);margin-bottom:24px">
+        استعرض تفصيليًا كيف تعمل الحلقة الخارجية لكل قيمة i من 0 إلى 7
+      </p>
+
+      <div class="step-nav">
+        <button class="step-btn" id="prev-btn" onclick="changeStep(-1)" disabled>→ السابق</button>
+        <span class="step-counter" id="step-counter">i = 0 من 7</span>
+        <button class="step-btn" id="next-btn" onclick="changeStep(1)">التالي ←</button>
+      </div>
+
+      <div class="step-content" id="step-content"></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ─── 7. EXAMPLES ─── -->
+  <div class="section" id="examples">
+    <div class="section-label">القسم السابع</div>
+    <h2>أمثلة إضافية متدرجة الصعوبة</h2>
+
+    <!-- Example 1 -->
+    <div class="info-box green" style="margin-bottom:28px">
+      <div class="label">📘 مثال 1 – مصفوفة من عنصرين</div>
+      <p style="color:var(--text-muted);margin-bottom:12px">
+        للمصفوفة <code>{2, 7}</code>، n = 2، عدد المجموعات الجزئية = 2² = 4
+      </p>
+      <div class="table-wrap" style="margin:0">
+        <table>
+          <thead><tr><th>i</th><th>ثنائي</th><th>المجموعة الجزئية</th></tr></thead>
+          <tbody>
+            <tr><td class="decimal">0</td><td class="bit-cell"><span class="bit-0">0</span><span class="bit-0">0</span></td><td class="subset-name">{}</td></tr>
+            <tr><td class="decimal">1</td><td class="bit-cell"><span class="bit-0">0</span><span class="bit-1">1</span></td><td class="subset-name">{2}</td></tr>
+            <tr><td class="decimal">2</td><td class="bit-cell"><span class="bit-1">1</span><span class="bit-0">0</span></td><td class="subset-name">{7}</td></tr>
+            <tr><td class="decimal">3</td><td class="bit-cell"><span class="bit-1">1</span><span class="bit-1">1</span></td><td class="subset-name">{2, 7}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Example 2 -->
+    <div class="info-box" style="margin-bottom:28px">
+      <div class="label">📗 مثال 2 – طباعة المجموعات الجزئية بتنسيق مختلف</div>
+      <p style="color:var(--text-muted);margin-bottom:16px">
+        نطبع كل مجموعة جزئية بين أقواس معقوفة مع فصل العناصر بفاصلة:
+      </p>
+      <div class="code-block" style="margin:0">
+        <div class="code-header"><span class="lang">C++</span><button class="copy-btn" onclick="copyCode(this)">نسخ</button></div>
+        <pre><span class="kw">for</span>(<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; (<span class="nu">1</span> &lt;&lt; n); i++) {
+  cout &lt;&lt; <span class="st">"{ "</span>;
+  <span class="ty">bool</span> first = <span class="kw">true</span>;
+  <span class="kw">for</span>(<span class="ty">int</span> j = <span class="nu">0</span>; j &lt; n; j++) {
+    <span class="kw">if</span>(i &amp; (<span class="nu">1</span> &lt;&lt; j)) {
+      <span class="kw">if</span>(!first) cout &lt;&lt; <span class="st">", "</span>;
+      cout &lt;&lt; a[j];
+      first = <span class="kw">false</span>;
+    }
+  }
+  cout &lt;&lt; <span class="st">" }"</span> &lt;&lt; endl;
+}</pre>
+      </div>
+    </div>
+
+    <!-- Example 3 -->
+    <div class="info-box yellow" style="margin-bottom:28px">
+      <div class="label">📙 مثال 3 – حساب مجموع كل مجموعة جزئية</div>
+      <p style="color:var(--text-muted);margin-bottom:16px">
+        تطبيق عملي: نحسب مجموع عناصر كل مجموعة جزئية:
+      </p>
+      <div class="code-block" style="margin:0">
+        <div class="code-header"><span class="lang">C++</span><button class="copy-btn" onclick="copyCode(this)">نسخ</button></div>
+        <pre><span class="kw">for</span>(<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; (<span class="nu">1</span> &lt;&lt; n); i++) {
+  <span class="ty">int</span> sum = <span class="nu">0</span>;
+  <span class="kw">for</span>(<span class="ty">int</span> j = <span class="nu">0</span>; j &lt; n; j++) {
+    <span class="kw">if</span>(i &amp; (<span class="nu">1</span> &lt;&lt; j)) {
+      sum += a[j];
+    }
+  }
+  cout &lt;&lt; <span class="st">"القناع "</span> &lt;&lt; i &lt;&lt; <span class="st">": المجموع = "</span> &lt;&lt; sum &lt;&lt; endl;
+}</pre>
+      </div>
+      <div class="output-block" style="margin:16px 0 0">
+        <div class="output-header">▶ الناتج للمصفوفة {5, 3, 1}</div>
+        <pre>القناع 0: المجموع = 0
+القناع 1: المجموع = 5
+القناع 2: المجموع = 3
+القناع 3: المجموع = 8
+القناع 4: المجموع = 1
+القناع 5: المجموع = 6
+القناع 6: المجموع = 4
+القناع 7: المجموع = 9</pre>
+      </div>
+    </div>
+
+    <!-- Example 4 -->
+    <div class="info-box red">
+      <div class="label">📕 مثال 4 – مسألة تحدي: هل يوجد مجموعة جزئية مجموعها يساوي X؟</div>
+      <p style="color:var(--text-muted);margin-bottom:16px">
+        هذا النوع من المسائل يُسمى <strong>Subset Sum</strong>، وهو من أشهر مسائل
+        البرمجة التنافسية. نبحث إن كان هناك مجموعة جزئية مجموعها يساوي قيمة هدف X:
+      </p>
+      <div class="code-block" style="margin:0">
+        <div class="code-header"><span class="lang">C++</span><button class="copy-btn" onclick="copyCode(this)">نسخ</button></div>
+        <pre><span class="ty">int</span> target = <span class="nu">8</span>; <span class="cm">// هدفنا أن نجد مجموعة مجموعها = 8</span>
+<span class="ty">bool</span> found = <span class="kw">false</span>;
+
+<span class="kw">for</span>(<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; (<span class="nu">1</span> &lt;&lt; n); i++) {
+  <span class="ty">int</span> sum = <span class="nu">0</span>;
+  <span class="kw">for</span>(<span class="ty">int</span> j = <span class="nu">0</span>; j &lt; n; j++) {
+    <span class="kw">if</span>(i &amp; (<span class="nu">1</span> &lt;&lt; j))
+      sum += a[j];
+  }
+  <span class="kw">if</span>(sum == target) {
+    cout &lt;&lt; <span class="st">"وُجدت! القناع: "</span> &lt;&lt; i &lt;&lt; endl;
+    found = <span class="kw">true</span>;
+  }
+}
+<span class="kw">if</span>(!found) cout &lt;&lt; <span class="st">"لا توجد مجموعة جزئية بهذا المجموع"</span>;</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ─── 8. COMPLEXITY ─── -->
+  <div class="section" id="complexity">
+    <div class="section-label">القسم الثامن</div>
+    <h2>التعقيد الزمني والمكاني</h2>
+
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="s-num">O(2ⁿ · n)</div>
+        <div class="s-desc">التعقيد الزمني — حلقتان متداخلتان</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-num">O(n)</div>
+        <div class="s-desc">التعقيد المكاني — نخزن المصفوفة فقط</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-num">n ≤ 20</div>
+        <div class="s-desc">الحد الأقصى العملي (2²⁰ ≈ مليون)</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-num">2ⁿ</div>
+        <div class="s-desc">عدد المجموعات الجزئية الكلي</div>
+      </div>
+    </div>
+
+    <div class="info-box yellow">
+      <div class="label">⚠️ تنبيه مهم للمسابقات</div>
+      هذه الخوارزمية فعّالة فقط عندما يكون n صغيرًا (عادةً n ≤ 20).
+      للمصفوفات الكبيرة، نحتاج إلى خوارزميات أكثر تقدمًا مثل البرمجة الديناميكية.
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="c-icon">🚀</div>
+        <div class="c-title">n = 10</div>
+        <div class="c-desc">1024 مجموعة جزئية — سريع جدًا</div>
+      </div>
+      <div class="card">
+        <div class="c-icon">⚡</div>
+        <div class="c-title">n = 20</div>
+        <div class="c-desc">~مليون مجموعة — مقبول في المسابقات</div>
+      </div>
+      <div class="card">
+        <div class="c-icon">🐢</div>
+        <div class="c-title">n = 30</div>
+        <div class="c-desc">~مليار مجموعة — بطيء جدًا ⛔</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ─── 9. QUIZ ─── -->
+  <div class="quiz-section" id="quiz">
+    <h3>✏️ اختبر نفسك</h3>
+    <p class="qdesc">أجب على هذه الأسئلة للتحقق من فهمك للدرس</p>
+
+    <div class="quiz-q" id="q1">
+      <div class="q-text">🔢 كم عدد المجموعات الجزئية لمصفوفة تحتوي على 4 عناصر؟</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="answer('q1', this, false)">8</div>
+        <div class="quiz-opt" onclick="answer('q1', this, true)">16</div>
+        <div class="quiz-opt" onclick="answer('q1', this, false)">12</div>
+        <div class="quiz-opt" onclick="answer('q1', this, false)">4</div>
+      </div>
+      <div class="quiz-feedback" id="q1-fb"></div>
+    </div>
+
+    <div class="quiz-q" id="q2">
+      <div class="q-text">🎭 للمصفوفة <code>{9, 4, 2}</code>، ما هي المجموعة الجزئية المقابلة للقناع i = 5 (ثنائي: 101)؟</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="answer('q2', this, false)">{4, 2}</div>
+        <div class="quiz-opt" onclick="answer('q2', this, true)">{9, 2}</div>
+        <div class="quiz-opt" onclick="answer('q2', this, false)">{9, 4}</div>
+        <div class="quiz-opt" onclick="answer('q2', this, false)">{9, 4, 2}</div>
+      </div>
+      <div class="quiz-feedback" id="q2-fb"></div>
+    </div>
+
+    <div class="quiz-q" id="q3">
+      <div class="q-text">🔬 ما هو الغرض من العملية <code>(1 &lt;&lt; j)</code> في الكود؟</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="answer('q3', this, false)">حساب قيمة 2^n</div>
+        <div class="quiz-opt" onclick="answer('q3', this, true)">إنشاء قناع به البت رقم j مضبوط على 1</div>
+        <div class="quiz-opt" onclick="answer('q3', this, false)">طباعة القيمة الثنائية للرقم</div>
+        <div class="quiz-opt" onclick="answer('q3', this, false)">إزاحة المصفوفة لليسار</div>
+      </div>
+      <div class="quiz-feedback" id="q3-fb"></div>
+    </div>
+
+    <div class="quiz-q" id="q4">
+      <div class="q-text">⏱️ ما هو التعقيد الزمني لخوارزمية توليد المجموعات الجزئية لمصفوفة طولها n؟</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="answer('q4', this, false)">O(n²)</div>
+        <div class="quiz-opt" onclick="answer('q4', this, false)">O(2ⁿ)</div>
+        <div class="quiz-opt" onclick="answer('q4', this, true)">O(n · 2ⁿ)</div>
+        <div class="quiz-opt" onclick="answer('q4', this, false)">O(n log n)</div>
+      </div>
+      <div class="quiz-feedback" id="q4-fb"></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<footer>
+  <p>منهج <span>أولمبياد نسمة</span> — المرحلة الثالثة — C++ المتقدمة</p>
+  <p style="margin-top:6px;font-size:0.8rem">توليد المجموعات الجزئية باستخدام الأقنعة الثنائية · Bit Masking Subsets</p>
+</footer>
+
+<script>
+  // ═══════ COPY CODE ═══════
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ تم النسخ!';
+      btn.style.color = 'var(--accent2)';
+      btn.style.borderColor = 'var(--accent2)';
+      setTimeout(() => {
+        btn.textContent = 'نسخ';
+        btn.style.color = '';
+        btn.style.borderColor = '';
+      }, 1800);
+    });
+  }
+
+  // ═══════ VISUALIZER ═══════
+  let vizArr = [5, 3, 1];
+  let vizMask = 0;
+
+  function initViz() {
+    const raw = document.getElementById('arr-input').value.trim();
+    vizArr = raw.split(/\s+/).map(Number).filter(x => !isNaN(x)).slice(0, 8);
+    if (vizArr.length === 0) vizArr = [5, 3, 1];
+    vizMask = 0;
+    renderBits();
+    updateVizResult();
+  }
+
+  function renderBits() {
+    const container = document.getElementById('bits-container');
+    container.innerHTML = '';
+    for (let j = vizArr.length - 1; j >= 0; j--) {
+      const isActive = (vizMask & (1 << j)) !== 0;
+      const box = document.createElement('div');
+      box.className = 'bit-box ' + (isActive ? 'active' : 'inactive');
+      box.innerHTML = `<span class="bit-val">${isActive ? '1' : '0'}</span><span class="bit-idx">a[${j}]=${vizArr[j]}</span>`;
+      box.onclick = () => toggleBit(j);
+      container.appendChild(box);
+    }
+  }
+
+  function toggleBit(j) {
+    vizMask ^= (1 << j);
+    renderBits();
+    updateVizResult();
+  }
+
+  function updateVizResult() {
+    const elements = [];
+    for (let j = 0; j < vizArr.length; j++) {
+      if (vizMask & (1 << j)) elements.push(vizArr[j]);
+    }
+    document.getElementById('viz-result-set').textContent =
+      elements.length ? '{ ' + elements.join(', ') + ' }' : '{ }';
+
+    let bin = vizMask.toString(2).padStart(vizArr.length, '0');
+    document.getElementById('viz-result-num').textContent =
+      `القيمة الثنائية: ${bin} | العشرية: ${vizMask}`;
+  }
+
+  // ═══════ STEP EXPLORER ═══════
+  const stepArr = [5, 3, 1];
+  let currentStep = 0;
+  const totalSteps = 8;
+
+  function renderStep() {
+    const i = currentStep;
+    const n = stepArr.length;
+    const included = [];
+    let bitsHTML = '';
+
+    for (let j = 0; j < n; j++) {
+      const isSet = (i & (1 << j)) !== 0;
+      included.push(isSet ? stepArr[j] : null);
+    }
+
+    for (let j = n - 1; j >= 0; j--) {
+      const isSet = (i & (1 << j)) !== 0;
+      bitsHTML += `<div class="sbit ${isSet ? 's1' : 's0'}">
+        <span class="sv">${isSet ? '1' : '0'}</span>
+        <span class="se">${stepArr[j]}</span>
+      </div>`;
+    }
+
+    const subset = included.filter(x => x !== null);
+    const subsetStr = subset.length ? '{ ' + subset.join(', ') + ' }' : '{ }';
+    const binStr = i.toString(2).padStart(n, '0');
+
+    document.getElementById('step-content').innerHTML = `
+      <div class="step-i-label">قيمة القناع i</div>
+      <div class="step-i-val">
+        <span class="i-dec">${i}</span>
+        <span class="i-bin">(${binStr})</span>
+      </div>
+      <div style="font-size:0.82rem;color:var(--text-dim);margin-bottom:10px;direction:rtl">
+        انقر على كل بت لرؤية العنصر المقابل
+      </div>
+      <div class="step-bits-row">${bitsHTML}</div>
+      <div style="font-size:0.85rem;color:var(--text-dim);margin-bottom:10px">المجموعة الجزئية الناتجة:</div>
+      <div class="step-subset-result">${subsetStr}</div>
+    `;
+
+    document.getElementById('step-counter').textContent = `i = ${i} من ${totalSteps - 1}`;
+    document.getElementById('prev-btn').disabled = i === 0;
+    document.getElementById('next-btn').disabled = i === totalSteps - 1;
+  }
+
+  function changeStep(dir) {
+    currentStep = Math.max(0, Math.min(totalSteps - 1, currentStep + dir));
+    renderStep();
+  }
+
+  // ═══════ QUIZ ═══════
+  function answer(qid, el, correct) {
+    const q = document.getElementById(qid);
+    if (q.dataset.answered) return;
+    q.dataset.answered = '1';
+
+    const opts = q.querySelectorAll('.quiz-opt');
+    opts.forEach(o => o.classList.add('locked'));
+
+    const fb = document.getElementById(qid + '-fb');
+    if (correct) {
+      el.classList.add('correct');
+      fb.innerHTML = '<span style="color:var(--accent2)">✅ إجابة صحيحة! أحسنت.</span>';
+    } else {
+      el.classList.add('wrong');
+      opts.forEach(o => {
+        if (o.dataset && o !== el) {
+          // highlight correct by trying each
+        }
+      });
+      fb.innerHTML = '<span style="color:var(--red)">❌ إجابة خاطئة. راجع الشرح أعلاه.</span>';
+      // find correct and highlight
+      opts.forEach(o => {
+        if (!o.classList.contains('wrong')) o.classList.add('correct');
+      });
+    }
+  }
+
+  // ═══════ INIT ═══════
+  initViz();
+  renderStep();
+</script>
+</body>
+</html>

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>العمليات على مستوى البِت (Bitwise Operations)</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-main: #f8fafc; 
+            --bg-card: #ffffff; 
+            --accent-main: #0284c7; /* أزرق تقني */
+            --accent-secondary: #ea580c; /* برتقالي داكن للتنبيهات */
+            --text-primary: #1e293b; 
+            --text-secondary: #475569; 
+            --border-light: #e2e8f0; 
+            --code-bg: #0f172a; 
+            --code-text: #e2e8f0;
+            --success: #16a34a;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.8;
+            background-image: radial-gradient(circle at top right, #e0f2fe 0%, transparent 40%);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* العناوين والترويسة */
+        .page-header {
+            text-align: center;
+            background-color: var(--bg-card);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.1);
+            border-bottom: 5px solid var(--accent-main);
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-family: 'Tajawal', sans-serif;
+            color: var(--accent-main);
+            margin: 0 0 10px 0;
+            font-size: 2.5em;
+        }
+
+        h2 {
+            font-family: 'Tajawal', sans-serif;
+            color: var(--accent-main);
+            border-right: 4px solid var(--accent-secondary);
+            padding-right: 15px;
+            margin-top: 40px;
+            background: linear-gradient(90deg, rgba(234, 88, 12, 0.08) 0%, transparent 100%);
+            padding: 10px 15px;
+        }
+
+        h3 { color: var(--accent-secondary); }
+
+        /* البطاقات والأقسام */
+        .section-card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+            border: 1px solid var(--border-light);
+        }
+
+        /* الجداول */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+            direction: ltr; /* الجداول التقنية تُقرأ من اليسار */
+        }
+        th, td {
+            border: 1px solid var(--border-light);
+            padding: 12px;
+            text-align: center;
+            font-family: monospace;
+            font-size: 16px;
+        }
+        th { background-color: #f1f5f9; color: var(--accent-main); }
+        .table-rtl { direction: rtl; }
+        .table-rtl th, .table-rtl td { font-family: 'Cairo', sans-serif; text-align: right; }
+
+        /* الأكواد */
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 20px;
+            border-radius: 8px;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 16px;
+            border-left: 4px solid var(--accent-main);
+        }
+        code {
+            background-color: #f1f5f9;
+            color: #b45309;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+        .kw { color: #c678dd; } 
+        .typ { color: #56b6c2; } 
+        .str { color: #98c379; } 
+        .com { color: #7f848e; font-style: italic; } 
+
+        /* الشروحات والملاحظات */
+        .explanation-box {
+            background-color: #f0fdfa;
+            border-right: 4px solid var(--success);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .explanation-box h4 { margin-top: 0; color: var(--success); }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            background-color: #fffbeb;
+            border-right: 4px solid var(--accent-secondary);
+            color: #92400e;
+            font-weight: 600;
+        }
+
+        .math-block {
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 18px;
+            direction: ltr;
+            text-align: left;
+            border: 1px dashed #cbd5e1;
+            margin: 15px 0;
+        }
+
+        /* المحاكي التفاعلي */
+        .interactive-tool {
+            background-color: #e0f2fe;
+            border: 2px solid #bae6fd;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            margin-top: 40px;
+        }
+        .input-group { margin-bottom: 20px; }
+        .input-group input, .input-group select {
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 6px;
+            border: 1px solid #94a3b8;
+            margin: 0 10px;
+            font-family: monospace;
+            text-align: center;
+        }
+        .btn-calc {
+            padding: 10px 25px;
+            font-size: 18px;
+            background-color: var(--accent-main);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-weight: bold;
+        }
+        .btn-calc:hover { background-color: #0369a1; }
+        .result-binary {
+            font-size: 24px;
+            font-family: monospace;
+            letter-spacing: 3px;
+            color: var(--accent-main);
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: inline-block;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="page-header">
+        <h1>العمليات على مستوى البِت (Bitwise Operations)</h1>
+        <p>تسمح لك هذه العمليات بالتعامل مباشرة مع البِتّات الفردية داخل الأعداد الصحيحة. إنها أداة قوية جداً تُستخدم لتحسين الأداء (Optimization)، وتوليد المجموعات الجزئية (Subsets)، والعديد من الحيل البرمجية المتقدمة.</p>
+    </div>
+
+    <div class="section-card">
+        <h2>الأعداد الثنائية (Binary Numbers)</h2>
+        <p>تقوم الحواسيب بتخزين الأعداد الصحيحة في صورة <strong>ثنائية</strong>، مستخدمة الرقمين <code>0</code> و <code>1</code> فقط. نقول إن البِت <strong>مُعيَّن (Set)</strong> إذا كانت قيمته <code>1</code>.</p>
+        <p>يمثّل كل موضع (بِت) قوة من قوى العدد 2، بداية من اليمين إلى اليسار:</p>
+        
+        <table>
+            <tr>
+                <th>Bit position</th>
+                <td>7</td><td>6</td><td>5</td><td>4</td><td>3</td><td>2</td><td>1</td><td>0</td>
+            </tr>
+            <tr>
+                <th>Value</th>
+                <td>128</td><td>64</td><td>32</td><td>16</td><td>8</td><td>4</td><td>2</td><td>1</td>
+            </tr>
+        </table>
+
+        <div class="alert">
+            📌 <strong>ملاحظة هامة:</strong> للحصول على القيمة العشرية لأي عدد ثنائي، نقوم ببساطة <strong>بجمع قوى العدد 2</strong> في المواضع التي يكون فيها البِت مساوياً لـ <code>1</code>.
+        </div>
+
+        <h3>أمثلة توضيحية:</h3>
+        <div class="math-block">
+            00000110  =  4 + 2       = 6<br>
+            00001010  =  8 + 2       = 10<br>
+            00001100  =  8 + 4       = 12<br>
+            00000001  =  1           = 1<br>
+            00000000  =  0           = 0
+        </div>
+        <div class="explanation-box">
+            <h4>💡 الشرح:</h4>
+            في المثال الأول <code>00000110</code>، نلاحظ أن البت في الموضع (رقم 1) قيمته 2، والبت في الموضع (رقم 2) قيمته 4. بجمعهما (4+2) نحصل على الرقم 6. 
+            <br>إذن، عندما نجري عمليات على مستوى البت مثل (&, |, ^) فنحن في الواقع ندمج أو نعدّل هذه الخانات الفردية!
+        </div>
+    </div>
+
+    <div class="section-card">
+        <h2>المتمّم الثنائي (Two’s Complement) والأعداد السالبة</h2>
+        <p>حتى الآن تحدثنا فقط عن الأعداد الموجبة. لكن في لغة C++ (وفي معظم المعالجات الحديثة)، تُخزَّن الأعداد الصحيحة التي تقبل الإشارة (Signed Integers) باستخدام صيغة تُسمى <strong>المتمّم الثنائي</strong>.</p>
+        
+        <p><strong>الفكرة الأساسية:</strong> يتم استخدام البِت الأعلى (أقصى اليسار) كـ <strong>بِت إشارة (Sign Bit)</strong>. لنفرض أن لدينا أعداداً مكونة من 8 بِتّات:</p>
+        
+        <table>
+            <tr>
+                <th>Bit position</th>
+                <td>7 (Sign Bit)</td><td>6</td><td>5</td><td>4</td><td>3</td><td>2</td><td>1</td><td>0</td>
+            </tr>
+            <tr>
+                <th>Value</th>
+                <td style="color:red; font-weight:bold;">-128</td><td>64</td><td>32</td><td>16</td><td>8</td><td>4</td><td>2</td><td>1</td>
+            </tr>
+        </table>
+        <p>مدى الأعداد ذات الإشارة المكونة من 8 بتات هو من <strong>-128 إلى +127</strong>.</p>
+
+        <h3>شكل الأعداد الموجبة والصفر:</h3>
+        <p>تبقى كما هي في النظام الثنائي العادي (حيث يكون بت الإشارة 0):</p>
+        <div class="math-block">
+            00000101 = 5<br>
+            00000000 = 0<br>
+            00001010 = 10
+        </div>
+
+        <h3>كيف تُخزَّن الأعداد السالبة؟ (طريقة التحويل)</h3>
+        <p>للحصول على التمثيل الثنائي للعدد السالب <code>-x</code>، نتبع 3 خطوات بسيطة:</p>
+        <ol>
+            <li>نكتب العدد الموجب <code>x</code> بالثنائي.</li>
+            <li>نقلب كل البِتّات (أي 0 يصبح 1، و 1 يصبح 0).</li>
+            <li>نضيف <code>1</code> للنتيجة.</li>
+        </ol>
+
+        <div class="math-block">
+            <strong>Example: Representing -5 on 8 bits:</strong><br>
+            +5        = 00000101<br>
+            flip      = 11111010<br>
+            + 1       = 11111011  => -5
+        </div>
+        
+        <div class="math-block">
+            <strong>Checking -1:</strong><br>
+            +1        = 00000001<br>
+            flip      = 11111110<br>
+            + 1       = 11111111  => -1
+        </div>
+
+        <div class="explanation-box">
+            <h4>🎯 استنتاج سريع:</h4>
+            <ul>
+                <li><code>11111111</code> = -1</li>
+                <li><code>11111011</code> = -5</li>
+                <li><code>10000000</code> = -128 (أصغر رقم ممكن في 8 بت)</li>
+            </ul>
+        </div>
+
+        <div class="alert">
+            ❓ <strong>لماذا هذه الطريقة مفيدة للكمبيوتر؟</strong><br>
+            1. جمع الأعداد الثنائية العادي يعمل مع الأعداد السالبة دون الحاجة لتغيير طريقة الجمع.<br>
+            2. لا يوجد سوى تمثيل واحد للصفر (تخلصنا من مشكلة الصفر الموجب والصفر السالب).<br>
+            3. عملية الطرح تُنفذ ببساطة كعملية جمع: <code>a + (-b)</code>.
+        </div>
+    </div>
+
+    <div class="section-card">
+        <h2>الإزاحة لليمين مع الأعداد السالبة (Right Shift)</h2>
+        <p>يجب الحذر عند استخدام معامل الإزاحة <code>>></code>:</p>
+        <ul>
+            <li><strong>للأنواع غير الموقّعة (unsigned):</strong> تقوم الإزاحة بإدخال بِتّات <code>0</code> من اليسار دائماً.</li>
+            <li><strong>للأنواع الموقّعة (signed):</strong> معظم المترجمات (Compilers) تقوم بما يسمى <strong>"الإزاحة الحسابية" (Arithmetic Right Shift)</strong>. حيث يتم نسخ "بِت الإشارة" من اليسار للحفاظ على إشارة الرقم، فتظل الأعداد السالبة سالبة!</li>
+        </ul>
+        <div class="math-block">
+            x  = -4   -> 11111100 (8-bit view)<br>
+            x >> 1    -> 11111110 (still negative: -2)
+        </div>
+        <div class="alert">
+            🛡️ <strong>نصيحة للمسابقات:</strong> عندما تهتم بالبِتّات "الخام" فقط ولا تريد مفاجآت مع الأرقام السالبة، من الأفضل والأكثر أماناً استخدام الأنواع غير الموقّعة مثل <code>uint32_t</code> أو <code>unsigned long long</code>.
+        </div>
+    </div>
+
+    <div class="section-card">
+        <h2>أهم العوامل (Bitwise Operators)</h2>
+        <p>كل هذه العوامل تعمل بكفاءة عالية على الأنواع الصحيحة (int, long long، إلخ):</p>
+        
+        <table class="table-rtl">
+            <tr>
+                <th>العامل</th>
+                <th>الاسم</th>
+                <th>ما يفعله على مستوى البِتّات</th>
+            </tr>
+            <tr>
+                <td><code style="font-size: 18px;">&</code></td>
+                <td>AND (و)</td>
+                <td>يساوي 1 إذا كان <strong>كلا</strong> البِتّين 1، وإلا 0.</td>
+            </tr>
+            <tr>
+                <td><code style="font-size: 18px;">|</code></td>
+                <td>OR (أو)</td>
+                <td>يساوي 1 إذا كان <strong>على الأقل أحد</strong> البِتّين 1، وإلا 0.</td>
+            </tr>
+            <tr>
+                <td><code style="font-size: 18px;">^</code></td>
+                <td>XOR (الاستبعاد)</td>
+                <td>يساوي 1 إذا كان البِتّان <strong>مختلفين</strong>، وإلا 0.</td>
+            </tr>
+            <tr>
+                <td><code style="font-size: 18px;">~</code></td>
+                <td>NOT / Complement</td>
+                <td>يقلب كل البِتّات (1 ⬅️ 0، و 0 ⬅️ 1).</td>
+            </tr>
+            <tr>
+                <td><code style="font-size: 18px;">&lt;&lt;</code></td>
+                <td>الإزاحة لليسار</td>
+                <td>يُزيح البتات لليسار (يُكافئ <strong>الضرب</strong> في قوى العدد 2).</td>
+            </tr>
+            <tr>
+                <td><code style="font-size: 18px;">&gt;&gt;</code></td>
+                <td>الإزاحة لليمين</td>
+                <td>يُزيح البتات لليمين (يُكافئ <strong>القسمة الصحيحة</strong> على قوى العدد 2).</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section-card">
+        <h2>رؤية العمليات بوضوح (Visualizing Operations)</h2>
+        <p>لنفترض أن لدينا عددين صغيرين مكونين من 8 بتات لزيادة الوضوح: <code>a = 6</code> و <code>b = 10</code>.</p>
+        <div class="math-block">
+            a = 6   -> 00000110<br>
+            b = 10  -> 00001010
+        </div>
+
+        <h3>1. عامل AND <code>&</code></h3>
+        <div class="math-block">
+            a & b   -> 00000110<br>
+                       00001010<br>
+                       --------<br>
+                       00000010  = 2
+        </div>
+        <div class="explanation-box">شرح: فقط الخانة الثانية من اليمين تحتوي على (1) في كلا الرقمين، لذا نزلت بـ (1).</div>
+
+        <h3>2. عامل OR <code>|</code></h3>
+        <div class="math-block">
+            a | b   -> 00000110<br>
+                       00001010<br>
+                       --------<br>
+                       00001110  = 14
+        </div>
+        <div class="explanation-box">شرح: أي خانة تحتوي على (1) في أي من الرقمين، تنزل بـ (1) في النتيجة.</div>
+
+        <h3>3. عامل XOR <code>^</code></h3>
+        <div class="math-block">
+            a ^ b   -> 00000110<br>
+                       00001010<br>
+                       --------<br>
+                       00001100  = 12   (البتات المختلفة تُصبح 1)
+        </div>
+        <div class="explanation-box">شرح: الخانة الثانية متشابهة (كلاهما 1) فأصبحت 0. الخانات المختلفة فقط أصبحت 1.</div>
+
+        <h3>4. عامل NOT <code>~</code></h3>
+        <div class="math-block">
+            ~a      -> 11111001
+        </div>
+        <div class="explanation-box">شرح: تم قلب جميع الأصفار لآحاد، والآحاد لأصفار. (ملاحظة: في C++ الحقيقية تُطبق العملية على العرض الكامل لنوع العدد مثلاً 32 بت).</div>
+
+        <h3>5. الإزاحات (Shifts)</h3>
+        <div class="math-block">
+            a &lt;&lt; 1  -> 00001100  = 12   (6 * 2)<br>
+            a &lt;&lt; 2  -> 00011000  = 24   (6 * 4)<br><br>
+            b &gt;&gt; 1  -> 00000101  = 5    (10 / 2)<br>
+            b &gt;&gt; 2  -> 00000010  = 2    (10 / 4, integer division)
+        </div>
+    </div>
+
+    <div class="section-card">
+        <h2>مثال شامل في C++ (كيف تطبع البتات؟)</h2>
+<pre>
+<span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="com">// دالة مساعدة لطباعة البتات الـ 8 الأولى للرقم</span>
+<span class="kw">void</span> printBits(<span class="typ">int</span> x) {
+    <span class="kw">for</span> (<span class="typ">int</span> i = 7; i &gt;= 0; i--) {
+        cout &lt;&lt; ((x &gt;&gt; i) & 1);
+    }
+}
+
+<span class="typ">int</span> main() {
+    <span class="typ">int</span> a = 6;   <span class="com">// 00000110</span>
+    <span class="typ">int</span> b = 10;  <span class="com">// 00001010</span>
+    
+    cout &lt;&lt; <span class="str">"a = "</span>; printBits(a); cout &lt;&lt; <span class="str">" ("</span> &lt;&lt; a &lt;&lt; <span class="str">")\n"</span>;
+    cout &lt;&lt; <span class="str">"b = "</span>; printBits(b); cout &lt;&lt; <span class="str">" ("</span> &lt;&lt; b &lt;&lt; <span class="str">")\n\n"</span>;
+    
+    cout &lt;&lt; <span class="str">"a & b = "</span>; printBits(a & b); cout &lt;&lt; <span class="str">" ("</span> &lt;&lt; (a & b) &lt;&lt; <span class="str">")\n"</span>;
+    cout &lt;&lt; <span class="str">"a | b = "</span>; printBits(a | b); cout &lt;&lt; <span class="str">" ("</span> &lt;&lt; (a | b) &lt;&lt; <span class="str">")\n"</span>;
+    cout &lt;&lt; <span class="str">"a ^ b = "</span>; printBits(a ^ b); cout &lt;&lt; <span class="str">" ("</span> &lt;&lt; (a ^ b) &lt;&lt; <span class="str">")\n"</span>;
+    
+    cout &lt;&lt; <span class="str">"~a    = "</span>; printBits((<span class="typ">unsigned char</span>)~a); cout &lt;&lt; <span class="str">" (only low 8 bits)\n"</span>;
+    cout &lt;&lt; <span class="str">"a &lt;&lt; 1 = "</span>; printBits(a &lt;&lt; 1); cout &lt;&lt; <span class="str">" ("</span> &lt;&lt; (a &lt;&lt; 1) &lt;&lt; <span class="str">")\n"</span>;
+    cout &lt;&lt; <span class="str">"b &gt;&gt; 1 = "</span>; printBits(b &gt;&gt; 1); cout &lt;&lt; <span class="str">" ("</span> &lt;&lt; (b &gt;&gt; 1) &lt;&lt; <span class="str">")\n"</span>;
+}
+</pre>
+        <div class="explanation-box">
+            <h4>🔍 تحليل الكود السحري: <code>((x >> i) & 1)</code></h4>
+            تقوم الدالة <code>printBits</code> بالمرور على جميع مواضع البِتّات <code>i</code> (من 7 نزولاً إلى 0).<br>
+            العملية <code>x >> i</code> تُزِيح قيمة <code>x</code> بمقدار <code>i</code> خانة إلى اليمين. هذا يجعل البِت الموجود في الموضع <code>i</code> ينتقل ليصبح في الموضع الأول (أقصى اليمين).<br>
+            بعدها نُطبق <code>& 1</code> (وهي 00000001). هذه الحركة الذكية تقوم بالإبقاء على البِت الأيمن فقط وتُصفر جميع البتات الأخرى. وهكذا نستخرج قيمة البت في هذا الموضع تحديداً لنطبعه!
+        </div>
+    </div>
+
+    <div class="interactive-tool">
+        <h2 style="border:none; background:transparent; margin-top:0;">🎮 اختبر العمليات بنفسك!</h2>
+        <p>أدخل أي رقمين، اختر العملية، وشاهد النتيجة بالثنائي والعشري:</p>
+        
+        <div class="input-group">
+            <input type="number" id="valA" value="6" min="0" max="255">
+            <select id="opSelect">
+                <option value="AND">& (AND)</option>
+                <option value="OR">| (OR)</option>
+                <option value="XOR">^ (XOR)</option>
+                <option value="LSHIFT"><< (Shift Left)</option>
+                <option value="RSHIFT">>> (Shift Right)</option>
+            </select>
+            <input type="number" id="valB" value="10" min="0" max="255">
+        </div>
+        <button class="btn-calc" onclick="runCalc()">احسب النتيجة</button>
+        
+        <div style="margin-top: 20px;">
+            <div id="binA" style="font-family: monospace; font-size: 20px; letter-spacing: 2px;">00000110 (A)</div>
+            <div id="binB" style="font-family: monospace; font-size: 20px; letter-spacing: 2px; margin-top: 5px;">00001010 (B)</div>
+            <div style="border-bottom: 2px solid #94a3b8; width: 200px; margin: 10px auto;"></div>
+            <div class="result-binary" id="binRes">00000010 = 2</div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function to8BitBinary(num) {
+        return ("00000000" + num.toString(2)).slice(-8);
+    }
+
+    function runCalc() {
+        let a = parseInt(document.getElementById('valA').value) || 0;
+        let b = parseInt(document.getElementById('valB').value) || 0;
+        let op = document.getElementById('opSelect').value;
+        
+        let res = 0;
+        let showB = true;
+
+        if (op === 'AND') res = a & b;
+        else if (op === 'OR') res = a | b;
+        else if (op === 'XOR') res = a ^ b;
+        else if (op === 'LSHIFT') { res = a << b; showB = false; }
+        else if (op === 'RSHIFT') { res = a >> b; showB = false; }
+
+        document.getElementById('binA').innerText = `${to8BitBinary(a)} (A)`;
+        
+        let binB_el = document.getElementById('binB');
+        if(showB) {
+            binB_el.style.display = 'block';
+            binB_el.innerText = `${to8BitBinary(b)} (B)`;
+        } else {
+            binB_el.style.display = 'none';
+        }
+
+        // إظهار النتيجة ضمن 8 بت (لأغراض العرض فقط)
+        let resDisplay = res & 255; 
+        document.getElementById('binRes').innerText = `${to8BitBinary(resDisplay)} = ${res}`;
+    }
+</script>
+
+</body>
+</html>

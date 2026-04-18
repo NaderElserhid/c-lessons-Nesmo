@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي التعقيد الزمني (Time Complexity)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f0f4f8;
+            color: #2c3e50;
+            line-height: 1.8;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+        h1, h2, h3 { color: #1a252f; }
+        h1 { text-align: center; border-bottom: 4px solid #3498db; padding-bottom: 15px; margin-bottom: 30px; }
+        h2 { border-right: 5px solid #e74c3c; padding-right: 15px; margin-top: 40px; background-color: #fdf2f1; padding-top: 5px; padding-bottom: 5px;}
+        
+        .hero-image {
+            width: 100%;
+            max-width: 600px;
+            display: block;
+            margin: 0 auto 30px auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 16px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td { border: 1px solid #ecf0f1; padding: 15px; text-align: center; }
+        th { background-color: #34495e; color: white; font-weight: 700; }
+        tr:nth-child(even) { background-color: #f9fbfd; }
+        tr:hover { background-color: #f1f5f8; }
+
+        .order-box {
+            background-color: #e8f6f3;
+            border: 2px solid #1abc9c;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            direction: ltr;
+            margin: 20px 0 40px 0;
+            color: #16a085;
+        }
+
+        /* Examples Container */
+        .example-card {
+            background-color: #fdfdfd;
+            border: 1px solid #e1e8ed;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .example-card:hover { box-shadow: 0 6px 15px rgba(0,0,0,0.08); border-color: #bdc3c7; }
+        
+        .example-header {
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: white;
+        }
+        .badge.easy { background-color: #2ecc71; }
+        .badge.medium { background-color: #f39c12; }
+        .badge.hard { background-color: #e74c3c; }
+
+        pre {
+            background-color: #f8f9fc;
+            color: #2c3e50;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid #3498db;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            font-weight: 600;
+            position: relative;
+        }
+
+        /* Solution Styling (Hidden by default) */
+        .solution {
+            display: none;
+            color: #e74c3c; /* اللون الأحمر كما في الصورة */
+            margin-left: 20px;
+            font-weight: bold;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .block-sol {
+            display: none;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px dashed #bdc3c7;
+            color: #c0392b;
+            font-family: 'Cairo', sans-serif;
+            text-align: right;
+            direction: rtl;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* Buttons */
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: block;
+            margin-top: 15px;
+            width: 100%;
+            font-weight: bold;
+        }
+        .btn:hover { background-color: #2980b9; }
+        .btn.active { background-color: #95a5a6; }
+        .btn.active:hover { background-color: #7f8c8d; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>أمثلة تفاعلية: التعقيد الزمني (Time Complexity)</h1>
+    
+    <img src="{21BCF985-E554-440F-B37F-E5F4983C02EB}.jpg" alt="Complexity Search Best/Worst/Average Cases" class="hero-image">
+
+    <h2>1. جدول تذكيري بالرموز (Notations)</h2>
+    <table>
+        <tr>
+            <th>الرمز (Big O)</th>
+            <th>الاسم (بالعربية)</th>
+            <th>الاسم (بالإنجليزية)</th>
+            <th>الوصف المبسط</th>
+        </tr>
+        <tr>
+            <td>$O(1)$</td>
+            <td>وقت ثابت</td>
+            <td>Constant</td>
+            <td>سريع جداً، لا يتأثر بحجم المدخلات (مثال: عملية حسابية بسيطة).</td>
+        </tr>
+        <tr>
+            <td>$O(\log n)$</td>
+            <td>لوغاريتمي</td>
+            <td>Logarithmic</td>
+            <td>كل خطوة تقلل حجم المشكلة للنصف (مثال: القسمة على 2).</td>
+        </tr>
+        <tr>
+            <td>$O(\sqrt{n})$</td>
+            <td>جذر خطي</td>
+            <td>Square Root</td>
+            <td>ينمو بشكل بطيء نسبياً (مثال: حلقة تتوقف عند $i \times i \le n$).</td>
+        </tr>
+        <tr>
+            <td>$O(n)$</td>
+            <td>وقت خطي</td>
+            <td>Linear</td>
+            <td>الوقت ينمو بشكل مباشر ومتساوٍ مع حجم $n$ (مثال: حلقة واحدة).</td>
+        </tr>
+        <tr>
+            <td>$O(n \log n)$</td>
+            <td>شبه خطي</td>
+            <td>Linearithmic</td>
+            <td>شائع في خوارزميات الترتيب السريعة (Merge Sort).</td>
+        </tr>
+        <tr>
+            <td>$O(n^2)$</td>
+            <td>تربيعي</td>
+            <td>Quadratic</td>
+            <td>حلقات متداخلة، ينمو الوقت بسرعة كبيرة ويصبح بطيئاً.</td>
+        </tr>
+    </table>
+
+    <h2>2. ترتيب السرعة (من الأسرع إلى الأبطأ)</h2>
+    <p>تذكر دائماً هذا الترتيب، فكلما اتجهنا لليسار كانت الخوارزمية أبطأ والتعقيد أسوأ:</p>
+    <div class="order-box">
+        $O(1) < O(\log n) < O(\sqrt{n}) < O(n) < O(n \log n) < O(n^2) < O(2^n) < O(n!)$
+    </div>
+
+    <h2 style="margin-top: 50px;">التطبيقات التفاعلية</h2>
+    <p style="text-align: center; color: #7f8c8d; margin-bottom: 30px;">
+        اقرأ الكود الأسود، فكر في الحل، ثم اضغط على "عرض الحل" لتظهر لك خطوات التحليل باللون الأحمر (كما في الصورة التوضيحية التالية).
+    </p>
+    <img src="{FBF4E258-E71D-4105-B6E9-A0D5DD969043}.png" alt="Nested Loops Example" class="hero-image" style="max-width: 400px;">
+
+    <div class="example-card">
+        <div class="example-header">
+            <span>مثال 1: الحلقة الأساسية</span>
+            <span class="badge easy">سهل</span>
+        </div>
+<pre>
+for(int i = 0; i &lt; n; i++) { <span class="solution"> // -> n</span>
+    cout &lt;&lt; "Hello";         <span class="solution"> // -> 1</span>
+}
+<div class="solution block-sol">التحليل: حلقة واحدة تمر $n$ مرة، وداخلها عملية ثابتة.<br>التعقيد النهائي: $O(n)$</div></pre>
+        <button class="btn" onclick="toggleSolution(this)">عرض الحل</button>
+    </div>
+
+    <div class="example-card">
+        <div class="example-header">
+            <span>مثال 2: حلقتان منفصلتان</span>
+            <span class="badge easy">سهل</span>
+        </div>
+<pre>
+for(int i = 0; i &lt; n; i++) { <span class="solution"> // -> n</span>
+    cout &lt;&lt; i;
+}
+for(int j = 0; j &lt; n; j++) { <span class="solution"> // -> n</span>
+    cout &lt;&lt; j;
+}
+<div class="solution block-sol">التحليل: العمليات هنا متتالية (جمع) وليست متداخلة (ضرب). إذن: $n + n = 2n$<br>التعقيد النهائي (بعد تجاهل الثوابت): $O(n)$</div></pre>
+        <button class="btn" onclick="toggleSolution(this)">عرض الحل</button>
+    </div>
+
+    <div class="example-card">
+        <div class="example-header">
+            <span>مثال 3: القفز الثابت</span>
+            <span class="badge easy">سهل</span>
+        </div>
+<pre>
+for(int i = 0; i &lt; n; i += 5) { <span class="solution"> // -> n/5</span>
+    cout &lt;&lt; i;                  <span class="solution"> // -> 1</span>
+}
+<div class="solution block-sol">التحليل: الحلقة تزيد بمقدار 5 كل مرة، لذا ستعمل $\frac{n}{5}$ مرة.<br>التعقيد النهائي (تجاهل القسمة على 5): $O(n)$</div></pre>
+        <button class="btn" onclick="toggleSolution(this)">عرض الحل</button>
+    </div>
+
+    <div class="example-card">
+        <div class="example-header">
+            <span>مثال 4: الحلقات المتداخلة</span>
+            <span class="badge medium">متوسط</span>
+        </div>
+<pre>
+for(int i = 0; i &lt; n; i++) {       <span class="solution"> // -> n</span>
+    for(int j = 0; j &lt; n; j++) {   <span class="solution"> // -> n</span>
+        cout &lt;&lt; "*";
+    }
+}
+<div class="solution block-sol">التحليل: حلقة داخلية تنفذ $n$ مرة، مكررة $n$ مرة بسبب الحلقة الخارجية. إذن: $n \times n$<br>التعقيد النهائي: $O(n^2)$</div></pre>
+        <button class="btn" onclick="toggleSolution(this)">عرض الحل</button>
+    </div>
+
+    <div class="example-card">
+        <div class="example-header">
+            <span>مثال 5: التضاعف (الضرب في 2)</span>
+            <span class="badge medium">متوسط</span>
+        </div>
+<pre>
+for(int i = 1; i &lt; n; i *= 2) {  <span class="solution"> // -> log(n)</span>
+    cout &lt;&lt; i;
+}
+<div class="solution block-sol">التحليل: قيمة $i$ تتضاعف (1, 2, 4, 8, 16...). نصل إلى $n$ بعد $\log_2 n$ خطوة.<br>التعقيد النهائي: $O(\log n)$</div></pre>
+        <button class="btn" onclick="toggleSolution(this)">عرض الحل</button>
+    </div>
+
+    <div class="example-card">
+        <div class="example-header">
+            <span>مثال 6: تقليص النصف (القسمة على 2)</span>
+            <span class="badge medium">متوسط</span>
+        </div>
+<pre>
+for(int i = n; i &gt; 0; i /= 2) {  <span class="solution"> // -> log(n)</span>
+    cout &lt;&lt; i;
+}
+<div class="solution block-sol">التحليل: تماماً مثل الضرب، كل خطوة نقلل المشكلة للنصف (n, n/2, n/4...).<br>التعقيد النهائي: $O(\log n)$</div></pre>
+        <button class="btn" onclick="toggleSolution(this)">عرض الحل</button>
+    </div>
+
+    <div class="example-card">
+        <div class="example-header">
+            <span>مثال 7: المتداخل الخطي واللوغاريتمي</span>
+            <span class="badge medium">متوسط</span>
+        </div>
+<pre>
+for(int i = 0; i &lt; n; i++) {           <span class="solution"> // -> n</span>
+    for(int j = 1; j &lt; n; j *= 2) {    <span class="solution"> // -> log(n)</span>
+        cout &lt;&lt; i + j;
+    }
+}
+<div class="solution block-sol">التحليل: الخارجي $n$ والداخلي $\log n$. نضربهم لأنهم متداخلان.<br>التعقيد النهائي: $O(n \log n)$</div></pre>
+        <button class="btn" onclick="toggleSolution(this)">عرض الحل</button>
+    </div>
+
+    <div class="example-card">
+        <div class="example-header">
+            <span>مثال 8: متغيران مختلفان</span>
+            <span class="badge medium">متوسط</span>
+        </div>
+<pre>
+for(int i = 0; i &lt; n; i++) {       <span class="solution"> // -> n</span>
+    for(int j = 0; j &lt; m; j++) {   <span class="solution"> // -> m</span>
+        cout &lt;&lt; "*";
+    }
+}
+<div class="solution block-sol">التحليل: الحلقة الداخلية تعتمد على متغير $m$ مختلف عن $n$.<br>التعقيد النهائي: $O(n \times m)$</div></pre>
+        <button class="btn" onclick="toggleSolution(this)">عرض الحل</button>
+    </div>
+
+    <div class="example-card">
+        <div class="example-header">
+            <span>مثال 9: الثلاثي المتداخل</span>
+            <span class="badge medium">متوسط</span>
+        </div>
+<pre>
+for(int i = 0; i &lt; n; i++) {           <span class="solution"> // -> n</span>
+    for(int j = 0; j &lt; n; j++) {       <span class="solution"> // -> n</span>
+        for(int k = 0; k &lt; n; k++) {   <span class="solution"> // -> n</span>
+            cout &lt;&lt; "*";
+        }
+    }
+}
+<div class="solution block-sol">التحليل: $n \times n \times n$<br>التعقيد النهائي: $O(n^3)$</div></pre>
+        <button class="btn" onclick="toggleSolution(this)">عرض الحل</button>
+    </div>
+
+    <div class="example-card">
+        <div class="example-header">
+            <span>مثال 10: حلقة داخلية بثابت</span>
+            <span class="badge medium">متوسط</span>
+        </div>
+<pre>
+for(int i = 0; i &lt; n; i++) {         <span class="solution"> // -> n</span>
+    for(int j = 0; j &lt; 100; j++) {   <span class="solution"> // -> 100 (ثابت)</span>
+        cout &lt;&lt; "*";
+    }
+}
+<div class="solution block-sol">التحليل: الحلقة الداخلية تدور 100 مرة دائماً، هذا مجرد ثابت! إذن $100 \times n$<br>التعقيد النهائي (تجاهل الثابت 100): $O(n)$</div></pre>
+        <button class="btn" onclick="toggleSolution(this)">عرض الحل</button>
+    </div>
+
+    <h2 style="margin-top: 50px;">تحديات متقدمة (صعبة) 🔥</h2>
+
+    <div class="example-card" style="border-right: 5px solid #e74c3c;">
+        <div class="example-header">
+            <span>مثال 11: التطبيق من الصورة</span>
+            <span class="badge hard">صعب</span>
+        </div>
+<pre>
+for(int i = n/2; i &lt; n; i++)         <span class="solution"> // -> n/2</span>
+    for(int k = 1; k &lt; n; k *= 2)    <span class="solution"> // -> log(n)</span>
+        for(int j = 1; j &lt; n; j *= 2)<span class="solution"> // -> log(n)</span>
+            print i + k + j;
+
+<div class="solution block-sol">التحليل (كما في الصورة تماماً):
+نضرب التعقيدات: $n/2 \times \log n \times \log n$
+نتجاهل الثابت (النصف) فتصبح: $n \times \log n \times \log n$
+التعقيد النهائي: $O(n \log^2 n)$</div></pre>
+        <button class="btn" onclick="toggleSolution(this)">عرض الحل</button>
+    </div>
+
+    <div class="example-card" style="border-right: 5px solid #e74c3c;">
+        <div class="example-header">
+            <span>مثال 12: الحلقات المعتمدة على بعضها</span>
+            <span class="badge hard">صعب</span>
+        </div>
+<pre>
+for(int i = 0; i &lt; n; i++) {         <span class="solution"> // -> n</span>
+    for(int j = i; j &lt; n; j++) {     <span class="solution"> // -> (n-i) مرة في كل دورة</span>
+        cout &lt;&lt; "*";
+    }
+}
+<div class="solution block-sol">التحليل: الحلقة الداخلية لا تدور $n$ مرة كاملة، بل تبدأ من $i$. 
+المرات هي: $n + (n-1) + (n-2) + ... + 1$
+هذا تسلسل حسابي ومجموعه هو $\frac{n(n+1)}{2} = \frac{n^2 + n}{2}$
+التعقيد النهائي (بأخذ أعلى أس): $O(n^2)$</div></pre>
+        <button class="btn" onclick="toggleSolution(this)">عرض الحل</button>
+    </div>
+
+    <div class="example-card" style="border-right: 5px solid #e74c3c;">
+        <div class="example-header">
+            <span>مثال 13: الجذر التربيعي</span>
+            <span class="badge hard">صعب</span>
+        </div>
+<pre>
+for(int i = 1; i * i &lt;= n; i++) {  <span class="solution"> // -> sqrt(n)</span>
+    cout &lt;&lt; i;
+}
+<div class="solution block-sol">التحليل: الحلقة تستمر طالما أن $i^2 \le n$. 
+هذا يعني أنها تتوقف عندما تصل $i$ إلى $\sqrt{n}$.
+التعقيد النهائي: $O(\sqrt{n})$</div></pre>
+        <button class="btn" onclick="toggleSolution(this)">عرض الحل</button>
+    </div>
+
+    <div class="example-card" style="border-right: 5px solid #e74c3c;">
+        <div class="example-header">
+            <span>مثال 14: الخداع اللوغاريتمي</span>
+            <span class="badge hard">صعب جداً</span>
+        </div>
+<pre>
+for(int i = 1; i &lt;= n; i *= 2) {     <span class="solution"> // -> log(n) (خارجياً)</span>
+    for(int j = 1; j &lt;= i; j++) {    <span class="solution"> // -> i مرة</span>
+        cout &lt;&lt; "*";
+    }
+}
+<div class="solution block-sol">التحليل: قد تظن أنه $O(n \log n)$ لكن انتبه! الداخلي يعمل $i$ مرة.
+قيم $i$ تتضاعف: $1 + 2 + 4 + 8 + ... + n$
+مجموع هذه المتسلسلة الهندسية يقارب $2n$.
+التعقيد النهائي (مفاجأة!): $O(n)$</div></pre>
+        <button class="btn" onclick="toggleSolution(this)">عرض الحل</button>
+    </div>
+
+    <div class="example-card" style="border-right: 5px solid #e74c3c;">
+        <div class="example-header">
+            <span>مثال 15: المتسلسلة الأُسية</span>
+            <span class="badge hard">صعب جداً</span>
+        </div>
+<pre>
+for(int i = 2; i &lt;= n; i = i * i) {  <span class="solution"> // -> log(log(n))</span>
+    cout &lt;&lt; i;
+}
+<div class="solution block-sol">التحليل: قيمة $i$ تتربع في كل خطوة (2, 4, 16, 256, 65536...).
+هذا نمو أسّي جبار، وعدد الخطوات للوصول إلى $n$ صغير جداً بشكل لا يصدق.
+التعقيد النهائي: $O(\log \log n)$</div></pre>
+        <button class="btn" onclick="toggleSolution(this)">عرض الحل</button>
+    </div>
+
+</div>
+
+<script>
+    function toggleSolution(btn) {
+        // العثور على العنصر الأب (البطاقة الحالية)
+        const container = btn.parentElement;
+        
+        // العثور على جميع نصوص الحل داخل هذه البطاقة فقط
+        const solutions = container.querySelectorAll('.solution');
+        
+        if (btn.innerText === 'عرض الحل') {
+            // إظهار الحل
+            solutions.forEach(el => el.style.display = (el.classList.contains('block-sol') ? 'block' : 'inline'));
+            btn.innerText = 'إخفاء الحل';
+            btn.classList.add('active');
+            
+            // إعادة تفعيل MathJax لضمان معالجة الرموز بعد الإظهار
+            if(window.MathJax) {
+                MathJax.typesetPromise(container.querySelectorAll('.solution'));
+            }
+        } else {
+            // إخفاء الحل
+            solutions.forEach(el => el.style.display = 'none');
+            btn.innerText = 'عرض الحل';
+            btn.classList.remove('active');
+        }
+    }
+</script>
+
+</body>
+</html>

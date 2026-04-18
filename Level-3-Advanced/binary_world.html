@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>عالم الأرقام الثنائية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: rgba(99,179,237,0.15);
+    --accent: #63b3ed;
+    --accent2: #f6ad55;
+    --accent3: #68d391;
+    --accent4: #fc8181;
+    --text: #e2e8f0;
+    --text-muted: #718096;
+    --glow: 0 0 20px rgba(99,179,237,0.3);
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(99,179,237,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99,179,237,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* Header */
+  .hero {
+    text-align: center;
+    padding: 3rem 0 2rem;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    background: rgba(99,179,237,0.1);
+    border: 1px solid rgba(99,179,237,0.3);
+    color: var(--accent);
+    padding: 6px 18px;
+    border-radius: 100px;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 900;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #fff 0%, var(--accent) 50%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: fadeDown 0.7s 0.1s ease both;
+  }
+
+  .hero p {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 600px;
+    margin-inline: auto;
+    animation: fadeDown 0.7s 0.2s ease both;
+    font-family: 'Tajawal', sans-serif;
+    line-height: 1.8;
+  }
+
+  /* Nav tabs */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 2.5rem 0;
+    animation: fadeDown 0.7s 0.3s ease both;
+  }
+
+  .tab-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 10px 22px;
+    border-radius: 100px;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.25s;
+  }
+
+  .tab-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .tab-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0a0e1a;
+    box-shadow: 0 0 20px rgba(99,179,237,0.4);
+  }
+
+  /* Sections */
+  .section {
+    display: none;
+    animation: fadeIn 0.4s ease both;
+  }
+  .section.active { display: block; }
+
+  @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+  @keyframes fadeDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:none; } }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(99,179,237,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-icon {
+    width: 36px; height: 36px;
+    background: rgba(99,179,237,0.15);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  /* Section 1: Concept */
+  .bit-intro {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin: 1.5rem 0;
+  }
+
+  .bit-box {
+    flex: 1;
+    min-width: 140px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem;
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  .bit-box:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+    box-shadow: var(--glow);
+  }
+
+  .bit-val {
+    font-size: 3rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .bit-val.zero { color: var(--text-muted); }
+  .bit-val.one { color: var(--accent2); text-shadow: 0 0 20px rgba(246,173,85,0.5); }
+
+  .bit-label { font-size: 13px; color: var(--text-muted); margin-top: 8px; font-family: 'Tajawal', sans-serif; }
+
+  /* Bulb visualization */
+  .bulb-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 1.5rem 0;
+  }
+
+  .bulb-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .bulb {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    border: 2px solid rgba(246,173,85,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    transition: all 0.4s;
+    cursor: pointer;
+    background: rgba(246,173,85,0.05);
+  }
+
+  .bulb.on {
+    background: rgba(246,173,85,0.2);
+    border-color: var(--accent2);
+    box-shadow: 0 0 20px rgba(246,173,85,0.5), inset 0 0 10px rgba(246,173,85,0.2);
+  }
+
+  .bulb-label { font-size: 11px; color: var(--text-muted); text-align: center; }
+  .bulb-power { font-size: 13px; font-weight: 700; color: var(--accent); }
+
+  /* Section 2: Interactive converter */
+  .binary-input-area {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .bit-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .bit-toggle {
+    width: 64px; height: 64px;
+    border-radius: 12px;
+    font-size: 2rem;
+    font-weight: 900;
+    cursor: pointer;
+    border: 2px solid rgba(99,179,237,0.2);
+    background: var(--surface2);
+    color: var(--text-muted);
+    transition: all 0.2s;
+    font-family: 'Cairo', sans-serif;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 2px;
+    position: relative;
+  }
+
+  .bit-toggle .pos-label {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-muted);
+    position: absolute;
+    bottom: 4px;
+  }
+
+  .bit-toggle.active {
+    background: rgba(246,173,85,0.2);
+    border-color: var(--accent2);
+    color: var(--accent2);
+    box-shadow: 0 0 16px rgba(246,173,85,0.4);
+  }
+
+  .result-display {
+    text-align: center;
+    padding: 1.5rem;
+    background: var(--surface2);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    width: 100%;
+  }
+
+  .result-number {
+    font-size: 4rem;
+    font-weight: 900;
+    color: var(--accent3);
+    text-shadow: 0 0 30px rgba(104,211,145,0.4);
+    line-height: 1;
+  }
+
+  .result-label { color: var(--text-muted); font-size: 14px; margin-top: 6px; font-family: 'Tajawal', sans-serif; }
+
+  .calc-steps {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--surface2);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    font-family: monospace;
+    font-size: 14px;
+    color: var(--text-muted);
+    text-align: center;
+    direction: ltr;
+    min-height: 40px;
+    transition: all 0.3s;
+  }
+
+  .calc-steps .highlight { color: var(--accent2); font-weight: 700; }
+  .calc-steps .equals { color: var(--accent3); font-weight: 700; }
+
+  /* Section 3: Journey */
+  .journey-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .journey-step {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  .journey-step:last-child { border-bottom: none; }
+
+  .step-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    flex-shrink: 0;
+  }
+
+  .step-num {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .step-connector {
+    flex: 1;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    min-height: 40px;
+    margin-top: 4px;
+  }
+
+  .step-content { flex: 1; }
+
+  .step-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+
+  .step-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    font-family: 'Tajawal', sans-serif;
+  }
+
+  /* Animation: data flow */
+  .data-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+  }
+
+  .flow-node {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  .flow-arrow {
+    color: var(--accent);
+    font-size: 20px;
+    opacity: 0.5;
+  }
+
+  /* Live journey */
+  .live-input {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 1rem 0;
+  }
+
+  .live-input input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 1rem;
+    width: 180px;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .live-input input:focus { border-color: var(--accent); }
+
+  .live-btn {
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    padding: 10px 22px;
+    color: #0a0e1a;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .live-btn:hover { box-shadow: 0 0 16px rgba(99,179,237,0.5); transform: translateY(-1px); }
+
+  .flow-pipeline {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin: 1.5rem 0;
+  }
+
+  .pipeline-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.4s;
+  }
+
+  .pipeline-box.lit {
+    border-color: var(--accent);
+    box-shadow: 0 0 16px rgba(99,179,237,0.2);
+  }
+
+  .pipeline-box .p-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    font-family: 'Tajawal', sans-serif;
+  }
+
+  .pipeline-box .p-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent2);
+    word-break: break-all;
+    direction: ltr;
+    min-height: 24px;
+    transition: all 0.3s;
+  }
+
+  /* Section 4: Number systems */
+  .systems-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .system-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .system-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .system-card.binary:hover, .system-card.binary.active {
+    border-color: var(--accent2);
+    box-shadow: 0 8px 30px rgba(246,173,85,0.2);
+  }
+  .system-card.octal:hover, .system-card.octal.active {
+    border-color: var(--accent3);
+    box-shadow: 0 8px 30px rgba(104,211,145,0.2);
+  }
+  .system-card.decimal:hover, .system-card.decimal.active {
+    border-color: var(--accent);
+    box-shadow: 0 8px 30px rgba(99,179,237,0.2);
+  }
+  .system-card.hex:hover, .system-card.hex.active {
+    border-color: var(--accent4);
+    box-shadow: 0 8px 30px rgba(252,129,129,0.2);
+  }
+
+  .sys-base {
+    font-size: 3.5rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .binary .sys-base { color: var(--accent2); }
+  .octal .sys-base { color: var(--accent3); }
+  .decimal .sys-base { color: var(--accent); }
+  .hex .sys-base { color: var(--accent4); }
+
+  .sys-name { font-size: 16px; font-weight: 700; margin: 8px 0 4px; }
+  .sys-digits { font-size: 12px; color: var(--text-muted); font-family: monospace; font-family: 'Tajawal', sans-serif; }
+  .sys-example { margin-top: 12px; font-size: 12px; color: var(--text-muted); font-family: monospace; background: var(--surface); padding: 6px 10px; border-radius: 6px; direction: ltr; }
+
+  /* Converter table */
+  .conv-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-top: 1rem;
+  }
+
+  .conv-table th {
+    background: rgba(99,179,237,0.1);
+    color: var(--accent);
+    padding: 10px 14px;
+    text-align: center;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .conv-table td {
+    padding: 8px 14px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-family: monospace;
+    font-size: 13px;
+    color: var(--text-muted);
+    transition: background 0.2s;
+  }
+
+  .conv-table tr:hover td { background: var(--surface2); color: var(--text); }
+
+  /* Multi converter */
+  .multi-converter {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .conv-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+  }
+
+  .conv-row label {
+    font-size: 12px;
+    color: var(--text-muted);
+    min-width: 80px;
+    font-family: 'Tajawal', sans-serif;
+  }
+
+  .conv-row input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: monospace;
+    font-size: 15px;
+    outline: none;
+    text-align: center;
+    direction: ltr;
+    transition: border-color 0.2s;
+  }
+
+  .conv-row input:focus { border-color: var(--accent); }
+
+  .conv-row .sys-tag {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 700;
+    min-width: 60px;
+    text-align: center;
+  }
+
+  .tag-bin { background: rgba(246,173,85,0.15); color: var(--accent2); }
+  .tag-oct { background: rgba(104,211,145,0.15); color: var(--accent3); }
+  .tag-dec { background: rgba(99,179,237,0.15); color: var(--accent); }
+  .tag-hex { background: rgba(252,129,129,0.15); color: var(--accent4); }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 2rem 0 0;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-family: 'Tajawal', sans-serif;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+
+  /* Progress bar */
+  .progress-bar {
+    height: 3px;
+    background: var(--surface2);
+    border-radius: 100px;
+    margin: 1rem 0;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.5s ease;
+  }
+
+  /* Tooltip */
+  .tip {
+    background: rgba(99,179,237,0.1);
+    border: 1px solid rgba(99,179,237,0.2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    font-family: 'Tajawal', sans-serif;
+    margin: 1rem 0;
+  }
+
+  .tip strong { color: var(--accent); }
+
+  /* Animated binary rain in hero */
+  .binary-bg {
+    position: fixed;
+    top: 0; right: 0; bottom: 0; left: 0;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.04;
+  }
+
+  .rain-col {
+    position: absolute;
+    top: -100%;
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--accent);
+    animation: rain linear infinite;
+    writing-mode: vertical-rl;
+    white-space: nowrap;
+  }
+
+  @keyframes rain {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(200%); }
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .bit-toggle { width: 48px; height: 48px; font-size: 1.5rem; }
+    .result-number { font-size: 3rem; }
+    .sys-base { font-size: 2.5rem; }
+  }
+
+  /* Pulse animation for active elements */
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(99,179,237,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(99,179,237,0); }
+  }
+
+  .pulse { animation: pulse 2s ease infinite; }
+</style>
+</head>
+<body>
+
+<!-- Binary rain background -->
+<div class="binary-bg" id="binaryRain"></div>
+
+<div class="container">
+  <div class="hero">
+    <div class="hero-badge">📚 درس تفاعلي</div>
+    <h1>عالم الأرقام الثنائية</h1>
+    <p>اكتشف كيف يرى الكمبيوتر الأرقام، وكيف تتحول من ضغطة زر إلى بيانات مخزّنة في الذاكرة</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showSection('concept')">مفهوم الثنائي</button>
+    <button class="tab-btn" onclick="showSection('converter')">محوّل تفاعلي</button>
+    <button class="tab-btn" onclick="showSection('journey')">رحلة البيانات</button>
+    <button class="tab-btn" onclick="showSection('systems')">نظم العدّ</button>
+  </div>
+
+  <!-- ===================== SECTION 1: CONCEPT ===================== -->
+  <div class="section active" id="s-concept">
+
+    <div class="card">
+      <div class="card-title">
+        <div class="card-icon">💡</div>
+        ما هو النظام الثنائي؟
+      </div>
+      <p style="font-family:'Tajawal',sans-serif;line-height:1.9;color:var(--text-muted);font-size:15px">
+        الكمبيوتر لا يفهم الأرقام كما نفهمها نحن. هو يعمل بالكهرباء فقط: إمّا <strong style="color:var(--accent2)">تيار موجود</strong> أو <strong style="color:var(--text-muted)">تيار غائب</strong>. من هذه الفكرة البسيطة وُلد <strong style="color:var(--accent)">النظام الثنائي (Binary)</strong> — نظام لا يحتوي إلا على رقمين: الصفر والواحد.
+      </p>
+
+      <div class="bit-intro">
+        <div class="bit-box">
+          <div class="bit-val zero">0</div>
+          <div class="bit-label">لا يوجد تيار<br>المصباح مُطفأ<br><span style="color:var(--accent3)">False / OFF</span></div>
+        </div>
+        <div class="bit-box">
+          <div class="bit-val one">1</div>
+          <div class="bit-label">يوجد تيار<br>المصباح مُضاء<br><span style="color:var(--accent3)">True / ON</span></div>
+        </div>
+      </div>
+
+      <div class="tip">
+        <strong>Bit = Binary Digit</strong> — أصغر وحدة معلومات في الكمبيوتر. كل خلية في الذاكرة تحمل إمّا 0 أو 1. ثمانية bits = 1 Byte
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div class="card-icon">🔦</div>
+        تخيّل المصابيح!
+      </div>
+      <p style="font-family:'Tajawal',sans-serif;line-height:1.9;color:var(--text-muted);font-size:14px;margin-bottom:1rem">
+        كل مصباح يمثّل خانة (Bit). إذا أُضيء يعني 1، وإذا أُطفئ يعني 0. اضغط على المصابيح لترى كيف تتغير القيمة!
+      </p>
+
+      <div class="bulb-row" id="bulbRow">
+        <!-- Filled by JS -->
+      </div>
+
+      <div class="result-display" style="margin-top:1rem">
+        <div class="result-label" style="margin-bottom:8px">الرقم العشري الناتج</div>
+        <div class="result-number" id="bulbResult">0</div>
+        <div class="calc-steps" id="bulbCalc" style="margin-top:8px;direction:ltr">—</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div class="card-icon">📐</div>
+        مبدأ الأسس
+      </div>
+      <p style="font-family:'Tajawal',sans-serif;line-height:1.9;color:var(--text-muted);font-size:14px">
+        كل خانة في الثنائي تساوي ضعف الخانة التي على يمينها. الخانة الأولى من اليمين تساوي 2⁰=1، والثانية تساوي 2¹=2، والثالثة 2²=4، وهكذا...
+      </p>
+      <div class="bulb-row" style="flex-wrap:nowrap;overflow-x:auto;padding-bottom:8px">
+        <div class="bulb-item">
+          <div class="bulb on" style="width:46px;height:46px;font-size:14px;font-weight:700;color:var(--accent2)">128</div>
+          <div class="bulb-label">2⁷<br>خانة 8</div>
+        </div>
+        <div class="bulb-item">
+          <div class="bulb on" style="width:46px;height:46px;font-size:14px;font-weight:700;color:var(--accent2)">64</div>
+          <div class="bulb-label">2⁶<br>خانة 7</div>
+        </div>
+        <div class="bulb-item">
+          <div class="bulb on" style="width:46px;height:46px;font-size:14px;font-weight:700;color:var(--accent2)">32</div>
+          <div class="bulb-label">2⁵<br>خانة 6</div>
+        </div>
+        <div class="bulb-item">
+          <div class="bulb on" style="width:46px;height:46px;font-size:14px;font-weight:700;color:var(--accent2)">16</div>
+          <div class="bulb-label">2⁴<br>خانة 5</div>
+        </div>
+        <div class="bulb-item">
+          <div class="bulb on" style="width:46px;height:46px;font-size:14px;font-weight:700;color:var(--accent2)">8</div>
+          <div class="bulb-label">2³<br>خانة 4</div>
+        </div>
+        <div class="bulb-item">
+          <div class="bulb on" style="width:46px;height:46px;font-size:14px;font-weight:700;color:var(--accent2)">4</div>
+          <div class="bulb-label">2²<br>خانة 3</div>
+        </div>
+        <div class="bulb-item">
+          <div class="bulb on" style="width:46px;height:46px;font-size:14px;font-weight:700;color:var(--accent2)">2</div>
+          <div class="bulb-label">2¹<br>خانة 2</div>
+        </div>
+        <div class="bulb-item">
+          <div class="bulb on" style="width:46px;height:46px;font-size:14px;font-weight:700;color:var(--accent2)">1</div>
+          <div class="bulb-label">2⁰<br>خانة 1</div>
+        </div>
+      </div>
+
+      <div class="tip" style="margin-top:1rem">
+        <strong>مثال: 1010₂</strong><br>
+        (1×8) + (0×4) + (1×2) + (0×1) = 8 + 0 + 2 + 0 = <strong style="color:var(--accent3)">10₁₀</strong>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===================== SECTION 2: INTERACTIVE ===================== -->
+  <div class="section" id="s-converter">
+
+    <div class="card">
+      <div class="card-title">
+        <div class="card-icon">🎛️</div>
+        حوّل بنفسك — اضغط على الأرقام لتغييرها
+      </div>
+
+      <div class="binary-input-area">
+        <div class="bit-buttons" id="bitButtons"></div>
+
+        <div class="result-display" style="width:100%">
+          <div style="display:flex;justify-content:space-around;flex-wrap:wrap;gap:1rem">
+            <div>
+              <div class="result-label">ثنائي</div>
+              <div id="binDisplay" style="font-size:1.8rem;font-weight:900;color:var(--accent2);direction:ltr;letter-spacing:4px">00000000</div>
+            </div>
+            <div>
+              <div class="result-label">عشري</div>
+              <div class="result-number" id="decDisplay" style="color:var(--accent)">0</div>
+            </div>
+            <div>
+              <div class="result-label">سُداسي عشري</div>
+              <div id="hexDisplay" style="font-size:2.5rem;font-weight:900;color:var(--accent4);direction:ltr">00</div>
+            </div>
+            <div>
+              <div class="result-label">ثُماني</div>
+              <div id="octDisplay" style="font-size:2.5rem;font-weight:900;color:var(--accent3);direction:ltr">000</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="calc-steps" id="calcSteps" style="width:100%;text-align:center">اضغط على الأرقام للبدء</div>
+      </div>
+
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:1rem;flex-wrap:wrap">
+        <button class="live-btn" onclick="setPreset('00001010')" style="background:var(--surface2);color:var(--text);border:1px solid var(--border)">مثال: 10</button>
+        <button class="live-btn" onclick="setPreset('00110111')" style="background:var(--surface2);color:var(--text);border:1px solid var(--border)">مثال: 55</button>
+        <button class="live-btn" onclick="setPreset('01111111')" style="background:var(--surface2);color:var(--text);border:1px solid var(--border)">مثال: 127</button>
+        <button class="live-btn" onclick="setPreset('11111111')" style="background:var(--surface2);color:var(--text);border:1px solid var(--border)">مثال: 255</button>
+        <button class="live-btn" onclick="resetBits()" style="background:rgba(252,129,129,0.1);color:var(--accent4);border:1px solid rgba(252,129,129,0.3)">إعادة تعيين</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div class="card-icon">🔢</div>
+        أدخل رقماً عشرياً وحوّله
+      </div>
+      <div class="live-input">
+        <input type="number" id="decInput" placeholder="0 - 255" min="0" max="255" oninput="convertFromDec()" />
+        <div style="font-size:13px;color:var(--text-muted);font-family:'Tajawal',sans-serif">← اكتب رقماً من 0 إلى 255</div>
+      </div>
+      <div class="flow-pipeline" id="decPipeline">
+        <div class="pipeline-box"><div class="p-label">المُدخَل العشري</div><div class="p-value" id="pp-dec">—</div></div>
+        <div class="pipeline-box"><div class="p-label">الثنائي (8 bits)</div><div class="p-value" id="pp-bin">—</div></div>
+        <div class="pipeline-box"><div class="p-label">السُداسي عشري</div><div class="p-value" id="pp-hex">—</div></div>
+        <div class="pipeline-box"><div class="p-label">الثُماني</div><div class="p-value" id="pp-oct">—</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===================== SECTION 3: JOURNEY ===================== -->
+  <div class="section" id="s-journey">
+
+    <div class="card">
+      <div class="card-title">
+        <div class="card-icon">🚀</div>
+        رحلة الرقم — من الإدخال إلى التخزين
+      </div>
+
+      <div class="journey-steps">
+
+        <div class="journey-step">
+          <div class="step-line">
+            <div class="step-num" style="background:rgba(99,179,237,0.15);color:var(--accent)">1</div>
+            <div class="step-connector"></div>
+          </div>
+          <div class="step-content">
+            <div class="step-title">⌨️ إدخال المستخدم (Input)</div>
+            <div class="step-desc">
+              عندما تضغط على مفتاح في لوحة المفاتيح — مثلاً حرف "A" أو الرقم "7" — تُرسل الإشارة الكهربائية إلى المعالج.
+              كل مفتاح له رقم خاص به وفق معيار <strong style="color:var(--accent)">ASCII</strong> أو <strong style="color:var(--accent)">Unicode</strong>.
+            </div>
+            <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+              <div class="flow-node" style="color:var(--accent2)">A = 65</div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-node" style="color:var(--accent)">01000001₂</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="journey-step">
+          <div class="step-line">
+            <div class="step-num" style="background:rgba(246,173,85,0.15);color:var(--accent2)">2</div>
+            <div class="step-connector" style="background:linear-gradient(to bottom,var(--accent2),transparent)"></div>
+          </div>
+          <div class="step-content">
+            <div class="step-title">🔌 تحويل إلى إشارات كهربائية</div>
+            <div class="step-desc">
+              الرقم يُحوَّل إلى نبضات كهربائية. كل 1 يعني وجود جهد كهربائي (مثلاً 5 فولت)، وكل 0 يعني انعدامه (0 فولت). هكذا تنتقل البيانات عبر الدوائر الإلكترونية.
+            </div>
+            <div style="margin-top:10px;font-family:monospace;direction:ltr;display:flex;gap:4px;flex-wrap:wrap">
+              <span style="display:inline-block;padding:6px 10px;background:rgba(246,173,85,0.2);border-radius:6px;color:var(--accent2);font-size:13px">0</span>
+              <span style="display:inline-block;padding:6px 10px;background:rgba(246,173,85,0.6);border-radius:6px;color:#0a0e1a;font-size:13px;font-weight:700">1</span>
+              <span style="display:inline-block;padding:6px 10px;background:rgba(246,173,85,0.2);border-radius:6px;color:var(--accent2);font-size:13px">0</span>
+              <span style="display:inline-block;padding:6px 10px;background:rgba(246,173,85,0.2);border-radius:6px;color:var(--accent2);font-size:13px">0</span>
+              <span style="display:inline-block;padding:6px 10px;background:rgba(246,173,85,0.2);border-radius:6px;color:var(--accent2);font-size:13px">0</span>
+              <span style="display:inline-block;padding:6px 10px;background:rgba(246,173,85,0.2);border-radius:6px;color:var(--accent2);font-size:13px">0</span>
+              <span style="display:inline-block;padding:6px 10px;background:rgba(246,173,85,0.6);border-radius:6px;color:#0a0e1a;font-size:13px;font-weight:700">1</span>
+              <span style="display:inline-block;padding:6px 10px;background:rgba(246,173,85,0.2);border-radius:6px;color:var(--accent2);font-size:13px">0</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:6px;font-family:'Tajawal',sans-serif">01000010₂ = حرف "B" بقيمة عشرية 66</div>
+          </div>
+        </div>
+
+        <div class="journey-step">
+          <div class="step-line">
+            <div class="step-num" style="background:rgba(104,211,145,0.15);color:var(--accent3)">3</div>
+            <div class="step-connector" style="background:linear-gradient(to bottom,var(--accent3),transparent)"></div>
+          </div>
+          <div class="step-content">
+            <div class="step-title">⚙️ المعالج (CPU) يقرأ الأمر</div>
+            <div class="step-desc">
+              المعالج يستقبل الأرقام الثنائية ويُجري العمليات الحسابية والمنطقية عليها بسرعة هائلة — مليارات العمليات في الثانية — باستخدام الترانزستورات.
+            </div>
+            <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <div class="flow-node">ALU<br><span style="font-size:11px;color:var(--text-muted)">وحدة الحساب</span></div>
+              <div class="flow-arrow">↔</div>
+              <div class="flow-node">Registers<br><span style="font-size:11px;color:var(--text-muted)">سجلات سريعة</span></div>
+              <div class="flow-arrow">↔</div>
+              <div class="flow-node">Cache<br><span style="font-size:11px;color:var(--text-muted)">ذاكرة مؤقتة</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="journey-step">
+          <div class="step-line">
+            <div class="step-num" style="background:rgba(252,129,129,0.15);color:var(--accent4)">4</div>
+            <div class="step-connector" style="background:linear-gradient(to bottom,var(--accent4),transparent)"></div>
+          </div>
+          <div class="step-content">
+            <div class="step-title">🧠 التخزين في الذاكرة (RAM)</div>
+            <div class="step-desc">
+              البيانات تُخزَّن في خلايا الذاكرة العشوائية. كل خلية تحمل 8 bits (بايت واحد). الذاكرة تُرتَّب في عناوين (Addresses) — كل عنوان يُشير لموقع معين تماماً كرقم منزل.
+            </div>
+            <div style="margin-top:10px">
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;font-family:'Tajawal',sans-serif">مثال على خلايا الذاكرة (كل صف = عنوان مختلف)</div>
+              <div style="font-family:monospace;font-size:13px;display:flex;flex-direction:column;gap:4px;direction:ltr">
+                <div style="display:flex;gap:8px;align-items:center">
+                  <span style="color:var(--text-muted);min-width:70px">0x0000:</span>
+                  <span style="background:rgba(99,179,237,0.1);padding:3px 8px;border-radius:4px;color:var(--accent)">01000001</span>
+                  <span style="color:var(--text-muted);font-size:11px">= 'A'</span>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <span style="color:var(--text-muted);min-width:70px">0x0001:</span>
+                  <span style="background:rgba(99,179,237,0.1);padding:3px 8px;border-radius:4px;color:var(--accent)">01000010</span>
+                  <span style="color:var(--text-muted);font-size:11px">= 'B'</span>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <span style="color:var(--text-muted);min-width:70px">0x0002:</span>
+                  <span style="background:rgba(246,173,85,0.1);padding:3px 8px;border-radius:4px;color:var(--accent2)">00110111</span>
+                  <span style="color:var(--text-muted);font-size:11px">= 55</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="journey-step">
+          <div class="step-line">
+            <div class="step-num" style="background:rgba(99,179,237,0.15);color:var(--accent)">5</div>
+          </div>
+          <div class="step-content">
+            <div class="step-title">💾 التخزين الدائم (Storage)</div>
+            <div class="step-desc">
+              إذا أردنا حفظ البيانات بعد إيقاف الجهاز، تنتقل من RAM إلى القرص الصلب أو SSD، حيث تُخزَّن على شكل نبضات مغناطيسية أو شحنات كهربائية تمثّل الأصفار والآحاد.
+            </div>
+            <div class="tip" style="margin-top:10px">
+              <strong>تذكّر:</strong> من أصغر نقطة ضوء على شاشتك، إلى أي ملف أو صورة أو فيديو — كل شيء في الكمبيوتر هو في النهاية أصفار وآحاد!
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div class="card-icon">🔬</div>
+        جرّب الرحلة بنفسك
+      </div>
+      <div class="live-input">
+        <input type="number" id="journeyInput" placeholder="أدخل رقماً" min="0" max="255" oninput="showJourney()" style="font-size:1.2rem;padding:12px 20px;width:200px" />
+      </div>
+      <div class="flow-pipeline" id="journeyPipeline" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr))">
+        <div class="pipeline-box"><div class="p-label">لوحة المفاتيح</div><div class="p-value" id="jp1" style="color:var(--text-muted)">—</div></div>
+        <div class="pipeline-box"><div class="p-label">تحويل ثنائي</div><div class="p-value" id="jp2" style="color:var(--text-muted)">—</div></div>
+        <div class="pipeline-box"><div class="p-label">في الذاكرة</div><div class="p-value" id="jp3" style="color:var(--text-muted)">—</div></div>
+        <div class="pipeline-box"><div class="p-label">سُداسي عشري</div><div class="p-value" id="jp4" style="color:var(--text-muted)">—</div></div>
+        <div class="pipeline-box"><div class="p-label">حجم التخزين</div><div class="p-value" id="jp5" style="color:var(--text-muted)">—</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===================== SECTION 4: NUMBER SYSTEMS ===================== -->
+  <div class="section" id="s-systems">
+
+    <div class="card">
+      <div class="card-title">
+        <div class="card-icon">🌍</div>
+        نظم العدّ الأربعة
+      </div>
+      <p style="font-family:'Tajawal',sans-serif;line-height:1.9;color:var(--text-muted);font-size:14px;margin-bottom:1rem">
+        البشر اخترعوا أنظمة عدد مختلفة. كل نظام يستخدم عدداً مختلفاً من الأرقام الأساسية (القاعدة). اضغط على أي نظام للمزيد.
+      </p>
+
+      <div class="systems-grid">
+        <div class="system-card binary" onclick="showSystemInfo('binary')">
+          <div class="sys-base">2</div>
+          <div class="sys-name">الثنائي (Binary)</div>
+          <div class="sys-digits">الأرقام: 0 و 1 فقط</div>
+          <div class="sys-example">1011₂ = 11₁₀</div>
+        </div>
+        <div class="system-card octal" onclick="showSystemInfo('octal')">
+          <div class="sys-base">8</div>
+          <div class="sys-name">الثُماني (Octal)</div>
+          <div class="sys-digits">الأرقام: 0 إلى 7</div>
+          <div class="sys-example">17₈ = 15₁₀</div>
+        </div>
+        <div class="system-card decimal" onclick="showSystemInfo('decimal')">
+          <div class="sys-base">10</div>
+          <div class="sys-name">العشري (Decimal)</div>
+          <div class="sys-digits">الأرقام: 0 إلى 9</div>
+          <div class="sys-example">42₁₀ = 42₁₀</div>
+        </div>
+        <div class="system-card hex" onclick="showSystemInfo('hex')">
+          <div class="sys-base">16</div>
+          <div class="sys-name">السُداسي عشري (Hex)</div>
+          <div class="sys-digits">الأرقام: 0-9 و A-F</div>
+          <div class="sys-example">FF₁₆ = 255₁₀</div>
+        </div>
+      </div>
+
+      <div id="systemInfo" style="display:none;margin-top:1rem" class="tip">
+        <div id="systemInfoContent"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div class="card-icon">⚡</div>
+        محوّل الأنظمة الشامل
+      </div>
+      <p style="font-family:'Tajawal',sans-serif;color:var(--text-muted);font-size:14px;margin-bottom:1rem">اكتب في أي حقل وسيتم التحويل التلقائي لجميع الأنظمة</p>
+
+      <div class="multi-converter">
+        <div class="conv-row">
+          <span class="sys-tag tag-dec">عشري</span>
+          <label>Decimal</label>
+          <input type="number" id="mc-dec" placeholder="0" min="0" max="65535" oninput="multiConvert('dec')" />
+        </div>
+        <div class="conv-row">
+          <span class="sys-tag tag-bin">ثنائي</span>
+          <label>Binary</label>
+          <input type="text" id="mc-bin" placeholder="0" oninput="multiConvert('bin')" />
+        </div>
+        <div class="conv-row">
+          <span class="sys-tag tag-oct">ثُماني</span>
+          <label>Octal</label>
+          <input type="text" id="mc-oct" placeholder="0" oninput="multiConvert('oct')" />
+        </div>
+        <div class="conv-row">
+          <span class="sys-tag tag-hex">سُداسي</span>
+          <label>Hexadecimal</label>
+          <input type="text" id="mc-hex" placeholder="0" oninput="multiConvert('hex')" />
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div class="card-icon">📊</div>
+        جدول المقارنة (0 إلى 15)
+      </div>
+      <div style="overflow-x:auto">
+        <table class="conv-table" id="compTable"></table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div class="card-icon">🎨</div>
+        الألوان في الكمبيوتر — السُداسي عشري في الواقع
+      </div>
+      <p style="font-family:'Tajawal',sans-serif;line-height:1.9;color:var(--text-muted);font-size:14px;margin-bottom:1rem">
+        الألوان تُعبَّر عنها بثلاثة قيم: أحمر (R)، أخضر (G)، أزرق (B) — كل قيمة من 0 إلى 255 (FF في السُداسي).
+      </p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:center;margin-bottom:1rem">
+        <div style="display:flex;align-items:center;gap:8px">
+          <label style="font-size:13px;color:var(--accent4)">R</label>
+          <input type="range" id="cr" min="0" max="255" value="99" oninput="updateColor()" style="width:100px">
+          <span id="cv-r" style="font-family:monospace;font-size:13px;min-width:30px">63</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <label style="font-size:13px;color:var(--accent3)">G</label>
+          <input type="range" id="cg" min="0" max="255" value="179" oninput="updateColor()" style="width:100px">
+          <span id="cv-g" style="font-family:monospace;font-size:13px;min-width:30px">B3</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <label style="font-size:13px;color:var(--accent)">B</label>
+          <input type="range" id="cb" min="0" max="255" value="237" oninput="updateColor()" style="width:100px">
+          <span id="cv-b" style="font-family:monospace;font-size:13px;min-width:30px">ED</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center">
+        <div id="colorPreview" style="width:80px;height:80px;border-radius:12px;background:#63b3ed;border:1px solid var(--border);transition:background 0.3s"></div>
+        <div style="font-family:monospace;font-size:1.3rem;font-weight:700" id="colorHex" style="color:var(--text)">#63B3ED</div>
+        <div style="font-size:13px;color:var(--text-muted);font-family:'Tajawal',sans-serif" id="colorBin">01100011 10110011 11101101</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <p>صُنع لمساعدة الطلاب على فهم أساسيات الحوسبة 💙</p>
+    <p style="margin-top:6px;font-size:12px">كل شيء في الكمبيوتر هو في النهاية أصفار وآحاد</p>
+  </div>
+
+</div>
+
+<script>
+// ===== BINARY RAIN =====
+(function() {
+  const container = document.getElementById('binaryRain');
+  for (let i = 0; i < 20; i++) {
+    const col = document.createElement('div');
+    col.className = 'rain-col';
+    col.style.right = (Math.random() * 100) + '%';
+    col.style.animationDuration = (8 + Math.random() * 12) + 's';
+    col.style.animationDelay = -(Math.random() * 20) + 's';
+    let str = '';
+    for (let j = 0; j < 60; j++) str += (Math.random() > 0.5 ? '1' : '0') + ' ';
+    col.textContent = str;
+    container.appendChild(col);
+  }
+})();
+
+// ===== TABS =====
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('s-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ===== BULB SECTION =====
+const bulbBits = [0,0,0,0,0,0,0,0];
+const powers = [128,64,32,16,8,4,2,1];
+
+function initBulbs() {
+  const row = document.getElementById('bulbRow');
+  row.innerHTML = '';
+  powers.forEach((p, i) => {
+    const item = document.createElement('div');
+    item.className = 'bulb-item';
+    item.innerHTML = `
+      <div class="bulb ${bulbBits[i]?'on':''}" onclick="toggleBulb(${i})" id="bulb-${i}">💡</div>
+      <div class="bulb-power">2<sup>${7-i}</sup></div>
+      <div class="bulb-label">${p}</div>
+    `;
+    row.appendChild(item);
+  });
+  updateBulbResult();
+}
+
+function toggleBulb(i) {
+  bulbBits[i] = bulbBits[i] ? 0 : 1;
+  document.getElementById('bulb-' + i).className = 'bulb ' + (bulbBits[i] ? 'on' : '');
+  updateBulbResult();
+}
+
+function updateBulbResult() {
+  const dec = bulbBits.reduce((acc, b, i) => acc + b * powers[i], 0);
+  document.getElementById('bulbResult').textContent = dec;
+  const parts = bulbBits.map((b, i) => b ? `<span class="highlight">${b}×${powers[i]}</span>` : null).filter(Boolean);
+  const steps = parts.length ? parts.join(' + ') + ` <span class="equals">= ${dec}</span>` : '0';
+  document.getElementById('bulbCalc').innerHTML = steps;
+}
+
+initBulbs();
+
+// ===== BIT TOGGLES =====
+let bits = [0,0,0,0,0,0,0,0];
+
+function initBitButtons() {
+  const container = document.getElementById('bitButtons');
+  container.innerHTML = '';
+  for (let i = 0; i < 8; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'bit-toggle' + (bits[i] ? ' active' : '');
+    btn.id = 'bt-' + i;
+    btn.innerHTML = `<span class="bit-main">${bits[i]}</span><span class="pos-label">2<sup>${7-i}</sup></span>`;
+    btn.onclick = () => toggleBit(i);
+    container.appendChild(btn);
+  }
+  updateBitDisplay();
+}
+
+function toggleBit(i) {
+  bits[i] = bits[i] ? 0 : 1;
+  const btn = document.getElementById('bt-' + i);
+  btn.className = 'bit-toggle' + (bits[i] ? ' active' : '');
+  btn.querySelector('.bit-main').textContent = bits[i];
+  updateBitDisplay();
+}
+
+function updateBitDisplay() {
+  const binStr = bits.join('');
+  const dec = parseInt(binStr, 2);
+  document.getElementById('binDisplay').textContent = binStr;
+  document.getElementById('decDisplay').textContent = dec;
+  document.getElementById('hexDisplay').textContent = dec.toString(16).toUpperCase().padStart(2, '0');
+  document.getElementById('octDisplay').textContent = dec.toString(8).padStart(3, '0');
+  const parts = bits.map((b, i) => b ? `${b}×${powers[i]}` : null).filter(Boolean);
+  const steps = parts.length ? parts.join(' + ') + ` = ${dec}` : '0';
+  document.getElementById('calcSteps').textContent = steps;
+}
+
+function setPreset(str) {
+  str.split('').forEach((c, i) => bits[i] = parseInt(c));
+  initBitButtons();
+}
+
+function resetBits() {
+  bits = [0,0,0,0,0,0,0,0];
+  initBitButtons();
+}
+
+initBitButtons();
+
+// ===== DEC CONVERTER =====
+function convertFromDec() {
+  const v = parseInt(document.getElementById('decInput').value);
+  if (isNaN(v) || v < 0 || v > 255) { return; }
+  document.getElementById('pp-dec').textContent = v;
+  document.getElementById('pp-bin').textContent = v.toString(2).padStart(8, '0');
+  document.getElementById('pp-hex').textContent = '0x' + v.toString(16).toUpperCase().padStart(2,'0');
+  document.getElementById('pp-oct').textContent = v.toString(8).padStart(3,'0');
+  document.querySelectorAll('.pipeline-box').forEach(b => b.classList.add('lit'));
+}
+
+// ===== JOURNEY =====
+function showJourney() {
+  const v = parseInt(document.getElementById('journeyInput').value);
+  if (isNaN(v)) return;
+  const clamp = Math.min(255, Math.max(0, v));
+  document.getElementById('jp1').textContent = clamp;
+  document.getElementById('jp2').textContent = clamp.toString(2).padStart(8,'0');
+  document.getElementById('jp3').textContent = '0x' + clamp.toString(16).toUpperCase().padStart(4,'0');
+  document.getElementById('jp4').textContent = '0x' + clamp.toString(16).toUpperCase().padStart(2,'0');
+  document.getElementById('jp5').textContent = '1 Byte';
+  document.querySelectorAll('#journeyPipeline .pipeline-box').forEach((b,i) => {
+    setTimeout(() => { b.classList.add('lit'); }, i * 150);
+  });
+}
+
+// ===== SYSTEM INFO =====
+const systemData = {
+  binary: {
+    title: '🔌 النظام الثنائي — قاعدة 2',
+    desc: 'أساس كل عمل الحاسوب. يستخدم فقط الرقمين 0 و 1. كل رقم يمثّل حالة كهربائية (مُضاء أو مُطفأ). يُستخدم مباشرةً في الدوائر الإلكترونية والمعالجات.',
+    example: 'مثال: 1101₂ = 1×8 + 1×4 + 0×2 + 1×1 = 13₁₀'
+  },
+  octal: {
+    title: '📟 النظام الثُماني — قاعدة 8',
+    desc: 'يستخدم الأرقام من 0 إلى 7. كان شائعاً في الحواسيب القديمة. كل رقم ثُماني يعادل 3 bits ثنائية. يُستخدم أحياناً في أنظمة Unix لضبط صلاحيات الملفات (مثل chmod 755).',
+    example: 'مثال: 755₈ = (7×64) + (5×8) + (5×1) = 493₁₀'
+  },
+  decimal: {
+    title: '🔢 النظام العشري — قاعدة 10',
+    desc: 'النظام الذي نستخدمه يومياً. يستخدم الأرقام من 0 إلى 9. نشأ على الأرجح لأن البشر يملكون 10 أصابع. الكمبيوتر لا يفهمه مباشرةً بل يحوّله للثنائي أولاً.',
+    example: 'مثال: 42₁₀ = 4×10 + 2×1 = أربعون واثنان'
+  },
+  hex: {
+    title: '🎨 السُداسي عشري — قاعدة 16',
+    desc: 'يستخدم الأرقام 0-9 والحروف A-F حيث A=10 وB=11...وF=15. يُستخدم كثيراً في البرمجة لأن رقمين سُداسيين يمثّلان بايت واحداً بسهولة. يُستخدم في: ألوان CSS، عناوين الذاكرة، تصحيح الأخطاء.',
+    example: 'مثال: FF₁₆ = (15×16) + (15×1) = 255₁₀ = الأبيض الكامل'
+  }
+};
+
+function showSystemInfo(sys) {
+  const d = systemData[sys];
+  document.getElementById('systemInfoContent').innerHTML = `
+    <strong>${d.title}</strong><br><br>
+    ${d.desc}<br><br>
+    <code style="direction:ltr;display:block;background:var(--surface);padding:8px 12px;border-radius:6px;margin-top:6px;font-size:13px;color:var(--accent)">${d.example}</code>
+  `;
+  document.getElementById('systemInfo').style.display = 'block';
+  document.querySelectorAll('.system-card').forEach(c => c.classList.remove('active'));
+  document.querySelector('.system-card.' + sys).classList.add('active');
+}
+
+// ===== MULTI CONVERTER =====
+let converting = false;
+function multiConvert(from) {
+  if (converting) return;
+  converting = true;
+  try {
+    let dec;
+    if (from === 'dec') dec = parseInt(document.getElementById('mc-dec').value) || 0;
+    else if (from === 'bin') dec = parseInt(document.getElementById('mc-bin').value, 2) || 0;
+    else if (from === 'oct') dec = parseInt(document.getElementById('mc-oct').value, 8) || 0;
+    else dec = parseInt(document.getElementById('mc-hex').value, 16) || 0;
+
+    if (isNaN(dec) || dec < 0) dec = 0;
+
+    if (from !== 'dec') document.getElementById('mc-dec').value = dec;
+    if (from !== 'bin') document.getElementById('mc-bin').value = dec.toString(2);
+    if (from !== 'oct') document.getElementById('mc-oct').value = dec.toString(8);
+    if (from !== 'hex') document.getElementById('mc-hex').value = dec.toString(16).toUpperCase();
+  } catch(e) {}
+  converting = false;
+}
+
+// ===== COMPARISON TABLE =====
+(function() {
+  const t = document.getElementById('compTable');
+  t.innerHTML = `<thead><tr>
+    <th>عشري</th>
+    <th>ثنائي</th>
+    <th>ثُماني</th>
+    <th>سُداسي عشري</th>
+  </tr></thead>`;
+  const tbody = document.createElement('tbody');
+  for (let i = 0; i <= 15; i++) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="color:var(--accent);font-weight:700">${i}</td>
+      <td>${i.toString(2).padStart(4,'0')}</td>
+      <td style="color:var(--accent3)">${i.toString(8)}</td>
+      <td style="color:var(--accent4)">${i.toString(16).toUpperCase()}</td>
+    `;
+    tbody.appendChild(tr);
+  }
+  t.appendChild(tbody);
+})();
+
+// ===== COLOR PICKER =====
+function updateColor() {
+  const r = parseInt(document.getElementById('cr').value);
+  const g = parseInt(document.getElementById('cg').value);
+  const b = parseInt(document.getElementById('cb').value);
+  const hex = '#' + [r,g,b].map(v => v.toString(16).toUpperCase().padStart(2,'0')).join('');
+  const binStr = [r,g,b].map(v => v.toString(2).padStart(8,'0')).join(' ');
+  document.getElementById('colorPreview').style.background = hex;
+  document.getElementById('colorHex').textContent = hex;
+  document.getElementById('colorBin').textContent = binStr;
+  document.getElementById('cv-r').textContent = r.toString(16).toUpperCase().padStart(2,'0');
+  document.getElementById('cv-g').textContent = g.toString(16).toUpperCase().padStart(2,'0');
+  document.getElementById('cv-b').textContent = b.toString(16).toUpperCase().padStart(2,'0');
+}
+updateColor();
+</script>
+</body>
+</html>

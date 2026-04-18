@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار شامل: حيل التعامل مع البتات (Bit Tricks)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <style>
+        :root {
+            --bg-main: #f0fdfa; 
+            --bg-card: #ffffff; 
+            --accent-main: #0d9488; /* Teal */
+            --accent-secondary: #f59e0b; 
+            --text-primary: #0f172a; 
+            --text-secondary: #475569; 
+            --code-bg: #f8fafc; 
+            --border-light: #cbd5e1; 
+            --success: #10b981; 
+            --danger: #ef4444; 
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            background-image: radial-gradient(circle at top right, #ccfbf1 0%, transparent 40%);
+        }
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-card);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(13, 148, 136, 0.08);
+            border: 2px solid var(--border-light);
+        }
+        h2 {
+            text-align: center;
+            color: var(--accent-main);
+            border-bottom: 3px dashed var(--border-light);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 800;
+            font-size: 2.2em;
+        }
+        .question-card {
+            background-color: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            position: relative;
+            transition: transform 0.2s;
+        }
+        .question-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(13, 148, 136, 0.4);
+        }
+        .difficulty-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+        }
+        .badge-easy { background-color: var(--success); } 
+        .badge-medium { background-color: var(--accent-secondary); } 
+        .badge-hard { background-color: var(--danger); }
+        
+        .question-text {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            padding-left: 80px; 
+            line-height: 1.6;
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option-btn {
+            background-color: var(--code-bg);
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            padding: 14px 18px;
+            text-align: right;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: var(--text-primary);
+            direction: ltr;
+        }
+        .option-btn > span {
+            display: block;
+            text-align: right;
+            direction: rtl;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #e0f2fe;
+            border-color: var(--accent-main);
+        }
+        .option-btn:disabled { cursor: not-allowed; }
+        
+        .option-btn.correct {
+            background-color: #d1fae5;
+            border-color: var(--success);
+            color: #065f46;
+        }
+        .option-btn.wrong {
+            background-color: #fee2e2;
+            border-color: var(--danger);
+            color: #991b1b;
+        }
+        
+        .explanation-box {
+            display: none;
+            margin-top: 20px;
+            padding: 18px;
+            background-color: #f0fdfa;
+            border-right: 5px solid var(--accent-main);
+            border-radius: 8px;
+            font-size: 16px;
+            color: #0f766e;
+            animation: fadeIn 0.5s ease-in-out;
+            line-height: 1.7;
+            font-weight: 600;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        code {
+            background-color: #e2e8f0;
+            padding: 3px 7px;
+            border-radius: 4px;
+            font-family: monospace;
+            direction: ltr;
+            display: inline-block;
+            color: #b45309;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h2>💡 اختبار شامل: حيل التعامل مع البتات</h2>
+    <div id="quiz-area"></div>
+</div>
+
+<script>
+    const questions = [
+        // ================= الأسئلة السهلة =================
+        {
+            q: "التعبير البرمجي <code>(x &gt;&gt; k) & 1</code> يُستخدم لـ:",
+            options: [
+                "تصفير البت رقم k.", 
+                "فحص ما إذا كان البت رقم k يساوي 1.", 
+                "إضافة 1 إلى الرقم.", 
+                "إزاحة الرقم k خانات لليسار."
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "نقوم بإزاحة البت الهدف ليصبح في أقصى اليمين، ثم نستخدم <code>& 1</code> لمسح باقي البتات وقراءة قيمته (0 أو 1)."
+        },
+        {
+            q: "أي من البوابات التالية تُستخدم مع القناع <code>(1 &lt;&lt; k)</code> لـ <strong>تشغيل (ضبط)</strong> البت رقم k ليصبح 1 دائمًا؟",
+            options: [
+                "بوابة AND (&)", 
+                "بوابة XOR (^)", 
+                "بوابة NOT (~)", 
+                "بوابة OR (|)"
+            ],
+            answer: 3,
+            difficulty: "سهل",
+            explanation: "بوابة <code>OR (|)</code> تُجبر البت على أن يصبح 1 إذا كان القناع يحتوي على 1 في ذلك الموضع، وتترك باقي البتات كما هي لأن القناع فيها 0."
+        },
+        {
+            q: "لقلب (Toggle) حالة البت رقم k (من 0 إلى 1 أو العكس)، نستخدم العملية:",
+            options: [
+                "<code>x |= (1 &lt;&lt; k)</code>", 
+                "<code>x ^= (1 &lt;&lt; k)</code>", 
+                "<code>x &= ~(1 &lt;&lt; k)</code>", 
+                "<code>x &= (1 &lt;&lt; k)</code>"
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "بوابة <code>XOR (^)</code> هي أداة 'القلب' السحرية؛ إذا قابلت 1 في القناع فإنها تقلب حالة البت الأصلي."
+        },
+        {
+            q: "ماذا يمثل القناع <code>~(1 &lt;&lt; k)</code>؟",
+            options: [
+                "رقم جميع بتاته أصفار.", 
+                "رقم جميع بتاته آحاد، ما عدا البت رقم k فهو 0.", 
+                "رقم جميع بتاته أصفار، ما عدا البت رقم k فهو 1.", 
+                "رقم سالب عشوائي."
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "القناع <code>(1 &lt;&lt; k)</code> يعطينا 1 في الموضع k والباقي أصفار. علامة النفي <code>~</code> تقلب الجميع، فيصبح البت k صفراً والباقي آحاد."
+        },
+        {
+            q: "لتصفير (Clear) البت رقم k (إجباره على 0)، نستخدم العملية:",
+            options: [
+                "<code>x |= (1 &lt;&lt; k)</code>", 
+                "<code>x ^= (1 &lt;&lt; k)</code>", 
+                "<code>x &= ~(1 &lt;&lt; k)</code>", 
+                "<code>x &gt;&gt; k</code>"
+            ],
+            answer: 2,
+            difficulty: "سهل",
+            explanation: "نستخدم <code>AND (&)</code> مع قناع يحتوي على 0 في الموضع الهدف (لكي نُدمره) و 1 في الباقي (لكي نُحافظ عليهم)."
+        },
+
+        // ================= الأسئلة المتوسطة =================
+        {
+            q: "إذا كان <code>x = 4</code> (بالثنائي 0100)، وقمنا بتنفيذ <code>x |= (1 &lt;&lt; 0)</code>. ما هي قيمة <code>x</code> الجديدة العشريّة؟",
+            options: [
+                "4", 
+                "6", 
+                "5", 
+                "0"
+            ],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "العملية تضبط البت رقم 0 (الذي قيمته 1) إلى 1. إذن `0100 | 0001 = 0101` وهو الرقم 5."
+        },
+        {
+            q: "ما هي وظيفة السطر السحري <code>x = x & (x - 1)</code>؟",
+            options: [
+                "يضاعف قيمة x.", 
+                "يُزيل (يُصفر) البت الأقل أهمية (أول 1 من جهة اليمين).", 
+                "يُزيل البت الأكثر أهمية (أول 1 من جهة اليسار).", 
+                "يقلب جميع البتات."
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "هذه الحيلة تزيل دائماً البت المُعين الأقرب لليمين، وهي أساس للعديد من الخوارزميات المتقدمة."
+        },
+        {
+            q: "إذا كان <code>x = 10</code> (بالثنائي 1010). ما هي النتيجة بعد تنفيذ <code>x ^= (1 &lt;&lt; 1)</code>؟",
+            options: [
+                "8 (1000)", 
+                "11 (1011)", 
+                "12 (1100)", 
+                "2 (0010)"
+            ],
+            answer: 0,
+            difficulty: "متوسط",
+            explanation: "نحن نقلب البت رقم 1 (والذي هو 1 أصلاً في الرقم 10). سينقلب إلى 0، لتصبح النتيجة `1000` وهي 8."
+        },
+        {
+            q: "بافتراض أن <code>x &gt; 0</code>، أي شرط من التالي يتحقق من أن <code>x</code> هو من قوى العدد 2 (مثل 2, 4, 8, 16)؟",
+            options: [
+                "<code>(x & -x) == 0</code>", 
+                "<code>(x ^ (x - 1)) == 0</code>", 
+                "<code>(x | (x - 1)) == 0</code>", 
+                "<code>(x & (x - 1)) == 0</code>"
+            ],
+            answer: 3,
+            difficulty: "متوسط",
+            explanation: "قوى العدد 2 تمتلك بت (1) وحيد في تمثيلها. عملية <code>x & (x - 1)</code> تزيل هذا البت الوحيد، فإن أصبح الرقم صفراً، فهذا يثبت أنه قوة للعدد 2."
+        },
+        {
+            q: "رياضياً، لماذا تقوم العملية <code>x - 1</code> بقلب البتات عند أول (1) من جهة اليمين؟",
+            options: [
+                "لأن المترجم يحول الطرح إلى عملية XOR.", 
+                "لأن <code>x - 1</code> تعادل تماماً <code>~x</code>.", 
+                "لأن الطرح في النظام الثنائي يقوم باقتراض (Borrow) يقلب الأصفار إلى آحاد حتى يجد أول بت 1 فيستلف منه ويجعله 0.", 
+                "الطرح لا يقلب البتات أصلاً."
+            ],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "هذه هي الطبيعة الرياضية للطرح الثنائي؛ الاقتراض يمشي من اليمين لليسار دافعاً الأصفار لتصبح آحاداً حتى يصطدم بأول 1."
+        },
+
+        // ================= الأسئلة الصعبة =================
+        {
+            q: "ماذا تُرجع العملية <code>x & -x</code> لعدد صحيح موجب؟",
+            options: [
+                "المتمم الثنائي للعدد.", 
+                "قيمة تعزل (تستخرج) أقل بت معين (أول 1 من اليمين) وتُصفر باقي البتات.", 
+                "0 دائماً.", 
+                "العدد x مضروباً في -1."
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "هذه العملية تستخرج لنا قيمة البت الأيمن فقط. تُستخدم بكثرة في بناء هياكل بيانات متقدمة مثل Fenwick Tree (Binary Indexed Tree)."
+        },
+        {
+            q: "إذا كان <code>x = 12</code> (بالثنائي 1100). ما هي نتيجة العملية <code>x & -x</code> بالثنائي والعشري؟",
+            options: [
+                "8 (1000)", 
+                "4 (0100)", 
+                "0 (0000)", 
+                "12 (1100)"
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "أول (1) من جهة اليمين في الرقم 1100 يقع في الموضع 2 (والذي قيمته $2^2 = 4$). لذلك <code>x & -x</code> ستعيد لنا `0100` أي 4."
+        },
+        {
+            q: "تخيل أنك كتبت حلقة <code>while (x &gt; 0)</code> وداخلها تنفذ <code>x = x & (x - 1)</code> وتزيد عداداً <code>count++</code>. ماذا سيحسب هذا العداد في النهاية؟",
+            options: [
+                "عدد الأصفار في التمثيل الثنائي للرقم.", 
+                "عدد البتات الإجمالي.", 
+                "موقع أول بت يساوي 1.", 
+                "عدد الآحاد (Set Bits) في التمثيل الثنائي للرقم."
+            ],
+            answer: 3,
+            difficulty: "صعب",
+            explanation: "هذه خوارزمية مشهورة تُدعى (Brian Kernighan's Algorithm). بما أن العملية تزيل بتاً (1) في كل دورة، فإن عدد الدورات هو بالضبط عدد الآحاد في الرقم."
+        },
+        {
+            q: "في شرط فحص قوى العدد 2: <code>(x &gt; 0) && ((x & (x - 1)) == 0)</code>. لماذا يجب أن نضع الشرط <code>(x &gt; 0)</code>؟",
+            options: [
+                "لتجنب الأرقام الفردية.", 
+                "لأن العملية تفشل مع الأرقام السالبة.", 
+                "لأن الرقم 0 سيعطي <code>true</code> في الشرط الثاني رغم أنه ليس من قوى العدد 2.", 
+                "لزيادة سرعة الكود فقط."
+            ],
+            answer: 2,
+            difficulty: "صعب",
+            explanation: "إذا كان `x = 0`، فإن `0 & (0 - 1) = 0`. الشرط سيتحقق، لكن الصفر ليس من قوى العدد 2! لذا يجب استثناؤه أولاً."
+        },
+        {
+            q: "إذا أردت التأكد من أن البت رقم <code>k</code> والبت رقم <code>m</code> كلاهما يساوي <code>1</code> في الرقم <code>x</code>. ما هي الطريقة الأسرع للقيام بذلك بقناع واحد؟",
+            options: [
+                "<code>(x & ((1 &lt;&lt; k) | (1 &lt;&lt; m))) == ((1 &lt;&lt; k) | (1 &lt;&lt; m))</code>", 
+                "<code>x & (1 &lt;&lt; k) & (1 &lt;&lt; m)</code>", 
+                "<code>((x &gt;&gt; k) & 1) | ((x &gt;&gt; m) & 1)</code>", 
+                "لا يمكن فعل ذلك بقناع واحد."
+            ],
+            answer: 0,
+            difficulty: "صعب",
+            explanation: "نقوم بدمج القناعين باستخدام <code>OR (|)</code> لصنع قناع واحد يحتوي على 1 في الموضعين. ثم نعمل <code>AND</code> مع x. إذا كانت النتيجة مطابقة تماماً للقناع المدمج، إذن كلاهما كان 1 في الرقم الأصلي."
+        }
+    ];
+
+    const quizArea = document.getElementById('quiz-area');
+
+    questions.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        
+        let diffClass = item.difficulty === 'سهل' ? 'badge-easy' : (item.difficulty === 'متوسط' ? 'badge-medium' : 'badge-hard');
+        
+        const badge = document.createElement('span');
+        badge.className = `difficulty-badge ${diffClass}`;
+        badge.innerText = item.difficulty;
+        card.appendChild(badge);
+
+        const qTitle = document.createElement('div');
+        qTitle.className = 'question-text';
+        qTitle.innerHTML = `س ${index + 1}: <span dir="rtl">${item.q}</span>`;
+        card.appendChild(qTitle);
+
+        const optionsGrid = document.createElement('div');
+        optionsGrid.className = 'options-grid';
+
+        const explanationBox = document.createElement('div');
+        explanationBox.className = 'explanation-box';
+        explanationBox.innerHTML = `<strong>💡 الشرح:</strong> <span dir="rtl">${item.explanation}</span>`;
+
+        item.options.forEach((opt, optIndex) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<span>${opt}</span>`;
+            
+            if(optIndex === item.answer) {
+                btn.dataset.correct = "true";
+            }
+
+            btn.onclick = function() {
+                const allBtns = optionsGrid.querySelectorAll('.option-btn');
+                allBtns.forEach(b => b.disabled = true);
+
+                if (optIndex === item.answer) {
+                    this.classList.add('correct');
+                } else {
+                    this.classList.add('wrong');
+                    optionsGrid.querySelector('[data-correct="true"]').classList.add('correct');
+                }
+                
+                explanationBox.style.display = 'block';
+                MathJax.typesetPromise([explanationBox]);
+            };
+            optionsGrid.appendChild(btn);
+        });
+
+        card.appendChild(optionsGrid);
+        card.appendChild(explanationBox);
+        quizArea.appendChild(card);
+    });
+
+    MathJax.typesetPromise();
+</script>
+
+</body>
+</html>

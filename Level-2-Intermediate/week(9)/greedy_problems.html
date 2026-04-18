@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحديات الخوارزميات الجشعة - البرمجة التنافسية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-main: #f8fafc; 
+            --bg-card: #ffffff; 
+            --accent-main: #8b5cf6; /* بنفسجي زاهي */
+            --accent-main-hover: #7c3aed;
+            --accent-secondary: #f59e0b; /* برتقالي */
+            --accent-green: #10b981;
+            --text-primary: #1e293b; 
+            --text-secondary: #475569; 
+            --border-light: #e2e8f0; 
+            --code-bg: #0f172a; 
+            --code-text: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.7;
+            background-image: radial-gradient(circle at top right, #ede9fe 0%, transparent 40%);
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            background-color: var(--bg-card);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            border: 2px dashed var(--accent-main);
+        }
+
+        h1 {
+            font-family: 'Tajawal', sans-serif;
+            color: var(--accent-main);
+            margin: 0 0 10px 0;
+            font-size: 2.5em;
+        }
+
+        .desc {
+            color: var(--text-secondary);
+            font-size: 18px;
+            margin: 0;
+        }
+
+        .problem-card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-light);
+            border-right: 5px solid var(--accent-main);
+            transition: transform 0.3s;
+        }
+
+        .problem-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(139, 92, 246, 0.15);
+        }
+
+        .problem-title {
+            font-size: 22px;
+            color: var(--accent-secondary);
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .problem-desc {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .hint-box {
+            background-color: #fffbeb;
+            border-right: 4px solid var(--accent-secondary);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            color: #b45309;
+            font-weight: 600;
+        }
+
+        .io-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .io-box {
+            flex: 1;
+            min-width: 200px;
+            background-color: #f8fafc;
+            border: 1px solid var(--border-light);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            direction: ltr;
+            text-align: left;
+            font-size: 16px;
+        }
+
+        .io-box strong { color: var(--accent-main); display: block; margin-bottom: 5px;}
+
+        /* Visualization Area */
+        .viz-area {
+            background-color: #f1f5f9;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px dashed var(--border-light);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80px;
+            text-align: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .viz-element {
+            padding: 10px 20px;
+            background-color: #e0e7ff;
+            border: 2px solid #818cf8;
+            border-radius: 6px;
+            font-weight: bold;
+            color: #3730a3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .viz-action {
+            font-size: 24px;
+            color: var(--accent-secondary);
+        }
+
+        .toggle-btn {
+            background-color: var(--accent-main);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: block;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .toggle-btn:hover { background-color: var(--accent-main-hover); }
+
+        .solution-area {
+            display: none;
+            margin-top: 20px;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 20px;
+            border-radius: 8px;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 15px;
+            margin: 0;
+            border-left: 5px solid var(--accent-main);
+        }
+
+        .kw { color: #c678dd; } 
+        .typ { color: #56b6c2; } 
+        .str { color: #98c379; } 
+        .com { color: #7f848e; font-style: italic; } 
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="page-header">
+        <h1>🏆 تحديات الخوارزميات الجشعة (مستوى متوسط)</h1>
+        <p class="desc">في هذه المسائل، سنستخدم قاعدة <strong>"الفرز ثم الاختيار" (Sort & Select)</strong>. تذكر دائماً: ابحث عن أفضل خيار ممكن في اللحظة الحالية دون القلق بشأن المستقبل!</p>
+    </div>
+
+    <div class="problem-card">
+        <h3 class="problem-title"><span>🍪</span> المسألة الأولى: توزيع البسكويت (Assign Cookies)</h3>
+        <div class="problem-desc">
+            لديك مصفوفة تمثل <strong>"مستوى الجوع"</strong> لمجموعة من الأطفال، ومصفوفة أخرى تمثل <strong>"أحجام قطع البسكويت"</strong> المتاحة. <br>
+            الطفل سيشبع فقط إذا أعطيته قطعة بسكويت حجمها أكبر من أو يساوي مستوى جوعه. (يُسمح بإعطاء قطعة بسكويت واحدة كحد أقصى لكل طفل).<br>
+            <strong>المطلوب:</strong> ما هو أكبر عدد من الأطفال الذين يمكنك إشباعهم؟
+        </div>
+        
+        <div class="hint-box">
+            💡 <strong>الفكرة الجشعة:</strong> رتّب مصفوفة الأطفال ومصفوفة البسكويت تصاعدياً. ابدأ بأقل طفل جوعاً، وابحث عن أصغر قطعة بسكويت تكفيه. لماذا نعطيه أصغر قطعة؟ لكي نحتفظ بالقطع الكبيرة للأطفال الأكثر جوعاً لاحقاً!
+        </div>
+        
+        <div class="viz-area">
+            <div class="viz-element" style="background-color: #fee2e2; border-color: #fca5a5;">
+                <span>الأطفال (الجوع)</span>
+                <span style="font-size: 20px;">[1, 2, 3]</span>
+            </div>
+            <span class="viz-action">➕</span>
+            <div class="viz-element" style="background-color: #fef3c7; border-color: #fcd34d;">
+                <span>البسكويت (الحجم)</span>
+                <span style="font-size: 20px;">[1, 1]</span>
+            </div>
+            <span class="viz-action">➡️</span>
+            <div class="viz-element" style="background-color: #d1fae5; border-color: #6ee7b7;">
+                <span>طفل واحد فقط سيشبع</span>
+                <span style="font-size: 20px;">الطفل (1) يأخذ البسكويتة (1)</span>
+            </div>
+        </div>
+
+        <div class="io-container">
+            <div class="io-box">
+                <strong>Input:</strong><br>
+                Children = [1, 2, 3]<br>
+                Cookies = [1, 1]
+            </div>
+            <div class="io-box">
+                <strong>Output:</strong><br>
+                1
+            </div>
+        </div>
+        
+        <button class="toggle-btn" onclick="toggleSolution('sol1', this)">👁️ إظهار الحل البرمجي</button>
+        
+        <div id="sol1" class="solution-area">
+<pre>
+<span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;vector&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;algorithm&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="typ">int</span> main() {
+    vector&lt;<span class="typ">int</span>&gt; children = {1, 2, 3};
+    vector&lt;<span class="typ">int</span>&gt; cookies = {1, 1};
+    
+    <span class="com">// 1. ترتيب المصفوفات تصاعدياً</span>
+    sort(children.begin(), children.end());
+    sort(cookies.begin(), cookies.end());
+    
+    <span class="typ">int</span> child_i = 0; <span class="com">// مؤشر للأطفال</span>
+    <span class="typ">int</span> cookie_j = 0; <span class="com">// مؤشر للبسكويت</span>
+    
+    <span class="com">// 2. المرور الجشع (Two Pointers)</span>
+    <span class="kw">while</span> (child_i &lt; children.size() && cookie_j &lt; cookies.size()) {
+        <span class="com">// إذا كانت البسكويتة تكفي الطفل الحالي</span>
+        <span class="kw">if</span> (cookies[cookie_j] &gt;= children[child_i]) {
+            child_i++; <span class="com">// الطفل شبع، ننتقل للطفل التالي</span>
+        }
+        <span class="com">// في كل الأحوال ننتقل للبسكويتة التالية (سواء استخدمناها أو كانت صغيرة جداً)</span>
+        cookie_j++; 
+    }
+    
+    <span class="com">// عدد الأطفال الذين شبعوا هو المؤشر الذي وصلوا إليه</span>
+    cout &lt;&lt; <span class="str">"Max Happy Children: "</span> &lt;&lt; child_i &lt;&lt; endl;
+    <span class="kw">return</span> 0;
+}
+</pre>
+        </div>
+    </div>
+
+    <div class="problem-card">
+        <h3 class="problem-title"><span>🛶</span> المسألة الثانية: قوارب النجاة (Boats to Save People)</h3>
+        <div class="problem-desc">
+            هناك سفينة تغرق، ولديك مصفوفة تمثل <strong>"أوزان الأشخاص"</strong>. هناك عدد غير محدود من قوارب النجاة، ولكن كل قارب يتحمل <strong>وزناً أقصى W</strong>، ويتسع لـ <strong>شخصين كحد أقصى</strong> في نفس الوقت.<br>
+            <strong>المطلوب:</strong> ما هو <strong>أقل عدد من القوارب</strong> تحتاجه لإنقاذ جميع الأشخاص؟ (بافتراض أن وزن أي شخص لا يتجاوز W).
+        </div>
+        
+        <div class="hint-box">
+            💡 <strong>الفكرة الجشعة:</strong> رتب الأوزان تصاعدياً. لتقليل عدد القوارب، يجب أن نملأ القارب بأكبر قدر ممكن. القاعدة الجشعة هي: حاول دائماً أن تضع <strong>الشخص الأخف مع الشخص الأثقل</strong> في نفس القارب. إذا كان وزنهما أكبر من الحد، فالشخص الأثقل سيركب في قارب بمفرده حتماً!
+        </div>
+        
+        <div class="viz-area">
+            <div class="viz-element" style="background-color: #e0f2fe; border-color: #7dd3fc;">
+                <span>الأوزان [3, 2, 2, 1]</span>
+                <span style="font-size: 16px;">الحد الأقصى للقارب = 3</span>
+            </div>
+            <span class="viz-action">➡️ ترتيب: [1, 2, 2, 3] ➡️</span>
+            <div class="viz-element" style="background-color: #dcfce7; border-color: #86efac;">
+                <span>القوارب المطلوبة: 3</span>
+                <span style="font-size: 16px;">قارب1: [3] | قارب2: [2, 1] | قارب3: [2]</span>
+            </div>
+        </div>
+
+        <div class="io-container">
+            <div class="io-box">
+                <strong>Input:</strong><br>
+                Weights = [3, 2, 2, 1]<br>
+                Limit = 3
+            </div>
+            <div class="io-box">
+                <strong>Output:</strong><br>
+                3
+            </div>
+        </div>
+        
+        <button class="toggle-btn" onclick="toggleSolution('sol2', this)">👁️ إظهار الحل البرمجي</button>
+        
+        <div id="sol2" class="solution-area">
+<pre>
+<span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;vector&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;algorithm&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="typ">int</span> main() {
+    vector&lt;<span class="typ">int</span>&gt; people = {3, 2, 2, 1};
+    <span class="typ">int</span> limit = 3;
+    
+    <span class="com">// 1. ترتيب الأوزان تصاعدياً</span>
+    sort(people.begin(), people.end());
+    
+    <span class="com">// 2. استخدام مؤشرين (Two Pointers): واحد للأخف وواحد للأثقل</span>
+    <span class="typ">int</span> left = 0;
+    <span class="typ">int</span> right = people.size() - 1;
+    <span class="typ">int</span> boats = 0;
+    
+    <span class="kw">while</span> (left &lt;= right) {
+        <span class="com">// هل يمكن أن يركب الأخف مع الأثقل في قارب واحد؟</span>
+        <span class="kw">if</span> (people[left] + people[right] &lt;= limit) {
+            left++;  <span class="com">// نعم، الأخف ركب بأمان، ننتقل للأخف الذي يليه</span>
+        }
+        
+        <span class="com">// في جميع الأحوال، الأثقل سيركب القارب (إما مع الأخف أو بمفرده)</span>
+        right--; 
+        boats++; <span class="com">// استهلكنا قارباً واحداً</span>
+    }
+    
+    cout &lt;&lt; <span class="str">"Minimum Boats: "</span> &lt;&lt; boats &lt;&lt; endl;
+    <span class="kw">return</span> 0;
+}
+</pre>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function toggleSolution(id, btn) {
+        var x = document.getElementById(id);
+        
+        if (x.style.display === "block") {
+            x.style.display = "none";
+            btn.innerHTML = "👁️ إظهار الحل البرمجي";
+            btn.style.backgroundColor = "var(--accent-main)";
+        } else {
+            x.style.display = "block";
+            btn.innerHTML = "🙈 إخفاء الحل البرمجي";
+            btn.style.backgroundColor = "var(--text-secondary)";
+        }
+    }
+</script>
+
+</body>
+</html>

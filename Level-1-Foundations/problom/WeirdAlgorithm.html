@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKode | Weird Algorithm</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15);
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        
+        .btn-code-top {
+            background: var(--blue-gradient); color: white; border: none;
+            padding: 10px 25px; border-radius: 50px; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; gap: 10px; font-size: 0.95rem;
+        }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .title-section { text-align: center; margin-bottom: 50px; }
+        .title-section h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 5px; }
+        .attribution { color: var(--primary-blue); font-size: 1.2rem; font-weight: 600; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; }
+
+        .step-item {
+            display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px;
+            padding: 20px; background: #fff; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .step-number {
+            background: var(--yellow-gradient); color: white; width: 32px; height: 32px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 800; flex-shrink: 0;
+        }
+
+        .simulator-card {
+            background: white; border-radius: 30px; padding: 50px 40px;
+            text-align: center; box-shadow: var(--soft-shadow);
+            border: 3px dashed #cbd5e1;
+        }
+
+        input {
+            width: 70%; padding: 18px; border: 2px solid #e2e8f0;
+            background: #f8fafc; border-radius: 18px; font-size: 1.2rem; text-align: center;
+            margin-bottom: 30px; outline: none; transition: 0.3s;
+            font-family: 'Fira Code', 'Tajawal', monospace;
+        }
+        input:focus { border-color: var(--primary-blue); background: white; }
+
+        .action-buttons { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .btn-calc { background: var(--yellow-gradient); color: white; border: none; padding: 16px 40px; border-radius: 20px; cursor: pointer; font-weight: 800; transition: 0.3s; }
+        .btn-reset { background: #e2e8f0; color: #475569; border: none; padding: 16px 25px; border-radius: 20px; cursor: pointer; font-weight: 800; }
+
+        /* منطقة الانتقالات المصلحة */
+        #blocksArea {
+            margin-top: 40px; display: flex; flex-wrap: wrap;
+            gap: 15px; justify-content: center; align-items: center;
+        }
+        .number-block {
+            background: white; border: 2px solid var(--primary-blue); padding: 18px;
+            min-width: 75px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            animation: popIn 0.4s forwards; opacity: 0; text-align: center;
+        }
+        .block-val { font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        
+        /* السهم مع شرح العملية أعلاه */
+        .arrow {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; color: #94a3b8; font-size: 1.2rem;
+            animation: fadeIn 0.5s forwards; opacity: 0; gap: 5px;
+        }
+        .arrow-op {
+            font-size: 0.75rem; font-weight: 700; color: var(--primary-blue);
+            white-space: nowrap; background: #e0f2fe; padding: 2px 8px; border-radius: 8px;
+        }
+
+        @keyframes popIn { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        #codeArea {
+            display: none; margin-top: 40px; 
+            background: #1e293b; border-radius: 25px; 
+            overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+        .code-header {
+            background: #0f172a; padding: 12px 30px; 
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #334155;
+        }
+        .copy-btn { color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        pre { padding: 35px; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.7; direction: ltr; text-align: left; margin: 0; overflow-x: auto; font-size: 0.95rem; }
+        .comment { color: #79c36a; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button class="btn-code-top" onclick="toggleCode()">
+            <i class="fas fa-terminal"></i> استعراض الكود المشروح
+        </button>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKode</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="title-section">
+            <h1>Weird Algorithm</h1>
+            <p class="attribution">هذا الشرح مقدم من منصة تويت كود</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-microchip"></i>
+                <h3>وصف المسألة</h3>
+            </div>
+            <p>تبدأ هذه الخوارزمية برقم صحيح تختاره أنت، ثم تطلب منك تطبيق مجموعة من الخطوات المتكررة حتى تصل في النهاية إلى الرقم 1:</p>
+            <ul>
+                <li><strong>إذا كان الرقم زوجياً:</strong> نقوم بقسمة الرقم على 2.</li>
+                <li><strong>إذا كان الرقم فردياً:</strong> نقوم بضرب الرقم في 3 ثم نضيف إليه 1.</li>
+            </ul>
+        </div>
+
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-list-ol"></i>
+                <h3>خطوات التفكير والحل</h3>
+            </div>
+            <div class="step-item"><div class="step-number">1</div><div><strong>إنشاء الحلقة:</strong> نستخدم حلقة تكرارية تستمر في العمل طالما أن الرقم لم يصبح 1.</div></div>
+            <div class="step-item"><div class="step-number">2</div><div><strong>فحص نوع الرقم:</strong> نختبر إذا كان الرقم الحالي يقبل القسمة على 2 بدون باقٍ.</div></div>
+            <div class="step-item"><div class="step-number">3</div><div><strong>تطبيق القواعد:</strong> ننفذ عملية القسمة للزوجي، وعملية الضرب والجمع للفردي، ونطبع النتيجة.</div></div>
+        </div>
+
+        <div class="simulator-card">
+            <div class="card-header" style="justify-content: center; color: var(--dark-navy);">
+                <i class="fas fa-cubes"></i>
+                <h3>مختبر التفكير المتسلسل</h3>
+            </div>
+            <p style="margin-bottom: 25px;">أدخل الرقم الذي تريد أن تبدأ به الخوارزمية:</p>
+            <input type="number" id="algoInput" value="3">
+            
+            <div class="action-buttons">
+                <button class="btn-calc" onclick="runSimulation()">
+                    <i class="fas fa-play"></i> ابدأ المحاكاة
+                </button>
+                <button class="btn-reset" onclick="reset()">
+                    <i class="fas fa-rotate-left"></i> مسح النتائج
+                </button>
+            </div>
+            
+            <div id="blocksArea"></div>
+        </div>
+
+        <div id="codeArea">
+            <div class="code-header">
+                <span style="color:#94a3b8; font-family:monospace; font-size: 0.9rem;">weird_algorithm.cpp</span>
+                <button class="copy-btn" onclick="copyCode()">نسخ الكود</button>
+            </div>
+<pre id="cppCode">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    long long n;
+    cin >> n;
+
+    while (true) {
+        cout << n << " ";
+        if (n == 1) break;
+
+        if (n % 2 == 0) {
+            n /= 2;
+        } else {
+            n = n * 3 + 1;
+        }
+    }
+    return 0;
+}
+</pre>
+        </div>
+    </div>
+
+    <script>
+        function runSimulation() {
+            let n = BigInt(document.getElementById('algoInput').value);
+            const container = document.getElementById('blocksArea');
+            container.innerHTML = ""; 
+
+            if (n <= 0n) return alert("يرجى إدخال عدد صحيح موجب.");
+
+            // إضافة الكتلة الأولى (البداية)
+            const startBlock = document.createElement('div');
+            startBlock.className = 'number-block';
+            startBlock.innerHTML = `<div class="block-val">${n.toString()}</div>`;
+            container.appendChild(startBlock);
+
+            let step = 0;
+            while (n !== 1n) {
+                step++;
+                let opText = (n % 2n === 0n) ? "قسمة ÷ 2" : "ضرب × 3 + 1";
+                if (n % 2n === 0n) n /= 2n; else n = n * 3n + 1n;
+
+                const currentVal = n.toString();
+                const currentOp = opText;
+                const currentStep = step;
+
+                setTimeout(() => {
+                    // إضافة السهم مع الشرح
+                    const arrow = document.createElement('div');
+                    arrow.className = 'arrow';
+                    arrow.innerHTML = `<span class="arrow-op">${currentOp}</span><i class="fas fa-chevron-left"></i>`;
+                    container.appendChild(arrow);
+
+                    // إضافة النتيجة في صندوق جديد
+                    const block = document.createElement('div');
+                    block.className = 'number-block';
+                    block.innerHTML = `<div class="block-val">${currentVal}</div>`;
+                    container.appendChild(block);
+                }, currentStep * 400);
+
+                if (step > 40) break; 
+            }
+        }
+
+        function reset() {
+            document.getElementById('algoInput').value = '3';
+            document.getElementById('blocksArea').innerHTML = "";
+        }
+
+        function toggleCode() {
+            const el = document.getElementById('codeArea');
+            el.style.display = el.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function copyCode() {
+            navigator.clipboard.writeText(document.getElementById('cppCode').innerText).then(() => alert("تم نسخ الكود!"));
+        }
+    </script>
+</body>
+</html>

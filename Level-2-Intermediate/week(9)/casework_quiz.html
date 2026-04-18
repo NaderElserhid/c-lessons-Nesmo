@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار شامل: الخوارزميات الجشعة (Greedy Algorithms)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-main: #f8fafc; 
+            --bg-card: #ffffff; 
+            --accent-main: #8b5cf6; /* بنفسجي زاهي يعبر عن الجشع */
+            --accent-secondary: #f59e0b; 
+            --text-primary: #334155; 
+            --text-secondary: #64748b; 
+            --code-bg: #f1f5f9; 
+            --border-light: #e2e8f0; 
+            --success: #10b981; 
+            --danger: #ef4444; 
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            background-image: radial-gradient(circle at top right, #ede9fe 0%, transparent 40%);
+        }
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-card);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-light);
+        }
+        h2 {
+            text-align: center;
+            color: var(--accent-main);
+            border-bottom: 3px solid var(--accent-secondary);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 800;
+            font-size: 2.2em;
+        }
+        .question-card {
+            background-color: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            position: relative;
+            transition: transform 0.2s;
+        }
+        .question-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        .difficulty-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+        }
+        .badge-easy { background-color: var(--success); } 
+        .badge-medium { background-color: var(--accent-secondary); } 
+        .badge-hard { background-color: var(--danger); }
+        
+        .question-text {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            padding-left: 80px; 
+            line-height: 1.6;
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option-btn {
+            background-color: var(--code-bg);
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            padding: 14px 18px;
+            text-align: right;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: var(--text-primary);
+            direction: rtl;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #f5f3ff;
+            border-color: var(--accent-main);
+        }
+        .option-btn:disabled { cursor: not-allowed; }
+        
+        .option-btn.correct {
+            background-color: #d1fae5;
+            border-color: var(--success);
+            color: #065f46;
+        }
+        .option-btn.wrong {
+            background-color: #fee2e2;
+            border-color: var(--danger);
+            color: #991b1b;
+        }
+        
+        .explanation-box {
+            display: none;
+            margin-top: 20px;
+            padding: 18px;
+            background-color: #f5f3ff;
+            border-right: 5px solid var(--accent-main);
+            border-radius: 8px;
+            font-size: 16px;
+            color: #4c1d95;
+            animation: fadeIn 0.5s ease-in-out;
+            line-height: 1.7;
+            font-weight: 600;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        code {
+            background-color: #e2e8f0;
+            padding: 3px 7px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            direction: ltr;
+            display: inline-block;
+            color: #b45309;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h2>🍪 اختبار شامل: الخوارزميات الجشعة</h2>
+    <div id="quiz-area"></div>
+</div>
+
+<script>
+    const questions = [
+        // ================= الأسئلة السهلة =================
+        {
+            q: "ما هو المبدأ الأساسي الذي تقوم عليه الخوارزمية الجشعة؟",
+            options: [
+                "البحث في جميع الاحتمالات الممكنة للوصول للحل.", 
+                "اتخاذ الخيار الذي يبدو الأفضل في اللحظة الحالية دون النظر للمستقبل.", 
+                "تقسيم المشكلة إلى نصفين متساويين في كل خطوة.", 
+                "العودة لتعديل القرارات السابقة إذا وجدنا مساراً أفضل."
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "الخوارزمية الجشعة لا تنظر للأمام ولا تتراجع عن قراراتها؛ هي فقط تأخذ 'الأفضل الآن' وتستمر."
+        },
+        {
+            q: "ماذا يعني مصطلح 'الحل الأمثل محلياً' (Locally Optimal)؟",
+            options: [
+                "هو أفضل خيار متوفر فقط في الخطوة أو المرحلة الحالية.", 
+                "هو الحل الذي يضمن الوصول للنتيجة النهائية الأفضل عالمياً.", 
+                "هو الحل الذي يستهلك أقل مساحة في الذاكرة.", 
+                "هو حل يعمل فقط في البلدان المتقدمة."
+            ],
+            answer: 0,
+            difficulty: "سهل",
+            explanation: "محلياً يعني (هنا والآن). الجشع دائماً يختار الأمثل محلياً، آملاً أن يؤدي ذلك للأمثل عالمياً (لكن هذا لا يحدث دائماً)."
+        },
+        {
+            q: "في مسألة 'إرجاع الباقي' (Coin Change) بالنظام العادي {1, 5, 10, 25}، كيف تتصرف الخوارزمية الجشعة؟",
+            options: [
+                "تأخذ أصغر عملة ممكنة أولاً لزيادة عدد العملات.", 
+                "تأخذ عملة عشوائية في كل مرة.", 
+                "تأخذ أكبر عملة لا تتجاوز المبلغ المتبقي، وتكرر ذلك.", 
+                "تجمع كل العملات معاً ثم تقسمها."
+            ],
+            answer: 2,
+            difficulty: "سهل",
+            explanation: "الجشع هنا يعني محاولة إنقاص المبلغ بأسرع شكل ممكن، ولذلك تأخذ أكبر عملة تستطيع أخذها."
+        },
+        {
+            q: "ما هي أبرز ميزة للخوارزميات الجشعة مقارنة بالخوارزميات المعقدة الأخرى (مثل البرمجة الديناميكية)؟",
+            options: [
+                "أنها تعطي الحل الأمثل دائماً بنسبة 100%.", 
+                "أنها سريعة جداً وبسيطة في التنفيذ.", 
+                "أنها لا تحتاج لاستخدام حلقات التكرار (Loops).", 
+                "أنها تستهلك ذاكرة أكثر."
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "بسبب اتخاذها لقرار واحد وعدم عودتها لتجربة احتمالات أخرى، تتميز الخوارزميات الجشعة بسرعتها الفائقة وسهولة كتابتها."
+        },
+        {
+            q: "ما هي الخطوة التحضيرية التي غالباً ما تسبق تطبيق الخوارزمية الجشعة؟",
+            options: [
+                "إنشاء مصفوفة ثنائية الأبعاد بحجم 1000×1000.", 
+                "الترتيب (Sorting) للعناصر بناءً على القيمة، الوقت، أو الوزن.", 
+                "تحويل الأرقام إلى نصوص.", 
+                "إيقاف تشغيل البرنامج مؤقتاً."
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "الفرز هو المفتاح السحري للجشع. لكي تعرف ما هو 'الأفضل' (سواء الأرخص، الأقصر، أو الأغلى)، يجب أن ترتب العناصر أولاً."
+        },
+
+        // ================= الأسئلة المتوسطة =================
+        {
+            q: "في مسألة 'اختيار النشاطات' (Activity Selection)، ما هو المعيار الصحيح لترتيب النشاطات لتطبيق الحل الجشع؟",
+            options: [
+                "ترتيبها حسب وقت البداية مبكراً.", 
+                "ترتيبها حسب مدة النشاط (من الأقصر للأطول).", 
+                "ترتيبها حسب وقت النهاية مبكراً (الأول ينتهي أولاً).", 
+                "لا يهم الترتيب."
+            ],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "اختيار النشاط الذي (ينتهي مبكراً) هو المعيار الوحيد الذي يضمن ترك أكبر مساحة زمنية ممكنة لباقي النشاطات."
+        },
+        {
+            q: "متى تفشل الخوارزمية الجشعة بشكل قاطع؟",
+            options: [
+                "عندما تكون المصفوفة غير مرتبة.", 
+                "عندما يكون الاختيار الأفضل في اللحظة الحالية يحرمك من خيارات أفضل في المستقبل.", 
+                "عندما تكون الأرقام سالبة.", 
+                "عندما تتجاوز المدخلات مليون عنصر."
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "هذا هو الفخ الأكبر! إذا كان الخيار اللحظي الممتاز يؤدي إلى طريق مسدود أو يضيع فرصة ذهبية لاحقاً، فإن الجشع يفشل."
+        },
+        {
+            q: "إذا قمنا بحل مسألة باستخدام الجشع. استغرق ترتيب المصفوفة $O(N \\log N)$، واستغرقت حلقة الاختيار الجشع $O(N)$. ما هو التعقيد الزمني الكلي للبرنامج؟",
+            options: [
+                "$O(N^2)$", 
+                "$O(N \\log N)$", 
+                "$O(N)$", 
+                "$O(1)$"
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "التعقيد الكلي يُحسب بالعملية الأبطأ. ترتيب المصفوفة هو الأبطأ هنا $O(N \\log N)$، لذا هو الذي يحدد سرعة الخوارزمية بأكملها."
+        },
+        {
+            q: "كيف نتأكد من أن الحل الجشع الخاص بنا فاشل (أثناء المسابقة البرمجية)؟",
+            options: [
+                "عبر كتابة آلاف الأسطر من الكود وإرسالها.", 
+                "بإيجاد (مثال مضاد Counter-example) صغير على الورق يعطي فيه الجشع نتيجة خاطئة.", 
+                "باستخدام دالة rand() العشوائية.", 
+                "عبر تغيير لغة البرمجة."
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "الـ Counter-example هو أقوى سلاح للمبرمج. إذا استطعت تخيل موقف صغير تفشل فيه استراتيجيتك، فغيرها فوراً لأنها ستفشل في التقييم."
+        },
+        {
+            q: "إذا جربت خوارزمية جشعة واكتشفت أنها لا تعطي الحل الأمثل دائماً، ما هو الأسلوب الخوارزمي الذي يجب أن تفكر فيه كبديل لحل المشكلة؟",
+            options: [
+                "استخدام المحاكاة (Simulation).", 
+                "العمل على الحالات (Case Work).", 
+                "البرمجة الديناميكية (Dynamic Programming).", 
+                "الرياضيات المعيارية (Modular Arithmetic)."
+            ],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "البرمجة الديناميكية (DP) هي الملاذ الأخير عندما يفشل الجشع؛ لأنها تجرب كل الاحتمالات الممكنة بشكل ذكي وتضمن لك الحل الأمثل 100%."
+        },
+
+        // ================= الأسئلة الصعبة =================
+        {
+            q: "في مسألة إرجاع الباقي، النظام هو {1, 3, 4} والمبلغ المطلوب هو 6. كم ستكون إجابة الخوارزمية الجشعة، وكم ستكون الإجابة الحقيقية المثلى؟",
+            options: [
+                "الجشع: 2 ، الأمثل: 2", 
+                "الجشع: 3 (4+1+1) ، الأمثل: 2 (3+3)", 
+                "الجشع: 4 ، الأمثل: 3", 
+                "الجشع سيعطي خطأ برمجي ولن يجد حلاً."
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "الجشع أعمى؛ سيرى الرقم 4 ويأخذه، مما يضطره لأخذ 1 ثم 1 (المجموع 3 عملات). بينما الأمثل هو أخذ عملتين من فئة 3، وهو حل أسرع وموفر."
+        },
+        {
+            q: "لماذا يُعد ترتيب النشاطات حسب <strong>(أقصر مدة)</strong> خياراً جشعاً خاطئاً في مسألة Activity Selection؟",
+            options: [
+                "لأن المدة القصيرة تعني دائماً أرباحاً أقل.", 
+                "لأنه يصعب برمجتها في C++.", 
+                "لأن النشاط القصير جداً قد يقع في منتصف اليوم، ويقاطع نشاطين طويلين متوافقين.", 
+                "الترتيب حسب أقصر مدة هو الخيار الصحيح وليس خاطئاً."
+            ],
+            answer: 2,
+            difficulty: "صعب",
+            explanation: "تخيل نشاطاً قصيراً يبدأ 11:30 وينتهي 12:30. ونشاطين (8 إلى 12) و (12 إلى 4). اختيار القصير سيحرمك من النشاطين الطويلين معاً! لذا هذا الجشع فاشل."
+        },
+        {
+            q: "في مشكلة حقيبة الظهر (Knapsack Problem)، متى يمكننا الاعتماد بشكل كامل على خوارزمية جشعة للحصول على الحل الأمثل 100%؟",
+            options: [
+                "في حقيبة الظهر (0/1) حيث لا يمكن تجزئة العنصر.", 
+                "في حقيبة الظهر الكسرية (Fractional Knapsack) حيث يُسمح بأخذ جزء من العنصر.", 
+                "عندما تكون جميع الأوزان متساوية.", 
+                "لا تنجح الخوارزمية الجشعة في أي نوع من حقيبة الظهر."
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "في الـ Fractional، يمكنك ترتيب العناصر بناءً على 'السعر لكل كيلو'، وتعبئة الحقيبة جشعاً. ولكن إذا مُنعت من تجزئة العناصر (0/1 Knapsack)، سيفشل الجشع وستحتاج DP."
+        },
+        {
+            q: "أي من خوارزميات الرسوم البيانية (Graphs) الشهيرة تُعتبر تطبيقاً كلاسيكياً مباشراً لـ (الخوارزمية الجشعة)؟",
+            options: [
+                "البحث بالعمق (DFS).", 
+                "خوارزمية ديكسترا (Dijkstra) لإيجاد أقصر مسار.", 
+                "خوارزمية (Floyd-Warshall).", 
+                "البحث الثنائي (Binary Search)."
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "خوارزمية ديكسترا تستخدم بنية (Priority Queue) لتختار دائماً أقرب مسار (أقل وزن) متاح لها في اللحظة الحالية، وهو التعريف الحرفي للجشع!"
+        },
+        {
+            q: "خاصية <code>Greedy Choice Property</code> تعني:",
+            options: [
+                "إمكانية تحويل المشكلة الكبيرة إلى مشاكل فرعية أصغر.", 
+                "أن الخيار الأمثل محلياً يُشكل جزءاً من الحل الأمثل عالمياً ولن نندم عليه أبداً.", 
+                "أن الخوارزمية تتطلب ذاكرة قليلة.", 
+                "أن الكود يجب أن يستخدم حلقة while."
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "هذه هي الخاصية الرياضية التي تثبت نجاح الجشع. إذا أثبتّ أن خيارك اللحظي لا يُمكن أن يضر بالنتيجة النهائية، فهذه المشكلة تمتلك Greedy Choice Property."
+        }
+    ];
+
+    const quizArea = document.getElementById('quiz-area');
+
+    questions.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        
+        let diffClass = item.difficulty === 'سهل' ? 'badge-easy' : (item.difficulty === 'متوسط' ? 'badge-medium' : 'badge-hard');
+        
+        const badge = document.createElement('span');
+        badge.className = `difficulty-badge ${diffClass}`;
+        badge.innerText = item.difficulty;
+        card.appendChild(badge);
+
+        const qTitle = document.createElement('div');
+        qTitle.className = 'question-text';
+        qTitle.innerHTML = `س ${index + 1}: ${item.q}`;
+        card.appendChild(qTitle);
+
+        const optionsGrid = document.createElement('div');
+        optionsGrid.className = 'options-grid';
+
+        const explanationBox = document.createElement('div');
+        explanationBox.className = 'explanation-box';
+        explanationBox.innerHTML = `<strong>💡 الشرح:</strong> ${item.explanation}`;
+
+        item.options.forEach((opt, optIndex) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = opt;
+            
+            if(optIndex === item.answer) {
+                btn.dataset.correct = "true";
+            }
+
+            btn.onclick = function() {
+                const allBtns = optionsGrid.querySelectorAll('.option-btn');
+                allBtns.forEach(b => b.disabled = true);
+
+                if (optIndex === item.answer) {
+                    this.classList.add('correct');
+                } else {
+                    this.classList.add('wrong');
+                    optionsGrid.querySelector('[data-correct="true"]').classList.add('correct');
+                }
+                
+                explanationBox.style.display = 'block';
+            };
+            optionsGrid.appendChild(btn);
+        });
+
+        card.appendChild(optionsGrid);
+        card.appendChild(explanationBox);
+        quizArea.appendChild(card);
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تويت كود - Modular Exponentiation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --secondary: #6d28d9;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-title {
+            text-align: center;
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h2, h3 {
+            color: var(--secondary);
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .problem-statement {
+            background-color: #f1f5f9;
+            padding: 20px;
+            border-radius: 10px;
+            border-right: 5px solid var(--primary);
+            margin-bottom: 30px;
+        }
+
+        .interactive-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #ede9fe;
+            border-radius: 15px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        input {
+            width: 100px;
+            padding: 8px;
+            font-size: 1.1rem;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        button:hover {
+            background-color: var(--secondary);
+        }
+
+        /* نافذة العرض التفاعلية */
+        #visualization-area {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .step-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e2e8f0;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: slideUp 0.4s ease-out forwards;
+        }
+
+        .step-box.alert {
+            background-color: #fef3c7;
+            border-color: #fcd34d;
+            color: #92400e;
+        }
+
+        .step-box.final {
+            background-color: #d1fae5;
+            border-color: #6ee7b7;
+            color: #065f46;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-align: center;
+            justify-content: center;
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1rem;
+        }
+
+        .keyword { color: #569cd6; }
+        .type { color: #4ec9b0; }
+        .number { color: #b5cea8; }
+        .string { color: #ce9178; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="main-title">تويت كود</h1>
+
+        <h2>مسألة: Modular Exponentiation (Codeforces - Easy)</h2>
+        
+        <div class="problem-statement">
+            <h3>وصف المسألة</h3>
+            <p>لديك رقمان <strong>n</strong> و <strong>m</strong>. المطلوب هو طباعة ناتج العملية الحسابية: <strong>m % 2<sup>n</sup></strong></p>
+            <p><strong>ملحوظة هامة:</strong> بالنسبة لأي رقمين x و y، إذا كان <code>y > x</code> فإن <code>x % y == x</code>.</p>
+        </div>
+
+        <div class="interactive-section">
+            <h3>الرسم التفاعلي للحل (المحاكاة خطوة بخطوة)</h3>
+            <p>أدخل قيمتي <strong>n</strong> و <strong>m</strong> لترى كيف يتضاعف الرقم <code>power</code> وكيف تعمل خوارزمية الإيقاف المبكر (Early Exit) لحماية البرنامج من تجاوز سعة المتغير (Overflow).</p>
+            <div class="controls">
+                <label>القوة (n): <input type="number" id="nInput" value="4" min="1"></label>
+                <label>الرقم (m): <input type="number" id="mInput" value="10" min="1"></label>
+                <button onclick="visualize()">احسب خطوة بخطوة</button>
+            </div>
+            
+            <div id="visualization-area"></div>
+        </div>
+
+        <h3>تحليل الحل</h3>
+        <p>يمكن أن تؤدي عملية حساب <strong>2<sup>n</sup></strong> مباشرة إلى تجاوز حدود النوع <code>int</code>. لتجنب ذلك:</p>
+        <ul>
+            <li>نستخدم متغيراً <code>power</code> بقيمة مبدئية تساوي <strong>1</strong> ونضربه في <strong>2</strong> بشكل متكرر في حلقة تتكرر <strong>n</strong> مرة.</li>
+            <li>أثناء كل تكرار، إذا أصبح <code>power</code> أكبر من <strong>m</strong>، نستنتج فوراً أن الناتج يجب أن يكون <strong>m</strong> (استناداً للملحوظة)، ونخرج من الحلقة بـ <code>break</code>.</li>
+            <li>إذا اكتملت الحلقة دون أن يتجاوز <code>power</code> قيمة <strong>m</strong>، فهذا يعني أنه لم يحصل تجاوز لحدود النوع <code>int</code>، ويمكننا حساب الناتج ببساطة كـ <code>m % power</code>.</li>
+        </ul>
+
+        <h3>كود C++</h3>
+        <pre><code><span class="keyword">#include</span> <span class="string">&lt;iostream&gt;</span>
+<span class="keyword">using</span> <span class="keyword">namespace</span> std;
+
+<span class="type">int</span> main() {
+    <span class="type">int</span> n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    
+    <span class="type">int</span> power = <span class="number">1</span>;
+    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) {
+        power *= <span class="number">2</span>;
+        <span class="keyword">if</span> (power &gt; m) {
+            cout &lt;&lt; m &lt;&lt; endl;
+            <span class="keyword">break</span>;
+        }
+    }
+    
+    <span class="keyword">if</span> (power &lt;= m) {
+        cout &lt;&lt; m % power &lt;&lt; endl;
+    }
+    
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</code></pre>
+    </div>
+
+    <script>
+        function visualize() {
+            let n = parseInt(document.getElementById('nInput').value);
+            let m = parseInt(document.getElementById('mInput').value);
+            const visArea = document.getElementById('visualization-area');
+            
+            // تفريغ الشاشة
+            visArea.innerHTML = '';
+
+            // حماية المتصفح من الإدخالات الضخمة جداً في الشرح
+            if (n > 50) n = 50; 
+
+            let power = 1;
+            let delay = 0;
+            let hasBroken = false;
+
+            for (let i = 0; i < n; i++) {
+                // حفظ القيم الحالية داخل دوال الـ setTimeout
+                let currentI = i;
+                let currentPower = power * 2;
+                
+                setTimeout(() => {
+                    let step = document.createElement('div');
+                    step.className = 'step-box';
+                    
+                    if (currentPower > m) {
+                        step.classList.add('alert');
+                        step.innerHTML = `
+                            <span>التكرار i = ${currentI}</span>
+                            <span>الـ Power أصبح <strong>${currentPower}</strong></span>
+                            <span>أكبر من m (${m}) ➔ <strong>توقف مبكر (Break)!</strong></span>
+                        `;
+                    } else {
+                        step.innerHTML = `
+                            <span>التكرار i = ${currentI}</span>
+                            <span>الـ Power = <strong>${currentPower}</strong></span>
+                            <span>أصغر من أو يساوي m (${m})</span>
+                        `;
+                    }
+                    visArea.appendChild(step);
+                }, delay);
+
+                power *= 2;
+                delay += 600; // تأخير 0.6 ثانية بين كل خطوة لسهولة المتابعة
+
+                if (power > m) {
+                    hasBroken = true;
+                    setTimeout(() => {
+                        let finalStep = document.createElement('div');
+                        finalStep.className = 'step-box final';
+                        finalStep.innerHTML = `النتيجة النهائية هي: m = ${m}`;
+                        visArea.appendChild(finalStep);
+                    }, delay + 300);
+                    break;
+                }
+            }
+
+            if (!hasBroken) {
+                setTimeout(() => {
+                    let finalStep = document.createElement('div');
+                    finalStep.className = 'step-box final';
+                    let result = m % power;
+                    finalStep.innerHTML = `اكتملت الحلقة! النتيجة النهائية هي: ${m} % ${power} = ${result}`;
+                    visArea.appendChild(finalStep);
+                }, delay + 300);
+            }
+        }
+
+        // تشغيل مبدئي
+        window.onload = visualize;
+    </script>
+</body>
+</html>

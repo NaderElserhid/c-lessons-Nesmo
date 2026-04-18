@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twit Code - شرح خوارزمية المربعين</title>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --primary-color: #1DA1F2; /* لون تويتر الأزرق */
+            --bg-color: #f5f8fa;
+            --card-bg: #ffffff;
+            --text-dark: #14171a;
+            --text-light: #657786;
+            --border-color: #e1e8ed;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 1000px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        /* الهيدر */
+        .header {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* منطقة المحتوى الرئيسية */
+        .main-content {
+            display: flex;
+            flex-direction: row;
+            min-height: 500px;
+        }
+
+        /* القائمة الجانبية للخطوات */
+        .sidebar {
+            width: 30%;
+            background-color: #fcfcfc;
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .step-btn {
+            padding: 20px;
+            border: none;
+            background: none;
+            text-align: right;
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--text-dark);
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .step-btn:hover {
+            background-color: #f0f8ff;
+        }
+
+        .step-btn.active {
+            background-color: #e8f5fe;
+            color: var(--primary-color);
+        }
+
+        .step-btn.active::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background-color: var(--primary-color);
+        }
+
+        .step-number {
+            font-size: 12px;
+            color: var(--text-light);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* منطقة الشرح والكود */
+        .content-area {
+            width: 70%;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background-color: var(--card-bg);
+        }
+
+        .explanation-box {
+            background-color: #e8f5fe;
+            padding: 20px;
+            border-radius: 12px;
+            border-right: 4px solid var(--primary-color);
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .code-box {
+            background-color: #2d2d2d;
+            border-radius: 12px;
+            padding: 20px;
+            direction: ltr; /* مهم جداً ليبقى الكود من اليسار لليمين */
+            overflow-x: auto;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        pre {
+            margin: 0;
+        }
+
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 15px;
+        }
+
+        /* للتجاوب مع الشاشات الصغيرة (الهواتف) */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                border-left: none;
+                border-bottom: 1px solid var(--border-color);
+                flex-direction: row;
+                overflow-x: auto;
+            }
+            .step-btn {
+                white-space: nowrap;
+                border-bottom: none;
+                border-left: 1px solid var(--border-color);
+            }
+            .step-btn.active::before {
+                width: 100%;
+                height: 4px;
+                top: auto;
+                bottom: 0;
+                right: 0;
+            }
+            .content-area {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            
+            <p>شرح تفاعلي لخوارزمية "أكبر مربعين غير متقاطعين"</p>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar" id="sidebar"></div>
+
+            <div class="content-area">
+                <div class="explanation-box" id="explanation-text">
+                    </div>
+                <div class="code-box">
+                    <pre><code class="language-cpp" id="code-text"></code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+
+    <script>
+        // البيانات الخاصة بالشرح والأكواد
+        const stepsData = [
+            {
+                title: "الإعدادات الأولية",
+                explanation: "نبدأ بتعريف قيمة INF كقيمة سالبة ضخمة جداً (2e18) لأننا سنبحث عن القيمة العظمى (Max) وقيم الشبكة قد تكون سالبة، فالبدء بصفر سيعطي نتائج خاطئة. السطرين ios_base و cin.tie يقومان بفصل تزامن C++ مع C لتسريع الإدخال والإخراج وتجنب تجاوز الوقت الزمني (Time Limit) في منصات حل المشكلات.",
+                code: `const long long INF = 2e18;
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    
+    int N, K;
+    if (!(cin >> N >> K)) return 0;`
+            },
+            {
+                title: "المصفوفة التراكمية",
+                explanation: "نقوم بتعريف مصفوفة الشبكة والمصفوفة التراكمية بزيادة 1 للحجم (N+1) لنجعل الفهارس تبدأ من 1، مما يجنبنا أخطاء الخروج عن حدود المصفوفة. المعادلة هنا تستخدم مبدأ التضمين والإقصاء الرياضي: نجمع القيمة الحالية مع المستطيل العلوي والمستطيل الأيسر، ونطرح التقاطع بينهما لأنه جُمع مرتين بالخطأ.",
+                code: `vector<vector<long long>> grid(N + 1, vector<long long>(N + 1, 0));
+vector<vector<long long>> pref(N + 1, vector<long long>(N + 1, 0));
+
+for (int i = 1; i <= N; ++i) {
+    for (int j = 1; j <= N; ++j) {
+        cin >> grid[i][j];
+        pref[i][j] = grid[i][j] + pref[i-1][j] + pref[i][j-1] - pref[i-1][j-1];
+    }
+}`
+            },
+            {
+                title: "دالة المجموع السريع",
+                explanation: "نستخدم دالة مساعدة (Lambda Function) يرمز لها بالرمز [&] لتتمكن من رؤية المصفوفات الخارجية. وظيفتها تنفيذ عملية حساب مجموع أي مستطيل في خطوة واحدة O(1) بدلاً من استخدام حلقات تكرار بطيئة. الفكرة هي أخذ المستطيل الكلي حتى النقطة السفلية اليمنى، وطرح المستطيلين العلوي والأيسر اللذان لا نريدهما، ثم إعادة إضافة التقاطع.",
+                code: `auto get_sum = [&](int r1, int c1, int r2, int c2) {
+    return pref[r2][c2] - pref[r1-1][c2] - pref[r2][c1-1] + pref[r1-1][c1-1];
+};`
+            },
+            {
+                title: "حساب مربعات KxK",
+                explanation: "هنا نقوم بتمرير ما يشبه نافذة منزلقة (Sliding Window) بحجم KxK على الشبكة بالكامل. المتغيرات i و j تمثل إحداثيات الزاوية اليسرى العليا لكل مربع محتمل. نستدعي دالة المجموع السريع ونخزن النتيجة في مصفوفة val لكي نستخدمها لاحقاً دون الحاجة لإعادة الحساب.",
+                code: `vector<vector<long long>> val(N + 1, vector<long long>(N + 1, -INF));
+
+for (int i = 1; i <= N - K + 1; ++i) {
+    for (int j = 1; j <= N - K + 1; ++j) {
+        val[i][j] = get_sum(i, j, i + K - 1, j + K - 1);
+    }
+}`
+            },
+            {
+                title: "البرمجة الديناميكية",
+                explanation: "هذا الجزء هو قلب الخوارزمية. نقوم بإنشاء 4 مصفوفات لتخزين (أكبر مربع KxK) عند المسح من الاتجاهات الأربعة (أعلى، أسفل، يمين، يسار). مثلاً مصفوفة max_up[i] تجيب على سؤال: ما هو أكبر مربع وجدناه من الصف الأول وحتى الصف i؟ القيمة ستكون إما أكبر مربع في الصف الحالي، أو أكبر مربع وجدناه في الصفوف السابقة، مما يوفر وقتاً هائلاً.",
+                code: `// مثال على اتجاه واحد (من الأعلى)
+vector<long long> max_up(N + 2, -INF);
+
+for (int i = K; i <= N; ++i) {
+    long long mx = -INF;
+    int r = i - K + 1;
+    for (int c = 1; c <= N - K + 1; ++c) mx = max(mx, val[r][c]);
+    max_up[i] = max(max_up[i-1], mx);
+}`
+            },
+            {
+                title: "إيجاد الحل النهائي",
+                explanation: "السر الهندسي هنا أنه إذا كان لدينا مربعان لا يتقاطعان، فيمكننا دائماً رسم خط مستقيم (أفقي أو عمودي) يفصل بينهما ويمر بكامل الشبكة. الكود يختبر جميع خطوط القطع الأفقية الممكنة ويجمع (أكبر مربع فوق القطع + أكبر مربع تحته)، ثم يختبر الخطوط العمودية ويجمع (اليمين + اليسار)، ويحتفظ بالرقم الأكبر كحل نهائي.",
+                code: `long long ans = -INF;
+
+// اختبار خطوط الفصل الأفقية
+for (int i = K; i <= N - K; ++i) {
+    if (max_up[i] != -INF && max_down[i+1] != -INF)
+        ans = max(ans, max_up[i] + max_down[i+1]);
+}
+
+// وتكرر نفس العملية لخطوط الفصل العمودية...
+cout << ans << "\\n";
+return 0;
+}`
+            }
+        ];
+
+        // تهيئة الواجهة
+        const sidebar = document.getElementById('sidebar');
+        const explanationText = document.getElementById('explanation-text');
+        const codeText = document.getElementById('code-text');
+
+        function loadStep(index) {
+            // تحديث الأزرار
+            document.querySelectorAll('.step-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+
+            // تحديث المحتوى
+            explanationText.innerHTML = stepsData[index].explanation;
+            
+            // تحديث الكود وإعادة تشغيل التلوين
+            codeText.innerHTML = stepsData[index].code.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            Prism.highlightElement(codeText);
+        }
+
+        // إنشاء القائمة الجانبية
+        stepsData.forEach((step, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'step-btn';
+            btn.innerHTML = `<span class="step-number">الخطوة ${index + 1}</span>${step.title}`;
+            btn.onclick = () => loadStep(index);
+            sidebar.appendChild(btn);
+        });
+
+        // تحميل الخطوة الأولى افتراضياً
+        loadStep(0);
+    </script>
+</body>
+</html>

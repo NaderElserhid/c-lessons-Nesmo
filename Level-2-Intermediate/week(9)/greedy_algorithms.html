@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الخوارزميات الجشعة (Greedy Algorithms) - البرمجة التنافسية</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-main: #f8fafc; 
+            --bg-card: #ffffff; 
+            --accent-main: #8b5cf6; /* بنفسجي زاهي يعبر عن الخوارزميات */
+            --accent-main-hover: #7c3aed;
+            --accent-secondary: #f59e0b; 
+            --text-primary: #334155; 
+            --text-secondary: #64748b; 
+            --border-light: #e2e8f0; 
+            --code-bg: #0f172a; 
+            --success: #10b981; 
+            --danger: #ef4444; 
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.8;
+            background-image: radial-gradient(circle at top right, #ede9fe 0%, transparent 40%);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* العناوين */
+        h1 {
+            font-family: 'Tajawal', sans-serif;
+            font-size: 3em;
+            text-align: center;
+            color: var(--accent-main);
+            margin-bottom: 10px;
+            text-shadow: 0 4px 15px rgba(139, 92, 246, 0.15);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1.2em;
+            margin-bottom: 50px;
+            border-bottom: 2px solid var(--border-light);
+            padding-bottom: 20px;
+        }
+
+        h2 {
+            font-family: 'Tajawal', sans-serif;
+            color: var(--accent-main);
+            font-size: 2em;
+            border-right: 5px solid var(--accent-secondary);
+            padding-right: 15px;
+            margin-top: 50px;
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.08) 0%, transparent 100%);
+            padding-top: 10px;
+            padding-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        /* البطاقات */
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-light);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(139, 92, 246, 0.1);
+            border-color: rgba(139, 92, 246, 0.2);
+        }
+
+        /* الأكواد والشروحات */
+        pre {
+            background-color: var(--code-bg);
+            color: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 16px;
+            border-left: 5px solid var(--accent-main);
+            margin: 20px 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .kw { color: #c678dd; } 
+        .typ { color: #56b6c2; } 
+        .str { color: #98c379; } 
+        .com { color: #7f848e; font-style: italic; } 
+
+        .explanation-box {
+            background-color: #f5f3ff;
+            border-right: 4px solid var(--accent-main);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: -10px;
+            margin-bottom: 30px;
+        }
+
+        .explanation-box h4 {
+            color: var(--accent-main);
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1.2em;
+        }
+
+        /* القوائم */
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            position: relative;
+            padding-right: 25px;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        ul li::before {
+            content: "✦";
+            position: absolute;
+            right: 0;
+            color: var(--accent-secondary);
+        }
+
+        /* صناديق الملاحظات */
+        .alert {
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            font-weight: 600;
+            font-size: 17px;
+        }
+        .alert-info {
+            background-color: #e0f2fe;
+            border-right: 4px solid #0ea5e9;
+            color: #0369a1;
+        }
+        .alert-warning {
+            background-color: #fffbeb;
+            border-right: 4px solid var(--accent-secondary);
+            color: #b45309;
+        }
+        .alert-danger {
+            background-color: #fef2f2;
+            border-right: 4px solid var(--danger);
+            color: #b91c1c;
+        }
+
+        .intro-story {
+            background-color: #faf5ff;
+            border: 1px solid #e9d5ff;
+            border-right: 5px solid var(--accent-main);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            font-size: 19px;
+            color: #581c87;
+        }
+
+        /* الأزرار والمحاكي */
+        .toggle-btn {
+            background-color: var(--accent-main);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: block;
+            margin: 20px auto;
+            width: 100%;
+            max-width: 300px;
+        }
+        .toggle-btn:hover { background-color: var(--accent-main-hover); }
+        .solution-area { display: none; animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* تفاصيل المحاكي */
+        .simulator-box {
+            background-color: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .coin {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #fbbf24;
+            color: #78350f;
+            font-weight: bold;
+            font-size: 20px;
+            margin: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 3px solid #d97706;
+            animation: popIn 0.3s ease-out;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            80% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .input-group input {
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 6px;
+            border: 1px solid #94a3b8;
+            width: 150px;
+            text-align: center;
+            font-family: 'Cairo', sans-serif;
+        }
+        .input-group button {
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 6px;
+            border: none;
+            background-color: var(--accent-secondary);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        /* Flexbox for Pros/Cons */
+        .flex-container { display: flex; gap: 20px; flex-wrap: wrap; }
+        .flex-box { flex: 1; min-width: 300px; background-color: var(--bg-card); padding: 25px; border-radius: 12px; border: 1px solid var(--border-light); }
+        .pros h3 { color: var(--success); }
+        .cons h3 { color: var(--danger); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>الخوارزميات الجشعة (Greedy Algorithms)</h1>
+    <div class="subtitle">فن اختيار الأفضل "الآن" دون التفكير في الغد!</div>
+
+    
+
+    <div class="intro-story">
+        <strong>🍪 مقدمة لذيذة:</strong><br>
+        تخيل أنه تم وضع طبق مليء بأنواع مختلفة من البسكويت أمامك، وقيل لك اختر ما تشاء. الاستراتيجية الفطرية لديك ستكون: <strong>البحث عن أكبر قطعة بسكويت وأخذها أولاً!</strong><br>
+        أنت هنا لم تضع خطة معقدة للمستقبل، ولم تحسب السعرات الحرارية الإجمالية، أنت فقط نظرت للوضع الحالي، واخترت الخيار الذي يبدو الأفضل في هذه اللحظة.<br>
+        هذا بالضبط هو مبدأ <strong>الخوارزمية الجشعة (Greedy)</strong> في البرمجة.
+    </div>
+
+    <div class="card">
+        <h2>ماذا يعني Greedy (جشع) برمجياً؟</h2>
+        <p>
+            الخوارزمية الجشعة تبني الحل خطوة بخطوة. كلمة "جشع" تعني البحث عن <strong>"الحل الأمثل محلياً" (Locally Optimal)</strong> — أي أنك في كل خطوة تختار القرار الذي يبدو الأفضل في اللحظة الحالية فقط، ولا تعود لتعديل قراراتك السابقة أبداً.
+        </p>
+        <p>الهدف من هذا الجشع اللحظي هو الأمل في أن تقودنا هذه الخطوات المتتالية إلى <strong>"الحل الأمثل عالمياً" (Globally Optimal)</strong> للمشكلة بأكملها.</p>
+
+        <h3>النمط العام للخوارزمية الجشعة:</h3>
+<pre>
+<span class="kw">while</span> (المشكلة لم تُحل بعد) {
+    <span class="com">// 1. اختر أفضل خيار متاح في الوقت الحالي</span>
+    <span class="typ">Item</span> best_choice = select_best_now();
+    
+    <span class="com">// 2. أضفه إلى الحل النهائي</span>
+    solution.add(best_choice);
+    
+    <span class="com">// 3. حدّث حالة المشكلة (المتبقي منها)</span>
+    update_problem_state();
+}
+</pre>
+    </div>
+
+    <div class="card">
+        <h2>مثال 1: إرجاع الباقي (Coin Change)</h2>
+        <p>
+            معك فئات عملات: (25، 10، 5، 1). تريد إرجاع مبلغ معين (مثلاً 63) للعميل باستخدام <strong>أقل عدد ممكن من العملات</strong>.
+        </p>
+        <div class="alert alert-info">
+            💡 <strong>الفكرة الجشعة:</strong> دائماً ابدأ بأخذ <strong>أكبر عملة ممكنة</strong> لا تتجاوز المبلغ المتبقي!
+        </div>
+
+        <div class="simulator-box">
+            <h3>🤖 محاكي الجشع: إرجاع العملات</h3>
+            <p style="color: var(--text-secondary);">العملات المتاحة: 25, 10, 5, 1</p>
+            <div class="input-group">
+                <input type="number" id="amountInput" value="63" min="1" max="500">
+                <button onclick="calculateCoins()">احسب العملات</button>
+            </div>
+            <div id="coinResult" style="margin-top: 20px; min-height: 60px;">
+                </div>
+            <p id="totalCoinsText" style="font-weight: bold; color: var(--accent-main);"></p>
+        </div>
+
+        <button class="toggle-btn" onclick="toggleElement('code1', this)">👁️ إظهار الحل البرمجي (C++)</button>
+        
+        <div id="code1" class="solution-area">
+<pre>
+<span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;vector&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="typ">int</span> main() {
+    <span class="typ">int</span> amount = 63;
+    <span class="com">// العملات مرتبة من الأكبر للأصغر (شرط أساسي للجشع)</span>
+    vector&lt;<span class="typ">int</span>&gt; coins = {25, 10, 5, 1}; 
+    
+    <span class="typ">int</span> count = 0;
+    
+    <span class="kw">for</span> (<span class="typ">int</span> c : coins) {
+        <span class="com">// كم مرة يمكننا استخدام هذه العملة؟</span>
+        count += amount / c; 
+        <span class="com">// تحديث المبلغ المتبقي عبر باقي القسمة</span>
+        amount %= c;         
+    }
+    
+    cout &lt;&lt; count &lt;&lt; endl; <span class="com">// النتيجة: 6 عملات</span>
+    <span class="kw">return</span> 0;
+}
+</pre>
+            <div class="explanation-box">
+                <h4>تحليل الخطوات למبلغ 63:</h4>
+                <ul>
+                    <li>الخوارزمية تأخذ 25 مرتين (المجموع 50، المتبقي 13).</li>
+                    <li>تأخذ 10 مرة واحدة (المجموع 60، المتبقي 3).</li>
+                    <li>الـ 5 أكبر من 3، فتتجاوزها.</li>
+                    <li>تأخذ 1 ثلاث مرات (المجموع 63، المتبقي 0).</li>
+                </ul>
+                النتيجة: 25 + 25 + 10 + 1 + 1 + 1 = <strong>6 عملات</strong>. (هذه الطريقة تنجح دائماً في أنظمة العملات الحقيقية).
+            </div>
+        </div>
+    </div>
+
+    
+
+    <div class="card" style="border-color: var(--danger);">
+        <h2 style="color: var(--danger); border-right-color: var(--danger);">🚨 متى تفشل الخوارزمية الجشعة؟ (الأهم)</h2>
+        <p>
+            الجشع ليس سحراً! ينجح الجشع <strong>فقط</strong> عندما يضمن الاختيار المحلي الأفضل الوصول للحل العام الأفضل. إذا لم تكن المسألة تمتلك هذه الخاصية، فإن الجشع سيقودك لفخ ويمنعك من رؤية حلول أفضل.
+        </p>
+        
+        <div class="alert alert-danger">
+            <strong>مثال الفشل الشهير (تغيير نظام العملات):</strong><br>
+            تخيل أن نظام العملات في دولتك هو: <strong>{1, 3, 4}</strong>، والمبلغ المطلوب هو <strong>6</strong>.<br><br>
+            ❌ <strong>الخوارزمية الجشعة ستفكر هكذا:</strong><br>
+            ستأخذ أكبر عملة (4). المتبقي 2. ستأخذ (1) ثم (1).<br>
+            النتيجة الجشعة = <strong>3 عملات</strong> (4 + 1 + 1).<br><br>
+            ✅ <strong>لكن الحل الأمثل الحقيقي هو:</strong><br>
+            أخذ عملتين من فئة (3).<br>
+            النتيجة المثلى = <strong>عملتان فقط!</strong> (3 + 3).<br><br>
+            هنا، أدى "الطمع" في أخذ العملة الكبيرة (4) إلى حرماننا من الحل الأمثل. (في هذه الحالات الصعبة نلجأ لخوارزميات أخرى مثل <em>البرمجة الديناميكية Dynamic Programming</em>).
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>مثال 2: اختيار النشاطات (Activity Selection)</h2>
+        <p>
+            معك مجموعة من النشاطات، كل نشاط له (وقت بداية) و (وقت نهاية). لا يمكنك القيام إلا بنشاط واحد في نفس الوقت. <strong>المطلوب: ما هو أكبر عدد من النشاطات يمكنك إنهاؤها؟</strong>
+        </p>
+        
+        
+
+        <div class="alert alert-info">
+            💡 <strong>الفكرة الجشعة السحرية:</strong> دائماً اختر النشاط الذي <strong>ينتهي أولاً!</strong><br>
+            لماذا؟ لأن النشاط الذي ينتهي مبكراً يترك لك أكبر مساحة ممكنة من الوقت المتبقي لاختيار نشاطات أخرى.
+        </div>
+
+        <button class="toggle-btn" onclick="toggleElement('code2', this)">👁️ إظهار الحل البرمجي (C++)</button>
+        
+        <div id="code2" class="solution-area">
+<pre>
+<span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;vector&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;algorithm&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="typ">int</span> main() {
+    <span class="com">// كل زوج يمثل: {البداية، النهاية}</span>
+    vector&lt;pair&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt; act = {{1, 3}, {2, 5}, {4, 6}, {6, 8}, {5, 7}};
+    
+    <span class="com">// الخطوة الذهبية: الترتيب تصاعدياً حسب "وقت النهاية" (العنصر الثاني في الزوج)</span>
+    sort(act.begin(), act.end(), [](<span class="kw">auto</span> &a, <span class="kw">auto</span> &b){ 
+        <span class="kw">return</span> a.second &lt; b.second; 
+    });
+    
+    <span class="typ">int</span> count = 0;
+    <span class="typ">int</span> current_end_time = 0;
+    
+    <span class="kw">for</span> (<span class="kw">auto</span> &p : act) {
+        <span class="com">// إذا كان وقت بداية النشاط الحالي يأتي بعد أو مع نهاية نشاطنا السابق</span>
+        <span class="kw">if</span> (p.first &gt;= current_end_time) {
+            count++;                 <span class="com">// نقوم باختياره</span>
+            current_end_time = p.second; <span class="com">// نحدث وقت النهاية</span>
+        }
+    }
+    
+    cout &lt;&lt; count &lt;&lt; endl; <span class="com">// النتيجة: 3 نشاطات</span>
+    <span class="kw">return</span> 0;
+}
+</pre>
+            <div class="explanation-box">
+                <h4>خطوات تصميم خوارزمية جشعة ناجحة:</h4>
+                معظم مسائل الجشع تعتمد على نمط ثابت: <strong>الفرز ثم الاختيار (Sort & Select)</strong>.
+                <ol>
+                    <li><strong>الفرز (Sorting):</strong> قم بترتيب العناصر بناءً على قاعدة معينة (مثل الأكبر قيمة، أو الأقل وقتاً). وغالباً ما نستخدم <code>std::sort</code>.</li>
+                    <li><strong>المرور (Iterating):</strong> مرّ على العناصر بالترتيب.</li>
+                    <li><strong>الاختيار (Selection):</strong> اختر أفضل خيار صالح في كل مرة وحدّث الحالة.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex-container">
+        <div class="flex-box pros">
+            <h3>✅ مميزات الخوارزميات الجشعة</h3>
+            <ul>
+                <li><strong>سريعة جداً وبسيطة:</strong> غالباً ما يكون تعقيدها الزمني $O(N \log N)$ (بسبب عملية الترتيب Sort)، وهو ممتاز للمسابقات.</li>
+                <li><strong>سهلة الفهم والبرمجة:</strong> الكود يكون عادة قصيراً ومباشراً.</li>
+                <li><strong>مثالية للجدولة:</strong> تعمل بشكل رائع في مشاكل الرسوم البيانية (Graphs)، الجدولة، وتوزيع الموارد.</li>
+            </ul>
+        </div>
+        <div class="flex-box cons">
+            <h3>❌ عيوبها ومخاطرها</h3>
+            <ul>
+                <li><strong>لا تعطي دائماً الحل الأمثل:</strong> كما رأينا في مثال العملات.</li>
+                <li><strong>قِصر النظر:</strong> القرارات الجشعة المبكرة قد تدمر وتمنع الوصول لحل أفضل لاحقاً (لأنها لا تنظر للمستقبل).</li>
+                <li><strong>صعوبة الإثبات:</strong> إثبات أن خوارزمية جشعة معينة ستعمل بشكل صحيح بنسبة 100% قد يتطلب براهين رياضية معقدة.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="alert alert-warning" style="text-align: center; margin-top: 40px;">
+        💡 <strong>نصيحة ذهبية:</strong> قبل أن تبرمج حلاً جشعاً، اسأل نفسك دائماً: <em>"هل هذا الاختيار الذي سأقوم به الآن، قد يمنعني من أخذ شيء أفضل لاحقاً؟"</em> حاول بناء (مثال مضاد - Counter Example) في عقلك أو على الورق لاختبار فكرتك قبل برمجتها!
+    </div>
+
+</div>
+
+<script>
+    // دالة إظهار وإخفاء الأكواد
+    function toggleElement(id, btn) {
+        var el = document.getElementById(id);
+        if (el.style.display === "block") {
+            el.style.display = "none";
+            btn.innerHTML = "👁️ إظهار الحل البرمجي (C++)";
+            btn.style.backgroundColor = "var(--accent-main)";
+        } else {
+            el.style.display = "block";
+            btn.innerHTML = "🙈 إخفاء الحل البرمجي";
+            btn.style.backgroundColor = "var(--text-secondary)";
+        }
+    }
+
+    // دالة محاكي العملات
+    function calculateCoins() {
+        let amount = parseInt(document.getElementById('amountInput').value);
+        const resultDiv = document.getElementById('coinResult');
+        const textDiv = document.getElementById('totalCoinsText');
+        const coins = [25, 10, 5, 1];
+        let totalCount = 0;
+        
+        resultDiv.innerHTML = ''; // تفريغ النتيجة السابقة
+        
+        if (isNaN(amount) || amount <= 0 || amount > 500) {
+            textDiv.innerText = "الرجاء إدخال مبلغ صحيح بين 1 و 500.";
+            textDiv.style.color = "var(--danger)";
+            return;
+        }
+
+        textDiv.style.color = "var(--accent-main)";
+        let tempAmount = amount;
+        let delay = 0;
+
+        for (let c of coins) {
+            let count = Math.floor(tempAmount / c);
+            totalCount += count;
+            tempAmount = tempAmount % c;
+
+            // إنشاء الدوائر (العملات) بصرياً
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    let coinSpan = document.createElement('span');
+                    coinSpan.className = 'coin';
+                    coinSpan.innerText = c;
+                    resultDiv.appendChild(coinSpan);
+                }, delay);
+                delay += 150; // تأخير بسيط للأنيميشن
+            }
+        }
+
+        setTimeout(() => {
+            textDiv.innerText = `احتاجت الخوارزمية الجشعة إلى ${totalCount} عملات لصنع المبلغ ${amount}.`;
+        }, delay + 100);
+    }
+</script>
+
+</body>
+</html>

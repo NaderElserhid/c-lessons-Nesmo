@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تعلم الخوارزميات | البحث عن أزواج القيم</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f0f4f8; color: #333; margin: 0; padding: 20px; line-height: 1.6; }
+        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        h1 { color: #2c3e50; text-align: center; margin-bottom: 30px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 15px; text-align: center; background: #e9ecef; cursor: pointer; font-weight: bold; font-size: 1.1em; border-radius: 8px; border: none; transition: all 0.3s ease; color: #555; }
+        .tab-btn.active { background: #3498db; color: #fff; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3); }
+        .tab-content { display: none; animation: fadeIn 0.5s; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .section { background: #fafafa; border-right: 4px solid #3498db; padding: 15px 20px; margin-bottom: 20px; border-radius: 5px; }
+        .section h3 { margin-top: 0; color: #2980b9; }
+        .highlight { color: #e74c3c; font-weight: bold; }
+        .math-eq { font-family: monospace; background: #e8f4fd; padding: 2px 6px; border-radius: 4px; color: #2980b9; font-weight: bold; }
+        .btn-toggle { background: #2ecc71; color: white; border: none; padding: 10px 20px; font-size: 1em; border-radius: 5px; cursor: pointer; margin-top: 10px; margin-bottom: 10px; transition: background 0.3s; font-family: 'Tajawal', sans-serif; display: block; width: 100%; }
+        .btn-toggle:hover { background: #27ae60; }
+        .hidden-content { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ccc; }
+        pre { background: #282c34; color: #abb2bf; padding: 15px; border-radius: 8px; direction: ltr; text-align: left; overflow-x: auto; font-family: 'Courier New', Courier, monospace; font-size: 0.9em; }
+        .comment { color: #5c6370; font-style: italic; } .keyword { color: #c678dd; } .type { color: #e5c07b; } .string { color: #98c379; }
+        .alert { background-color: #fdf2e9; border-right: 4px solid #e67e22; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>أهلاً بك يا بطل البرمجة! 🚀</h1>
+    <p style="text-align: center; margin-bottom: 30px;">اختر المسألة التي تريد تحدي نفسك بها اليوم. حاول التفكير في الحل قبل الكشف عن الإجابة!</p>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('prob1')">المسألة الأولى: مجموع قيمتين</button>
+        <button class="tab-btn" onclick="switchTab('prob2')">المسألة الثانية: فرق بين قيمتين</button>
+    </div>
+
+    <div id="prob1" class="tab-content active">
+        <div class="section">
+            <h3>📝 وصف المسألة: Sum of Two Values (CSES)</h3>
+            <p>يُعطى لك مصفوفة تحتوي على <span class="highlight">n</span> من الأعداد الصحيحة، ومهمتك هي إيجاد <strong>موقعين مختلفين</strong> بحيث يكون مجموع القيمتين يساوي القيمة <span class="highlight">x</span>.</p>
+            <p><strong>الإدخال:</strong><br>
+            - السطر الأول: عددان صحيحان n و x.<br>
+            - السطر الثاني: n من الأعداد الصحيحة.</p>
+            <p><strong>المخرجات:</strong><br>
+            - إمّا موقعان (يبدأ الترقيم من 1) بحيث مجموعهما يساوي x.<br>
+            - أو <code>IMPOSSIBLE</code> إذا لم يوجد حل.</p>
+            <p><strong>مثال:</strong><br>
+            الإدخال: <code>4 8</code><br>
+            المصفوفة: <code>2 7 5 1</code><br>
+            المخرجات: <code>2 4</code> (لأن العنصر الثاني هو 7، والرابع 1، ومجموعهما 8)</p>
+        </div>
+
+        <button class="btn-toggle" onclick="toggleContent('logic1', this)">💡 أظهر طريقة التفكير</button>
+        <div id="logic1" class="hidden-content section">
+            <h3>كيف نفكر كالمحترفين؟ 🤔</h3>
+            <p><strong>الطريقة البسيطة:</strong> استخدام حلقتين متداخلتين، لكن ستكون العمليات <span class="math-eq">N × N</span> وهذا بطيء جداً.</p>
+            <p><strong>الطريقة الذكية: استخدام الخريطة (Map) 🗺️</strong><br>
+            تخيل أنك تبحث عن المجموع <strong>8</strong>، ووجدت الرقم <strong>2</strong>. إذن أنت فوراً تعرف أنك بحاجة للرقم <strong>6</strong> (لأن <span class="math-eq">8 - 2 = 6</span>).<br>
+            في البرمجة نقول: <span class="math-eq">A + B = X</span> وهذا يعني أننا نبحث عن المتمم: <span class="math-eq">B = X - A</span>.<br>
+            نسأل الخريطة: هل رأينا الرقم 6 سابقاً؟<br>
+            - <strong>نعم:</strong> اطبع الموقعين.<br>
+            - <strong>لا:</strong> سجل الرقم 2 في الخريطة وأكمل طريقك.</p>
+        </div>
+
+        <button class="btn-toggle" onclick="toggleContent('code1', this)">💻 أظهر الكود البرمجي</button>
+        <div id="code1" class="hidden-content">
+<pre><code><span class="keyword">#include</span> &lt;iostream&gt;
+<span class="keyword">#include</span> &lt;map&gt;
+<span class="keyword">#include</span> &lt;vector&gt;
+<span class="keyword">using namespace</span> std;
+
+<span class="type">int</span> main() {
+    ios::sync_with_stdio(<span class="keyword">false</span>); cin.tie(<span class="keyword">nullptr</span>);
+    <span class="type">int</span> n; <span class="type">long long</span> x;
+    cin &gt;&gt; n &gt;&gt; x;
+    vector&lt;<span class="type">long long</span>&gt; a(n);
+    <span class="keyword">for</span> (<span class="type">int</span> i = 0; i &lt; n; i++) cin &gt;&gt; a[i];
+
+    map&lt;<span class="type">long long</span>, <span class="type">int</span>&gt; pos;
+    <span class="keyword">for</span> (<span class="type">int</span> i = 0; i &lt; n; i++) {
+        <span class="type">long long</span> need = x - a[i];
+        <span class="keyword">if</span> (pos.find(need) != pos.end()) {
+            cout &lt;&lt; pos[need] &lt;&lt; <span class="string">" "</span> &lt;&lt; (i + 1) &lt;&lt; <span class="string">"\n"</span>;
+            <span class="keyword">return</span> 0;
+        }
+        pos[a[i]] = i + 1;
+    }
+    cout &lt;&lt; <span class="string">"IMPOSSIBLE\n"</span>;
+    <span class="keyword">return</span> 0;
+}</code></pre>
+        </div>
+    </div>
+
+    <div id="prob2" class="tab-content">
+        <div class="section">
+            <h3>📝 وصف المسألة: Difference of Two Values</h3>
+            <p>يُعطى لك مصفوفة تحتوي على <span class="highlight">n</span> أعداد، ومهمتك هي إيجاد <strong>موقعين مختلفين</strong> بحيث يكون <strong>الفرق (الطرح)</strong> بينهما يساوي <span class="highlight">x</span>.</p>
+            <p><strong>مثال:</strong><br>
+            الإدخال: <code>4 5</code><br>
+            المصفوفة: <code>8 2 1 7</code><br>
+            المخرجات: <code>4 2</code> (لأن العنصر الرابع هو 7، والعنصر الثاني هو 2، والفرق <span class="math-eq">7 - 2 = 5</span>)</p>
+        </div>
+
+        <button class="btn-toggle" onclick="toggleContent('logic2', this)">💡 أظهر طريقة التفكير</button>
+        <div id="logic2" class="hidden-content section">
+            <h3>كيف نعدّل فكرتنا لتناسب هذه المسألة؟ 🧐</h3>
+            <p>نحن نبحث عن رقمين الفرق بينهما يساوي X. أي: <span class="math-eq">|A - B| = X</span>.</p>
+            <p>بافتراض أن A هو الرقم الحالي الذي نقف عنده، فإن الرقم B الذي نبحث عنه في الخريطة إما أن يكون:<br>
+            1. <strong>أصغر من A:</strong> فتكون المعادلة <span class="math-eq">B = A - X</span>.<br>
+            2. <strong>أكبر من A:</strong> فتكون المعادلة <span class="math-eq">B = A + X</span>.</p>
+            <p>إذن في كل خطوة، سنسأل الخريطة: هل رأيتِ <span class="math-eq">A - X</span> أو <span class="math-eq">A + X</span> من قبل؟</p>
+        </div>
+
+        <button class="btn-toggle" onclick="toggleContent('code2', this)">💻 أظهر الكود البرمجي</button>
+        <div id="code2" class="hidden-content">
+<pre><code><span class="keyword">#include</span> &lt;iostream&gt;
+<span class="keyword">#include</span> &lt;map&gt;
+<span class="keyword">#include</span> &lt;vector&gt;
+<span class="keyword">using namespace</span> std;
+
+<span class="type">int</span> main() {
+    ios::sync_with_stdio(<span class="keyword">false</span>); cin.tie(<span class="keyword">nullptr</span>);
+    <span class="type">int</span> n; <span class="type">long long</span> x;
+    cin &gt;&gt; n &gt;&gt; x;
+    vector&lt;<span class="type">long long</span>&gt; a(n);
+    map&lt;<span class="type">long long</span>, <span class="type">int</span>&gt; pos;
+
+    <span class="keyword">for</span> (<span class="type">int</span> i = 0; i &lt; n; i++) {
+        cin &gt;&gt; a[i];
+        <span class="type">long long</span> current = a[i];
+
+        <span class="type">long long</span> target1 = current - x;
+        <span class="keyword">if</span> (pos.find(target1) != pos.end()) {
+            cout &lt;&lt; pos[target1] &lt;&lt; <span class="string">" "</span> &lt;&lt; (i + 1) &lt;&lt; <span class="string">"\n"</span>;
+            <span class="keyword">return</span> 0;
+        }
+
+        <span class="type">long long</span> target2 = current + x;
+        <span class="keyword">if</span> (pos.find(target2) != pos.end()) {
+            cout &lt;&lt; pos[target2] &lt;&lt; <span class="string">" "</span> &lt;&lt; (i + 1) &lt;&lt; <span class="string">"\n"</span>;
+            <span class="keyword">return</span> 0;
+        }
+
+        pos[current] = i + 1;
+    }
+    cout &lt;&lt; <span class="string">"IMPOSSIBLE\n"</span>;
+    <span class="keyword">return</span> 0;
+}</code></pre>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+    function toggleContent(id, btn) {
+        const c = document.getElementById(id);
+        if (c.style.display === "block") {
+            c.style.display = "none";
+            btn.innerHTML = btn.innerHTML.replace("أخفِ", "أظهر").replace("🔽", "💡").replace("🔼", "💻");
+        } else {
+            c.style.display = "block";
+            btn.innerHTML = btn.innerHTML.replace("أظهر", "أخفِ").replace("💡", "🔽").replace("💻", "🔼");
+        }
+    }
+</script>
+</body>
+</html>

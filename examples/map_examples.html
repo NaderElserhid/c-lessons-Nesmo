@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار شامل: التعقيد الزمني (Time Complexity)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #f4f7f6; 
+            --container-bg: #ffffff; 
+            --text-primary: #2c3e50; 
+            --text-secondary: #596275; 
+            --accent-main: #2980b9; 
+            --accent-red: #c0392b; 
+            --accent-green: #27ae60; 
+            --code-bg: #f8f9fa; 
+            --border-color: #e1e8ed; 
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+        }
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--container-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+            border: 1px solid var(--border-color);
+        }
+        h2 {
+            text-align: center;
+            color: var(--accent-main);
+            border-bottom: 3px solid var(--accent-main);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+        }
+        .question-card {
+            background-color: #fdfdfd;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            position: relative;
+        }
+        .difficulty-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+        }
+        .badge-easy { background-color: var(--accent-green); } 
+        .badge-medium { background-color: #f39c12; } 
+        .badge-hard { background-color: var(--accent-red); }
+        
+        .question-text {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            padding-left: 80px; 
+            line-height: 1.6;
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option-btn {
+            background-color: var(--code-bg);
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            padding: 14px 18px;
+            text-align: right;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #34495e;
+            direction: rtl;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #ecf0f1;
+            border-color: var(--accent-main);
+        }
+        .option-btn:disabled { cursor: not-allowed; }
+        
+        .option-btn.correct {
+            background-color: #d5f5e3;
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+        .option-btn.wrong {
+            background-color: #fadbd8;
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+        
+        /* صندوق الشرح الذي يظهر بعد الإجابة */
+        .explanation-box {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ebf5fb;
+            border-right: 5px solid var(--accent-main);
+            border-radius: 6px;
+            font-size: 16px;
+            color: var(--text-primary);
+            animation: fadeIn 0.5s ease-in-out;
+            line-height: 1.7;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        code {
+            background-color: #ecf0f1;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            direction: ltr;
+            display: inline-block;
+            color: #e83e8c;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h2>⏱️ اختبار شامل: التعقيد الزمني (Time Complexity)</h2>
+    <div id="quiz-area"></div>
+</div>
+
+<script>
+    const questions = [
+        // ================= الأسئلة السهلة =================
+        {
+            q: "ما هو الرمز المستخدم في علوم الحاسوب للتعبير عن أسوأ حالة (Worst-case) لأداء الخوارزمية؟",
+            options: [
+                "Omega Notation ( $\\Omega$ )", 
+                "Big O Notation ( $O$ )", 
+                "Theta Notation ( $\\Theta$ )", 
+                "Alpha Notation ( $\\alpha$ )"
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "في البرمجة التنافسية، نهتم دائماً بأسوأ سيناريو (Worst-case) لضمان أن كودنا لن يتجاوز الوقت المحدد تحت أي ظرف. نستخدم رمز الـ Big O للتعبير عن ذلك."
+        },
+        {
+            q: "ما هو التعقيد الزمني لحلقة <code>for</code> بسيطة تبدأ من 1 وتنتهي عند $N$؟",
+            options: ["$O(1)$", "$O(\\log N)$", "$O(N)$", "$O(N^2)$"],
+            answer: 2,
+            difficulty: "سهل",
+            explanation: "بما أن الحلقة تمر على $N$ عنصر خطوة بخطوة، فإن عدد العمليات ينمو بشكل خطي مع حجم $N$. لذلك التعقيد هو $O(N)$."
+        },
+        {
+            q: "أي من التعقيدات الزمنية التالية يعتبر الأسرع والأكثر كفاءة؟",
+            options: ["$O(N)$", "$O(N \\log N)$", "$O(1)$", "$O(\\log N)$"],
+            answer: 2,
+            difficulty: "سهل",
+            explanation: "$O(1)$ يعني 'وقت ثابت'. أي أن العملية ستستغرق نفس الوقت سواء كان حجم البيانات 10 أو 10 مليار. هو الأسرع على الإطلاق."
+        },
+        {
+            q: "ما هو التعقيد الزمني للوصول إلى عنصر في مصفوفة عادية باستخدام الفهرس (مثلاً <code>arr[5]</code>)؟",
+            options: ["$O(1)$", "$O(N)$", "$O(\\log N)$", "$O(N^2)$"],
+            answer: 0,
+            difficulty: "سهل",
+            explanation: "المصفوفات تُخزن في كتل متجاورة في الذاكرة، ويقوم الكمبيوتر بعملية حسابية بسيطة جداً للوصول لموقع العنصر مباشرة دون البحث عنه، لذا الوقت ثابت $O(1)$."
+        },
+        {
+            q: "إذا كان لدينا حلقة تكرار (Loop) تعمل $N$ مرة، وبداخلها حلقة أخرى تعمل $N$ مرة، فما هو التعقيد الزمني الإجمالي؟",
+            options: ["$O(N)$", "$O(2N)$", "$O(N^2)$", "$O(\\log N)$"],
+            answer: 2,
+            difficulty: "سهل",
+            explanation: "الحلقات المتداخلة (Nested Loops) تُضرب في بعضها. الحلقة الداخلية تعمل $N$ مرة في كل خطوة من الحلقة الخارجية التي تعمل $N$ مرة. إذن $N \\times N = O(N^2)$."
+        },
+
+        // ================= الأسئلة المتوسطة =================
+        {
+            q: "ما هو التعقيد الزمني لخوارزمية البحث الثنائي (Binary Search)؟",
+            options: ["$O(N)$", "$O(N \\log N)$", "$O(1)$", "$O(\\log N)$"],
+            answer: 3,
+            difficulty: "متوسط",
+            explanation: "لأننا نقوم بقسمة مساحة البحث إلى النصف في كل خطوة، فإن عدد الخطوات يقل بشكل لوغاريتمي سريع جداً $O(\\log N)$."
+        },
+        {
+            q: "في قواعد البرمجة التنافسية (C++)، كم عدد العمليات التقريبي الذي يمكن للمعالج تنفيذه في ثانية واحدة لتجنب خطأ TLE؟",
+            options: [
+                "حوالي $10^4$ عملية", 
+                "حوالي $10^6$ عملية", 
+                "حوالي $10^8$ عملية", 
+                "حوالي $10^{12}$ عملية"
+            ],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "كقاعدة ذهبية (Rule of Thumb) في C++، يمكن للبرنامج تنفيذ حوالي $10^8$ (مائة مليون) عملية بسيطة في الثانية الواحدة. إذا تجاوز كودك هذا الرقم، غالباً ستحصل على Time Limit Exceeded."
+        },
+        {
+            q: "إذا كانت دالتك تستغرق $5N^2 + 3N + 100$ خطوة، فكيف نكتبها بصيغة Big O الصحيحة؟",
+            options: ["$O(5N^2)$", "$O(N^2)$", "$O(N^2 + N)$", "$O(N^3)$"],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "في الـ Big O، نتجاهل الثوابت (مثل 5 و 100) ونتجاهل الحدود الصغرى (مثل 3N) لأننا نهتم فقط بالحد الذي ينمو بأسرع شكل عندما تصبح $N$ عملاقة. لذا يتبقى $O(N^2)$."
+        },
+        {
+            q: "ما هو التعقيد الزمني للحلقة التالية: <code>for(int i = 1; i &lt; N; i *= 2)</code>؟",
+            options: ["$O(N)$", "$O(N/2)$", "$O(\\log N)$", "$O(N^2)$"],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "لاحظ أن المتغير <code>i</code> يُضرب في 2 كل مرة (1, 2, 4, 8, 16...). هذا يعني أن المسافة تقفز بشكل أسي، وعدد خطوات الحلقة لكي تصل إلى $N$ هو $\\log_2 N$. إذن التعقيد هو $O(\\log N)$."
+        },
+        {
+            q: "ما هو التعقيد الزمني لدالة الترتيب المدمجة <code>std::sort</code> في C++؟",
+            options: ["$O(N^2)$", "$O(N \\log N)$", "$O(N)$", "$O(\\log N)$"],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "تستخدم <code>std::sort</code> خوارزمية (Introsort) وهي سريعة جداً وتضمن أسوأ حالة بتعقيد $O(N \\log N)$."
+        },
+
+        // ================= الأسئلة الصعبة =================
+        {
+            q: "إذا كان حجم المدخلات في المسألة هو $N \\le 20$، فأي خوارزمية من التالية تعتبر مقبولة ولن تسبب تجاوزاً للوقت (TLE)؟",
+            options: ["$O(N!)$", "$O(2^N)$", "$O(N^N)$", "كل ما سبق سيفشل"],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "إذا كانت $N = 20$، فإن $2^{20} \\approx 10^6$ عملية، وهذا يمر بسهولة في ثانية واحدة. بينما المضروب $20! \\approx 2 \\times 10^{18}$ وهذا سيفشل بالتأكيد."
+        },
+        {
+            q: "لدينا خوارزمية تعقيدها الزمني $O(N \\sqrt{N})$. إذا كان $N = 10^5$، فما هو العدد التقريبي للعمليات، وهل ستجتاز حد الـ 1 ثانية؟",
+            options: [
+                "حوالي $10^{10}$ ولن تجتاز.", 
+                "حوالي $3 \\times 10^7$ وستجتاز.", 
+                "حوالي $10^5$ وستجتاز.", 
+                "حوالي $10^8$ وعلى الحافة."
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "$N = 10^5$. جذرها $\\sqrt{10^5} \\approx 316$. نضربهم: $10^5 \\times 316 \\approx 3.16 \\times 10^7$. هذا الرقم أقل بكثير من $10^8$، لذا ستمر الخوارزمية بنجاح وبسرعة!"
+        },
+        {
+            q: "ما هو التعقيد الزمني لعملية الإضافة <code>push_back()</code> في نهاية الـ <code>std::vector</code> في الحالة المُطفأة (Amortized Time Complexity)؟",
+            options: ["$O(N)$", "$O(\\log N)$", "$O(1)$", "$O(N^2)$"],
+            answer: 2,
+            difficulty: "صعب",
+            explanation: "على الرغم من أن الفيكتور قد يضطر لتوسيع نفسه بنسخ $N$ عنصر (مما يأخذ $O(N)$ أحياناً)، إلا أن هذه العملية نادرة الحدوث. 'مُطفأً' (Amortized) أو في المتوسط، تعتبر الإضافة $O(1)$."
+        },
+        {
+            q: "ما هو التعقيد الزمني لخوارزمية توليد كل التباديل الممكنة (Permutations) لمصفوفة حجمها $N$ باستخدام القوة الغاشمة (Brute Force)؟",
+            options: ["$O(2^N)$", "$O(N^3)$", "$O(N!)$", "$O(N^N)$"],
+            answer: 2,
+            difficulty: "صعب",
+            explanation: "عدد التباديل الممكنة لمجموعة من $N$ عنصر هو مضروب العدد (Factorial)، لذلك التعقيد هو $O(N!)$. هذه الخوارزميات لا تصلح إلا لـ $N \\le 10$."
+        },
+        {
+            q: "ما هو التعقيد الزمني لخوارزمية إيجاد الأعداد الأولية باستخدام (غربال إراتوستينس - Sieve of Eratosthenes) حتى الرقم $N$؟",
+            options: ["$O(N^2)$", "$O(N \\log N)$", "$O(N \\log \\log N)$", "$O(N)$"],
+            answer: 2,
+            difficulty: "صعب",
+            explanation: "هذه خوارزمية شهيرة جداً في الرياضيات التنافسية. تعقيدها الزمني ليس $O(N \\log N)$ بل هو $O(N \\log \\log N)$، مما يعني أنها تعمل تقريباً في وقت خطي ومناسبة جداً لقيم $N$ حتى $10^7$."
+        }
+    ];
+
+    const quizArea = document.getElementById('quiz-area');
+
+    questions.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        
+        let diffClass = item.difficulty === 'سهل' ? 'badge-easy' : (item.difficulty === 'متوسط' ? 'badge-medium' : 'badge-hard');
+        
+        const badge = document.createElement('span');
+        badge.className = `difficulty-badge ${diffClass}`;
+        badge.innerText = item.difficulty;
+        card.appendChild(badge);
+
+        const qTitle = document.createElement('div');
+        qTitle.className = 'question-text';
+        qTitle.innerHTML = `س ${index + 1}: ${item.q}`;
+        card.appendChild(qTitle);
+
+        const optionsGrid = document.createElement('div');
+        optionsGrid.className = 'options-grid';
+
+        const explanationBox = document.createElement('div');
+        explanationBox.className = 'explanation-box';
+        explanationBox.innerHTML = `<strong>💡 الشرح الرياضي:</strong> ${item.explanation}`;
+
+        item.options.forEach((opt, optIndex) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = opt;
+            
+            if(optIndex === item.answer) {
+                btn.dataset.correct = "true";
+            }
+
+            btn.onclick = function() {
+                const allBtns = optionsGrid.querySelectorAll('.option-btn');
+                allBtns.forEach(b => b.disabled = true);
+
+                if (optIndex === item.answer) {
+                    this.classList.add('correct');
+                } else {
+                    this.classList.add('wrong');
+                    optionsGrid.querySelector('[data-correct="true"]').classList.add('correct');
+                }
+                
+                explanationBox.style.display = 'block';
+            };
+            optionsGrid.appendChild(btn);
+        });
+
+        card.appendChild(optionsGrid);
+        card.appendChild(explanationBox);
+        quizArea.appendChild(card);
+    });
+</script>
+
+</body>
+</html>

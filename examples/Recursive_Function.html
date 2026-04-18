@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شرح الدالة العودية - تفاعلي</title>
+    <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --card-bg: #ffffff;
+            --code-bg: #1e1e1e;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 2.5rem;
+        }
+
+        .header p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+
+        /* Code Editor Style */
+        .code-container {
+            background: var(--code-bg);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Courier New', Courier, monospace;
+            color: #d4d4d4;
+            direction: ltr;
+            text-align: left;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            overflow: hidden;
+        }
+
+        .code-line {
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .code-line.active {
+            background-color: rgba(79, 70, 229, 0.3);
+            border-left: 4px solid var(--primary);
+            color: #ffffff;
+        }
+
+        .keyword { color: #569cd6; }
+        .type { color: #4ec9b0; }
+        .func { color: #dcdcaa; }
+        .number { color: #b5cea8; }
+
+        /* Explanation Box */
+        .explanation-box {
+            background: #eff6ff;
+            border-right: 4px solid var(--primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+            font-size: 1.1rem;
+            min-height: 80px;
+            transition: all 0.3s ease;
+        }
+
+        /* Call Stack Style */
+        .stack-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column-reverse;
+            justify-content: flex-start;
+            gap: 10px;
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 1rem;
+            min-height: 300px;
+        }
+
+        .stack-item {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        .stack-item.waiting {
+            border-right: 5px solid var(--warning);
+        }
+
+        .stack-item.resolved {
+            border-right: 5px solid var(--success);
+            background-color: #ecfdf5;
+        }
+
+        .stack-item.base-case {
+            border-right: 5px solid var(--danger);
+            background-color: #fef2f2;
+        }
+
+        .func-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            direction: ltr;
+        }
+
+        .func-calc {
+            font-family: monospace;
+            background: #f1f5f9;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            direction: ltr;
+        }
+
+        /* Controls */
+        .controls {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            width: 100%;
+        }
+
+        button {
+            padding: 0.8rem 2rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn-next {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-next:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
+        .btn-next:disabled { background-color: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .btn-reset {
+            background-color: #e2e8f0;
+            color: var(--text-dark);
+        }
+
+        .btn-reset:hover { background-color: #cbd5e1; }
+
+        @keyframes slideIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>شرح الدالة العودية (Recursion)</h1>
+        <p>مراقبة حية لتنفيذ الكود وحالة مكدس الذاكرة (Call Stack) خطوة بخطوة</p>
+    </div>
+
+    <div class="dashboard">
+        <div class="card">
+            <div class="card-title">الكود المصدري (C++)</div>
+            <div class="code-container">
+                <div class="code-line" id="line0"><span class="type">int</span> <span class="func">factorial</span>(<span class="type">int</span> n) {</div>
+                <div class="code-line" id="line1">&nbsp;&nbsp;<span class="keyword">if</span> (n == <span class="number">1</span>) <span class="keyword">return</span> <span class="number">1</span>;</div>
+                <div class="code-line" id="line2">&nbsp;&nbsp;<span class="keyword">return</span> n * <span class="func">factorial</span>(n - <span class="number">1</span>);</div>
+                <div class="code-line" id="line3">}</div>
+            </div>
+            
+            <div class="explanation-box" id="explanationText">
+                اضغط على "الخطوة التالية" لبدء تنفيذ دالة حساب مضروب الرقم 3.
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">مكدس الاستدعاءات (Call Stack)</div>
+            <div class="stack-container" id="stackContainer">
+                </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn-reset" onclick="resetApp()">إعادة التعيين</button>
+        <button class="btn-next" id="nextBtn" onclick="nextStep()">الخطوة التالية ❯</button>
+    </div>
+
+    <script>
+        const scenario = [
+            {
+                line: 0,
+                stack: [{ id: 3, name: 'factorial(3)', calc: 'n = 3', state: 'waiting' }],
+                text: "البرنامج الرئيسي يستدعي الدالة <b>factorial(3)</b>. يتم وضعها في المكدس، وتبدأ التنفيذ."
+            },
+            {
+                line: 2,
+                stack: [{ id: 3, name: 'factorial(3)', calc: '3 * factorial(2)', state: 'waiting' }],
+                text: "بما أن الرقم ليس 1، تتوقف الدالة مؤقتاً (تنتظر)، وتطلب نتيجة <b>factorial(2)</b>."
+            },
+            {
+                line: 0,
+                stack: [
+                    { id: 3, name: 'factorial(3)', calc: '3 * ?', state: 'waiting' },
+                    { id: 2, name: 'factorial(2)', calc: 'n = 2', state: 'waiting' }
+                ],
+                text: "يتم وضع <b>factorial(2)</b> فوق الدالة السابقة في المكدس وتبدأ التنفيذ."
+            },
+            {
+                line: 2,
+                stack: [
+                    { id: 3, name: 'factorial(3)', calc: '3 * ?', state: 'waiting' },
+                    { id: 2, name: 'factorial(2)', calc: '2 * factorial(1)', state: 'waiting' }
+                ],
+                text: "مرة أخرى، الرقم ليس 1، فتتوقف الدالة وتطلب نتيجة <b>factorial(1)</b>."
+            },
+            {
+                line: 0,
+                stack: [
+                    { id: 3, name: 'factorial(3)', calc: '3 * ?', state: 'waiting' },
+                    { id: 2, name: 'factorial(2)', calc: '2 * ?', state: 'waiting' },
+                    { id: 1, name: 'factorial(1)', calc: 'n = 1', state: 'base-case' }
+                ],
+                text: "يتم وضع <b>factorial(1)</b> في المكدس. لاحظ أن المكدس الآن يمتلئ بالدوال المعلقة."
+            },
+            {
+                line: 1,
+                stack: [
+                    { id: 3, name: 'factorial(3)', calc: '3 * ?', state: 'waiting' },
+                    { id: 2, name: 'factorial(2)', calc: '2 * ?', state: 'waiting' },
+                    { id: 1, name: 'factorial(1)', calc: 'return 1', state: 'base-case' }
+                ],
+                text: "<b>شرط التوقف (Base Case):</b> أخيراً قيمة n هي 1. الدالة لن تستدعي نفسها بل سترجع القيمة <b>1</b> فوراً."
+            },
+            {
+                line: 2,
+                stack: [
+                    { id: 3, name: 'factorial(3)', calc: '3 * ?', state: 'waiting' },
+                    { id: 2, name: 'factorial(2)', calc: '2 * 1 = 2', state: 'resolved' }
+                ],
+                text: "تم إزالة factorial(1) من المكدس وأعطت نتيجتها. الآن factorial(2) تستيقظ وتكمل عملها: <b>2 × 1 = 2</b>."
+            },
+            {
+                line: 2,
+                stack: [
+                    { id: 3, name: 'factorial(3)', calc: '3 * 2 = 6', state: 'resolved' }
+                ],
+                text: "تم إزالة factorial(2). وتستيقظ الدالة الأولى وتكمل حسابها: <b>3 × 2 = 6</b>."
+            },
+            {
+                line: 3,
+                stack: [],
+                text: "<b>اكتمل التنفيذ!</b> تم إفراغ المكدس بالكامل (Stack Empty) وعادت النتيجة النهائية (6) للبرنامج الرئيسي."
+            }
+        ];
+
+        let currentStep = -1;
+
+        function updateUI(stepData) {
+            // Update code highlighting
+            document.querySelectorAll('.code-line').forEach(el => el.classList.remove('active'));
+            if(stepData.line !== null) {
+                document.getElementById('line' + stepData.line).classList.add('active');
+            }
+
+            // Update explanation text
+            document.getElementById('explanationText').innerHTML = stepData.text;
+
+            // Render Stack
+            const container = document.getElementById('stackContainer');
+            container.innerHTML = ''; // Clear current
+            
+            stepData.stack.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `stack-item ${item.state}`;
+                div.innerHTML = `
+                    <span class="func-name">${item.name}</span>
+                    <span class="func-calc">${item.calc}</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function nextStep() {
+            currentStep++;
+            if (currentStep < scenario.length) {
+                updateUI(scenario[currentStep]);
+            }
+            
+            if (currentStep === scenario.length - 1) {
+                document.getElementById('nextBtn').disabled = true;
+                document.getElementById('nextBtn').innerText = "انتهى التنفيذ";
+            }
+        }
+
+        function resetApp() {
+            currentStep = -1;
+            document.querySelectorAll('.code-line').forEach(el => el.classList.remove('active'));
+            document.getElementById('stackContainer').innerHTML = '';
+            document.getElementById('explanationText').innerHTML = 'اضغط على "الخطوة التالية" لبدء تنفيذ دالة حساب مضروب الرقم 3.';
+            
+            const btn = document.getElementById('nextBtn');
+            btn.disabled = false;
+            btn.innerText = "الخطوة التالية ❯";
+        }
+    </script>
+</body>
+</html>

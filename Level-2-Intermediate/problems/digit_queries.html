@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شرح مسألة Digit Queries - CSES</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-main: #f0fdfa; /* لون سماوي/أخضر فاتح جداً (Teal) */
+            --bg-card: #ffffff; 
+            --accent-main: #0d9488; /* Teal أساسي */
+            --accent-main-hover: #0f766e;
+            --accent-secondary: #f59e0b; 
+            --text-primary: #1e293b; 
+            --text-secondary: #475569; 
+            --border-light: #ccfbf1; 
+            --code-bg: #0f172a; 
+            --code-text: #e2e8f0;
+            --success: #10b981;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.8;
+            background-image: radial-gradient(circle at top left, #ccfbf1 0%, transparent 40%);
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        .section-card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(13, 148, 136, 0.08);
+            border: 1px solid var(--border-light);
+            border-right: 5px solid var(--accent-main);
+        }
+
+        h1 {
+            font-family: 'Tajawal', sans-serif;
+            color: var(--accent-main);
+            text-align: center;
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(13, 148, 136, 0.1);
+        }
+
+        h2 {
+            font-family: 'Tajawal', sans-serif;
+            color: var(--accent-main);
+            border-bottom: 2px dashed var(--border-light);
+            padding-bottom: 10px;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* 1. قسم الشرح */
+        .explanation p {
+            font-size: 18px;
+        }
+        
+        .hint-box {
+            background-color: #f0fdfa;
+            border-right: 4px solid var(--accent-main);
+            padding: 15px;
+            border-radius: 6px;
+            color: #0f766e;
+            font-weight: 600;
+            margin: 15px 0;
+        }
+
+        .string-preview {
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 20px;
+            letter-spacing: 2px;
+            text-align: center;
+            border: 1px dashed var(--accent-secondary);
+            overflow-wrap: break-word;
+        }
+
+        /* 2. الرسم التفاعلي */
+        .visualizer-area {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group input {
+            padding: 12px;
+            font-size: 18px;
+            border-radius: 6px;
+            border: 1px solid #94a3b8;
+            width: 200px;
+            text-align: center;
+            direction: ltr;
+            font-family: monospace;
+        }
+        .input-group button {
+            padding: 12px 25px;
+            font-size: 18px;
+            border-radius: 6px;
+            border: none;
+            background-color: var(--accent-secondary);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            transition: 0.3s;
+        }
+        .input-group button:hover { background-color: #d97706; }
+        .input-group button:disabled { background-color: #cbd5e1; cursor: not-allowed; }
+
+        .viz-step {
+            background-color: white;
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            font-size: 18px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        .viz-step.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .final-result {
+            background-color: #ecfdf5;
+            border: 2px solid var(--success);
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #065f46;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .highlight-digit {
+            color: var(--danger);
+            font-size: 32px;
+            text-decoration: underline;
+        }
+
+        /* 3. خطوات الحل */
+        .steps-list { padding-right: 20px; }
+        .steps-list li { font-size: 18px; margin-bottom: 12px; line-height: 1.6; }
+        .steps-list li strong { color: var(--accent-main); }
+
+        /* 4. الكود */
+        pre {
+            background-color: var(--code-bg);
+            color: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 16px;
+            margin: 0;
+            border-left: 5px solid var(--accent-main);
+        }
+        .kw { color: #c678dd; } 
+        .typ { color: #56b6c2; } 
+        .str { color: #98c379; } 
+        .com { color: #7f848e; font-style: italic; } 
+
+        .toggle-btn {
+            background-color: var(--accent-main);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            width: 100%;
+            max-width: 300px;
+            transition: 0.3s;
+        }
+        .toggle-btn:hover { background-color: var(--accent-main-hover); }
+        .solution-area { display: none; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>مسألة Digit Queries 🔢</h1>
+
+    <div class="section-card explanation">
+        <h2><span>📖</span> الشرح المبسط للمسألة</h2>
+        <p>
+            تخيل أننا قمنا بلصق جميع الأرقام الصحيحة الموجبة (1، 2، 3، ...) بجانب بعضها البعض لتكوين <strong>سلسلة نصية لانهائية الطول</strong> هكذا:
+        </p>
+        <div class="string-preview">
+            <span style="color:#0ea5e9;">123456789</span><span style="color:#f59e0b;">101112131415...</span>
+        </div>
+        <p>
+            لدينا $q$ استعلامات. في كل استعلام، يُعطى لك موقع $k$ (مرقم بداية من 1). <strong>المطلوب:</strong> ما هو الرقم (الخانة) الموجود في هذا الموقع تحديداً؟<br>
+            <em>ملاحظة: الموقع $k$ يمكن أن يصل إلى $10^{18}$، لذا مستحيل بناء السلسلة فعلياً في الذاكرة!</em>
+        </p>
+        <div class="hint-box">
+            💡 <strong>الفكرة السحرية (استبعاد الكتل):</strong><br>
+            سنقوم بتقسيم الأعداد إلى كتل: كتلة ذات خانة واحدة (1-9)، كتلة ذات خانتين (10-99)، وهكذا. سنطرح حجم كل كتلة من $k$ حتى نكتشف في أي كتلة يقع هدفنا!
+        </div>
+    </div>
+
+    <div class="section-card">
+        <h2><span>🎮</span> المحاكي التفاعلي للبحث عن الخانة</h2>
+        <div class="visualizer-area">
+            <p>أدخل موقع الخانة $k$ (جرب رقماً مثل 15، أو 190، أو حتى 2000):</p>
+            <div class="input-group">
+                <input type="number" id="inputK" value="15" min="1" placeholder="مثال: 15">
+                <button id="runBtn" onclick="runVisualizer()">ابحث عن الخانة 🔍</button>
+            </div>
+
+            <div id="stepsContainer">
+                </div>
+
+            <div class="final-result" id="finalResult">
+                العدد هو: <span id="resNum"></span> <br>
+                الخانة المطلوبة: <span id="resDigit" class="highlight-digit"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <h2><span>📝</span> خطوات الحل رياضياً</h2>
+        <ol class="steps-list">
+            <li><strong>تخطي الكتل غير المناسبة:</strong>
+                <ul>
+                    <li>الأعداد ذات خانة واحدة ($d=1$) عددها 9، وإجمالي خاناتها $= 9 \times 1 = 9$.</li>
+                    <li>الأعداد ذات خانتين ($d=2$) عددها 90، وإجمالي خاناتها $= 90 \times 2 = 180$.</li>
+                    <li>في كل خطوة نحسب <code>block_len = 9 * base * d</code>. إذا كان $k > block_len$، نطرح هذا الطول من $k$ وننتقل للكتلة التالية ($d+1$).</li>
+                </ul>
+            </li>
+            <li><strong>تحديد العدد بالضبط:</strong>
+                <ul>
+                    <li>بمجرد معرفة الكتلة $d$، نجعل $k_0 = k - 1$ لنتعامل بنظام (0-based).</li>
+                    <li>لمعرفة "أي عدد" داخل الكتلة يقع فيه هدفنا: <code>index_of_number = k0 / d</code>.</li>
+                    <li>العدد الفعلي $= 10^{d-1} + index\_of\_number$.</li>
+                </ul>
+            </li>
+            <li><strong>استخراج الخانة:</strong>
+                <ul>
+                    <li>لمعرفة "أي خانة" داخل هذا العدد: <code>index_in_number = k0 % d</code>.</li>
+                    <li>نحول العدد لنص ونستخرج الحرف الموجود في <code>index_in_number</code>.</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+
+    <div class="section-card">
+        <h2><span>💻</span> كود الحل (C++)</h2>
+<pre>
+<span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;string&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="typ">int</span> main() {
+    <span class="com">// تسريع عمليات الإدخال والإخراج</span>
+    ios::sync_with_stdio(<span class="kw">false</span>);
+    cin.tie(<span class="kw">nullptr</span>);
+    
+    <span class="typ">int</span> q;
+    cin &gt;&gt; q;
+    
+    <span class="kw">while</span> (q--) {
+        <span class="typ">long long</span> k;
+        cin &gt;&gt; k;
+        
+        <span class="typ">long long</span> d = 1;       <span class="com">// طول الخانات للكتلة الحالية</span>
+        <span class="typ">long long</span> base = 1;    <span class="com">// 10^(d-1) (بداية الكتلة)</span>
+        
+        <span class="com">// الخطوة 1: البحث عن الكتلة الصحيحة</span>
+        <span class="kw">while</span> (<span class="kw">true</span>) {
+            <span class="typ">long long</span> count_numbers = 9 * base;      
+            <span class="typ">long long</span> block_len = count_numbers * d; 
+            
+            <span class="kw">if</span> (k &gt; block_len) {
+                k -= block_len;
+                d++;
+                base *= 10;
+            } <span class="kw">else</span> {
+                <span class="kw">break</span>; <span class="com">// وجدنا الكتلة!</span>
+            }
+        }
+        
+        <span class="com">// الخطوة 2: تحديد العدد والخانة داخله</span>
+        <span class="typ">long long</span> k0 = k - 1;                 <span class="com">// تحويل لـ 0-based</span>
+        <span class="typ">long long</span> index_of_number = k0 / d;   <span class="com">// ترتيب العدد داخل الكتلة</span>
+        <span class="typ">long long</span> index_in_number = k0 % d;   <span class="com">// ترتيب الخانة داخل العدد</span>
+        
+        <span class="typ">long long</span> num = base + index_of_number;
+        
+        <span class="com">// تحويل العدد لنص لاستخراج الخانة المطلوبة</span>
+        string s = to_string(num);
+        cout &lt;&lt; s[index_in_number] &lt;&lt; <span class="str">"\n"</span>;
+    }
+    
+    <span class="kw">return</span> 0;
+}
+</pre>
+    </div>
+
+</div>
+
+<script>
+    async function runVisualizer() {
+        const inputVal = document.getElementById('inputK').value;
+        if (!inputVal || inputVal < 1) return;
+        
+        let k = BigInt(inputVal); // نستخدم BigInt لدعم الأرقام الضخمة مثل C++
+        const runBtn = document.getElementById('runBtn');
+        runBtn.disabled = true;
+
+        const container = document.getElementById('stepsContainer');
+        container.innerHTML = '';
+        document.getElementById('finalResult').style.display = 'none';
+
+        let d = 1n;
+        let base = 1n;
+        let stepCount = 0;
+
+        // دالة مساعدة لإنشاء وعرض الخطوات ببطء
+        const addStep = async (text, color = "white") => {
+            let el = document.createElement('div');
+            el.className = 'viz-step';
+            el.innerHTML = text;
+            if (color !== "white") {
+                el.style.backgroundColor = color;
+                el.style.borderColor = "#818cf8";
+            }
+            container.appendChild(el);
+            
+            // Trigger reflow for animation
+            void el.offsetWidth; 
+            el.classList.add('visible');
+            await sleep(1200);
+        };
+
+        await addStep(`بدء البحث عن الموقع <strong style="color:var(--accent-main)">k = ${k}</strong>`);
+
+        while (true) {
+            let block_len = 9n * base * d;
+            
+            if (k > block_len) {
+                await addStep(`الكتلة ذات ${d} خانات تحتوي على ${block_len} خانة.<br>بما أن ${k} &gt; ${block_len}، سنطرحها ونتجاوز هذه الكتلة.`);
+                k -= block_len;
+                d++;
+                base *= 10n;
+                await addStep(`الموقع الجديد المتبقي <strong style="color:var(--accent-secondary)">k = ${k}</strong>`);
+            } else {
+                await addStep(`الكتلة ذات ${d} خانات تحتوي على ${block_len} خانة.<br>بما أن ${k} &le; ${block_len}، <strong>إذن هدفنا يقع داخل هذه الكتلة!</strong>`, "#eff6ff");
+                break;
+            }
+            
+            stepCount++;
+            // حماية المتصفح من التعليق لو أدخل رقماً مجنوناً
+            if(stepCount > 20) break; 
+        }
+
+        let k0 = k - 1n;
+        await addStep(`نطرح 1 لنتعامل بنظام 0-based: <br><code>k0 = ${k} - 1 = ${k0}</code>`);
+
+        let index_of_number = k0 / d;
+        let index_in_number = Number(k0 % d); // نحوله لرقم عادي لاستخدامه مع السلاسل
+        let num = base + index_of_number;
+
+        await addStep(`رقم العدد داخل الكتلة: <code>${k0} / ${d} = ${index_of_number}</code>`);
+        await addStep(`العدد الفعلي هو: بداية الكتلة (${base}) + الترتيب (${index_of_number}) = <strong>${num}</strong>`);
+        await addStep(`ترتيب الخانة داخل العدد: <code>${k0} % ${d} = ${index_in_number}</code>`);
+
+        let numStr = num.toString();
+        let theDigit = numStr[index_in_number];
+
+        // Highlight the specific digit
+        let displayStr = "";
+        for(let i=0; i<numStr.length; i++){
+            if(i === index_in_number) {
+                displayStr += `<span class="highlight-digit">${numStr[i]}</span>`;
+            } else {
+                displayStr += numStr[i];
+            }
+        }
+
+        document.getElementById('resNum').innerHTML = displayStr;
+        document.getElementById('resDigit').innerText = theDigit;
+        document.getElementById('finalResult').style.display = 'block';
+
+        runBtn.disabled = false;
+    }
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+</script>
+
+</body>
+</html>

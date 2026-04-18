@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>العمليات على مستوى البت (Bitwise Operations) - المرحلة الثالثة</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-main: #f0fdfa; /* لون سماوي تقني فاتح */
+            --bg-card: #ffffff; 
+            --accent-main: #0d9488; /* لون الـ Teal للبتات */
+            --accent-main-hover: #0f766e;
+            --accent-secondary: #f59e0b; 
+            --text-primary: #0f172a; 
+            --text-secondary: #475569; 
+            --border-light: #ccfbf1; 
+            --code-bg: #0f172a; 
+            --code-text: #e2e8f0;
+            --bit-0: #e2e8f0; /* لون البت 0 */
+            --bit-1: #10b981; /* لون البت 1 (أخضر زاهي) */
+            --bit-text-0: #64748b;
+            --bit-text-1: #ffffff;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.8;
+            background-image: radial-gradient(circle at top left, #ccfbf1 0%, transparent 40%);
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            background-color: var(--bg-card);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(13, 148, 136, 0.08);
+            border: 2px dashed var(--accent-main);
+        }
+
+        h1 {
+            font-family: 'Tajawal', sans-serif;
+            color: var(--accent-main);
+            margin: 0 0 10px 0;
+            font-size: 2.8em;
+            text-shadow: 0 2px 10px rgba(13, 148, 136, 0.1);
+        }
+
+        .desc {
+            color: var(--text-secondary);
+            font-size: 18px;
+            margin: 0;
+        }
+
+        .section-card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(13, 148, 136, 0.05);
+            border: 1px solid var(--border-light);
+            border-right: 5px solid var(--accent-main);
+        }
+
+        h2 {
+            font-family: 'Tajawal', sans-serif;
+            color: var(--accent-main);
+            border-bottom: 2px dashed var(--border-light);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        /* ------------------ المحاكي التفاعلي ------------------ */
+        .visualizer-area {
+            background-color: #f8fafc;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            border: 2px solid #cbd5e1;
+            margin-bottom: 30px;
+        }
+
+        .viz-header {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--accent-secondary);
+            margin-bottom: 20px;
+        }
+
+        .bit-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .bit-label {
+            width: 80px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: right;
+            color: var(--text-primary);
+        }
+
+        .bits-container {
+            display: flex;
+            gap: 8px;
+            direction: ltr; /* البتات تُقرأ من اليسار لليمين */
+        }
+
+        .bit-box {
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            font-weight: bold;
+            font-family: monospace;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .bit-box.val-0 {
+            background-color: var(--bit-0);
+            color: var(--bit-text-0);
+            border: 2px solid #cbd5e1;
+        }
+
+        .bit-box.val-1 {
+            background-color: var(--bit-1);
+            color: var(--bit-text-1);
+            border: 2px solid #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(16, 185, 129, 0.3);
+        }
+
+        .bit-box.readonly {
+            cursor: default;
+        }
+        .bit-box.readonly:hover {
+            transform: none;
+        }
+
+        .decimal-value {
+            width: 100px;
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--accent-main);
+            background: #e0f2fe;
+            padding: 5px 10px;
+            border-radius: 6px;
+            border: 1px solid #bae6fd;
+        }
+
+        .operator-select {
+            margin: 20px 0;
+            padding: 10px 20px;
+            font-size: 20px;
+            font-weight: bold;
+            font-family: 'Cairo', sans-serif;
+            border-radius: 8px;
+            border: 2px solid var(--accent-secondary);
+            color: var(--accent-secondary);
+            background-color: #fffbeb;
+            cursor: pointer;
+        }
+
+        .operator-select:focus { outline: none; }
+
+        .result-divider {
+            border-top: 3px dashed #cbd5e1;
+            margin: 20px auto;
+            width: 80%;
+        }
+
+        .instructions {
+            margin-top: 15px;
+            font-size: 15px;
+            color: var(--text-secondary);
+        }
+
+        /* ------------------ الشروحات والأكواد ------------------ */
+        .op-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .op-grid { grid-template-columns: 1fr; }
+        }
+
+        .op-card {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-light);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .op-card h3 {
+            color: var(--accent-main);
+            margin-top: 0;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .op-symbol {
+            background-color: var(--accent-secondary);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 1.2em;
+        }
+
+        .truth-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            direction: ltr;
+        }
+        .truth-table th, .truth-table td {
+            border: 1px solid #cbd5e1;
+            padding: 8px;
+            text-align: center;
+            font-family: monospace;
+            font-size: 16px;
+        }
+        .truth-table th { background-color: #e2e8f0; }
+
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 15px;
+            border-radius: 8px;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 15px;
+            border-left: 4px solid var(--accent-secondary);
+            margin-top: 15px;
+        }
+        .kw { color: #c678dd; } 
+        .typ { color: #56b6c2; } 
+        .str { color: #98c379; } 
+        .com { color: #7f848e; font-style: italic; } 
+
+        .magic-tricks {
+            background-color: #fffbeb;
+            border: 1px solid #fde68a;
+            border-right: 5px solid var(--accent-secondary);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .magic-tricks h3 { color: #b45309; margin-top: 0; }
+        .magic-tricks ul li { font-size: 18px; margin-bottom: 10px; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="page-header">
+        <h1>العمليات على مستوى البت 💻</h1>
+        <p class="desc">المرحلة الثالثة: التفكير بلغة الآلة (Bitwise Operations). هنا حيث السرعة والأداء العالي!</p>
+    </div>
+
+    <div class="visualizer-area">
+        <div class="viz-header">🎮 محاكي البتات التفاعلي</div>
+        <p class="instructions">اضغط على المربعات (0 و 1) لتغيير قيمة البتات، ولاحظ كيف يتغير الرقم العشري (Decimal) ونتيجة العملية!</p>
+
+        <div class="bit-row">
+            <div class="bit-label">الرقم A:</div>
+            <div class="bits-container" id="bitsA">
+                </div>
+            <div class="decimal-value" id="decA">0</div>
+        </div>
+
+        <select class="operator-select" id="opSelect" onchange="calculateResult()">
+            <option value="AND">AND (&)</option>
+            <option value="OR">OR (|)</option>
+            <option value="XOR">XOR (^)</option>
+        </select>
+
+        <div class="bit-row">
+            <div class="bit-label">الرقم B:</div>
+            <div class="bits-container" id="bitsB">
+                </div>
+            <div class="decimal-value" id="decB">0</div>
+        </div>
+
+        <div class="result-divider"></div>
+
+        <div class="bit-row">
+            <div class="bit-label" style="color: var(--accent-secondary);">النتيجة:</div>
+            <div class="bits-container" id="bitsRes">
+                </div>
+            <div class="decimal-value" style="background: #fef3c7; border-color: #fde68a;" id="decRes">0</div>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <h2><span>💡</span> ما هي العمليات على مستوى البت؟</h2>
+        <p>
+            أجهزة الكمبيوتر لا تفهم الأرقام مثلنا (1, 2, 3...)، بل تفهم فقط الصفر والواحد (0 و 1) وهو ما يسمى بالنظام الثنائي (Binary). 
+            كل رقم عشري نكتبه يتم تحويله في الذاكرة إلى سلسلة من البتات.
+        </p>
+        <p>
+            <strong>Bitwise Operations</strong> هي عمليات تتيح لنا التعديل على هذه الأصفار والآحاد مباشرة! وبما أنها لغة الكمبيوتر الأم، فإن تنفيذ هذه العمليات يكون <strong>أسرع بكثير</strong> من العمليات الحسابية العادية (الجمع، الضرب، القسمة).
+        </p>
+    </div>
+
+    <div class="section-card">
+        <h2><span>⚙️</span> العمليات الأساسية</h2>
+        <div class="op-grid">
+            
+            <div class="op-card">
+                <h3>بوابة AND (و) <span class="op-symbol">&</span></h3>
+                <p>تُعطي <code>1</code> <strong>فقط</strong> إذا كان كلا البتين <code>1</code>. غير ذلك تعطي <code>0</code>.</p>
+                <table class="truth-table">
+                    <tr><th>A</th><th>B</th><th>A & B</th></tr>
+                    <tr><td>0</td><td>0</td><td>0</td></tr>
+                    <tr><td>0</td><td>1</td><td>0</td></tr>
+                    <tr><td>1</td><td>0</td><td>0</td></tr>
+                    <tr><td style="background:#d1fae5">1</td><td style="background:#d1fae5">1</td><td style="background:#d1fae5">1</td></tr>
+                </table>
+<pre>
+<span class="typ">int</span> a = 5;  <span class="com">// 0101</span>
+<span class="typ">int</span> b = 3;  <span class="com">// 0011</span>
+cout &lt;&lt; (a & b); <span class="com">// 0001 = 1</span>
+</pre>
+            </div>
+
+            <div class="op-card">
+                <h3>بوابة OR (أو) <span class="op-symbol">|</span></h3>
+                <p>تُعطي <code>1</code> إذا كان <strong>أي واحد</strong> من البتين <code>1</code>.</p>
+                <table class="truth-table">
+                    <tr><th>A</th><th>B</th><th>A | B</th></tr>
+                    <tr><td>0</td><td>0</td><td>0</td></tr>
+                    <tr><td style="background:#d1fae5">0</td><td style="background:#d1fae5">1</td><td style="background:#d1fae5">1</td></tr>
+                    <tr><td style="background:#d1fae5">1</td><td style="background:#d1fae5">0</td><td style="background:#d1fae5">1</td></tr>
+                    <tr><td style="background:#d1fae5">1</td><td style="background:#d1fae5">1</td><td style="background:#d1fae5">1</td></tr>
+                </table>
+<pre>
+<span class="typ">int</span> a = 5;  <span class="com">// 0101</span>
+<span class="typ">int</span> b = 3;  <span class="com">// 0011</span>
+cout &lt;&lt; (a | b); <span class="com">// 0111 = 7</span>
+</pre>
+            </div>
+
+            <div class="op-card">
+                <h3>بوابة XOR (الاستبعاد) <span class="op-symbol">^</span></h3>
+                <p>تُعطي <code>1</code> إذا كان البتان <strong>مختلفين</strong>. وتُعطي <code>0</code> إذا كانا متشابهين.</p>
+                <table class="truth-table">
+                    <tr><th>A</th><th>B</th><th>A ^ B</th></tr>
+                    <tr><td>0</td><td>0</td><td>0</td></tr>
+                    <tr><td style="background:#d1fae5">0</td><td style="background:#d1fae5">1</td><td style="background:#d1fae5">1</td></tr>
+                    <tr><td style="background:#d1fae5">1</td><td style="background:#d1fae5">0</td><td style="background:#d1fae5">1</td></tr>
+                    <tr><td>1</td><td>1</td><td>0</td></tr>
+                </table>
+<pre>
+<span class="typ">int</span> a = 5;  <span class="com">// 0101</span>
+<span class="typ">int</span> b = 3;  <span class="com">// 0011</span>
+cout &lt;&lt; (a ^ b); <span class="com">// 0110 = 6</span>
+</pre>
+            </div>
+
+            <div class="op-card">
+                <h3>الإزاحة (Bit Shifting) <span class="op-symbol">&lt;&lt;</span> <span class="op-symbol">&gt;&gt;</span></h3>
+                <p>تُزيح البتات لليسار أو اليمين. <br>الإزاحة لليسار <code>&lt;&lt;</code> تضرب الرقم في 2.<br> الإزاحة لليمين <code>&gt;&gt;</code> تقسم الرقم على 2.</p>
+<pre>
+<span class="typ">int</span> x = 5;       <span class="com">// 0000 0101 (5)</span>
+cout &lt;&lt; (x &lt;&lt; 1);<span class="com">// 0000 1010 (10)</span>
+cout &lt;&lt; (x &gt;&gt; 1);<span class="com">// 0000 0010 (2)</span>
+</pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-card magic-tricks">
+        <h3>✨ حيل سحرية للأولمبياد باستخدام البتات!</h3>
+        <ul>
+            <li><strong>هل الرقم زوجي أم فردي؟</strong> بدلاً من <code>x % 2 != 0</code>، استخدم <code>(x & 1)</code>. إذا كانت النتيجة 1 فالرقم فردي، وإذا كانت 0 فالرقم زوجي. (أسرع بكثير!).</li>
+            <li><strong>الضرب والقسمة السريعة:</strong> لضرب رقم في 2 استخدم <code>x &lt;&lt; 1</code>. لضرب رقم في 8 (وهي 2 أس 3) استخدم <code>x &lt;&lt; 3</code>. للقسمة على 2 استخدم <code>x &gt;&gt; 1</code>.</li>
+            <li><strong>تبديل متغيرين (Swap) بدون متغير ثالث:</strong> يمكنك استخدام XOR لتبديل القيمتين: <br>
+                <code style="background:#fde68a; padding: 2px 6px; border-radius: 4px;">a ^= b; b ^= a; a ^= b;</code>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+<script>
+    // إنشاء مصفوفات البتات
+    let bitsA = [0,0,0,0, 0,1,0,1]; // القيمة الافتراضية 5
+    let bitsB = [0,0,0,0, 0,0,1,1]; // القيمة الافتراضية 3
+    let bitsRes = [0,0,0,0, 0,0,0,0];
+
+    function createBitBoxes(containerId, bitsArray, isReadonly, rowName) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        for (let i = 0; i < 8; i++) {
+            let box = document.createElement('div');
+            box.className = `bit-box val-${bitsArray[i]} ${isReadonly ? 'readonly' : ''}`;
+            box.innerText = bitsArray[i];
+            
+            if (!isReadonly) {
+                box.onclick = () => {
+                    // عكس قيمة البت
+                    bitsArray[i] = bitsArray[i] === 0 ? 1 : 0;
+                    box.className = `bit-box val-${bitsArray[i]}`;
+                    box.innerText = bitsArray[i];
+                    updateDecimal(rowName);
+                    calculateResult();
+                };
+            }
+            container.appendChild(box);
+        }
+    }
+
+    function updateDecimal(rowName) {
+        let arr = rowName === 'A' ? bitsA : bitsB;
+        let decId = rowName === 'A' ? 'decA' : 'decB';
+        
+        // تحويل المصفوفة الثنائية إلى رقم عشري
+        let binaryString = arr.join('');
+        let decimalValue = parseInt(binaryString, 2);
+        
+        document.getElementById(decId).innerText = decimalValue;
+    }
+
+    function calculateResult() {
+        const op = document.getElementById('opSelect').value;
+        const resContainer = document.getElementById('bitsRes');
+        
+        for (let i = 0; i < 8; i++) {
+            let a = bitsA[i];
+            let b = bitsB[i];
+            let r = 0;
+
+            if (op === 'AND') r = a & b;
+            else if (op === 'OR') r = a | b;
+            else if (op === 'XOR') r = a ^ b;
+
+            bitsRes[i] = r;
+            
+            // تحديث واجهة النتيجة
+            if(resContainer.children[i]) {
+                resContainer.children[i].className = `bit-box readonly val-${r}`;
+                resContainer.children[i].innerText = r;
+            }
+        }
+
+        // تحديث الرقم العشري للنتيجة
+        let binaryString = bitsRes.join('');
+        let decimalValue = parseInt(binaryString, 2);
+        document.getElementById('decRes').innerText = decimalValue;
+    }
+
+    // التهيئة المبدئية عند تحميل الصفحة
+    window.onload = () => {
+        createBitBoxes('bitsA', bitsA, false, 'A');
+        createBitBoxes('bitsB', bitsB, false, 'B');
+        createBitBoxes('bitsRes', bitsRes, true, 'Res');
+        
+        updateDecimal('A');
+        updateDecimal('B');
+        calculateResult();
+    };
+</script>
+
+</body>
+</html>

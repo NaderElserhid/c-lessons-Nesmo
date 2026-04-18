@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار شامل: العمليات على مستوى البت (Bitwise Operations)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
+
+    <style>
+        :root {
+            --bg-main: #f0fdfa; 
+            --bg-card: #ffffff; 
+            --accent-main: #0d9488; /* Teal */
+            --accent-secondary: #f59e0b; 
+            --text-primary: #0f172a; 
+            --text-secondary: #475569; 
+            --code-bg: #f8fafc; 
+            --border-light: #cbd5e1; 
+            --success: #10b981; 
+            --danger: #ef4444; 
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            background-image: radial-gradient(circle at top right, #ccfbf1 0%, transparent 40%);
+        }
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-card);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(13, 148, 136, 0.08);
+            border: 2px solid var(--border-light);
+        }
+        h2 {
+            text-align: center;
+            color: var(--accent-main);
+            border-bottom: 3px dashed var(--border-light);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 800;
+            font-size: 2.2em;
+        }
+        .question-card {
+            background-color: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            position: relative;
+            transition: transform 0.2s;
+        }
+        .question-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(13, 148, 136, 0.4);
+        }
+        .difficulty-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+        }
+        .badge-easy { background-color: var(--success); } 
+        .badge-medium { background-color: var(--accent-secondary); } 
+        .badge-hard { background-color: var(--danger); }
+        
+        .question-text {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            padding-left: 80px; 
+            line-height: 1.6;
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option-btn {
+            background-color: var(--code-bg);
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            padding: 14px 18px;
+            text-align: right;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: var(--text-primary);
+            direction: ltr; /* لجعل الأكواد واضحة إذا وُجدت */
+        }
+        .option-btn > span {
+            display: block;
+            text-align: right;
+            direction: rtl;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #e0f2fe;
+            border-color: var(--accent-main);
+        }
+        .option-btn:disabled { cursor: not-allowed; }
+        
+        .option-btn.correct {
+            background-color: #d1fae5;
+            border-color: var(--success);
+            color: #065f46;
+        }
+        .option-btn.wrong {
+            background-color: #fee2e2;
+            border-color: var(--danger);
+            color: #991b1b;
+        }
+        
+        .explanation-box {
+            display: none;
+            margin-top: 20px;
+            padding: 18px;
+            background-color: #f0fdfa;
+            border-right: 5px solid var(--accent-main);
+            border-radius: 8px;
+            font-size: 16px;
+            color: #0f766e;
+            animation: fadeIn 0.5s ease-in-out;
+            line-height: 1.7;
+            font-weight: 600;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        code {
+            background-color: #e2e8f0;
+            padding: 3px 7px;
+            border-radius: 4px;
+            font-family: monospace;
+            direction: ltr;
+            display: inline-block;
+            color: #b45309;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h2>💻 اختبار شامل: العمليات على مستوى البت</h2>
+    <div id="quiz-area"></div>
+</div>
+
+<script>
+    const questions = [
+        // ================= الأسئلة السهلة =================
+        {
+            q: "كيف يقوم الكمبيوتر بتخزين الأرقام الصحيحة في الذاكرة؟",
+            options: [
+                "في صورة أرقام عشرية (0 إلى 9).", 
+                "في صورة نصوص (Strings).", 
+                "في صورة ثنائية (Binary) باستخدام الأصفار والآحاد فقط.", 
+                "في صورة نظام سداسي عشر (Hexadecimal)."
+            ],
+            answer: 2,
+            difficulty: "سهل",
+            explanation: "الكمبيوتر لا يفهم سوى النبضات الكهربائية (تشغيل/إيقاف)، والتي تُمثل برمجياً بالرقمين 0 و 1 (النظام الثنائي)."
+        },
+        {
+            q: "ما هي البوابة المنطقية (Bitwise Operator) التي تُعطي النتيجة <code>1</code> فقط إذا كان كلا البتين <code>1</code>؟",
+            options: [
+                "OR (|)", 
+                "XOR (^)", 
+                "AND (&)", 
+                "NOT (~)"
+            ],
+            answer: 2,
+            difficulty: "سهل",
+            explanation: "بوابة AND (و) صارمة جداً؛ تشترط أن يكون البت الأول (1) 'و' البت الثاني (1) لتكون النتيجة (1)."
+        },
+        {
+            q: "إذا قمنا بتنفيذ العملية <code>00000101 | 00001010</code> (استخدام معامل OR)، ما هي النتيجة الثنائية؟",
+            options: [
+                "00000000", 
+                "00001111", 
+                "00000110", 
+                "11111111"
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "بوابة OR تُعطي <code>1</code> إذا كان أي من البتين <code>1</code>. بدمج (0101) مع (1010) نحصل على (1111)."
+        },
+        {
+            q: "ما هو التأثير الرياضي لعملية (الإزاحة لليسار) <code>x &lt;&lt; 1</code> على عدد صحيح موجب؟",
+            options: [
+                "قسمة العدد على 2.", 
+                "طرح 1 من العدد.", 
+                "ضرب العدد في 2.", 
+                "تحويل العدد إلى قيمة سالبة."
+            ],
+            answer: 2,
+            difficulty: "سهل",
+            explanation: "إزاحة جميع البتات لليسار بمقدار خانة واحدة تضاعف قيمة كل بت، مما يُكافئ ضرب الرقم الكلي في 2."
+        },
+        {
+            q: "في تمثيل (المتمم الثنائي - Two's Complement)، ما هي دلالة البت الموجود في أقصى اليسار (Most Significant Bit)؟",
+            options: [
+                "يُستخدم لتحديد ما إذا كان الرقم زوجياً أم فردياً.", 
+                "يُستخدم كـ 'بت إشارة' (Sign Bit) لتحديد ما إذا كان الرقم موجباً أم سالباً.", 
+                "يُمثل دائماً القيمة 256.", 
+                "ليس له أي فائدة ويُمكن تجاهله."
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "إذا كان البت الأخير <code>0</code> فالرقم موجب، وإذا كان <code>1</code> فالرقم سالب."
+        },
+
+        // ================= الأسئلة المتوسطة =================
+        {
+            q: "ما هي البوابة التي تستخدم بكثرة لمعرفة ما إذا كان الرقمان (مختلفين)، حيث تُعطي <code>1</code> عند الاختلاف و <code>0</code> عند التشابه؟",
+            options: [
+                "AND (&)", 
+                "OR (|)", 
+                "XOR (^)", 
+                "NOT (~)"
+            ],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "بوابة XOR (الاستبعاد الحصري) هي كاشف الاختلافات. <code>1^0=1</code>، <code>0^1=1</code>، بينما المتشابهات <code>1^1=0</code> و <code>0^0=0</code>."
+        },
+        {
+            q: "إذا كان لديك الرقم الموجب <code>5</code> بالثنائي (00000101). ما هي الخطوات الصحيحة للحصول على <code>-5</code> باستخدام (المتمم الثنائي)؟",
+            options: [
+                "قلب جميع البتات فقط.", 
+                "طرح 1 ثم قلب البتات.", 
+                "إضافة 1 في أقصى اليسار فقط.", 
+                "قلب جميع البتات، ثم إضافة 1 للنتيجة."
+            ],
+            answer: 3,
+            difficulty: "متوسط",
+            explanation: "قاعدة المتمم الثنائي الصارمة: اقلب الأصفار لآحاد والآحاد لأصفار (Flip)، ثم اجمع 1."
+        },
+        {
+            q: "لماذا يُنصح باستخدام الأنواع غير الموقّعة <code>unsigned int</code> عند الرغبة في إجراء عمليات إزاحة لليمين <code>&gt;&gt;</code> على البتات 'الخام'؟",
+            options: [
+                "لأن الأنواع unsigned أسرع في المعالجة.", 
+                "لتجنب 'الإزاحة الحسابية' التي تنسخ بت الإشارة السالب (1) من اليسار، مما يغير شكل البتات المتوقع.", 
+                "لأن C++ لا تدعم الإزاحة لليمين للأرقام السالبة.", 
+                "لأن الأنواع unsigned تستهلك ذاكرة أقل."
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "في الأرقام الموقعة (Signed)، إذا كان الرقم سالباً (يبدأ بـ 1)، فالإزاحة لليمين ستستمر في إدخال '1' من اليسار للحفاظ على الإشارة السالبة، وهذا قد يُفسد عمليات التلاعب بالبتات الخام."
+        },
+        {
+            q: "لدينا التعبير البرمجي: <code>if (x & 1)</code>. ماذا يختبر هذا الشرط؟",
+            options: [
+                "يختبر ما إذا كان x يساوي 1.", 
+                "يختبر ما إذا كان x رقماً فردياً (Odd).", 
+                "يختبر ما إذا كان x رقماً موجباً.", 
+                "يختبر ما إذا كان x رقماً زوجياً (Even)."
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "البت الأخير من اليمين (الذي قيمته 1) هو المسؤول الوحيد عن جعل الرقم فردياً. بعمل <code>x & 1</code> نحن نعزل هذا البت؛ إذا كان 1 فالرقم فردي، وإذا 0 فهو زوجي."
+        },
+        {
+            q: "ما هي نتيجة العملية <code>x ^ x</code> لأي عدد صحيح <code>x</code>؟",
+            options: [
+                "x (نفس الرقم).", 
+                "1", 
+                "0 (صفر).", 
+                "خطأ برمجي (Syntax Error)."
+            ],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "بما أن بوابة XOR تُعطي <code>0</code> إذا كان البتان متشابهين، ومقارنة الرقم بنفسه تعني أن كل البتات متطابقة 100%، فالنتيجة ستكون أصفاراً بالكامل (0)."
+        },
+
+        // ================= الأسئلة الصعبة =================
+        {
+            q: "تُستخدم العملية <code>x &lt;&lt; k</code> لضرب الرقم $x$ في قوى العدد 2. ما هي المعادلة الرياضية المكافئة لها؟",
+            options: [
+                "$x \\times k^2$", 
+                "$x \\times 2^k$", 
+                "$x^2 \\times k$", 
+                "$x + 2^k$"
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "إزاحة الرقم لليسار بمقدار $k$ خانات، يُعادل ضرب الرقم في $2^k$. مثلاً <code>x &lt;&lt; 3</code> تعني $x \\times 2^3$ أي $x \\times 8$."
+        },
+        {
+            q: "كيف يمكنك (إطفاء / مسح) البت رقم <code>i</code> (تحويله إلى 0) في العدد <code>x</code> دون التأثير على باقي البتات؟",
+            options: [
+                "<code>x = x | (1 &lt;&lt; i)</code>", 
+                "<code>x = x ^ (1 &lt;&lt; i)</code>", 
+                "<code>x = x & ~(1 &lt;&lt; i)</code>", 
+                "<code>x = x &gt;&gt; i</code>"
+            ],
+            answer: 2,
+            difficulty: "صعب",
+            explanation: "لإطفاء بت محدد، نصنع 'قناعاً' (Mask) يحتوي على أصفار في الموضع <code>i</code> وآحاد في الباقي باستخدام <code>~(1 &lt;&lt; i)</code>. ثم نستخدم بوابة <code>AND</code> التي ستُصفر البت الهدف وتحافظ على الباقي."
+        },
+        {
+            q: "لدينا الشفرة السحرية لتبديل قيمتين بدون متغير ثالث: <br><code>a ^= b; b ^= a; a ^= b;</code><br>لماذا تنجح هذه الشفرة؟",
+            options: [
+                "لأن XOR هي عملية جمع بدون حمل (Carry-less addition) وخاصيتها الانعكاسية (x^x=0) تلغي القيم المتكررة لتعيد القيم الأصلية معكوسة.", 
+                "لأن المترجم (Compiler) يتدخل ويقوم بعملية Swap تلقائياً.", 
+                "هذه الشفرة خاطئة ولا تقوم بتبديل المتغيرات أصلاً.", 
+                "لأن XOR تقوم بعملية إزاحة (Shift) دائرية بين الذاكرتين."
+            ],
+            answer: 0,
+            difficulty: "صعب",
+            explanation: "XOR تمتلك خاصية رائعة: <code>(A ^ B) ^ B = A</code>. بتطبيق العمليات الثلاث، نقوم بتخزين الدمج في الأول، ثم استخراج الأول في الثاني، ثم استخراج الثاني في الأول!"
+        },
+        {
+            q: "ما هو الناتج الرياضي السريع للعملية <code>x & (x - 1)</code> على أي عدد صحيح موجب؟",
+            options: [
+                "تُضاعف الرقم.", 
+                "تُطفئ (تُزيل) البت رقم 1 (أول 1 من جهة اليمين) في العدد x.", 
+                "تحسب المتمم الثنائي للعدد.", 
+                "تُعطي دائماً 0."
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "هذه حيلة شهيرة! طرح 1 من العدد يؤدي إلى قلب كل الأصفار الموجودة في اليمين إلى 1، وقلب أول بت 1 يصادفه إلى 0. عند عمل AND بين الرقمين، يختفي هذا البت (1) تماماً. تُستخدم هذه الحيلة لعدّ الآحاد في الرقم."
+        },
+        {
+            q: "إذا أردت معرفة ما إذا كان الرقم <code>x</code> يمثل قوة للعدد 2 (مثال: 2, 4, 8, 16...)، أي من الشروط التالية هو الأسرع والأكثر دقة باستخدام البتات؟ (بافتراض أن x &gt; 0)",
+            options: [
+                "<code>(x ^ (x - 1)) == 0</code>", 
+                "<code>(x & (x - 1)) == 0</code>", 
+                "<code>(x | (x - 1)) == 0</code>", 
+                "<code>(x &lt;&lt; 1) == x</code>"
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "أي قوة للعدد 2 (مثل 8 أي 1000) تحتوي على بت <code>1</code> واحد فقط! وحسب الحيلة السابقة، <code>x & (x-1)</code> تُطفئ هذا البت الوحيد. فإذا كانت النتيجة 0، فهذا يعني أنه لم يكن هناك سوى بت واحد، إذن الرقم هو قوة للعدد 2."
+        }
+    ];
+
+    const quizArea = document.getElementById('quiz-area');
+
+    questions.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        
+        let diffClass = item.difficulty === 'سهل' ? 'badge-easy' : (item.difficulty === 'متوسط' ? 'badge-medium' : 'badge-hard');
+        
+        const badge = document.createElement('span');
+        badge.className = `difficulty-badge ${diffClass}`;
+        badge.innerText = item.difficulty;
+        card.appendChild(badge);
+
+        const qTitle = document.createElement('div');
+        qTitle.className = 'question-text';
+        qTitle.innerHTML = `س ${index + 1}: <span dir="rtl">${item.q}</span>`;
+        card.appendChild(qTitle);
+
+        const optionsGrid = document.createElement('div');
+        optionsGrid.className = 'options-grid';
+
+        const explanationBox = document.createElement('div');
+        explanationBox.className = 'explanation-box';
+        explanationBox.innerHTML = `<strong>💡 الشرح:</strong> <span dir="rtl">${item.explanation}</span>`;
+
+        item.options.forEach((opt, optIndex) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<span>${opt}</span>`;
+            
+            if(optIndex === item.answer) {
+                btn.dataset.correct = "true";
+            }
+
+            btn.onclick = function() {
+                const allBtns = optionsGrid.querySelectorAll('.option-btn');
+                allBtns.forEach(b => b.disabled = true);
+
+                if (optIndex === item.answer) {
+                    this.classList.add('correct');
+                } else {
+                    this.classList.add('wrong');
+                    optionsGrid.querySelector('[data-correct="true"]').classList.add('correct');
+                }
+                
+                // تحديث MathJax بعد إظهار الشرح
+                explanationBox.style.display = 'block';
+                MathJax.typesetPromise([explanationBox]);
+            };
+            optionsGrid.appendChild(btn);
+        });
+
+        card.appendChild(optionsGrid);
+        card.appendChild(explanationBox);
+        quizArea.appendChild(card);
+    });
+    
+    // عملية معالجة مبدئية لجميع الرموز الرياضية في الصفحة
+    MathJax.typesetPromise();
+</script>
+
+</body>
+</html>

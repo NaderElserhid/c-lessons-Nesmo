@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خوارزميات البحث في C++</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f4f7f6;
+            color: #2c3e50;
+            line-height: 1.8;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+        }
+        h1 {
+            color: #2980b9;
+            text-align: center;
+            border-bottom: 4px solid #3498db;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #c0392b;
+            margin-top: 50px;
+            border-right: 5px solid #e74c3c;
+            padding-right: 15px;
+            background-color: #fdf2f1;
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+        h3 { color: #16a085; margin-top: 25px; }
+        p { font-size: 17px; }
+        
+        pre {
+            background-color: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 8px;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 15px;
+            border-left: 5px solid #3498db;
+        }
+        
+        .explanation {
+            background-color: #ebf5fb;
+            padding: 15px 20px;
+            border-right: 4px solid #2980b9;
+            border-radius: 5px;
+            margin-top: -10px;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        .highlight {
+            background-color: #fef9e7;
+            padding: 15px;
+            border-radius: 5px;
+            border-right: 4px solid #f1c40f;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+        .warning-box {
+            background-color: #fadbd8;
+            padding: 15px;
+            border-radius: 5px;
+            border-right: 4px solid #e74c3c;
+            margin: 20px 0;
+            font-weight: 600;
+            color: #c0392b;
+        }
+        code {
+            background-color: #f1f2f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #e74c3c;
+            direction: ltr;
+            font-family: monospace;
+            display: inline-block;
+        }
+        .step-list li { margin-bottom: 10px; }
+
+        /* ==================================================
+           تنسيقات المحاكي التفاعلي (Visualizer)
+           ================================================== */
+        .visualizer-box {
+            background-color: #2c3e50;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 40px 0;
+            color: white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        .visualizer-box h3 {
+            color: #f1c40f;
+            text-align: center;
+            margin-top: 0;
+            border-bottom: 1px dashed #7f8c8d;
+            padding-bottom: 15px;
+        }
+        .vis-msg {
+            min-height: 60px;
+            background-color: #34495e;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 40px;
+            border: 2px solid #3498db;
+            font-weight: bold;
+        }
+        .array-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 50px;
+            position: relative;
+        }
+        .array-cell {
+            width: 55px;
+            height: 55px;
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 8px;
+            position: relative;
+            transition: all 0.4s ease;
+            border: 3px solid transparent;
+        }
+        .cell-eliminated {
+            background-color: #7f8c8d;
+            color: #bdc3c7;
+            opacity: 0.3;
+            transform: scale(0.9);
+        }
+        .cell-mid {
+            background-color: #f1c40f;
+            border-color: #e67e22;
+            transform: translateY(-10px);
+            box-shadow: 0 5px 15px rgba(241, 196, 15, 0.4);
+        }
+        .cell-found {
+            background-color: #2ecc71;
+            color: white;
+            border-color: #27ae60;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.6);
+        }
+        .pointer {
+            position: absolute;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.4s ease;
+            opacity: 0;
+        }
+        .pointer-show { opacity: 1; }
+        .pointer-L { bottom: -45px; color: #e74c3c; } 
+        .pointer-R { bottom: -45px; color: #3498db; } 
+        .pointer-M { top: -45px; color: #f1c40f; }   
+        
+        .pointer-arrow-up::before { content: '▲'; font-size: 20px; display: block; margin-bottom: -5px;}
+        .pointer-arrow-down::after { content: '▼'; font-size: 20px; display: block; margin-top: -5px;}
+
+        .vis-controls {
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .btn-vis {
+            padding: 12px 30px;
+            font-size: 18px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            transition: 0.3s;
+        }
+        .btn-next { background-color: #3498db; color: white; }
+        .btn-next:hover { background-color: #2980b9; transform: scale(1.05); }
+        .btn-reset { background-color: #e74c3c; color: white; display: none; }
+        .btn-reset:hover { background-color: #c0392b; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>دليل خوارزميات البحث (Searching) في C++</h1>
+
+    <h2>مقدمة: ما هو البحث البرمجي؟</h2>
+    <p>
+        البحث هو عملية العثور على عنصر معين (Target) داخل مجموعة من البيانات (مثل مصفوفة أو قائمة). تختلف كفاءة البحث بناءً على الخوارزمية المستخدمة وحالة البيانات (هل هي مرتبة أم عشوائية؟). سنتعرف هنا على أشهر طريقتين للبحث.
+    </p>
+
+    <h2>1. البحث الخطي (Linear Search)</h2>
+    
+    <div class="highlight">
+        👕 <strong>تشبيه من الواقع:</strong><br>
+        تخيل أنك تبحث عن قميص معين في خزانة ملابس غير مرتبة تماماً. الطريقة الوحيدة للعثور عليه هي إخراج القمصان واحداً تلو الآخر وفحصها حتى تجد القميص المطلوب، أو تنهي الخزانة بأكملها وتتأكد أنه غير موجود.
+    </div>
+
+    <h3>الكود البرمجي (C++)</h3>
+<pre>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    vector&lt;int&gt; arr = {4, 8, 15, 16, 23, 42};
+    int target = 15; // الرقم الذي نبحث عنه
+
+    // حلقة للمرور على جميع العناصر من البداية للنهاية
+    for (int i = 0; i &lt; arr.size(); i++) {
+        if (arr[i] == target) {
+            cout &lt;&lt; "Found at index " &lt;&lt; i;
+            return 0; // إنهاء البرنامج فور العثور على الرقم
+        }
+    }
+    
+    // إذا انتهت الحلقة ولم يجد الرقم
+    cout &lt;&lt; "Not found";
+    return 0;
+}
+</pre>
+    <div class="explanation">
+        <strong>شرح تفصيلي للكود:</strong>
+        <ul class="step-list">
+            <li><strong>تهيئة البيانات:</strong> أنشأنا قائمة <code>arr</code> تحتوي على الأرقام، وحددنا الهدف <code>target</code> وهو 15.</li>
+            <li><strong>حلقة البحث (Loop):</strong> استخدمنا <code>for</code> لتبدأ من أول عنصر (المؤشر 0) وتستمر حتى نهاية القائمة.</li>
+            <li><strong>المقارنة:</strong> في كل خطوة نسأل: هل العنصر الحالي <code>arr[i]</code> يساوي الهدف؟</li>
+            <li><strong>النجاح:</strong> إذا كان متساوياً، نطبع مكانه <code>i</code> ونستخدم <code>return 0</code> لإيقاف البرنامج وتوفير الوقت (فلا داعي لإكمال البحث).</li>
+            <li><strong>الفشل:</strong> إذا انتهت حلقة <code>for</code> بالكامل ولم يتوقف البرنامج، فهذا يعني أن الرقم غير موجود، لذلك نطبع "Not found".</li>
+        </ul>
+        <hr>
+        <strong>⏱️ التعقيد الزمني (Time Complexity):</strong><br>
+        في أسوأ الحالات (الرقم غير موجود أو موجود في آخر خانة)، سنضطر للتحقق من كل عنصر. لذا التعقيد هو <strong>$O(n)$</strong>. يعمل دائماً، ولكنه بطيء جداً مع البيانات الضخمة (مليون عنصر = مليون خطوة).
+    </div>
+
+    <h2>2. البحث الثنائي (Binary Search)</h2>
+
+    <div class="warning-box">
+        ⚠️ <strong>شرط ذهبي:</strong> خوارزمية البحث الثنائي <strong>لا تعمل أبداً</strong> إلا إذا كانت البيانات مرتبة مسبقاً (Sorted)!
+    </div>
+
+    <div class="highlight">
+        📖 <strong>تشبيه من الواقع:</strong><br>
+        تخيل أنك تبحث عن كلمة "كمبيوتر" في قاموس ورقي ضخم (مرتب أبجدياً). أنت لن تقرأ القاموس صفحة بصفحة! بل ستفتحه من المنتصف تقريباً. إذا وجدت نفسك في حرف "م"، ستعرف فوراً أن حرف "ك" يقع في النصف الأول. ستقوم بتجاهل النصف الثاني بالكامل، ثم تفتح منتصف النصف الأول، وتستمر في استبعاد نصف الخيارات في كل خطوة حتى تجد الكلمة.
+    </div>
+
+    <div class="visualizer-box">
+        <h3>🎮 محاكي البحث الثنائي التفاعلي</h3>
+        <div class="vis-msg" id="vis-msg">اضغط على الزر بالأسفل لبدء البحث عن الرقم <strong>( 7 )</strong> في المصفوفة المرتبة.</div>
+        
+        <div class="array-container" id="array-container">
+            </div>
+
+        <div class="vis-controls">
+            <button class="btn-vis btn-next" id="btn-next" onclick="nextStep()">ابدأ المحاكاة</button>
+            <button class="btn-vis btn-reset" id="btn-reset" onclick="initVisualizer()">إعادة التجربة</button>
+        </div>
+    </div>
+    <h3>الكود البرمجي (C++)</h3>
+<pre>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    // يجب أن تكون المصفوفة مرتبة!
+    vector&lt;int&gt; arr = {1, 3, 5, 6, 7, 9, 11};
+    int target = 7;
+    
+    int left = 0;                  // بداية النطاق
+    int right = arr.size() - 1;    // نهاية النطاق
+
+    // طالما أن نطاق البحث لا يزال منطقياً
+    while (left &lt;= right) {
+        // حساب المنتصف بطريقة آمنة
+        int mid = left + (right - left) / 2; 
+
+        if (arr[mid] == target) {
+            cout &lt;&lt; "Found at index " &lt;&lt; mid;
+            return 0; // وجدناه، ننهي البرنامج
+        } 
+        else if (arr[mid] &lt; target) {
+            // الرقم في المنتصف أصغر من الهدف، إذن الهدف في النصف الأيمن
+            left = mid + 1;
+        } 
+        else {
+            // الرقم في المنتصف أكبر من الهدف، إذن الهدف في النصف الأيسر
+            right = mid - 1;
+        }
+    }
+    
+    cout &lt;&lt; "Not found";
+    return 0;
+}
+</pre>
+    <div class="explanation">
+        <strong>شرح تفصيلي للكود:</strong>
+        <ul class="step-list">
+            <li><strong>تحديد النطاق (Pointers):</strong> استخدمنا <code>left</code> ليؤشر على بداية المصفوفة، و <code>right</code> ليؤشر على نهايتها.</li>
+            <li><strong>حلقة البحث:</strong> <code>while (left &lt;= right)</code> تعني استمر في القطع للنصف طالما أن المؤشرين لم يتقاطعا (أي لا يزال هناك عناصر للبحث فيها).</li>
+            <li><strong>المنتصف:</strong> <code>mid</code> هو المؤشر الذي يقع في منتصف النطاق الحالي.</li>
+            <li><strong>المقارنات الثلاث الذكية:</strong>
+                <ul>
+                    <li>إذا كان الرقم في المنتصف هو الهدف: رائع، اطبع مكانه وأنهِ البرنامج.</li>
+                    <li>إذا كان الرقم في المنتصف <strong>أصغر</strong> من الهدف: نتجاهل النصف الأيسر بالكامل، وننقل نقطة البداية <code>left</code> إلى ما بعد المنتصف <code>mid + 1</code>.</li>
+                    <li>إذا كان الرقم في المنتصف <strong>أكبر</strong> من الهدف: نتجاهل النصف الأيمن بالكامل، وننقل نقطة النهاية <code>right</code> إلى ما قبل المنتصف <code>mid - 1</code>.</li>
+                </ul>
+            </li>
+        </ul>
+        <hr>
+        <strong>⏱️ التعقيد الزمني (Time Complexity):</strong><br>
+        بما أننا نحذف نصف البيانات المتبقية في كل خطوة، فالتعقيد هو <strong>$O(\log n)$</strong>. هذا سريع بشكل لا يصدق! لو كان لديك مليون عنصر، ستحتاج إلى 20 محاولة كحد أقصى لإيجاد الرقم.
+    </div>
+
+    <h2>3. نصائح ومعلومات احترافية (Pro Tips) 🔥</h2>
+    
+    <h3>أ) تجنب مشكلة تجاوز السعة (Integer Overflow)</h3>
+    <p>
+        في العديد من الشروحات القديمة، ستجد حساب المنتصف يُكتب هكذا: <code>mid = (left + right) / 2;</code>. هذا يعمل جيداً للمصفوفات الصغيرة. لكن في المسابقات البرمجية، إذا كانت المصفوفة ضخمة جداً، فإن جمع <code>left + right</code> قد يتجاوز الحد الأقصى المسموح به للمتغير <code>int</code>، مما يسبب خطأ رياضياً وانهياراً للبرنامج!
+    </p>
+    <div class="highlight">
+        ✅ <strong>الحل الاحترافي:</strong> احسب المنتصف دائماً باستخدام هذه المعادلة الآمنة: <br>
+        <code>int mid = left + (right - left) / 2;</code>
+    </div>
+
+    <h3>ب) استخدام الدالة الجاهزة المدمجة</h3>
+    <p>في لغة C++، لست مضطراً دائماً لكتابة خوارزمية البحث الثنائي من الصفر. توفر مكتبة <code>&lt;algorithm&gt;</code> دالة سريعة جداً:</p>
+<pre>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
+using namespace std;
+
+int main() {
+    vector&lt;int&gt; arr = {1, 3, 5, 7, 9};
+    
+    // ترجع true إذا كان الرقم موجوداً، و false إذا لم يكن
+    bool isFound = binary_search(arr.begin(), arr.end(), 7);
+    
+    if(isFound) cout &lt;&lt; "موجود!";
+    else cout &lt;&lt; "غير موجود!";
+    
+    return 0;
+}
+</pre>
+
+    <h2>4. البحث الثنائي المتقدم: إيجاد أول عنصر $\ge X$ (Lower Bound)</h2>
+    <p>
+        البحث الثنائي يمكنه فعل أكثر من مجرد إيجاد رقم متطابق! يمكن استخدامه لإيجاد <strong>مواضع أو حدود (Bounds)</strong>.
+    </p>
+    <div class="highlight">
+        👟 <strong>تشبيه من الواقع:</strong><br>
+        تخيل أنك ذهبت لشراء حذاء رياضي ومقاسك هو 7. إذا أخبرك البائع أن مقاس 7 غير متوفر، فإنك ستبحث عن <strong>أول مقاس أكبر من أو يساوي 7</strong> (مثلاً 8) لكي يناسبك، ولن تشتري مقاس 10 لأنه سيكون كبيراً جداً! هذا بالضبط ما تفعله هذه الخوارزمية.
+    </div>
+
+    <h3>تحدي المواقع (Position Hunt)</h3>
+    <p>لديك مصفوفة مرتبة <code>[2, 4, 6, 8, 10]</code>. اعثر على أول عنصر <strong>أكبر من أو يساوي 7</strong> باستخدام البحث الثنائي.</p>
+
+    <h3>الكود البرمجي (C++)</h3>
+<pre>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    vector&lt;int&gt; arr = {2, 4, 6, 8, 10};
+    int x = 7;
+    
+    int left = 0, right = arr.size() - 1;
+    int ans = -1; // متغير لحفظ الإجابة المؤقتة
+
+    while (left &lt;= right) {
+        // حساب آمن للمنتصف
+        int mid = left + (right - left) / 2; 
+
+        if (arr[mid] &gt;= x) {
+            ans = mid;         // ربما تكون هذه هي الإجابة، نحفظها
+            right = mid - 1;   // لكن نستمر بالبحث في اليسار لعلنا نجد رقماً أصغر يحقق الشرط
+        } else {
+            left = mid + 1;    // الرقم أصغر من المطلوب، نبحث في اليمين
+        }
+    }
+
+    if (ans == -1) 
+        cout &lt;&lt; "No element found";
+    else 
+        cout &lt;&lt; "First element &gt;= " &lt;&lt; x &lt;&lt; " is at index " &lt;&lt; ans;
+        
+    return 0;
+}
+</pre>
+    <div class="explanation">
+        <strong>كيف تعمل الخوارزمية (الخطوات):</strong>
+        <ul class="step-list">
+            <li>نبدأ بمؤشرين <code>left</code> و <code>right</code> كالمعتاد، ونستخدم متغيراً إضافياً <code>ans</code> لحفظ أفضل إجابة نجدها (نبدأه بـ -1 كدلالة على عدم وجود إجابة بعد).</li>
+            <li>نحسب منتصف النطاق <code>mid</code>.</li>
+            <li><strong>السر هنا:</strong> إذا كانت القيمة <code>arr[mid] &gt;= x</code> (مثلاً وجدنا 8 وهي أكبر من 7)، نقوم بحفظ موقعها <code>ans = mid</code>. ولكننا <strong>لا نتوقف!</strong> بل ننقل <code>right = mid - 1</code> لنبحث في النصف الأيسر لعلنا نجد رقماً أقرب للـ 7 (مثل 7 نفسها إن وُجدت).</li>
+            <li>إذا كانت القيمة صغيرة جداً <code>arr[mid] &lt; x</code>، نحرك <code>left = mid + 1</code>.</li>
+            <li>نكرر العملية حتى يتقاطع المؤشران ويصبح <code>left &gt; right</code>. النتيجة النهائية ستكون محفوظة في <code>ans</code> (وهي الخانة 3، التي تحتوي على الرقم 8).</li>
+        </ul>
+        <hr>
+        <strong>💡 ملاحظة احترافية:</strong> هذه الخوارزمية مشهورة جداً في لغة C++ ولها دالة مدمجة جاهزة وقوية جداً تسمى <code>lower_bound</code> تؤدي نفس الغرض تماماً.
+    </div>
+
+</div>
+
+<script>
+    const arrayData = [1, 3, 5, 6, 7, 9, 11];
+    const targetValue = 7;
+    let currentStep = 0;
+    
+    // خطوات المحاكي (آلة الحالة)
+    const steps = [
+        {
+            msg: `نبدأ بوضع المؤشر <strong>Left</strong> عند البداية والمؤشر <strong>Right</strong> عند النهاية.`,
+            left: 0, right: 6, mid: null, eliminate: []
+        },
+        {
+            msg: `نحسب نقطة المنتصف <strong>Mid</strong> = (0 + 6) / 2 = <strong>المؤشر 3</strong>.<br>القيمة في المنتصف هي <strong>6</strong>.`,
+            left: 0, right: 6, mid: 3, eliminate: []
+        },
+        {
+            msg: `نقارن: هل 6 تساوي الهدف 7؟ <strong>لا</strong>.<br>الرقم 6 أصغر من 7، إذن الهدف موجود في <strong>النصف الأيمن</strong> بالتأكيد!`,
+            left: 0, right: 6, mid: 3, eliminate: []
+        },
+        {
+            msg: `نتجاهل النصف الأيسر بأكمله، وننقل مؤشر <strong>Left</strong> إلى ما بعد المنتصف (Mid + 1).`,
+            left: 4, right: 6, mid: null, eliminate: [0, 1, 2, 3]
+        },
+        {
+            msg: `نحسب المنتصف الجديد: <strong>Mid</strong> = (4 + 6) / 2 = <strong>المؤشر 5</strong>.<br>القيمة في المنتصف هي <strong>9</strong>.`,
+            left: 4, right: 6, mid: 5, eliminate: [0, 1, 2, 3]
+        },
+        {
+            msg: `نقارن: هل 9 تساوي الهدف 7؟ <strong>لا</strong>.<br>الرقم 9 أكبر من 7، إذن الهدف موجود في <strong>النصف الأيسر</strong>.`,
+            left: 4, right: 6, mid: 5, eliminate: [0, 1, 2, 3]
+        },
+        {
+            msg: `نتجاهل النصف الأيمن، وننقل مؤشر <strong>Right</strong> إلى ما قبل المنتصف (Mid - 1).`,
+            left: 4, right: 4, mid: null, eliminate: [0, 1, 2, 3, 5, 6]
+        },
+        {
+            msg: `نحسب المنتصف الأخير: <strong>Mid</strong> = (4 + 4) / 2 = <strong>المؤشر 4</strong>.<br>القيمة في المنتصف هي <strong>7</strong>.`,
+            left: 4, right: 4, mid: 4, eliminate: [0, 1, 2, 3, 5, 6]
+        },
+        {
+            msg: `🎉 <strong>وجدناه!</strong> الرقم 7 يساوي الهدف. انتهى البحث بنجاح في 3 مقارنات فقط بدلاً من 7.`,
+            left: 4, right: 4, mid: 4, eliminate: [0, 1, 2, 3, 5, 6], found: true
+        }
+    ];
+
+    function initVisualizer() {
+        currentStep = 0;
+        document.getElementById('vis-msg').innerHTML = `اضغط على الزر بالأسفل لبدء البحث عن الرقم <strong>( 7 )</strong> في المصفوفة المرتبة.`;
+        document.getElementById('btn-next').innerText = "ابدأ المحاكاة";
+        document.getElementById('btn-next').style.display = "inline-block";
+        document.getElementById('btn-reset').style.display = "none";
+        renderArray(-1, -1, null, []); 
+    }
+
+    function renderArray(leftIdx, rightIdx, midIdx, eliminatedArr, found = false) {
+        const container = document.getElementById('array-container');
+        container.innerHTML = ''; 
+
+        arrayData.forEach((val, index) => {
+            const cell = document.createElement('div');
+            cell.className = 'array-cell';
+            cell.innerText = val;
+
+            if (eliminatedArr.includes(index)) {
+                cell.classList.add('cell-eliminated');
+            }
+
+            if (index === midIdx) {
+                if(found) cell.classList.add('cell-found');
+                else cell.classList.add('cell-mid');
+                
+                const midPointer = document.createElement('div');
+                midPointer.className = 'pointer pointer-show pointer-M pointer-arrow-down';
+                midPointer.innerText = 'Mid';
+                cell.appendChild(midPointer);
+            }
+
+            if (index === leftIdx) {
+                const lPointer = document.createElement('div');
+                lPointer.className = 'pointer pointer-show pointer-L pointer-arrow-up';
+                lPointer.innerText = 'Left';
+                if(leftIdx === rightIdx) lPointer.style.transform = "translateX(25px)";
+                cell.appendChild(lPointer);
+            }
+
+            if (index === rightIdx) {
+                const rPointer = document.createElement('div');
+                rPointer.className = 'pointer pointer-show pointer-R pointer-arrow-up';
+                rPointer.innerText = 'Right';
+                if(leftIdx === rightIdx) rPointer.style.transform = "translateX(-25px)";
+                cell.appendChild(rPointer);
+            }
+
+            container.appendChild(cell);
+        });
+    }
+
+    function nextStep() {
+        if (currentStep < steps.length) {
+            const step = steps[currentStep];
+            document.getElementById('vis-msg').innerHTML = step.msg;
+            renderArray(step.left, step.right, step.mid, step.eliminate, step.found);
+            
+            document.getElementById('btn-next').innerText = "الخطوة التالية ⏭️";
+            currentStep++;
+            
+            if (currentStep === steps.length) {
+                document.getElementById('btn-next').style.display = "none";
+                document.getElementById('btn-reset').style.display = "inline-block";
+            }
+        }
+    }
+
+    window.onload = initVisualizer;
+</script>
+
+</body>
+</html>

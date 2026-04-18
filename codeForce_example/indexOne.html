@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شرح الرفع السريع للأس - تفاعلي</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .explanation {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-right: 5px solid #3498db;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .simulator {
+            background-color: #fff;
+            border: 2px solid #ddd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        input[type="number"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 100px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        .status-board {
+            display: flex;
+            justify-content: space-between;
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            text-align: center;
+        }
+        .status-box {
+            flex: 1;
+        }
+        .status-box span {
+            display: block;
+            font-size: 0.8em;
+            color: #bdc3c7;
+        }
+        .log-box {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            height: 250px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+        pre {
+            background-color: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+            font-size: 1.1em;
+        }
+        code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>مسألة A. Exponents (الرفع السريع للأس)</h1>
+    
+    <div class="explanation">
+        <strong>شرح المسألة:</strong><br>
+        المطلوب هو حساب النتيجة لـ <code>A<sup>B</sup> % M</code>. 
+        بما أن الأس <code>B</code> يمكن أن يصل إلى مليون (10<sup>6</sup>)، فإن ضرب الرقم في نفسه مليون مره باستخدام حلقة تكرار عادية يعتبر حلاً جيداً وسريعاً بما يكفي لهذه المسألة المحددة.<br>
+        ولكن، الطريقة الاحترافية والتي تعمل حتى لو كان الأس بمليارات (10<sup>18</sup>) هي خوارزمية <strong>الرفع السريع للأس (Binary Exponentiation)</strong>. تعتمد الفكرة على أنه بدلاً من ضرب الأساس في نفسه B مرة، نقوم بتقسيم الأس على 2 وتربيع الأساس في كل خطوة.
+    </div>
+
+    <h2>1. الرسوم التفاعلية (المحاكي)</h2>
+    <p>أدخل قيم A و B و M واضغط على "ابدأ المحاكاة"، ثم استخدم زر "الخطوة التالية" لترى كيف تتغير المتغيرات برمجياً:</p>
+    
+    <div class="simulator">
+        <div class="input-group">
+            <label>A (الأساس): <input type="number" id="in-a" value="3"></label>
+            <label>B (الأس): <input type="number" id="in-b" value="13"></label>
+            <label>M (باقي القسمة): <input type="number" id="in-m" value="1000000007"></label>
+            <button onclick="startSimulation()">ابدأ المحاكاة</button>
+            <button id="btn-next" onclick="nextStep()" disabled>الخطوة التالية</button>
+        </div>
+
+        <div class="status-board">
+            <div class="status-box"><span>الأساس (A) الحالي</span><strong id="disp-a">-</strong></div>
+            <div class="status-box"><span>الأس (B) الحالي</span><strong id="disp-b">-</strong></div>
+            <div class="status-box"><span>النتيجة (Res)</span><strong id="disp-res">-</strong></div>
+        </div>
+
+        <div class="log-box" id="log">
+            <em>اضغط على "ابدأ المحاكاة" لتهيئة المتغيرات...</em>
+        </div>
+    </div>
+
+    <h2>2. الكود البرمجي (C++) بأبسط صيغة</h2>
+    <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    long long A, B, M;
+    cin &gt;&gt; A &gt;&gt; B &gt;&gt; M;
+    
+    // تهيئة النتيجة
+    long long res = 1 % M;
+    A %= M;
+    
+    // خوارزمية الرفع السريع
+    while (B &gt; 0) {
+        // إذا كان الأس فردياً، اضرب النتيجة في الأساس
+        if (B % 2 != 0) res = (res * A) % M;
+        
+        // ربع الأساس للمرحلة القادمة
+        A = (A * A) % M;
+        
+        // اقسم الأس على 2
+        B /= 2;
+    }
+    
+    cout &lt;&lt; res &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+</div>
+
+<script>
+    // استخدمنا BigInt في جافاسكريبت لتجنب مشكلة الأرقام الكبيرة (Overflow) أثناء تربيع الأساس
+    let A, B, M, res, step;
+    let logDiv = document.getElementById('log');
+    let btnNext = document.getElementById('btn-next');
+
+    function startSimulation() {
+        // قراءة القيم وتحويلها إلى BigInt
+        A = BigInt(document.getElementById('in-a').value);
+        B = BigInt(document.getElementById('in-b').value);
+        M = BigInt(document.getElementById('in-m').value);
+        
+        // التهيئة الأولية كما في الكود
+        res = 1n % M;
+        A = A % M;
+        step = 1;
+        
+        logDiv.innerHTML = "<span style='color:#3498db'><b>--- بدء التهيئة ---</b></span><br>";
+        logDiv.innerHTML += "النتيجة = 1 % " + M + " = <b>" + res + "</b><br>";
+        logDiv.innerHTML += "الأساس = A % M = <b>" + A + "</b><br>";
+        logDiv.innerHTML += "الأس = <b>" + B + "</b><br><hr>";
+        
+        updateDisplay();
+        btnNext.disabled = false;
+    }
+
+    function nextStep() {
+        if (B <= 0n) {
+            logDiv.innerHTML += "<br><span style='color:#27ae60; font-size:1.2em;'><b>✅ انتهت الحلقة التكرارية! النتيجة النهائية هي: " + res + "</b></span><br>";
+            btnNext.disabled = true;
+            scrollToBottom();
+            return;
+        }
+
+        let msg = "<strong style='color:#e67e22'>--- الخطوة " + step + " ---</strong><br>";
+        msg += "هل الأس B (" + B + ") أكبر من 0؟ نعم.<br>";
+        
+        // فحص الأس هل هو فردي أم زوجي
+        if (B % 2n !== 0n) {
+            msg += "⚠️ الأس الحالي <b>فردي</b>. <br> &nbsp;&nbsp;&nbsp;← النتيجة = (النتيجة × الأساس) % M <br>";
+            msg += " &nbsp;&nbsp;&nbsp;← النتيجة = (" + res + " * " + A + ") % " + M;
+            res = (res * A) % M;
+            msg += " = <b style='color:#c0392b'>" + res + "</b><br>";
+        } else {
+            msg += "ℹ️ الأس الحالي <b>زوجي</b>. النتيجة لا تتغير.<br>";
+        }
+        
+        // تربيع الأساس
+        msg += "🔄 نربع الأساس: <br> &nbsp;&nbsp;&nbsp;← الأساس = (الأساس × الأساس) % M <br>";
+        msg += " &nbsp;&nbsp;&nbsp;← الأساس = (" + A + " * " + A + ") % " + M;
+        A = (A * A) % M;
+        msg += " = <b>" + A + "</b><br>";
+        
+        // قسمة الأس على 2
+        msg += "⬇️ نقسم الأس على 2: <br> &nbsp;&nbsp;&nbsp;← الأس = " + B + " / 2";
+        B = B / 2n;
+        msg += " = <b>" + B + "</b><br><hr>";
+        
+        logDiv.innerHTML += msg;
+        step++;
+        updateDisplay();
+        scrollToBottom();
+
+        // إذا أصبح B صفر بعد هذه الخطوة، نظهر رسالة النهاية فوراً
+        if (B <= 0n) {
+            logDiv.innerHTML += "<br><span style='color:#27ae60; font-size:1.2em;'><b>✅ انتهت الحلقة التكرارية! النتيجة النهائية هي: " + res + "</b></span><br>";
+            btnNext.disabled = true;
+            scrollToBottom();
+        }
+    }
+
+    function updateDisplay() {
+        document.getElementById('disp-a').innerText = A.toString();
+        document.getElementById('disp-b').innerText = B.toString();
+        document.getElementById('disp-res').innerText = res.toString();
+    }
+
+    function scrollToBottom() {
+        logDiv.scrollTop = logDiv.scrollHeight;
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دليل الحسابيات المعيارية (Modular Arithmetic)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            /* الألوان الفاتحة الجديدة */
+            --bg-color: #f4f7f6; /* رمادي فاتح جداً مريح للعين */
+            --container-bg: #ffffff; /* أبيض نقي للمحتوى */
+            --text-primary: #2c3e50; /* أزرق داكن/رمادي للنصوص الأساسية */
+            --text-secondary: #596275; /* رمادي متوسط للشروحات */
+            --accent-main: #2980b9; /* أزرق ملكي جذاب (بديل الذهبي) */
+            --accent-main-hover: #1f6391;
+            --accent-red: #c0392b; /* أحمر داكن للتنبيهات */
+            --accent-green: #27ae60; /* أخضر مريح */
+            --code-bg: #f8f9fa; /* خلفية فاتحة جداً للأكواد */
+            --code-text: #e83e8c; /* لون مميز للأكواد المضمنة */
+            --border-color: #e1e8ed; /* حدود فاتحة وناعمة */
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: var(--container-bg);
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06); /* ظل خفيف وناعم */
+            border: 1px solid var(--border-color);
+        }
+
+        h1 {
+            color: var(--accent-main);
+            text-align: center;
+            border-bottom: 4px solid var(--accent-main);
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+        }
+
+        h2 {
+            color: #d35400; /* برتقالي داكن لتمييز العناوين الفرعية */
+            margin-top: 50px;
+            border-right: 6px solid #e67e22;
+            padding-right: 20px;
+            background-color: #fdf4ec; /* خلفية برتقالية فاتحة جداً */
+            padding-top: 10px;
+            padding-bottom: 10px;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        h3 { 
+            color: var(--accent-green); 
+            margin-top: 30px; 
+            font-weight: 600;
+        }
+
+        p { 
+            font-size: 18px; 
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+        
+        strong {
+            color: var(--text-primary);
+        }
+
+        /* تنسيق الأكواد الكبيرة لتبدو مثل محررات الأكواد الفاتحة */
+        pre {
+            background-color: #282c34; /* احتفظت بخلفية داكنة للكود الكبير لأنه الأفضل لبرمجة C++ */
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 10px;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            border-left: 5px solid var(--accent-main);
+            margin: 25px 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .explanation {
+            background-color: #ebf5fb; /* أزرق فاتح جداً */
+            padding: 20px 25px;
+            border-right: 5px solid var(--accent-main);
+            border-radius: 8px;
+            margin-top: -15px;
+            margin-bottom: 35px;
+            font-size: 17px;
+            color: var(--text-primary);
+        }
+
+        .highlight-card {
+            background-color: #fef9e7; /* أصفر فاتح جداً */
+            padding: 20px;
+            border-radius: 8px;
+            border-right: 5px solid #f1c40f;
+            margin: 25px 0;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .warning-card {
+            background-color: #fadbd8; /* أحمر فاتح جداً */
+            padding: 20px;
+            border-radius: 8px;
+            border-right: 5px solid var(--accent-red);
+            margin: 25px 0;
+            font-weight: 600;
+            color: var(--accent-red);
+        }
+
+        code {
+            background-color: var(--code-bg);
+            padding: 3px 8px;
+            border-radius: 5px;
+            color: var(--code-text);
+            direction: ltr;
+            font-family: monospace;
+            display: inline-block;
+            border: 1px solid var(--border-color);
+        }
+
+        .step-list li { margin-bottom: 15px; font-size: 17px; color: var(--text-secondary); }
+
+        /* تحسينات للشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .container { padding: 30px; }
+            h1 { font-size: 28px; }
+            h2 { font-size: 22px; }
+            p { font-size: 16px; }
+            pre { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>دليل الحسابيات المعيارية (Modular Arithmetic)</h1>
+
+    <h2>مقدمة: ما هي الحسابيات المعيارية؟</h2>
+    <p>
+        <strong>الحسابيات المعيارية (Modular Arithmetic)</strong> هي نظام حسابي للأعداد الصحيحة، حيث "تدور" الأعداد عند الوصول إلى قيمة معينة تسمى <strong>المعامل (Modulus)</strong>. يُشار إلى هذه العملية غالباً باسم "حساب الساعات".
+    </p>
+    
+    <div class="highlight-card">
+        🕰️ <strong>تشبيه من الواقع:</strong><br>
+        فكر في ساعة الحائط. إذا كانت الساعة الآن 8 مساءً، وأضفنا 6 ساعات، فلن تكون الساعة 14، بل ستكون 2 صباحاً. هذا لأن الساعة "تدور" كل 12 ساعة. في لغة الرياضيات، نقول إن $8 + 6 \equiv 2 \pmod{12}$.
+    </div>
+
+    <h2>1. معنى "mod"</h2>
+    <p>
+        عندما نقول $a \mod m$، فإننا نعني <strong>باقي قسمة</strong> العدد $a$ على العدد $m$. النتيجة دائماً تكون عدداً صحيحاً في النطاق $[0, m-1]$.
+    </p>
+    <h3>أمثلة نظرية:</h3>
+    <p>
+        - $7 \pmod 3$: $7$ تقسيم $3$ يساوي $2$ والباقي $1$. النتيجة هي <strong>1</strong>.<br>
+        - $10 \pmod 4$: $10$ تقسيم $4$ يساوي $2$ والباقي $2$. النتيجة هي <strong>2</strong>.<br>
+        - $15 \pmod 6$: $15$ تقسيم $6$ يساوي $2$ والباقي $3$. النتيجة هي <strong>3</strong>.<br>
+        - $12 \pmod{12}$: $12$ تقسيم $12$ يساوي $1$ والباقي $0$. النتيجة هي <strong>0</strong>.
+    </p>
+    
+    <h3>في لغة C++:</h3>
+    <p>نستخدم العامل <code>%</code> للحصول على باقي القسمة للأعداد الموجبة.</p>
+<pre>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; 7 % 3 &lt;&lt; endl;   // سيطبع: 1
+    cout &lt;&lt; 10 % 4 &lt;&lt; endl;  // سيطبع: 2
+    cout &lt;&lt; 10 % 5 &lt;&lt; endl;  // سيطبع: 0
+    return 0;
+}
+</pre>
+    <div class="explanation">
+        <strong>شرح الكود:</strong><br>
+        يقوم هذا الكود البسيط بطباعة باقي قسمة أعداد مختلفة. عامل <code>%</code> في C++ يعمل كعامل "mod" للأعداد الموجبة، معطياً القيمة المتبقية بعد عملية القسمة الصحيحة.
+    </div>
+
+    <h2>2. استخدام الحسابيات المعيارية في البرمجة التنافسية</h2>
+    <p>
+        عند التعامل مع مسائل تتطلب حساب التوافيق، التباديل، أو الأسس الكبيرة، غالباً ما تكون النتائج ضخمة جداً وتتجاوز سعة تخزين أنواع البيانات القياسية مثل <code>long long</code>، مما يؤدي إلى مشكلة <strong>تجاوز السعة (Overflow)</strong>.
+    </p>
+    
+    <div class="highlight-card">
+        ✅ <strong>الحل:</strong><br>
+        نقوم بإجراء جميع العمليات الحسابية تحت "مودولو" معين لإبقاء النتائج ضمن نطاق آمن وقابل للتخزين.
+    </div>
+
+    <h3>المعامل الشائع في البرمجة:</h3>
+<pre>
+const int MOD = 1'000'000'007; // 10^9 + 7
+</pre>
+    <div class="explanation">
+        <strong>لماذا هذا العدد بالذات؟</strong>
+        <ul class="step-list">
+            <li>إنه عدد أولي كبير، مما يمنحه خصائص رياضية مفيدة جداً (خاصة عند حساب المعكوس المعياري).</li>
+            <li>إنه صغير بما يكفي ليسمح بضرب عددين تحت المودولو دون أن تتجاوز النتيجة سعة <code>long long</code> (التي تتحمل حتى $\approx 9 \times 10^{18}$).</li>
+        </ul>
+    </div>
+
+    <h2>3. القواعد الأساسية للحسابيات المعيارية</h2>
+    <p>هذه القواعد هي حجر الزاوية في حل المسائل الحسابية الكبيرة:</p>
+    
+    <h3>أ) الجمع</h3>
+    <div class="highlight-card">
+        $(a + b) \pmod m = ((a \pmod m) + (b \pmod m)) \pmod m$
+    </div>
+
+    <h3>ب) الطرح</h3>
+    <div class="warning-card">
+        $(a - b) \pmod m = ((a \pmod m - b \pmod m) + m) \pmod m$
+    </div>
+    <p>نضيف $m$ قبل المودولو الأخير لضمان أن النتيجة لن تكون سالبة، لأن عامل <code>%</code> في C++ قد يعطي نتيجة سالبة إذا كان القاسم سالباً.</p>
+
+    <h3>ج) الضرب</h3>
+    <div class="highlight-card">
+        $(a \times b) \pmod m = ((a \pmod m) \times (b \pmod m)) \pmod m$
+    </div>
+
+    <h3>مثال برمجي شامل:</h3>
+<pre>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    long long a = 1e12; // عدد كبير
+    long long b = 1e12; // عدد كبير آخر
+    const int MOD = 1'000'000'007;
+
+    long long sum_mod = (a % MOD + b % MOD) % MOD;
+    long long prod_mod = ((a % MOD) * (b % MOD)) % MOD;
+
+    cout &lt;&lt; "الجمع تحت المودولو: " &lt;&lt; sum_mod &lt;&lt; endl;
+    cout &lt;&lt; "الضرب تحت المودولو: " &lt;&lt; prod_mod &lt;&lt; endl;
+
+    return 0;
+}
+</pre>
+    <div class="explanation">
+        <strong>شرح الكود:</strong><br>
+        لدينا عددان كبيران جداً <code>a</code> و <code>b</code>. بدلاً من جمعهما مباشرة (الأمر الذي قد يسبب Overflow)، نقوم بأخذ مودولو لكل منهما أولاً، ثم جمعهما، ثم أخذ المودولو للناتج النهائي لضمان بقائه ضمن النطاق المطلوب. نفس الفكرة تُطبق على عملية الضرب.
+    </div>
+
+    <h2>4. التعامل مع الأعداد السالبة في C++</h2>
+    <p>
+        هذه مشكلة شائعة جداً! في C++، نتيجة <code>(-5) % 3</code> هي <code>-2</code>، بينما في الرياضيات يجب أن تكون <code>1</code> (لأن $-5 = 3 \times (-2) + 1$).
+    </p>
+    
+    <div class="highlight-card">
+        ✅ <strong>الحل البرمجي الصحيح:</strong><br>
+        للحصول على باقي قسمة موجب دائماً، نستخدم المعادلة التالية:<br>
+        <code>((a % m) + m) % m</code>
+    </div>
+
+    <h3>مثال برمجي:</h3>
+<pre>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int a = -5, m = 3;
+    
+    int wrong_mod = a % m; // سيطبع -2
+    int correct_mod = ((a % m) + m) % m; // سيطبع 1
+    
+    cout &lt;&lt; "النتيجة الخاطئة: " &lt;&lt; wrong_mod &lt;&lt; endl;
+    cout &lt;&lt; "النتيجة الصحيحة رياضياً: " &lt;&lt; correct_mod &lt;&lt; endl;
+
+    return 0;
+}
+</pre>
+    <div class="explanation">
+        <strong>شرح الكود:</strong><br>
+        نقوم بحساب باقي القسمة بالطريقتين. المعادلة الصحيحة تضمن أنه حتى لو كان <code>a % m</code> سالباً، فإن إضافة <code>m</code> ستجعله موجباً، ثم المودولو الأخير يضمن بقاء النتيجة ضمن النطاق $[0, m-1]$.
+    </div>
+
+    <h2>5. الأسس المعيارية السريعة (Modular Exponentiation)</h2>
+    <p>
+        لحساب $(a^b) \pmod m$ حيث $b$ عدد ضخم جداً، لا يمكننا استخدام الضرب المتكرر البسيط لأنه سيكون بطيئاً جداً. نستخدم خوارزمية <strong>الأس السريع (Binary Exponentiation)</strong>.
+    </p>
+    
+    <h3>الفكرة الرياضية (T = $O(\log b)$):</h3>
+    <p>
+        نعتمد على التقسيم التكراري للأس $b$:
+        <ul class="step-list">
+            <li>إذا كان $b$ زوجياً: $a^b = (a^{b/2})^2$</li>
+            <li>إذا كان $b$ فردياً: $a^b = (a^{b/2})^2 \times a$</li>
+            <li>حالة التوقف: إذا كان $b = 0$، فإن $a^0 = 1$.</li>
+        </ul>
+    </p>
+
+    <h3>الكود البرمجي (Recursive):</h3>
+<pre>
+#include &lt;iostream&gt;
+using namespace std;
+
+long long modpow(long long a, long long b, long long m) {
+    if (b == 0) return 1;
+    
+    long long half = modpow(a, b / 2, m); // احسب نصف الأس مرة واحدة فقط
+    long long res = (half * half) % m;   // ضاعف النتيجة وخذ المودولو
+    
+    if (b % 2 == 1) // إذا كان الأس فردياً، اضرب في الأساس
+        res = (res * (a % m)) % m;
+        
+    return res;
+}
+
+int main() {
+    cout &lt;&lt; modpow(2, 10, 1000); // سيطبع 24، لأن 1024 mod 1000 = 24
+    return 0;
+}
+</pre>
+    <div class="explanation">
+        <strong>شرح الكود:</strong><br>
+        دالة <code>modpow</code> هي دالة تكرارية (Recursive). في كل خطوة، يتم تقسيم الأس <code>b</code> إلى النصف، مما يجعل عدد الاستدعاءات التكرارية هو $\log b$. هذا يضمن سرعة فائقة جداً. التعقيد الزمني لهذه الدالة هو <strong>$O(\log b)$</strong>.
+    </div>
+
+    <h2>6. المعكوس المعياري (Modular Inverse) والتحكم في القسمة</h2>
+    <p>
+        <strong>القسمة ليست مباشرة في الحسابيات المعيارية!</strong> لا يمكننا القول إن $(a/b) \pmod m = (a \pmod m / b \pmod m) \pmod m$.
+        بدلاً من ذلك، نضرب في <strong>المعكوس المعياري</strong> للعدد $b$.
+    </p>
+    
+    <div class="highlight-card">
+        $(a / b) \pmod m = (a \times b^{-1}) \pmod m$
+    </div>
+    
+    <p>حيث $b^{-1}$ هو المعكوس المعياري للعدد $b$ تحت المودولو $m$.</p>
+
+    <h3>كيف نحسب المعكوس المعياري؟</h3>
+    <p>
+        إذا كان $m$ عدداً أولياً (مثل $10^9+7$)، فإن نظرية فيرما الصغرى تنص على أن المعكوس المعياري لـ $b$ هو ببساطة $modpow(b, m-2, m)$.
+    </p>
+
+    <h3>مثال برمجي للقسمة:</h3>
+<pre>
+#include &lt;iostream&gt;
+using namespace std;
+
+// دالة modpow السابقة يجب أن تكون موجودة هنا
+long long modpow(long long a, long long b, long long m) {
+    if (b == 0) return 1;
+    long long half = modpow(a, b / 2, m);
+    long long res = (half * half) % m;
+    if (b % 2 == 1) res = (res * (a % m)) % m;
+    return res;
+}
+
+int main() {
+    const int MOD = 1'000'000'007;
+    long long a = 100, b = 10;
+    
+    // نريد حساب (a / b) mod MOD
+    long long b_inverse = modpow(b, MOD - 2, MOD);
+    long long result = (a * b_inverse) % MOD;
+    
+    cout &lt;&lt; "(100 / 10) mod MOD = " &lt;&lt; result &lt;&lt; endl; // سيطبع 10
+    
+    return 0;
+}
+</pre>
+    <div class="explanation">
+        <strong>شرح الكود:</strong><br>
+        لحساب $100/10$ تحت المودولو، لا نقسم مباشرة. بل نحسب أولاً المعكوس المعياري للـ 10 عن طريق رفعه للأس $MOD-2$ باستخدام دالة <code>modpow</code> السريعة. ثم نضرب الأساس 100 في هذا المعكوس ونأخذ المودولو للناتج النهائي.
+    </div>
+
+</div>
+
+</body>
+</html>

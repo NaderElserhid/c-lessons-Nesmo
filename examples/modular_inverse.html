@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شرح المعكوس المعياري (Modular Inverse)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --primary: #4f46e5;
+            --primary-light: #e0e7ff;
+            --secondary: #0ea5e9;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --danger: #ef4444;
+            --danger-bg: #fef2f2;
+            --success: #10b981;
+            --success-bg: #ecfdf5;
+            --code-bg: #1e1e1e;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem 1rem;
+            line-height: 1.7;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-top: 4px solid var(--primary);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-box {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .alert-danger { background-color: var(--danger-bg); color: var(--danger); border-right: 4px solid var(--danger); }
+        .alert-success { background-color: var(--success-bg); color: var(--success); border-right: 4px solid var(--success); }
+
+        .math-equation {
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            direction: ltr;
+            margin: 1.5rem 0;
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+            line-height: 1.5;
+        }
+
+        .code-block .keyword { color: #569cd6; }
+        .code-block .func { color: #dcdcaa; }
+        .code-block .number { color: #b5cea8; }
+        .code-block .comment { color: #6a9955; }
+
+        .calculator {
+            background: #f1f5f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .input-box {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .input-box label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .input-box input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: monospace;
+        }
+
+        button.btn-calc {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            width: 100%;
+        }
+
+        button.btn-calc:hover { background: #4338ca; }
+
+        .result-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px dashed var(--primary);
+            display: none;
+        }
+
+        .step {
+            margin-bottom: 0.5rem;
+            font-family: monospace;
+            direction: ltr;
+            text-align: right;
+            font-size: 1.1rem;
+        }
+
+        ul.summary-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        ul.summary-list li {
+            position: relative;
+            padding-right: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        ul.summary-list li::before {
+            content: "✨";
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>المعكوس المعياري (Modular Inverse)</h1>
+            <p>دليلك الشامل لقسمة الأرقام الضخمة تحت المودولو برمجياً ورياضياً</p>
+        </div>
+
+        <div class="card" style="border-top-color: var(--danger);">
+            <div class="card-title">1. المشكلة: القسمة تكسر القواعد!</div>
+            <p>عند التعامل مع الأرقام الضخمة جداً، نستخدم معامل باقي القسمة (<code>% MOD</code>) لمنع تجاوز سعة الذاكرة. عمليات الجمع والطرح والضرب تعمل بشكل مباشر، ولكن <strong>القسمة لا تعمل</strong>.</p>
+            
+            <div class="alert-box alert-danger">
+                القاعدة التالية خاطئة تماماً برمجياً ورياضياً:
+                <br>
+                <span style="font-family: monospace; direction: ltr; display: inline-block; margin-top: 0.5rem;">
+                    (A / B) % MOD ≠ ((A % MOD) / (B % MOD)) % MOD
+                </span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">2. الحل: نظرية فيرما الصغرى</div>
+            <p>بدلاً من القسمة على رقم <code>B</code>، نقوم بالضرب في "معكوسه". المعكوس المعياري هو رقم إذا ضربناه في <code>B</code> يكون الناتج 1 تحت المودولو.</p>
+            <p>تنص نظرية فيرما الصغرى على أنه إذا كان المودولو (MOD) رقماً أولياً، فإن المعكوس يحسب برفع الرقم للأس <code>MOD - 2</code>:</p>
+            
+            <div class="math-equation">
+                B<sup>-1</sup> ≡ B<sup>(MOD - 2)</sup> % MOD
+            </div>
+
+            <div class="alert-box alert-success">
+                لذا، تتحول عملية القسمة <code>(A / B)</code> إلى عملية ضرب آمنة:
+                <br>
+                <span style="font-family: monospace; direction: ltr; display: inline-block; margin-top: 0.5rem;">
+                    Result = (A * (B<sup>MOD-2</sup> % MOD)) % MOD
+                </span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">3. التطبيق البرمجي (++C)</div>
+            <p>نحتاج أولاً إلى دالة "الأس السريع" (Modular Exponentiation) لحساب الأس بكفاءة <code>O(log N)</code>، ثم نستخدمها لحساب المعكوس.</p>
+            
+            <div class="code-block">
+<span class="comment">// 1. دالة الأس السريع</span>
+<span class="keyword">long long</span> <span class="func">modpow</span>(<span class="keyword">long long</span> base, <span class="keyword">long long</span> exp, <span class="keyword">long long</span> mod) {
+    <span class="keyword">long long</span> res = <span class="number">1</span>;
+    base = base % mod;
+    <span class="keyword">while</span> (exp > <span class="number">0</span>) {
+        <span class="keyword">if</span> (exp % <span class="number">2</span> == <span class="number">1</span>) res = (res * base) % mod;
+        base = (base * base) % mod;
+        exp /= <span class="number">2</span>;
+    }
+    <span class="keyword">return</span> res;
+}
+
+<span class="comment">// 2. عملية القسمة تحت المودولو (A / B) % MOD</span>
+<span class="keyword">long long</span> <span class="func">modDivide</span>(<span class="keyword">long long</span> a, <span class="keyword">long long</span> b, <span class="keyword">long long</span> mod) {
+    <span class="keyword">long long</span> inverse = <span class="func">modpow</span>(b, mod - <span class="number">2</span>, mod);
+    <span class="keyword">return</span> (a % mod * inverse) % mod;
+}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">4. جربها بنفسك (حاسبة تفاعلية)</div>
+            <p>أدخل القيم لحساب <code>(A / B) % MOD</code> برمجياً خطوة بخطوة:</p>
+            
+            <div class="calculator">
+                <div class="input-group">
+                    <div class="input-box">
+                        <label>القيمة (A)</label>
+                        <input type="number" id="valA" value="100">
+                    </div>
+                    <div class="input-box">
+                        <label>المقسوم عليه (B)</label>
+                        <input type="number" id="valB" value="5">
+                    </div>
+                    <div class="input-box">
+                        <label>المودولو (MOD) - يجب أن يكون أولياً</label>
+                        <input type="number" id="valMod" value="1000000007">
+                    </div>
+                </div>
+                <button class="btn-calc" onclick="calculate()">احسب النتيجة</button>
+
+                <div class="result-box" id="resultBox">
+                    <div style="font-weight: bold; margin-bottom: 1rem; color: var(--primary);">خطوات التنفيذ (JavaScript BigInt):</div>
+                    <div class="step" id="step1"></div>
+                    <div class="step" id="step2"></div>
+                    <div class="step" id="step3" style="color: var(--success); font-weight: bold; font-size: 1.3rem; margin-top: 1rem;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">الملخص السريع للعمليات المعيارية</div>
+            <ul class="summary-list">
+                <li><strong>الجمع:</strong> <code>(a + b) % MOD</code></li>
+                <li><strong>الضرب:</strong> <code>(a * b) % MOD</code></li>
+                <li><strong>الطرح:</strong> <code>((a - b) % MOD + MOD) % MOD</code> (نضيف المودولو لتجنب النتائج السالبة)</li>
+                <li><strong>القسمة:</strong> نضرب المقسوم في المعكوس المعياري للمقسوم عليه <code>a * modpow(b, MOD - 2, MOD) % MOD</code></li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // استخدام BigInt لضمان الدقة مع الأرقام الكبيرة جداً في JavaScript
+        function modPowFast(base, exp, mod) {
+            let res = 1n;
+            base = base % mod;
+            while (exp > 0n) {
+                if (exp % 2n === 1n) res = (res * base) % mod;
+                base = (base * base) % mod;
+                exp /= 2n;
+            }
+            return res;
+        }
+
+        function calculate() {
+            try {
+                const a = BigInt(document.getElementById('valA').value);
+                const b = BigInt(document.getElementById('valB').value);
+                const mod = BigInt(document.getElementById('valMod').value);
+
+                if (b === 0n) {
+                    alert("لا يمكن القسمة على صفر!");
+                    return;
+                }
+
+                const resultBox = document.getElementById('resultBox');
+                resultBox.style.display = 'block';
+
+                // الخطوة 1: حساب المعكوس
+                const exp = mod - 2n;
+                const inverse = modPowFast(b, exp, mod);
+                document.getElementById('step1').innerHTML = `1. Inverse of B = ${b}^(${mod}-2) % ${mod} = <strong>${inverse}</strong>`;
+
+                // الخطوة 2: عملية الضرب
+                const aMod = a % mod;
+                const finalResult = (aMod * inverse) % mod;
+                document.getElementById('step2').innerHTML = `2. Result = (${aMod} * ${inverse}) % ${mod}`;
+                
+                // النتيجة النهائية
+                document.getElementById('step3').innerHTML = `Final Answer = ${finalResult}`;
+
+            } catch (e) {
+                alert("الرجاء إدخال أرقام صحيحة.");
+            }
+        }
+    </script>
+</body>
+</html>

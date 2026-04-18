@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار شامل: الهياكل (Structs) في C++</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
+
+    <style>
+        :root {
+            --bg-main: #f8fafc; 
+            --bg-card: #ffffff; 
+            --accent-main: #2563eb; /* أزرق */
+            --accent-secondary: #f59e0b; 
+            --text-primary: #1e293b; 
+            --text-secondary: #475569; 
+            --code-bg: #f1f5f9; 
+            --border-light: #cbd5e1; 
+            --success: #10b981; 
+            --danger: #ef4444; 
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            background-image: radial-gradient(circle at top right, #eff6ff 0%, transparent 40%);
+        }
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-card);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.08);
+            border: 2px solid var(--border-light);
+        }
+        h2 {
+            text-align: center;
+            color: var(--accent-main);
+            border-bottom: 3px dashed var(--border-light);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 800;
+            font-size: 2.2em;
+        }
+        .question-card {
+            background-color: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            position: relative;
+            transition: transform 0.2s;
+        }
+        .question-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(37, 99, 235, 0.4);
+        }
+        .difficulty-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+        }
+        .badge-easy { background-color: var(--success); } 
+        .badge-medium { background-color: var(--accent-secondary); } 
+        .badge-hard { background-color: var(--danger); }
+        
+        .question-text {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            padding-left: 80px; 
+            line-height: 1.6;
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option-btn {
+            background-color: var(--code-bg);
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            padding: 14px 18px;
+            text-align: right;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: var(--text-primary);
+            direction: ltr; 
+        }
+        .option-btn > span {
+            display: block;
+            text-align: right;
+            direction: rtl;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #eff6ff;
+            border-color: var(--accent-main);
+        }
+        .option-btn:disabled { cursor: not-allowed; }
+        
+        .option-btn.correct {
+            background-color: #d1fae5;
+            border-color: var(--success);
+            color: #065f46;
+        }
+        .option-btn.wrong {
+            background-color: #fee2e2;
+            border-color: var(--danger);
+            color: #991b1b;
+        }
+        
+        .explanation-box {
+            display: none;
+            margin-top: 20px;
+            padding: 18px;
+            background-color: #eff6ff;
+            border-right: 5px solid var(--accent-main);
+            border-radius: 8px;
+            font-size: 16px;
+            color: #1e3a8a;
+            animation: fadeIn 0.5s ease-in-out;
+            line-height: 1.7;
+            font-weight: 600;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        code {
+            background-color: #e2e8f0;
+            padding: 3px 7px;
+            border-radius: 4px;
+            font-family: monospace;
+            direction: ltr;
+            display: inline-block;
+            color: #b45309;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h2>📦 اختبار شامل: الهياكل (struct) في C++</h2>
+    <div id="quiz-area"></div>
+</div>
+
+<script>
+    const questions = [
+        // ================= الأسئلة السهلة =================
+        {
+            q: "ما هو الهدف الرئيسي من استخدام <code>struct</code> في C++؟",
+            options: [
+                "إنشاء دوال (Functions) سريعة التنفيذ.", 
+                "تجميع عدة متغيرات مترابطة (قد تكون من أنواع مختلفة) تحت اسم واحد.", 
+                "تشفير البيانات وحمايتها من الوصول العشوائي.", 
+                "زيادة سرعة تنفيذ العمليات الحسابية المعقدة."
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "الـ <code>struct</code> يعمل كحاوية أو 'صندوق' يضم داخله متغيرات مترابطة تعبر عن كيان واحد (مثل طالب: اسم، عمر، علامة)."
+        },
+        {
+            q: "ما هو الرمز الذي <strong>يجب</strong> كتابته دائماً في نهاية تعريف الـ <code>struct</code> (بعد القوس المعقوف للإغلاق <code>}</code>)؟",
+            options: [
+                "نقطتين رأسيتين (<code>:</code>)", 
+                "لا شيء، نتركها فارغة.", 
+                "فاصلة منقوطة (<code>;</code>)", 
+                "نقطة (<code>.</code>)"
+            ],
+            answer: 2,
+            difficulty: "سهل",
+            explanation: "نسيان الفاصلة المنقوطة <code>;</code> في نهاية الـ <code>struct</code> هو أحد أشهر الأخطاء (Syntax Errors) التي يقع فيها المبتدئون في C++."
+        },
+        {
+            q: "للوصول إلى عضو (Member) داخل متغير تم إنشاؤه من نوع <code>struct</code>، ماذا نستخدم؟",
+            options: [
+                "عامل النقطة (<code>.</code>)", 
+                "الأقواس المربعة (<code>[]</code>)", 
+                "عامل السهم (<code>-&gt;</code>)", 
+                "عامل الجمع (<code>+</code>)"
+            ],
+            answer: 0,
+            difficulty: "سهل",
+            explanation: "نستخدم عامل النقطة (Dot Operator). مثلاً <code>student.age</code> للوصول إلى عمر الطالب."
+        },
+        {
+            q: "هل يُسمح بوضع أنواع بيانات مختلفة داخل نفس الـ <code>struct</code>؟ (مثل <code>int</code> و <code>string</code> و <code>double</code>)",
+            options: [
+                "لا، يجب أن تكون جميع الأعضاء من نفس نوع البيانات (مثل المصفوفات).", 
+                "نعم، يُسمح بذلك وهو من أهم مميزات الـ struct.", 
+                "يُسمح بدمج نوعين فقط كحد أقصى.", 
+                "يُسمح بذلك فقط إذا كانت أنواعاً رقمية (int و double)."
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "عكس المصفوفات (Arrays) التي تتطلب أن تكون جميع العناصر من نفس النوع، الـ <code>struct</code> صُمم خصيصاً ليجمع أنواعاً مختلفة."
+        },
+        {
+            q: "ماذا نُسمي المتغيرات المُعرفة داخل الـ <code>struct</code>؟",
+            options: [
+                "مؤشرات (Pointers)", 
+                "أعضاء (Members)", 
+                "مصفوفات (Arrays)", 
+                "كائنات (Objects)"
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "المتغيرات داخل الـ <code>struct</code> تُعرف بـ (الأعضاء - Members)، بينما المتغيرات التي ننشئها من هذا الـ <code>struct</code> تُعرف بـ (الكائنات - Objects) أو (المتغيرات الهيكلية)."
+        },
+
+        // ================= الأسئلة المتوسطة =================
+        {
+            q: "إذا قمنا بتعريف الهيكل التالي:<br><code>struct Point { int x; int y; };</code><br>وقمنا بتعريف <code>Point p1 = {10, 20};</code><br>كيف يمكننا نسخ قيم <code>p1</code> إلى نقطة جديدة <code>p2</code>؟",
+            options: [
+                "يجب نسخ كل عضو بشكل منفصل: <code>p2.x = p1.x; p2.y = p1.y;</code>", 
+                "يمكننا استخدام علامة المساواة مباشرة: <code>Point p2 = p1;</code>", 
+                "لا يمكن نسخ الـ structs في C++.", 
+                "باستخدام دالة النسخ: <code>copy(p1, p2);</code>"
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "من مميزات لغة C++ أنها تدعم (نسخ القيم - Value Assignment) المباشر بين متغيرين من نفس نوع الـ <code>struct</code> باستخدام علامة <code>=</code>."
+        },
+        {
+            q: "هل يمكننا إنشاء مصفوفة (Array) يكون نوع عناصرها عبارة عن <code>struct</code> قمنا بتعريفه؟",
+            options: [
+                "نعم، يمكننا إنشاء مصفوفة من الـ structs (مثل: <code>Student arr[10];</code>).", 
+                "لا، المصفوفات تدعم الأنواع الأساسية فقط (int, double, char...).", 
+                "نعم، ولكن بحد أقصى 5 عناصر فقط.", 
+                "لا، الـ structs تُستخدم للمتغيرات الفردية فقط."
+            ],
+            answer: 0,
+            difficulty: "متوسط",
+            explanation: "بمجرد تعريفك لـ <code>struct</code>، يصبح بمثابة 'نوع بيانات جديد'. يمكنك استخدامه لإنشاء مصفوفات، مؤشرات، دوال تعيد هذا النوع، تماماً كأي نوع بيانات عادي."
+        },
+        {
+            q: "انظر إلى التعريف التالي:<br><code>struct Car { string color; int year; } myCar;</code><br>ماذا تمثل <code>myCar</code> في هذا السياق؟",
+            options: [
+                "هي اسم آخر للـ struct (Alias).", 
+                "هي دالة تابعة للـ struct.", 
+                "هي متغير (كائن) من نوع <code>Car</code> تم تعريفه فوراً بعد إغلاق القوس.", 
+                "هي عضو جديد داخل الـ struct."
+            ],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "في C++، يمكنك تعريف متغيرات (كائنات) من النوع الجديد مباشرة بوضع أسمائها بين قوس الإغلاق <code>}</code> والفاصلة المنقوطة <code>;</code>."
+        },
+        {
+            q: "ما هو الحجم (Size in Bytes) الافتراضي للهيكل التالي في الذاكرة؟ (بافتراض أن int يأخذ 4 بايت، و char يأخذ 1 بايت)<br><code>struct Test { int a; char b; };</code>",
+            options: [
+                "5 بايت (4 + 1)", 
+                "أقل من 5 بايت.", 
+                "قد يكون 8 بايت (أو أكثر) بسبب ما يسمى (Memory Padding / Alignment).", 
+                "4 بايت."
+            ],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "لأسباب تتعلق بسرعة المعالج، لا تقوم المترجمات (Compilers) بجمع الأحجام ببساطة (4+1=5). بل تقوم بإضافة بايتات فارغة (Padding) لمحاذاة البيانات في الذاكرة، مما يجعل الحجم غالباً مضاعفات لـ 4 أو 8."
+        },
+        {
+            q: "هل يمكن أن يحتوي الـ <code>struct</code> على <code>struct</code> آخر بداخله كعضو (Nested Struct)؟",
+            options: [
+                "لا، هذا غير مسموح برمجياً.", 
+                "نعم، يُسمح بذلك وتُسمى (الهياكل المتداخلة).", 
+                "يُسمح بذلك فقط إذا كان الـ struct الداخلي لا يحتوي على أكثر من عضوين.", 
+                "يُسمح بذلك ولكن يجب استخدام المؤشرات (Pointers) حصراً."
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "نعم، يمكنك تعريف <code>struct Address</code> واستخدامه كعضو داخل <code>struct Employee</code>. للوصول إليه نستخدم النقطة مرتين: <code>emp.address.city</code>."
+        },
+
+        // ================= الأسئلة الصعبة =================
+        {
+            q: "كيف يمكننا مقارنة كائنين من نفس الـ <code>struct</code> للتأكد من تطابقهما (مثل <code>if (p1 == p2)</code>)؟",
+            options: [
+                "يُسمح باستخدام عامل <code>==</code> مباشرة، وسيقوم المترجم بمقارنة جميع الأعضاء تلقائياً.", 
+                "لا يُسمح باستخدام <code>==</code> مباشرة؛ يجب إما مقارنة الأعضاء فرادى يدوياً، أو عمل (Operator Overloading) لعامل المساواة.", 
+                "يُسمح باستخدام <code>==</code> فقط إذا كانت جميع الأعضاء من نوع <code>int</code>.", 
+                "لا توجد طريقة لمقارنة الـ structs في C++."
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "عكس النسخ (<code>=</code>)، لا تقوم C++ بتوفير مقارنة تلقائية (<code>==</code>) للـ structs. يجب عليك إخبار الكمبيوتر بكيفية المقارنة إما يدوياً (<code>p1.x == p2.x && p1.y == p2.y</code>) أو عبر تحميل العوامل (Overloading)."
+        },
+        {
+            q: "إذا قمنا بتعريف دالة تستقبل <code>struct</code> كمعامل (Parameter) هكذا:<br><code>void printData(Student s)</code><br>كيف يتم تمرير هذا الكائن للدالة؟",
+            options: [
+                "عن طريق المرجع (Pass by Reference) تلقائياً، وأي تعديل داخل الدالة سيؤثر على الكائن الأصلي.", 
+                "عن طريق المؤشر (Pass by Pointer) تلقائياً.", 
+                "عن طريق القيمة (Pass by Value)، أي يتم إنشاء نسخة كاملة جديدة من الكائن، والتعديلات لا تؤثر على الأصل.", 
+                "C++ لا تسمح بتمرير الـ structs للدوال."
+            ],
+            answer: 2,
+            difficulty: "صعب",
+            explanation: "التمرير الافتراضي في C++ هو (بالقيمة). هذا يعني أنه سيتم نسخ الـ <code>struct</code> بالكامل! إذا كان حجمه كبيراً، فهذا يستهلك الذاكرة والوقت. لذلك في الأولمبياد يُفضل دائماً التمرير بالمرجع باستخدام <code>&</code> (مثال: <code>const Student& s</code>)."
+        },
+        {
+            q: "هل يمكن وضع دوال (Functions) داخل الـ <code>struct</code> في C++؟",
+            options: [
+                "لا، الـ structs مخصصة للمتغيرات (البيانات) فقط، والدوال تُوضع في الـ Classes.", 
+                "نعم، في لغة C++ الـ struct يشبه الـ Class تقريباً ويمكن أن يحتوي على دوال (Member Functions / Methods) وبنائيات (Constructors).", 
+                "نعم، ولكن فقط دوال لا تعيد قيمة (<code>void</code>).", 
+                "لا، هذا مسموح فقط في لغة C القديمة."
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "في لغة C++، الـ <code>struct</code> والـ <code>class</code> متطابقان تقريباً! الفرق الوحيد هو أن الأعضاء في الـ <code>struct</code> تكون (عامة - public) افتراضياً، بينما في الـ <code>class</code> تكون (خاصة - private) افتراضياً. لذا نعم، يمكنك إضافة دوال وبنائيات داخل الـ struct بحرية."
+        },
+        {
+            q: "ما هي الفائدة من تعريف (Constructor) داخل الـ <code>struct</code> في البرمجة التنافسية؟",
+            options: [
+                "يمنع المستخدم من تغيير قيم المتغيرات لاحقاً.", 
+                "يسمح بتهيئة (Initialization) المتغيرات بقيم افتراضية بشكل سريع ومختصر عند إنشاء الكائن.", 
+                "يحول الـ struct إلى نوع بيانات أساسي كـ int.", 
+                "لا توجد فائدة، فهو يبطئ من سرعة البرنامج."
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "البنّاء (Constructor) يوفر عليك كتابة أسطر طويلة لتهيئة المتغيرات. يمكنك مثلاً كتابة <code>Point p(10, 20);</code> مباشرة إذا قمت بتعريف Constructor مناسب، وهو أمر يوفر وقت الكتابة في المسابقات (Typing Time)."
+        },
+        {
+            q: "إذا قمت بإنشاء مؤشر (Pointer) يؤشر إلى كائن من نوع <code>struct</code>، كيف تصل إلى أعضاء هذا الكائن؟<br>مثال: <code>Product* ptr = &apple;</code>",
+            options: [
+                "باستخدام عامل النقطة: <code>ptr.price</code>", 
+                "باستخدام الأقواس: <code>ptr(price)</code>", 
+                "باستخدام عامل السهم: <code>ptr-&gt;price</code> أو <code>(*ptr).price</code>", 
+                "باستخدام علامة النجمة فقط: <code>*price</code>"
+            ],
+            answer: 2,
+            difficulty: "صعب",
+            explanation: "عند التعامل مع المؤشرات (Pointers) التي تؤشر على <code>struct</code> أو <code>class</code>، يجب استخدام عامل السهم <code>-&gt;</code> (أو فك التأشير ثم استخدام النقطة <code>(*ptr).price</code>). هذه قاعدة برمجية مهمة جداً في C++."
+        }
+    ];
+
+    const quizArea = document.getElementById('quiz-area');
+
+    questions.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        
+        let diffClass = item.difficulty === 'سهل' ? 'badge-easy' : (item.difficulty === 'متوسط' ? 'badge-medium' : 'badge-hard');
+        
+        const badge = document.createElement('span');
+        badge.className = `difficulty-badge ${diffClass}`;
+        badge.innerText = item.difficulty;
+        card.appendChild(badge);
+
+        const qTitle = document.createElement('div');
+        qTitle.className = 'question-text';
+        qTitle.innerHTML = `س ${index + 1}: <span dir="rtl">${item.q}</span>`;
+        card.appendChild(qTitle);
+
+        const optionsGrid = document.createElement('div');
+        optionsGrid.className = 'options-grid';
+
+        const explanationBox = document.createElement('div');
+        explanationBox.className = 'explanation-box';
+        explanationBox.innerHTML = `<strong>💡 الشرح:</strong> <span dir="rtl">${item.explanation}</span>`;
+
+        item.options.forEach((opt, optIndex) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<span>${opt}</span>`;
+            
+            if(optIndex === item.answer) {
+                btn.dataset.correct = "true";
+            }
+
+            btn.onclick = function() {
+                const allBtns = optionsGrid.querySelectorAll('.option-btn');
+                allBtns.forEach(b => b.disabled = true);
+
+                if (optIndex === item.answer) {
+                    this.classList.add('correct');
+                } else {
+                    this.classList.add('wrong');
+                    optionsGrid.querySelector('[data-correct="true"]').classList.add('correct');
+                }
+                
+                explanationBox.style.display = 'block';
+                MathJax.typesetPromise([explanationBox]);
+            };
+            optionsGrid.appendChild(btn);
+        });
+
+        card.appendChild(optionsGrid);
+        card.appendChild(explanationBox);
+        quizArea.appendChild(card);
+    });
+
+    MathJax.typesetPromise();
+</script>
+
+</body>
+</html>

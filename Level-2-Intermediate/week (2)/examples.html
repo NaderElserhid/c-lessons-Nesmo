@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي الخرائط (Maps) في C++</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.8;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        h1, h2, h3 { color: #2c3e50; }
+        h1 { text-align: center; border-bottom: 3px solid #3498db; padding-bottom: 10px; margin-bottom: 30px; }
+        h2 { border-right: 4px solid #3498db; padding-right: 10px; margin-top: 40px; color: #2980b9;}
+        
+        /* Quiz Styles */
+        .quiz-container { margin-top: 30px; }
+        .question-box {
+            background-color: #fdfdfd;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .question-title { font-weight: 700; font-size: 18px; margin-bottom: 15px; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn {
+            background-color: #f8f9fa;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            padding: 10px 15px;
+            text-align: right;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .option-btn:hover:not(:disabled) { background-color: #ecf0f1; border-color: #3498db; }
+        .option-btn:disabled { cursor: not-allowed; }
+        
+        /* Correct / Wrong Styles */
+        .option-btn.correct { background-color: #d5f5e3; border-color: #2ecc71; color: #27ae60; font-weight: bold; }
+        .option-btn.wrong { background-color: #fadbd8; border-color: #e74c3c; color: #c0392b; }
+
+        /* Code Styles */
+        pre {
+            background-color: #282c34; color: #abb2bf; padding: 15px;
+            border-radius: 8px; direction: ltr; text-align: left;
+            overflow-x: auto; font-family: 'Courier New', Courier, monospace; font-size: 15px;
+        }
+        .explanation {
+            background-color: #e8f6f3; padding: 15px 20px;
+            border-right: 4px solid #1abc9c; border-radius: 5px; margin-bottom: 30px;
+        }
+        code { background-color: #ecf0f1; padding: 2px 6px; border-radius: 4px; color: #c0392b; direction: ltr; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>اختبر معلوماتك: الخرائط (Maps)</h1>
+
+    <div class="quiz-container">
+        <div id="quiz-wrapper"></div>
+    </div>
+
+    <hr style="margin: 50px 0; border: 1px solid #ecf0f1;">
+
+    <h2>المثال التدريبي الشامل (Comprehensive Example)</h2>
+    <p>هذا المثال يحتوي على تطبيق عملي لنظام إدارة درجات الطلاب، يجمع كل المفاهيم: الإضافة، البحث، التكرار، الحذف، والفرق بين <code>map</code> و <code>unordered_map</code>.</p>
+    
+<pre>
+#include &lt;iostream&gt;
+#include &lt;map&gt;
+#include &lt;unordered_map&gt;
+#include &lt;string&gt;
+
+using namespace std;
+
+int main() {
+    // 1. Creating an ordered map (Key: string, Value: int)
+    map&lt;string, int&gt; grades;
+
+    // 2. Inserting elements using the [] operator
+    grades["Alice"] = 95;
+    grades["Bob"] = 82;
+    grades["Charlie"] = 88;
+
+    // 3. Checking if map is empty and getting its size
+    if (!grades.empty()) {
+        cout &lt;&lt; "Map size is: " &lt;&lt; grades.size() &lt;&lt; endl;
+    }
+
+    // 4. Checking if a key exists using count()
+    if (grades.count("Alice")) {
+        cout &lt;&lt; "Alice is in the system." &lt;&lt; endl;
+    }
+
+    // 5. Accessing an existing element
+    cout &lt;&lt; "Bob's grade: " &lt;&lt; grades["Bob"] &lt;&lt; endl;
+
+    // 6. WARNING: Accessing a non-existent element creates it with a default value (0)
+    cout &lt;&lt; "David's default grade: " &lt;&lt; grades["David"] &lt;&lt; endl;
+
+    // 7. Searching safely using find()
+    auto it = grades.find("Charlie");
+    if (it != grades.end()) {
+        cout &lt;&lt; "Found " &lt;&lt; it-&gt;first &lt;&lt; " with grade " &lt;&lt; it-&gt;second &lt;&lt; endl;
+    }
+
+    // 8. Iterating using a range-based for loop (Output is alphabetically sorted)
+    cout &lt;&lt; "\n--- All Grades (Ordered) ---" &lt;&lt; endl;
+    for (auto p : grades) {
+        cout &lt;&lt; p.first &lt;&lt; ": " &lt;&lt; p.second &lt;&lt; endl;
+    }
+
+    // 9. Erasing an element by its key
+    grades.erase("David");
+
+    // 10. Iterating using iterators
+    cout &lt;&lt; "\n--- Grades after erasing David ---" &lt;&lt; endl;
+    for (auto iter = grades.begin(); iter != grades.end(); iter++) {
+        cout &lt;&lt; iter-&gt;first &lt;&lt; ": " &lt;&lt; iter-&gt;second &lt;&lt; endl;
+    }
+
+    // 11. Using unordered_map for faster access (Order is not guaranteed)
+    unordered_map&lt;int, string&gt; id_to_name;
+    id_to_name[101] = "Alice";
+    id_to_name[102] = "Bob";
+
+    cout &lt;&lt; "\n--- Unordered Map (ID -&gt; Name) ---" &lt;&lt; endl;
+    for (auto p : id_to_name) {
+        cout &lt;&lt; "ID " &lt;&lt; p.first &lt;&lt; " -&gt; " &lt;&lt; p.second &lt;&lt; endl;
+    }
+
+    // 12. Clearing all elements from the map
+    grades.clear();
+    cout &lt;&lt; "\nMap cleared. Is empty now? " &lt;&lt; (grades.empty() ? "Yes" : "No") &lt;&lt; endl;
+
+    return 0;
+}
+</pre>
+
+    <div class="explanation">
+        <h3>شرح المثال الشامل:</h3>
+        <ul>
+            <li><strong>الخطوات 1 و 2:</strong> أنشأنا <code>map</code> عادية للدرجات، وأضفنا البيانات باستخدام الأقواس <code>[]</code>.</li>
+            <li><strong>الخطوة 3:</strong> استخدمنا <code>empty()</code> لنتأكد أنها غير فارغة، ثم <code>size()</code> لمعرفة عدد الطلاب.</li>
+            <li><strong>الخطوة 4 و 5:</strong> استخدمنا <code>count()</code> للبحث السريع عن (Alice)، وطبعنا درجة (Bob) مباشرة.</li>
+            <li><strong>الخطوة 6 (مهمة جداً):</strong> حاولنا طباعة درجة شخص غير موجود (David). في C++ هذا لا يسبب خطأ، بل يضيفه تلقائياً بصفر!</li>
+            <li><strong>الخطوة 7:</strong> استخدمنا الدالة الاحترافية والآمنة <code>find()</code> للبحث عن (Charlie).</li>
+            <li><strong>الخطوة 8 و 9 و 10:</strong> قمنا بالمرور على العناصر وطباعتها (لاحظ الترتيب الأبجدي)، ثم حذفنا (David) الذي تمت إضافته بالخطأ باستخدام <code>erase()</code>، ثم طبعنا العناصر مجدداً باستخدام المؤشرات (Iterators).</li>
+            <li><strong>الخطوة 11:</strong> استخدمنا <code>unordered_map</code> لربط (رقم الطالب -> اسمه). هذه الخريطة أسرع لكنها لا ترتب العناصر.</li>
+            <li><strong>الخطوة 12:</strong> استخدمنا <code>clear()</code> لتدمير جميع البيانات داخل الخريطة في نهاية البرنامج.</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    // بيانات الأسئلة
+    const questionsData = [
+        { q: "ما هي الوظيفة الأساسية للخريطة (map) في C++؟", options: ["تخزين عناصر عشوائية", "تخزين البيانات على شكل أزواج (مفتاح وقيمة)", "ترتيب الأرقام فقط", "القيام بالعمليات الحسابية"], answer: 1 },
+        { q: "كيف يتم ترتيب العناصر في map العادية؟", options: ["بشكل عشوائي", "حسب وقت إضافتها", "تلقائياً حسب المفتاح (Key)", "حسب القيمة (Value)"], answer: 2 },
+        { q: "ماذا يحدث إذا حاولت الوصول لمفتاح غير موجود باستخدام myMap['x']؟", options: ["يتوقف البرنامج عن العمل (Error)", "يتم إنشاء المفتاح بقيمة افتراضية (مثل 0)", "يتجاهل السطر ولا يفعل شيئاً", "يطبع رسالة تحذيرية"], answer: 1 },
+        { q: "ما هو الملف الرأسي (Header) اللازم لاستخدام الخرائط العادية؟", options: ["<map>", "<vector>", "<unordered_map>", "<set>"], answer: 0 },
+        { q: "ماذا تُرجع الدالة m.count(key) إذا كان المفتاح موجوداً؟", options: ["ترجع القيمة المرتبطة به", "ترجع مؤشر (Iterator) للمفتاح", "ترجع 1", "ترجع true و false كـ String"], answer: 2 },
+        { q: "كيف يمكنك حذف العنصر الذي مفتاحه 'Bob'؟", options: ["m.delete('Bob')", "m.remove('Bob')", "m.clear('Bob')", "m.erase('Bob')"], answer: 3 },
+        { q: "ما هو الفرق الرئيسي بين map و unordered_map؟", options: ["لا يوجد فرق", "unordered_map أسرع ولا تقوم بترتيب المفاتيح", "map أسرع ولكنها تستهلك ذاكرة أكبر", "unordered_map تسمح بتكرار المفاتيح"], answer: 1 },
+        { q: "عند استخدام حلقة for (auto p : myMap) ، ماذا يمثل p.first؟", options: ["المفتاح (Key)", "القيمة (Value)", "المؤشر (Iterator)", "حجم الخريطة"], answer: 0 },
+        { q: "أي دالة تُستخدم لحذف جميع العناصر وتفريغ الخريطة بالكامل؟", options: ["empty()", "delete_all()", "erase()", "clear()"], answer: 3 },
+        { q: "ماذا تُرجع الدالة m.empty() إذا كانت الخريطة لا تحتوي على عناصر؟", options: ["0", "1 (true)", "null", "رسالة خطأ"], answer: 1 },
+        { q: "ماذا تُرجع دالة m.find(key) إذا لم تعثر على المفتاح؟", options: ["0", "null", "m.end()", "m.begin()"], answer: 2 },
+        { q: "هل تسمح الخريطة العادية (map) بوجود مفاتيح مكررة (Duplicate Keys)؟", options: ["نعم دائماً", "لا، المفاتيح يجب أن تكون فريدة", "نعم، إذا كانت القيم مختلفة", "فقط في unordered_map"], answer: 1 },
+        { q: "ما هي بنية البيانات (Data Structure) التي تُبنى عليها map العادية في الغالب؟", options: ["مصفوفات (Arrays)", "جداول التجزئة (Hash Tables)", "أشجار متوازنة (Red-Black Trees)", "قوائم مرتبطة (Linked Lists)"], answer: 2 },
+        { q: "كيف يمكنك معرفة عدد العناصر الموجودة داخل الخريطة؟", options: ["m.length()", "m.count()", "m.size()", "m.capacity()"], answer: 2 },
+        { q: "ما هي بنية البيانات التي تُبنى عليها unordered_map؟", options: ["أشجار البحث الثنائية", "جداول التجزئة (Hash Tables)", "المصفوفات الديناميكية", "المكدسات (Stacks)"], answer: 1 }
+    ];
+
+    const quizWrapper = document.getElementById('quiz-wrapper');
+
+    questionsData.forEach((item, index) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'question-box';
+        
+        const questionTitle = document.createElement('div');
+        questionTitle.className = 'question-title';
+        questionTitle.innerText = `س ${index + 1}: ${item.q}`;
+        questionDiv.appendChild(questionTitle);
+
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'options';
+
+        item.options.forEach((opt, optIndex) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            
+            // إضافة خاصية لتمييز الإجابة الصحيحة
+            if(optIndex === item.answer) {
+                btn.dataset.correct = "true";
+            }
+
+            btn.onclick = function() {
+                // إيقاف جميع الأزرار في هذا السؤال بعد الإجابة
+                const allButtons = optionsDiv.querySelectorAll('.option-btn');
+                allButtons.forEach(b => b.disabled = true);
+
+                if (optIndex === item.answer) {
+                    this.classList.add('correct');
+                } else {
+                    this.classList.add('wrong');
+                    // إظهار الإجابة الصحيحة باللون الأخضر
+                    optionsDiv.querySelector('[data-correct="true"]').classList.add('correct');
+                }
+            };
+            optionsDiv.appendChild(btn);
+        });
+
+        questionDiv.appendChild(optionsDiv);
+        quizWrapper.appendChild(questionDiv);
+    });
+</script>
+
+</body>
+</html>

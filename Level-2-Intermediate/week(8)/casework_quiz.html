@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار شامل: العمل على الحالات (Case Work)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            var(--bg-main): #f8fafc; 
+            --bg-card: #ffffff; 
+            --accent-main: #3b82f6; 
+            --accent-secondary: #f59e0b; 
+            --text-primary: #334155; 
+            --text-secondary: #64748b; 
+            --code-bg: #f1f5f9; 
+            --border-light: #e2e8f0; 
+            --success: #10b981; 
+            --danger: #ef4444; 
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f8fafc;
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            background-image: radial-gradient(circle at top right, #e0e7ff 0%, transparent 40%);
+        }
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-card);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-light);
+        }
+        h2 {
+            text-align: center;
+            color: var(--accent-main);
+            border-bottom: 3px solid var(--accent-secondary);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 800;
+            font-size: 2.2em;
+        }
+        .question-card {
+            background-color: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            position: relative;
+            transition: transform 0.2s;
+        }
+        .question-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        .difficulty-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+        }
+        .badge-easy { background-color: var(--success); } 
+        .badge-medium { background-color: var(--accent-secondary); } 
+        .badge-hard { background-color: var(--danger); }
+        
+        .question-text {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            padding-left: 80px; 
+            line-height: 1.6;
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option-btn {
+            background-color: var(--code-bg);
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            padding: 14px 18px;
+            text-align: right;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: var(--text-primary);
+            direction: rtl;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #eff6ff;
+            border-color: var(--accent-main);
+        }
+        .option-btn:disabled { cursor: not-allowed; }
+        
+        .option-btn.correct {
+            background-color: #d1fae5;
+            border-color: var(--success);
+            color: #065f46;
+        }
+        .option-btn.wrong {
+            background-color: #fee2e2;
+            border-color: var(--danger);
+            color: #991b1b;
+        }
+        
+        .explanation-box {
+            display: none;
+            margin-top: 20px;
+            padding: 18px;
+            background-color: #eff6ff;
+            border-right: 5px solid var(--accent-main);
+            border-radius: 8px;
+            font-size: 16px;
+            color: #1e3a8a;
+            animation: fadeIn 0.5s ease-in-out;
+            line-height: 1.7;
+            font-weight: 600;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        code {
+            background-color: #e2e8f0;
+            padding: 3px 7px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            direction: ltr;
+            display: inline-block;
+            color: #b45309;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h2>🧩 اختبار شامل: العمل على الحالات (Case Work)</h2>
+    <div id="quiz-area"></div>
+</div>
+
+<script>
+    const questions = [
+        // ================= الأسئلة السهلة =================
+        {
+            q: "ما هو المبدأ الأساسي في أسلوب 'العمل على الحالات' (Case Work)؟",
+            options: [
+                "استخدام معادلة رياضية واحدة معقدة لحل جميع المشاكل.", 
+                "تقسيم المشكلة إلى مواقف أصغر (حالات) وحل كل حالة بشكل مستقل.", 
+                "تجاهل الحالات الخاصة لحين حدوث خطأ.", 
+                "استخدام الحلقات اللانهائية."
+            ],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "العمل على الحالات يعتمد على تفكيك المشكلة الصعبة إلى أجزاء (حالات) بسيطة، وبناء كود منفصل للتعامل مع كل حالة بوضوح."
+        },
+        {
+            q: "أي من الأدوات البرمجية التالية هي الأكثر استخداماً في مسائل العمل على الحالات؟",
+            options: [
+                "الحلقات (for / while) فقط.", 
+                "المصفوفات (Arrays) ثنائية الأبعاد.", 
+                "الجمل الشرطية المتسلسلة (if / else if / else) أو (switch).", 
+                "الدوال العودية (Recursion)."
+            ],
+            answer: 2,
+            difficulty: "سهل",
+            explanation: "بما أننا نتعامل مع مسارات مختلفة (إذا حدث كذا افعل كذا)، فإن الجمل الشرطية هي حجر الأساس في توجيه البرنامج للحالة الصحيحة."
+        },
+        {
+            q: "في مسألة تحديد الربع في المستوى الديكارتي (Quadrant)، كم عدد الحالات الرئيسية بعيداً عن التقاطع مع المحاور؟",
+            options: ["حالتان (موجب وسالب).", "4 حالات (الأرباع الأربعة).", "8 حالات.", "لا نهائي من الحالات."],
+            answer: 1,
+            difficulty: "سهل",
+            explanation: "يوجد 4 أرباع رئيسية (الربع الأول، الثاني، الثالث، الرابع) تمثل 4 حالات أساسية في الكود."
+        },
+        {
+            q: "لماذا نستخدم العمل على الحالات بدلاً من كتابة قاعدة واحدة عامة؟",
+            options: [
+                "لأن لغة C++ لا تدعم القواعد العامة.", 
+                "لأن القواعد العامة تكون أبطأ في التنفيذ.", 
+                "لأن بعض المسائل لا تحتوي على معادلة سحرية واحدة وتتصرف المدخلات فيها بطرق مختلفة تماماً.", 
+                "لتصغير حجم الكود المكتوب."
+            ],
+            answer: 2,
+            difficulty: "سهل",
+            explanation: "غالباً ما تكون القواعد مختلفة باختلاف الشروط (مثلاً: حساب الضرائب يختلف حسب شريحة الدخل)، فلا يمكن دمجها في سطر رياضي واحد."
+        },
+        {
+            q: "ما هي المشكلة الأكثر شيوعاً التي يقع فيها المبرمج المبتدئ عند العمل على الحالات؟",
+            options: [
+                "نسيان الحالات الحدية (Edge Cases) مثل الصفر أو المساواة.", 
+                "استخدام أرقام عشرية بدلاً من الأرقام الصحيحة.", 
+                "كتابة أسماء متغيرات طويلة.", 
+                "استخدام مكتبة math.h بكثرة."
+            ],
+            answer: 0,
+            difficulty: "سهل",
+            explanation: "نسيان حالة الصفر أو التداخل بين الحالات (مثل استخدام > بدلاً من >=) هو السبب الأول للحصول على (Wrong Answer) في هذا النوع من المسائل."
+        },
+
+        // ================= الأسئلة المتوسطة =================
+        {
+            q: "إذا طلب منك حساب عدد أزواج الأرقام (x, y) التي مجموعها عدد زوجي. ما هي الحالات الصحيحة؟",
+            options: [
+                "فقط (زوجي + زوجي).", 
+                "فقط (فردي + زوجي).", 
+                "(زوجي + زوجي) أو (فردي + فردي).", 
+                "(فردي + زوجي) أو (فردي + فردي)."
+            ],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "في الرياضيات، مجموع رقمين يكون زوجياً فقط في حالتين: إما أن يكونا كلاهما زوجيين (مثل 2+4)، أو كلاهما فرديين (مثل 3+5)."
+        },
+        {
+            q: "عند كتابة حالات متتابعة باستخدام <code>if</code> و <code>else if</code>، ما هي فائدة استخدام <code>else if</code> بدلاً من كتابة <code>if</code> جديدة لكل حالة؟",
+            options: [
+                "لا يوجد أي فرق، هو مجرد ترتيب شكلي.", 
+                "تمنع التداخل؛ بمجرد أن يتحقق شرط واحد، يتجاهل الكمبيوتر الباقي مما يوفر الوقت ويمنع الأخطاء.", 
+                "تجعل الكود يستهلك ذاكرة (RAM) أقل.", 
+                "تسمح للكمبيوتر بتنفيذ أكثر من حالة في نفس الوقت."
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "استخدام <code>else if</code> يربط الشروط ببعضها كسلسلة، فإذا تحقق الأول، يتوقف الفحص. بينما <code>if</code> منفصلة ستُجبر الكمبيوتر على فحص كل حالة حتى لو وجد الإجابة، مما قد يسبب تداخلاً إذا لم تكن الشروط دقيقة."
+        },
+        {
+            q: "في مسألة التحقق من 'صلاحية أضلاع المثلث' (a, b, c). ما هي الحالة التي تجعل المثلث <strong>غير صالح</strong>؟",
+            options: [
+                "إذا كان مجموع أي ضلعين <strong>أصغر من أو يساوي</strong> الضلع الثالث.", 
+                "إذا كانت الأضلاع الثلاثة غير متساوية.", 
+                "إذا كان مجموع أي ضلعين <strong>أكبر تماماً</strong> من الضلع الثالث.", 
+                "إذا كان أحد الأضلاع زوجياً والآخران فرديان."
+            ],
+            answer: 0,
+            difficulty: "متوسط",
+            explanation: "وفقاً لمتباينة المثلث، يجب أن يكون مجموع أي ضلعين أكبر تماماً من الضلع الثالث (>). لذا الحالة المعاكسة التي تُفشل المثلث هي (<=)."
+        },
+        {
+            q: "ما هو نمط 'العلم' (Flag Pattern) المستخدم بكثرة في العمل على الحالات؟",
+            options: [
+                "رسم علم باستخدام النجوم (*) على الشاشة.", 
+                "افتراض حالة مبدئية (مثلاً <code>bool ok = true</code>) ثم فحص الحالات الشاذة، وإذا تحققت أي منها نقوم بتغيير العلم إلى false.", 
+                "استخدام مكتبة <code>&lt;flags&gt;</code> الجاهزة في C++.", 
+                "تعريف جميع المتغيرات كـ const."
+            ],
+            answer: 1,
+            difficulty: "متوسط",
+            explanation: "هذا النمط يسهل الكود جداً؛ نفترض أن النتيجة صحيحة، ثم نختبر الحالات التي قد 'تكسر' هذه الصحة. إذا وُجدت أي حالة كسر، نُسقط العلم (false)."
+        },
+        {
+            q: "ما معنى أن تكون الحالات (Mutually Exclusive) في البرمجة؟",
+            options: [
+                "أن تكون الحالات لا نهائية.", 
+                "أن تعتمد حالة على نتيجة حالة أخرى بالكامل.", 
+                "أن لا يمكن لشرطين أن يتحققا في نفس الوقت لنفس المُدخل (لا يوجد تداخل).", 
+                "أن تكون جميع الحالات خاطئة."
+            ],
+            answer: 2,
+            difficulty: "متوسط",
+            explanation: "من أهم قواعد Case Work ألا تتداخل الحالات. مثلاً تصنيف الأرقام إلى (أكبر من 5) و (أقل من 10) متداخل، لأن الرقم 7 يحقق الشرطين، وهذا خطأ برمجي خطير."
+        },
+
+        // ================= الأسئلة الصعبة =================
+        {
+            q: "في مسألة 'أزواج المجموع الزوجي'، إذا كان $a = 5$ و $b = 4$. كم عدد الأزواج الممكنة التي مجموعها زوجي؟",
+            options: ["10 أزواج", "12 زوجاً", "8 أزواج", "9 أزواج"],
+            answer: 0,
+            difficulty: "صعب",
+            explanation: "العدد $a=5$ فيه (2 زوجي، 3 فردي). العدد $b=4$ فيه (2 زوجي، 2 فردي).<br>حالة (زوجي مع زوجي) = $2 \\times 2 = 4$.<br>حالة (فردي مع فردي) = $3 \\times 2 = 6$.<br>الإجمالي = $4 + 6 = 10$ أزواج."
+        },
+        {
+            q: "إذا كانت مسألتك تتطلب اتخاذ قرارات بناءً على 3 متغيرات منطقية (Boolean Variables: A, B, C)، ما هو <strong>الحد الأقصى</strong> لعدد الحالات المستقلة التي قد تحتاج لمعالجتها؟",
+            options: ["3 حالات", "6 حالات", "8 حالات", "9 حالات"],
+            answer: 2,
+            difficulty: "صعب",
+            explanation: "بما أن كل متغير له قيمتان (True/False)، فإن عدد الحالات الإجمالي هو $2^3 = 8$ حالات منفصلة (مثل: TTT, TTF, TFT...)."
+        },
+        {
+            q: "عند استخدام العمل على الحالات لتقسيم الأرقام بناءً على باقي قسمتها (Modulo) على العدد 3. ما هي الحالات الناتجة التي تغطي كل الأرقام؟",
+            options: [
+                "الحالات: (أكبر من 3) و (أصغر من 3).", 
+                "الحالات: الباقي 0، الباقي 1، الباقي 2.", 
+                "الحالات: الباقي 1، الباقي 3.", 
+                "الحالات: زوجي وفردي."
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "أي رقم في العالم عند قسمته على 3 سيعطي إما باقي 0 (يقبل القسمة)، أو باقي 1، أو باقي 2. هذه الحالات الثلاث شاملة بالكامل (Collectively Exhaustive)."
+        },
+        {
+            q: "أنت تكتب كوداً يعتمد على الحالات للتحقق مما إذا كان مستطيلان يتقاطعان (Intersecting). أي من التالي يُعتبر من الحالات الحدية (Edge Cases) التي يجب الانتباه لها؟",
+            options: [
+                "المستطيلان بعيدان جداً عن بعضهما.", 
+                "المستطيلان يتقاطعان في مساحة كبيرة واضحة.", 
+                "المستطيلان يتلامسان تماماً عند الحواف (أحدهما يقع على حدود الآخر بالضبط).", 
+                "لا يوجد حالات حدية في الهندسة."
+            ],
+            answer: 2,
+            difficulty: "صعب",
+            explanation: "التلامس الدقيق عند الحافة (عندما تتساوى إحداثيات X أو Y تماماً) هو حالة Edge Case شهيرة. يجب أن تقرر بناءً على المسألة هل التلامس يُعد 'تقاطعاً' أم لا، واستخدام >= أو > بناءً على ذلك."
+        },
+        {
+            q: "ما معنى مصطلح (Collectively Exhaustive - شاملة بالكامل) عند تصميم الحالات في مسألة برمجية؟",
+            options: [
+                "أن الكود يستنفد كل الذاكرة المتاحة (Memory Exhausted).", 
+                "أن الحالات المكتوبة تغطي 100% من الاحتمالات والمدخلات الممكنة، ولا يوجد مُدخل سيُفلت منها.", 
+                "أن الكود طويل جداً ومرهق في القراءة.", 
+                "أن الحالات تعتمد على الاستنفاد الرياضي (Brute Force)."
+            ],
+            answer: 1,
+            difficulty: "صعب",
+            explanation: "الشرط الذهبي في Case Work هو أن تكون الحالات شاملة (Exhaustive) بحيث لا تترك أي احتمال للمُدخلات دون معالجة، وإلا سينهار البرنامج أو يعطي إجابة فارغة لبعض الأرقام."
+        }
+    ];
+
+    const quizArea = document.getElementById('quiz-area');
+
+    questions.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        
+        let diffClass = item.difficulty === 'سهل' ? 'badge-easy' : (item.difficulty === 'متوسط' ? 'badge-medium' : 'badge-hard');
+        
+        const badge = document.createElement('span');
+        badge.className = `difficulty-badge ${diffClass}`;
+        badge.innerText = item.difficulty;
+        card.appendChild(badge);
+
+        const qTitle = document.createElement('div');
+        qTitle.className = 'question-text';
+        qTitle.innerHTML = `س ${index + 1}: ${item.q}`;
+        card.appendChild(qTitle);
+
+        const optionsGrid = document.createElement('div');
+        optionsGrid.className = 'options-grid';
+
+        const explanationBox = document.createElement('div');
+        explanationBox.className = 'explanation-box';
+        explanationBox.innerHTML = `<strong>💡 الشرح:</strong> ${item.explanation}`;
+
+        item.options.forEach((opt, optIndex) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = opt;
+            
+            if(optIndex === item.answer) {
+                btn.dataset.correct = "true";
+            }
+
+            btn.onclick = function() {
+                const allBtns = optionsGrid.querySelectorAll('.option-btn');
+                allBtns.forEach(b => b.disabled = true);
+
+                if (optIndex === item.answer) {
+                    this.classList.add('correct');
+                } else {
+                    this.classList.add('wrong');
+                    optionsGrid.querySelector('[data-correct="true"]').classList.add('correct');
+                }
+                
+                explanationBox.style.display = 'block';
+            };
+            optionsGrid.appendChild(btn);
+        });
+
+        card.appendChild(optionsGrid);
+        card.appendChild(explanationBox);
+        quizArea.appendChild(card);
+    });
+</script>
+
+</body>
+</html>

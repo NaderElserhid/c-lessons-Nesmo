@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار الحسابيات المعيارية (Modular Arithmetic)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #f4f7f6; 
+            --container-bg: #ffffff; 
+            --text-primary: #2c3e50; 
+            --text-secondary: #596275; 
+            --accent-main: #2980b9; 
+            --accent-red: #c0392b; 
+            --accent-green: #27ae60; 
+            --code-bg: #f8f9fa; 
+            --border-color: #e1e8ed; 
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+        }
+        .quiz-container {
+            max-width: 850px;
+            margin: 0 auto;
+            background-color: var(--container-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+            border: 1px solid var(--border-color);
+        }
+        h2 {
+            text-align: center;
+            color: var(--accent-main);
+            border-bottom: 3px solid var(--accent-main);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+        }
+        .question-card {
+            background-color: #fdfdfd;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            position: relative;
+        }
+        .difficulty-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+        }
+        .badge-easy { background-color: var(--accent-green); } 
+        .badge-medium { background-color: #f39c12; } 
+        
+        .question-text {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            padding-left: 70px; 
+            line-height: 1.6;
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option-btn {
+            background-color: var(--code-bg);
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            padding: 12px 15px;
+            text-align: right;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #34495e;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #ecf0f1;
+            border-color: var(--accent-main);
+        }
+        .option-btn:disabled { cursor: not-allowed; }
+        
+        /* حالات الإجابة للاختبار */
+        .option-btn.correct {
+            background-color: #d5f5e3;
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+        .option-btn.wrong {
+            background-color: #fadbd8;
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+        code {
+            background-color: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            direction: ltr;
+            display: inline-block;
+            color: #e83e8c;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h2>🎯 اختبار الحسابيات المعيارية (Modular Arithmetic)</h2>
+    <div id="quiz-area"></div>
+</div>
+
+<script>
+    const questions = [
+        // === الأسئلة السهلة ===
+        {
+            q: "في لغة C++، ماذا تعني عملية <code>a % m</code> (المودولو)؟",
+            options: [
+                "حاصل قسمة a على m", 
+                "باقي قسمة a على m", 
+                "النسبة المئوية للعدد a من m", 
+                "ضرب a في m"
+            ],
+            answer: 1,
+            difficulty: "سهل"
+        },
+        {
+            q: "ما هي نتيجة العملية الحسابية <code>15 % 6</code>؟",
+            options: ["2", "0", "3", "2.5"],
+            answer: 2,
+            difficulty: "سهل"
+        },
+        {
+            q: "لماذا نستخدم غالباً الرقم <code>10^9 + 7</code> كمودولو (Modulus) في البرمجة التنافسية؟",
+            options: [
+                "لأنه أكبر رقم يمكن تخزينه في متغير int.", 
+                "لمنع تجاوز السعة (Overflow) ولأنه عدد أولي يسهل حساب المعكوس له.", 
+                "لأنه يجعل الكود يعمل بشكل أسرع.", 
+                "لأنه الرقم الوحيد المسموح به في لغة C++."
+            ],
+            answer: 1,
+            difficulty: "سهل"
+        },
+        {
+            q: "أي من العمليات الحسابية التالية **لا يمكن** توزيع المودولو عليها بشكل مباشر وبسيط كباقي العمليات؟",
+            options: ["الجمع (+)", "الطرح (-)", "الضرب (*)", "القسمة (/)"],
+            answer: 3,
+            difficulty: "سهل"
+        },
+        {
+            q: "ما هي الطريقة الصحيحة لجمع عددين ضخمين a و b تحت المودولو m؟",
+            options: [
+                "<code>(a + b) % m</code>", 
+                "<code>((a % m) + (b % m)) % m</code>", 
+                "<code>(a % m) + b</code>", 
+                "<code>a + (b % m)</code>"
+            ],
+            answer: 1,
+            difficulty: "سهل"
+        },
+        
+        // === الأسئلة المتوسطة ===
+        {
+            q: "في لغة C++، إذا قمنا بحساب <code>-5 % 3</code>، ستكون النتيجة <code>-2</code>. ما هي المعادلة البرمجية الصحيحة للحصول على المودولو الرياضي الموجب دائماً؟",
+            options: [
+                "<code>abs(a % m)</code>", 
+                "<code>(a % m) * -1</code>", 
+                "<code>((a % m) + m) % m</code>", 
+                "<code>(a + m) % m</code>"
+            ],
+            answer: 2,
+            difficulty: "متوسط"
+        },
+        {
+            q: "ما هو التعقيد الزمني (Time Complexity) لخوارزمية **الأس السريع (Binary Exponentiation)** لحساب $a^b \\pmod m$؟",
+            options: ["$O(b)$", "$O(1)$", "$O(a \\times b)$", "$O(\\log b)$"],
+            answer: 3,
+            difficulty: "متوسط"
+        },
+        {
+            q: "أثناء حساب الأس السريع برمجياً، إذا كان الأس (b) **فردياً**، ماذا نفعل بعد أن نُربّع (Square) نصف النتيجة؟",
+            options: [
+                "نطرح 1 من النتيجة.", 
+                "نقسم النتيجة على 2.", 
+                "نضرب النتيجة بالأساس (a) مرة إضافية ونأخذ المودولو.", 
+                "نتوقف ونرجع النتيجة كما هي."
+            ],
+            answer: 2,
+            difficulty: "متوسط"
+        },
+        {
+            q: "وفقاً لنظرية فيرما الصغرى، إذا كان $m$ عدداً أولياً، فكيف نحسب **المعكوس المعياري (Modular Inverse)** للعدد $b$؟",
+            options: [
+                "بحساب $b^{m-2} \\pmod m$", 
+                "بحساب $b^{m-1} \\pmod m$", 
+                "بقسمة $1 / b$", 
+                "بضرب $b \\times m$"
+            ],
+            answer: 0,
+            difficulty: "متوسط"
+        },
+        {
+            q: "كيف نحسب عملية القسمة $(a / b) \\pmod m$ بشكل صحيح في البرمجة التنافسية؟",
+            options: [
+                "نقسم $a$ على $b$ ثم نأخذ المودولو <code>(a / b) % m</code>.", 
+                "نأخذ المودولو لكل منهما ثم نقسم <code>(a % m) / (b % m)</code>.", 
+                "نضرب $a$ في **المعكوس المعياري** للعدد $b$ ثم نأخذ المودولو.", 
+                "نطرح $b$ من $a$ عدة مرات."
+            ],
+            answer: 2,
+            difficulty: "متوسط"
+        }
+    ];
+
+    const quizArea = document.getElementById('quiz-area');
+
+    questions.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        
+        // شارة الصعوبة
+        const badge = document.createElement('span');
+        badge.className = `difficulty-badge ${item.difficulty === 'سهل' ? 'badge-easy' : 'badge-medium'}`;
+        badge.innerText = item.difficulty;
+        card.appendChild(badge);
+
+        const qTitle = document.createElement('div');
+        qTitle.className = 'question-text';
+        qTitle.innerHTML = `س ${index + 1}: ${item.q}`;
+        card.appendChild(qTitle);
+
+        const optionsGrid = document.createElement('div');
+        optionsGrid.className = 'options-grid';
+
+        item.options.forEach((opt, optIndex) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = opt;
+            
+            if(optIndex === item.answer) {
+                btn.dataset.correct = "true";
+            }
+
+            btn.onclick = function() {
+                // إيقاف جميع الأزرار بعد الاختيار
+                const allBtns = optionsGrid.querySelectorAll('.option-btn');
+                allBtns.forEach(b => b.disabled = true);
+
+                if (optIndex === item.answer) {
+                    this.classList.add('correct');
+                } else {
+                    this.classList.add('wrong');
+                    // إظهار الإجابة الصحيحة إذا أخطأ الطالب
+                    optionsGrid.querySelector('[data-correct="true"]').classList.add('correct');
+                }
+            };
+            optionsGrid.appendChild(btn);
+        });
+
+        card.appendChild(optionsGrid);
+        quizArea.appendChild(card);
+    });
+</script>
+
+</body>
+</html>
