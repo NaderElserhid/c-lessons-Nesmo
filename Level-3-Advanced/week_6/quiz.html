@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار شامل: البرمجة الديناميكية وإطار SRTBOT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <style>
+        :root {
+            --bg-main: #f8fafc; 
+            --bg-card: #ffffff; 
+            --accent-main: #2563eb; /* أزرق */
+            --accent-secondary: #f59e0b; /* ذهبي */
+            --text-primary: #0f172a; 
+            --text-secondary: #475569; 
+            --code-bg: #f1f5f9; 
+            --border-light: #cbd5e1; 
+            --success: #10b981; 
+            --danger: #ef4444; 
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            background-image: radial-gradient(circle at top right, #eff6ff 0%, transparent 40%);
+        }
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-card);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.08);
+            border: 2px solid var(--border-light);
+            margin-bottom: 40px;
+        }
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 3px dashed var(--border-light);
+            padding-bottom: 20px;
+        }
+        h2 {
+            color: var(--accent-main);
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 800;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        .score-display {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--accent-secondary);
+            background-color: #fef3c7;
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .question-card {
+            background-color: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            transition: transform 0.2s, border-color 0.2s;
+            border-right: 5px solid var(--accent-main);
+        }
+        .question-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-main);
+        }
+        
+        .question-text {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        .question-num {
+            color: var(--accent-main);
+            font-size: 1.1em;
+            margin-left: 10px;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option-btn {
+            background-color: var(--code-bg);
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            padding: 15px 20px;
+            text-align: right;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: block;
+            width: 100%;
+        }
+        
+        .option-btn:hover:not(:disabled) {
+            background-color: #e0f2fe;
+            border-color: var(--accent-main);
+        }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.9; }
+        
+        .option-btn.correct {
+            background-color: #d1fae5;
+            border-color: var(--success);
+            color: #065f46;
+            box-shadow: inset 0 0 0 1px var(--success);
+        }
+        .option-btn.wrong {
+            background-color: #fee2e2;
+            border-color: var(--danger);
+            color: #991b1b;
+        }
+        
+        .explanation-box {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8fafc;
+            border-right: 4px solid var(--accent-secondary);
+            border-radius: 8px;
+            font-size: 16px;
+            color: #334155;
+            animation: fadeIn 0.4s ease-in-out;
+            line-height: 1.7;
+        }
+
+        .hint-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            margin-top: 10px;
+            text-decoration: underline;
+            transition: 0.3s;
+        }
+        .hint-btn:hover { color: var(--accent-main); }
+        .hint-text {
+            display: none;
+            color: var(--accent-secondary);
+            font-size: 14px;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        code {
+            background-color: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            direction: ltr;
+            display: inline-block;
+            color: #b45309;
+            font-weight: bold;
+        }
+
+        .completion-message {
+            display: none;
+            text-align: center;
+            margin-top: 40px;
+            padding: 30px;
+            background-color: #ecfdf5;
+            border: 2px solid var(--success);
+            border-radius: 12px;
+            font-size: 24px;
+            color: #065f46;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="header-section">
+        <h2>🧠 اختبار: البرمجة الديناميكية وإطار SRTBOT</h2>
+        <div class="score-display">النتيجة: <span id="score">0</span> / 15</div>
+    </div>
+    
+    <div id="quiz-area"></div>
+    
+    <div id="completion-message" class="completion-message">
+        🎉 رائع! لقد أكملت الاختبار. النتيجة النهائية: <span id="final-score"></span>/15
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            q: "ما هي الفكرة الأساسية وراء البرمجة الديناميكية (Dynamic Programming)؟",
+            options: [
+                "تخزين النتائج للمسائل الفرعية لتجنب إعادة حسابها مراراً وتكراراً.",
+                "حل المسألة الكبيرة باستخدام حلقات التكرار (Loops) حصراً.",
+                "تقسيم المسألة إلى أجزاء غير متداخلة وحلها بشكل مستقل.",
+                "ترتيب البيانات في مصفوفة قبل البدء في البحث عن الحل."
+            ],
+            answer: 0,
+            explanation: "البرمجة الديناميكية تعتمد على مبدأ حفظ النتائج (Memoization) للاستفادة منها عند تكرار نفس المسألة الفرعية.",
+            hint: "تذكر ماذا نفعل عندما نحتاج لحساب قيمة حسبناها من قبل في متتالية فيبوناتشي."
+        },
+        {
+            q: "لماذا يُعتبر الحل العودي الساذج (بدون تذكار) لمتتالية فيبوناتشي بطيئاً جداً للقيم الكبيرة من $n$؟",
+            options: [
+                "لأنه يتطلب مساحة تخزينية كبيرة جداً في الذاكرة لتخزين جميع الأرقام.",
+                "لأنه لا يحتوي على حالات أساسية (Base Cases) واضحة توقف الاستدعاء.",
+                "لأنه يعيد حساب نفس المسائل الفرعية مرات عديدة مما يجعل الزمن أسياً تقريباً.",
+                "لأنه يعتمد على عمليات الجمع بدلاً من عمليات الضرب المباشرة."
+            ],
+            answer: 2,
+            explanation: "غياب التذكار يجعل الدالة تستدعي نفس القيم مراراً، مما يؤدي إلى شجرة استدعاء ضخمة وتعقيد زمني يقارب $O(2^n)$.",
+            hint: "فكر في عدد المرات التي يتم فيها استدعاء الدالة لنفس الرقم الصغير مثل $F(3)$ عندما نحسب $F(5)$."
+        },
+        {
+            q: "ماذا يعني مصطلح \"التذكار\" (Memoization) في سياق البرمجة الديناميكية؟",
+            options: [
+                "كتابة الحل باستخدام حلقات التكرار للبدء من أصغر حالة.",
+                "تحديد الحالات الأساسية للمسألة لضمان توقف الدالة العودية.",
+                "حفظ نتائج المسائل الفرعية المحسوبة في مصفوفة أو خريطة لإعادة استخدامها لاحقاً.",
+                "تقليل التعقيد الذاكري للبرنامج ليصبح ثابتاً."
+            ],
+            answer: 2,
+            explanation: "التذكار هو تقنية تخزين النتائج في أسلوب (من أعلى لأسفل - Top-Down) لتفادي تكرار الحسابات.",
+            hint: "كلمة Memoization قريبة جداً من كلمة Memo (مذكرة) أو Memory (ذاكرة)."
+        },
+        {
+            q: "في إطار العمل SRTBOT، إلى ماذا يرمز الحرف S؟",
+            options: [
+                "Space (المساحة)",
+                "State (الحالة)",
+                "Solution (الحل)",
+                "Subproblem (المسألة الفرعية)"
+            ],
+            answer: 1,
+            explanation: "الحالة (State) هي الخطوة الأولى والأساسية، حيث نعرّف ماذا تمثل كل خانة في مصفوفة الحل (مثلاً ماذا تعني <code>dp[i]</code>).",
+            hint: "هو أول شيء يجب تعريفه لمعرفة ماذا سيخزن كل عنصر في مصفوفة التخزين المؤقت."
+        },
+        {
+            q: "أي جزء من إطار SRTBOT يصف معادلة بناء الحالة الكبيرة بناءً على الحالات الأصغر؟",
+            options: [
+                "Transitions (الانتقالات)",
+                "Order of Computation (ترتيب الحساب)",
+                "Recurrence (العلاقة العودية)",
+                "Base Cases (الحالات الأساسية)"
+            ],
+            answer: 2,
+            explanation: "العلاقة العودية (Recurrence) هي المعادلة الرياضية أو المنطقية التي تربط حالة معينة بالحالات السابقة أو اللاحقة، مثل <code>dp[i] = dp[i-1] + dp[i-2]</code>.",
+            hint: "المعادلة التي تعرّف الدالة بدلالة نفسها بأرقام أصغر تسمى (Recurrence Relation)."
+        },
+        {
+            q: "ما هو التعقيد الزمني لحساب متتالية فيبوناتشي باستخدام أسلوب التذكار (Memoization)؟",
+            options: [
+                "$O(2^n)$",
+                "$O(n)$",
+                "$O(n^2)$",
+                "$O(1)$"
+            ],
+            answer: 1,
+            explanation: "بفضل التذكار، يتم حساب كل رقم من $0$ إلى $n$ مرة واحدة فقط، وكل حساب يستغرق وقتاً ثابتاً $O(1)$، فالمجموع الكلي هو $O(n)$.",
+            hint: "فكر في عدد المرات التي ستقوم فيها الدالة بعملية حساب فعلية قبل أن تحفظها، مقارنة بإجمالي عدد القيم المطلوبة."
+        },
+        {
+            q: "في مسألة \"أقل كلفة للوصول إلى نهاية المصفوفة\"، ما هي العلاقة العودية (Recurrence) الصحيحة لحساب التكلفة من الموقع $i$؟",
+            options: [
+                "<code>dp[i] = cost[i] + max(dp[i+1], dp[i+2])</code>",
+                "<code>dp[i] = cost[i] + min(dp[i+1], dp[i+2])</code>",
+                "<code>dp[i] = cost[i] + dp[i+1] + dp[i+2]</code>",
+                "<code>dp[i] = min(cost[i+1], cost[i+2])</code>"
+            ],
+            answer: 1,
+            explanation: "من الموقع $i$، ندفع تكلفة الوقوف عليه، ثم نختار المسار الأقل تكلفة بين القفز خطوة واحدة ($i+1$) أو خطوتين ($i+2$).",
+            hint: "أنت تدفع كلفة موقعك الحالي دائماً، ثم تختار الطريق الأرخص بين الخيارين المتاحين لك."
+        },
+        {
+            q: "ما هي الحالات الأساسية (Base Cases) المُستخدمة لإنهاء الحساب في مسألة \"أقل كلفة للوصول للنهاية\"؟",
+            options: [
+                "<code>dp[0] = 0</code> و <code>dp[1] = 0</code>",
+                "<code>dp[n] = 0</code> و <code>dp[n+1] = 0</code>",
+                "<code>cost[n] = 0</code> و <code>cost[n+1] = 0</code>",
+                "<code>dp[n-1] = cost[n-1]</code>"
+            ],
+            answer: 1,
+            explanation: "عند الوصول إلى الموقع $n$ أو تجاوزه، نكون قد وصلنا للنهاية ولا توجد تكاليف إضافية لندفعها، لذا الكلفة المتبقية هي 0.",
+            hint: "الحالات الأساسية هي تلك التي تخبرنا أننا وصلنا إلى الهدف ولا نحتاج إلى دفع أي شيء آخر."
+        },
+        {
+            q: "في أسلوب Bottom-Up لحل مسألة الكلفة، ما هو الترتيب الصحيح لحساب الحالات (Order of Computation)؟",
+            options: [
+                "من $0$ صعوداً إلى $n-1$.",
+                "منتصف المصفوفة إلى الأطراف.",
+                "من $n-1$ نزولاً إلى $0$.",
+                "ترتيب عشوائي لا يهم."
+            ],
+            answer: 2,
+            explanation: "نبدأ من نهاية المصفوفة (قبل الحالات الأساسية مباشرة) ونتجه نحو البداية، لضمان أن كل حالة نحتاجها (<code>dp[i+1]</code> و <code>dp[i+2]</code>) قد حُسبت بالفعل.",
+            hint: "بما أنك تحتاج للنظر إلى المواقع التي أمامك في المصفوفة لمعرفة خطوتك التالية، من أين يجب أن تبدأ ملء الجدول؟"
+        },
+        {
+            q: "في إطار SRTBOT، ماذا يمثل حرف T الأول (Transitions)؟",
+            options: [
+                "الانتقالات والخطوات الممكنة من الحالة الحالية إلى الحالات الأخرى.",
+                "التعقيد الزمني (Time Complexity) للحل.",
+                "ترتيب الحساب (Top-down order).",
+                "تتبع الحل (Traceback) لمعرفة المسار المختار."
+            ],
+            answer: 0,
+            explanation: "الانتقالات (Transitions) تصف الحواف في الرسم البياني للبرمجة الديناميكية، مثل إمكانية القفز خطوة أو خطوتين في مسألة الكلفة.",
+            hint: "هذا الحرف يصف الخيارات المتاحة لك عند وقوفك في موقع معين."
+        },
+        {
+            q: "في أسلوب Top-Down، لماذا نقوم عادة بتهيئة مصفوفة التخزين <code>dp</code> بقيمة مثل <code>-1</code>؟",
+            options: [
+                "لأن النتيجة النهائية يجب أن تكون أرقاماً سالبة دائماً.",
+                "لتمييز الحالات التي لم يتم حسابها بعد عن الحالات المحسوبة.",
+                "لتقليل استهلاك مساحة الذاكرة.",
+                "لأنها القيمة الافتراضية لعناصر المصفوفة في C++."
+            ],
+            answer: 1,
+            explanation: "نستخدم قيمة غير ممكنة كناتج للمسألة (مثل <code>-1</code>) كعلامة (Flag) تدل على أن هذه المسألة الفرعية لم تُزر أو تُحسب من قبل.",
+            hint: "كيف ستعرف الدالة ما إذا كانت قد حسبت هذه الخانة من قبل أم أنها ما زالت فارغة؟"
+        },
+        {
+            q: "كيف يمكن تقليل التعقيد الذاكري (Space Complexity) في مسألة فيبوناتشي من $O(n)$ إلى $O(1)$؟",
+            options: [
+                "باستخدام مصفوفة من نوع int بدلاً من long long.",
+                "بالاحتفاظ بآخر قيمتين محسوبتين فقط بدلاً من الاحتفاظ بالمصفوفة كاملة.",
+                "بالاعتماد التام على الاستدعاء العودي بدون استخدام مصفوفة.",
+                "بحساب الأرقام بترتيب تنازلي."
+            ],
+            answer: 1,
+            explanation: "بما أن حساب الحالة الحالية يتطلب فقط الحالتين السابقتين مباشرة، يمكننا رمي أو التخلص من باقي الأرقام القديمة لتقليل الذاكرة لمتغيرين فقط.",
+            hint: "انظر إلى العلاقة العودية: كم عدد الحالات القديمة التي تحتاجها فعلياً لحساب خطوتك الحالية؟"
+        },
+        {
+            q: "ما هو الفرق الرئيسي بين أسلوبي Top-Down و Bottom-Up؟",
+            options: [
+                "أسلوب Top-Down يكون أسرع دائماً.",
+                "لا يوجد فرق بينهما سوى في اسم المتغيرات.",
+                "أسلوب Top-Down يستخدم التكرار بالحلقات، بينما Bottom-Up يعتمد على الدوال العودية.",
+                "أسلوب Top-Down يستخدم الاستدعاء العودي مع التذكار، بينما Bottom-Up يملأ جدولاً بالحلقات."
+            ],
+            answer: 3,
+            explanation: "أسلوب (من أعلى لأسفل - Top-Down) يبدأ بالمسألة الكبيرة وينزل للفرعيات بالعودية (Recursion) ويحفظها. بينما (من أسفل لأعلى - Bottom-Up) يبني الحل تدريجياً بالحلقات (Loops).",
+            hint: "أي منهما يعتمد على دوال تستدعي نفسها، وأي منهما يعتمد على حلقات `for`؟"
+        },
+        {
+            q: "متى نستطيع الجزم بأن مسألة ما يمكن حلها باستخدام البرمجة الديناميكية؟",
+            options: [
+                "عندما تتطلب المسألة ترتيب العناصر تصاعدياً كخطوة أولى.",
+                "عندما تتكرر نفس المسائل الفرعية ويمكن بناء الحل النهائي من حلولها (Optimal Substructure).",
+                "عندما يكون حجم مدخلات المسألة صغيراً جداً.",
+                "عندما يُطلب منا إيجاد كل المسارات الممكنة دون اختيار الأفضل."
+            ],
+            answer: 1,
+            explanation: "التداخل في المسائل الفرعية (Overlapping Subproblems) والبنية المثالية للحلول (Optimal Substructure) هما الشرطان الجوهريان لاستخدام DP.",
+            hint: "البرمجة الديناميكية وُجدت أساساً لتعالج الشجرة الاستدعائية التي تحسب نفس الأشياء مراراً."
+        },
+        {
+            q: "في إطار SRTBOT، ماذا يمثل الحرف T الأخير؟",
+            options: [
+                "الانتقالات (Transitions)",
+                "الشجرة الاستدعائية (Tree)",
+                "التعقيد الزمني والذاكري (Time & Space Complexity)",
+                "التتبع (Traceback)"
+            ],
+            answer: 2,
+            explanation: "يمثل الحرف الأخير عملية التقييم النهائي لكفاءة الخوارزمية من حيث الزمن (Time) والذاكرة (Space) المستهلكة.",
+            hint: "بعد الانتهاء من كتابة الحل، ما هو الشيء الأخير الذي يجب حسابه لتقييم الكفاءة؟"
+        }
+    ];
+
+    let currentScore = 0;
+    let questionsAnswered = 0;
+    const totalQuestions = questions.length;
+    const quizArea = document.getElementById('quiz-area');
+    const scoreElement = document.getElementById('score');
+
+    questions.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        
+        const qTitle = document.createElement('div');
+        qTitle.className = 'question-text';
+        qTitle.innerHTML = `<span class="question-num">${index + 1}.</span> <span dir="rtl">${item.q}</span>`;
+        card.appendChild(qTitle);
+
+        const optionsGrid = document.createElement('div');
+        optionsGrid.className = 'options-grid';
+
+        const explanationBox = document.createElement('div');
+        explanationBox.className = 'explanation-box';
+        explanationBox.innerHTML = `<strong>💡 الشرح:</strong> <span dir="rtl">${item.explanation}</span>`;
+
+        // زر التلميح
+        const hintBtn = document.createElement('button');
+        hintBtn.className = 'hint-btn';
+        hintBtn.innerText = 'أحتاج تلميحاً؟';
+        const hintText = document.createElement('div');
+        hintText.className = 'hint-text';
+        hintText.innerText = item.hint;
+        
+        hintBtn.onclick = function() {
+            hintText.style.display = 'block';
+            hintBtn.style.display = 'none';
+        };
+
+        item.options.forEach((opt, optIndex) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            
+            // استخدام div لضمان اتجاه النص
+            const optText = document.createElement('div');
+            optText.innerHTML = opt;
+            optText.dir = 'rtl';
+            btn.appendChild(optText);
+            
+            if(optIndex === item.answer) {
+                btn.dataset.correct = "true";
+            }
+
+            btn.onclick = function() {
+                const allBtns = optionsGrid.querySelectorAll('.option-btn');
+                allBtns.forEach(b => b.disabled = true);
+                
+                hintBtn.style.display = 'none';
+                hintText.style.display = 'none';
+
+                questionsAnswered++;
+
+                if (optIndex === item.answer) {
+                    this.classList.add('correct');
+                    currentScore++;
+                    scoreElement.innerText = currentScore;
+                } else {
+                    this.classList.add('wrong');
+                    optionsGrid.querySelector('[data-correct="true"]').classList.add('correct');
+                }
+                
+                explanationBox.style.display = 'block';
+                MathJax.typesetPromise([explanationBox]);
+
+                // إنهاء الاختبار
+                if (questionsAnswered === totalQuestions) {
+                    document.getElementById('final-score').innerText = currentScore;
+                    document.getElementById('completion-message').style.display = 'block';
+                }
+            };
+            optionsGrid.appendChild(btn);
+        });
+
+        card.appendChild(optionsGrid);
+        card.appendChild(hintBtn);
+        card.appendChild(hintText);
+        card.appendChild(explanationBox);
+        quizArea.appendChild(card);
+    });
+    
+    // Initial MathJax render
+    MathJax.typesetPromise();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مسألة الحقيبة - البرمجة الديناميكية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2236;
+    --accent: #00d4aa;
+    --accent2: #7c3aed;
+    --accent3: #f59e0b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --border: #1e3a5f;
+    --cell-empty: #1a2236;
+    --cell-active: #00d4aa22;
+    --cell-highlight: #7c3aed44;
+    --cell-done: #00d4aa33;
+    --red: #ef4444;
+    --green: #10b981;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, #7c3aed22 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 20% 80%, #00d4aa18 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    background: #7c3aed22;
+    border: 1px solid #7c3aed55;
+    color: #a78bfa;
+    padding: .4rem 1.2rem;
+    border-radius: 2rem;
+    font-size: .85rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    margin-bottom: 1.5rem;
+    animation: fadeDown .6s ease both;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    font-weight: 900;
+    line-height: 1.1;
+    animation: fadeDown .7s ease .1s both;
+  }
+
+  .hero h1 span {
+    background: linear-gradient(135deg, var(--accent), #38bdf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero p {
+    max-width: 600px;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    margin-top: 1rem;
+    animation: fadeDown .7s ease .2s both;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .4rem;
+    color: var(--text-muted);
+    font-size: .8rem;
+    animation: bounce 2s infinite;
+  }
+
+  .scroll-hint svg { width: 20px; height: 20px; }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(8px); }
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Section ── */
+  section {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: .75rem;
+  }
+
+  .section-label::before {
+    content: '';
+    width: 28px;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  h2 {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.8rem;
+    margin-bottom: 1.2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.2rem;
+  }
+
+  /* ── Math ── */
+  .math-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem 1.8rem;
+    margin: 1rem 0;
+    font-family: 'Fira Code', monospace;
+    font-size: .95rem;
+    color: var(--accent3);
+    text-align: center;
+  }
+
+  /* ── Steps ── */
+  .steps { display: flex; flex-direction: column; gap: 1rem; }
+
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.2rem 1.5rem;
+    transition: border-color .3s;
+  }
+
+  .step:hover { border-color: var(--accent); }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: .9rem;
+  }
+
+  /* ── Interactive Visualiser ── */
+  .visualiser {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-top: 1rem;
+  }
+
+  .vis-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    align-items: flex-end;
+  }
+
+  .vis-controls label {
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    font-size: .85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  .vis-controls input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .5rem .9rem;
+    color: var(--text);
+    font-family: 'Fira Code', monospace;
+    font-size: .95rem;
+    width: 140px;
+    outline: none;
+    transition: border-color .2s;
+  }
+
+  .vis-controls input:focus { border-color: var(--accent); }
+
+  .btn {
+    padding: .65rem 1.6rem;
+    border-radius: 10px;
+    border: none;
+    font-family: 'Cairo', sans-serif;
+    font-size: .95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: #fff;
+  }
+
+  .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover { border-color: var(--accent); }
+
+  /* items input */
+  .items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.2rem;
+    font-size: .9rem;
+  }
+
+  .items-table th {
+    background: var(--surface2);
+    padding: .6rem 1rem;
+    text-align: center;
+    color: var(--accent);
+    font-weight: 700;
+    border: 1px solid var(--border);
+  }
+
+  .items-table td {
+    border: 1px solid var(--border);
+    padding: .4rem .6rem;
+    text-align: center;
+  }
+
+  .items-table input {
+    width: 70px;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    text-align: center;
+    font-family: 'Fira Code', monospace;
+    font-size: .9rem;
+    outline: none;
+  }
+
+  /* dp table */
+  .dp-scroll { overflow-x: auto; margin-top: 1.2rem; }
+
+  #dp-table {
+    border-collapse: collapse;
+    font-family: 'Fira Code', monospace;
+    font-size: .78rem;
+    min-width: 100%;
+  }
+
+  #dp-table th {
+    background: var(--surface2);
+    color: var(--accent3);
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+  }
+
+  #dp-table td {
+    border: 1px solid #1e3a5f55;
+    padding: 5px 10px;
+    text-align: center;
+    transition: background .3s, color .3s;
+    min-width: 38px;
+  }
+
+  .cell-done { background: #00d4aa18 !important; color: var(--accent) !important; }
+  .cell-current { background: #7c3aed55 !important; color: #fff !important; font-weight: 700; }
+  .cell-source { background: #f59e0b33 !important; color: var(--accent3) !important; }
+
+  .dp-legend {
+    display: flex;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+    margin-top: .8rem;
+    font-size: .8rem;
+    color: var(--text-muted);
+  }
+
+  .legend-dot {
+    width: 12px; height: 12px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-left: .4rem;
+  }
+
+  /* info bar */
+  .info-bar {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: .8rem 1.2rem;
+    font-size: .9rem;
+    color: var(--text-muted);
+    margin-top: 1rem;
+    min-height: 42px;
+  }
+
+  .info-bar span { color: var(--accent); font-weight: 700; }
+
+  /* speed */
+  .speed-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    font-size: .85rem;
+    color: var(--text-muted);
+  }
+
+  .speed-row input[type=range] {
+    accent-color: var(--accent);
+    width: 120px;
+  }
+
+  /* Result */
+  .result-box {
+    display: none;
+    background: linear-gradient(135deg, #00d4aa22, #7c3aed22);
+    border: 1px solid var(--accent);
+    border-radius: 14px;
+    padding: 1.2rem 1.6rem;
+    margin-top: 1.2rem;
+    text-align: center;
+    animation: fadeDown .5s ease;
+  }
+
+  .result-box .result-val {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--accent);
+    font-family: 'Fira Code', monospace;
+  }
+
+  /* ── Code block ── */
+  .code-wrap {
+    background: #080d18;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-top: 1rem;
+  }
+
+  .code-header {
+    background: var(--surface2);
+    padding: .7rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-size: .8rem;
+    color: var(--text-muted);
+    font-family: 'Fira Code', monospace;
+  }
+
+  .code-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  pre {
+    padding: 1.4rem 1.6rem;
+    overflow-x: auto;
+    font-family: 'Fira Code', monospace;
+    font-size: .85rem;
+    line-height: 1.75;
+    color: #cdd6f4;
+  }
+
+  .kw  { color: #cba6f7; }
+  .ty  { color: #89b4fa; }
+  .fn  { color: #89dceb; }
+  .cm  { color: #585b70; font-style: italic; }
+  .nu  { color: #fab387; }
+  .st  { color: #a6e3a1; }
+  .op  { color: #f38ba8; }
+
+  /* code sections */
+  .code-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .code-section h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent3);
+    margin-bottom: .6rem;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+  }
+
+  .code-section h3::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: var(--accent3);
+    border-radius: 2px;
+  }
+
+  .explain-card {
+    background: var(--surface2);
+    border-right: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin-top: .6rem;
+    font-size: .9rem;
+    color: var(--text-muted);
+  }
+
+  /* ── Complexity ── */
+  .complexity-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .complexity-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .complexity-card .label {
+    font-size: .8rem;
+    color: var(--text-muted);
+    margin-bottom: .4rem;
+  }
+
+  .complexity-card .val {
+    font-family: 'Fira Code', monospace;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent3);
+  }
+
+  /* divider */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0;
+  }
+
+  /* nav */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: #0a0e1acc;
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: .8rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-logo {
+    font-weight: 900;
+    font-size: 1rem;
+    background: linear-gradient(90deg, var(--accent), #38bdf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+    font-size: .85rem;
+  }
+
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color .2s;
+  }
+
+  .nav-links a:hover { color: var(--accent); }
+
+  /* tag */
+  .tag {
+    display: inline-block;
+    background: var(--accent3)22;
+    border: 1px solid var(--accent3)55;
+    color: var(--accent3);
+    font-size: .72rem;
+    font-weight: 700;
+    padding: .2rem .7rem;
+    border-radius: 1rem;
+    letter-spacing: .06em;
+  }
+
+  .tag.green {
+    background: #10b98122;
+    border-color: #10b98155;
+    color: #10b981;
+  }
+
+  /* responsive */
+  @media (max-width: 600px) {
+    .complexity-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    pre { font-size: .75rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav">
+  <div class="nav-logo">DP · الحقيبة</div>
+  <ul class="nav-links">
+    <li><a href="#problem">المسألة</a></li>
+    <li><a href="#explanation">الشرح</a></li>
+    <li><a href="#visualiser">المحاكاة</a></li>
+    <li><a href="#solution">الحل</a></li>
+    <li><a href="#code">الكود</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="grid-bg"></div>
+  <div class="badge">🎒 البرمجة الديناميكية</div>
+  <h1>مسألة <span>الحقيبة</span><br>Knapsack 1</h1>
+  <p>تعلّم كيف تختار أفضل مجموعة من العناصر بحيث تحصل على أعلى قيمة ممكنة دون تجاوز سعة الحقيبة.</p>
+  <div class="scroll-hint">
+    <span>اكتشف المزيد</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10l5 5 5-5"/></svg>
+  </div>
+</div>
+
+<!-- ═══ Problem ═══ -->
+<section id="problem">
+  <div class="section-label">المسألة</div>
+  <h2>ما هي المسألة؟</h2>
+
+  <div class="card">
+    <p>لديك حقيبة سعتها <strong style="color:var(--accent)">W</strong> كيلوغرام، و<strong style="color:var(--accent)">N</strong> عنصر، كل عنصر له:</p>
+    <br>
+    <div class="card-grid">
+      <div class="card" style="margin:0; background:var(--surface2)">
+        <div style="font-size:2rem; margin-bottom:.4rem">⚖️</div>
+        <strong style="color:var(--accent3)">الوزن wᵢ</strong>
+        <p style="color:var(--text-muted); font-size:.9rem; margin-top:.3rem">كم يزن هذا العنصر</p>
+      </div>
+      <div class="card" style="margin:0; background:var(--surface2)">
+        <div style="font-size:2rem; margin-bottom:.4rem">💎</div>
+        <strong style="color:var(--accent)">القيمة vᵢ</strong>
+        <p style="color:var(--text-muted); font-size:.9rem; margin-top:.3rem">كم يساوي هذا العنصر</p>
+      </div>
+    </div>
+    <br>
+    <p><strong>الهدف:</strong> اختر مجموعة جزئية من العناصر بحيث:</p>
+    <div class="math-box">مجموع الأوزان ≤ W &nbsp;&nbsp;&&nbsp;&nbsp; مجموع القيم → أكبر قيمة ممكنة</div>
+    <p style="color:var(--text-muted); font-size:.9rem">⚠️ كل عنصر يمكن أخذه مرة واحدة فقط (0/1 Knapsack)</p>
+  </div>
+
+  <div class="card-grid">
+    <div class="card" style="margin:0">
+      <div class="tag">القيود</div><br><br>
+      <ul style="color:var(--text-muted); font-size:.9rem; padding-right:1rem;">
+        <li>1 ≤ N ≤ 100</li>
+        <li>1 ≤ W ≤ 100,000</li>
+        <li>1 ≤ wᵢ ≤ W</li>
+        <li>1 ≤ vᵢ ≤ 10⁹</li>
+      </ul>
+    </div>
+    <div class="card" style="margin:0">
+      <div class="tag green">AtCoder DP Sheet</div><br><br>
+      <p style="color:var(--text-muted); font-size:.9rem">هذه المسألة من المجموعة الشهيرة <strong style="color:var(--text)">Educational DP Contest</strong> في AtCoder، وهي من أهم مسائل البرمجة الديناميكية الكلاسيكية.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══ Explanation ═══ -->
+<section id="explanation">
+  <div class="section-label">الشرح</div>
+  <h2>كيف نفكر في الحل؟</h2>
+
+  <div class="card">
+    <h3 style="color:var(--accent); margin-bottom:1rem">🧠 تعريف الحالة dp[i][j]</h3>
+    <p>نعرّف:</p>
+    <div class="math-box">dp[i][j] = أكبر قيمة ممكنة بالنظر إلى العناصر من 0 حتى i بسعة j</div>
+    <p style="color:var(--text-muted); margin-top:.8rem">أي: ماذا لو أن معنا فقط أول i+1 عنصر وحقيبتنا سعتها j؟</p>
+  </div>
+
+  <div class="card">
+    <h3 style="color:var(--accent); margin-bottom:1rem">🔀 الانتقال بين الحالات</h3>
+    <p>عند النظر في العنصر <strong>i</strong>، لدينا خياران:</p>
+    <br>
+    <div class="card-grid">
+      <div style="background:var(--surface2); border-radius:12px; padding:1.2rem; border:1px solid #ef444433;">
+        <strong style="color:#ef4444">❌ لا نأخذ العنصر i</strong>
+        <div class="math-box" style="margin:.8rem 0; font-size:.85rem">dp[i][j] = dp[i-1][j]</div>
+        <p style="font-size:.85rem; color:var(--text-muted)">القيمة تساوي ما حصلنا عليه من العناصر السابقة بنفس السعة</p>
+      </div>
+      <div style="background:var(--surface2); border-radius:12px; padding:1.2rem; border:1px solid #00d4aa33;">
+        <strong style="color:var(--accent)">✅ نأخذ العنصر i (إذا j ≥ wᵢ)</strong>
+        <div class="math-box" style="margin:.8rem 0; font-size:.85rem">dp[i][j] = dp[i-1][j-wᵢ] + vᵢ</div>
+        <p style="font-size:.85rem; color:var(--text-muted)">نضيف قيمته ونخصم وزنه من السعة المتبقية</p>
+      </div>
+    </div>
+    <br>
+    <p>نأخذ <strong style="color:var(--accent3)">الأكبر</strong> بين الخيارين:</p>
+    <div class="math-box">dp[i][j] = max( dp[i-1][j] , dp[i-1][j-wᵢ] + vᵢ )</div>
+  </div>
+
+  <div class="card">
+    <h3 style="color:var(--accent); margin-bottom:1rem">🏁 الحالة الأساسية</h3>
+    <div class="math-box">dp[-1][j] = 0 &nbsp;&nbsp;&nbsp;(قبل أي عنصر القيمة صفر)</div>
+    <p style="color:var(--text-muted); margin-top:.8rem">في الكود نبدأ من العنصر i=0 ونعالج الحالة الأساسية بشكل منفصل.</p>
+  </div>
+
+  <div class="complexity-grid" style="margin-top:1rem">
+    <div class="complexity-card">
+      <div class="label">التعقيد الزمني</div>
+      <div class="val">O(N × W)</div>
+    </div>
+    <div class="complexity-card">
+      <div class="label">التعقيد المكاني</div>
+      <div class="val">O(N × W)</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══ Visualiser ═══ -->
+<section id="visualiser">
+  <div class="section-label">المحاكاة التفاعلية</div>
+  <h2>شاهد الخوارزمية تعمل</h2>
+
+  <div class="visualiser">
+    <!-- Controls -->
+    <div style="display:flex; flex-wrap:wrap; gap:1rem; margin-bottom:1.2rem; align-items:flex-end">
+      <label style="font-size:.85rem; color:var(--text-muted); font-weight:600; display:flex; flex-direction:column; gap:.4rem">
+        سعة الحقيبة W
+        <input type="number" id="cap-input" value="10" min="1" max="20" style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:.5rem .9rem; color:var(--text); font-family:'Fira Code',monospace; font-size:.95rem; width:120px; outline:none;">
+      </label>
+      <label style="font-size:.85rem; color:var(--text-muted); font-weight:600; display:flex; flex-direction:column; gap:.4rem">
+        عدد العناصر N
+        <input type="number" id="n-input" value="4" min="1" max="8" style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:.5rem .9rem; color:var(--text); font-family:'Fira Code',monospace; font-size:.95rem; width:120px; outline:none;" onchange="buildItemsTable()">
+      </label>
+      <button class="btn btn-secondary" onclick="buildItemsTable()">تحديث الجدول</button>
+      <button class="btn btn-secondary" onclick="randomize()">عشوائي 🎲</button>
+    </div>
+
+    <!-- Items table -->
+    <div style="overflow-x:auto">
+      <table class="items-table" id="items-table">
+        <thead>
+          <tr>
+            <th>العنصر</th>
+            <th>الوزن wᵢ</th>
+            <th>القيمة vᵢ</th>
+          </tr>
+        </thead>
+        <tbody id="items-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Action buttons -->
+    <div style="display:flex; gap:.8rem; flex-wrap:wrap; align-items:center; margin-bottom:1rem">
+      <button class="btn btn-primary" onclick="startVis()">▶ ابدأ المحاكاة</button>
+      <button class="btn btn-secondary" onclick="stepVis()">خطوة واحدة ⏭</button>
+      <button class="btn btn-secondary" onclick="resetVis()">إعادة تعيين ↺</button>
+    </div>
+
+    <div class="speed-row">
+      <span>السرعة:</span>
+      <input type="range" id="speed" min="50" max="1000" value="500" step="50">
+      <span id="speed-label">متوسطة</span>
+    </div>
+
+    <!-- Info bar -->
+    <div class="info-bar" id="info-bar">اضغط <span>ابدأ المحاكاة</span> لرؤية الخوارزمية تعمل خطوة بخطوة.</div>
+
+    <!-- DP Table -->
+    <div class="dp-scroll">
+      <div id="dp-table-wrap"></div>
+    </div>
+
+    <div class="dp-legend">
+      <span><span class="legend-dot" style="background:#7c3aed55"></span> الخلية الحالية</span>
+      <span><span class="legend-dot" style="background:#f59e0b33"></span> مصدر الانتقال</span>
+      <span><span class="legend-dot" style="background:#00d4aa18"></span> محسوبة</span>
+    </div>
+
+    <!-- Result -->
+    <div class="result-box" id="result-box">
+      <p style="color:var(--text-muted); margin-bottom:.4rem">🎉 أكبر قيمة ممكنة</p>
+      <div class="result-val" id="result-val">0</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══ Solution Steps ═══ -->
+<section id="solution">
+  <div class="section-label">خطوات الحل</div>
+  <h2>كيف نبني الحل؟</h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <strong>تعريف مصفوفة dp</strong>
+        <p style="color:var(--text-muted); font-size:.9rem; margin-top:.3rem">نعرّف <code style="color:var(--accent)">dp[i][j]</code> بأنها أكبر قيمة يمكن تحقيقها باستخدام أول i+1 عناصر وسعة j.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <strong>تهيئة المصفوفة بـ -1</strong>
+        <p style="color:var(--text-muted); font-size:.9rem; margin-top:.3rem">نستخدم -1 كقيمة افتراضية للتمييز بين الخلايا المحسوبة وغير المحسوبة (Memoization).</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <strong>معالجة الحالة الأساسية (i = 0)</strong>
+        <p style="color:var(--text-muted); font-size:.9rem; margin-top:.3rem">إذا كانت السعة تكفي لأخذ العنصر الأول، نعيد قيمته، وإلا نعيد صفرًا.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div>
+        <strong>تطبيق الانتقال الرئيسي</strong>
+        <p style="color:var(--text-muted); font-size:.9rem; margin-top:.3rem">لكل عنصر i وسعة j: نحسب الحالتين (أخذ / عدم أخذ) ونختار الأكبر.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div>
+        <strong>استخراج النتيجة</strong>
+        <p style="color:var(--text-muted); font-size:.9rem; margin-top:.3rem">الإجابة هي <code style="color:var(--accent)">f(n-1, W)</code> — أي أفضل قيمة باستخدام كل العناصر وكامل السعة.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══ Code ═══ -->
+<section id="code">
+  <div class="section-label">الكود</div>
+  <h2>شرح الكود قطعة قطعة</h2>
+
+  <!-- Part 1 -->
+  <div class="code-section">
+    <h3>المتغيرات العامة</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dot" style="background:#ff5f57"></div>
+        <div class="code-dot" style="background:#febc2e"></div>
+        <div class="code-dot" style="background:#28c840"></div>
+        <span>knapsack.cpp</span>
+      </div>
+      <pre><span class="kw">long long</span> dp[<span class="nu">200</span>][<span class="nu">200000</span>];
+<span class="kw">int</span> v[<span class="nu">200</span>], w[<span class="nu">200</span>];</pre>
+    </div>
+    <div class="explain-card">
+      <strong style="color:var(--text)">🔍 ماذا يعني هذا؟</strong><br><br>
+      <code style="color:var(--accent)">dp[i][j]</code> — مصفوفة ثنائية الأبعاد تحفظ أفضل قيمة للعناصر من 0 إلى i بسعة j.<br>
+      نستخدم <code style="color:var(--accent)">long long</code> لأن القيم قد تصل إلى N × 10⁹ = 10¹¹، مما يتجاوز int العادي.<br>
+      <code style="color:var(--accent)">v[]</code> و <code style="color:var(--accent)">w[]</code> تخزنان القيم والأوزان لكل عنصر.
+    </div>
+  </div>
+
+  <!-- Part 2 -->
+  <div class="code-section">
+    <h3>الدالة الرئيسية (Recursive + Memoization)</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dot" style="background:#ff5f57"></div>
+        <div class="code-dot" style="background:#febc2e"></div>
+        <div class="code-dot" style="background:#28c840"></div>
+        <span>knapsack.cpp</span>
+      </div>
+      <pre><span class="kw">long long</span> <span class="fn">f</span>(<span class="kw">int</span> i, <span class="kw">int</span> capacity) {
+
+  <span class="cm">// الحالة الأساسية: العنصر الأول فقط</span>
+  <span class="kw">if</span> (i == <span class="nu">0</span>) {
+    <span class="kw">if</span> (capacity < w[i]) <span class="kw">return</span> <span class="nu">0</span>;
+    <span class="kw">else</span>                 <span class="kw">return</span> v[i];
+  }
+
+  <span class="cm">// إذا سبق حساب هذه الحالة، أعدها مباشرة</span>
+  <span class="kw">if</span> (dp[i][capacity] != <span class="op">-1</span>) <span class="kw">return</span> dp[i][capacity];
+
+  <span class="cm">// لا نأخذ العنصر i</span>
+  dp[i][capacity] = <span class="fn">f</span>(i - <span class="nu">1</span>, capacity);
+
+  <span class="cm">// نأخذ العنصر i (إذا وزنه لا يتجاوز السعة)</span>
+  <span class="kw">if</span> (capacity >= w[i]) {
+    dp[i][capacity] = <span class="fn">max</span>(dp[i][capacity],
+                          <span class="fn">f</span>(i - <span class="nu">1</span>, capacity - w[i]) + v[i]);
+  }
+
+  <span class="kw">return</span> dp[i][capacity];
+}</pre>
+    </div>
+    <div class="explain-card">
+      <strong style="color:var(--text)">🔍 كيف تعمل الدالة؟</strong><br><br>
+      1️⃣ <strong>Base case:</strong> إذا وصلنا للعنصر الأول، نتحقق هل يمكن أخذه أم لا.<br><br>
+      2️⃣ <strong>Memoization:</strong> إذا حسبنا <code style="color:var(--accent)">dp[i][capacity]</code> من قبل، نعيده مباشرة بدلاً من إعادة الحساب — هذا ما يوفر الوقت!<br><br>
+      3️⃣ <strong>الانتقال:</strong> نحسب حالة "عدم الأخذ" أولاً، ثم إذا كان الوزن يسمح، نحسب حالة "الأخذ" ونأخذ الأكبر.
+    </div>
+  </div>
+
+  <!-- Part 3 -->
+  <div class="code-section">
+    <h3>الدالة الرئيسية main</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dot" style="background:#ff5f57"></div>
+        <div class="code-dot" style="background:#febc2e"></div>
+        <div class="code-dot" style="background:#28c840"></div>
+        <span>knapsack.cpp</span>
+      </div>
+      <pre><span class="kw">int</span> <span class="fn">main</span>() {
+  
+  <span class="cm">// تهيئة كل الخلايا بـ -1 (لم تُحسب بعد)</span>
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nu">0</span>; i < <span class="nu">200</span>; i++)
+    <span class="kw">for</span> (<span class="kw">int</span> j = <span class="nu">0</span>; j < <span class="nu">200000</span>; j++)
+      dp[i][j] = <span class="op">-1</span>;
+
+  <span class="kw">int</span> n, weight;
+  cin >> n >> weight;
+  
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nu">0</span>; i < n; i++)
+    cin >> w[i] >> v[i];
+
+  <span class="cm">// نطلب الإجابة: كل العناصر، أقصى سعة</span>
+  cout << <span class="fn">f</span>(n - <span class="nu">1</span>, weight) << endl;
+}</pre>
+    </div>
+    <div class="explain-card">
+      <strong style="color:var(--text)">🔍 نقاط مهمة في main:</strong><br><br>
+      • نبدأ بتهيئة كل dp بـ -1 لنعرف أي خلايا لم تُحسب بعد.<br>
+      • نقرأ المدخلات: N (عدد العناصر) و W (سعة الحقيبة)، ثم وزن وقيمة كل عنصر.<br>
+      • نستدعي <code style="color:var(--accent)">f(n-1, weight)</code> لأن المصفوفة تبدأ من 0، وnَ1 هو آخر عنصر.
+    </div>
+  </div>
+
+  <!-- Full code -->
+  <div class="code-section">
+    <h3>الكود الكامل</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dot" style="background:#ff5f57"></div>
+        <div class="code-dot" style="background:#febc2e"></div>
+        <div class="code-dot" style="background:#28c840"></div>
+        <span>knapsack_full.cpp</span>
+      </div>
+      <pre><span class="kw">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="kw">long long</span> dp[<span class="nu">200</span>][<span class="nu">200000</span>];
+<span class="kw">int</span> v[<span class="nu">200</span>], w[<span class="nu">200</span>];
+
+
+<span class="kw">long long</span> <span class="fn">f</span>(<span class="kw">int</span> i, <span class="kw">int</span> capacity) {
+
+    <span class="kw">if</span> (i == <span class="nu">0</span>) {
+        <span class="kw">if</span> (capacity < w[i]) <span class="kw">return</span> <span class="nu">0</span>;
+        <span class="kw">else</span>                 <span class="kw">return</span> v[i];
+    }
+
+    <span class="kw">if</span> (dp[i][capacity] != <span class="op">-1</span>) <span class="kw">return</span> dp[i][capacity];
+
+    <span class="cm">// i في حالة إستبعاد العنصر</span>
+    dp[i][capacity] = <span class="fn">f</span>(i - <span class="nu">1</span>, capacity);
+
+    <span class="cm">// i في حالة أخذ العنصر</span>
+    <span class="kw">if</span> (capacity >= w[i]) {
+        dp[i][capacity] = <span class="fn">max</span>(dp[i][capacity],
+                              <span class="fn">f</span>(i - <span class="nu">1</span>, capacity - w[i]) + v[i]);
+    }
+
+    <span class="kw">return</span> dp[i][capacity];
+}
+
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+  
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nu">0</span>; i < <span class="nu">200</span>; i++)
+        <span class="kw">for</span> (<span class="kw">int</span> j = <span class="nu">0</span>; j < <span class="nu">200000</span>; j++)
+            dp[i][j] = <span class="op">-1</span>;
+
+    <span class="kw">int</span> n, weight;
+    cin >> n >> weight;
+  
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nu">0</span>; i < n; i++)
+        cin >> w[i] >> v[i];
+
+    cout << <span class="fn">f</span>(n - <span class="nu">1</span>, weight) << endl;
+}</pre>
+    </div>
+  </div>
+</section>
+
+<div style="height:4rem"></div>
+
+<!-- ════ JavaScript ════ -->
+<script>
+// ── Build items table ──
+function buildItemsTable() {
+  const n = parseInt(document.getElementById('n-input').value) || 4;
+  const tbody = document.getElementById('items-body');
+  const current = tbody.querySelectorAll('tr');
+  const currentN = current.length;
+  // Keep existing values, add/remove rows
+  if (n > currentN) {
+    for (let i = currentN; i < n; i++) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td style="color:var(--accent3);font-weight:700">عنصر ${i+1}</td>
+        <td><input type="number" min="1" value="${Math.floor(Math.random()*5)+1}" /></td>
+        <td><input type="number" min="1" value="${Math.floor(Math.random()*10)+1}" /></td>`;
+      tbody.appendChild(tr);
+    }
+  } else {
+    while (tbody.rows.length > n) tbody.deleteRow(tbody.rows.length - 1);
+  }
+  resetVis();
+}
+
+function randomize() {
+  const n = parseInt(document.getElementById('n-input').value) || 4;
+  document.getElementById('cap-input').value = Math.floor(Math.random()*15)+5;
+  const tbody = document.getElementById('items-body');
+  tbody.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td style="color:var(--accent3);font-weight:700">عنصر ${i+1}</td>
+      <td><input type="number" min="1" value="${Math.floor(Math.random()*6)+1}" /></td>
+      <td><input type="number" min="1" value="${Math.floor(Math.random()*15)+2}" /></td>`;
+    tbody.appendChild(tr);
+  }
+  resetVis();
+}
+
+// ── Get data ──
+function getData() {
+  const W = parseInt(document.getElementById('cap-input').value);
+  const rows = document.getElementById('items-body').querySelectorAll('tr');
+  const items = [];
+  rows.forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    items.push({ w: parseInt(inputs[0].value)||1, v: parseInt(inputs[1].value)||1 });
+  });
+  return { W, items };
+}
+
+// ── DP Computation ──
+let dpMatrix = [], steps = [], stepIdx = 0, animTimer = null;
+
+function computeDP(items, W) {
+  const N = items.length;
+  const dp = Array.from({length: N}, () => new Array(W+1).fill(-1));
+  const stps = [];
+
+  for (let j = 0; j <= W; j++) {
+    dp[0][j] = items[0].w <= j ? items[0].v : 0;
+    stps.push({
+      i: 0, j,
+      val: dp[0][j],
+      src: null,
+      note: j < items[0].w
+        ? `العنصر 1 (وزنه ${items[0].w}) لا يدخل في السعة ${j} → القيمة = 0`
+        : `العنصر 1 (وزن ${items[0].w}, قيمة ${items[0].v}) يدخل → القيمة = ${items[0].v}`
+    });
+  }
+
+  for (let i = 1; i < N; i++) {
+    for (let j = 0; j <= W; j++) {
+      const skip = dp[i-1][j];
+      let take = -Infinity, src = null;
+      if (j >= items[i].w) {
+        take = dp[i-1][j - items[i].w] + items[i].v;
+        src = { i: i-1, j: j - items[i].w };
+      }
+      dp[i][j] = Math.max(skip, take === -Infinity ? -Infinity : take);
+      if (dp[i][j] === -Infinity) dp[i][j] = 0;
+      const chosen = take > skip ? 'أخذ' : 'تجاهل';
+      stps.push({
+        i, j,
+        val: dp[i][j],
+        src: take > skip ? src : { i: i-1, j },
+        note: `عنصر ${i+1} (و=${items[i].w}, ق=${items[i].v}) | تجاهل=${skip} | أخذ=${take===-Infinity?'غير ممكن':take} → ${chosen} → القيمة = ${dp[i][j]}`
+      });
+    }
+  }
+
+  return { dp, stps };
+}
+
+function buildTable(N, W, dp) {
+  let html = '<table id="dp-table"><thead><tr><th>العنصر \\ السعة</th>';
+  for (let j = 0; j <= W; j++) html += `<th>${j}</th>`;
+  html += '</tr></thead><tbody>';
+  for (let i = 0; i < N; i++) {
+    html += `<tr><th style="background:var(--surface2);color:var(--accent3);position:sticky;right:0">عنصر ${i+1}</th>`;
+    for (let j = 0; j <= W; j++) {
+      html += `<td id="cell-${i}-${j}">–</td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  document.getElementById('dp-table-wrap').innerHTML = html;
+}
+
+function clearHighlights(steps, idx) {
+  if (idx < 0) return;
+  const s = steps[idx];
+  const c = document.getElementById(`cell-${s.i}-${s.j}`);
+  if (c) { c.className = 'cell-done'; }
+  if (s.src) {
+    const s2 = document.getElementById(`cell-${s.src.i}-${s.src.j}`);
+    if (s2 && s2.classList.contains('cell-source')) s2.className = 'cell-done';
+  }
+}
+
+function applyStep(s) {
+  const c = document.getElementById(`cell-${s.i}-${s.j}`);
+  if (c) { c.textContent = s.val; c.className = 'cell-current'; }
+  if (s.src) {
+    const s2 = document.getElementById(`cell-${s.src.i}-${s.src.j}`);
+    if (s2) s2.className = 'cell-source';
+  }
+  document.getElementById('info-bar').innerHTML = s.note.replace(/→/g, '<span>→</span>');
+}
+
+let dpData = null;
+
+function startVis() {
+  resetVis();
+  const { W, items } = getData();
+  const N = items.length;
+  dpData = computeDP(items, W);
+  dpMatrix = dpData.dp;
+  steps = dpData.stps;
+  stepIdx = 0;
+  buildTable(N, W, dpMatrix);
+
+  const speed = parseInt(document.getElementById('speed').value);
+  document.getElementById('result-box').style.display = 'none';
+
+  function tick() {
+    if (stepIdx > 0) clearHighlights(steps, stepIdx - 1);
+    if (stepIdx < steps.length) {
+      applyStep(steps[stepIdx]);
+      stepIdx++;
+      animTimer = setTimeout(tick, 1100 - speed);
+    } else {
+      // done
+      const ans = dpMatrix[N-1][W];
+      document.getElementById('result-val').textContent = ans;
+      document.getElementById('result-box').style.display = 'block';
+      document.getElementById('info-bar').innerHTML = `✅ اكتمل! أكبر قيمة ممكنة = <span>${ans}</span>`;
+    }
+  }
+  tick();
+}
+
+function stepVis() {
+  if (!dpData) {
+    const { W, items } = getData();
+    dpData = computeDP(items, W);
+    dpMatrix = dpData.dp;
+    steps = dpData.stps;
+    stepIdx = 0;
+    buildTable(items.length, W, dpMatrix);
+    document.getElementById('result-box').style.display = 'none';
+  }
+  if (animTimer) { clearTimeout(animTimer); animTimer = null; }
+  if (stepIdx > 0) clearHighlights(steps, stepIdx - 1);
+  if (stepIdx < steps.length) {
+    applyStep(steps[stepIdx]);
+    stepIdx++;
+  } else {
+    const { W, items } = getData();
+    const ans = dpMatrix[items.length-1][W];
+    document.getElementById('result-val').textContent = ans;
+    document.getElementById('result-box').style.display = 'block';
+    document.getElementById('info-bar').innerHTML = `✅ اكتمل! أكبر قيمة ممكنة = <span>${ans}</span>`;
+  }
+}
+
+function resetVis() {
+  if (animTimer) { clearTimeout(animTimer); animTimer = null; }
+  dpData = null; steps = []; stepIdx = 0;
+  document.getElementById('dp-table-wrap').innerHTML = '';
+  document.getElementById('result-box').style.display = 'none';
+  document.getElementById('info-bar').innerHTML = 'اضغط <span>ابدأ المحاكاة</span> لرؤية الخوارزمية تعمل خطوة بخطوة.';
+}
+
+// speed label
+document.getElementById('speed').addEventListener('input', function() {
+  const v = parseInt(this.value);
+  const labels = {50:'بطيئة جداً', 200:'بطيئة', 400:'متوسطة', 600:'سريعة', 800:'سريعة جداً', 1000:'أقصى سرعة'};
+  let closest = Object.keys(labels).reduce((a,b) => Math.abs(b-v) < Math.abs(a-v) ? b : a);
+  document.getElementById('speed-label').textContent = labels[closest] || 'متوسطة';
+});
+
+// Init
+buildItemsTable();
+</script>
+</body>
+</html>

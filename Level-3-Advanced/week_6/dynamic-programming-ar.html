@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>البرمجة الديناميكية – دليل تفاعلي شامل</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0b0f1a;
+    --surface:   #111827;
+    --surface2:  #1a2235;
+    --border:    #1e2d45;
+    --accent:    #38bdf8;
+    --accent2:   #818cf8;
+    --accent3:   #34d399;
+    --warn:      #fb923c;
+    --danger:    #f87171;
+    --text:      #e2e8f0;
+    --muted:     #7c8fa6;
+    --gold:      #fbbf24;
+    --card-glow: rgba(56,189,248,0.08);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Tajawal', sans-serif;
+    font-size: 17px;
+    line-height: 1.8;
+    overflow-x: hidden;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 50% 0%,   rgba(56,189,248,0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 80% 80%,  rgba(129,140,248,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 30% 30% at 10% 90%,  rgba(52,211,153,0.10) 0%, transparent 60%);
+    z-index: 0;
+  }
+  .grid-lines {
+    position: absolute; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(56,189,248,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(56,189,248,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .hero-content { position: relative; z-index: 1; max-width: 800px; }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(56,189,248,0.12);
+    border: 1px solid rgba(56,189,248,0.3);
+    color: var(--accent);
+    padding: 0.3rem 1.2rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero h1 {
+    font-size: clamp(2.4rem, 6vw, 4.2rem);
+    font-weight: 900;
+    line-height: 1.2;
+    background: linear-gradient(135deg, #e2e8f0 30%, var(--accent) 70%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1.2rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  .hero p {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 580px;
+    margin: 0 auto 2.5rem;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .hero-stats {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .stat {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.8rem;
+    text-align: center;
+  }
+  .stat-num { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
+  .stat-label { font-size: 0.8rem; color: var(--muted); }
+
+  /* ─── NAV ─── */
+  .toc {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(11,15,26,0.88);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    padding: 0.8rem 2rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .toc a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 500;
+    padding: 0.3rem 0.9rem;
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+  .toc a:hover { color: var(--accent); background: rgba(56,189,248,0.08); }
+
+  /* ─── SECTIONS ─── */
+  .section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .section-icon {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+  .ic-blue  { background: rgba(56,189,248,0.15);  border: 1px solid rgba(56,189,248,0.3); }
+  .ic-purple{ background: rgba(129,140,248,0.15); border: 1px solid rgba(129,140,248,0.3); }
+  .ic-green { background: rgba(52,211,153,0.15);  border: 1px solid rgba(52,211,153,0.3); }
+  .ic-gold  { background: rgba(251,191,36,0.15);  border: 1px solid rgba(251,191,36,0.3); }
+  .ic-warn  { background: rgba(251,146,60,0.15);  border: 1px solid rgba(251,146,60,0.3); }
+
+  .section-header h2 {
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: #f1f5f9;
+  }
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0;
+  }
+
+  /* ─── CARDS ─── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.8rem;
+    margin-bottom: 1.5rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .card:hover {
+    border-color: rgba(56,189,248,0.3);
+    box-shadow: 0 0 30px var(--card-glow);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 0.7rem;
+  }
+  .card p { color: #94a3b8; }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.2rem;
+    margin-top: 1.5rem;
+  }
+
+  /* ─── INFO BOX ─── */
+  .info-box {
+    border-radius: 14px;
+    padding: 1.4rem 1.8rem;
+    margin: 1.5rem 0;
+    border-right: 4px solid;
+    font-size: 0.97rem;
+  }
+  .info-box.tip    { background: rgba(52,211,153,0.08); border-color: var(--accent3); }
+  .info-box.warn   { background: rgba(251,146,60,0.08);  border-color: var(--warn); }
+  .info-box.note   { background: rgba(56,189,248,0.08);  border-color: var(--accent); }
+  .info-box.danger { background: rgba(248,113,113,0.08); border-color: var(--danger); }
+  .info-box strong { display: block; margin-bottom: 0.4rem; font-size: 1rem; }
+
+  /* ─── CODE ─── */
+  .code-block {
+    background: #060d1a;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.87rem;
+    direction: ltr;
+  }
+  .code-header {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: 0.6rem 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+  }
+  .dot-r { background: #f87171; }
+  .dot-y { background: #fbbf24; }
+  .dot-g { background: #34d399; }
+  .code-lang { color: var(--muted); font-size: 0.78rem; }
+  .code-block pre {
+    padding: 1.4rem;
+    overflow-x: auto;
+    color: #94d4f5;
+    white-space: pre;
+  }
+  .kw  { color: #818cf8; }
+  .fn  { color: #34d399; }
+  .cm  { color: #4b6484; font-style: italic; }
+  .nm  { color: #fbbf24; }
+  .st  { color: #fb923c; }
+  .ty  { color: #38bdf8; }
+
+  /* ─── TIMELINE (history) ─── */
+  .timeline { position: relative; padding-right: 2.5rem; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    right: 10px; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), var(--accent2), var(--accent3));
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 2.2rem;
+  }
+  .tl-dot {
+    position: absolute;
+    right: -2.7rem;
+    top: 0.35rem;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--bg);
+    box-shadow: 0 0 10px rgba(56,189,248,0.6);
+  }
+  .tl-year {
+    font-size: 0.82rem;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.2rem;
+  }
+  .tl-title { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.3rem; color: #f1f5f9; }
+  .tl-body  { color: var(--muted); font-size: 0.95rem; }
+
+  /* ─── VIZ ─── */
+  .viz-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 2rem 0;
+  }
+  .viz-title {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+  .fib-tree {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+  }
+  .fib-row { display: flex; justify-content: center; gap: 10px; margin: 6px 0; }
+  .fib-node {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    font-size: 0.82rem;
+    font-weight: 700;
+    border: 2px solid;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Fira Code', monospace;
+  }
+  .fib-node.fresh { background: rgba(56,189,248,0.1); border-color: var(--accent); color: var(--accent); }
+  .fib-node.cached{ background: rgba(52,211,153,0.15); border-color: var(--accent3); color: var(--accent3); }
+  .fib-node.base  { background: rgba(251,191,36,0.15); border-color: var(--gold); color: var(--gold); }
+
+  /* ─── DP TABLE VIZ ─── */
+  .dp-table-wrap { overflow-x: auto; }
+  .dp-table {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    padding: 1rem;
+    min-width: max-content;
+    margin: 0 auto;
+  }
+  .dp-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .dp-box {
+    width: 56px; height: 56px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fira Code', monospace;
+    font-weight: 700;
+    font-size: 1rem;
+    border: 2px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    transition: all 0.4s;
+    cursor: default;
+  }
+  .dp-box.filled {
+    border-color: var(--accent);
+    background: rgba(56,189,248,0.12);
+    color: var(--accent);
+    box-shadow: 0 0 14px rgba(56,189,248,0.2);
+  }
+  .dp-box.highlight {
+    border-color: var(--accent3);
+    background: rgba(52,211,153,0.18);
+    color: var(--accent3);
+    box-shadow: 0 0 18px rgba(52,211,153,0.3);
+    transform: scale(1.12);
+  }
+  .dp-label { font-size: 0.75rem; color: var(--muted); }
+
+  .viz-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+  }
+  .btn {
+    padding: 0.6rem 1.6rem;
+    border-radius: 10px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    outline: none;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #0b0f1a;
+  }
+  .btn-primary:hover { background: #7dd3fc; transform: translateY(-2px); }
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-success {
+    background: var(--accent3);
+    color: #0b0f1a;
+  }
+  .btn-success:hover { background: #6ee7b7; transform: translateY(-2px); }
+
+  /* ─── SRTBOT ─── */
+  .srtbot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 1.2rem;
+    margin-top: 1.5rem;
+  }
+  .srtbot-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+  .srtbot-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+  .srtbot-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; left: 0;
+    height: 3px;
+  }
+  .sb-s::before { background: var(--accent); }
+  .sb-r::before { background: var(--accent2); }
+  .sb-t::before { background: var(--accent3); }
+  .sb-b::before { background: var(--gold); }
+  .sb-o::before { background: var(--warn); }
+  .sb-c::before { background: var(--danger); }
+  .srtbot-letter {
+    font-size: 2rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+    font-family: 'Fira Code', monospace;
+  }
+  .sb-s .srtbot-letter { color: var(--accent); }
+  .sb-r .srtbot-letter { color: var(--accent2); }
+  .sb-t .srtbot-letter { color: var(--accent3); }
+  .sb-b .srtbot-letter { color: var(--gold); }
+  .sb-o .srtbot-letter { color: var(--warn); }
+  .sb-c .srtbot-letter { color: var(--danger); }
+  .srtbot-name { font-weight: 700; font-size: 1rem; color: #f1f5f9; margin-bottom: 0.6rem; }
+  .srtbot-desc { color: var(--muted); font-size: 0.9rem; }
+
+  /* ─── COMPLEXITY ─── */
+  .complexity-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+    margin: 1.5rem 0;
+  }
+  .comp-card {
+    border-radius: 14px;
+    padding: 1.5rem;
+    border: 1px solid;
+  }
+  .comp-bad  { background: rgba(248,113,113,0.07); border-color: rgba(248,113,113,0.3); }
+  .comp-good { background: rgba(52,211,153,0.07);  border-color: rgba(52,211,153,0.3); }
+  .comp-label { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+  .comp-bad  .comp-label { color: var(--danger); }
+  .comp-good .comp-label { color: var(--accent3); }
+  .comp-big  { font-size: 1.8rem; font-weight: 900; font-family: 'Fira Code', monospace; margin-bottom: 0.5rem; }
+  .comp-bad  .comp-big  { color: var(--danger); }
+  .comp-good .comp-big  { color: var(--accent3); }
+  .comp-desc { color: var(--muted); font-size: 0.9rem; }
+
+  /* ─── QUESTIONS ─── */
+  .quiz-section { background: var(--surface); border-radius: 20px; padding: 2.5rem; margin-top: 1rem; }
+  .quiz-filter {
+    display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    padding: 0.45rem 1.2rem;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Tajawal', sans-serif;
+    transition: all 0.2s;
+  }
+  .filter-btn.active-all    { border-color: var(--accent);  color: var(--accent);  background: rgba(56,189,248,0.1); }
+  .filter-btn.active-easy   { border-color: var(--accent3); color: var(--accent3); background: rgba(52,211,153,0.1); }
+  .filter-btn.active-medium { border-color: var(--gold);    color: var(--gold);    background: rgba(251,191,36,0.1); }
+  .filter-btn.active-hard   { border-color: var(--danger);  color: var(--danger);  background: rgba(248,113,113,0.1); }
+  .filter-btn:hover { opacity: 0.85; }
+
+  .question-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+  .question-item:hover { border-color: rgba(56,189,248,0.2); }
+  .q-header {
+    padding: 1.1rem 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    user-select: none;
+  }
+  .q-num {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    font-size: 0.82rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    font-family: 'Fira Code', monospace;
+  }
+  .q-easy   .q-num { background: rgba(52,211,153,0.15);  color: var(--accent3); }
+  .q-medium .q-num { background: rgba(251,191,36,0.15);  color: var(--gold); }
+  .q-hard   .q-num { background: rgba(248,113,113,0.15); color: var(--danger); }
+  .q-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.7rem;
+    border-radius: 999px;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+  .q-easy   .q-badge { background: rgba(52,211,153,0.15);  color: var(--accent3); }
+  .q-medium .q-badge { background: rgba(251,191,36,0.15);  color: var(--gold); }
+  .q-hard   .q-badge { background: rgba(248,113,113,0.15); color: var(--danger); }
+  .q-text { flex: 1; font-size: 0.97rem; color: #cbd5e1; }
+  .q-arrow { color: var(--muted); transition: transform 0.3s; flex-shrink: 0; }
+  .q-arrow.open { transform: rotate(180deg); }
+  .q-answer {
+    display: none;
+    padding: 0 1.4rem 1.4rem;
+    color: var(--muted);
+    font-size: 0.93rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+  }
+  .q-answer.show { display: block; }
+
+  /* ─── STEP ANIMATION ─── */
+  .step-viz {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 2rem 0;
+  }
+  .step-track {
+    display: flex;
+    gap: 0;
+    align-items: stretch;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+  .step-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .step-circle {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 0.95rem;
+    font-family: 'Fira Code', monospace;
+    border: 2px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    transition: all 0.5s;
+    cursor: pointer;
+  }
+  .step-circle.active {
+    border-color: var(--gold);
+    background: rgba(251,191,36,0.15);
+    color: var(--gold);
+    box-shadow: 0 0 20px rgba(251,191,36,0.3);
+    transform: scale(1.15);
+  }
+  .step-circle.done {
+    border-color: var(--accent3);
+    background: rgba(52,211,153,0.12);
+    color: var(--accent3);
+  }
+  .step-val { font-size: 0.7rem; color: var(--muted); margin-top: 4px; height: 18px; transition: all 0.3s; }
+  .step-val.revealed { color: var(--accent); font-weight: 700; }
+  .step-arrow {
+    width: 36px; height: 2px;
+    background: var(--border);
+    align-self: center;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .step-arrow::after {
+    content: '←';
+    position: absolute;
+    right: -8px; top: -10px;
+    color: var(--border);
+    font-size: 1rem;
+  }
+  .step-arrow.lit { background: var(--accent2); }
+  .step-arrow.lit::after { color: var(--accent2); }
+  #step-info {
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.97rem;
+    color: var(--muted);
+    min-height: 56px;
+  }
+  #step-info strong { color: var(--accent); }
+
+  /* ─── COMPLEXITY BAR ─── */
+  .bar-row { display: flex; align-items: center; gap: 1rem; margin: 0.6rem 0; }
+  .bar-label { width: 80px; font-size: 0.85rem; font-family: 'Fira Code'; color: var(--muted); text-align: right; flex-shrink: 0; }
+  .bar-outer { flex: 1; background: var(--surface2); border-radius: 999px; height: 14px; overflow: hidden; }
+  .bar-inner { height: 100%; border-radius: 999px; transition: width 1s ease; }
+  .bar-note { font-size: 0.8rem; width: 120px; flex-shrink: 0; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 4rem;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s, transform 0.6s; }
+  .fade-in.visible { opacity: 1; transform: none; }
+
+  @media (max-width: 600px) {
+    .complexity-compare { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 2rem; }
+    .srtbot-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════ HERO ════════════ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="grid-lines"></div>
+  <div class="hero-content">
+    <div class="hero-badge">📚 دليل البرمجة التنافسية</div>
+    <h1>البرمجة الديناميكية</h1>
+    <p>تعلَّم أقوى أساليب حل المسائل في علم الحاسوب – من الفكرة الأساسية حتى التطبيق الكامل، بأسلوب تفاعلي مبسَّط.</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">~1950</div><div class="stat-label">سنة الاختراع</div></div>
+      <div class="stat"><div class="stat-num">O(n)</div><div class="stat-label">بدلاً من O(2ⁿ)</div></div>
+      <div class="stat"><div class="stat-num">15</div><div class="stat-label">سؤال تدريبي</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ NAV ════════════ -->
+<nav class="toc">
+  <a href="#intro">المقدمة</a>
+  <a href="#history">التاريخ</a>
+  <a href="#viz">المُصوِّر</a>
+  <a href="#fibonacci">فيبوناتشي</a>
+  <a href="#mincost">أقل كلفة</a>
+  <a href="#srtbot">SRTBOT</a>
+  <a href="#examples">أمثلة</a>
+  <a href="#quiz">الأسئلة</a>
+</nav>
+
+<!-- ════════════ INTRO ════════════ -->
+<section class="section fade-in" id="intro">
+  <div class="section-header">
+    <div class="section-icon ic-blue">💡</div>
+    <h2>ما هي البرمجة الديناميكية؟</h2>
+  </div>
+
+  <p style="color:#94a3b8; margin-bottom:1.5rem;">
+    البرمجة الديناميكية (Dynamic Programming) هي <strong style="color:#e2e8f0">أسلوب تصميم خوارزميات</strong>، وليست لغةً برمجية ولا مكتبةً جاهزة. تُستخدَم لحل مجموعة محددة من المسائل تتميز بصفتين أساسيتين:
+  </p>
+
+  <div class="cards-grid">
+    <div class="card">
+      <h3>🔁 تداخل المسائل الفرعية</h3>
+      <p>عند تقسيم المسألة الكبيرة إلى مسائل أصغر، تظهر <strong>نفس المسائل الفرعية</strong> مراراً في مسارات مختلفة من الحساب.</p>
+    </div>
+    <div class="card">
+      <h3>🏗️ البنية الجزئية المثلى</h3>
+      <p>الحل الأمثل للمسألة الكبيرة يمكن بناؤه من <strong>حلول مثلى</strong> للمسائل الفرعية الأصغر منها.</p>
+    </div>
+    <div class="card">
+      <h3>💾 التذكار (Memoization)</h3>
+      <p>بدلاً من إعادة حساب ما حسبناه سابقاً، نخزّن النتائج في ذاكرة مساعدة ونُعيد استخدامها عند الحاجة.</p>
+    </div>
+    <div class="card">
+      <h3>📉 تحسين هائل في الزمن</h3>
+      <p>نتحوّل من زمن أُسّي <code style="color:var(--danger)">O(2ⁿ)</code> إلى زمن كثير الحدود كـ <code style="color:var(--accent3)">O(n)</code> أو <code style="color:var(--accent3)">O(n²)</code>.</p>
+    </div>
+  </div>
+
+  <div class="info-box note">
+    <strong>💬 تعريف بسيط</strong>
+    فكّر في البرمجة الديناميكية كـ«دفتر ملاحظات ذكي»: في كل مرة تحل مسألة فرعية، سجّل الإجابة. وفي المرة القادمة التي تحتاج فيها لنفس الإجابة، ابحث في دفترك بدلاً من إعادة الحل من الصفر.
+  </div>
+
+  <h3 style="font-size:1.2rem; color:#f1f5f9; margin:2rem 0 1rem;">متى نستخدم البرمجة الديناميكية؟</h3>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+    <div class="info-box tip" style="margin:0">
+      <strong>✅ نستخدمها عندما:</strong>
+      المسألة قابلة للتقسيم إلى مسائل فرعية متداخلة، وكلما زاد حجم المدخل يصبح الحل العودي الساذج بطيئاً جداً.
+    </div>
+    <div class="info-box warn" style="margin:0">
+      <strong>⚠️ لا نستخدمها عندما:</strong>
+      المسائل الفرعية مستقلة تماماً عن بعضها (Divide & Conquer)، أو حين يكفي الجشع (Greedy).
+    </div>
+  </div>
+</section>
+<div class="divider"></div>
+
+<!-- ════════════ HISTORY ════════════ -->
+<section class="section fade-in" id="history">
+  <div class="section-header">
+    <div class="section-icon ic-purple">🏛️</div>
+    <h2>لمحة تاريخية</h2>
+  </div>
+
+  <div class="info-box note">
+    <strong>📝 أصل التسمية</strong>
+    اخترع ريتشارد بيلمان مصطلح «البرمجة الديناميكية» عام 1950 أثناء عمله في مختبر RAND Corporation. قال لاحقاً إنه اختار هذا الاسم لأن كلمة «ديناميكي» تبدو رائعة ولا يمكن لأحد أن يعترض عليها — وهو أراد إخفاء طبيعة عمله البحثي عن المشرفين الإداريين!
+  </div>
+
+  <div class="timeline" style="margin-top:2rem;">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">1940s</div>
+      <div class="tl-title">البدايات الأولى في الرياضيات</div>
+      <div class="tl-body">ظهرت أفكار مبكرة في الرياضيات المتعلقة بتحسين القرارات المتسلسلة، وإن لم تُصَغ بعد ككأسلوب موحَّد.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">1953</div>
+      <div class="tl-title">ريتشارد بيلمان يؤسس النظرية</div>
+      <div class="tl-body">نشر Richard Bellman أوراقه البحثية المؤسِّسة وكتابه الشهير «Dynamic Programming» عام 1957، وصاغ مبدأ البنية الجزئية المثلى المعروف بـ«مبدأ بيلمان».</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">1960s</div>
+      <div class="tl-title">التطبيقات في اقتصاد وبحوث العمليات</div>
+      <div class="tl-body">بدأ علماء الاقتصاد وهندسة النظم في تطبيق البرمجة الديناميكية على مسائل التخطيط والإنتاج وجدولة الموارد.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">1970s–80s</div>
+      <div class="tl-title">دخولها علم الحاسوب</div>
+      <div class="tl-body">أصبحت البرمجة الديناميكية ركيزةً أساسية في خوارزميات الحاسوب، خاصةً في: محاذاة المتسلسلات البيولوجية (DNA)، مسائل أقصر مسار (Shortest Path)، ومعالجة اللغات الطبيعية.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">1990s–2000s</div>
+      <div class="tl-title">البرمجة التنافسية والمقابلات التقنية</div>
+      <div class="tl-body">باتت DP لازمة في المسابقات البرمجية (ICPC, IOI, Codeforces) وفي مقابلات الشركات الكبرى كـ Google وMeta وAmazon. كثير من أشهر المسائل كـLCS وKnapsack وLIS تُحل بها.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">اليوم</div>
+      <div class="tl-title">الذكاء الاصطناعي وتعلم الآلة</div>
+      <div class="tl-body">تُستخدَم مبادئ DP في تعلم التعزيز (Reinforcement Learning)، وهي قلب خوارزميات مثل Q-Learning وValue Iteration التي تُشغّل روبوتات وألعاب الذكاء الاصطناعي.</div>
+    </div>
+  </div>
+</section>
+<div class="divider"></div>
+
+<!-- ════════════ VIZ ════════════ -->
+<section class="section fade-in" id="viz">
+  <div class="section-header">
+    <div class="section-icon ic-green">🎮</div>
+    <h2>مُصوِّر تفاعلي – جدول فيبوناتشي</h2>
+  </div>
+
+  <p style="color:#94a3b8; margin-bottom:1.5rem;">
+    اضغط على زر «التالي» لمشاهدة كيف تُبنى قيم فيبوناتشي خطوةً بخطوة باستخدام البرمجة الديناميكية Bottom-Up.
+  </p>
+
+  <div class="step-viz">
+    <div class="viz-title">حساب F(0)...F(8) خطوة بخطوة</div>
+    <div class="step-track" id="stepTrack"></div>
+    <div id="step-info">اضغط «ابدأ» لرؤية كيف يعمل الجدول.</div>
+    <div class="viz-controls">
+      <button class="btn btn-primary" onclick="startSteps()">▶ ابدأ</button>
+      <button class="btn btn-secondary" onclick="nextStep()">التالي ←</button>
+      <button class="btn btn-secondary" onclick="resetSteps()">↺ إعادة</button>
+      <button class="btn btn-success" onclick="autoPlay()">▷ تشغيل تلقائي</button>
+    </div>
+  </div>
+
+  <div class="viz-container">
+    <div class="viz-title">مقارنة التعقيد الزمني</div>
+    <div style="margin:1rem 0 0.5rem; color:var(--muted); font-size:0.9rem;">لحساب F(n)</div>
+    <div class="bar-row">
+      <span class="bar-label">Naive</span>
+      <div class="bar-outer"><div class="bar-inner" id="bar-naive" style="width:0; background:var(--danger)"></div></div>
+      <span class="bar-note" style="color:var(--danger); font-family:'Fira Code'; font-size:0.85rem;">O(2ⁿ)</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">DP</span>
+      <div class="bar-outer"><div class="bar-inner" id="bar-dp" style="width:0; background:var(--accent3)"></div></div>
+      <span class="bar-note" style="color:var(--accent3); font-family:'Fira Code'; font-size:0.85rem;">O(n)</span>
+    </div>
+    <div style="text-align:center; margin-top:1.2rem;">
+      <button class="btn btn-primary" onclick="animateBars()">عرض الفرق</button>
+    </div>
+  </div>
+</section>
+<div class="divider"></div>
+
+<!-- ════════════ FIBONACCI ════════════ -->
+<section class="section fade-in" id="fibonacci">
+  <div class="section-header">
+    <div class="section-icon ic-blue">🌀</div>
+    <h2>مثال ١: متتالية فيبوناتشي</h2>
+  </div>
+
+  <p style="color:#94a3b8; margin-bottom:1.5rem;">
+    متتالية فيبوناتشي هي المثال التمهيدي الكلاسيكي لفهم البرمجة الديناميكية، لأنها توضح بجلاء مشكلة إعادة الحساب وكيفية علاجها.
+  </p>
+
+  <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1.4rem; margin-bottom:1.5rem; font-family:'Fira Code', monospace; color:var(--accent); font-size:1rem; text-align:center; direction:ltr;">
+    F(0) = 0 &nbsp;|&nbsp; F(1) = 1 &nbsp;|&nbsp; F(n) = F(n-1) + F(n-2)
+  </div>
+
+  <h3 style="color:#f1f5f9; font-size:1.1rem; margin-bottom:1rem;">⚠️ المشكلة: الحل العودي الساذج</h3>
+
+  <div class="complexity-compare">
+    <div class="comp-card comp-bad">
+      <div class="comp-label">بدون DP</div>
+      <div class="comp-big">O(2ⁿ)</div>
+      <div class="comp-desc">لحساب F(50) يتطلب أكثر من تريليون عملية! غير عملي تماماً.</div>
+    </div>
+    <div class="comp-card comp-good">
+      <div class="comp-label">مع DP</div>
+      <div class="comp-big">O(n)</div>
+      <div class="comp-desc">لحساب F(50) يحتاج فقط 50 عملية. فرق هائل!</div>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+      <span class="code-lang">C++ — حل عودي ساذج (بطيء ❌)</span>
+    </div>
+    <pre><span class="ty">int</span> <span class="fn">fib</span>(<span class="ty">int</span> n) {
+    <span class="kw">if</span> (n == <span class="nm">0</span>) <span class="kw">return</span> <span class="nm">0</span>;
+    <span class="kw">if</span> (n == <span class="nm">1</span>) <span class="kw">return</span> <span class="nm">1</span>;
+    <span class="cm">// مشكلة: تُحسب fib(3) مرات كثيرة!</span>
+    <span class="kw">return</span> <span class="fn">fib</span>(n - <span class="nm">1</span>) + <span class="fn">fib</span>(n - <span class="nm">2</span>);
+}
+<span class="cm">// الزمن: O(2^n) — بطيء جداً!</span></pre>
+  </div>
+
+  <div class="info-box danger">
+    <strong>❌ لماذا هذا بطيء؟</strong>
+    عند حساب <code>fib(5)</code>، تُستدعى <code>fib(3)</code> مرتين، و<code>fib(2)</code> ثلاث مرات. مع زيادة n تتضاعف الاستدعاءات أُسيًّا، وتصبح المسألة غير قابلة للحل عملياً لقيم كبيرة.
+  </div>
+
+  <h3 style="color:#f1f5f9; font-size:1.1rem; margin:1.5rem 0 1rem;">✅ الحل: إضافة التذكار (Top-Down DP)</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+      <span class="code-lang">C++ — Top-Down DP بالتذكار ✅</span>
+    </div>
+    <pre><span class="kw">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="kw">#include</span> <span class="st">&lt;vector&gt;</span>
+<span class="kw">using namespace</span> std;
+
+vector&lt;<span class="ty">long long</span>&gt; dp;
+
+<span class="ty">long long</span> <span class="fn">fib</span>(<span class="ty">int</span> n) {
+    <span class="kw">if</span> (n == <span class="nm">0</span>) <span class="kw">return</span> <span class="nm">0</span>;
+    <span class="kw">if</span> (n == <span class="nm">1</span>) <span class="kw">return</span> <span class="nm">1</span>;
+
+    <span class="kw">if</span> (dp[n] != -<span class="nm">1</span>) <span class="kw">return</span> dp[n]; <span class="cm">// تم حسابه مسبقاً ✔</span>
+
+    dp[n] = <span class="fn">fib</span>(n - <span class="nm">1</span>) + <span class="fn">fib</span>(n - <span class="nm">2</span>);
+    <span class="kw">return</span> dp[n];
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">int</span> n = <span class="nm">50</span>;
+    dp.<span class="fn">assign</span>(n + <span class="nm">1</span>, -<span class="nm">1</span>); <span class="cm">// تهيئة بـ -1 (لم يُحسب بعد)</span>
+
+    cout &lt;&lt; <span class="st">"F("</span> &lt;&lt; n &lt;&lt; <span class="st">") = "</span> &lt;&lt; <span class="fn">fib</span>(n) &lt;&lt; <span class="st">"\n"</span>;
+    <span class="cm">// النتيجة: F(50) = 12586269025</span>
+}</pre>
+  </div>
+
+  <h3 style="color:#f1f5f9; font-size:1.1rem; margin:1.5rem 0 1rem;">🔄 نسخة من أسفل لأعلى (Bottom-Up DP)</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+      <span class="code-lang">C++ — Bottom-Up DP (بدون عودية) ✅</span>
+    </div>
+    <pre><span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">int</span> n = <span class="nm">50</span>;
+    vector&lt;<span class="ty">long long</span>&gt; dp(n + <span class="nm">1</span>);
+
+    dp[<span class="nm">0</span>] = <span class="nm">0</span>;  <span class="cm">// الحالة الأساسية</span>
+    dp[<span class="nm">1</span>] = <span class="nm">1</span>;  <span class="cm">// الحالة الأساسية</span>
+
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nm">2</span>; i &lt;= n; i++) {
+        dp[i] = dp[i - <span class="nm">1</span>] + dp[i - <span class="nm">2</span>]; <span class="cm">// نبني من الأصغر للأكبر</span>
+    }
+
+    cout &lt;&lt; <span class="st">"F("</span> &lt;&lt; n &lt;&lt; <span class="st">") = "</span> &lt;&lt; dp[n] &lt;&lt; <span class="st">"\n"</span>;
+}</pre>
+  </div>
+
+  <div class="info-box tip">
+    <strong>💡 تحسين في الذاكرة</strong>
+    لأن كل حالة تعتمد فقط على الحالتين السابقتين، يمكن تخزين قيمتين فقط بدلاً من المصفوفة الكاملة، مما يُقلّل الذاكرة من O(n) إلى <strong>O(1)</strong>.
+  </div>
+</section>
+<div class="divider"></div>
+
+<!-- ════════════ MIN COST ════════════ -->
+<section class="section fade-in" id="mincost">
+  <div class="section-header">
+    <div class="section-icon ic-gold">💰</div>
+    <h2>مثال ٢: أقل تكلفة للوصول إلى نهاية المصفوفة</h2>
+  </div>
+
+  <div class="card" style="margin-bottom:1.5rem;">
+    <h3>📋 وصف المسألة</h3>
+    <p>
+      لدينا مصفوفة <code style="color:var(--accent)">cost[0..n-1]</code> حيث <code style="color:var(--accent)">cost[i]</code> هي التكلفة التي تدفعها عند الوقوف على الموقع <code>i</code>. من أي موقع يمكنك القفز إلى الموقع التالي مباشرة <code>i+1</code> أو القفز بخطوتين <code>i+2</code>. يمكنك البداية من الموقع 0 أو 1. الهدف: إيجاد أقل تكلفة كلية للوصول إلى ما بعد نهاية المصفوفة.
+    </p>
+  </div>
+
+  <!-- interactive demo -->
+  <div class="viz-container" style="margin-bottom:1.5rem;">
+    <div class="viz-title">🎯 جرّب بنفسك!</div>
+    <div style="color:var(--muted); font-size:0.9rem; text-align:center; margin-bottom:1rem;">المثال: cost = [1, 100, 1, 1]</div>
+    <div class="dp-table-wrap">
+      <div class="dp-table" id="mcTable"></div>
+    </div>
+    <div id="mc-info" style="text-align:center; padding:0.8rem; color:var(--muted); font-size:0.93rem; min-height:48px;"></div>
+    <div class="viz-controls">
+      <button class="btn btn-primary" onclick="mcStep()">خطوة →</button>
+      <button class="btn btn-secondary" onclick="mcReset()">↺ إعادة</button>
+      <button class="btn btn-success" onclick="mcAuto()">▷ تلقائي</button>
+    </div>
+  </div>
+
+  <h3 style="color:#f1f5f9; font-size:1.1rem; margin-bottom:1rem;">💻 الحل (Bottom-Up DP)</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+      <span class="code-lang">C++ — Min Cost Bottom-Up DP</span>
+    </div>
+    <pre><span class="kw">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="kw">#include</span> <span class="st">&lt;vector&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    vector&lt;<span class="ty">int</span>&gt; cost = {<span class="nm">1</span>, <span class="nm">100</span>, <span class="nm">1</span>, <span class="nm">1</span>};
+    <span class="ty">int</span> n = cost.<span class="fn">size</span>();
+
+    <span class="cm">// نُضيف خلية إضافية لتجنب الخروج عن الحدود</span>
+    vector&lt;<span class="ty">int</span>&gt; dp(n + <span class="nm">2</span>, <span class="nm">0</span>);
+
+    <span class="cm">// نعمل من اليمين لليسار (من النهاية للبداية)</span>
+    <span class="kw">for</span> (<span class="ty">int</span> i = n - <span class="nm">1</span>; i >= <span class="nm">0</span>; i--) {
+        dp[i] = cost[i] + <span class="fn">min</span>(dp[i + <span class="nm">1</span>], dp[i + <span class="nm">2</span>]);
+    }
+
+    <span class="cm">// يمكن البداية من 0 أو 1 — نختار الأقل</span>
+    <span class="ty">int</span> ans = <span class="fn">min</span>(dp[<span class="nm">0</span>], dp[<span class="nm">1</span>]);
+    cout &lt;&lt; <span class="st">"أقل تكلفة = "</span> &lt;&lt; ans &lt;&lt; <span class="st">"\n"</span>; <span class="cm">// 2</span>
+}</pre>
+  </div>
+
+  <div class="info-box tip">
+    <strong>🔍 تتبع المثال يدوياً</strong>
+    cost = [1, 100, 1, 1] ← dp[4]=0, dp[3]=0 (خارج المصفوفة) <br>
+    dp[3] = cost[3] + min(dp[4], dp[5]) = 1 + 0 = <strong>1</strong><br>
+    dp[2] = cost[2] + min(dp[3], dp[4]) = 1 + 0 = <strong>1</strong><br>
+    dp[1] = cost[1] + min(dp[2], dp[3]) = 100 + 1 = <strong>101</strong><br>
+    dp[0] = cost[0] + min(dp[1], dp[2]) = 1 + 1 = <strong>2</strong><br>
+    الإجابة = min(dp[0], dp[1]) = min(2, 101) = <strong style="color:var(--accent3)">2 ✓</strong>
+  </div>
+</section>
+<div class="divider"></div>
+
+<!-- ════════════ SRTBOT ════════════ -->
+<section class="section fade-in" id="srtbot">
+  <div class="section-header">
+    <div class="section-icon ic-purple">🧩</div>
+    <h2>إطار SRTBOT</h2>
+  </div>
+
+  <p style="color:#94a3b8; margin-bottom:1.5rem;">
+    إطار SRTBOT هو منهجية منظَّمة للتفكير في أي مسألة برمجة ديناميكية. إذا استطعت الإجابة على هذه الأسئلة الستة، فأنت قادر على حل المسألة.
+  </p>
+
+  <div class="srtbot-grid">
+    <div class="srtbot-card sb-s">
+      <div class="srtbot-letter">S</div>
+      <div class="srtbot-name">State — الحالة</div>
+      <div class="srtbot-desc">ماذا تمثل <code>dp[i]</code>؟ هذا أهم سؤال. تعريف الحالة بدقة يحل نصف المسألة. مثلاً: <em>dp[i] = أقل تكلفة من الموقع i حتى النهاية.</em></div>
+    </div>
+    <div class="srtbot-card sb-r">
+      <div class="srtbot-letter">R</div>
+      <div class="srtbot-name">Recurrence — العلاقة العودية</div>
+      <div class="srtbot-desc">كيف تُحسب <code>dp[i]</code> من حالات أصغر؟ مثل: <em>dp[i] = cost[i] + min(dp[i+1], dp[i+2])</em>.</div>
+    </div>
+    <div class="srtbot-card sb-t">
+      <div class="srtbot-letter">T</div>
+      <div class="srtbot-name">Transitions — الانتقالات</div>
+      <div class="srtbot-desc">ما هي الحالات التي تعتمد عليها <code>dp[i]</code>؟ هل هي <code>dp[i-1]</code>؟ <code>dp[i+1]</code>؟ <code>dp[i][j-1]</code>؟ رسمها يوضّح بنية الحل.</div>
+    </div>
+    <div class="srtbot-card sb-b">
+      <div class="srtbot-letter">B</div>
+      <div class="srtbot-name">Base Cases — الحالات الأساسية</div>
+      <div class="srtbot-desc">ما هي القيم الابتدائية المعروفة مسبقاً؟ بدونها لا يمكن بدء الحساب. مثل: <em>dp[0]=0, dp[1]=1</em>.</div>
+    </div>
+    <div class="srtbot-card sb-o">
+      <div class="srtbot-letter">O</div>
+      <div class="srtbot-name">Order — ترتيب الحساب</div>
+      <div class="srtbot-desc">في أي اتجاه نملأ الجدول؟ من اليسار لليمين؟ من اليمين لليسار؟ من الأصغر للأكبر؟ يجب أن تكون كل حالة محسوبة قبل الاحتياج إليها.</div>
+    </div>
+    <div class="srtbot-card sb-c">
+      <div class="srtbot-letter">T</div>
+      <div class="srtbot-name">Time/Space — التعقيد</div>
+      <div class="srtbot-desc">كم يستغرق الحل زمناً وذاكرة؟ نحلل عدد الحالات × تكلفة كل انتقال. مثل: n حالة × O(1) = <strong>O(n)</strong> إجمالاً.</div>
+    </div>
+  </div>
+
+  <div class="info-box tip" style="margin-top:2rem;">
+    <strong>🎯 نصيحة عملية</strong>
+    قبل كتابة أي كود، خذ ورقة وقلماً واكتب إجاباتك على الأسئلة الستة. بمجرد أن تجيب عليها جميعاً، يصبح كتابة الكود سهلاً وروتينياً.
+  </div>
+</section>
+<div class="divider"></div>
+
+<!-- ════════════ EXTRA EXAMPLES ════════════ -->
+<section class="section fade-in" id="examples">
+  <div class="section-header">
+    <div class="section-icon ic-warn">📖</div>
+    <h2>مثالان إضافيان</h2>
+  </div>
+
+  <!-- Example A -->
+  <div class="card" style="margin-bottom:2rem; border-color:rgba(129,140,248,0.3);">
+    <h3 style="color:var(--accent2); font-size:1.2rem; margin-bottom:1rem;">🧵 مثال أ: أطول متتالية تصاعدية (LIS)</h3>
+    <p style="color:#94a3b8; margin-bottom:1.2rem;">
+      <strong style="color:#e2e8f0">المسألة:</strong> عطيت مصفوفة من الأرقام، ابحث عن أطول متتالية فرعية (ليست متجاورة بالضرورة) تكون أرقامها في تصاعد مستمر.
+    </p>
+    <div style="background:var(--surface2); border-radius:10px; padding:1rem; margin-bottom:1.2rem; font-family:'Fira Code'; font-size:0.9rem; color:var(--accent); direction:ltr; text-align:center;">
+      arr = [3, 1, 4, 1, 5, 9, 2, 6]<br>
+      <span style="color:var(--accent3)">LIS = [1, 4, 5, 9] → الطول = 4</span>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.2rem;">
+      <div class="info-box note" style="margin:0;">
+        <strong>S – الحالة</strong>
+        dp[i] = طول أطول متتالية تصاعدية تنتهي عند العنصر i
+      </div>
+      <div class="info-box note" style="margin:0;">
+        <strong>R – العلاقة العودية</strong>
+        dp[i] = max(dp[j] + 1) لكل j &lt; i حيث arr[j] &lt; arr[i]
+      </div>
+      <div class="info-box note" style="margin:0;">
+        <strong>B – الحالات الأساسية</strong>
+        dp[i] = 1 لكل i (كل عنصر وحده متتالية بطول 1)
+      </div>
+      <div class="info-box note" style="margin:0;">
+        <strong>T – التعقيد</strong>
+        O(n²) زمناً، O(n) ذاكرةً
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        <span class="code-lang">C++ — Longest Increasing Subsequence</span>
+      </div>
+      <pre><span class="ty">int</span> <span class="fn">lis</span>(vector&lt;<span class="ty">int</span>&gt;&amp; arr) {
+    <span class="ty">int</span> n = arr.<span class="fn">size</span>();
+    vector&lt;<span class="ty">int</span>&gt; dp(n, <span class="nm">1</span>); <span class="cm">// كل عنصر متتالية بطول 1</span>
+
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nm">1</span>; i &lt; n; i++) {
+        <span class="kw">for</span> (<span class="ty">int</span> j = <span class="nm">0</span>; j &lt; i; j++) {
+            <span class="kw">if</span> (arr[j] &lt; arr[i]) {
+                dp[i] = <span class="fn">max</span>(dp[i], dp[j] + <span class="nm">1</span>);
+            }
+        }
+    }
+    <span class="cm">// الإجابة: أكبر قيمة في المصفوفة dp</span>
+    <span class="kw">return</span> *<span class="fn">max_element</span>(dp.<span class="fn">begin</span>(), dp.<span class="fn">end</span>());
+}</pre>
+    </div>
+  </div>
+
+  <!-- Example B -->
+  <div class="card" style="border-color:rgba(52,211,153,0.3);">
+    <h3 style="color:var(--accent3); font-size:1.2rem; margin-bottom:1rem;">🎒 مثال ب: مسألة الحقيبة (0/1 Knapsack)</h3>
+    <p style="color:#94a3b8; margin-bottom:1.2rem;">
+      <strong style="color:#e2e8f0">المسألة:</strong> لديك حقيبة تتحمل وزناً أقصاه W. وأمامك n غرضاً، لكل غرض وزنه وقيمته. اختر الأغراض التي تُعظّم القيمة الكلية دون تجاوز وزن الحقيبة. كل غرض إما يُؤخذ أو يُترك.
+    </p>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:0.8rem; margin-bottom:1.2rem;">
+      <div style="background:var(--surface2); border-radius:10px; padding:1rem; text-align:center;">
+        <div style="color:var(--muted); font-size:0.8rem; margin-bottom:0.4rem;">الغرض ١</div>
+        <div style="font-family:'Fira Code'; color:var(--accent);">وزن=2, قيمة=3</div>
+      </div>
+      <div style="background:var(--surface2); border-radius:10px; padding:1rem; text-align:center;">
+        <div style="color:var(--muted); font-size:0.8rem; margin-bottom:0.4rem;">الغرض ٢</div>
+        <div style="font-family:'Fira Code'; color:var(--accent);">وزن=3, قيمة=4</div>
+      </div>
+      <div style="background:var(--surface2); border-radius:10px; padding:1rem; text-align:center;">
+        <div style="color:var(--muted); font-size:0.8rem; margin-bottom:0.4rem;">الغرض ٣</div>
+        <div style="font-family:'Fira Code'; color:var(--accent);">وزن=4, قيمة=5</div>
+      </div>
+      <div style="background:var(--surface2); border-radius:10px; padding:1rem; text-align:center;">
+        <div style="color:var(--muted); font-size:0.8rem; margin-bottom:0.4rem;">سعة الحقيبة</div>
+        <div style="font-family:'Fira Code'; color:var(--gold);">W = 5</div>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.2rem;">
+      <div class="info-box note" style="margin:0;">
+        <strong>S – الحالة</strong>
+        dp[i][w] = أعظم قيمة باستخدام أول i غرض مع وزن لا يتجاوز w
+      </div>
+      <div class="info-box note" style="margin:0;">
+        <strong>R – العلاقة</strong>
+        إما نترك الغرض i: dp[i-1][w]<br>
+        أو نأخذه: dp[i-1][w-wt[i]] + val[i]<br>
+        نختار الأكبر
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        <span class="code-lang">C++ — 0/1 Knapsack</span>
+      </div>
+      <pre><span class="ty">int</span> <span class="fn">knapsack</span>(<span class="ty">int</span> W, vector&lt;<span class="ty">int</span>&gt;&amp; wt, vector&lt;<span class="ty">int</span>&gt;&amp; val) {
+    <span class="ty">int</span> n = wt.<span class="fn">size</span>();
+    <span class="cm">// جدول ثنائي الأبعاد: n+1 غرض × W+1 وزن</span>
+    vector&lt;vector&lt;<span class="ty">int</span>&gt;&gt; dp(n + <span class="nm">1</span>, vector&lt;<span class="ty">int</span>&gt;(W + <span class="nm">1</span>, <span class="nm">0</span>));
+
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nm">1</span>; i &lt;= n; i++) {
+        <span class="kw">for</span> (<span class="ty">int</span> w = <span class="nm">0</span>; w &lt;= W; w++) {
+            <span class="cm">// خيار ١: لا نأخذ الغرض i</span>
+            dp[i][w] = dp[i-<span class="nm">1</span>][w];
+
+            <span class="cm">// خيار ٢: نأخذ الغرض i (إذا كان وزنه يسمح)</span>
+            <span class="kw">if</span> (wt[i-<span class="nm">1</span>] &lt;= w) {
+                dp[i][w] = <span class="fn">max</span>(dp[i][w],
+                    dp[i-<span class="nm">1</span>][w - wt[i-<span class="nm">1</span>]] + val[i-<span class="nm">1</span>]);
+            }
+        }
+    }
+    <span class="cm">// الإجابة: dp[n][W] = 7</span>
+    <span class="kw">return</span> dp[n][W];
+}</pre>
+    </div>
+
+    <div class="info-box tip" style="margin-top:1rem;">
+      <strong>✅ النتيجة في المثال</strong>
+      نأخذ الغرض ١ (وزن=2, قيمة=3) والغرض ٢ (وزن=3, قيمة=4) → مجموع الوزن=5 ≤ W ✓، مجموع القيمة = <strong style="color:var(--accent3)">7</strong>.
+    </div>
+  </div>
+</section>
+<div class="divider"></div>
+
+<!-- ════════════ QUIZ ════════════ -->
+<section class="section fade-in" id="quiz">
+  <div class="section-header">
+    <div class="section-icon ic-gold">🏆</div>
+    <h2>اختبر معلوماتك – 15 سؤالاً</h2>
+  </div>
+
+  <div class="quiz-section">
+    <div class="quiz-filter">
+      <button class="filter-btn active-all" onclick="filterQ('all',this)">الكل (15)</button>
+      <button class="filter-btn" onclick="filterQ('easy',this)">🟢 سهل (5)</button>
+      <button class="filter-btn" onclick="filterQ('medium',this)">🟡 متوسط (5)</button>
+      <button class="filter-btn" onclick="filterQ('hard',this)">🔴 صعب (5)</button>
+    </div>
+
+    <div id="qList">
+
+      <!-- ════ EASY ════ -->
+      <div class="question-item q-easy" data-level="easy">
+        <div class="q-header" onclick="toggleQ(this)">
+          <div class="q-num">1</div>
+          <span class="q-badge">سهل</span>
+          <span class="q-text">ما الشرطان الأساسيان اللذان يجب توافرهما في المسألة كي نُطبّق عليها البرمجة الديناميكية؟</span>
+          <span class="q-arrow">▼</span>
+        </div>
+        <div class="q-answer">
+          يجب توافر شرطين: <br>
+          <strong style="color:var(--accent3)">١. تداخل المسائل الفرعية</strong>: بمعنى أن الحل العودي يُعيد حساب نفس المسائل الفرعية أكثر من مرة.<br>
+          <strong style="color:var(--accent3)">٢. البنية الجزئية المثلى</strong>: بمعنى أن الحل الأمثل للمسألة الكبيرة يمكن بناؤه من حلول مثلى للمسائل الفرعية.
+        </div>
+      </div>
+
+      <div class="question-item q-easy" data-level="easy">
+        <div class="q-header" onclick="toggleQ(this)">
+          <div class="q-num">2</div>
+          <span class="q-badge">سهل</span>
+          <span class="q-text">ما الفرق بين أسلوب Top-Down وأسلوب Bottom-Up في البرمجة الديناميكية؟</span>
+          <span class="q-arrow">▼</span>
+        </div>
+        <div class="q-answer">
+          <strong style="color:var(--accent)">Top-Down (أعلى لأسفل)</strong>: يبدأ من المسألة الكبيرة ويُقسّمها عودياً إلى مسائل أصغر، ويُضيف تذكاراً (Memoization) لتخزين نتائج المسائل الفرعية.<br><br>
+          <strong style="color:var(--accent2)">Bottom-Up (أسفل لأعلى)</strong>: يبدأ بحل أصغر المسائل الفرعية أولاً، ثم يبني الحلول تصاعدياً حتى يصل للمسألة الأصلية. يستخدم جدولاً (مصفوفة) بدلاً من العودية.
+        </div>
+      </div>
+
+      <div class="question-item q-easy" data-level="easy">
+        <div class="q-header" onclick="toggleQ(this)">
+          <div class="q-num">3</div>
+          <span class="q-badge">سهل</span>
+          <span class="q-text">ما التعقيد الزمني لحساب F(n) بالطريقة العودية الساذجة مقارنةً بالبرمجة الديناميكية؟</span>
+          <span class="q-arrow">▼</span>
+        </div>
+        <div class="q-answer">
+          <strong style="color:var(--danger)">الحل العودي الساذج</strong>: التعقيد الزمني هو O(2ⁿ) — أُسّي وغير عملي للقيم الكبيرة.<br><br>
+          <strong style="color:var(--accent3)">البرمجة الديناميكية</strong>: التعقيد الزمني هو O(n) — خطي وعملي جداً. الفرق مثلاً لـ n=50: نحو تريليون عملية مقابل 50 عملية فقط!
+        </div>
+      </div>
+
+      <div class="question-item q-easy" data-level="easy">
+        <div class="q-header" onclick="toggleQ(this)">
+          <div class="q-num">4</div>
+          <span class="q-badge">سهل</span>
+          <span class="q-text">ماذا تعني «الحالات الأساسية» (Base Cases) في إطار SRTBOT؟ وما أهميتها؟</span>
+          <span class="q-arrow">▼</span>
+        </div>
+        <div class="q-answer">
+          الحالات الأساسية هي القيم المعروفة مسبقاً والتي لا تحتاج إلى حساب من حالات أخرى. في فيبوناتشي مثلاً: <code>F(0)=0</code> و<code>F(1)=1</code>.<br><br>
+          أهميتها: بدونها لا يمكن بدء الحساب — العلاقة العودية تحتاج إلى نقطة توقف وإلا تستمر إلى ما لا نهاية وتُسبب Stack Overflow.
+        </div>
+      </div>
+
+      <div class="question-item q-easy" data-level="easy">
+        <div class="q-header" onclick="toggleQ(this)">
+          <div class="q-num">5</div>
+          <span class="q-badge">سهل</span>
+          <span class="q-text">في مسألة أقل تكلفة للوصول إلى نهاية المصفوفة، ما قيمة الحالتين الأساسيتين dp[n] وdp[n+1]؟ ولماذا؟</span>
+          <span class="q-arrow">▼</span>
+        </div>
+        <div class="q-answer">
+          قيمة كلتيهما صفر: <code>dp[n] = 0</code> و<code>dp[n+1] = 0</code>.<br><br>
+          <strong>السبب</strong>: لأن الموقعين n و n+1 يقعان خارج المصفوفة (وصلنا للنهاية أو تجاوزناها)، فلا توجد تكلفة إضافية للدفع. الـ <code>dp[n+1]</code> تحديداً تُحمي من الخروج عن الحدود عند حساب <code>dp[n-1]</code> (الذي يحتاج <code>dp[n+1]</code>).
+        </div>
+      </div>
+
+      <!-- ════ MEDIUM ════ -->
+      <div class="question-item q-medium" data-level="medium">
+        <div class="q-header" onclick="toggleQ(this)">
+          <div class="q-num">6</div>
+          <span class="q-badge">متوسط</span>
+          <span class="q-text">صِف إطار SRTBOT بالكامل مع مثال تطبيقي لمسألة فيبوناتشي.</span>
+          <span class="q-arrow">▼</span>
+        </div>
+        <div class="q-answer">
+          <strong style="color:var(--accent)">S – State</strong>: dp[i] = قيمة F(i) أي عدد فيبوناتشي رقم i.<br>
+          <strong style="color:var(--accent2)">R – Recurrence</strong>: dp[i] = dp[i-1] + dp[i-2] لـ i ≥ 2.<br>
+          <strong style="color:var(--accent3)">T – Transitions</strong>: dp[i] تعتمد على dp[i-1] و dp[i-2].<br>
+          <strong style="color:var(--gold)">B – Base Cases</strong>: dp[0]=0, dp[1]=1.<br>
+          <strong style="color:var(--warn)">O – Order</strong>: من 0 حتى n (تصاعدي).<br>
+          <strong style="color:var(--danger)">T – Time/Space</strong>: زمن O(n)، ذاكرة O(n) أو O(1) بتحسين.
+        </div>
+      </div>
+
+      <div class="question-item q-medium" data-level="medium">
+        <div class="q-header" onclick="toggleQ(this)">
+          <div class="q-num">7</div>
+          <span class="q-badge">متوسط</span>
+          <span class="q-text">كيف يمكن تحسين الذاكرة في حل فيبوناتشي من O(n) إلى O(1)؟ اكتب الكود.</span>
+          <span class="q-arrow">▼</span>
+        </div>
+        <div class="q-answer">
+          بما أن كل قيمة تعتمد فقط على القيمتين السابقتين، نحتاج فقط لتخزين آخر قيمتين:
+          <div class="code-block" style="margin-top:0.8rem;">
+            <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">C++</span></div>
+            <pre><span class="ty">long long</span> <span class="fn">fib</span>(<span class="ty">int</span> n) {
+    <span class="kw">if</span> (n == <span class="nm">0</span>) <span class="kw">return</span> <span class="nm">0</span>;
+    <span class="ty">long long</span> prev2 = <span class="nm">0</span>, prev1 = <span class="nm">1</span>;
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nm">2</span>; i &lt;= n; i++) {
+        <span class="ty">long long</span> curr = prev1 + prev2;
+        prev2 = prev1;
+        prev1 = curr;
+    }
+    <span class="kw">return</span> prev1;
+}</pre>
+          </div>
+          الزمن O(n) لم يتغير، لكن الذاكرة أصبحت O(1).
+        </div>
+      </div>
+
+      <div class="question-item q-medium" data-level="medium">
+        <div class="q-header" onclick="toggleQ(this)">
+          <div class="q-num">8</div>
+          <span class="q-badge">متوسط</span>
+          <span class="q-text">في مسألة أقل تكلفة، إذا كانت المصفوفة cost = [10, 15, 20]، ما الخطوات التفصيلية لحساب الإجابة بـ Bottom-Up DP؟</span>
+          <span class="q-arrow">▼</span>
+        </div>
+        <div class="q-answer">
+          n = 3، نُنشئ dp بحجم 5 كله أصفار.<br><br>
+          <strong>من i=2 لـ 0:</strong><br>
+          dp[2] = cost[2] + min(dp[3], dp[4]) = 20 + min(0,0) = <strong style="color:var(--accent)">20</strong><br>
+          dp[1] = cost[1] + min(dp[2], dp[3]) = 15 + min(20,0) = <strong style="color:var(--accent)">15</strong><br>
+          dp[0] = cost[0] + min(dp[1], dp[2]) = 10 + min(15,20) = <strong style="color:var(--accent)">25</strong><br><br>
+          الإجابة = min(dp[0], dp[1]) = min(25, 15) = <strong style="color:var(--accent3)">15</strong><br>
+          المسار: ابدأ من الموقع 1، ادفع 15، اقفز إلى n مباشرة.
+        </div>
+      </div>
+
+      <div class="question-item q-medium" data-level="medium">
+        <div class="q-header" onclick="toggleQ(this)">
+          <div class="q-num">9</div>
+          <span class="q-badge">متوسط</span>
+          <span class="q-text">ما الفرق بين البرمجة الديناميكية (DP) وأسلوب Divide & Conquer؟ وما مثال على كل منهما؟</span>
+          <span class="q-arrow">▼</span>
+        </div>
+        <div class="q-answer">
+          <strong style="color:var(--accent)">Divide & Conquer</strong>: تقسيم المسألة إلى مسائل فرعية <em>مستقلة</em> لا تتداخل. مثال: Merge Sort — تقسيم المصفوفة لنصفين مستقلين ثم دمجهما.<br><br>
+          <strong style="color:var(--accent3)">Dynamic Programming</strong>: المسائل الفرعية <em>متداخلة</em> (تُعاد عدة مرات). مثال: فيبوناتشي — حساب F(5) يحتاج F(4) وF(3)، وF(4) يحتاج F(3) أيضاً.<br><br>
+          الفرق الجوهري: DP يُخزّن نتائج المسائل المتكررة لتجنب إعادة الحساب؛ Divide & Conquer لا يحتاج لذلك لأن مسائله لا تتكرر.
+        </div>
+      </div>
+
+      <div class="question-item q-medium" data-level="medium">
+        <div class="q-header" onclick="toggleQ(this)">
+          <div class="q-num">10</div>
+          <span class="q-badge">متوسط</span>
+          <span class="q-text">حدّد حالة DP (State) ومعادلة انتعاش (Recurrence) لمسألة: «عدد الطرق للوصول إلى الدرجة n في سلّم، علماً بأنك تستطيع قفز خطوة أو خطوتين في كل مرة».</span>
+          <span class="q-arrow">▼</span>
+        </div>
+        <div class="q-answer">
+          <strong style="color:var(--accent)">S – الحالة</strong>: dp[i] = عدد الطرق المختلفة للوصول إلى الدرجة i.<br><br>
+          <strong style="color:var(--accent2)">R – العلاقة العودية</strong>: dp[i] = dp[i-1] + dp[i-2]<br>
+          (إما وصلت من الدرجة i-1 بخطوة واحدة، أو من الدرجة i-2 بخطوتين)<br><br>
+          <strong style="color:var(--gold)">B – الحالات الأساسية</strong>: dp[0]=1 (طريقة واحدة: لا تتحرك)، dp[1]=1 (خطوة واحدة).<br><br>
+          لاحظ أن هذه المسألة مطابقة تماماً لمتتالية فيبوناتشي في بنيتها!
+        </div>
+      </div>
+
+      <!-- ════ HARD ════ -->
+      <div class="question-item q-hard" data-level="hard">
+        <div class="q-header" onclick="toggleQ(this)">
+          <div class="q-num">11</div>
+          <span class="q-badge">صعب</span>
+          <span class="q-text">اكتب حل كامل لمسألة أطول متتالية مشتركة (LCS) بين سلسلتين نصيتين s1 وs2، مع شرح كامل لإطار SRTBOT.</span>
+          <span class="q-arrow">▼</span>
+        </div>
+        <div class="q-answer">
+          <strong>LCS = Longest Common Subsequence</strong><br><br>
+          <strong style="color:var(--accent)">S</strong>: dp[i][j] = طول أطول متتالية مشتركة بين s1[0..i-1] و s2[0..j-1].<br>
+          <strong style="color:var(--accent2)">R</strong>: إذا s1[i-1]==s2[j-1] → dp[i][j] = dp[i-1][j-1] + 1<br>
+          وإلا → dp[i][j] = max(dp[i-1][j], dp[i][j-1])<br>
+          <strong style="color:var(--accent3)">T</strong>: dp[i][j] تعتمد على dp[i-1][j-1]، dp[i-1][j]، dp[i][j-1].<br>
+          <strong style="color:var(--gold)">B</strong>: dp[i][0]=0 و dp[0][j]=0 لكل i,j.<br>
+          <strong style="color:var(--warn)">O</strong>: من i=1 لـ m ومن j=1 لـ n (ترتيب تصاعدي).<br>
+          <strong style="color:var(--danger)">T</strong>: O(m×n) زمناً وذاكرةً.
+          <div class="code-block" style="margin-top:0.8rem;">
+            <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">C++</span></div>
+            <pre><span class="ty">int</span> <span class="fn">lcs</span>(string s1, string s2) {
+    <span class="ty">int</span> m = s1.<span class="fn">size</span>(), n = s2.<span class="fn">size</span>();
+    vector&lt;vector&lt;<span class="ty">int</span>&gt;&gt; dp(m+<span class="nm">1</span>, vector&lt;<span class="ty">int</span>&gt;(n+<span class="nm">1</span>, <span class="nm">0</span>));
+    <span class="kw">for</span> (<span class="ty">int</span> i=<span class="nm">1</span>; i&lt;=m; i++)
+        <span class="kw">for</span> (<span class="ty">int</span> j=<span class="nm">1</span>; j&lt;=n; j++)
+            dp[i][j] = (s1[i-<span class="nm">1</span>]==s2[j-<span class="nm">1</span>])
+                ? dp[i-<span class="nm">1</span>][j-<span class="nm">1</span>] + <span class="nm">1</span>
+                : <span class="fn">max</span>(dp[i-<span class="nm">1</span>][j], dp[i][j-<span class="nm">1</span>]);
+    <span class="kw">return</span> dp[m][n];
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="question-item q-hard" data-level="hard">
+        <div class="q-header" onclick="toggleQ(this)">
+          <div class="q-num">12</div>
+          <span class="q-badge">صعب</span>
+          <span class="q-text">ما مبدأ «بيلمان للبنية الجزئية المثلى»؟ وكيف يُثبت صحته في مسألة أقصر مسار؟</span>
+          <span class="q-arrow">▼</span>
+        </div>
+        <div class="q-answer">
+          <strong>مبدأ بيلمان:</strong> الحل الأمثل لمسألة ما يتضمن بالضرورة حلولاً مثلى للمسائل الفرعية التي يتكوّن منها.<br><br>
+          <strong>الإثبات لأقصر مسار (Shortest Path):</strong><br>
+          افرض أن أقصر مسار من A إلى C يمر بـ B. إذا كان المقطع من A إلى B ليس الأقصر، فبتبديله بمسار أقصر من A إلى B، نحصل على مسار إجمالي أقصر من A إلى C. هذا يتناقض مع افتراض أن المسار الأصلي كان الأقصر. إذاً كل جزء من المسار الأمثل يجب أن يكون أمثل بدوره.<br><br>
+          <strong>تطبيقه في DP:</strong> نستطيع تعريف dp[v] = أقصر مسافة للوصول إلى العقدة v، وحسابها من dp[u] للعقد u المجاورة، لأننا نعلم أن الحل الجزئي مثل أيضاً.
+        </div>
+      </div>
+
+      <div class="question-item q-hard" data-level="hard">
+        <div class="q-header" onclick="toggleQ(this)">
+          <div class="q-num">13</div>
+          <span class="q-badge">صعب</span>
+          <span class="q-text">صمّم حلاً بالبرمجة الديناميكية لمسألة: «عدد الطرق لتقسيم العدد n إلى مجموع أعداد صحيحة موجبة» (Integer Partitioning).</span>
+          <span class="q-arrow">▼</span>
+        </div>
+        <div class="q-answer">
+          <strong style="color:var(--accent)">S</strong>: dp[i][j] = عدد طرق تكوين المجموع j باستخدام أعداد من 1 حتى i.<br><br>
+          <strong style="color:var(--accent2)">R</strong>:<br>
+          إذا لم نستخدم العدد i: dp[i][j] = dp[i-1][j]<br>
+          إذا استخدمنا i (مرة أو أكثر): dp[i][j] = dp[i][j-i] (يمكن إعادة الاستخدام)<br>
+          dp[i][j] = dp[i-1][j] + dp[i][j-i] إذا j≥i<br><br>
+          <strong style="color:var(--gold)">B</strong>: dp[i][0]=1 لكل i (طريقة واحدة: لا تختر شيئاً).<br>
+          dp[0][j]=0 لـ j>0 (لا يمكن بلوغ j بدون أعداد).<br><br>
+          <strong style="color:var(--danger)">T</strong>: O(n²) زمناً وذاكرةً. مثال: لـ n=4: طرق التقسيم هي 4, 3+1, 2+2, 2+1+1, 1+1+1+1 → الإجابة=5.
+        </div>
+      </div>
+
+      <div class="question-item q-hard" data-level="hard">
+        <div class="q-header" onclick="toggleQ(this)">
+          <div class="q-num">14</div>
+          <span class="q-badge">صعب</span>
+          <span class="q-text">ما «لعنة الأبعاد» (Curse of Dimensionality) في البرمجة الديناميكية؟ وكيف نتعامل معها عملياً؟</span>
+          <span class="q-arrow">▼</span>
+        </div>
+        <div class="q-answer">
+          <strong>لعنة الأبعاد:</strong> عندما تحتاج الحالة في DP إلى متغيرات متعددة (أبعاد)، ينمو حجم الجدول بشكل أُسّي. مثلاً:<br>
+          - بُعد واحد: O(n) حالة<br>
+          - بُعدان: O(n²) حالة<br>
+          - ثلاثة أبعاد: O(n³) حالة<br><br>
+          <strong>طرق التعامل معها:</strong><br>
+          ١. <strong style="color:var(--accent3)">ضغط الحالة</strong>: البحث عن حالة أقل أبعاداً تصف المسألة بنفس الكفاءة.<br>
+          ②. <strong style="color:var(--accent3)">ضغط الذاكرة</strong>: تخزين صف واحد أو عدد محدود من الصفوف بدلاً من الجدول كاملاً.<br>
+          ③. <strong style="color:var(--accent3)">Bitmask DP</strong>: تمثيل مجموعات بعلامات بتية (bits) لمسائل التقليب والتوزيع.<br>
+          ④. <strong style="color:var(--accent3)">Profile DP</strong>: تخزين حالة الحواف فقط بدلاً من المصفوفة كاملة في مسائل التلوين والتقطيع.
+        </div>
+      </div>
+
+      <div class="question-item q-hard" data-level="hard">
+        <div class="q-header" onclick="toggleQ(this)">
+          <div class="q-num">15</div>
+          <span class="q-badge">صعب</span>
+          <span class="q-text">كيف تُطبَّق مفاهيم البرمجة الديناميكية في خوارزميات تعلم التعزيز (Reinforcement Learning)؟ وما العلاقة بين معادلة بيلمان وخوارزمية Q-Learning؟</span>
+          <span class="q-arrow">▼</span>
+        </div>
+        <div class="q-answer">
+          <strong>الصلة العميقة:</strong> تعلم التعزيز هو في جوهره برمجة ديناميكية في بيئة غير معروفة الكاملة.<br><br>
+          <strong style="color:var(--accent)">معادلة بيلمان للقيمة:</strong><br>
+          V(s) = max_a [R(s,a) + γ · V(s')]<br>
+          حيث V(s) قيمة الحالة، R(s,a) المكافأة الآنية، γ معامل الخصم، s' الحالة التالية. هذه معادلة انتعاش DP كلاسيكية!<br><br>
+          <strong style="color:var(--accent2)">خوارزمية Value Iteration</strong>: تطبيق Bottom-Up DP على معادلة بيلمان للتقارب نحو السياسة المثلى.<br><br>
+          <strong style="color:var(--accent3)">Q-Learning</strong>: تُعلَّم دالة Q(s,a) بشكل تدريجي دون معرفة كاملة بالبيئة:<br>
+          Q(s,a) ← Q(s,a) + α[r + γ·max_a' Q(s',a') - Q(s,a)]<br><br>
+          هذا التحديث هو تقريب لمعادلة بيلمان، ما يجعل Q-Learning شكلاً من أشكال DP التقريبية (Approximate DP).
+        </div>
+      </div>
+
+    </div><!-- end qList -->
+  </div>
+</section>
+
+<footer>
+  <p style="margin-bottom:0.5rem;">📘 دليل البرمجة الديناميكية — دليل تفاعلي شامل</p>
+  <p>استناداً إلى نظرية بيلمان ومنهجية SRTBOT</p>
+</footer>
+
+<script>
+// ════════════════════════════════════════
+//  FADE IN ON SCROLL
+// ════════════════════════════════════════
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+// ════════════════════════════════════════
+//  Q ACCORDION
+// ════════════════════════════════════════
+function toggleQ(header) {
+  const ans   = header.nextElementSibling;
+  const arrow = header.querySelector('.q-arrow');
+  const open  = ans.classList.toggle('show');
+  arrow.classList.toggle('open', open);
+}
+
+// ════════════════════════════════════════
+//  QUIZ FILTER
+// ════════════════════════════════════════
+function filterQ(level, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.className = 'filter-btn';
+  });
+  btn.classList.add('active-' + level);
+
+  document.querySelectorAll('.question-item').forEach(item => {
+    item.style.display = (level === 'all' || item.dataset.level === level) ? '' : 'none';
+  });
+}
+
+// ════════════════════════════════════════
+//  STEP VISUALIZER (Fibonacci)
+// ════════════════════════════════════════
+const fibVals = [0,1,1,2,3,5,8,13,21];
+const N = fibVals.length;
+let stepIdx = -1;
+let autoTimer = null;
+
+function buildStepTrack() {
+  const track = document.getElementById('stepTrack');
+  track.innerHTML = '';
+  for (let i = 0; i < N; i++) {
+    if (i > 0) {
+      const arr = document.createElement('div');
+      arr.className = 'step-arrow';
+      arr.id = 'arr-' + i;
+      track.appendChild(arr);
+    }
+    const node = document.createElement('div');
+    node.className = 'step-node';
+    node.innerHTML = `
+      <div class="step-circle" id="sc-${i}">F(${i})</div>
+      <div class="step-val" id="sv-${i}">—</div>
+    `;
+    track.appendChild(node);
+  }
+}
+
+function startSteps() { resetSteps(); nextStep(); }
+
+function nextStep() {
+  if (stepIdx >= N-1) return;
+  stepIdx++;
+  const i = stepIdx;
+
+  for (let k = 0; k < N; k++) {
+    const sc = document.getElementById('sc-'+k);
+    sc.classList.remove('active','done');
+    if (k < i) sc.classList.add('done');
+  }
+  document.getElementById('sc-'+i).classList.add('active');
+  document.getElementById('sv-'+i).textContent = fibVals[i];
+  document.getElementById('sv-'+i).classList.add('revealed');
+
+  if (i > 0) {
+    const arr = document.getElementById('arr-'+i);
+    if (arr) arr.classList.add('lit');
+  }
+
+  const info = document.getElementById('step-info');
+  if (i < 2) {
+    info.innerHTML = `<strong>حالة أساسية:</strong> F(${i}) = ${fibVals[i]} (معطى مباشرةً)`;
+  } else {
+    info.innerHTML = `F(${i}) = F(${i-1}) + F(${i-2}) = <strong>${fibVals[i-1]}</strong> + <strong>${fibVals[i-2]}</strong> = <strong style="color:var(--accent3)">${fibVals[i]}</strong>`;
+  }
+}
+
+function resetSteps() {
+  clearInterval(autoTimer); autoTimer = null;
+  stepIdx = -1;
+  buildStepTrack();
+  document.getElementById('step-info').innerHTML = 'اضغط «التالي» لبدء المحاكاة.';
+}
+
+function autoPlay() {
+  if (autoTimer) return;
+  startSteps();
+  autoTimer = setInterval(() => {
+    if (stepIdx >= N-1) { clearInterval(autoTimer); autoTimer = null; return; }
+    nextStep();
+  }, 900);
+}
+
+buildStepTrack();
+
+// ════════════════════════════════════════
+//  BARS
+// ════════════════════════════════════════
+function animateBars() {
+  document.getElementById('bar-naive').style.width = '95%';
+  document.getElementById('bar-dp').style.width = '12%';
+}
+
+// ════════════════════════════════════════
+//  MIN-COST DEMO
+// ════════════════════════════════════════
+const mcCost = [1, 100, 1, 1];
+const mcN = mcCost.length;
+let mcStep_ = -1;
+let mcDP = new Array(mcN + 2).fill(0);
+let mcAutoTimer = null;
+
+function buildMCTable() {
+  const tbl = document.getElementById('mcTable');
+  tbl.innerHTML = '';
+  for (let i = mcN - 1; i >= 0; i--) {
+    const cell = document.createElement('div');
+    cell.className = 'dp-cell';
+    cell.innerHTML = `
+      <div class="dp-box" id="mc-box-${i}">?</div>
+      <div class="dp-label">dp[${i}]</div>
+      <div class="dp-label" style="color:var(--warn)">c=${mcCost[i]}</div>
+    `;
+    tbl.appendChild(cell);
+  }
+  // end marker
+  const endCell = document.createElement('div');
+  endCell.className = 'dp-cell';
+  endCell.innerHTML = `<div class="dp-box filled" style="background:rgba(52,211,153,0.08); border-color:var(--accent3); color:var(--accent3)">0</div><div class="dp-label">dp[n]</div><div class="dp-label">نهاية</div>`;
+  tbl.appendChild(endCell);
+}
+
+function mcStep() {
+  const pos = mcN - 1 - mcStep_ - 1;
+  if (pos < 0) return;
+  mcStep_++;
+  const i = mcN - 1 - mcStep_;
+
+  document.querySelectorAll('.dp-box').forEach(b => b.classList.remove('highlight'));
+
+  const next1 = i + 1 < mcN ? mcDP[i+1] : 0;
+  const next2 = i + 2 < mcN ? mcDP[i+2] : 0;
+  mcDP[i] = mcCost[i] + Math.min(next1, next2);
+
+  const box = document.getElementById('mc-box-' + i);
+  if (box) {
+    box.textContent = mcDP[i];
+    box.classList.add('filled', 'highlight');
+  }
+
+  document.getElementById('mc-info').innerHTML =
+    `dp[${i}] = cost[${i}] + min(dp[${i+1}], dp[${i+2}]) = ${mcCost[i]} + min(${next1}, ${next2}) = <strong style="color:var(--accent3)">${mcDP[i]}</strong>`;
+
+  if (i === 0) {
+    const ans = Math.min(mcDP[0], mcDP[1]);
+    setTimeout(() => {
+      document.getElementById('mc-info').innerHTML =
+        `✅ الإجابة = min(dp[0], dp[1]) = min(${mcDP[0]}, ${mcDP[1]}) = <strong style="color:var(--gold)">${ans}</strong>`;
+    }, 600);
+  }
+}
+
+function mcReset() {
+  clearInterval(mcAutoTimer); mcAutoTimer = null;
+  mcStep_ = -1;
+  mcDP = new Array(mcN + 2).fill(0);
+  buildMCTable();
+  document.getElementById('mc-info').textContent = '';
+}
+
+function mcAuto() {
+  if (mcAutoTimer) return;
+  mcAutoTimer = setInterval(() => {
+    const pos = mcN - 1 - mcStep_ - 1;
+    if (pos < 0) { clearInterval(mcAutoTimer); mcAutoTimer = null; return; }
+    mcStep();
+  }, 1000);
+}
+
+buildMCTable();
+</script>
+</body>
+</html>

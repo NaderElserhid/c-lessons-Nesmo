@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>البرمجة الديناميكية - مسائل AtCoder</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --accent4: #f59e0b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --border: #1e3a5f;
+    --code-bg: #0d1117;
+    --frog: #22c55e;
+    --vacation: #a855f7;
+    --new: #f97316;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #0a0e1a 0%, #111827 50%, #0a1628 100%);
+    padding: 3rem 2rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0,212,255,0.08) 0%, transparent 70%);
+  }
+
+  .hero-tag {
+    display: inline-block;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.3);
+    color: var(--accent);
+    padding: 0.3rem 1rem;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    background: linear-gradient(135deg, #ffffff, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+    position: relative;
+  }
+
+  .hero p {
+    color: var(--text-muted);
+    font-size: 1rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* Nav tabs */
+  .nav-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.5rem 2rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    padding: 0.6rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    background: var(--surface2);
+    color: var(--text-muted);
+    border: 1px solid transparent;
+  }
+
+  .tab-btn:hover { color: var(--text); border-color: var(--border); }
+
+  .tab-btn.active[data-tab="frog"] { background: rgba(34,197,94,0.15); color: var(--frog); border-color: rgba(34,197,94,0.4); }
+  .tab-btn.active[data-tab="vacation"] { background: rgba(168,85,247,0.15); color: var(--vacation); border-color: rgba(168,85,247,0.4); }
+  .tab-btn.active[data-tab="new"] { background: rgba(249,115,22,0.15); color: var(--new); border-color: rgba(249,115,22,0.4); }
+
+  /* Sections */
+  .section { display: none; padding: 2rem; max-width: 1200px; margin: 0 auto; }
+  .section.active { display: block; animation: fadeIn 0.4s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Problem Header */
+  .problem-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .problem-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .problem-icon.frog { background: rgba(34,197,94,0.15); }
+  .problem-icon.vacation { background: rgba(168,85,247,0.15); }
+  .problem-icon.new { background: rgba(249,115,22,0.15); }
+
+  .problem-meta { flex: 1; }
+  .problem-meta h2 { font-size: 1.6rem; font-weight: 900; }
+  .problem-meta .badges { display: flex; gap: 0.5rem; margin-top: 0.3rem; flex-wrap: wrap; }
+  .badge {
+    padding: 0.15rem 0.6rem; border-radius: 100px;
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .badge.platform { background: rgba(0,212,255,0.1); color: var(--accent); border: 1px solid rgba(0,212,255,0.3); }
+  .badge.easy { background: rgba(16,185,129,0.1); color: var(--accent3); border: 1px solid rgba(16,185,129,0.3); }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .card-title .icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }
+
+  /* Math formula display */
+  .formula {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.8rem 1.2rem;
+    margin: 0.6rem 0;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    color: var(--accent);
+    direction: ltr;
+    text-align: center;
+  }
+
+  .formula .comment { color: var(--text-muted); font-size: 0.75rem; direction: rtl; text-align: right; margin-top: 0.3rem; font-family: 'Cairo', sans-serif; }
+
+  /* Problem statement */
+  .problem-text { line-height: 2; color: var(--text); font-size: 0.95rem; }
+  .problem-text strong { color: var(--accent); }
+
+  /* Complexity badges */
+  .complexity-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .complexity-box {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .complexity-box .label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.3rem; }
+  .complexity-box .value { font-family: 'Fira Code', monospace; font-size: 1rem; font-weight: 700; color: var(--accent4); }
+
+  /* ====== FROG ANIMATION ====== */
+  .frog-canvas-wrapper {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    overflow: hidden;
+  }
+
+  .frog-controls {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .ctrl-btn {
+    padding: 0.5rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .ctrl-btn.primary { background: var(--frog); color: #000; }
+  .ctrl-btn.primary:hover { background: #16a34a; }
+  .ctrl-btn.secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .ctrl-btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .ctrl-btn.v-primary { background: var(--vacation); color: #fff; }
+  .ctrl-btn.v-primary:hover { background: #7c22cc; }
+
+  .ctrl-btn.n-primary { background: var(--new); color: #fff; }
+  .ctrl-btn.n-primary:hover { background: #ea580c; }
+
+  .speed-control { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--text-muted); margin-right: auto; }
+  .speed-control input { width: 80px; accent-color: var(--frog); }
+
+  #frogCanvas {
+    width: 100%;
+    height: 220px;
+    display: block;
+    border-radius: 8px;
+  }
+
+  .dp-table-wrapper { overflow-x: auto; margin-top: 1rem; }
+  .dp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    direction: ltr;
+  }
+  .dp-table th, .dp-table td {
+    padding: 0.5rem 0.8rem;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .dp-table th { background: var(--surface2); color: var(--text-muted); font-weight: 700; font-family: 'Fira Code', monospace; }
+  .dp-table td { font-family: 'Fira Code', monospace; color: var(--text); background: var(--code-bg); transition: all 0.3s; }
+  .dp-table td.computed { background: rgba(34,197,94,0.12); color: var(--frog); font-weight: 700; }
+  .dp-table td.current { background: rgba(0,212,255,0.15); color: var(--accent); font-weight: 700; box-shadow: inset 0 0 0 2px rgba(0,212,255,0.4); }
+
+  .log-box {
+    margin-top: 1rem;
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    min-height: 36px;
+    border: 1px solid var(--border);
+    font-family: 'Cairo', sans-serif;
+    direction: rtl;
+  }
+
+  .log-box span.hi { color: var(--accent); font-weight: 700; }
+  .log-box span.hi-g { color: var(--frog); font-weight: 700; }
+  .log-box span.hi-y { color: var(--accent4); font-weight: 700; }
+
+  /* ====== CODE BLOCK ====== */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .code-header {
+    background: var(--surface2);
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-header .lang { font-size: 0.75rem; font-weight: 700; color: var(--accent); font-family: 'Fira Code', monospace; }
+
+  .copy-btn {
+    padding: 0.25rem 0.75rem;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.3);
+    color: var(--accent);
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-family: 'Cairo', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover { background: rgba(0,212,255,0.2); }
+
+  pre {
+    padding: 1.2rem;
+    overflow-x: auto;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8rem;
+    line-height: 1.8;
+    direction: ltr;
+    tab-size: 2;
+  }
+
+  .kw { color: #ff79c6; }
+  .ty { color: #8be9fd; }
+  .fn { color: #50fa7b; }
+  .cm { color: #6272a4; font-style: italic; }
+  .nm { color: #bd93f9; }
+  .st { color: #f1fa8c; }
+  .op { color: #ff79c6; }
+  .pu { color: #f8f8f2; }
+
+  /* Vacation Grid */
+  .vacation-grid-wrapper {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  #vacationViz {
+    display: grid;
+    gap: 6px;
+    direction: ltr;
+  }
+
+  .vac-row { display: flex; gap: 6px; align-items: center; }
+  .vac-day-label { font-size: 0.7rem; font-family: 'Fira Code', monospace; color: var(--text-muted); width: 30px; text-align: right; flex-shrink: 0; }
+  .vac-cell {
+    width: 70px; height: 52px;
+    border-radius: 8px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.75rem;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+    position: relative;
+    cursor: default;
+  }
+  .vac-cell .cell-val { font-size: 1rem; font-weight: 700; }
+  .vac-cell .cell-label { font-size: 0.6rem; margin-top: 1px; opacity: 0.7; font-family: 'Cairo', sans-serif; }
+  .vac-cell.type-a { background: rgba(0,212,255,0.08); color: var(--accent); }
+  .vac-cell.type-b { background: rgba(168,85,247,0.08); color: var(--vacation); }
+  .vac-cell.type-c { background: rgba(16,185,129,0.08); color: var(--accent3); }
+  .vac-cell.selected { border-color: var(--accent4); box-shadow: 0 0 12px rgba(245,158,11,0.3); transform: scale(1.05); }
+  .vac-cell.computed-a { background: rgba(0,212,255,0.2); border-color: rgba(0,212,255,0.5); }
+  .vac-cell.computed-b { background: rgba(168,85,247,0.2); border-color: rgba(168,85,247,0.5); }
+  .vac-cell.computed-c { background: rgba(16,185,129,0.2); border-color: rgba(16,185,129,0.5); }
+  .vac-cell.blocked { opacity: 0.2; }
+
+  .dp-panel {
+    margin-top: 1rem;
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 0.75rem;
+    direction: ltr;
+  }
+
+  .dp-panel-title { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.5rem; font-family: 'Cairo', sans-serif; direction: rtl; }
+
+  .dp-vals { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .dp-val {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.4rem 0.8rem;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8rem;
+  }
+  .dp-val .dv-label { color: var(--text-muted); font-size: 0.65rem; }
+  .dp-val .dv-num { color: var(--text); font-weight: 700; }
+  .dp-val.best .dv-num { color: var(--accent4); }
+
+  /* New Problem */
+  .new-problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media(max-width: 640px) { .new-problem-grid { grid-template-columns: 1fr; } }
+
+  #stairCanvas {
+    width: 100%;
+    height: 240px;
+    display: block;
+    border-radius: 8px;
+  }
+
+  /* Responsive */
+  @media(max-width: 640px) {
+    .complexity-grid { grid-template-columns: 1fr; }
+    .section { padding: 1rem; }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-tag">Dynamic Programming · البرمجة الديناميكية</div>
+  <h1>مسائل AtCoder التفاعلية</h1>
+  <p>تعلّم البرمجة الديناميكية من خلال رسوم متحركة تفاعلية وشرح مفصّل</p>
+</div>
+
+<div class="nav-tabs">
+  <button class="tab-btn active" data-tab="frog" onclick="showTab('frog')">🐸 Frog 1</button>
+  <button class="tab-btn" data-tab="vacation" onclick="showTab('vacation')">🏖️ Vacation</button>
+  <button class="tab-btn" data-tab="new" onclick="showTab('new')">🆕 Staircase Sum</button>
+</div>
+
+<!-- ===================== FROG ===================== -->
+<div id="tab-frog" class="section active">
+  <div class="problem-header">
+    <div class="problem-icon frog">🐸</div>
+    <div class="problem-meta">
+      <h2 style="color:var(--frog)">Frog 1</h2>
+      <div class="badges">
+        <span class="badge platform">AtCoder</span>
+        <span class="badge easy">Easy · سهل</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Problem Statement -->
+  <div class="card">
+    <div class="card-title">
+      <div class="icon" style="background:rgba(34,197,94,0.15)">📋</div>
+      نص المسألة
+    </div>
+    <p class="problem-text">
+      لديك مصفوفة تحتوي على <strong>N</strong> عنصرًا: <strong>a[0], a[1], …, a[N−1]</strong>.
+      تبدأ من الموقع <strong>0</strong> وتريد الوصول إلى الموقع <strong>N−1</strong>.
+      في كل خطوة يمكنك:
+    </p>
+    <div class="formula">التحرك من الموقع <span style="color:#f59e0b">i</span> إلى <span style="color:#f59e0b">i+1</span> بتكلفة <span style="color:#f59e0b">|a[i+1] − a[i]|</span></div>
+    <div class="formula">التحرك من الموقع <span style="color:#a855f7">i</span> إلى <span style="color:#a855f7">i+2</span> بتكلفة <span style="color:#a855f7">|a[i+2] − a[i]|</span></div>
+    <p class="problem-text" style="margin-top:0.8rem">
+      احسب <strong>أقل تكلفة إجمالية</strong> للانتقال من الموقع <strong>0</strong> إلى الموقع <strong>N−1</strong>.
+    </p>
+  </div>
+
+  <!-- Solution -->
+  <div class="card">
+    <div class="card-title">
+      <div class="icon" style="background:rgba(0,212,255,0.15)">💡</div>
+      الحل بالبرمجة الديناميكية
+    </div>
+    <p class="problem-text">نعرّف الحالة <strong>dp[i]</strong> = أقل تكلفة للوصول إلى الموقع <strong>i</strong> من الموقع <strong>0</strong>.</p>
+    <div class="formula">
+      dp[0] = 0
+      <div class="comment">الحالة الأساسية: نحن بالفعل في الموقع 0</div>
+    </div>
+    <div class="formula">
+      dp[i] = min(dp[i−1] + |a[i]−a[i−1]|,  dp[i−2] + |a[i]−a[i−2]|)
+      <div class="comment">نصل إلى i إما من i−1 أو من i−2، ونختار الأرخص</div>
+    </div>
+    <div class="complexity-grid" style="margin-top:1rem">
+      <div class="complexity-box">
+        <div class="label">تعقيد الزمن</div>
+        <div class="value">O(N)</div>
+      </div>
+      <div class="complexity-box">
+        <div class="label">تعقيد المساحة</div>
+        <div class="value">O(N)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Animation -->
+  <div class="card">
+    <div class="card-title">
+      <div class="icon" style="background:rgba(34,197,94,0.15)">🎮</div>
+      الرسم التفاعلي — تتبع خوارزمية DP
+    </div>
+    <div class="frog-canvas-wrapper">
+      <div class="frog-controls">
+        <button class="ctrl-btn primary" onclick="frogStart()">▶ تشغيل</button>
+        <button class="ctrl-btn secondary" onclick="frogReset()">↺ إعادة</button>
+        <button class="ctrl-btn secondary" onclick="frogStep()">⏭ خطوة</button>
+        <div class="speed-control">
+          <span>السرعة</span>
+          <input type="range" id="frogSpeed" min="200" max="1500" value="900" step="100" style="direction:ltr">
+        </div>
+      </div>
+      <canvas id="frogCanvas"></canvas>
+      <div class="dp-table-wrapper">
+        <table class="dp-table" id="frogDpTable"></table>
+      </div>
+      <div class="log-box" id="frogLog">اضغط "تشغيل" لبدء الرسم المتحرك...</div>
+    </div>
+  </div>
+
+  <!-- Code -->
+  <div class="card">
+    <div class="card-title">
+      <div class="icon" style="background:rgba(34,197,94,0.15)">💻</div>
+      الكود (C++)
+    </div>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang">C++</span>
+        <button class="copy-btn" onclick="copyCode('frogCode')">نسخ الكود</button>
+      </div>
+      <pre id="frogCode"><span class="cm">// مصفوفة الإدخال والـ DP</span>
+<span class="kw">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="kw">using namespace</span> <span class="ty">std</span>;
+
+<span class="ty">int</span> a[<span class="nm">200000</span>];
+<span class="ty">int</span> dp[<span class="nm">200000</span>];
+
+<span class="ty">int</span> <span class="fn">f</span>(<span class="ty">int</span> i) {
+    <span class="cm">// الحالات الأساسية</span>
+    <span class="kw">if</span> (i <span class="op">==</span> <span class="nm">0</span>) <span class="kw">return</span> <span class="nm">0</span>;
+    <span class="kw">if</span> (i <span class="op">==</span> <span class="nm">1</span>) <span class="kw">return</span> <span class="fn">abs</span>(a[<span class="nm">1</span>] <span class="op">-</span> a[<span class="nm">0</span>]);
+
+    <span class="cm">// إذا تم حساب الحل من قبل</span>
+    <span class="kw">if</span> (dp[i] <span class="op">!=</span> <span class="op">-</span><span class="nm">1</span>) <span class="kw">return</span> dp[i];
+
+    dp[i] <span class="op">=</span> <span class="fn">min</span>(
+        <span class="fn">f</span>(i <span class="op">-</span> <span class="nm">1</span>) <span class="op">+</span> <span class="fn">abs</span>(a[i] <span class="op">-</span> a[i <span class="op">-</span> <span class="nm">1</span>]),
+        <span class="fn">f</span>(i <span class="op">-</span> <span class="nm">2</span>) <span class="op">+</span> <span class="fn">abs</span>(a[i] <span class="op">-</span> a[i <span class="op">-</span> <span class="nm">2</span>])
+    );
+    <span class="kw">return</span> dp[i];
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="cm">// تهيئة dp بـ -1</span>
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> <span class="nm">0</span>; i <span class="op">&lt;</span> <span class="nm">200000</span>; i++) dp[i] <span class="op">=</span> <span class="op">-</span><span class="nm">1</span>;
+
+    <span class="ty">int</span> n;
+    <span class="ty">cin</span> <span class="op">&gt;&gt;</span> n;
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> <span class="nm">0</span>; i <span class="op">&lt;</span> n; i++) <span class="ty">cin</span> <span class="op">&gt;&gt;</span> a[i];
+
+    <span class="ty">cout</span> <span class="op">&lt;&lt;</span> <span class="fn">f</span>(n <span class="op">-</span> <span class="nm">1</span>) <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;
+}</pre>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== VACATION ===================== -->
+<div id="tab-vacation" class="section">
+  <div class="problem-header">
+    <div class="problem-icon vacation">🏖️</div>
+    <div class="problem-meta">
+      <h2 style="color:var(--vacation)">Vacation</h2>
+      <div class="badges">
+        <span class="badge platform">AtCoder</span>
+        <span class="badge easy">Easy · سهل</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <div class="icon" style="background:rgba(168,85,247,0.15)">📋</div>
+      نص المسألة
+    </div>
+    <p class="problem-text">
+      لديك ثلاث مصفوفات <strong>A</strong> و<strong>B</strong> و<strong>C</strong>، كل منها بطول <strong>N</strong>.
+      في كل يوم <strong>i</strong> (من <strong>0</strong> إلى <strong>N−1</strong>) يجب اختيار نشاط واحد من <strong>A[i]</strong> أو <strong>B[i]</strong> أو <strong>C[i]</strong>.
+    </p>
+    <div class="formula">⚠️ الشرط: النشاط في اليوم <span style="color:#f59e0b">i</span> يجب أن يختلف عن النشاط في اليوم <span style="color:#f59e0b">i+1</span></div>
+    <p class="problem-text" style="margin-top:0.8rem">أوجد <strong>أكبر مجموع ممكن</strong> للقيم المختارة.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <div class="icon" style="background:rgba(0,212,255,0.15)">💡</div>
+      الحل بالبرمجة الديناميكية
+    </div>
+    <p class="problem-text">نعرّف <strong>dp[i][j]</strong> = أكبر مجموع للأيام <strong>0..i</strong> إذا اخترنا النشاط <strong>j</strong> في اليوم <strong>i</strong>.</p>
+    <div class="formula">
+      dp[0][0] = A[0] &nbsp;|&nbsp; dp[0][1] = B[0] &nbsp;|&nbsp; dp[0][2] = C[0]
+      <div class="comment">الحالة الأساسية: اليوم الأول</div>
+    </div>
+    <div class="formula">
+      dp[i][0] = max(dp[i−1][1], dp[i−1][2]) + A[i]
+      <div class="comment">نشاط A لا يتبع نشاط A</div>
+    </div>
+    <div class="formula">
+      dp[i][1] = max(dp[i−1][0], dp[i−1][2]) + B[i]
+      <div class="comment">نشاط B لا يتبع نشاط B</div>
+    </div>
+    <div class="formula">
+      dp[i][2] = max(dp[i−1][0], dp[i−1][1]) + C[i]
+      <div class="comment">نشاط C لا يتبع نشاط C</div>
+    </div>
+    <div class="complexity-grid" style="margin-top:1rem">
+      <div class="complexity-box"><div class="label">تعقيد الزمن</div><div class="value">O(N)</div></div>
+      <div class="complexity-box"><div class="label">تعقيد المساحة</div><div class="value">O(N)</div></div>
+    </div>
+  </div>
+
+  <!-- Vacation Interactive -->
+  <div class="card">
+    <div class="card-title">
+      <div class="icon" style="background:rgba(168,85,247,0.15)">🎮</div>
+      الرسم التفاعلي — اختيار الأنشطة
+    </div>
+    <div class="vacation-grid-wrapper">
+      <div class="frog-controls">
+        <button class="ctrl-btn v-primary" onclick="vacStart()">▶ تشغيل</button>
+        <button class="ctrl-btn secondary" onclick="vacReset()">↺ إعادة</button>
+        <button class="ctrl-btn secondary" onclick="vacStep()">⏭ خطوة</button>
+        <div class="speed-control">
+          <span>السرعة</span>
+          <input type="range" id="vacSpeed" min="200" max="1500" value="800" step="100" style="direction:ltr">
+        </div>
+      </div>
+      <div id="vacationViz"></div>
+      <div class="dp-panel">
+        <div class="dp-panel-title">قيم dp الحالية (أكبر مجموع لكل نشاط)</div>
+        <div class="dp-vals" id="vacDpVals">
+          <div class="dp-val"><div class="dv-label">dp[·][A]</div><div class="dv-num" id="dvA">—</div></div>
+          <div class="dp-val"><div class="dv-label">dp[·][B]</div><div class="dv-num" id="dvB">—</div></div>
+          <div class="dp-val"><div class="dv-label">dp[·][C]</div><div class="dv-num" id="dvC">—</div></div>
+          <div class="dp-val best"><div class="dv-label">الإجابة النهائية</div><div class="dv-num" id="dvBest">—</div></div>
+        </div>
+      </div>
+      <div class="log-box" id="vacLog">اضغط "تشغيل" لبدء الرسم المتحرك...</div>
+    </div>
+  </div>
+
+  <!-- Code -->
+  <div class="card">
+    <div class="card-title">
+      <div class="icon" style="background:rgba(168,85,247,0.15)">💻</div>
+      الكود (C++)
+    </div>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang">C++</span>
+        <button class="copy-btn" onclick="copyCode('vacCode')">نسخ الكود</button>
+      </div>
+      <pre id="vacCode"><span class="kw">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="kw">using namespace</span> <span class="ty">std</span>;
+
+<span class="ty">int</span> dp[<span class="nm">200000</span>][<span class="nm">3</span>];
+<span class="ty">int</span> d[<span class="nm">200000</span>][<span class="nm">3</span>];
+
+<span class="ty">int</span> <span class="fn">f</span>(<span class="ty">int</span> i, <span class="ty">int</span> type) {
+    <span class="kw">if</span> (i <span class="op">==</span> <span class="nm">0</span>) <span class="kw">return</span> d[i][type];
+    <span class="kw">if</span> (dp[i][type] <span class="op">!=</span> <span class="op">-</span><span class="nm">1</span>) <span class="kw">return</span> dp[i][type];
+
+    <span class="kw">if</span> (type <span class="op">==</span> <span class="nm">0</span>)
+        dp[i][type] <span class="op">=</span> <span class="fn">max</span>(<span class="fn">f</span>(i<span class="op">-</span><span class="nm">1</span>,<span class="nm">1</span>), <span class="fn">f</span>(i<span class="op">-</span><span class="nm">1</span>,<span class="nm">2</span>)) <span class="op">+</span> d[i][type];
+    <span class="kw">else if</span> (type <span class="op">==</span> <span class="nm">1</span>)
+        dp[i][type] <span class="op">=</span> <span class="fn">max</span>(<span class="fn">f</span>(i<span class="op">-</span><span class="nm">1</span>,<span class="nm">0</span>), <span class="fn">f</span>(i<span class="op">-</span><span class="nm">1</span>,<span class="nm">2</span>)) <span class="op">+</span> d[i][type];
+    <span class="kw">else</span>
+        dp[i][type] <span class="op">=</span> <span class="fn">max</span>(<span class="fn">f</span>(i<span class="op">-</span><span class="nm">1</span>,<span class="nm">0</span>), <span class="fn">f</span>(i<span class="op">-</span><span class="nm">1</span>,<span class="nm">1</span>)) <span class="op">+</span> d[i][type];
+
+    <span class="kw">return</span> dp[i][type];
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="kw">for</span> (<span class="ty">int</span> i<span class="op">=</span><span class="nm">0</span>; i<span class="op">&lt;</span><span class="nm">200000</span>; i++)
+        <span class="kw">for</span> (<span class="ty">int</span> j<span class="op">=</span><span class="nm">0</span>; j<span class="op">&lt;</span><span class="nm">3</span>; j++) dp[i][j] <span class="op">=</span> <span class="op">-</span><span class="nm">1</span>;
+
+    <span class="ty">int</span> n; <span class="ty">cin</span> <span class="op">&gt;&gt;</span> n;
+    <span class="kw">for</span> (<span class="ty">int</span> i<span class="op">=</span><span class="nm">0</span>; i<span class="op">&lt;</span>n; i++)
+        <span class="kw">for</span> (<span class="ty">int</span> j<span class="op">=</span><span class="nm">0</span>; j<span class="op">&lt;</span><span class="nm">3</span>; j++) <span class="ty">cin</span> <span class="op">&gt;&gt;</span> d[i][j];
+
+    <span class="ty">cout</span> <span class="op">&lt;&lt;</span> <span class="fn">max</span>({<span class="fn">f</span>(n<span class="op">-</span><span class="nm">1</span>,<span class="nm">0</span>), <span class="fn">f</span>(n<span class="op">-</span><span class="nm">1</span>,<span class="nm">1</span>), <span class="fn">f</span>(n<span class="op">-</span><span class="nm">1</span>,<span class="nm">2</span>)}) <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;
+}</pre>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== NEW PROBLEM ===================== -->
+<div id="tab-new" class="section">
+  <div class="problem-header">
+    <div class="problem-icon new">🆕</div>
+    <div class="problem-meta">
+      <h2 style="color:var(--new)">Staircase Sum — مجموع الدرج</h2>
+      <div class="badges">
+        <span class="badge platform">مسألة جديدة</span>
+        <span class="badge easy">Easy · سهل</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <div class="icon" style="background:rgba(249,115,22,0.15)">📋</div>
+      نص المسألة
+    </div>
+    <p class="problem-text">
+      لديك درج يحتوي على <strong>N</strong> درجة. كل درجة <strong>i</strong> لها قيمة <strong>v[i]</strong>.
+      تبدأ من خارج الدرج (قبل الدرجة <strong>0</strong>) وتريد الوصول إلى الدرجة <strong>N−1</strong>.
+      في كل خطوة يمكنك القفز إلى <strong>الدرجة التالية</strong> أو <strong>تخطي درجة واحدة</strong> (القفز بمقدار درجتين).
+    </p>
+    <div class="formula">القفز من الموقع i إلى i+1 — <span style="color:#10b981">تجمع قيمة الدرجة i+1</span></div>
+    <div class="formula">القفز من الموقع i إلى i+2 — <span style="color:#10b981">تجمع قيمة الدرجة i+2</span></div>
+    <p class="problem-text" style="margin-top:0.8rem">
+      احسب <strong>أكبر مجموع ممكن</strong> للقيم التي تجمعها حين تصل إلى الدرجة <strong>N−1</strong>.
+      <br><em style="color:var(--text-muted); font-size:0.85rem">ملاحظة: هذه المسألة مشابهة لـ Frog 1 لكن بدلاً من تقليل التكلفة نريد تعظيم المجموع.</em>
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <div class="icon" style="background:rgba(0,212,255,0.15)">💡</div>
+      الحل بالبرمجة الديناميكية
+    </div>
+    <p class="problem-text">نعرّف <strong>dp[i]</strong> = أكبر مجموع للقيم إذا وصلنا إلى الدرجة <strong>i</strong>.</p>
+    <div class="formula">
+      dp[0] = v[0]
+      <div class="comment">الحالة الأساسية: نبدأ بجمع قيمة الدرجة الأولى</div>
+    </div>
+    <div class="formula">
+      dp[i] = max(dp[i−1], dp[i−2]) + v[i]
+      <div class="comment">نصل إلى i إما من i−1 أو من i−2، ونختار الأعلى</div>
+    </div>
+    <p class="problem-text" style="margin-top:0.5rem">الإجابة النهائية هي <strong>dp[N−1]</strong>.</p>
+    <div class="complexity-grid" style="margin-top:1rem">
+      <div class="complexity-box"><div class="label">تعقيد الزمن</div><div class="value">O(N)</div></div>
+      <div class="complexity-box"><div class="label">تعقيد المساحة</div><div class="value">O(N)</div></div>
+    </div>
+  </div>
+
+  <!-- New Interactive -->
+  <div class="card">
+    <div class="card-title">
+      <div class="icon" style="background:rgba(249,115,22,0.15)">🎮</div>
+      الرسم التفاعلي — درج القفز
+    </div>
+    <div class="frog-canvas-wrapper">
+      <div class="frog-controls">
+        <button class="ctrl-btn n-primary" onclick="stairStart()">▶ تشغيل</button>
+        <button class="ctrl-btn secondary" onclick="stairReset()">↺ إعادة</button>
+        <button class="ctrl-btn secondary" onclick="stairStep()">⏭ خطوة</button>
+        <div class="speed-control">
+          <span>السرعة</span>
+          <input type="range" id="stairSpeed" min="200" max="1500" value="900" step="100" style="direction:ltr">
+        </div>
+      </div>
+      <canvas id="stairCanvas"></canvas>
+      <div class="dp-table-wrapper">
+        <table class="dp-table" id="stairDpTable"></table>
+      </div>
+      <div class="log-box" id="stairLog">اضغط "تشغيل" لبدء الرسم المتحرك...</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <div class="icon" style="background:rgba(249,115,22,0.15)">💻</div>
+      الكود (C++)
+    </div>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang">C++</span>
+        <button class="copy-btn" onclick="copyCode('stairCode')">نسخ الكود</button>
+      </div>
+      <pre id="stairCode"><span class="kw">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="kw">using namespace</span> <span class="ty">std</span>;
+
+<span class="ty">int</span> v[<span class="nm">200000</span>];
+<span class="ty">int</span> dp[<span class="nm">200000</span>];
+
+<span class="ty">int</span> <span class="fn">f</span>(<span class="ty">int</span> i) {
+    <span class="cm">// الحالات الأساسية</span>
+    <span class="kw">if</span> (i <span class="op">==</span> <span class="nm">0</span>) <span class="kw">return</span> v[<span class="nm">0</span>];
+    <span class="kw">if</span> (i <span class="op">==</span> <span class="nm">1</span>) <span class="kw">return</span> <span class="fn">max</span>(v[<span class="nm">0</span>], v[<span class="nm">0</span>]) <span class="op">+</span> v[<span class="nm">1</span>];
+
+    <span class="kw">if</span> (dp[i] <span class="op">!=</span> <span class="op">-</span><span class="nm">1</span>) <span class="kw">return</span> dp[i];
+
+    dp[i] <span class="op">=</span> <span class="fn">max</span>(<span class="fn">f</span>(i<span class="op">-</span><span class="nm">1</span>), <span class="fn">f</span>(i<span class="op">-</span><span class="nm">2</span>)) <span class="op">+</span> v[i];
+    <span class="kw">return</span> dp[i];
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="kw">for</span> (<span class="ty">int</span> i<span class="op">=</span><span class="nm">0</span>; i<span class="op">&lt;</span><span class="nm">200000</span>; i++) dp[i] <span class="op">=</span> <span class="op">-</span><span class="nm">1</span>;
+
+    <span class="ty">int</span> n; <span class="ty">cin</span> <span class="op">&gt;&gt;</span> n;
+    <span class="kw">for</span> (<span class="ty">int</span> i<span class="op">=</span><span class="nm">0</span>; i<span class="op">&lt;</span>n; i++) <span class="ty">cin</span> <span class="op">&gt;&gt;</span> v[i];
+
+    <span class="ty">cout</span> <span class="op">&lt;&lt;</span> <span class="fn">f</span>(n<span class="op">-</span><span class="nm">1</span>) <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;
+}</pre>
+    </div>
+  </div>
+
+  <!-- Example -->
+  <div class="card">
+    <div class="card-title">
+      <div class="icon" style="background:rgba(249,115,22,0.15)">📝</div>
+      مثال توضيحي
+    </div>
+    <p class="problem-text">للمصفوفة: <strong>v = [3, 1, 5, 2, 4]</strong> (5 درجات، الفهرسة من 0)</p>
+    <div class="formula">dp[0] = 3</div>
+    <div class="formula">dp[1] = max(dp[0], ?) + v[1] = max(3, نبدأ من الخارج=0) + 1 = 3 + 1 = 4
+      <div class="comment">الوصول إلى الدرجة 1 إما من 0 (dp=3) أو من الخارج قفزتين (=0)</div>
+    </div>
+    <div class="formula">dp[2] = max(dp[1], dp[0]) + v[2] = max(4, 3) + 5 = 9</div>
+    <div class="formula">dp[3] = max(dp[2], dp[1]) + v[3] = max(9, 4) + 2 = 11</div>
+    <div class="formula">dp[4] = max(dp[3], dp[2]) + v[4] = max(11, 9) + 4 = <span style="color:#f59e0b">15</span>
+      <div class="comment">أكبر مجموع = 15</div>
+    </div>
+    <p class="problem-text" style="margin-top:0.5rem">المسار الأمثل: 0 → 2 → 4 بمجموع <strong>3 + 5 + 4 = 12</strong> 
+    <em style="color:var(--text-muted)">أو: 0 → 1 → 2 → 3 → 4 = 3+1+5+2+4 = 15 ✓</em></p>
+  </div>
+</div>
+
+<script>
+// ========== TABS ==========
+function showTab(tab) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+}
+
+// ========== COPY ==========
+function copyCode(id) {
+  const el = document.getElementById(id);
+  const text = el.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = el.closest('.code-block').querySelector('.copy-btn');
+    btn.textContent = '✓ تم النسخ';
+    setTimeout(() => btn.textContent = 'نسخ الكود', 2000);
+  });
+}
+
+// ========== FROG 1 ==========
+const frogA = [10, 30, 40, 20, 50, 10, 30];
+const N_FROG = frogA.length;
+let frogDp = new Array(N_FROG).fill(-1);
+let frogStep_i = 0;
+let frogTimer = null;
+let frogAnimFrog = { x: 0, y: 0, tx: 0, ty: 0, prog: 1, emoji: '🐸' };
+
+function frogGetSpeed() { return parseInt(document.getElementById('frogSpeed').value); }
+
+const frogCanvas = document.getElementById('frogCanvas');
+const frogCtx = frogCanvas.getContext('2d');
+
+function frogGetCoords(i) {
+  const W = frogCanvas.width, H = frogCanvas.height;
+  const margin = 50;
+  const x = margin + (i / (N_FROG - 1)) * (W - margin * 2);
+  const y = H - 40 - (frogA[i] / 60) * (H - 80);
+  return { x, y };
+}
+
+function frogDraw(highlightI = -1, fromI = -1) {
+  const W = frogCanvas.width, H = frogCanvas.height;
+  frogCtx.clearRect(0, 0, W, H);
+
+  // grid
+  frogCtx.strokeStyle = 'rgba(30,58,95,0.5)';
+  frogCtx.lineWidth = 1;
+  for (let i = 0; i < 5; i++) {
+    const y = 20 + i * (H - 40) / 4;
+    frogCtx.beginPath(); frogCtx.moveTo(0, y); frogCtx.lineTo(W, y); frogCtx.stroke();
+  }
+
+  // connecting lines
+  frogCtx.strokeStyle = 'rgba(94,118,160,0.3)';
+  frogCtx.lineWidth = 1.5;
+  frogCtx.beginPath();
+  for (let i = 0; i < N_FROG; i++) {
+    const { x, y } = frogGetCoords(i);
+    i === 0 ? frogCtx.moveTo(x, y) : frogCtx.lineTo(x, y);
+  }
+  frogCtx.stroke();
+
+  // arcs for dp path
+  if (fromI >= 0 && highlightI > 0) {
+    frogCtx.strokeStyle = 'rgba(0,212,255,0.5)';
+    frogCtx.lineWidth = 2;
+    frogCtx.setLineDash([5, 4]);
+    const c1 = frogGetCoords(fromI), c2 = frogGetCoords(highlightI);
+    frogCtx.beginPath();
+    frogCtx.moveTo(c1.x, c1.y);
+    frogCtx.bezierCurveTo(c1.x, c1.y - 40, c2.x, c2.y - 40, c2.x, c2.y);
+    frogCtx.stroke();
+    frogCtx.setLineDash([]);
+  }
+
+  // nodes
+  for (let i = 0; i < N_FROG; i++) {
+    const { x, y } = frogGetCoords(i);
+
+    // pillar
+    frogCtx.fillStyle = 'rgba(30,58,95,0.5)';
+    frogCtx.fillRect(x - 3, y + 14, 6, H - y - 14);
+
+    // circle
+    const r = 18;
+    frogCtx.beginPath();
+    frogCtx.arc(x, y, r, 0, Math.PI * 2);
+    if (i === highlightI) {
+      frogCtx.fillStyle = 'rgba(0,212,255,0.25)';
+      frogCtx.strokeStyle = '#00d4ff';
+    } else if (frogDp[i] !== -1) {
+      frogCtx.fillStyle = 'rgba(34,197,94,0.15)';
+      frogCtx.strokeStyle = '#22c55e';
+    } else {
+      frogCtx.fillStyle = 'rgba(30,58,95,0.6)';
+      frogCtx.strokeStyle = '#1e3a5f';
+    }
+    frogCtx.lineWidth = 2;
+    frogCtx.fill(); frogCtx.stroke();
+
+    // index label
+    frogCtx.fillStyle = '#94a3b8';
+    frogCtx.font = '10px Fira Code';
+    frogCtx.textAlign = 'center';
+    frogCtx.fillText('i=' + i, x, y + r + 14);
+
+    // value label
+    frogCtx.fillStyle = '#e2e8f0';
+    frogCtx.font = 'bold 11px Fira Code';
+    frogCtx.fillText(frogA[i], x, y + 4);
+  }
+
+  // frog emoji
+  if (frogAnimFrog.prog < 1) {
+    const cx = frogAnimFrog.x + (frogAnimFrog.tx - frogAnimFrog.x) * frogAnimFrog.prog;
+    const cy = frogAnimFrog.y + (frogAnimFrog.ty - frogAnimFrog.y) * frogAnimFrog.prog - Math.sin(frogAnimFrog.prog * Math.PI) * 30;
+    frogCtx.font = '22px serif';
+    frogCtx.textAlign = 'center';
+    frogCtx.fillText('🐸', cx, cy);
+    frogAnimFrog.prog = Math.min(1, frogAnimFrog.prog + 0.08);
+    requestAnimationFrame(() => frogDraw(highlightI, fromI));
+  } else if (frogStep_i > 0) {
+    const { x, y } = frogGetCoords(frogStep_i - 1);
+    frogCtx.font = '22px serif';
+    frogCtx.textAlign = 'center';
+    frogCtx.fillText('🐸', x, y - 26);
+  } else {
+    const { x, y } = frogGetCoords(0);
+    frogCtx.font = '22px serif';
+    frogCtx.textAlign = 'center';
+    frogCtx.fillText('🐸', x, y - 26);
+  }
+}
+
+function frogBuildTable() {
+  const t = document.getElementById('frogDpTable');
+  let html = '<thead><tr><th>الموقع i</th>';
+  for (let i = 0; i < N_FROG; i++) html += `<th>${i}</th>`;
+  html += '</tr><tr><th>a[i]</th>';
+  for (let i = 0; i < N_FROG; i++) html += `<td>${frogA[i]}</td>`;
+  html += '</tr></thead><tbody><tr><th>dp[i]</th>';
+  for (let i = 0; i < N_FROG; i++) {
+    const cls = frogDp[i] !== -1 ? (i === frogStep_i - 1 ? 'current' : 'computed') : '';
+    html += `<td class="${cls}" id="fdt${i}">${frogDp[i] !== -1 ? frogDp[i] : '?'}</td>`;
+  }
+  html += '</tr></tbody>';
+  t.innerHTML = html;
+}
+
+function frogComputeStep() {
+  const i = frogStep_i;
+  let fromI = -1;
+  if (i === 0) { frogDp[0] = 0; }
+  else if (i === 1) { frogDp[1] = Math.abs(frogA[1] - frogA[0]); fromI = 0; }
+  else {
+    const opt1 = frogDp[i - 1] + Math.abs(frogA[i] - frogA[i - 1]);
+    const opt2 = frogDp[i - 2] + Math.abs(frogA[i] - frogA[i - 2]);
+    frogDp[i] = Math.min(opt1, opt2);
+    fromI = opt1 <= opt2 ? i - 1 : i - 2;
+    const log = document.getElementById('frogLog');
+    log.innerHTML = `الموقع <span class="hi">${i}</span>: من <span class="hi-g">i-1=${i-1}</span> التكلفة=${opt1} | من <span class="hi-g">i-2=${i-2}</span> التكلفة=${opt2} → dp[${i}] = <span class="hi-y">${frogDp[i]}</span>`;
+  }
+
+  // animate frog
+  if (i > 0) {
+    const prev = frogGetCoords(fromI !== -1 ? fromI : i - 1);
+    const cur = frogGetCoords(i);
+    frogAnimFrog = { x: prev.x, y: prev.y - 26, tx: cur.x, ty: cur.y - 26, prog: 0 };
+  }
+
+  frogStep_i++;
+  frogBuildTable();
+  frogDraw(i, fromI);
+
+  if (i === 0) {
+    document.getElementById('frogLog').innerHTML = `الحالة الأساسية: dp[<span class="hi">0</span>] = <span class="hi-g">0</span>`;
+  } else if (i === 1) {
+    document.getElementById('frogLog').innerHTML = `الحالة الأساسية: dp[<span class="hi">1</span>] = |${frogA[1]}-${frogA[0]}| = <span class="hi-g">${frogDp[1]}</span>`;
+  }
+
+  if (frogStep_i === N_FROG) {
+    document.getElementById('frogLog').innerHTML += ` ✅ <span class="hi-g">الإجابة النهائية: dp[${N_FROG-1}] = ${frogDp[N_FROG-1]}</span>`;
+    clearInterval(frogTimer); frogTimer = null;
+  }
+}
+
+function frogStep() { if (frogStep_i < N_FROG) frogComputeStep(); }
+
+function frogStart() {
+  if (frogTimer) return;
+  frogTimer = setInterval(() => {
+    if (frogStep_i < N_FROG) frogComputeStep();
+    else { clearInterval(frogTimer); frogTimer = null; }
+  }, frogGetSpeed());
+}
+
+function frogReset() {
+  clearInterval(frogTimer); frogTimer = null;
+  frogDp.fill(-1); frogStep_i = 0;
+  frogAnimFrog.prog = 1;
+  frogBuildTable();
+  frogDraw();
+  document.getElementById('frogLog').textContent = 'اضغط "تشغيل" لبدء الرسم المتحرك...';
+}
+
+function resizeFrogCanvas() {
+  frogCanvas.width = frogCanvas.offsetWidth;
+  frogCanvas.height = 220;
+  frogDraw();
+}
+
+window.addEventListener('resize', resizeFrogCanvas);
+setTimeout(() => { resizeFrogCanvas(); frogBuildTable(); }, 100);
+
+// ========== VACATION ==========
+const VAC_N = 5;
+const vacData = [
+  [10, 40, 70],
+  [20, 50, 80],
+  [30, 60, 90],
+  [40, 10, 20],
+  [50, 70, 30],
+];
+let vacDp = Array.from({ length: VAC_N }, () => [-1, -1, -1]);
+let vacStepI = 0;
+let vacTimer = null;
+
+function vacGetSpeed() { return parseInt(document.getElementById('vacSpeed').value); }
+
+function vacBuildGrid(currentI = -1, chosenType = -1) {
+  const viz = document.getElementById('vacationViz');
+  const colors = ['type-a', 'type-b', 'type-c'];
+  const labels = ['A', 'B', 'C'];
+
+  let html = '';
+  // Header row
+  html += '<div class="vac-row"><div class="vac-day-label"></div>';
+  ['A', 'B', 'C'].forEach(l => {
+    html += `<div class="vac-cell" style="background:transparent;width:70px;height:36px;font-size:0.75rem;color:var(--text-muted);font-family:Cairo,sans-serif">${l}</div>`;
+  });
+  html += '</div>';
+
+  for (let i = 0; i < VAC_N; i++) {
+    html += `<div class="vac-row"><div class="vac-day-label">يوم ${i}</div>`;
+    for (let j = 0; j < 3; j++) {
+      let cls = colors[j];
+      if (vacDp[i][j] !== -1) cls += ' computed-' + 'abc'[j];
+      if (i === currentI && j === chosenType) cls += ' selected';
+      if (i === currentI && j !== chosenType && vacDp[i][j] !== -1) cls += ' selected';
+      const dpVal = vacDp[i][j] !== -1 ? `<div class="cell-label">dp=${vacDp[i][j]}</div>` : '';
+      html += `<div class="vac-cell ${cls}"><div class="cell-val">${vacData[i][j]}</div>${dpVal}</div>`;
+    }
+    html += '</div>';
+  }
+  viz.innerHTML = html;
+}
+
+function vacComputeStep() {
+  const i = vacStepI;
+  if (i === 0) {
+    vacDp[0] = [vacData[0][0], vacData[0][1], vacData[0][2]];
+  } else {
+    vacDp[i][0] = Math.max(vacDp[i-1][1], vacDp[i-1][2]) + vacData[i][0];
+    vacDp[i][1] = Math.max(vacDp[i-1][0], vacDp[i-1][2]) + vacData[i][1];
+    vacDp[i][2] = Math.max(vacDp[i-1][0], vacDp[i-1][1]) + vacData[i][2];
+  }
+
+  document.getElementById('dvA').textContent = vacDp[i][0];
+  document.getElementById('dvB').textContent = vacDp[i][1];
+  document.getElementById('dvC').textContent = vacDp[i][2];
+
+  if (i === VAC_N - 1) {
+    const best = Math.max(...vacDp[i]);
+    document.getElementById('dvBest').textContent = best;
+    document.getElementById('vacLog').innerHTML = `✅ <span class="hi-g">الإجابة النهائية = ${best}</span>`;
+    clearInterval(vacTimer); vacTimer = null;
+  } else {
+    document.getElementById('dvBest').textContent = '—';
+    document.getElementById('vacLog').innerHTML = `اليوم <span class="hi">${i}</span>: dp[${i}][A]=${vacDp[i][0]}, dp[${i}][B]=${vacDp[i][1]}, dp[${i}][C]=${vacDp[i][2]}`;
+  }
+
+  vacBuildGrid(i);
+  vacStepI++;
+}
+
+function vacStep() { if (vacStepI < VAC_N) vacComputeStep(); }
+
+function vacStart() {
+  if (vacTimer) return;
+  vacTimer = setInterval(() => {
+    if (vacStepI < VAC_N) vacComputeStep();
+    else { clearInterval(vacTimer); vacTimer = null; }
+  }, vacGetSpeed());
+}
+
+function vacReset() {
+  clearInterval(vacTimer); vacTimer = null;
+  vacDp = Array.from({ length: VAC_N }, () => [-1, -1, -1]);
+  vacStepI = 0;
+  vacBuildGrid();
+  ['dvA','dvB','dvC','dvBest'].forEach(id => document.getElementById(id).textContent = '—');
+  document.getElementById('vacLog').textContent = 'اضغط "تشغيل" لبدء الرسم المتحرك...';
+}
+
+vacBuildGrid();
+
+// ========== STAIRCASE ==========
+const stairV = [3, 7, 2, 8, 5, 4, 9];
+const N_STAIR = stairV.length;
+let stairDp = new Array(N_STAIR).fill(-1);
+let stairStepI = 0;
+let stairTimer = null;
+
+function stairGetSpeed() { return parseInt(document.getElementById('stairSpeed').value); }
+
+const stairCanvas = document.getElementById('stairCanvas');
+const stairCtx = stairCanvas.getContext('2d');
+
+function stairGetCoords(i) {
+  const W = stairCanvas.width, H = stairCanvas.height;
+  const margin = 50;
+  const stepW = (W - margin * 2) / (N_STAIR - 1);
+  const x = margin + i * stepW;
+  // staircase heights
+  const baseH = H - 35;
+  const stepH = (H - 70) / N_STAIR;
+  const y = baseH - (i + 1) * stepH * 0.4;
+  return { x, y };
+}
+
+function stairDraw(highlightI = -1) {
+  const W = stairCanvas.width, H = stairCanvas.height;
+  stairCtx.clearRect(0, 0, W, H);
+
+  // Draw stair steps as background
+  const margin = 50;
+  const stepW = (W - margin * 2) / N_STAIR;
+  for (let i = 0; i < N_STAIR; i++) {
+    const sx = margin + i * stepW;
+    const sh = 20 + i * 22;
+    const sy = H - sh;
+    stairCtx.fillStyle = stairDp[i] !== -1 ? 'rgba(249,115,22,0.1)' : 'rgba(30,58,95,0.4)';
+    stairCtx.strokeStyle = stairDp[i] !== -1 ? 'rgba(249,115,22,0.4)' : '#1e3a5f';
+    stairCtx.lineWidth = 1.5;
+    stairCtx.beginPath();
+    stairCtx.rect(sx, sy, stepW - 2, sh);
+    stairCtx.fill(); stairCtx.stroke();
+
+    const cx = sx + stepW / 2;
+    const cy = sy - 8;
+
+    // circle
+    stairCtx.beginPath();
+    stairCtx.arc(cx, cy, 16, 0, Math.PI * 2);
+    if (i === highlightI) {
+      stairCtx.fillStyle = 'rgba(249,115,22,0.25)';
+      stairCtx.strokeStyle = '#f97316';
+    } else if (stairDp[i] !== -1) {
+      stairCtx.fillStyle = 'rgba(16,185,129,0.15)';
+      stairCtx.strokeStyle = '#10b981';
+    } else {
+      stairCtx.fillStyle = 'rgba(30,58,95,0.7)';
+      stairCtx.strokeStyle = '#1e3a5f';
+    }
+    stairCtx.lineWidth = 2;
+    stairCtx.fill(); stairCtx.stroke();
+
+    stairCtx.fillStyle = '#e2e8f0';
+    stairCtx.font = 'bold 11px Fira Code';
+    stairCtx.textAlign = 'center';
+    stairCtx.fillText(stairV[i], cx, cy + 4);
+
+    stairCtx.fillStyle = '#64748b';
+    stairCtx.font = '9px Fira Code';
+    stairCtx.fillText('i=' + i, cx, H - 10);
+  }
+
+  // player emoji
+  if (stairStepI > 0) {
+    const i = stairStepI - 1;
+    const margin2 = 50;
+    const stepW2 = (W - margin2 * 2) / N_STAIR;
+    const cx = margin2 + i * stepW2 + stepW2 / 2;
+    const sh = 20 + i * 22;
+    const sy = H - sh - 8;
+    stairCtx.font = '20px serif';
+    stairCtx.textAlign = 'center';
+    stairCtx.fillText('🧗', cx, sy - 22);
+  }
+}
+
+function stairBuildTable() {
+  const t = document.getElementById('stairDpTable');
+  let html = '<thead><tr><th>الدرجة i</th>';
+  for (let i = 0; i < N_STAIR; i++) html += `<th>${i}</th>`;
+  html += '</tr><tr><th>v[i]</th>';
+  for (let i = 0; i < N_STAIR; i++) html += `<td>${stairV[i]}</td>`;
+  html += '</tr></thead><tbody><tr><th>dp[i]</th>';
+  for (let i = 0; i < N_STAIR; i++) {
+    const cls = stairDp[i] !== -1 ? (i === stairStepI - 1 ? 'current' : 'computed') : '';
+    html += `<td class="${cls}">${stairDp[i] !== -1 ? stairDp[i] : '?'}</td>`;
+  }
+  html += '</tr></tbody>';
+  t.innerHTML = html;
+}
+
+function stairComputeStep() {
+  const i = stairStepI;
+  if (i === 0) {
+    stairDp[0] = stairV[0];
+    document.getElementById('stairLog').innerHTML = `الحالة الأساسية: dp[<span class="hi">0</span>] = v[0] = <span class="hi-g">${stairDp[0]}</span>`;
+  } else if (i === 1) {
+    stairDp[1] = stairDp[0] + stairV[1];
+    document.getElementById('stairLog').innerHTML = `dp[<span class="hi">1</span>] = dp[0] + v[1] = ${stairDp[0]} + ${stairV[1]} = <span class="hi-g">${stairDp[1]}</span>`;
+  } else {
+    const opt1 = stairDp[i - 1] + stairV[i];
+    const opt2 = stairDp[i - 2] + stairV[i];
+    stairDp[i] = Math.max(opt1, opt2);
+    document.getElementById('stairLog').innerHTML = `الدرجة <span class="hi">${i}</span>: من i-1: ${opt1} | من i-2: ${opt2} → dp[${i}] = <span class="hi-y">${stairDp[i]}</span>`;
+  }
+
+  stairStepI++;
+  stairBuildTable();
+  stairDraw(i);
+
+  if (stairStepI === N_STAIR) {
+    document.getElementById('stairLog').innerHTML += ` ✅ <span class="hi-g">الإجابة = ${stairDp[N_STAIR-1]}</span>`;
+    clearInterval(stairTimer); stairTimer = null;
+  }
+}
+
+function stairStep() { if (stairStepI < N_STAIR) stairComputeStep(); }
+
+function stairStart() {
+  if (stairTimer) return;
+  stairTimer = setInterval(() => {
+    if (stairStepI < N_STAIR) stairComputeStep();
+    else { clearInterval(stairTimer); stairTimer = null; }
+  }, stairGetSpeed());
+}
+
+function stairReset() {
+  clearInterval(stairTimer); stairTimer = null;
+  stairDp.fill(-1); stairStepI = 0;
+  stairBuildTable(); stairDraw();
+  document.getElementById('stairLog').textContent = 'اضغط "تشغيل" لبدء الرسم المتحرك...';
+}
+
+function resizeStairCanvas() {
+  stairCanvas.width = stairCanvas.offsetWidth;
+  stairCanvas.height = 240;
+  stairDraw();
+}
+
+window.addEventListener('resize', resizeStairCanvas);
+setTimeout(() => { resizeStairCanvas(); stairBuildTable(); }, 150);
+</script>
+</body>
+</html>

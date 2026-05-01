@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاكي عمليات البتات (Bit Manipulation)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+        body { font-family: 'Tajawal', sans-serif; }
+        .code-font { font-family: 'Courier New', Courier, monospace; }
+        .hidden-code { display: none; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen p-6 md:p-12">
+
+    <div class="max-w-5xl mx-auto space-y-8">
+        
+        <header class="text-center space-y-2">
+            <h1 class="text-4xl font-bold text-slate-800">محاكي عمليات البتات</h1>
+            <p class="text-slate-600 text-lg">أداة تفاعلية لفهم كيفية عمل الأقنعة (Masks) وتغيير البتات في الوقت الفعلي.</p>
+        </header>
+
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+            <h2 class="text-2xl font-bold text-indigo-600 mb-6 border-b pb-2">1. المحاكي التفاعلي</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">القيمة (x)</label>
+                    <input type="number" id="x-input" value="10" min="0" max="255" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">رقم البت (k)</label>
+                    <input type="number" id="k-input" value="1" min="0" max="7" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">العملية</label>
+                    <select id="op-select" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <option value="check">فحص البت (Check)</option>
+                        <option value="set">تعيين البت إلى 1 (Set)</option>
+                        <option value="clear">تصفير البت (Clear)</option>
+                        <option value="toggle">قلب البت (Toggle)</option>
+                        <option value="rm_lowest">إزالة أقل بت معين (x & x-1)</option>
+                        <option value="get_lowest">عزل أقل بت (x & -x)</option>
+                        <option value="is_power">فحص قوى 2</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="bg-slate-800 rounded-xl p-6 text-white space-y-4 shadow-inner">
+                <div class="flex justify-between items-center border-b border-slate-600 pb-3">
+                    <span class="text-slate-400">قيمة x الثنائية:</span>
+                    <span id="x-bin" class="code-font text-xl tracking-widest text-emerald-400">00001010</span>
+                </div>
+                <div class="flex justify-between items-center border-b border-slate-600 pb-3" id="mask-container">
+                    <span class="text-slate-400">القناع (Mask):</span>
+                    <span id="mask-bin" class="code-font text-xl tracking-widest text-blue-400">00000010</span>
+                </div>
+                <div class="flex justify-between items-center pt-2">
+                    <span class="text-slate-400">النتيجة النهائية:</span>
+                    <div class="text-left">
+                        <div id="res-bin" class="code-font text-2xl font-bold tracking-widest text-yellow-400">00000010</div>
+                        <div id="res-dec" class="text-sm text-slate-300 mt-1">بالعشري: 2 (true)</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+            <h2 class="text-2xl font-bold text-indigo-600 mb-6 border-b pb-2">2. مسائل تدريبية</h2>
+            
+            <div class="space-y-8">
+                <div class="bg-slate-50 p-5 rounded-lg border border-slate-200">
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">المسألة الأولى: عد البتات المرفوعة (Hamming Weight)</h3>
+                    <p class="text-slate-600 mb-4">اكتب دالة بلغة C++ تقوم بحساب عدد البتات التي تساوي 1 في رقم معين باستخدام حيلة إزالة أقل بت <code>x & (x - 1)</code>.</p>
+                    <button onclick="toggleCode('code1')" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-4 py-2 rounded-md font-medium transition-colors">عرض/إخفاء الحل</button>
+                    
+                    <div id="code1" class="hidden-code mt-4 bg-slate-800 rounded-lg p-4 overflow-x-auto text-left" dir="ltr">
+<pre class="code-font text-slate-300 text-sm">
+<span class="text-pink-400">int</span> <span class="text-blue-400">countBits</span>(<span class="text-pink-400">int</span> n) {
+    <span class="text-pink-400">int</span> count = <span class="text-orange-400">0</span>;
+    <span class="text-pink-400">while</span> (n > <span class="text-orange-400">0</span>) {
+        n &= (n - <span class="text-orange-400">1</span>); <span class="text-green-400">// يحذف أول 1 من اليمين</span>
+        count++;
+    }
+    <span class="text-pink-400">return</span> count;
+}
+</pre>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-5 rounded-lg border border-slate-200">
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">المسألة الثانية: الرقم الفريد (Single Number)</h3>
+                    <p class="text-slate-600 mb-4">معطى مصفوفة من الأرقام، كل رقم يتكرر مرتين بالضبط باستثناء رقم واحد. أوجد هذا الرقم باستخدام عملية <code>XOR</code> (بدون استخدام مساحة تخزين إضافية).</p>
+                    <button onclick="toggleCode('code2')" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-4 py-2 rounded-md font-medium transition-colors">عرض/إخفاء الحل</button>
+                    
+                    <div id="code2" class="hidden-code mt-4 bg-slate-800 rounded-lg p-4 overflow-x-auto text-left" dir="ltr">
+<pre class="code-font text-slate-300 text-sm">
+<span class="text-pink-400">int</span> <span class="text-blue-400">singleNumber</span>(<span class="text-pink-400">vector&lt;int&gt;</span>& nums) {
+    <span class="text-pink-400">int</span> result = <span class="text-orange-400">0</span>;
+    <span class="text-pink-400">for</span> (<span class="text-pink-400">int</span> num : nums) {
+        result ^= num; <span class="text-green-400">// المتشابه يلغي بعضه</span>
+    }
+    <span class="text-pink-400">return</span> result;
+}
+</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        function toBinaryString(num, padding = 8) {
+            return (num >>> 0).toString(2).padStart(padding, '0').slice(-padding);
+        }
+
+        function updateSimulator() {
+            const x = parseInt(document.getElementById('x-input').value) || 0;
+            const k = parseInt(document.getElementById('k-input').value) || 0;
+            const op = document.getElementById('op-select').value;
+            
+            const xBin = document.getElementById('x-bin');
+            const maskBin = document.getElementById('mask-bin');
+            const maskContainer = document.getElementById('mask-container');
+            const resBin = document.getElementById('res-bin');
+            const resDec = document.getElementById('res-dec');
+
+            xBin.textContent = toBinaryString(x);
+            maskContainer.style.display = 'flex'; // Default
+
+            let result = 0;
+            let mask = 0;
+            let resText = "";
+
+            switch(op) {
+                case 'check':
+                    mask = 1 << k;
+                    result = (x >> k) & 1;
+                    maskBin.textContent = "إزاحة ثم & 1";
+                    resBin.textContent = result === 1 ? "1 (True)" : "0 (False)";
+                    resText = `البِت رقم ${k} هو: ${result}`;
+                    break;
+                case 'set':
+                    mask = 1 << k;
+                    result = x | mask;
+                    maskBin.textContent = toBinaryString(mask);
+                    resBin.textContent = toBinaryString(result);
+                    resText = `بالعشري: ${result}`;
+                    break;
+                case 'clear':
+                    mask = ~(1 << k);
+                    result = x & mask;
+                    maskBin.textContent = toBinaryString(mask);
+                    resBin.textContent = toBinaryString(result);
+                    resText = `بالعشري: ${result}`;
+                    break;
+                case 'toggle':
+                    mask = 1 << k;
+                    result = x ^ mask;
+                    maskBin.textContent = toBinaryString(mask);
+                    resBin.textContent = toBinaryString(result);
+                    resText = `بالعشري: ${result}`;
+                    break;
+                case 'rm_lowest':
+                    mask = x - 1;
+                    result = x & mask;
+                    maskBin.textContent = toBinaryString(mask) + " (x-1)";
+                    resBin.textContent = toBinaryString(result);
+                    resText = `بالعشري: ${result}`;
+                    break;
+                case 'get_lowest':
+                    mask = -x;
+                    result = x & mask;
+                    maskBin.textContent = toBinaryString(mask) + " (-x)";
+                    resBin.textContent = toBinaryString(result);
+                    resText = `القيمة العشرية لأقل بت: ${result}`;
+                    break;
+                case 'is_power':
+                    maskContainer.style.display = 'none';
+                    let isPower = (x > 0) && ((x & (x - 1)) === 0);
+                    resBin.textContent = isPower ? "True" : "False";
+                    resText = isPower ? `${x} هو من قوى العدد 2` : `${x} ليس من قوى العدد 2`;
+                    break;
+            }
+
+            if(op !== 'check' && op !== 'is_power') {
+                 resDec.textContent = resText;
+            } else {
+                 resDec.textContent = resText;
+            }
+        }
+
+        function toggleCode(id) {
+            const el = document.getElementById(id);
+            if(el.classList.contains('hidden-code')) {
+                el.classList.remove('hidden-code');
+            } else {
+                el.classList.add('hidden-code');
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('x-input').addEventListener('input', updateSimulator);
+        document.getElementById('k-input').addEventListener('input', updateSimulator);
+        document.getElementById('op-select').addEventListener('change', updateSimulator);
+
+        // Initial Load
+        updateSimulator();
+    </script>
+</body>
+</html>
