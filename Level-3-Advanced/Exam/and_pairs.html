@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مسألة AND الأزواج - البرمجة التنافسية</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0e14;
+    --bg2: #111520;
+    --bg3: #171c2a;
+    --card: #1a2035;
+    --border: #2a3350;
+    --border2: #3a4a70;
+    --accent: #3b82f6;
+    --accent2: #6366f1;
+    --green: #22c55e;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --teal: #14b8a6;
+    --purple: #a855f7;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'Cairo', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    background: linear-gradient(135deg, #0b0e14 0%, #0d1225 50%, #111a30 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 0 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: 10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(59,130,246,0.12);
+    border: 1px solid rgba(59,130,246,0.3);
+    color: #60a5fa;
+    font-size: 12px; font-weight: 600;
+    padding: 4px 12px; border-radius: 20px;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 {
+    font-size: 42px; font-weight: 900;
+    background: linear-gradient(135deg, #e2e8f0 0%, #93c5fd 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+
+  .hero-meta {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  .meta-chip {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    padding: 6px 14px; border-radius: 8px;
+    font-size: 13px; color: var(--text2);
+  }
+  .meta-chip span { color: var(--text); font-weight: 600; }
+
+  /* ─── SECTIONS ─── */
+  .section {
+    padding: 40px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 24px;
+  }
+  .section-num {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 22px; font-weight: 700; color: var(--text);
+  }
+
+  /* ─── PROBLEM CARD ─── */
+  .problem-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .problem-card-header {
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--text2);
+    font-family: var(--mono);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .problem-body { padding: 24px; }
+
+  .info-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-bottom: 24px;
+  }
+  .info-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .info-box-label { font-size: 12px; color: var(--text3); }
+  .info-box-val { font-size: 14px; font-weight: 700; color: var(--amber); font-family: var(--mono); }
+
+  .problem-text {
+    font-size: 16px; color: var(--text2);
+    line-height: 1.9;
+  }
+  .problem-text .highlight {
+    color: var(--accent);
+    font-weight: 600;
+    font-family: var(--mono);
+    background: rgba(59,130,246,0.08);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  /* ─── BIT TABLE ─── */
+  .bit-table {
+    font-family: var(--mono);
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  .bit-table th {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    color: var(--text2);
+    font-weight: 600;
+  }
+  .bit-table td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: center;
+  }
+  .bit-1 { color: var(--amber); font-weight: 700; }
+  .bit-0 { color: var(--text3); }
+
+  /* ─── CONSTRAINTS TABLE ─── */
+  .constraints-table {
+    border-collapse: collapse; width: 100%; font-size: 14px;
+  }
+  .constraints-table th {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    color: var(--text2); font-weight: 600; text-align: right;
+  }
+  .constraints-table td {
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    color: var(--text);
+  }
+  .constraints-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .pts { 
+    color: var(--green); font-weight: 700; font-family: var(--mono);
+    background: rgba(34,197,94,0.08); 
+    padding: 2px 8px; border-radius: 4px;
+  }
+
+  /* ─── LAB ─── */
+  .lab {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .lab-header {
+    background: linear-gradient(90deg, rgba(59,130,246,0.15), rgba(99,102,241,0.1));
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .lab-header h3 { font-size: 15px; font-weight: 700; color: var(--text); }
+
+  .lab-body { padding: 24px; }
+
+  /* AND Calculator */
+  .and-calc {
+    display: grid; grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 12px; align-items: center;
+    margin-bottom: 24px;
+  }
+  .and-input {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 18px; font-weight: 700;
+    width: 100%;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+  .and-input:focus { outline: none; border-color: var(--accent); }
+  .op-label {
+    font-size: 24px; font-weight: 900;
+    color: var(--purple);
+    text-align: center;
+  }
+  .result-box {
+    background: var(--bg3);
+    border: 2px solid var(--green);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: var(--mono);
+    font-size: 18px; font-weight: 700;
+    color: var(--green);
+    text-align: center;
+    min-height: 44px;
+  }
+
+  .bits-display {
+    display: grid; grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 12px; align-items: center;
+    margin-bottom: 16px;
+  }
+  .bits-row {
+    display: flex; gap: 4px; justify-content: center;
+    flex-wrap: wrap;
+  }
+  .bit-cell {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 13px; font-weight: 700;
+    transition: all 0.15s;
+  }
+  .bit-cell.one { background: rgba(245,158,11,0.2); color: var(--amber); border: 1px solid rgba(245,158,11,0.4); }
+  .bit-cell.zero { background: var(--bg3); color: var(--text3); border: 1px solid var(--border); }
+  .bit-cell.result-one { background: rgba(34,197,94,0.2); color: var(--green); border: 1px solid rgba(34,197,94,0.4); }
+  .bit-cell.result-zero { background: var(--bg3); color: var(--text3); border: 1px solid var(--border); }
+
+  /* Array simulator */
+  .array-sim { margin-top: 24px; }
+  .array-input-row {
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    margin-bottom: 12px;
+  }
+  .arr-input {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 14px; font-weight: 600;
+    width: 70px; text-align: center;
+  }
+  .arr-input:focus { outline: none; border-color: var(--accent); }
+  .arr-btn {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none; border-radius: 8px;
+    padding: 8px 18px;
+    color: #fff; font-family: var(--sans);
+    font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: opacity 0.15s;
+  }
+  .arr-btn:hover { opacity: 0.85; }
+  .arr-btn.danger {
+    background: rgba(239,68,68,0.15);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: var(--red);
+  }
+
+  .pairs-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px; margin-top: 12px;
+    max-height: 200px; overflow-y: auto;
+  }
+  .pair-cell {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-family: var(--mono);
+    font-size: 12px; text-align: center;
+  }
+  .pair-cell.best {
+    background: rgba(34,197,94,0.1);
+    border-color: rgba(34,197,94,0.4);
+    color: var(--green);
+  }
+
+  .sim-result {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 12px;
+    text-align: center;
+  }
+  .sim-result .ans-num {
+    font-size: 36px; font-weight: 900;
+    color: var(--green);
+    font-family: var(--mono);
+  }
+  .sim-result .ans-label { font-size: 13px; color: var(--text3); }
+
+  /* ─── STEPS ─── */
+  .steps-list { display: flex; flex-direction: column; gap: 16px; }
+  .step-item {
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .step-num {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px; color: #fff;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .step-content { flex: 1; }
+  .step-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .step-desc { font-size: 14px; color: var(--text2); line-height: 1.8; }
+  .step-desc code {
+    background: rgba(59,130,246,0.1);
+    color: var(--accent);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+
+  .algo-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-right: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 13px; color: var(--text2);
+    line-height: 2;
+  }
+  .algo-box .kw { color: var(--purple); font-weight: 600; }
+  .algo-box .num { color: var(--amber); }
+  .algo-box .cmt { color: var(--text3); font-style: italic; }
+
+  /* ─── CODE ─── */
+  .code-block {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .code-header {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--mono); font-size: 12px; color: var(--text3);
+  }
+  .copy-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    color: var(--text2);
+    font-family: var(--mono); font-size: 11px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  pre {
+    padding: 20px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.9;
+    tab-size: 4;
+  }
+
+  .kw  { color: #c792ea; }
+  .fn  { color: #82aaff; }
+  .st  { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .cm  { color: #546e7a; font-style: italic; }
+  .tp  { color: #ffcb6b; }
+  .op  { color: #89ddff; }
+
+  /* ─── IO ─── */
+  .io-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .io-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .io-box-header {
+    padding: 8px 14px;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .io-box-header.in { color: var(--teal); background: rgba(20,184,166,0.05); }
+  .io-box-header.out { color: var(--green); background: rgba(34,197,94,0.05); }
+  .io-box pre { padding: 12px 14px; margin: 0; font-size: 14px; }
+
+  /* ─── COMPLEXITY ─── */
+  .complexity-row {
+    display: flex; gap: 12px; flex-wrap: wrap;
+  }
+  .cx-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    flex: 1; min-width: 180px;
+    text-align: center;
+  }
+  .cx-card .cx-val {
+    font-size: 24px; font-weight: 900; font-family: var(--mono);
+    color: var(--accent);
+  }
+  .cx-card .cx-label {
+    font-size: 12px; color: var(--text3); margin-top: 4px;
+  }
+
+  hr.sep { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
+  .tag { 
+    display: inline-block;
+    background: rgba(168,85,247,0.12);
+    border: 1px solid rgba(168,85,247,0.3);
+    color: var(--purple);
+    font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 4px;
+    margin-left: 6px;
+  }
+
+  /* RTL fix */
+  .code-block pre, .algo-box, .io-box pre { direction: ltr; text-align: left; }
+  .and-input, .arr-input { direction: ltr; }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="container">
+    <div class="badge">🏆 البرمجة التنافسية · Bitwise</div>
+    <h1>مسألة: أزواج AND</h1>
+    <div style="color: var(--text2); font-size: 16px; margin-top: 8px;">
+      أوجد أكبر قيمة ممكنة لـ <span style="color:var(--accent);font-family:var(--mono);font-weight:700;">aᵢ & aⱼ</span> بين جميع الأزواج ذات الفهارس المختلفة
+    </div>
+    <div class="hero-meta">
+      <div class="meta-chip">⏱ الزمن المحدد: <span>1 ثانية</span></div>
+      <div class="meta-chip">🧠 الذاكرة: <span>256 ميجابايت</span></div>
+      <div class="meta-chip">📊 n: <span>2 ≤ n ≤ 10⁵</span></div>
+      <div class="meta-chip">🔢 aᵢ: <span>0 ≤ aᵢ &lt; 2³⁰</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 1: وصف المسألة -->
+<div class="section">
+<div class="container">
+  <div class="section-label">
+    <div class="section-num">١</div>
+    <div class="section-title">وصف المسألة</div>
+  </div>
+
+  <div class="problem-card">
+    <div class="problem-card-header">
+      <div class="dot" style="background:#ef4444"></div>
+      <div class="dot" style="background:#f59e0b"></div>
+      <div class="dot" style="background:#22c55e"></div>
+      &nbsp; and_pairs.cpp
+    </div>
+    <div class="problem-body">
+      <div class="info-grid">
+        <div class="info-box"><span class="info-box-label">الزمن المحدد</span><span class="info-box-val">1 ثانية</span></div>
+        <div class="info-box"><span class="info-box-label">الذاكرة المحددة</span><span class="info-box-val">256 MB</span></div>
+      </div>
+
+      <div class="problem-text">
+        أُعطيت عدداً صحيحاً <span class="highlight">n</span>، ومصفوفة من الأعداد الصحيحة 
+        <span class="highlight">a₁, a₂, …, aₙ</span>.
+        <br><br>
+        أوجد <strong style="color:var(--text)">أكبر قيمة ممكنة</strong> لـ <span class="highlight">aᵢ & aⱼ</span> 
+        بين جميع الأزواج ذات الفهارس المختلفة (<span class="highlight">i ≠ j</span>).
+        <br><br>
+        هنا، الرمز <span class="highlight">&amp;</span> يدل على عملية <strong style="color:var(--text)">AND على مستوى البتات (Bitwise AND)</strong>.
+        عملية AND على مستوى البتات تقارن عددين بتاً بتاً. لكل موضع بت:
+      </div>
+
+      <table class="bit-table" style="margin: 16px 0;">
+        <tr>
+          <th>البت في aᵢ</th>
+          <th>البت في aⱼ</th>
+          <th>النتيجة</th>
+        </tr>
+        <tr><td class="bit-1">1</td><td class="bit-1">1</td><td class="bit-1">1</td></tr>
+        <tr><td class="bit-1">1</td><td class="bit-0">0</td><td class="bit-0">0</td></tr>
+        <tr><td class="bit-0">0</td><td class="bit-1">1</td><td class="bit-0">0</td></tr>
+        <tr><td class="bit-0">0</td><td class="bit-0">0</td><td class="bit-0">0</td></tr>
+      </table>
+
+      <div class="problem-text">
+        <strong style="color:var(--text)">مثال:</strong> 10 = (1010)₂ و 15 = (1111)₂، لذلك:
+        <br>
+        <span class="highlight">10 & 15 = (1010)₂ & (1111)₂ = (1010)₂ = 10</span>
+      </div>
+
+      <hr class="sep" style="margin: 20px 0;">
+
+      <div style="font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 12px;">📥 المدخلات</div>
+      <div class="problem-text">
+        • يحتوي السطر الأول على عدد صحيح واحد <span class="highlight">n</span><br>
+        • يحتوي السطر الثاني على <span class="highlight">n</span> أعداداً صحيحة: <span class="highlight">a₁, a₂, …, aₙ</span><br>
+        • <span class="highlight">2 ≤ n ≤ 10⁵</span> و <span class="highlight">0 ≤ aᵢ &lt; 2³⁰</span>
+      </div>
+
+      <hr class="sep" style="margin: 20px 0;">
+
+      <div style="font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 12px;">📤 المخرجات</div>
+      <div class="problem-text">
+        اطبع عدداً صحيحاً واحداً: <strong style="color:var(--green)">أكبر قيمة ممكنة لـ aᵢ & aⱼ</strong> بين جميع الأزواج ذات الفهارس المختلفة.
+      </div>
+
+      <hr class="sep" style="margin: 20px 0;">
+
+      <div style="font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 12px;">📊 القيود والتقييم</div>
+      <table class="constraints-table">
+        <tr>
+          <th>المجموعة</th>
+          <th>النقاط</th>
+          <th>القيود الإضافية</th>
+        </tr>
+        <tr><td>1</td><td><span class="pts">2</span></td><td>n = 2</td></tr>
+        <tr><td>2</td><td><span class="pts">7</span></td><td>n ≤ 3</td></tr>
+        <tr><td>3</td><td><span class="pts">10</span></td><td>n ≤ 4</td></tr>
+        <tr><td>4</td><td><span class="pts">12</span></td><td>جميع الأعداد متساوية</td></tr>
+        <tr><td>5</td><td><span class="pts">14</span></td><td>جميع الأعداد على الصورة 2ᵏ، وقد تختلف قيمة k بين الأعداد</td></tr>
+        <tr><td>6</td><td><span class="pts">17</span></td><td>يوجد بالضبط عددان تكون قيمة البت رقم k فيهما مساوية لـ 1، وهذا هو أكبر بت ممكن</td></tr>
+        <tr><td>7</td><td><span class="pts">21</span></td><td>يوجد على الأكثر 10 قيم مختلفة</td></tr>
+        <tr><td>8</td><td><span class="pts">17</span></td><td>لا توجد قيود إضافية</td></tr>
+      </table>
+
+      <div style="margin-top: 16px; padding: 12px 16px; background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.2); border-radius: 8px; font-size: 13px; color: var(--text2);">
+        💡 يتم تقييم كل حالة اختبار بشكل مستقل. درجة الإرسال هي مجموع نقاط جميع حالات الاختبار في إرسال واحد، بينما درجة المسألة هي أعلى درجة إرسال تحققها عبر جميع محاولاتك.
+      </div>
+
+      <hr class="sep" style="margin: 20px 0;">
+
+      <div style="font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 12px;">📌 مثال</div>
+      <div class="io-grid">
+        <div class="io-box">
+          <div class="io-box-header in">المدخلات</div>
+          <pre>4
+10 15 8 3</pre>
+        </div>
+        <div class="io-box">
+          <div class="io-box-header out">المخرجات</div>
+          <pre>10</pre>
+        </div>
+      </div>
+      <div style="font-size: 13px; color: var(--text3); margin-top: 8px;">
+        الزوج (10, 15) يعطي: 10 & 15 = 10 ← وهو الأكبر
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SECTION 2: المختبر التفاعلي -->
+<div class="section">
+<div class="container">
+  <div class="section-label">
+    <div class="section-num">٢</div>
+    <div class="section-title">المختبر التفاعلي <span class="tag">تفاعلي</span></div>
+  </div>
+
+  <!-- AND Calculator -->
+  <div class="lab" style="margin-bottom: 20px;">
+    <div class="lab-header">
+      <span style="font-size:18px;">🔬</span>
+      <h3>حاسبة AND البتية</h3>
+    </div>
+    <div class="lab-body">
+      <div style="font-size: 13px; color: var(--text3); margin-bottom: 16px;">أدخل عددين وشاهد كيف تعمل عملية AND على مستوى البتات</div>
+      <div class="and-calc">
+        <input type="number" class="and-input" id="numA" value="10" min="0" max="1073741823" oninput="updateAND()">
+        <div class="op-label">&amp;</div>
+        <input type="number" class="and-input" id="numB" value="15" min="0" max="1073741823" oninput="updateAND()">
+        <div class="op-label" style="color:var(--green)">=</div>
+        <div class="result-box" id="andResult">10</div>
+      </div>
+      <div class="bits-display">
+        <div>
+          <div style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:6px;">A (ثنائي)</div>
+          <div class="bits-row" id="bitsA"></div>
+        </div>
+        <div class="op-label" style="font-size:18px;">&amp;</div>
+        <div>
+          <div style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:6px;">B (ثنائي)</div>
+          <div class="bits-row" id="bitsB"></div>
+        </div>
+        <div class="op-label" style="font-size:18px;color:var(--green)">=</div>
+        <div>
+          <div style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:6px;">النتيجة (ثنائي)</div>
+          <div class="bits-row" id="bitsR"></div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text3);text-align:center;margin-top:8px;">
+        البتات البرتقالية = 1 | الرمادية = 0 | الخضراء = نتيجة AND = 1
+      </div>
+    </div>
+  </div>
+
+  <!-- Array Simulator -->
+  <div class="lab">
+    <div class="lab-header">
+      <span style="font-size:18px;">⚡</span>
+      <h3>محاكي المصفوفة — جرب المسألة بنفسك</h3>
+    </div>
+    <div class="lab-body">
+      <div style="font-size: 13px; color: var(--text3); margin-bottom: 16px;">أضف أعداداً للمصفوفة وشاهد جميع الأزواج وأكبر قيمة AND</div>
+      <div class="array-input-row">
+        <input type="number" class="arr-input" id="newNum" value="10" min="0" max="1073741823" placeholder="رقم">
+        <button class="arr-btn" onclick="addNum()">+ أضف عدداً</button>
+        <button class="arr-btn danger" onclick="resetArr()">إعادة تعيين</button>
+      </div>
+
+      <div id="arrDisplay" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;"></div>
+
+      <div id="pairsArea" style="display:none;">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">جميع الأزواج وقيم AND:</div>
+        <div class="pairs-grid" id="pairsGrid"></div>
+        <div class="sim-result">
+          <div class="ans-label">أكبر قيمة AND</div>
+          <div class="ans-num" id="simAnswer">-</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SECTION 3: خطوات الحل -->
+<div class="section">
+<div class="container">
+  <div class="section-label">
+    <div class="section-num">٣</div>
+    <div class="section-title">خطوات الحل والخوارزمية</div>
+  </div>
+
+  <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:16px 20px;margin-bottom:24px;font-size:14px;color:var(--text2);">
+    ❌ <strong style="color:var(--red)">الحل الساذج (Brute Force) — O(n²):</strong> اختبار كل الأزواج مباشرة. يعمل فقط حتى n ≈ 10,000 لكنه سيتجاوز الوقت عند n = 10⁵
+  </div>
+
+  <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:10px;padding:16px 20px;margin-bottom:24px;font-size:14px;color:var(--text2);">
+    ✅ <strong style="color:var(--green)">الحل الأمثل — O(30 × n) ≈ O(n):</strong> نبني الإجابة بتاً بتاً من أعلى بت إلى أدنى بت (Greedy على البتات)
+  </div>
+
+  <div class="steps-list">
+
+    <div class="step-item">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">الفكرة الأساسية: بناء الإجابة بتاً بتاً من الأعلى</div>
+        <div class="step-desc">
+          بما أن <code>aᵢ &lt; 2³⁰</code>، فالأعداد لا تتجاوز 30 بتاً. 
+          نبدأ من البت الأعلى (رقم 29) ونحاول "تثبيته" في الإجابة. 
+          الفكرة: إذا كان بإمكاننا الحصول على إجابة تحتوي هذا البت، فنحن نريده.
+        </div>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">كيف نتحقق من "إمكانية" تثبيت بت؟</div>
+        <div class="step-desc">
+          لنفترض أن الإجابة المبنية حتى الآن هي <code>cur</code>، ونريد إضافة البت <code>b</code>. 
+          نحاول الإجابة المؤقتة <code>candidate = cur | (1 &lt;&lt; b)</code>.
+          <br><br>
+          ثم نسأل: هل يوجد <strong style="color:var(--text)">عددان مختلفان على الأقل</strong> في المصفوفة بحيث AND-هما مع <code>candidate</code> يساوي <code>candidate</code> نفسه؟
+        </div>
+        <div class="algo-box">
+          <span class="cmt">// إذا كان (aᵢ & candidate) == candidate</span><br>
+          <span class="cmt">// فهذا يعني أن aᵢ يحتوي كل بتات candidate</span><br>
+          <span class="cmt">// أي أن AND(aᵢ, aⱼ) ≥ candidate ممكن</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">الخوارزمية الكاملة</div>
+        <div class="step-desc">
+          لكل بت من البت 29 حتى البت 0، نجرب إضافته للإجابة. نجمع كل الأعداد التي تحتوي كل بتات <code>candidate</code>. إذا كان عددها ≥ 2، نثبّت هذا البت في الإجابة.
+        </div>
+        <div class="algo-box">
+<span class="kw">cur</span> = <span class="num">0</span><br>
+<span class="kw">for</span> b = <span class="num">29</span> <span class="kw">downto</span> <span class="num">0</span>:<br>
+&nbsp;&nbsp;candidate = cur | (<span class="num">1</span> &lt;&lt; b)<br>
+&nbsp;&nbsp;count = <span class="num">0</span><br>
+&nbsp;&nbsp;<span class="kw">for each</span> a[i]:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (a[i] &amp; candidate) == candidate:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;count++<br>
+&nbsp;&nbsp;<span class="kw">if</span> count >= <span class="num">2</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;cur = candidate <span class="cmt">// ثبّت هذا البت</span><br>
+<span class="kw">print</span> cur
+        </div>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">لماذا هذا صحيح؟ (إثبات الصحة)</div>
+        <div class="step-desc">
+          عملية AND لا تُنتج بتاً جديداً — النتيجة دائماً ≤ كل من العددين. 
+          إذا أردنا الإجابة النهائية تحتوي مجموعة معينة من البتات، يجب أن يوجد زوج من الأعداد يحتوي كلاهما كل هذه البتات.
+          <br><br>
+          المرور من أعلى بت للأدنى (Greedy) يضمن أننا نأخذ أكبر قيمة ممكنة، لأن البتات العليا أكثر قيمة.
+        </div>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <div class="step-title">التعقيد الزمني والمكاني</div>
+        <div class="step-desc">
+          الحلقة الخارجية: 30 تكرار. الحلقة الداخلية: n تكرار.
+        </div>
+        <div class="complexity-row" style="margin-top:10px;">
+          <div class="cx-card"><div class="cx-val">O(30n)</div><div class="cx-label">التعقيد الزمني</div></div>
+          <div class="cx-card"><div class="cx-val">O(n)</div><div class="cx-label">التعقيد المكاني</div></div>
+          <div class="cx-card"><div class="cx-val">≈ 3×10⁶</div><div class="cx-label">العمليات عند n=10⁵</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- SECTION 4: الكود -->
+<div class="section">
+<div class="container">
+  <div class="section-label">
+    <div class="section-num">٤</div>
+    <div class="section-title">الكود الكامل (C++)</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>solution.cpp · Greedy Bit by Bit · O(30n)</span>
+      <button class="copy-btn" onclick="copyCode()">📋 نسخ</button>
+    </div>
+    <pre id="codeBlock"><span class="cm">// مسألة: AND الأزواج
+// الخوارزمية: Greedy من أعلى بت لأدنى بت
+// التعقيد: O(30 × n)</span>
+
+<span class="kw">#include</span> <span class="st">&lt;bits/stdc++.h&gt;</span>
+<span class="kw">using namespace</span> <span class="fn">std</span>;
+
+<span class="tp">int</span> <span class="fn">main</span>() {
+    <span class="fn">ios_base</span>::<span class="fn">sync_with_stdio</span>(<span class="kw">false</span>);
+    <span class="fn">cin</span>.<span class="fn">tie</span>(<span class="kw">NULL</span>);
+
+    <span class="tp">int</span> n;
+    <span class="fn">cin</span> >> n;
+
+    <span class="fn">vector</span>&lt;<span class="tp">int</span>&gt; a(n);
+    <span class="kw">for</span> (<span class="tp">int</span> i = <span class="num">0</span>; i &lt; n; i++) {
+        <span class="fn">cin</span> >> a[i];
+    }
+
+    <span class="tp">int</span> cur = <span class="num">0</span>; <span class="cm">// الإجابة المبنية حتى الآن</span>
+
+    <span class="cm">// نمر على كل بت من أعلاه (29) إلى أدناه (0)</span>
+    <span class="kw">for</span> (<span class="tp">int</span> b = <span class="num">29</span>; b >= <span class="num">0</span>; b--) {
+
+        <span class="tp">int</span> candidate = cur | (<span class="num">1</span> &lt;&lt; b);
+        <span class="cm">// candidate هي الإجابة لو أضفنا البت b</span>
+
+        <span class="tp">int</span> count = <span class="num">0</span>;
+        <span class="kw">for</span> (<span class="tp">int</span> i = <span class="num">0</span>; i &lt; n; i++) {
+            <span class="cm">// هل يحتوي a[i] كل بتات candidate؟</span>
+            <span class="kw">if</span> ((a[i] & candidate) == candidate) {
+                count++;
+            }
+        }
+
+        <span class="cm">// إذا وجدنا عددين أو أكثر، ثبّت هذا البت</span>
+        <span class="kw">if</span> (count >= <span class="num">2</span>) {
+            cur = candidate;
+        }
+    }
+
+    <span class="fn">cout</span> &lt;&lt; cur &lt;&lt; <span class="st">"\n"</span>;
+
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre>
+  </div>
+
+  <div style="margin-top: 20px;">
+    <div style="font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 14px;">🧪 أمثلة اختبار</div>
+    <div class="io-grid">
+      <div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:6px;">مثال 1 — الحالة الأساسية</div>
+        <div class="io-grid">
+          <div class="io-box"><div class="io-box-header in">مدخل</div><pre>4
+10 15 8 3</pre></div>
+          <div class="io-box"><div class="io-box-header out">مخرج</div><pre>10</pre></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:6px;">مثال 2 — جميع الأعداد متساوية</div>
+        <div class="io-grid">
+          <div class="io-box"><div class="io-box-header in">مدخل</div><pre>3
+7 7 7</pre></div>
+          <div class="io-box"><div class="io-box-header out">مخرج</div><pre>7</pre></div>
+        </div>
+      </div>
+    </div>
+    <div class="io-grid" style="margin-top:12px;">
+      <div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:6px;">مثال 3 — قوى العدد 2</div>
+        <div class="io-grid">
+          <div class="io-box"><div class="io-box-header in">مدخل</div><pre>4
+4 8 4 16</pre></div>
+          <div class="io-box"><div class="io-box-header out">مخرج</div><pre>4</pre></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:6px;">مثال 4 — النتيجة صفر</div>
+        <div class="io-grid">
+          <div class="io-box"><div class="io-box-header in">مدخل</div><pre>3
+1 2 4</pre></div>
+          <div class="io-box"><div class="io-box-header out">مخرج</div><pre>0</pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Footer -->
+<div style="padding: 32px 0; text-align:center; color: var(--text3); font-size: 13px; border-top: 1px solid var(--border);">
+  مسألة AND الأزواج · البرمجة التنافسية السعودية · خوارزمية Greedy Bit Manipulation
+</div>
+
+<script>
+// AND Calculator
+function renderBits(num, containerId, type) {
+  const el = document.getElementById(containerId);
+  const bits = num.toString(2).padStart(10, '0');
+  el.innerHTML = bits.split('').map((b, i) => 
+    `<div class="bit-cell ${b==='1' ? (type==='r'?'result-one':'one') : (type==='r'?'result-zero':'zero')}">${b}</div>`
+  ).join('');
+}
+
+function updateAND() {
+  const a = parseInt(document.getElementById('numA').value) || 0;
+  const b = parseInt(document.getElementById('numB').value) || 0;
+  const r = a & b;
+  document.getElementById('andResult').textContent = r;
+  renderBits(a, 'bitsA', 'a');
+  renderBits(b, 'bitsB', 'b');
+  renderBits(r, 'bitsR', 'r');
+}
+updateAND();
+
+// Array Simulator
+let arr = [10, 15, 8, 3];
+
+function renderArr() {
+  const disp = document.getElementById('arrDisplay');
+  disp.innerHTML = arr.map((v, i) => 
+    `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-family:var(--mono);font-size:14px;color:var(--accent);cursor:pointer;position:relative" title="اضغط للحذف" onclick="removeNum(${i})">${v} <span style="color:var(--red);font-size:10px">×</span></div>`
+  ).join('');
+  computePairs();
+}
+
+function computePairs() {
+  const pairsArea = document.getElementById('pairsArea');
+  const pairsGrid = document.getElementById('pairsGrid');
+  const simAnswer = document.getElementById('simAnswer');
+  
+  if (arr.length < 2) {
+    pairsArea.style.display = 'none';
+    return;
+  }
+  
+  pairsArea.style.display = 'block';
+  
+  let best = 0;
+  let pairs = [];
+  for (let i = 0; i < arr.length; i++) {
+    for (let j = i+1; j < arr.length; j++) {
+      const v = arr[i] & arr[j];
+      pairs.push({i, j, v});
+      if (v > best) best = v;
+    }
+  }
+  
+  pairsGrid.innerHTML = pairs.map(p => 
+    `<div class="pair-cell ${p.v === best ? 'best' : ''}">
+      a[${p.i}]&a[${p.j}]<br>
+      ${arr[p.i]} & ${arr[p.j]}<br>
+      <strong>= ${p.v}</strong>
+      ${p.v === best ? ' ★' : ''}
+    </div>`
+  ).join('');
+  
+  simAnswer.textContent = best;
+}
+
+function addNum() {
+  const v = parseInt(document.getElementById('newNum').value);
+  if (isNaN(v) || v < 0) return;
+  arr.push(v);
+  renderArr();
+}
+
+function removeNum(i) {
+  arr.splice(i, 1);
+  renderArr();
+}
+
+function resetArr() {
+  arr = [10, 15, 8, 3];
+  renderArr();
+}
+
+renderArr();
+
+// Copy code
+function copyCode() {
+  const code = `#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int n;
+    cin >> n;
+
+    vector<int> a(n);
+    for (int i = 0; i < n; i++) {
+        cin >> a[i];
+    }
+
+    int cur = 0;
+
+    for (int b = 29; b >= 0; b--) {
+        int candidate = cur | (1 << b);
+        int count = 0;
+        for (int i = 0; i < n; i++) {
+            if ((a[i] & candidate) == candidate) {
+                count++;
+            }
+        }
+        if (count >= 2) {
+            cur = candidate;
+        }
+    }
+
+    cout << cur << "\\n";
+
+    return 0;
+}`;
+  
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✅ تم النسخ';
+    setTimeout(() => btn.textContent = '📋 نسخ', 2000);
+  });
+}
+</script>
+
+</body>
+</html>

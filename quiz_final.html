@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اختبار البرمجة التنافسية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;900&family=Tajawal:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #f5f7ff;
+    --surface:   #ffffff;
+    --surface2:  #f0f4ff;
+    --border:    #e2e8f7;
+    --shadow:    rgba(99,120,220,0.10);
+    --shadow-md: rgba(99,120,220,0.18);
+    --primary:   #4f63d2;
+    --primary-l: #e8ecff;
+    --secondary: #7c3aed;
+    --accent:    #06b6d4;
+    --green:     #16a34a;
+    --green-l:   #dcfce7;
+    --green-b:   #bbf7d0;
+    --red:       #dc2626;
+    --red-l:     #fee2e2;
+    --red-b:     #fecaca;
+    --yellow:    #d97706;
+    --yellow-l:  #fef3c7;
+    --text:      #1e2a4a;
+    --text2:     #4a5580;
+    --muted:     #8896b3;
+    --radius:    14px;
+    --radius-sm: 8px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Subtle background pattern */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 15% 15%, rgba(79,99,210,0.07) 0%, transparent 50%),
+      radial-gradient(circle at 85% 85%, rgba(124,58,237,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 85% 15%, rgba(6,182,212,0.05) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 20px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HEADER ── */
+  header {
+    text-align: center;
+    margin-bottom: 44px;
+    animation: fadeDown 0.7s ease both;
+  }
+
+  .header-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--primary-l);
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    border-radius: 100px;
+    margin-bottom: 18px;
+    border: 1.5px solid rgba(79,99,210,0.2);
+  }
+
+  .header-chip span {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--primary);
+    animation: pulse 2s infinite;
+  }
+
+  h1 {
+    font-size: clamp(24px, 4.5vw, 38px);
+    font-weight: 900;
+    color: var(--text);
+    margin-bottom: 8px;
+    line-height: 1.25;
+  }
+
+  h1 em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 14.5px;
+    font-weight: 500;
+  }
+
+  /* ── STATS ROW ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+    animation: fadeUp 0.6s ease both 0.15s;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 14px;
+    text-align: center;
+    box-shadow: 0 2px 12px var(--shadow);
+    transition: transform 0.2s;
+  }
+
+  .stat-card:hover { transform: translateY(-2px); }
+
+  .stat-icon { font-size: 22px; margin-bottom: 4px; }
+  .stat-val  { font-size: 22px; font-weight: 900; color: var(--text); }
+  .stat-lbl  { font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+
+  /* ── PROGRESS ── */
+  .progress-wrap {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 2px 12px var(--shadow);
+    animation: fadeUp 0.6s ease both 0.25s;
+  }
+
+  .prog-label { font-size: 13px; font-weight: 700; color: var(--text2); white-space: nowrap; }
+
+  .prog-track {
+    flex: 1;
+    height: 8px;
+    background: var(--surface2);
+    border-radius: 99px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .prog-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 99px;
+    width: 0%;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+
+  .prog-text {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--primary);
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+  }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 40px 0 20px;
+  }
+
+  .section-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 7px 18px;
+    border-radius: 100px;
+    white-space: nowrap;
+  }
+
+  .pill-easy   { background: #dcfce7; color: #15803d; border: 1.5px solid #bbf7d0; }
+  .pill-medium { background: #fef3c7; color: #b45309; border: 1.5px solid #fde68a; }
+  .pill-hard   { background: #fee2e2; color: #b91c1c; border: 1.5px solid #fecaca; }
+
+  .section-line {
+    flex: 1;
+    height: 1.5px;
+    background: var(--border);
+    border-radius: 99px;
+  }
+
+  /* ── QUESTION CARD ── */
+  .question-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    padding: 26px 26px 22px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 16px var(--shadow);
+    transition: border-color 0.3s, box-shadow 0.3s;
+    animation: fadeUp 0.45s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .question-card::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 4px; height: 100%;
+    background: linear-gradient(to bottom, var(--primary), var(--secondary));
+    border-radius: 0 18px 18px 0;
+    opacity: 0.5;
+    transition: opacity 0.3s;
+  }
+
+  .question-card:hover { border-color: rgba(79,99,210,0.3); box-shadow: 0 6px 28px var(--shadow-md); }
+  .question-card:hover::after { opacity: 1; }
+
+  .question-card.answered::after { background: linear-gradient(to bottom, #22c55e, #16a34a); opacity: 1; }
+  .question-card.correct-card   { border-color: #bbf7d0 !important; background: #f0fdf4; }
+  .question-card.wrong-card     { border-color: #fecaca !important; background: #fff5f5; }
+  .question-card.correct-card::after { background: #16a34a; opacity: 1; }
+  .question-card.wrong-card::after   { background: #dc2626; opacity: 1; }
+
+  .q-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .q-num {
+    min-width: 38px; height: 38px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(79,99,210,0.25);
+  }
+
+  .q-level-badge {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 100px;
+    flex-shrink: 0; margin-top: 3px;
+  }
+
+  .badge-easy   { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+  .badge-medium { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+  .badge-hard   { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
+  .q-texts { flex: 1; }
+
+  .q-ar {
+    font-size: 15.5px; font-weight: 700;
+    line-height: 1.7; color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .q-en {
+    font-size: 13px; font-weight: 500;
+    color: var(--muted); line-height: 1.55;
+    font-style: italic;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: #1e2640;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #a5f3fc;
+    overflow-x: auto;
+    direction: ltr;
+    text-align: left;
+    white-space: pre;
+    line-height: 1.75;
+    border: 1px solid rgba(79,99,210,0.2);
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  /* ── OPTIONS ── */
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+    margin-top: 14px;
+  }
+
+  @media (max-width: 520px) {
+    .options-grid { grid-template-columns: 1fr; }
+    .q-header { flex-wrap: wrap; }
+    .stats-row { grid-template-columns: 1fr; }
+  }
+
+  .opt-btn {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    text-align: right;
+    transition: all 0.2s ease;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 13.5px;
+    font-weight: 600;
+    width: 100%;
+  }
+
+  .opt-btn:hover:not(:disabled) {
+    background: var(--primary-l);
+    border-color: rgba(79,99,210,0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 12px var(--shadow);
+  }
+
+  .opt-btn:disabled { cursor: default; }
+
+  .opt-btn.selected {
+    background: linear-gradient(135deg, #eef0ff, #f3e8ff);
+    border-color: var(--primary);
+    color: var(--primary);
+    box-shadow: 0 2px 12px rgba(79,99,210,0.18);
+  }
+
+  .opt-btn.selected .opt-letter {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(79,99,210,0.3);
+  }
+
+  /* After submit states */
+  .opt-btn.show-correct {
+    background: var(--green-l);
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .opt-btn.show-correct .opt-letter {
+    background: var(--green);
+    color: #fff;
+  }
+
+  .opt-btn.show-wrong {
+    background: var(--red-l);
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .opt-btn.show-wrong .opt-letter {
+    background: var(--red);
+    color: #fff;
+  }
+
+  .opt-letter {
+    min-width: 30px; height: 30px;
+    border-radius: 7px;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .opt-text { flex: 1; }
+
+  .opt-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: rgba(79,99,210,0.07);
+    padding: 2px 8px;
+    border-radius: 5px;
+    direction: ltr;
+    display: inline-block;
+  }
+
+  /* Result icon on option */
+  .opt-icon { font-size: 16px; flex-shrink: 0; }
+
+  /* ── EXPLANATION BOX ── */
+  .explanation-box {
+    display: none;
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 1.75;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .explanation-box.show { display: block; }
+
+  .explanation-box.correct-exp {
+    background: var(--green-l);
+    border: 1.5px solid var(--green-b);
+    color: #14532d;
+  }
+
+  .explanation-box.wrong-exp {
+    background: var(--red-l);
+    border: 1.5px solid var(--red-b);
+    color: #7f1d1d;
+  }
+
+  .exp-title {
+    font-weight: 800;
+    font-size: 13px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .exp-body { color: inherit; }
+  .exp-en   { margin-top: 6px; font-style: italic; opacity: 0.75; font-size: 12.5px; }
+
+  /* ── SUBMIT ── */
+  .submit-wrap {
+    text-align: center;
+    margin-top: 44px;
+  }
+
+  .submit-btn {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border: none;
+    border-radius: 14px;
+    padding: 16px 56px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 6px 28px rgba(79,99,210,0.35);
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.5px;
+  }
+
+  .submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+    transition: left 0.4s;
+  }
+
+  .submit-btn:hover::before { left: 100%; }
+  .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(79,99,210,0.45); }
+  .submit-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+  .warning-msg {
+    display: none;
+    margin-top: 14px;
+    background: var(--yellow-l);
+    border: 1.5px solid #fde68a;
+    color: var(--yellow);
+    border-radius: 10px;
+    padding: 11px 18px;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .warning-msg.show { display: block; }
+
+  /* ── RESULT PANEL ── */
+  .result-panel {
+    display: none;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 22px;
+    padding: 48px 36px;
+    margin-top: 36px;
+    text-align: center;
+    box-shadow: 0 8px 40px var(--shadow-md);
+    animation: scaleIn 0.5s cubic-bezier(.34,1.56,.64,1) both;
+  }
+
+  .result-panel.show { display: block; }
+
+  .result-emoji { font-size: 56px; margin-bottom: 12px; }
+
+  .result-score {
+    font-size: 84px;
+    font-weight: 900;
+    font-family: 'JetBrains Mono', monospace;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+
+  .result-of { color: var(--muted); font-size: 17px; margin: 6px 0 22px; font-weight: 600; }
+
+  .result-breakdown {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+  }
+
+  .breakdown-item {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 22px;
+    text-align: center;
+    min-width: 110px;
+  }
+
+  .bd-val { font-size: 28px; font-weight: 900; font-family: 'JetBrains Mono', monospace; }
+  .bd-lbl { font-size: 11px; color: var(--muted); font-weight: 700; margin-top: 2px; }
+
+  .result-msg  { font-size: 20px; font-weight: 800; margin: 14px 0 6px; color: var(--text); }
+  .result-sub  { color: var(--muted); font-size: 14px; font-weight: 500; }
+
+  .grade-table {
+    margin: 24px auto 0;
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 380px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1.5px solid var(--border);
+  }
+
+  .grade-table th {
+    background: var(--surface2);
+    color: var(--text2);
+    font-size: 12px;
+    font-weight: 800;
+    padding: 10px 16px;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+
+  .grade-table td {
+    font-size: 13px;
+    padding: 9px 16px;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    font-weight: 600;
+    color: var(--text2);
+  }
+
+  .retry-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 28px;
+    background: var(--primary-l);
+    border: 1.5px solid rgba(79,99,210,0.25);
+    color: var(--primary);
+    padding: 13px 34px;
+    border-radius: 12px;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .retry-btn:hover { background: var(--primary); color: #fff; transform: translateY(-1px); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-18px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeUp   { from{opacity:0;transform:translateY(16px)}  to{opacity:1;transform:translateY(0)} }
+  @keyframes scaleIn  { from{opacity:0;transform:scale(0.93)}       to{opacity:1;transform:scale(1)}      }
+  @keyframes pulse    { 0%,100%{opacity:1} 50%{opacity:0.35} }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-chip"><span></span> Programming Quiz · 40 Question</div>
+    <h1>اختبار <em>البرمجة التنافسية</em></h1>
+    <p class="subtitle">اختَر الإجابة الصحيحة لكل سؤال · Choose the correct answer for each question</p>
+  </header>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon">🟢</div>
+      <div class="stat-val">15</div>
+      <div class="stat-lbl">سؤالاً سهلاً · Easy</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🟡</div>
+      <div class="stat-val">15</div>
+      <div class="stat-lbl">سؤالاً متوسطاً · Medium</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🔴</div>
+      <div class="stat-val">10</div>
+      <div class="stat-lbl">أسئلة صعبة · Hard</div>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <span class="prog-label">التقدم · Progress</span>
+    <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+    <span class="prog-text" id="progText">0 / 40</span>
+  </div>
+
+  <!-- QUESTIONS -->
+  <div id="questionsWrap"></div>
+
+  <!-- SUBMIT -->
+  <div class="submit-wrap">
+    <button class="submit-btn" id="submitBtn" onclick="submitQuiz()">تسليم الاختبار ✓</button>
+    <div class="warning-msg" id="warnMsg">⚠️ يرجى الإجابة على جميع الأسئلة قبل التسليم · Please answer all questions before submitting</div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-panel" id="resultPanel">
+    <div class="result-emoji" id="resEmoji">🎯</div>
+    <div class="result-score" id="resScore">0</div>
+    <div class="result-of">علامة من 100 · Score out of 100</div>
+    <div class="result-breakdown">
+      <div class="breakdown-item">
+        <div class="bd-val" id="bdEasy" style="color:#16a34a">-</div>
+        <div class="bd-lbl">سهل / 22.5</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="bd-val" id="bdMed" style="color:#b45309">-</div>
+        <div class="bd-lbl">متوسط / 37.5</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="bd-val" id="bdHard" style="color:#b91c1c">-</div>
+        <div class="bd-lbl">صعب / 40</div>
+      </div>
+    </div>
+    <div class="result-msg" id="resMsg"></div>
+    <div class="result-sub" id="resSub"></div>
+    <table class="grade-table">
+      <tr><th>النتيجة · Score</th><th>التقدير · Grade</th></tr>
+      <tr><td>90 – 100</td><td>ممتاز 🏆 · Excellent</td></tr>
+      <tr><td>75 – 89</td><td>جيد جداً ✅ · Very Good</td></tr>
+      <tr><td>60 – 74</td><td>جيد 📗 · Good</td></tr>
+      <tr><td>50 – 59</td><td>مقبول 📘 · Pass</td></tr>
+      <tr><td>أقل من 50</td><td>راسب ❌ · Fail</td></tr>
+    </table>
+    <button class="retry-btn" onclick="retryQuiz()">↺ إعادة المحاولة · Retry</button>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+/* ══════════════════════════════════════════════
+   DATA — 40 questions with explanations (AR+EN)
+══════════════════════════════════════════════ */
+const Q = [
+  /* ── EASY 1-15 ── */
+  {
+    num:1, level:'easy',
+    ar:'أيُّ العوامل التالية يمثِّل بوابة XOR على مستوى البتات في لغة C++؟',
+    en:'Which of the following operators represents the bitwise XOR gate in C++?',
+    code:null,
+    opts:['&','|','^','~'], answer:2,
+    expAr:'الرمز ^ هو عامل XOR في C++؛ يُرجع 1 عندما تختلف البتّتان، و0 عندما تتطابقان.',
+    expEn:'The ^ operator is the XOR operator in C++; returns 1 when bits differ, 0 when equal.'
+  },
+  {
+    num:2, level:'easy',
+    ar:'ما الكلمة المفتاحية المستخدمة لتعريف نوع بيانات مخصَّص في C++؟',
+    en:'What keyword is used to define a custom data type in C++?',
+    code:null,
+    opts:['class','typedef','struct','def'], answer:2,
+    expAr:'الكلمة struct تُستخدم لتعريف بنية بيانات مخصَّصة تجمع متغيرات من أنواع مختلفة.',
+    expEn:'The struct keyword defines a custom data structure grouping variables of different types.'
+  },
+  {
+    num:3, level:'easy',
+    ar:'كم عدد المجموعات الجزئية الممكنة لمصفوفة تحتوي على N عنصر؟',
+    en:'How many possible subsets are there for an array containing N elements?',
+    code:null,
+    opts:['N²','2ᴺ','N!','2N'], answer:1,
+    expAr:'لكل عنصر حالتان: إما أن يكون في المجموعة أو لا. لذا المجموع هو 2 مضروباً بنفسه N مرة، أي 2ᴺ.',
+    expEn:'Each element has 2 choices (in or out). Thus the total number of subsets is 2ᴺ.'
+  },
+  {
+    num:4, level:'easy',
+    ar:'في خوارزمية التراجع (Backtracking)، ماذا نفعل عندما نصل إلى طريق مسدود؟',
+    en:'In the Backtracking algorithm, what do we do when we reach a dead end?',
+    code:null,
+    opts:['نوقف البرنامج','نتراجع ونجرّب مساراً آخر','نزيد حجم المصفوفة','نُعيد تشغيل الدالة من البداية'],
+    answer:1,
+    expAr:'جوهر التراجع هو التراجع عن الاختيار الحالي وتجريب البديل التالي للوصول إلى حل صحيح.',
+    expEn:'The essence of Backtracking is undoing the current choice and trying the next alternative to find a valid solution.'
+  },
+  {
+    num:5, level:'easy',
+    ar:'ماذا يعني حرف S في إطار SRTBOT للبرمجة الديناميكية؟',
+    en:"What does the letter 'S' stand for in the SRTBOT framework for Dynamic Programming?",
+    code:null,
+    opts:['Space (المساحة)','String (نص)','State (الحالة)','Sum (المجموع)'],
+    answer:2,
+    expAr:'S تعني State أي الحالة؛ وهي تمثيل المعلومات التي يحتاجها المسألة عند نقطة معينة.',
+    expEn:"S stands for State — representing the information needed to describe the problem at any point."
+  },
+  {
+    num:6, level:'easy',
+    ar:'في هندسة المستطيلات، كيف نحسب طول مجال أحادي البُعد يبدأ من L وينتهي عند R؟',
+    en:'In rectangle geometry, how do we calculate the length of a 1D interval starting at L and ending at R?',
+    code:null,
+    opts:['R + L','R × L','R − L','L − R'], answer:2,
+    expAr:'طول المجال [L, R] يساوي R − L، لأننا نطرح نقطة البداية من نقطة النهاية.',
+    expEn:'The length of interval [L, R] equals R − L, subtracting the start from the end.'
+  },
+  {
+    num:7, level:'easy',
+    ar:'ما الغرض الرئيسي من عملية التذكُّر (Memoization) في البرمجة الديناميكية؟',
+    en:'What is the main purpose of Memoization in Dynamic Programming?',
+    code:null,
+    opts:['تقليل استهلاك الذاكرة','تجنُّب إعادة حساب المسائل الفرعية المتكررة','ترتيب المصفوفة','تحويل الكود إلى كود تكراري'],
+    answer:1,
+    expAr:'التذكُّر يحفظ نتائج المسائل الفرعية المحسوبة سابقاً لتجنُّب إعادة الحساب، مما يقلل التعقيد الزمني.',
+    expEn:'Memoization caches previously computed subproblem results to avoid recalculation, reducing time complexity.'
+  },
+  {
+    num:8, level:'easy',
+    ar:'أيُّ قناع ثنائي (Bitmask) يمثِّل المجموعة الجزئية الفارغة؟',
+    en:'Which bitmask represents the empty subset?',
+    code:null,
+    opts:['1','~0','0','-1'], answer:2,
+    expAr:'القناع 0 يعني أن جميع البتات صفر، أي لا يوجد أي عنصر محدد، وهذا يمثِّل المجموعة الفارغة.',
+    expEn:'Bitmask 0 means all bits are zero — no element is selected — representing the empty subset.'
+  },
+  {
+    num:9, level:'easy',
+    ar:'كيف نصل إلى المتغير age داخل كائن يُسمَّى hero من نوع Struct؟',
+    en:'How do we access the variable age inside an object named hero of a Struct type?',
+    code:null,
+    opts:['hero->age','hero[age]','hero.age','hero::age'], answer:2,
+    expAr:'نستخدم النقطة (.) للوصول إلى أعضاء الـ Struct عندما يكون الكائن غير مؤشِّر. أما السهم (->) فيُستخدم مع المؤشِّرات.',
+    expEn:'Use the dot operator (.) to access struct members on a non-pointer object. Use (->) for pointer objects.'
+  },
+  {
+    num:10, level:'easy',
+    ar:'ماذا يمثِّل الحرف B في إطار SRTBOT؟',
+    en:"What does the letter 'B' represent in the SRTBOT framework?",
+    code:null,
+    opts:['Binary Search (بحث ثنائي)','Base Cases (الحالات الأساسية)','Backtracking (تراجع)','Bottom-Up (من الأسفل)'],
+    answer:1,
+    expAr:'B تعني Base Cases أي الحالات الأساسية؛ وهي الحالات البسيطة التي تُحَل مباشرةً دون استدعاء عودي.',
+    expEn:"B stands for Base Cases — the simple cases that are solved directly without further recursion."
+  },
+  {
+    num:11, level:'easy',
+    ar:'ما الرمز البرمجي الذي يمثِّل عملية الإزاحة إلى اليسار (Left Shift)؟',
+    en:'Which operator represents the Left Shift bitwise operation?',
+    code:null,
+    opts:['>>','<<','^','||'], answer:1,
+    expAr:'الرمز << هو عامل الإزاحة اليسرى. إزاحة x بمقدار k يساوي ضرب x في 2^k.',
+    expEn:'The << operator is the left shift. Shifting x by k is equivalent to multiplying x by 2^k.'
+  },
+  {
+    num:12, level:'easy',
+    ar:'في البرمجة الديناميكية، أيُّ أسلوب يعتمد على ملء جدول باستخدام الحلقات (Loops)؟',
+    en:'In Dynamic Programming, which approach relies on filling a table using loops?',
+    code:null,
+    opts:['Top-Down','Recursion','Bottom-Up','Backtracking'], answer:2,
+    expAr:'أسلوب Bottom-Up يبدأ من الحالات الأساسية ويملأ الجدول بالتسلسل باستخدام حلقات تكرارية.',
+    expEn:'Bottom-Up starts from base cases and fills the table sequentially using iterative loops.'
+  },
+  {
+    num:13, level:'easy',
+    ar:'لمعرفة تقاطع مستطيلين، يجب أن يتداخلا في:',
+    en:'For two rectangles to intersect, they must overlap in:',
+    code:null,
+    opts:['محور X فقط','محور Y فقط','كلا المحورَين X و Y','المساحة الكلية فقط'],
+    answer:2,
+    expAr:'يتطلب التقاطع الثنائي الأبعاد تداخلاً في المحورَين معاً؛ التداخل في محور واحد فقط لا يكفي.',
+    expEn:'2D intersection requires overlap on BOTH axes simultaneously; overlap on just one axis is insufficient.'
+  },
+  {
+    num:14, level:'easy',
+    ar:'ما بنية البيانات الشجرية المستخدمة ذهنياً لتصوُّر خوارزمية التراجع؟',
+    en:'What tree data structure is mentally used to visualize the Backtracking algorithm?',
+    code:null,
+    opts:['Binary Search Tree (شجرة البحث الثنائي)','State-Space Tree (شجرة فضاء الحالات)','Segment Tree (شجرة القطاعات)','Fenwick Tree'],
+    answer:1,
+    expAr:'شجرة فضاء الحالات تمثِّل جميع الاختيارات الممكنة وفروعها، وهي الأداة الذهنية لفهم التراجع.',
+    expEn:'The State-Space Tree represents all possible choices and their branches — the mental model for Backtracking.'
+  },
+  {
+    num:15, level:'easy',
+    ar:'اقرأ الكود التالي. ما المُخرَجات؟',
+    en:'Read the following code. What is the output?',
+    code:'int x = 5;\ncout << (x ^ x);',
+    opts:['5','10','0','1'], answer:2,
+    expAr:'أي رقم XOR بنفسه يساوي صفراً، لأن كل بتّة تُطابق نظيرتها فتُلغيها.',
+    expEn:'Any number XOR itself equals 0, because every bit matches its counterpart and cancels out.'
+  },
+
+  /* ── MEDIUM 16-30 ── */
+  {
+    num:16, level:'medium',
+    ar:'ما العملية الصحيحة لضبط (جعل قيمته 1) البت رقم k في المتغير x؟',
+    en:'What is the correct operation to set (make it 1) the k-th bit in variable x?',
+    code:null, codeOpts:true,
+    opts:['x &= (1 << k);','x |= (1 << k);','x ^= (1 << k);','x += (1 << k);'],
+    answer:1,
+    expAr:'نستخدم OR (|) مع القناع (1 << k) لضبط البت؛ OR مع 1 يُبقي أي بتّة على 1.',
+    expEn:'Use OR (|) with the mask (1 << k) to set the bit; OR-ing with 1 always yields 1.'
+  },
+  {
+    num:17, level:'medium',
+    ar:'اقرأ الكود التالي. ما المُخرَجات؟',
+    en:'Read the following code. What is the output?',
+    code:'int n = 3;\ncout << (1 << n);',
+    opts:['6','3','9','8'], answer:3,
+    expAr:'الإزاحة اليسرى بمقدار 3 تساوي الضرب في 2³ = 8. إذن 1 << 3 = 8.',
+    expEn:'Left shift by 3 equals multiplying by 2³ = 8. So 1 << 3 = 8.'
+  },
+  {
+    num:18, level:'medium',
+    ar:'اقرأ الكود التالي. ما المُخرَجات؟',
+    en:'Read the following code. What is the output?',
+    code:'struct Point { int x, y; };\nPoint p = {10, 20};\ncout << p.x + p.y;',
+    opts:['10','20','30','Compilation Error'], answer:2,
+    expAr:'p.x تساوي 10 وp.y تساوي 20، وجمعهما يُعطي 30.',
+    expEn:'p.x is 10 and p.y is 20; their sum is 30.'
+  },
+  {
+    num:19, level:'medium',
+    ar:'لدينا المصفوفة {10, 20, 30}. ما المجموعة الجزئية التي يمثِّلها القناع 5 (ثنائياً: 101)؟',
+    en:'Given array {10, 20, 30}. What subset does bitmask 5 (binary: 101) represent?',
+    code:null,
+    opts:['{10, 20}','{20, 30}','{10, 30}','{30}'], answer:2,
+    expAr:'101 ثنائياً: البت 0 (قيمة 10) والبت 2 (قيمة 30) مضبوطان، أما البت 1 (قيمة 20) فهو صفر.',
+    expEn:'Binary 101: bit 0 (value 10) and bit 2 (value 30) are set; bit 1 (value 20) is zero.'
+  },
+  {
+    num:20, level:'medium',
+    ar:'في خوارزمية التراجع، ماذا يعني مصطلح "التقليم" (Pruning)؟',
+    en:'In Backtracking, what does the term "Pruning" mean?',
+    code:null,
+    opts:['إزالة البتات الصفرية','تخطّي الفروع التي لن تؤدي إلى حل صحيح لتوفير الوقت','مسح المصفوفة','ترتيب الحلول'],
+    answer:1,
+    expAr:'التقليم هو قطع الفروع التي يُثبت بشرط معين أنها لن تُفضي إلى حل، مما يُسرِّع الخوارزمية.',
+    expEn:'Pruning cuts branches proven by a condition to never reach a valid solution, speeding up the algorithm.'
+  },
+  {
+    num:21, level:'medium',
+    ar:'ما التعقيد الزمني لمتتالية فيبوناتشي باستخدام التذكُّر (Memoization) مقارنةً بالاستدعاء العودي الساذج؟',
+    en:'What is the Time Complexity of Fibonacci with Memoization compared to naive recursion?',
+    code:null,
+    opts:['O(N²) مقابل O(N)','O(N) مقابل O(2ᴺ)','O(log N) مقابل O(N)','O(2ᴺ) مقابل O(N!)'],
+    answer:1,
+    expAr:'التذكُّر يُقلِّص التعقيد من O(2ᴺ) الأسي في الاستدعاء العودي الساذج إلى O(N) الخطي.',
+    expEn:'Memoization reduces complexity from the exponential O(2ᴺ) of naive recursion down to linear O(N).'
+  },
+  {
+    num:22, level:'medium',
+    ar:'في مسألة المسار الأقل تكلفةً، ماذا تمثِّل المعادلة dp[i] = cost[i] + min(dp[i+1], dp[i+2]) في إطار SRTBOT؟',
+    en:'In the Minimum Cost Path problem, what does dp[i] = cost[i] + min(dp[i+1], dp[i+2]) represent in SRTBOT?',
+    code:null,
+    opts:['State (الحالة)','Base Case (الحالة الأساسية)','Recurrence (العلاقة العودية)','Order (الترتيب)'],
+    answer:2,
+    expAr:'هذه معادلة انتقال (Recurrence) تصف كيف تُحسَب حالةٌ ما انطلاقاً من الحالات الأصغر منها.',
+    expEn:'This is a Recurrence relation — it describes how to compute a state from smaller sub-states.'
+  },
+  {
+    num:23, level:'medium',
+    ar:'ما الشرط الصحيح للتحقق مما إذا كان المجالان [A_l, A_r] و[B_l, B_r] لا يتقاطعان؟',
+    en:'What is the correct condition to check if intervals [A_l, A_r] and [B_l, B_r] NEVER intersect?',
+    code:null, codeOpts:true,
+    opts:['B_l > A_r && A_l > B_r','B_l >= A_r || A_l >= B_r','A_r == B_l','B_r < A_l && A_r < B_l'],
+    answer:1,
+    expAr:'المجالان لا يتقاطعان إذا كان أحدهما كاملاً قبل الآخر، أي: B_l >= A_r أو A_l >= B_r.',
+    expEn:'Intervals do not intersect if one ends before or at the start of the other: B_l >= A_r OR A_l >= B_r.'
+  },
+  {
+    num:24, level:'medium',
+    ar:'ما العملية الصحيحة لتصفير (جعل قيمته 0) البت رقم k في المتغير x؟',
+    en:'What is the correct operation to clear (make it 0) the k-th bit in variable x?',
+    code:null, codeOpts:true,
+    opts:['x &= ~(1 << k);','x |= ~(1 << k);','x ^= (1 << k);','x &= (1 >> k);'],
+    answer:0,
+    expAr:'ننشئ قناعاً بـ NOT لعكس البتات، ثم نستخدم AND لإبقاء كل البتات كما هي وضبط البت k على 0.',
+    expEn:'Create an inverted mask with NOT, then AND it with x to keep all bits unchanged except bit k which becomes 0.'
+  },
+  {
+    num:25, level:'medium',
+    ar:'في البرمجة الديناميكية (Top-Down)، لماذا نُهيِّئ مصفوفة dp بالقيمة −1؟',
+    en:'In Top-Down DP, why do we usually initialize the dp array with −1?',
+    code:null,
+    opts:['لأن التكلفة دائماً سالبة','لتمييز الحالات التي لم تُحسَب بعد','لتوفير مساحة الذاكرة','لأنه شرط إيقاف الحلقة'],
+    answer:1,
+    expAr:'القيمة −1 تُشير إلى أن الحالة لم تُحسَب بعد. عند الاستدعاء نتحقق: إذا كانت dp[i] != -1 نُرجعها مباشرةً.',
+    expEn:'−1 signals an uncomputed state. On each call, we check: if dp[i] != -1, return it immediately.'
+  },
+  {
+    num:26, level:'medium',
+    ar:'ما الحيلة البرمجية للتحقق مما إذا كان الرقم x قوةً للعدد 2؟',
+    en:'What is the bitwise trick to check if a number x is a power of 2?',
+    code:null, codeOpts:true,
+    opts:['(x & (x + 1)) == 0','(x ^ (x - 1)) == 0','(x & (x - 1)) == 0','(x | (x - 1)) == 0'],
+    answer:2,
+    expAr:'قوى العدد 2 تحتوي على بتّة واحدة فقط. x & (x-1) يُزيل أدنى بتّة مضبوطة؛ إذا كان الناتج 0 فـ x قوة لـ 2.',
+    expEn:"Powers of 2 have exactly one set bit. x & (x−1) removes the lowest set bit; result 0 means x is a power of 2."
+  },
+  {
+    num:27, level:'medium',
+    ar:'ما وظيفة التعبير x & -x في معالجة البتات؟',
+    en:'What is the function of the expression x & -x in bit manipulation?',
+    code:null,
+    opts:['إزالة أدنى بتّة مضبوطة','استخراج (عزل) أدنى بتّة مضبوطة','قلب جميع البتات','التحقق من الإشارة'],
+    answer:1,
+    expAr:'−x هو المتمّم الثنائي لـ x. حاصل AND بينهما يُبقي فقط أدنى بتّة مضبوطة ويُصفِّر الباقي.',
+    expEn:'−x is the two\'s complement of x. AND-ing them isolates only the lowest set bit, zeroing all others.'
+  },
+  {
+    num:28, level:'medium',
+    ar:'اقرأ الكود التالي. ما المُخرَجات؟',
+    en:'Read the following code. What is the output?',
+    code:'int L = max(2, 5);\nint R = min(10, 8);\ncout << R - L;',
+    opts:['8','2','3','-3'], answer:2,
+    expAr:'L = max(2, 5) = 5، وR = min(10, 8) = 8. إذن R - L = 8 - 5 = 3.',
+    expEn:'L = max(2,5) = 5 and R = min(10,8) = 8. So R − L = 8 − 5 = 3.'
+  },
+  {
+    num:29, level:'medium',
+    ar:'في C++، هل أعضاء الـ struct عامّة (public) أم خاصة (private) بشكل افتراضي؟',
+    en:'In C++, are members inside a struct public or private by default?',
+    code:null,
+    opts:['Private','Public','Protected','يعتمد على المُترجم'],
+    answer:1,
+    expAr:'في C++، أعضاء الـ struct عامّة (public) افتراضياً، على عكس الـ class التي أعضاؤها خاصة افتراضياً.',
+    expEn:'In C++, struct members are public by default, unlike class members which are private by default.'
+  },
+  {
+    num:30, level:'medium',
+    ar:'ما التعبير البرمجي للتحقق مما إذا كانت البتّة رقم k في x تساوي 1 أم 0؟',
+    en:'What is the expression to check if the k-th bit in x is 1 or 0?',
+    code:null, codeOpts:true,
+    opts:['(x >> k) | 1','(x << k) & 1','(x >> k) & 1','(x & k) >> 1'],
+    answer:2,
+    expAr:'نُزيح x يميناً بمقدار k لنُحضر البتّة المطلوبة إلى الموضع 0، ثم نُطبِّق AND مع 1 للحصول على قيمتها.',
+    expEn:'Shift x right by k to bring the desired bit to position 0, then AND with 1 to extract its value.'
+  },
+
+  /* ── HARD 31-40 ── */
+  {
+    num:31, level:'hard',
+    ar:'اقرأ الكود التالي. ما المُخرَجات؟',
+    en:'Read the following code. What is the output?',
+    code:'int x = 12; // 1100 in binary\ncout << (x & (x - 1));',
+    opts:['0','4','8','11'], answer:2,
+    expAr:'12 = 1100 ثنائياً. 11 = 1011 ثنائياً. 1100 & 1011 = 1000 = 8. هذه العملية تُزيل أدنى بتّة مضبوطة.',
+    expEn:'12 = 1100, 11 = 1011. 1100 & 1011 = 1000 = 8. This operation removes the lowest set bit.'
+  },
+  {
+    num:32, level:'hard',
+    ar:'ما التعقيد الزمني لتوليد جميع المجموعات الجزئية لمصفوفة طولها N والتحقق من كل عنصر داخلها؟',
+    en:'What is the time complexity of generating all subsets of length N and iterating through each element?',
+    code:null,
+    opts:['O(2ᴺ)','O(N · 2ᴺ)','O(N²)','O(N!)'], answer:1,
+    expAr:'هناك 2ᴺ قناع، ولكل قناع نتحقق من N بتّة، إذن التعقيد الكلي هو O(N · 2ᴺ).',
+    expEn:'There are 2ᴺ masks, and for each mask we check N bits, giving a total complexity of O(N · 2ᴺ).'
+  },
+  {
+    num:33, level:'hard',
+    ar:'اقرأ الكود التالي. ما المُخرَجات؟',
+    en:'Read the following code. What is the output?',
+    code:'struct Node { int v; };\nNode arr[2];\narr[0].v = 5;\narr[1] = arr[0];\narr[1].v = 7;\ncout << arr[0].v;',
+    opts:['7','5','0','قيمة غير محددة'], answer:1,
+    expAr:'الـ struct تُنسَخ بالقيمة (Copy by Value). arr[1] = arr[0] تنشئ نسخة مستقلة؛ تعديل arr[1] لا يُؤثِّر في arr[0].',
+    expEn:'Structs are copied by value. arr[1] = arr[0] creates an independent copy; modifying arr[1] does not affect arr[0].'
+  },
+  {
+    num:34, level:'hard',
+    ar:'في برمجة الجداول (Bottom-Up DP) مثل فيبوناتشي، كيف نُحسِّن التعقيد الذاكري من O(N) إلى O(1)؟',
+    en:'In Bottom-Up DP like Fibonacci, how can we optimize Space Complexity from O(N) to O(1)?',
+    code:null,
+    opts:['باستخدام مصفوفة ديناميكية','بالاحتفاظ بآخر حالتين محسوبتين فقط','باستخدام دالة عودية','لا يمكن تحسينها'],
+    answer:1,
+    expAr:'كل خطوة في فيبوناتشي تعتمد على القيمتين السابقتين فقط؛ نحتفظ بهما في متغيرَين بدلاً من مصفوفة كاملة.',
+    expEn:'Each Fibonacci step depends only on the two previous values; store them in two variables instead of a full array.'
+  },
+  {
+    num:35, level:'hard',
+    ar:'اقرأ الكود التالي. ما المُخرَجات؟',
+    en:'Read the following code. What is the output?',
+    code:'int mask = 6; // 0110 in binary\nint cnt = 0;\nwhile(mask > 0) {\n    mask &= (mask - 1);\n    cnt++;\n}\ncout << cnt;',
+    opts:['4','3','2','1'], answer:2,
+    expAr:'هذه خوارزمية Brian Kernighan لعدّ البتات المضبوطة. الرقم 6 (0110 ثنائياً) يحتوي على بتّتين مضبوطتَين، فيُطبَع 2.',
+    expEn:"Brian Kernighan's algorithm counts set bits. 6 (binary 0110) has two set bits, so the output is 2."
+  },
+  {
+    num:36, level:'hard',
+    ar:'ما التعقيد الزمني التقريبي لتوليد جميع التباديل (Permutations) لمجموعة من N عنصر باستخدام التراجع؟',
+    en:'What is the approximate time complexity of generating all Permutations of N elements using Backtracking?',
+    code:null,
+    opts:['O(N²)','O(2ᴺ)','O(N · log N)','O(N!)'], answer:3,
+    expAr:'عدد التباديل الممكنة هو N!. لتوليدها جميعاً يجب زيارة كل ترتيب ممكن، إذن التعقيد هو O(N!).',
+    expEn:'The number of permutations is N!. Generating all of them requires visiting every possible arrangement, giving O(N!).'
+  },
+  {
+    num:37, level:'hard',
+    ar:'في تقاطع مستطيلَين A و B، إذا حسبنا: c_bl_x = max(a_bl_x, b_bl_x) و c_tr_x = min(a_tr_x, b_tr_x)، متى لا يكون هناك تقاطع في المحور X؟',
+    en:'In 2D rectangle intersection, with c_bl_x = max(...) and c_tr_x = min(...), when do they NOT intersect on X-axis?',
+    code:null,
+    opts:['إذا كان c_bl_x <= c_tr_x','إذا كان c_bl_x >= c_tr_x','إذا كان c_tr_x == 0','إذا كان a_tr_x > b_tr_x'],
+    answer:1,
+    expAr:'إذا كان أقصى نقطة بداية أكبر من أو تساوي أدنى نقطة نهاية، فلا يوجد تقاطع في المحور X.',
+    expEn:'If the maximum left boundary >= minimum right boundary, there is no intersection on the X-axis.'
+  },
+  {
+    num:38, level:'hard',
+    ar:'في Top-Down DP، ماذا يحدث إذا نسينا تمرير مصفوفة dp بالمرجع (&) أو لم نُعلِّمها كمتغير عام؟',
+    en:'In Top-Down DP, what happens if we forget to pass the dp array by reference (&) or make it global?',
+    code:null,
+    opts:['سيكون الكود أسرع','ستُنسَخ المصفوفة في كل استدعاء مما يُسبِّب بطئاً شديداً ونفاد الذاكرة','سيُعطي المُترجم خطأً فورياً','ستُعطي نتائج حسابية خاطئة دائماً'],
+    answer:1,
+    expAr:'عند التمرير بالقيمة تُنشَأ نسخة جديدة من المصفوفة في كل استدعاء عودي، مما يُسبِّب استهلاكاً هائلاً للذاكرة وبطئاً شديداً.',
+    expEn:'Passing by value creates a new array copy on every recursive call, causing massive memory usage and severe slowdowns.'
+  },
+  {
+    num:39, level:'hard',
+    ar:'في البرمجة التنافسية، ما الحد الأقصى التقريبي لـ N لكي ينجح كود بتعقيد O(N · 2ᴺ) ضمن ثانية واحدة؟',
+    en:'In competitive programming, what is the approximate maximum N for an O(N · 2ᴺ) algorithm within a 1-second time limit?',
+    code:null,
+    opts:['N = 1000','N = 100','N ≈ 20','N = 50'], answer:2,
+    expAr:'عند N = 20: 20 × 2²⁰ ≈ 20 مليون عملية، وهو ما يُناسب الحد الزمني للثانية الواحدة في البرمجة التنافسية.',
+    expEn:'At N=20: 20 × 2²⁰ ≈ 20 million operations, which fits within the typical 1-second competitive programming limit.'
+  },
+  {
+    num:40, level:'hard',
+    ar:'اقرأ الكود التالي الخاص بـ Minimum Cost DP. ما المُخرَجات؟',
+    en:'Read the following Minimum Cost DP code. What is the output?',
+    code:'vector<int> cost = {1, 100, 1, 1};\nint n = 4;\nvector<int> dp(n + 2, 0);\nfor (int i = n - 1; i >= 0; i--) {\n    dp[i] = cost[i] + min(dp[i+1], dp[i+2]);\n}\ncout << min(dp[0], dp[1]);',
+    opts:['101','2','3','4'], answer:1,
+    expAr:'أفضل مسار هو: الموضع 0 (تكلفة 1) ← الموضع 2 (تكلفة 1) ← النهاية. إجمالي التكلفة = 1+1 = 2.',
+    expEn:'Best path: index 0 (cost 1) → index 2 (cost 1) → end. Total cost = 1+1 = 2.'
+  }
+];
+
+/* ══════════════════════════════════
+   STATE
+══════════════════════════════════ */
+const TOTAL = 40;
+const LETTERS = ['A','B','C','D'];
+const selections = {};
+let submitted = false;
+
+/* ══════════════════════════════════
+   HELPERS
+══════════════════════════════════ */
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function levelClass(level) {
+  return {easy:'badge-easy', medium:'badge-medium', hard:'badge-hard'}[level];
+}
+
+function levelText(level) {
+  return {easy:'سهل · Easy', medium:'متوسط · Medium', hard:'صعب · Hard'}[level];
+}
+
+function pillClass(level) {
+  return {easy:'pill-easy', medium:'pill-medium', hard:'pill-hard'}[level];
+}
+
+/* ══════════════════════════════════
+   BUILD UI
+══════════════════════════════════ */
+function buildQuiz() {
+  const wrap = document.getElementById('questionsWrap');
+
+  Q.forEach((q, idx) => {
+    /* Section headers */
+    if (q.num === 1)  wrap.appendChild(buildSection('🟢 المستوى السهل · Easy Level', 'easy'));
+    if (q.num === 16) wrap.appendChild(buildSection('🟡 المستوى المتوسط · Medium Level', 'medium'));
+    if (q.num === 31) wrap.appendChild(buildSection('🔴 المستوى الصعب · Hard Level', 'hard'));
+
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `card-${idx}`;
+    card.style.animationDelay = (idx * 0.035) + 's';
+
+    const codeHtml = q.code
+      ? `<div class="code-block">${esc(q.code)}</div>` : '';
+
+    const optsHtml = q.opts.map((opt, oi) => {
+      const inner = q.codeOpts
+        ? `<span class="opt-code">${esc(opt)}</span>`
+        : `<span class="opt-text">${esc(opt)}</span>`;
+      return `<button class="opt-btn" id="opt-${idx}-${oi}" onclick="pick(${idx},${oi})">
+        <span class="opt-letter">${LETTERS[oi]}</span>${inner}
+      </button>`;
+    }).join('');
+
+    card.innerHTML = `
+      <div class="q-header">
+        <div class="q-num">${q.num < 10 ? '0'+q.num : q.num}</div>
+        <div class="q-texts">
+          <div class="q-ar">${esc(q.ar)}</div>
+          <div class="q-en">${esc(q.en)}</div>
+        </div>
+        <span class="q-level-badge ${levelClass(q.level)}">${levelText(q.level)}</span>
+      </div>
+      ${codeHtml}
+      <div class="options-grid">${optsHtml}</div>
+      <div class="explanation-box" id="exp-${idx}"></div>`;
+
+    wrap.appendChild(card);
+  });
+}
+
+function buildSection(title, level) {
+  const div = document.createElement('div');
+  div.className = 'section-header';
+  div.innerHTML = `
+    <div class="section-line"></div>
+    <span class="section-pill ${pillClass(level)}">${title}</span>
+    <div class="section-line"></div>`;
+  return div;
+}
+
+/* ══════════════════════════════════
+   INTERACTION
+══════════════════════════════════ */
+function pick(qIdx, optIdx) {
+  if (submitted) return;
+
+  const prev = selections[qIdx];
+  if (prev !== undefined)
+    document.getElementById(`opt-${qIdx}-${prev}`).classList.remove('selected');
+
+  selections[qIdx] = optIdx;
+  document.getElementById(`opt-${qIdx}-${optIdx}`).classList.add('selected');
+  document.getElementById(`card-${qIdx}`).classList.add('answered');
+  updateProgress();
+}
+
+function updateProgress() {
+  const done = Object.keys(selections).length;
+  document.getElementById('progFill').style.width = (done / TOTAL * 100) + '%';
+  document.getElementById('progText').textContent = done + ' / ' + TOTAL;
+}
+
+/* ══════════════════════════════════
+   SUBMIT
+══════════════════════════════════ */
+function submitQuiz() {
+  if (submitted) return;
+  if (Object.keys(selections).length < TOTAL) {
+    const w = document.getElementById('warnMsg');
+    w.classList.add('show');
+    setTimeout(() => w.classList.remove('show'), 4000);
+    return;
+  }
+
+  submitted = true;
+  document.getElementById('submitBtn').disabled = true;
+
+  let totalQ = 0, easyQ = 0, medQ = 0, hardQ = 0;
+
+  Q.forEach((q, idx) => {
+    const chosen  = selections[idx];
+    const correct = q.answer;
+    const isRight = chosen === correct;
+
+    if (isRight) {
+      totalQ++;
+      if (q.level === 'easy')   easyQ++;
+      if (q.level === 'medium') medQ++;
+      if (q.level === 'hard')   hardQ++;
+    }
+
+    const card = document.getElementById(`card-${idx}`);
+    card.classList.remove('answered');
+    card.classList.add(isRight ? 'correct-card' : 'wrong-card');
+
+    /* Disable all buttons & show correct/wrong */
+    q.opts.forEach((_, oi) => {
+      const btn = document.getElementById(`opt-${idx}-${oi}`);
+      btn.disabled = true;
+      btn.classList.remove('selected');
+
+      if (oi === correct) {
+        btn.classList.add('show-correct');
+        btn.innerHTML += ' <span class="opt-icon">✅</span>';
+      } else if (oi === chosen && !isRight) {
+        btn.classList.add('show-wrong');
+        btn.innerHTML += ' <span class="opt-icon">❌</span>';
+      }
+    });
+
+    /* Explanation */
+    const expBox = document.getElementById(`exp-${idx}`);
+    expBox.className = `explanation-box show ${isRight ? 'correct-exp' : 'wrong-exp'}`;
+    const icon = isRight ? '✅' : '❌';
+    const title = isRight ? 'إجابة صحيحة! · Correct!' : `إجابة خاطئة · Wrong — الإجابة الصحيحة: ${LETTERS[correct]}`;
+    expBox.innerHTML = `
+      <div class="exp-title">${icon} ${esc(title)}</div>
+      <div class="exp-body">${esc(q.expAr)}</div>
+      <div class="exp-en">${esc(q.expEn)}</div>`;
+  });
+
+  /* Scores (weighted) */
+  const easyPts  = +(easyQ  * 1.5).toFixed(1);
+  const medPts   = +(medQ   * 2.5).toFixed(1);
+  const hardPts  = +(hardQ  * 4  ).toFixed(1);
+  const totalPts = +(easyPts + medPts + hardPts).toFixed(1);
+
+  /* Result panel */
+  const pct = Math.round(totalPts);
+  document.getElementById('resScore').textContent = totalPts;
+  document.getElementById('bdEasy').textContent  = easyPts;
+  document.getElementById('bdMed').textContent   = medPts;
+  document.getElementById('bdHard').textContent  = hardPts;
+
+  let emoji='', msg='', sub='';
+  if (pct >= 95)      { emoji='🏆'; msg='أداء مثالي! استثنائي!';              sub='Perfect — truly exceptional performance!' }
+  else if (pct >= 85) { emoji='🎉'; msg='ممتاز جداً! أحسنتَ!';               sub='Excellent work! Keep it up.' }
+  else if (pct >= 75) { emoji='✅'; msg='جيد جداً — استمر في التعلُّم!';      sub='Very good! Keep refining your skills.' }
+  else if (pct >= 60) { emoji='📗'; msg='جيد — راجع بعض المفاهيم.';          sub='Good job! Review a few concepts.' }
+  else if (pct >= 50) { emoji='📘'; msg='مقبول — تحتاج مزيداً من المراجعة.'; sub='Passing, but more review is needed.' }
+  else                { emoji='📖'; msg='راجع المواد وحاول مجدداً!';          sub='Review the material thoroughly and retry.' }
+
+  document.getElementById('resEmoji').textContent = emoji;
+  document.getElementById('resMsg').textContent   = msg;
+  document.getElementById('resSub').textContent   = sub;
+
+  const panel = document.getElementById('resultPanel');
+  panel.classList.add('show');
+  setTimeout(() => panel.scrollIntoView({ behavior:'smooth', block:'center' }), 100);
+}
+
+/* ══════════════════════════════════
+   RETRY
+══════════════════════════════════ */
+function retryQuiz() {
+  submitted = false;
+  Object.keys(selections).forEach(k => delete selections[k]);
+
+  Q.forEach((q, idx) => {
+    const card = document.getElementById(`card-${idx}`);
+    card.classList.remove('answered','correct-card','wrong-card');
+
+    /* Rebuild option buttons */
+    const grid = card.querySelector('.options-grid');
+    grid.innerHTML = q.opts.map((opt, oi) => {
+      const inner = q.codeOpts
+        ? `<span class="opt-code">${esc(opt)}</span>`
+        : `<span class="opt-text">${esc(opt)}</span>`;
+      return `<button class="opt-btn" id="opt-${idx}-${oi}" onclick="pick(${idx},${oi})">
+        <span class="opt-letter">${LETTERS[oi]}</span>${inner}
+      </button>`;
+    }).join('');
+
+    /* Hide explanation */
+    const exp = document.getElementById(`exp-${idx}`);
+    exp.className = 'explanation-box';
+    exp.innerHTML = '';
+  });
+
+  updateProgress();
+  document.getElementById('resultPanel').classList.remove('show');
+  document.getElementById('submitBtn').disabled = false;
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+/* ══════════════════════════════════
+   INIT
+══════════════════════════════════ */
+buildQuiz();
+updateProgress();
+</script>
+</body>
+</html>

@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اختبار البرمجة | Programming Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 80% 20%, rgba(0,212,255,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 10% 80%, rgba(124,58,237,0.07) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 50px;
+    animation: fadeDown 0.8s ease both;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.25);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+
+  .badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  h1 {
+    font-size: clamp(26px, 5vw, 40px);
+    font-weight: 900;
+    line-height: 1.2;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+
+  .subtitle { color: var(--muted); font-size: 15px; font-weight: 400; }
+
+  .progress-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 22px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    animation: fadeUp 0.6s ease both 0.2s;
+  }
+
+  .progress-bar-track {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 99px;
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+
+  .progress-text {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    white-space: nowrap;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 28px 24px;
+    margin-bottom: 18px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease both;
+    transition: border-color 0.3s;
+  }
+
+  .question-card:hover { border-color: rgba(0,212,255,0.2); }
+
+  .question-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--accent), var(--accent2));
+    border-radius: 0 16px 16px 0;
+  }
+
+  .question-card.answered::before {
+    background: linear-gradient(to bottom, #22c55e, #16a34a);
+  }
+
+  .q-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .q-number {
+    min-width: 38px; height: 38px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .q-level {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 100px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .level-easy { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
+  .level-medium { background: rgba(234,179,8,0.15); color: #facc15; border: 1px solid rgba(234,179,8,0.2); }
+  .level-hard { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+
+  .q-text { font-size: 15px; line-height: 1.75; font-weight: 600; color: var(--text); flex: 1; }
+  .q-text-en { font-size: 13px; color: var(--muted); font-weight: 400; margin-top: 5px; }
+
+  .code-block {
+    background: #0d1117;
+    border: 1px solid rgba(0,212,255,0.12);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #a5f3fc;
+    overflow-x: auto;
+    direction: ltr;
+    text-align: left;
+    white-space: pre;
+    line-height: 1.75;
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  @media (max-width: 540px) {
+    .options-grid { grid-template-columns: 1fr; }
+    .q-header { flex-wrap: wrap; }
+    .container { padding: 24px 14px 60px; }
+  }
+
+  .option-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: right;
+    transition: all 0.2s ease;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    width: 100%;
+  }
+
+  .option-btn:hover {
+    background: rgba(0,212,255,0.07);
+    border-color: rgba(0,212,255,0.35);
+    transform: translateY(-1px);
+  }
+
+  .option-btn.selected {
+    background: rgba(124,58,237,0.15);
+    border-color: var(--accent2);
+    color: #c4b5fd;
+  }
+
+  .option-btn.selected .opt-letter {
+    background: var(--accent2);
+    color: #fff;
+  }
+
+  .opt-letter {
+    min-width: 30px; height: 30px;
+    border-radius: 6px;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .opt-text { flex: 1; }
+
+  .opt-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #a5f3fc;
+    background: rgba(0,0,0,0.35);
+    padding: 3px 10px;
+    border-radius: 5px;
+    direction: ltr;
+    text-align: left;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 44px 0 22px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to left, transparent, var(--border));
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .submit-wrap {
+    text-align: center;
+    margin-top: 44px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .submit-btn {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border: none;
+    border-radius: 12px;
+    padding: 17px 60px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 1px;
+    box-shadow: 0 0 30px rgba(0,212,255,0.2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.4s;
+  }
+
+  .submit-btn:hover::before { left: 100%; }
+  .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(0,212,255,0.35); }
+  .submit-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+  .result-panel {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 44px 36px;
+    margin-top: 32px;
+    text-align: center;
+    animation: scaleIn 0.5s ease both;
+  }
+
+  .result-panel.show { display: block; }
+
+  .result-score {
+    font-size: 80px;
+    font-weight: 900;
+    font-family: 'JetBrains Mono', monospace;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+
+  .result-total { color: var(--muted); font-size: 18px; margin: 8px 0 22px; }
+  .result-message { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .result-sub { color: var(--muted); font-size: 14px; }
+
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 24px 0;
+    flex-wrap: wrap;
+  }
+
+  .stat-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 24px;
+    text-align: center;
+  }
+
+  .stat-val {
+    font-size: 26px;
+    font-weight: 900;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stat-lbl { font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+
+  .retry-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.25);
+    color: var(--accent);
+    padding: 12px 32px;
+    border-radius: 10px;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .retry-btn:hover { background: rgba(0,212,255,0.2); transform: translateY(-1px); }
+
+  .warning {
+    background: rgba(234,179,8,0.1);
+    border: 1px solid rgba(234,179,8,0.25);
+    color: #facc15;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 16px;
+    display: none;
+    text-align: center;
+  }
+
+  .warning.show { display: block; }
+
+  @keyframes fadeDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeUp   { from { opacity:0; transform:translateY(20px);  } to { opacity:1; transform:translateY(0); } }
+  @keyframes scaleIn  { from { opacity:0; transform:scale(0.95); }       to { opacity:1; transform:scale(1);    } }
+  @keyframes pulse    { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="badge">Quiz · 40 سؤال</div>
+    <h1>اختبار البرمجة التنافسية</h1>
+    <p class="subtitle">اختر الإجابة الصحيحة لكل سؤال · Choose the correct answer for each question</p>
+  </header>
+
+  <div class="progress-wrap">
+    <span style="color:var(--muted);font-size:13px;font-weight:600;">التقدم</span>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+    <span class="progress-text" id="progressText">0 / 40</span>
+  </div>
+
+  <div id="questionsContainer"></div>
+
+  <div class="submit-wrap">
+    <button class="submit-btn" id="submitBtn" onclick="submitQuiz()">تسليم الاختبار ✓</button>
+    <div class="warning" id="warning">⚠️ يرجى الإجابة على جميع الأسئلة قبل التسليم</div>
+  </div>
+
+  <div class="result-panel" id="resultPanel">
+    <div class="result-score" id="scoreNum">0</div>
+    <div class="result-total">/ 40 سؤال</div>
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-val" id="statEasy" style="color:#4ade80">-</div>
+        <div class="stat-lbl">سهل / 15</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="statMed" style="color:#facc15">-</div>
+        <div class="stat-lbl">متوسط / 15</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="statHard" style="color:#f87171">-</div>
+        <div class="stat-lbl">صعب / 10</div>
+      </div>
+    </div>
+    <div class="result-message" id="resultMsg"></div>
+    <div class="result-sub" id="resultSub"></div>
+    <button class="retry-btn" onclick="retryQuiz()">↺ إعادة المحاولة</button>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  // ===== EASY (1-15) =====
+  {
+    num:1, level:'easy',
+    text:'أي من العوامل التالية يمثل بوابة XOR على مستوى البت في لغة C++؟',
+    textEn:'Which of the following operators represents the bitwise XOR gate in C++?',
+    code:null,
+    options:['&','|','^','~'],
+    answer:2
+  },
+  {
+    num:2, level:'easy',
+    text:'ما هي الكلمة المفتاحية المستخدمة لتعريف نوع بيانات مخصص في C++؟',
+    textEn:'What keyword is used to define a custom data type in C++?',
+    code:null,
+    options:['class','typedef','struct','def'],
+    answer:2
+  },
+  {
+    num:3, level:'easy',
+    text:'كم عدد المجموعات الجزئية الممكنة لمصفوفة تحتوي على N من العناصر؟',
+    textEn:'How many possible subsets are there for an array containing N elements?',
+    code:null,
+    options:['N²','2ᴺ','N!','2N'],
+    answer:1
+  },
+  {
+    num:4, level:'easy',
+    text:'في خوارزمية التراجع (Backtracking)، ماذا نفعل عندما نصل إلى طريق مسدود؟',
+    textEn:'In the Backtracking algorithm, what do we do when we reach a dead end?',
+    code:null,
+    options:[
+      'نوقف البرنامج (Stop the program)',
+      'نتراجع ونجرب مساراً آخر (Undo and try another path)',
+      'نزيد حجم المصفوفة (Increase the array size)',
+      'نعيد تشغيل الدالة من البداية (Restart the function)'
+    ],
+    answer:1
+  },
+  {
+    num:5, level:'easy',
+    text:'ماذا يعني حرف S في إطار SRTBOT للبرمجة الديناميكية؟',
+    textEn:"What does the letter 'S' stand for in the SRTBOT framework for DP?",
+    code:null,
+    options:['Space (المساحة)','String (نص)','State (الحالة)','Sum (المجموع)'],
+    answer:2
+  },
+  {
+    num:6, level:'easy',
+    text:'في هندسة المستطيلات، كيف نحسب طول مجال أحادي البعد يبدأ من L وينتهي عند R؟',
+    textEn:'In rectangle geometry, how do we calculate the length of a 1D interval starting at L and ending at R?',
+    code:null,
+    options:['R + L','R × L','R - L','L - R'],
+    answer:2
+  },
+  {
+    num:7, level:'easy',
+    text:'ما هو الغرض الرئيسي من عملية التذكار (Memoization) في البرمجة الديناميكية؟',
+    textEn:'What is the main purpose of Memoization in Dynamic Programming?',
+    code:null,
+    options:[
+      'تقليل استهلاك الذاكرة',
+      'تجنب إعادة حساب المسائل الفرعية المتكررة',
+      'ترتيب المصفوفة',
+      'تحويل الكود إلى كود تكراري'
+    ],
+    answer:1
+  },
+  {
+    num:8, level:'easy',
+    text:'أي قناع ثنائي (Bitmask) يمثل المجموعة الجزئية الفارغة؟',
+    textEn:'Which bitmask represents the empty subset?',
+    code:null,
+    options:['1','~0','0','-1'],
+    answer:2
+  },
+  {
+    num:9, level:'easy',
+    text:'كيف نصل إلى المتغير age داخل كائن يسمى hero من نوع Struct؟',
+    textEn:'How do we access the variable age inside an object named hero of a Struct type?',
+    code:null,
+    options:['hero->age','hero[age]','hero.age','hero::age'],
+    answer:2
+  },
+  {
+    num:10, level:'easy',
+    text:'ماذا يمثل الحرف B في إطار SRTBOT؟',
+    textEn:"What does the letter 'B' represent in the SRTBOT framework?",
+    code:null,
+    options:[
+      'Binary Search (بحث ثنائي)',
+      'Base Cases (الحالات الأساسية)',
+      'Backtracking (تراجع)',
+      'Bottom-Up (من أسفل لأعلى)'
+    ],
+    answer:1
+  },
+  {
+    num:11, level:'easy',
+    text:'ما هو الرمز البرمجي الذي يمثل عملية الإزاحة لليسار؟',
+    textEn:'Which operator represents the Left Shift bitwise operation?',
+    code:null,
+    options:['>>','<<','^','||'],
+    answer:1
+  },
+  {
+    num:12, level:'easy',
+    text:'في البرمجة الديناميكية، أي أسلوب يعتمد على ملء جدول باستخدام الحلقات (Loops)؟',
+    textEn:'In DP, which approach relies on filling a table using loops?',
+    code:null,
+    options:['Top-Down','Recursion','Bottom-Up','Backtracking'],
+    answer:2
+  },
+  {
+    num:13, level:'easy',
+    text:'لمعرفة تقاطع مستطيلين، يجب أن يتداخلا في:',
+    textEn:'For two rectangles to intersect, they must overlap in:',
+    code:null,
+    options:[
+      'محور X فقط (X-axis only)',
+      'محور Y فقط (Y-axis only)',
+      'كلا المحورين X و Y (Both X and Y axes)',
+      'المساحة الكلية فقط (Total area only)'
+    ],
+    answer:2
+  },
+  {
+    num:14, level:'easy',
+    text:'ما هي بنية البيانات الشجرية المستخدمة ذهنياً لتخيل خوارزمية التراجع؟',
+    textEn:'What is the tree data structure mentally used to visualize Backtracking?',
+    code:null,
+    options:[
+      'Binary Search Tree (شجرة البحث الثنائي)',
+      'State-Space Tree (شجرة فضاء الحالات)',
+      'Segment Tree (شجرة القطع)',
+      'Fenwick Tree'
+    ],
+    answer:1
+  },
+  {
+    num:15, level:'easy',
+    text:'اقرأ الكود التالي، ما هو المخرجات؟',
+    textEn:'Read the following code, what is the output?',
+    code:`int x = 5;\ncout << (x ^ x);`,
+    options:['5','10','0','1'],
+    answer:2
+  },
+
+  // ===== MEDIUM (16-30) =====
+  {
+    num:16, level:'medium',
+    text:'ما هي العملية الصحيحة لضبط (جعل قيمته 1) البت رقم k في المتغير x؟',
+    textEn:'What is the correct operation to set (make it 1) the k-th bit in variable x?',
+    code:null,
+    options:['x &= (1 << k);','x |= (1 << k);','x ^= (1 << k);','x += (1 << k);'],
+    answer:1, codeOpts:true
+  },
+  {
+    num:17, level:'medium',
+    text:'اقرأ الكود التالي، ما هو المخرجات؟',
+    textEn:'Read the following code, what is the output?',
+    code:`int n = 3;\ncout << (1 << n);`,
+    options:['6','3','9','8'],
+    answer:3
+  },
+  {
+    num:18, level:'medium',
+    text:'اقرأ الكود التالي، ما هو المخرجات؟',
+    textEn:'Read the following code, what is the output?',
+    code:`struct Point { int x, y; };\nPoint p = {10, 20};\ncout << p.x + p.y;`,
+    options:['10','20','30','Compilation Error'],
+    answer:2
+  },
+  {
+    num:19, level:'medium',
+    text:'لدينا المصفوفة {10, 20, 30}. ما هي المجموعة الجزئية التي يمثلها القناع الثنائي 5 (بالثنائي 101)؟',
+    textEn:'Given array {10, 20, 30}. What subset does the bitmask 5 (binary 101) represent?',
+    code:null,
+    options:['{10, 20}','{20, 30}','{10, 30}','{30}'],
+    answer:2
+  },
+  {
+    num:20, level:'medium',
+    text:'في خوارزمية التراجع (Backtracking)، ماذا نعني بمصطلح "التقليم" (Pruning)؟',
+    textEn:'In Backtracking, what does the term "Pruning" mean?',
+    code:null,
+    options:[
+      'إزالة البتات الصفرية (Removing zero bits)',
+      'تخطي الفروع التي لن تؤدي إلى حل صحيح (Cutting branches that won\'t lead to a valid solution)',
+      'مسح المصفوفة (Clearing the array)',
+      'ترتيب الحلول (Sorting the solutions)'
+    ],
+    answer:1
+  },
+  {
+    num:21, level:'medium',
+    text:'ما هو التعقيد الزمني لمتتالية فيبوناتشي باستخدام التذكار (Memoization) مقارنة بالاستدعاء العودي الساذج؟',
+    textEn:'What is the Time Complexity of Fibonacci with Memoization compared to naive recursion?',
+    code:null,
+    options:['O(N²) vs O(N)','O(N) vs O(2ᴺ)','O(log N) vs O(N)','O(2ᴺ) vs O(N!)'],
+    answer:1
+  },
+  {
+    num:22, level:'medium',
+    text:'في مسألة أقل كلفة للوصول للنهاية، ماذا تعني المعادلة dp[i] = cost[i] + min(dp[i+1], dp[i+2]) في إطار SRTBOT؟',
+    textEn:'In the Minimum Cost Path problem, what does the equation dp[i] = cost[i] + min(dp[i+1], dp[i+2]) represent in SRTBOT?',
+    code:null,
+    options:[
+      'State (الحالة)',
+      'Base Case (الحالة الأساسية)',
+      'Recurrence (العلاقة العودية)',
+      'Order (الترتيب)'
+    ],
+    answer:2
+  },
+  {
+    num:23, level:'medium',
+    text:'ما هو الشرط الصحيح للتحقق مما إذا كان المجالان [A_l, A_r] و [B_l, B_r] في بعد واحد لا يتقاطعان أبدًا؟',
+    textEn:'What is the correct condition to check if two 1D intervals [A_l, A_r] and [B_l, B_r] NEVER intersect?',
+    code:null,
+    options:[
+      'B_l > A_r && A_l > B_r',
+      'B_l >= A_r || A_l >= B_r',
+      'A_r == B_l',
+      'B_r < A_l && A_r < B_l'
+    ],
+    answer:1, codeOpts:true
+  },
+  {
+    num:24, level:'medium',
+    text:'ما هي العملية الصحيحة لتصفير (جعل قيمته 0) البت رقم k في المتغير x؟',
+    textEn:'What is the correct operation to clear (make it 0) the k-th bit in variable x?',
+    code:null,
+    options:['x &= ~(1 << k);','x |= ~(1 << k);','x ^= (1 << k);','x &= (1 >> k);'],
+    answer:0, codeOpts:true
+  },
+  {
+    num:25, level:'medium',
+    text:'في البرمجة الديناميكية (Top-Down)، لماذا نقوم عادة بتهيئة مصفوفة dp بقيمة -1؟',
+    textEn:'In Top-Down DP, why do we usually initialize the dp array with -1?',
+    code:null,
+    options:[
+      'لأن الكلفة دائماً سالبة (Because cost is always negative)',
+      'لتمييز الحالات التي لم يتم حسابها بعد (To distinguish uncomputed states)',
+      'لتوفير مساحة الذاكرة (To save memory space)',
+      'لأنه شرط لإيقاف الحلقة (Because it\'s the loop breaking condition)'
+    ],
+    answer:1
+  },
+  {
+    num:26, level:'medium',
+    text:'ما هي الحيلة البرمجية للتحقق مما إذا كان الرقم x هو من قوى العدد 2؟',
+    textEn:'What is the bitwise trick to check if a number x is a power of 2?',
+    code:null,
+    options:[
+      '(x & (x + 1)) == 0',
+      '(x ^ (x - 1)) == 0',
+      '(x & (x - 1)) == 0',
+      '(x | (x - 1)) == 0'
+    ],
+    answer:2, codeOpts:true
+  },
+  {
+    num:27, level:'medium',
+    text:'ما هي وظيفة التعبير x & -x في التعامل مع البتات؟',
+    textEn:'What is the function of the expression x & -x in bit manipulation?',
+    code:null,
+    options:[
+      'إزالة أقل بت معين (Removes the lowest set bit)',
+      'استخراج (عزل) أقل بت معين (Extracts/Isolates the lowest set bit)',
+      'قلب جميع البتات (Toggles all bits)',
+      'التحقق من الإشارة (Checks the sign)'
+    ],
+    answer:1
+  },
+  {
+    num:28, level:'medium',
+    text:'اقرأ الكود التالي، ما هو المخرجات؟',
+    textEn:'Read the following code, what is the output?',
+    code:`int L = max(2, 5);\nint R = min(10, 8);\ncout << R - L;`,
+    options:['8','2','3','-3'],
+    answer:2
+  },
+  {
+    num:29, level:'medium',
+    text:'في C++، هل الأعضاء (members) داخل الـ struct تكون افتراضياً Public أم Private؟',
+    textEn:'In C++, are the members inside a struct public or private by default?',
+    code:null,
+    options:['Private','Public','Protected','يعتمد على المترجم (Depends on the compiler)'],
+    answer:1
+  },
+  {
+    num:30, level:'medium',
+    text:'ما هو التعبير البرمجي لمعرفة هل البت رقم k في x يساوي 1 أم 0؟',
+    textEn:'What is the expression to check if the k-th bit in x is 1 or 0?',
+    code:null,
+    options:['(x >> k) | 1','(x << k) & 1','(x >> k) & 1','(x & k) >> 1'],
+    answer:2, codeOpts:true
+  },
+
+  // ===== HARD (31-40) =====
+  {
+    num:31, level:'hard',
+    text:'اقرأ الكود التالي، ما هو المخرجات؟',
+    textEn:'Read the following code, what is the output?',
+    code:`int x = 12; // 1100 in binary\ncout << (x & (x - 1));`,
+    options:['0','4','8','11'],
+    answer:2
+  },
+  {
+    num:32, level:'hard',
+    text:'ما هو التعقيد الزمني لتوليد جميع المجموعات الجزئية لمصفوفة طولها N والتحقق من كل عنصر داخلها باستخدام حلقة مزدوجة للأقنعة؟',
+    textEn:'What is the time complexity of generating all subsets of length N and checking each element using a nested bitmask loop?',
+    code:null,
+    options:['O(2ᴺ)','O(N · 2ᴺ)','O(N²)','O(N!)'],
+    answer:1
+  },
+  {
+    num:33, level:'hard',
+    text:'اقرأ الكود التالي، ما هو المخرجات؟',
+    textEn:'Read the following code, what is the output?',
+    code:`struct Node { int v; };\nNode arr[2];\narr[0].v = 5;\narr[1] = arr[0];\narr[1].v = 7;\ncout << arr[0].v;`,
+    options:['7','5','0','Garbage Value'],
+    answer:1
+  },
+  {
+    num:34, level:'hard',
+    text:'في مسألة البرمجة الديناميكية (Bottom-Up) مثل فيبوناتشي، كيف يمكننا تحسين التعقيد الذاكري من O(N) إلى O(1)؟',
+    textEn:'In Bottom-Up DP like Fibonacci, how can we optimize Space Complexity from O(N) to O(1)?',
+    code:null,
+    options:[
+      'باستخدام مصفوفة ديناميكية (By using a dynamic array)',
+      'بالاحتفاظ بآخر حالتين محسوبتين فقط بدلاً من مصفوفة كاملة (Keeping only the last two computed states)',
+      'باستخدام دالة عودية (By using a recursive function)',
+      'لا يمكن تحسينها (It cannot be optimized)'
+    ],
+    answer:1
+  },
+  {
+    num:35, level:'hard',
+    text:'اقرأ الكود التالي، ما هو المخرجات؟',
+    textEn:'Read the following code, what is the output?',
+    code:`int mask = 6; // 0110 in binary\nint cnt = 0;\nwhile(mask > 0) {\n    mask &= (mask - 1);\n    cnt++;\n}\ncout << cnt;`,
+    options:['4','3','2','1'],
+    answer:2
+  },
+  {
+    num:36, level:'hard',
+    text:'ما هو التعقيد الزمني التقريبي لتوليد جميع التباديل (Permutations) الممكنة لمجموعة مكونة من N عناصر باستخدام الـ Backtracking؟',
+    textEn:'What is the approximate time complexity of generating all possible Permutations of N items using Backtracking?',
+    code:null,
+    options:['O(N²)','O(2ᴺ)','O(N · log N)','O(N!)'],
+    answer:3
+  },
+  {
+    num:37, level:'hard',
+    text:'في تقاطع مستطيلين A و B ثنائيي الأبعاد، إذا حسبنا: c_bl_x = max(a_bl_x, b_bl_x) و c_tr_x = min(a_tr_x, b_tr_x). متى نعتبر أنهما "لا يتقاطعان" في محور X؟',
+    textEn:'In 2D rectangle intersection, given c_bl_x = max(...) and c_tr_x = min(...). When do they NOT intersect on the X-axis?',
+    code:null,
+    options:[
+      'إذا كان c_bl_x <= c_tr_x',
+      'إذا كان c_bl_x >= c_tr_x',
+      'إذا كان c_tr_x == 0',
+      'إذا كان a_tr_x > b_tr_x'
+    ],
+    answer:1
+  },
+  {
+    num:38, level:'hard',
+    text:'في أسلوب الـ Top-Down DP في C++، ماذا يحدث إذا نسينا تمرير مصفوفة التخزين dp بالمرجع (By Reference &) أو لم نجعلها عامة؟',
+    textEn:'In Top-Down DP, what happens if we forget to pass the dp array by reference (&) or make it Global?',
+    code:null,
+    options:[
+      'سيكون الكود أسرع (The code will be faster)',
+      'سيتم نسخ المصفوفة في كل استدعاء مما يسبب بطئاً شديداً (Array copied every call causing extreme slowness)',
+      'سيعطي المترجم خطأ فورياً (Compiler will throw an immediate error)',
+      'سيعطي نتائج حسابية خاطئة دائماً (Always yields incorrect math results)'
+    ],
+    answer:1
+  },
+  {
+    num:39, level:'hard',
+    text:'في البرمجة التنافسية، ما هو الحد الأقصى التقريبي لقيمة N لكي ينجح كود بتعقيد زمني O(N · 2ᴺ) ضمن مهلة ثانية واحدة؟',
+    textEn:'In competitive programming, what is the approximate maximum N for an O(N · 2ᴺ) algorithm to pass within a 1-second time limit?',
+    code:null,
+    options:['N = 1000','N = 100','N ≈ 20','N = 50'],
+    answer:2
+  },
+  {
+    num:40, level:'hard',
+    text:'اقرأ الكود التالي الخاص بـ (Minimum Cost DP)، ما هو المخرجات؟',
+    textEn:'Read the following Minimum Cost DP code, what is the output?',
+    code:`vector<int> cost = {1, 100, 1, 1};\nint n = 4;\nvector<int> dp(n + 2, 0);\nfor (int i = n - 1; i >= 0; i--) {\n    dp[i] = cost[i] + min(dp[i+1], dp[i+2]);\n}\ncout << min(dp[0], dp[1]);`,
+    options:['101','2','3','4'],
+    answer:1
+  }
+];
+
+const TOTAL = 40;
+const letters = ['A','B','C','D'];
+const selections = {};
+
+function getLevelInfo(level) {
+  if (level === 'easy')   return ['سهل',   'level-easy'];
+  if (level === 'medium') return ['متوسط', 'level-medium'];
+  return                         ['صعب',   'level-hard'];
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function buildSectionHeader(title, color) {
+  const div = document.createElement('div');
+  div.className = 'section-header';
+  div.innerHTML = `
+    <div class="section-line"></div>
+    <span class="section-title" style="color:${color}">${title}</span>
+    <div class="section-line" style="background:linear-gradient(to right,transparent,var(--border))"></div>`;
+  return div;
+}
+
+function buildQuestions() {
+  const container = document.getElementById('questionsContainer');
+
+  QUESTIONS.forEach((q, idx) => {
+    // Section headers
+    if (q.num === 1)  container.appendChild(buildSectionHeader('🟢 المستوى السهل · Easy Level', '#4ade80'));
+    if (q.num === 16) container.appendChild(buildSectionHeader('🟡 المستوى المتوسط · Medium Level', '#facc15'));
+    if (q.num === 31) container.appendChild(buildSectionHeader('🔴 المستوى الصعب · Hard Level', '#f87171'));
+
+    const [lvlText, lvlClass] = getLevelInfo(q.level);
+
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `card-${idx}`;
+
+    const codeHtml = q.code ? `<div class="code-block">${esc(q.code)}</div>` : '';
+
+    const optHtml = q.options.map((opt, oi) => {
+      const inner = q.codeOpts
+        ? `<span class="opt-code">${esc(opt)}</span>`
+        : `<span class="opt-text">${esc(opt)}</span>`;
+      return `<button class="option-btn" id="opt-${idx}-${oi}" onclick="selectOption(${idx},${oi})">
+        <span class="opt-letter">${letters[oi]}</span>${inner}
+      </button>`;
+    }).join('');
+
+    card.innerHTML = `
+      <div class="q-header">
+        <div class="q-number">${q.num < 10 ? '0'+q.num : q.num}</div>
+        <div style="flex:1">
+          <div class="q-text">${esc(q.text)}</div>
+          <div class="q-text-en">${esc(q.textEn)}</div>
+        </div>
+        <span class="q-level ${lvlClass}">${lvlText}</span>
+      </div>
+      ${codeHtml}
+      <div class="options-grid">${optHtml}</div>`;
+
+    container.appendChild(card);
+  });
+}
+
+function selectOption(qIdx, optIdx) {
+  const prev = selections[qIdx];
+  if (prev !== undefined)
+    document.getElementById(`opt-${qIdx}-${prev}`).classList.remove('selected');
+
+  selections[qIdx] = optIdx;
+  document.getElementById(`opt-${qIdx}-${optIdx}`).classList.add('selected');
+  document.getElementById(`card-${qIdx}`).classList.add('answered');
+  updateProgress();
+}
+
+function updateProgress() {
+  const done = Object.keys(selections).length;
+  document.getElementById('progressFill').style.width = (done / TOTAL * 100) + '%';
+  document.getElementById('progressText').textContent = done + ' / ' + TOTAL;
+}
+
+function submitQuiz() {
+  if (Object.keys(selections).length < TOTAL) {
+    const w = document.getElementById('warning');
+    w.classList.add('show');
+    setTimeout(() => w.classList.remove('show'), 4000);
+    return;
+  }
+
+  let score = 0, easy = 0, med = 0, hard = 0;
+  QUESTIONS.forEach((q, idx) => {
+    const correct = selections[idx] === q.answer;
+    if (correct) {
+      score++;
+      if (q.level === 'easy')   easy++;
+      if (q.level === 'medium') med++;
+      if (q.level === 'hard')   hard++;
+    }
+  });
+
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('statEasy').textContent = easy;
+  document.getElementById('statMed').textContent  = med;
+  document.getElementById('statHard').textContent = hard;
+
+  const pct = Math.round(score / TOTAL * 100);
+  let msg = '', sub = '';
+  if (pct === 100) { msg = '🏆 مثالي! أداء استثنائي';           sub = 'Perfect score — extraordinary performance!'; }
+  else if (pct >= 85) { msg = '🎉 ممتاز جداً!';                 sub = 'Excellent work! You\'re crushing it.'; }
+  else if (pct >= 70) { msg = '✅ جيد جداً — استمر في التعلم'; sub = 'Great job! Keep refining your skills.'; }
+  else if (pct >= 50) { msg = '📚 جيد — راجع بعض المفاهيم';   sub = 'Good effort! Review the tricky parts.'; }
+  else if (pct >= 30) { msg = '💡 تحتاج مزيداً من المراجعة';   sub = 'Keep studying — you\'ll get there!'; }
+  else                { msg = '📖 راجع المواد وحاول مجدداً';   sub = 'Review the material thoroughly and retry.'; }
+
+  document.getElementById('resultMsg').textContent = msg;
+  document.getElementById('resultSub').textContent = sub;
+
+  const panel = document.getElementById('resultPanel');
+  panel.classList.add('show');
+  document.getElementById('submitBtn').disabled = true;
+  panel.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+function retryQuiz() {
+  Object.keys(selections).forEach(k => delete selections[k]);
+  QUESTIONS.forEach((_, idx) => {
+    document.getElementById(`card-${idx}`).classList.remove('answered');
+    [0,1,2,3].forEach(oi => {
+      document.getElementById(`opt-${idx}-${oi}`)?.classList.remove('selected');
+    });
+  });
+  updateProgress();
+  document.getElementById('resultPanel').classList.remove('show');
+  document.getElementById('submitBtn').disabled = false;
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+buildQuestions();
+updateProgress();
+</script>
+</body>
+</html>

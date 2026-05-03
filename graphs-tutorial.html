@@ -1,0 +1,2076 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الرسوم البيانية - دليل المسابقات التنافسية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #111827;
+    --bg3: #1a2235;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --border: rgba(0,212,255,0.15);
+    --glow: 0 0 20px rgba(0,212,255,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    overflow-x: hidden;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    position: relative;
+    padding: 80px 20px 60px;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 50% 0%, rgba(0,212,255,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 80% 80%, rgba(124,58,237,0.1) 0%, transparent 60%);
+  }
+
+  .hero-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15));
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    padding: 6px 20px;
+    font-size: 0.8rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 900;
+    background: linear-gradient(135deg, #fff 20%, var(--accent) 60%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .hero p {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 600px;
+    margin: 0 auto 40px;
+  }
+
+  /* Graph animation in hero */
+  .graph-canvas {
+    width: 100%;
+    max-width: 700px;
+    height: 200px;
+    margin: 0 auto 30px;
+    position: relative;
+  }
+
+  .graph-canvas svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .node-dot {
+    animation: pulse-node 2s ease-in-out infinite;
+  }
+  .node-dot:nth-child(2) { animation-delay: 0.3s; }
+  .node-dot:nth-child(3) { animation-delay: 0.6s; }
+  .node-dot:nth-child(4) { animation-delay: 0.9s; }
+  .node-dot:nth-child(5) { animation-delay: 1.2s; }
+
+  @keyframes pulse-node {
+    0%, 100% { opacity: 1; r: 10; }
+    50% { opacity: 0.6; r: 13; }
+  }
+
+  .edge-line {
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    animation: draw-edge 1.5s ease forwards;
+  }
+  .edge-line:nth-child(2) { animation-delay: 0.3s; }
+  .edge-line:nth-child(3) { animation-delay: 0.6s; }
+  .edge-line:nth-child(4) { animation-delay: 0.9s; }
+
+  @keyframes draw-edge {
+    to { stroke-dashoffset: 0; }
+  }
+
+  /* ===== USE CASES ===== */
+  .use-cases-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 30px 0;
+  }
+
+  .use-case-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 16px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+
+  .use-case-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: var(--glow);
+  }
+
+  .use-case-card .icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .use-case-card h4 {
+    font-size: 0.95rem;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .use-case-card p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* ===== CONTAINER ===== */
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* ===== SECTION ===== */
+  .section {
+    margin-bottom: 60px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .section-num {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 1.1rem;
+    color: #000;
+    flex-shrink: 0;
+  }
+
+  .section-header h2 {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  /* ===== CARD ===== */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+
+  .card p {
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .card p:last-child { margin-bottom: 0; }
+
+  /* ===== CALLOUT ===== */
+  .callout {
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 20px 0;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    font-size: 0.92rem;
+  }
+
+  .callout-note { background: rgba(0,212,255,0.07); border-right: 3px solid var(--accent); }
+  .callout-tip  { background: rgba(16,185,129,0.07); border-right: 3px solid var(--accent3); }
+  .callout-warn { background: rgba(245,158,11,0.07); border-right: 3px solid var(--warn); }
+  .callout-caution { background: rgba(239,68,68,0.07); border-right: 3px solid var(--danger); }
+
+  .callout-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+  .callout-body strong { display: block; margin-bottom: 4px; color: #fff; }
+  .callout-body { color: var(--text-muted); }
+
+  /* ===== TYPE CARDS ===== */
+  .types-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin: 20px 0;
+  }
+
+  @media(max-width: 600px) { .types-grid { grid-template-columns: 1fr; } }
+
+  .type-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s;
+  }
+
+  .type-card:hover { border-color: var(--accent2); box-shadow: 0 0 20px rgba(124,58,237,0.2); }
+
+  .type-card h3 {
+    font-size: 1.1rem;
+    color: var(--accent2);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .type-card p { color: var(--text-muted); font-size: 0.9rem; }
+
+  /* ===== INTERACTIVE GRAPH ===== */
+  .interactive-section {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    margin: 30px 0;
+  }
+
+  .interactive-section h3 {
+    font-size: 1.2rem;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .interactive-section p {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    margin-bottom: 18px;
+  }
+
+  #graph-svg-container {
+    background: #0d1321;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.05);
+    overflow: hidden;
+    position: relative;
+  }
+
+  #main-graph { width: 100%; height: 320px; display: block; }
+
+  .graph-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+
+  .btn {
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #0099bb);
+    color: #000;
+  }
+
+  .btn-secondary {
+    background: var(--bg3);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .btn-danger {
+    background: rgba(239,68,68,0.15);
+    color: var(--danger);
+    border: 1px solid rgba(239,68,68,0.3);
+  }
+
+  .btn:hover { transform: translateY(-1px); filter: brightness(1.1); }
+
+  .graph-info {
+    margin-top: 12px;
+    padding: 12px 16px;
+    background: var(--bg3);
+    border-radius: 10px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    min-height: 42px;
+  }
+
+  /* ===== CODE BLOCK ===== */
+  .code-block {
+    background: #0d1117;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 18px 0;
+    font-family: 'Fira Code', monospace;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: rgba(255,255,255,0.04);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .code-lang {
+    font-size: 0.75rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span { width: 10px; height: 10px; border-radius: 50%; }
+  .code-dots span:nth-child(1) { background: #ff5f57; }
+  .code-dots span:nth-child(2) { background: #febc2e; }
+  .code-dots span:nth-child(3) { background: #28c840; }
+
+  .code-body {
+    padding: 20px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.9;
+    direction: ltr;
+    text-align: left;
+  }
+
+  .kw   { color: #ff79c6; }
+  .ty   { color: #8be9fd; }
+  .num  { color: #bd93f9; }
+  .str  { color: #f1fa8c; }
+  .cmt  { color: #6272a4; font-style: italic; }
+  .fn   { color: #50fa7b; }
+  .op   { color: #ff6e6e; }
+
+  /* ===== COMPLEXITY TABLE ===== */
+  .complexity-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 18px 0;
+    font-size: 0.88rem;
+  }
+
+  .complexity-table th {
+    background: rgba(0,212,255,0.1);
+    color: var(--accent);
+    padding: 12px 16px;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .complexity-table td {
+    padding: 11px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--text-muted);
+  }
+
+  .complexity-table tr:last-child td { border-bottom: none; }
+
+  .complexity-table td:last-child {
+    font-family: 'Fira Code', monospace;
+    color: var(--accent3);
+  }
+
+  .complexity-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* ===== STORAGE TABS ===== */
+  .tab-buttons {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.25s;
+  }
+
+  .tab-btn.active {
+    background: linear-gradient(135deg, var(--accent2), #5b21b6);
+    color: #fff;
+    border-color: var(--accent2);
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ===== COMPARISON TABLE ===== */
+  .compare-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 20px 0;
+    font-size: 0.85rem;
+    overflow: hidden;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+  }
+
+  .compare-table th {
+    background: var(--bg3);
+    padding: 14px 16px;
+    color: var(--accent);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .compare-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .compare-table td:first-child { text-align: right; color: var(--text); font-weight: 600; }
+  .compare-table tbody tr:last-child td { border-bottom: none; }
+
+  .good { color: #10b981; }
+  .mid  { color: #f59e0b; }
+  .bad  { color: #ef4444; }
+
+  /* ===== INTERACTIVE DEMO ===== */
+  .demo-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin: 20px 0;
+  }
+
+  .demo-box h4 {
+    color: var(--accent);
+    margin-bottom: 14px;
+    font-size: 1rem;
+  }
+
+  .demo-input-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    align-items: center;
+  }
+
+  .demo-input-row label {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    white-space: nowrap;
+  }
+
+  .demo-input {
+    padding: 8px 14px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    width: 80px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .demo-input:focus { border-color: var(--accent); }
+
+  .demo-output {
+    background: #0d1117;
+    border-radius: 10px;
+    padding: 16px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.83rem;
+    min-height: 80px;
+    white-space: pre-wrap;
+    direction: ltr;
+    text-align: left;
+    color: var(--accent3);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  /* ===== QUIZ ===== */
+  .quiz-section {
+    background: linear-gradient(135deg, rgba(124,58,237,0.05), rgba(0,212,255,0.05));
+    border: 1px solid rgba(124,58,237,0.2);
+    border-radius: 24px;
+    padding: 36px 28px;
+    margin: 40px 0;
+  }
+
+  .quiz-header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+
+  .quiz-header h2 {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+
+  .quiz-header p { color: var(--text-muted); }
+
+  .difficulty-tabs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
+
+  .diff-btn {
+    padding: 8px 22px;
+    border-radius: 30px;
+    border: 1px solid;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    transition: all 0.25s;
+  }
+
+  .diff-easy   { border-color: #10b981; color: #10b981; background: transparent; }
+  .diff-medium { border-color: #f59e0b; color: #f59e0b; background: transparent; }
+  .diff-hard   { border-color: #ef4444; color: #ef4444; background: transparent; }
+  .diff-all    { border-color: var(--accent); color: var(--accent); background: transparent; }
+
+  .diff-btn.active.diff-easy   { background: #10b981; color: #000; }
+  .diff-btn.active.diff-medium { background: #f59e0b; color: #000; }
+  .diff-btn.active.diff-hard   { background: #ef4444; color: #fff; }
+  .diff-btn.active.diff-all    { background: var(--accent); color: #000; }
+
+  .quiz-progress {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: var(--bg3);
+    border-radius: 4px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  .question-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px;
+    margin-bottom: 20px;
+    display: none;
+  }
+
+  .question-card.visible { display: block; }
+
+  .question-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .q-num {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-family: 'Fira Code', monospace;
+  }
+
+  .q-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .q-easy   { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+  .q-medium { background: rgba(245,158,11,0.15);  color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+  .q-hard   { background: rgba(239,68,68,0.15);   color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+
+  .question-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  .options-grid {
+    display: grid;
+    gap: 10px;
+  }
+
+  .option-btn {
+    padding: 14px 18px;
+    background: var(--bg3);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    color: var(--text);
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.92rem;
+    text-align: right;
+    transition: all 0.25s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .option-btn:hover:not(.answered) {
+    border-color: var(--accent);
+    background: rgba(0,212,255,0.06);
+    transform: translateX(-3px);
+  }
+
+  .option-letter {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    color: var(--text-muted);
+    font-family: 'Fira Code', monospace;
+  }
+
+  .option-btn.correct {
+    background: rgba(16,185,129,0.15);
+    border-color: #10b981;
+    color: #10b981;
+  }
+
+  .option-btn.correct .option-letter {
+    background: #10b981;
+    color: #000;
+  }
+
+  .option-btn.wrong {
+    background: rgba(239,68,68,0.1);
+    border-color: rgba(239,68,68,0.5);
+    color: rgba(239,68,68,0.8);
+  }
+
+  .option-btn.wrong .option-letter {
+    background: rgba(239,68,68,0.3);
+    color: #ef4444;
+  }
+
+  .answer-feedback {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    display: none;
+  }
+
+  .feedback-correct {
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.3);
+    color: #10b981;
+    display: block;
+  }
+
+  .feedback-wrong {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.25);
+    color: #f87171;
+    display: block;
+  }
+
+  .quiz-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    gap: 12px;
+  }
+
+  .score-display {
+    text-align: center;
+    padding: 40px;
+    background: var(--bg2);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    display: none;
+  }
+
+  .score-display.visible { display: block; }
+
+  .score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin: 0 auto 20px;
+    font-weight: 900;
+    font-size: 2rem;
+    color: #fff;
+  }
+
+  .score-circle small { font-size: 0.9rem; font-weight: 400; }
+
+  /* ===== DIVIDER ===== */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 50px 0;
+  }
+
+  /* ===== FORMULA ===== */
+  .formula {
+    font-family: 'Fira Code', monospace;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 8px;
+    padding: 2px 10px;
+    font-size: 0.88rem;
+    color: var(--accent);
+    display: inline-block;
+  }
+
+  /* ===== SCROLL REVEAL ===== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.shown { opacity: 1; transform: translateY(0); }
+
+  /* ===== FOOTER ===== */
+  footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 60px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="container">
+    <div class="hero-badge">البرمجة التنافسية · هياكل البيانات</div>
+    <h1>الرسوم البيانية</h1>
+    <p>فهم Graph Algorithms من الصفر وحتى مستوى المسابقات — بطريقة تفاعلية وعملية</p>
+
+    <!-- Animated Graph in Hero -->
+    <div class="graph-canvas">
+      <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+        <!-- Edges -->
+        <line class="edge-line" x1="100" y1="100" x2="250" y2="50" stroke="#00d4ff" stroke-width="1.5" stroke-opacity="0.5"/>
+        <line class="edge-line" x1="250" y1="50" x2="420" y2="80" stroke="#7c3aed" stroke-width="1.5" stroke-opacity="0.5"/>
+        <line class="edge-line" x1="420" y1="80" x2="580" y2="40" stroke="#00d4ff" stroke-width="1.5" stroke-opacity="0.5"/>
+        <line class="edge-line" x1="100" y1="100" x2="200" y2="160" stroke="#10b981" stroke-width="1.5" stroke-opacity="0.5"/>
+        <line class="edge-line" x1="200" y1="160" x2="420" y2="80" stroke="#7c3aed" stroke-width="1.5" stroke-opacity="0.5"/>
+        <line class="edge-line" x1="420" y1="80" x2="550" y2="155" stroke="#10b981" stroke-width="1.5" stroke-opacity="0.5"/>
+        <line class="edge-line" x1="580" y1="40" x2="550" y2="155" stroke="#00d4ff" stroke-width="1.5" stroke-opacity="0.5"/>
+        <!-- Nodes -->
+        <g class="node-dot">
+          <circle cx="100" cy="100" r="10" fill="#00d4ff" fill-opacity="0.9"/>
+          <text x="100" y="104" text-anchor="middle" font-size="10" fill="#000" font-weight="bold" font-family="Fira Code">A</text>
+        </g>
+        <g class="node-dot">
+          <circle cx="250" cy="50" r="10" fill="#7c3aed" fill-opacity="0.9"/>
+          <text x="250" y="54" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" font-family="Fira Code">B</text>
+        </g>
+        <g class="node-dot">
+          <circle cx="420" cy="80" r="10" fill="#00d4ff" fill-opacity="0.9"/>
+          <text x="420" y="84" text-anchor="middle" font-size="10" fill="#000" font-weight="bold" font-family="Fira Code">C</text>
+        </g>
+        <g class="node-dot">
+          <circle cx="580" cy="40" r="10" fill="#10b981" fill-opacity="0.9"/>
+          <text x="580" y="44" text-anchor="middle" font-size="10" fill="#000" font-weight="bold" font-family="Fira Code">D</text>
+        </g>
+        <g class="node-dot">
+          <circle cx="200" cy="160" r="10" fill="#10b981" fill-opacity="0.9"/>
+          <text x="200" y="164" text-anchor="middle" font-size="10" fill="#000" font-weight="bold" font-family="Fira Code">E</text>
+        </g>
+        <g class="node-dot">
+          <circle cx="550" cy="155" r="10" fill="#7c3aed" fill-opacity="0.9"/>
+          <text x="550" y="159" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" font-family="Fira Code">F</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ===== USE CASES ===== -->
+  <div class="section reveal">
+    <div class="section-header">
+      <div class="section-num">★</div>
+      <h2>أين تُستخدم الرسوم البيانية؟</h2>
+    </div>
+    <div class="use-cases-grid">
+      <div class="use-case-card">
+        <span class="icon">🗺️</span>
+        <h4>شبكات الخرائط</h4>
+        <p>Google Maps وأنظمة GPS تعتمد على Graph لإيجاد أقصر مسار بين نقطتين</p>
+      </div>
+      <div class="use-case-card">
+        <span class="icon">🌐</span>
+        <h4>شبكة الإنترنت</h4>
+        <p>توجيه الحزم (Packet Routing) عبر الشبكة يعتمد على خوارزميات الرسوم البيانية</p>
+      </div>
+      <div class="use-case-card">
+        <span class="icon">👥</span>
+        <h4>الشبكات الاجتماعية</h4>
+        <p>Facebook وLinkedIn يمثّلان المستخدمين وعلاقاتهم كـ Graph لاقتراح الأصدقاء</p>
+      </div>
+      <div class="use-case-card">
+        <span class="icon">🧬</span>
+        <h4>علم الأحياء الحسابي</h4>
+        <p>تمثيل شبكات البروتينات والجينات وتحليل العلاقات البيولوجية</p>
+      </div>
+      <div class="use-case-card">
+        <span class="icon">📦</span>
+        <h4>إدارة الحزم البرمجية</h4>
+        <p>npm وpip يستخدمان Graph لإدارة التبعيات بين المكتبات البرمجية</p>
+      </div>
+      <div class="use-case-card">
+        <span class="icon">🏆</span>
+        <h4>المسابقات التنافسية</h4>
+        <p>أكثر من 30% من مسائل ICPC وIOI تتطلب خوارزميات الرسوم البيانية</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== SECTION 1: DEFINITION ===== -->
+  <div class="section reveal">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <h2>التعريف والمفاهيم الأساسية</h2>
+    </div>
+
+    <div class="card">
+      <p>
+        الـ <strong style="color:var(--accent)">Graph</strong> هو هيكل رياضي يُستخدم لتمثيل العلاقات بين عناصر منفصلة تُسمّى
+        <strong style="color:var(--accent2)">Vertices</strong> (أو Nodes). العلاقة الواحدة بين عنصرين تُسمّى
+        <strong style="color:var(--accent3)">Edge</strong>، وهي تعبّر عن ارتباط مباشر بين زوج من الـ Vertices.
+      </p>
+      <p>
+        رياضيًا يُكتب الـ Graph كـ <span class="formula">G = (V, E)</span> حيث <span class="formula">V</span> هي مجموعة الـ Vertices
+        و<span class="formula">E</span> هي مجموعة الـ Edges.
+      </p>
+    </div>
+
+    <!-- Cities Example -->
+    <div class="interactive-section">
+      <h3>🏙️ مثال تفاعلي: شبكة المدن والطرق</h3>
+      <p>اضغط على أي مدينة لترى مدن مرتبطة بها مباشرة (الجيران). يمكنك إضافة مدن وحذفها.</p>
+
+      <div id="graph-svg-container">
+        <svg id="main-graph" viewBox="0 0 600 300"></svg>
+      </div>
+
+      <div class="graph-controls">
+        <button class="btn btn-primary" onclick="addRandomNode()">➕ أضف مدينة</button>
+        <button class="btn btn-secondary" onclick="addRandomEdge()">🔗 أضف طريق</button>
+        <button class="btn btn-danger" onclick="resetGraph()">🔄 إعادة تعيين</button>
+        <button class="btn btn-secondary" onclick="bfsHighlight()">🔍 BFS من المدينة الأولى</button>
+      </div>
+
+      <div class="graph-info" id="graph-info">
+        اضغط على أي نقطة لترى معلوماتها • عدد المدن: <span id="v-count">5</span> • عدد الطرق: <span id="e-count">6</span>
+      </div>
+    </div>
+
+    <div class="callout callout-note">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <strong>مثال واقعي:</strong>
+        تخيّل عدة مدن في دولة، بعض أزواج المدن بينهم طرق والبعض الآخر لا.
+        إذا كنت تخطط للسفر من المدينة <span class="formula">u</span> إلى المدينة <span class="formula">v</span>،
+        قد تحتاج تمرّ على مدينة أو أكثر كمدن وسيطة في الطريق. هذه بالضبط المسألة التي يحلّها الـ Graph!
+      </div>
+    </div>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">🎯</span>
+      <div class="callout-body">
+        <strong>لماذا نستخدم Graphs؟</strong>
+        تمثيل المسائل على شكل Graphs يسمح لنا بحلّها بكفاءة باستخدام خوارزميات جاهزة مثل:
+        BFS لإيجاد أقصر مسار، DFS لاستكشاف الرسم البياني، Dijkstra للمسارات الموزونة، وغيرها.
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== SECTION 2: TYPES ===== -->
+  <div class="section reveal">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <h2>أنواع الرسوم البيانية</h2>
+    </div>
+
+    <div class="types-grid">
+      <div class="type-card">
+        <h3>🔀 Undirected Graph</h3>
+        <p>
+          الـ Edges ليس لها اتجاه محدد. إذا كانت هناك علاقة بين <span class="formula">u</span> و<span class="formula">v</span>،
+          فالعلاقة متبادلة في الاتجاهين. يُشار إليه بمصطلحات مثل
+          <em>bidirectional</em> أو <em>undirected</em>.
+        </p>
+        <div style="margin-top:12px; text-align:center;">
+          <svg width="180" height="80" viewBox="0 0 180 80">
+            <line x1="30" y1="40" x2="90" y2="40" stroke="#7c3aed" stroke-width="2"/>
+            <line x1="90" y1="40" x2="150" y2="40" stroke="#7c3aed" stroke-width="2"/>
+            <circle cx="30" cy="40" r="12" fill="#7c3aed" fill-opacity="0.9"/>
+            <text x="30" y="44" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold">A</text>
+            <circle cx="90" cy="40" r="12" fill="#7c3aed" fill-opacity="0.9"/>
+            <text x="90" y="44" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold">B</text>
+            <circle cx="150" cy="40" r="12" fill="#7c3aed" fill-opacity="0.9"/>
+            <text x="150" y="44" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold">C</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="type-card">
+        <h3>➡️ Directed Graph</h3>
+        <p>
+          الـ Edges لها اتجاه محدد. Edge من <span class="formula">u</span> إلى <span class="formula">v</span>
+          تختلف عن Edge من <span class="formula">v</span> إلى <span class="formula">u</span>.
+          يُشار إليه بمصطلحات مثل <em>unidirectional</em> أو <em>directed</em>.
+        </p>
+        <div style="margin-top:12px; text-align:center;">
+          <svg width="180" height="80" viewBox="0 0 180 80">
+            <defs>
+              <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L8,3 z" fill="#00d4ff"/>
+              </marker>
+            </defs>
+            <line x1="42" y1="40" x2="78" y2="40" stroke="#00d4ff" stroke-width="2" marker-end="url(#arrow)"/>
+            <line x1="102" y1="40" x2="138" y2="40" stroke="#00d4ff" stroke-width="2" marker-end="url(#arrow)"/>
+            <circle cx="30" cy="40" r="12" fill="#00d4ff" fill-opacity="0.9"/>
+            <text x="30" y="44" text-anchor="middle" font-size="10" fill="#000" font-weight="bold">A</text>
+            <circle cx="90" cy="40" r="12" fill="#00d4ff" fill-opacity="0.9"/>
+            <text x="90" y="44" text-anchor="middle" font-size="10" fill="#000" font-weight="bold">B</text>
+            <circle cx="150" cy="40" r="12" fill="#00d4ff" fill-opacity="0.9"/>
+            <text x="150" y="44" text-anchor="middle" font-size="10" fill="#000" font-weight="bold">C</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="type-card">
+        <h3>⚖️ Weighted Graph</h3>
+        <p>
+          كل Edge لها قيمة (وزن) مرتبطة بها. مثلًا، قد تمثّل المسافة بين المدن
+          أو وقت السفر. الصيغة تُكتب كـ <span class="formula">edge(u,v,w)</span>
+          حيث <span class="formula">w</span> هو الوزن.
+        </p>
+        <div style="margin-top:12px; text-align:center;">
+          <svg width="180" height="80" viewBox="0 0 180 80">
+            <line x1="30" y1="40" x2="90" y2="40" stroke="#10b981" stroke-width="2"/>
+            <text x="60" y="33" text-anchor="middle" font-size="11" fill="#10b981" font-family="Fira Code">5</text>
+            <line x1="90" y1="40" x2="150" y2="40" stroke="#10b981" stroke-width="2"/>
+            <text x="120" y="33" text-anchor="middle" font-size="11" fill="#10b981" font-family="Fira Code">12</text>
+            <circle cx="30" cy="40" r="12" fill="#10b981" fill-opacity="0.9"/>
+            <text x="30" y="44" text-anchor="middle" font-size="10" fill="#000" font-weight="bold">A</text>
+            <circle cx="90" cy="40" r="12" fill="#10b981" fill-opacity="0.9"/>
+            <text x="90" y="44" text-anchor="middle" font-size="10" fill="#000" font-weight="bold">B</text>
+            <circle cx="150" cy="40" r="12" fill="#10b981" fill-opacity="0.9"/>
+            <text x="150" y="44" text-anchor="middle" font-size="10" fill="#000" font-weight="bold">C</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="type-card">
+        <h3>🔗 Weighted + Directed</h3>
+        <p>
+          الأكثر تعقيدًا — الـ Edges لها اتجاه ووزن معًا.
+          شائع في مسائل أقصر مسار مثل Dijkstra أو Bellman-Ford.
+          مثلًا: شبكة طيران بأوقات رحلات محددة الاتجاه.
+        </p>
+        <div style="margin-top:12px; text-align:center;">
+          <svg width="180" height="80" viewBox="0 0 180 80">
+            <defs>
+              <marker id="arrow2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L8,3 z" fill="#f59e0b"/>
+              </marker>
+            </defs>
+            <line x1="42" y1="40" x2="78" y2="40" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow2)"/>
+            <text x="60" y="33" text-anchor="middle" font-size="11" fill="#f59e0b" font-family="Fira Code">7</text>
+            <line x1="102" y1="40" x2="138" y2="40" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow2)"/>
+            <text x="120" y="33" text-anchor="middle" font-size="11" fill="#f59e0b" font-family="Fira Code">3</text>
+            <circle cx="30" cy="40" r="12" fill="#f59e0b" fill-opacity="0.9"/>
+            <text x="30" y="44" text-anchor="middle" font-size="10" fill="#000" font-weight="bold">A</text>
+            <circle cx="90" cy="40" r="12" fill="#f59e0b" fill-opacity="0.9"/>
+            <text x="90" y="44" text-anchor="middle" font-size="10" fill="#000" font-weight="bold">B</text>
+            <circle cx="150" cy="40" r="12" fill="#f59e0b" fill-opacity="0.9"/>
+            <text x="150" y="44" text-anchor="middle" font-size="10" fill="#000" font-weight="bold">C</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-note">
+      <span class="callout-icon">📝</span>
+      <div class="callout-body">
+        <strong>ملاحظة مهمة:</strong>
+        في الصياغة <span class="formula">edge(u, v, w)</span> بدون ذكر اتجاه محدد، نفترض أن الـ Edge غير موجّهة (undirected).
+        أما إذا ذُكر صراحةً أن الـ Graph موجّه (directed)، فيكون الـ Edge من <span class="formula">u</span> إلى <span class="formula">v</span> فقط.
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== SECTION 3: INPUT FORMAT ===== -->
+  <div class="section reveal">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <h2>صيغة المدخلات في المسابقات</h2>
+    </div>
+
+    <div class="card">
+      <p>
+        الطريقة الأكثر شيوعًا لإعطاء الـ Graph في مدخلات المسألة هي:
+      </p>
+      <p>
+        أولًا نقرأ العددين <span class="formula">N</span> و<span class="formula">M</span>،
+        حيث <span class="formula">N</span> يمثّل عدد الـ Vertices وعدد الـ Edges على الترتيب.
+        ثم في كل واحد من الأسطر الـ <span class="formula">M</span> التالية يُعطى زوج أعداد صحيحة
+        <span class="formula">u v</span> (وأحيانًا وزن <span class="formula">w</span>).
+        هذا يعني أن هناك Edge بين الـ Vertices <span class="formula">u</span> و<span class="formula">v</span>.
+        وإذا كان الـ Graph موجّهًا، فعادةً يكون من <span class="formula">u</span> إلى <span class="formula">v</span> إلا إذا ذُكر غير ذلك.
+      </p>
+    </div>
+
+    <div class="demo-box">
+      <h4>📥 مثال على مدخلات</h4>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px;">
+        <div>
+          <div style="color:var(--text-muted); font-size:0.82rem; margin-bottom:8px;">المدخلات (Input)</div>
+          <div class="demo-output" style="color:var(--accent3);">5 6
+1 2
+1 3
+2 4
+3 4
+4 5
+2 5</div>
+        </div>
+        <div>
+          <div style="color:var(--text-muted); font-size:0.82rem; margin-bottom:8px;">تفسير المدخلات</div>
+          <div class="demo-output" style="color:var(--text-muted); font-size:0.78rem;">N=5 vertices, M=6 edges
+Edge: 1 ↔ 2
+Edge: 1 ↔ 3
+Edge: 2 ↔ 4
+Edge: 3 ↔ 4
+Edge: 4 ↔ 5
+Edge: 2 ↔ 5</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <strong>نصيحة:</strong>
+        من أفضل الممارسات أن تجعل كل الحاويات (containers) المتعلقة بالـ Graph معرّفة بشكل global.
+        أغلب خوارزميات الرسوم البيانية يُفضّل تنفيذها باستخدام دوال (functions)،
+        ويكون الوصول للـ Graph أسهل بكثير إذا كانت المتغيرات global.
+        مهم جدًا تعرف القيود على متغيرات مثل <span class="formula">N</span> و<span class="formula">M</span>
+        لضبط أحجام الحاويات وتجنّب الوصول خارج الحدود (Out of Bounds).
+      </div>
+    </div>
+
+    <div class="callout callout-caution">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <strong>تحذير:</strong>
+        نفترض في هذا الشرح أن الـ Graph لا يحتوي على <em>Multiple Edges</em>،
+        أي لا يوجد زوج من الـ Vertices مرتبطين مباشرةً بأكثر من Edge واحدة.
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== SECTION 4: QUERIES ===== -->
+  <div class="section reveal">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <h2>الاستعلامات الأساسية للمقارنة</h2>
+    </div>
+
+    <div class="card">
+      <p>قبل أن نختار طريقة التخزين، يجب أن نفهم الاستعلامات التي سنحتاج تنفيذها، لأن كل طريقة لها نقاط قوة وضعف:</p>
+    </div>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:14px; margin:20px 0;">
+      <div class="card" style="border-color:rgba(124,58,237,0.3);">
+        <h4 style="color:var(--accent2); margin-bottom:8px;">📦 التعقيد المكاني</h4>
+        <p style="font-size:0.88rem;">كم مقدار الذاكرة التي تحتاجها هذه الطريقة بالنسبة لـ <span class="formula">N</span> و<span class="formula">M</span>؟</p>
+      </div>
+      <div class="card" style="border-color:rgba(0,212,255,0.3);">
+        <h4 style="color:var(--accent); margin-bottom:8px;">🔍 هل Edge موجودة؟</h4>
+        <p style="font-size:0.88rem;">ما زمن التحقق من وجود Edge بين vertex رقم <span class="formula">u</span> وvertex رقم <span class="formula">v</span>؟</p>
+      </div>
+      <div class="card" style="border-color:rgba(16,185,129,0.3);">
+        <h4 style="color:var(--accent3); margin-bottom:8px;">🔁 المرور على الجيران</h4>
+        <p style="font-size:0.88rem;">ما زمن المرور على كل الـ Vertices المجاورة لـ <span class="formula">v</span> المعيّن؟</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== SECTION 5: STORAGE METHODS ===== -->
+  <div class="section reveal">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <h2>طرق التخزين</h2>
+    </div>
+
+    <div class="tab-buttons">
+      <button class="tab-btn active" onclick="switchTab('edges')">📋 Array of Edges</button>
+      <button class="tab-btn" onclick="switchTab('adjlist')">📑 Adjacency List</button>
+      <button class="tab-btn" onclick="switchTab('adjmatrix')">🔲 Adjacency Matrix</button>
+      <button class="tab-btn" onclick="switchTab('compare')">📊 مقارنة شاملة</button>
+    </div>
+
+    <!-- TAB: Array of Edges -->
+    <div id="tab-edges" class="tab-content active">
+      <div class="card">
+        <p>
+          أبسط طريقة لتخزين الـ Edges. بما أن الـ Edges تُعطى على شكل قائمة أزواج، نخزّنها مباشرةً في array من أزواج.
+          كل عنصر في الـ Array هو زوج <span class="formula">(u, v)</span> يمثّل Edge بين vertex رقم <span class="formula">u</span>
+          وvertex رقم <span class="formula">v</span>.
+        </p>
+        <p>
+          هذه الطريقة مناسبة عندما نحتاج فقط المرور على كل الـ Edges، مثل خوارزمية Kruskal لإيجاد Minimum Spanning Tree.
+        </p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">C++</span>
+        </div>
+        <div class="code-body"><span class="kw">const</span> <span class="ty">int</span> maxN <span class="op">=</span> <span class="num">100'000</span>;
+<span class="kw">const</span> <span class="ty">int</span> maxM <span class="op">=</span> <span class="num">200'000</span>;
+
+pair<span class="op">&lt;</span><span class="ty">int</span>,<span class="ty">int</span><span class="op">&gt;</span> E[maxM]; <span class="cmt">// array الـ Edges</span>
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">int</span> n, m;
+    cin <span class="op">&gt;&gt;</span> n <span class="op">&gt;&gt;</span> m;
+
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> <span class="num">0</span>; i <span class="op">&lt;</span> m; i++) {
+        <span class="ty">int</span> u, v;
+        cin <span class="op">&gt;&gt;</span> u <span class="op">&gt;&gt;</span> v;
+        E[i] <span class="op">=</span> {u, v}; <span class="cmt">// نخزّن كل Edge كزوج</span>
+    }
+}</div>
+      </div>
+
+      <div class="callout callout-note">
+        <span class="callout-icon">📝</span>
+        <div class="callout-body">
+          <strong>للـ Weighted Graphs:</strong>
+          نعرّف <code>struct</code> يحتوي القيم الثلاث <span class="formula">(u, v, w)</span>،
+          أو نستخدم <code>std::tuple</code> أو <code>std::array&lt;int,3&gt;</code>.
+          يُفضّل تجنّب الـ Nested Pairs لأنها تجعل الكود أقل وضوحًا.
+        </div>
+      </div>
+
+      <table class="complexity-table">
+        <thead>
+          <tr>
+            <th>الاستعلام</th>
+            <th>التعقيد</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>التعقيد المكاني (Space)</td><td>O(M)</td></tr>
+          <tr><td>التحقق من وجود Edge</td><td>O(M)</td></tr>
+          <tr><td>المرور على جيران Vertex</td><td>O(M)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TAB: Adjacency List -->
+    <div id="tab-adjlist" class="tab-content">
+      <div class="card">
+        <p>
+          الطريقة الأكثر شيوعًا في المسابقات! ننشئ <span class="formula">N</span> قوائم،
+          كل واحدة عبارة عن vector، بحيث أن القائمة رقم <span class="formula">i</span>
+          تخزن كل الجيران (Neighbors) للـ Vertex رقم <span class="formula">i</span>.
+        </p>
+        <p>
+          هذه الطريقة هي الأمثل لمعظم خوارزميات الرسوم البيانية مثل BFS وDFS والتي تحتاج المرور على جيران كل Vertex.
+        </p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">C++</span>
+        </div>
+        <div class="code-body"><span class="kw">const</span> <span class="ty">int</span> maxN <span class="op">=</span> <span class="num">100'000</span>;
+<span class="kw">const</span> <span class="ty">int</span> maxM <span class="op">=</span> <span class="num">200'000</span>;
+
+<span class="cmt">// +1 لأن الـ Vertices غالبًا تبدأ من 1</span>
+vector<span class="op">&lt;</span><span class="ty">int</span><span class="op">&gt;</span> adj[maxN <span class="op">+</span> <span class="num">1</span>];
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">int</span> n, m;
+    cin <span class="op">&gt;&gt;</span> n <span class="op">&gt;&gt;</span> m;
+
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> <span class="num">0</span>; i <span class="op">&lt;</span> m; i++) {
+        <span class="ty">int</span> u, v;
+        cin <span class="op">&gt;&gt;</span> u <span class="op">&gt;&gt;</span> v;
+        adj[u].<span class="fn">push_back</span>(v); <span class="cmt">// أضف v لجيران u</span>
+        adj[v].<span class="fn">push_back</span>(u); <span class="cmt">// إذا undirected أضف u لجيران v</span>
+    }
+}
+
+<span class="cmt">// للـ Weighted Graphs نستخدم pair</span>
+<span class="cmt">// vector&lt;pair&lt;int,int&gt;&gt; adj[maxN + 1];</span>
+<span class="cmt">// adj[u].push_back({v, w}); // v الجار ووزنه w</span></div>
+      </div>
+
+      <!-- Interactive Adjacency List Demo -->
+      <div class="demo-box">
+        <h4>🔍 عرض تفاعلي لـ Adjacency List</h4>
+        <div class="demo-input-row">
+          <label>أدخل الـ Edges (مثال: 1 2, 1 3, 2 4):</label>
+        </div>
+        <div class="demo-input-row">
+          <textarea id="adj-input" style="flex:1; padding:10px; background:var(--bg3); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'Fira Code',monospace; font-size:0.85rem; resize:vertical; height:60px; outline:none;" placeholder="1 2&#10;1 3&#10;2 4&#10;3 4&#10;4 5"></textarea>
+        </div>
+        <div class="demo-input-row">
+          <button class="btn btn-primary" onclick="buildAdjList()">بناء الـ Adjacency List</button>
+        </div>
+        <div class="demo-output" id="adj-output">اضغط "بناء الـ Adjacency List" لرؤية النتيجة...</div>
+      </div>
+
+      <div class="callout callout-tip">
+        <span class="callout-icon">⚡</span>
+        <div class="callout-body">
+          <strong>نصيحة التعقيد:</strong>
+          رغم أن المرور على جيران Vertex واحد يبدو <span class="formula">O(degree)</span>،
+          إلا أنه إذا جمعنا على كل الـ Vertices، فالمجموع الكلي يساوي
+          <span class="formula">O(N + M)</span>. هذا يجعل هذه الطريقة فعّالة جدًا!
+        </div>
+      </div>
+
+      <div class="callout callout-warn">
+        <span class="callout-icon">🔧</span>
+        <div class="callout-body">
+          <strong>تحدٍّ للتفكير:</strong>
+          هل تقدر تعدّل هذا الـ Container بحيث تسرّع عملية "التحقق من وجود Edge"
+          بدون أن تؤثر على باقي الاستعلامات؟
+          <em>تلميح: فكّر في استخدام <code>unordered_set</code> بدل <code>vector</code>.</em>
+        </div>
+      </div>
+
+      <table class="complexity-table">
+        <thead>
+          <tr><th>الاستعلام</th><th>التعقيد</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>التعقيد المكاني (Space)</td><td>O(N + M)</td></tr>
+          <tr><td>التحقق من وجود Edge</td><td>O(degree(v))</td></tr>
+          <tr><td>المرور على جيران Vertex</td><td>O(degree(v))</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TAB: Adjacency Matrix -->
+    <div id="tab-adjmatrix" class="tab-content">
+      <div class="card">
+        <p>
+          هذه الطريقة تنشئ مصفوفة بحجم <span class="formula">N × N</span> من القيم المنطقية (Booleans)،
+          نسمّيها <span class="formula">G</span>، بحيث أن <span class="formula">G[u][v] = true</span>
+          إذا كان هناك Edge مباشرة بين <span class="formula">u</span> و<span class="formula">v</span>،
+          و<span class="formula">false</span> في غير ذلك.
+        </p>
+        <p>
+          تتميّز بسرعة التحقق من وجود Edge، لكنها تستهلك ذاكرة كبيرة، لذا تُستخدم فقط عندما يكون <span class="formula">N</span> صغيرًا.
+        </p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">C++</span>
+        </div>
+        <div class="code-body"><span class="kw">const</span> <span class="ty">int</span> maxN <span class="op">=</span> <span class="num">1'000</span>; <span class="cmt">// صغير بسبب O(N²) للذاكرة</span>
+<span class="kw">const</span> <span class="ty">int</span> maxM <span class="op">=</span> <span class="num">200'000</span>;
+
+<span class="cmt">// +1 لأن الـ Vertices غالبًا تبدأ من 1</span>
+<span class="ty">bool</span> G[maxN <span class="op">+</span> <span class="num">1</span>][maxN <span class="op">+</span> <span class="num">1</span>];
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">int</span> n, m;
+    cin <span class="op">&gt;&gt;</span> n <span class="op">&gt;&gt;</span> m;
+
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> <span class="num">0</span>; i <span class="op">&lt;</span> m; i++) {
+        <span class="ty">int</span> u, v;
+        cin <span class="op">&gt;&gt;</span> u <span class="op">&gt;&gt;</span> v;
+        G[u][v] <span class="op">=</span> <span class="kw">true</span>;
+        G[v][u] <span class="op">=</span> <span class="kw">true</span>; <span class="cmt">// إذا undirected</span>
+    }
+}
+
+<span class="cmt">// للـ Weighted Graphs:</span>
+<span class="cmt">// int G[maxN+1][maxN+1]; // 0 تعني لا توجد Edge</span>
+<span class="cmt">// G[u][v] = w; // وزن الـ Edge</span></div>
+      </div>
+
+      <!-- Interactive Matrix Demo -->
+      <div class="demo-box">
+        <h4>🔲 عرض تفاعلي لـ Adjacency Matrix</h4>
+        <div class="demo-input-row">
+          <label>عدد الـ Vertices (N):</label>
+          <input type="number" id="matrix-n" class="demo-input" value="5" min="2" max="8">
+          <button class="btn btn-primary" onclick="buildMatrix()">بناء المصفوفة</button>
+        </div>
+        <div id="matrix-display" style="overflow-x:auto;"></div>
+        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:10px;">اضغط على أي خلية لإضافة/حذف Edge بين الـ Vertices المقابلة</p>
+      </div>
+
+      <div class="callout callout-note">
+        <span class="callout-icon">📝</span>
+        <div class="callout-body">
+          <strong>للـ Weighted Graphs:</strong>
+          بدلًا من Boolean، استخدم <code>int</code> أو <code>double</code>. انتبه لكيفية التمييز بين الـ Edges غير الموجودة —
+          استخدم قيمة خاصة مثل <span class="formula">-1</span> أو <span class="formula">∞</span> للإشارة إلى غياب الـ Edge.
+        </div>
+      </div>
+
+      <table class="complexity-table">
+        <thead>
+          <tr><th>الاستعلام</th><th>التعقيد</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>التعقيد المكاني (Space)</td><td>O(N²)</td></tr>
+          <tr><td>التحقق من وجود Edge</td><td>O(1)</td></tr>
+          <tr><td>المرور على جيران Vertex</td><td>O(N)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TAB: Compare -->
+    <div id="tab-compare" class="tab-content">
+      <div class="card">
+        <p>هذا الجدول يلخّص مقارنة شاملة بين الطرق الثلاثة من حيث التعقيد الزمني والمكاني، لتختار المناسب حسب متطلبات مسألتك.</p>
+      </div>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>الاستعلام</th>
+            <th>Array of Edges</th>
+            <th>Adjacency List</th>
+            <th>Adjacency Matrix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>التعقيد المكاني</td>
+            <td class="good">O(M)</td>
+            <td class="good">O(N + M)</td>
+            <td class="bad">O(N²)</td>
+          </tr>
+          <tr>
+            <td>التحقق من وجود Edge</td>
+            <td class="bad">O(M)</td>
+            <td class="mid">O(degree)</td>
+            <td class="good">O(1)</td>
+          </tr>
+          <tr>
+            <td>المرور على الجيران</td>
+            <td class="bad">O(M)</td>
+            <td class="good">O(degree)</td>
+            <td class="bad">O(N)</td>
+          </tr>
+          <tr>
+            <td>متى تستخدمها؟</td>
+            <td style="color:var(--text-muted); font-size:0.82rem;">Kruskal / المرور على كل Edges</td>
+            <td style="color:var(--text-muted); font-size:0.82rem;">BFS, DFS, Dijkstra — الأكثر شيوعًا</td>
+            <td style="color:var(--text-muted); font-size:0.82rem;">N صغير / كثير من استعلامات Edge</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-top:20px;">
+        <div class="card" style="border-color:rgba(16,185,129,0.3); text-align:center;">
+          <div style="font-size:2rem; margin-bottom:8px;">📋</div>
+          <h4 style="color:#10b981; margin-bottom:6px;">Array of Edges</h4>
+          <p style="font-size:0.82rem;">مثالي لخوارزمية Kruskal وعندما تحتاج فقط المرور على كل الـ Edges دون استعلام عن الجيران</p>
+        </div>
+        <div class="card" style="border-color:rgba(0,212,255,0.3); text-align:center;">
+          <div style="font-size:2rem; margin-bottom:8px;">📑</div>
+          <h4 style="color:var(--accent); margin-bottom:6px;">Adjacency List ⭐</h4>
+          <p style="font-size:0.82rem;">الخيار الافتراضي في معظم المسائل. يوازن بين الكفاءة والمرونة. أساس BFS وDFS وDijkstra</p>
+        </div>
+        <div class="card" style="border-color:rgba(245,158,11,0.3); text-align:center;">
+          <div style="font-size:2rem; margin-bottom:8px;">🔲</div>
+          <h4 style="color:#f59e0b; margin-bottom:6px;">Adjacency Matrix</h4>
+          <p style="font-size:0.82rem;">عندما N صغير (حتى ~1000) وتحتاج فحص Edge بسرعة O(1)، أو لخوارزمية Floyd-Warshall</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== QUIZ SECTION ===== -->
+  <div class="quiz-section reveal">
+    <div class="quiz-header">
+      <h2>🏆 اختبر نفسك</h2>
+      <p>15 سؤالًا تنافسيًا — من السهل إلى الصعب. جاهز؟</p>
+    </div>
+
+    <div class="difficulty-tabs">
+      <button class="diff-btn diff-all active" onclick="filterQuiz('all')">الكل (15)</button>
+      <button class="diff-btn diff-easy" onclick="filterQuiz('easy')">سهل (5)</button>
+      <button class="diff-btn diff-medium" onclick="filterQuiz('medium')">متوسط (5)</button>
+      <button class="diff-btn diff-hard" onclick="filterQuiz('hard')">صعب (5)</button>
+    </div>
+
+    <div class="quiz-progress">
+      <span id="q-label">السؤال <span id="q-current">1</span> من <span id="q-total">15</span></span>
+      <span id="q-score-mini">الإجابات الصحيحة: <strong id="correct-count">0</strong></span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:6.67%"></div>
+    </div>
+
+    <div id="questions-container"></div>
+
+    <div class="score-display" id="score-display">
+      <div class="score-circle">
+        <span id="final-score">0</span>
+        <small>/<span id="final-total">15</span></small>
+      </div>
+      <h3 style="color:#fff; margin-bottom:8px;" id="score-title">نتيجتك</h3>
+      <p style="color:var(--text-muted);" id="score-msg"></p>
+      <button class="btn btn-primary" style="margin-top:20px;" onclick="restartQuiz()">🔄 إعادة الاختبار</button>
+    </div>
+
+    <div class="quiz-nav" id="quiz-nav">
+      <button class="btn btn-secondary" id="prev-btn" onclick="prevQuestion()" disabled>→ السابق</button>
+      <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()">التالي ←</button>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<footer>
+  <p>📚 رسوم البيانية — منهج البرمجة التنافسية</p>
+  <p style="margin-top:6px; font-size:0.78rem;">ابدأ بالأساس، وتدرّج نحو الإتقان 🚀</p>
+</footer>
+
+<script>
+// ============================================================
+// INTERACTIVE GRAPH
+// ============================================================
+const svg = document.getElementById('main-graph');
+let nodes = [
+  { id: 0, x: 120, y: 150, label: 'الرياض' },
+  { id: 1, x: 250, y: 80,  label: 'جدة' },
+  { id: 2, x: 380, y: 180, label: 'الدمام' },
+  { id: 3, x: 480, y: 80,  label: 'مكة' },
+  { id: 4, x: 320, y: 250, label: 'أبها' },
+];
+let edges = [
+  [0,1],[0,2],[1,3],[2,3],[2,4],[1,4]
+];
+let nodeIdCounter = 5;
+const cityNames = ['تبوك','المدينة','نجران','حائل','عرعر','القصيم','جازان','الطائف','ينبع','بريدة'];
+let usedCities = [];
+let selectedNode = null;
+let bfsTimers = [];
+
+function drawGraph() {
+  svg.innerHTML = '';
+  document.getElementById('v-count').textContent = nodes.length;
+  document.getElementById('e-count').textContent = edges.length;
+
+  // Draw edges
+  edges.forEach(([a,b]) => {
+    const nA = nodes.find(n=>n.id===a);
+    const nB = nodes.find(n=>n.id===b);
+    if (!nA || !nB) return;
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', nA.x); line.setAttribute('y1', nA.y);
+    line.setAttribute('x2', nB.x); line.setAttribute('y2', nB.y);
+    line.setAttribute('stroke', 'rgba(124,58,237,0.5)');
+    line.setAttribute('stroke-width', '2');
+    line.id = `edge-${a}-${b}`;
+    svg.appendChild(line);
+  });
+
+  // Draw nodes
+  nodes.forEach(node => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('cursor','pointer');
+
+    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('cx', node.x); circle.setAttribute('cy', node.y);
+    circle.setAttribute('r', '18');
+    circle.setAttribute('fill', selectedNode===node.id ? '#f59e0b' : '#00d4ff');
+    circle.setAttribute('fill-opacity', '0.9');
+    circle.id = `circle-${node.id}`;
+
+    const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+    text.setAttribute('x', node.x); text.setAttribute('y', node.y - 24);
+    text.setAttribute('text-anchor','middle');
+    text.setAttribute('font-size','11');
+    text.setAttribute('fill','#94a3b8');
+    text.setAttribute('font-family','Cairo,sans-serif');
+    text.textContent = node.label;
+
+    const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+    label.setAttribute('x', node.x); label.setAttribute('y', node.y + 4);
+    label.setAttribute('text-anchor','middle');
+    label.setAttribute('font-size','10');
+    label.setAttribute('fill', '#000');
+    label.setAttribute('font-weight','bold');
+    label.setAttribute('font-family','Fira Code,monospace');
+    label.textContent = node.id;
+
+    g.appendChild(circle); g.appendChild(text); g.appendChild(label);
+    g.addEventListener('click', () => selectNode(node.id));
+    svg.appendChild(g);
+  });
+}
+
+function selectNode(id) {
+  const node = nodes.find(n => n.id === id);
+  const neighbors = edges.filter(([a,b]) => a===id || b===id)
+    .map(([a,b]) => a===id ? b : a);
+  const neighborLabels = neighbors.map(nid => nodes.find(n=>n.id===nid)?.label || nid).join('، ');
+  document.getElementById('graph-info').innerHTML =
+    `المدينة المحددة: <strong style="color:var(--accent)">${node.label}</strong> (ID: ${id}) &nbsp;|&nbsp; الجيران (${neighbors.length}): <strong style="color:var(--accent3)">${neighborLabels || 'لا يوجد'}</strong>`;
+  selectedNode = id;
+  drawGraph();
+}
+
+function addRandomNode() {
+  const available = cityNames.filter(c => !usedCities.includes(c) && !nodes.find(n=>n.label===c));
+  if (available.length === 0) return;
+  const label = available[Math.floor(Math.random()*available.length)];
+  usedCities.push(label);
+  const x = 80 + Math.random() * 440;
+  const y = 40 + Math.random() * 220;
+  nodes.push({ id: nodeIdCounter++, x, y, label });
+  drawGraph();
+}
+
+function addRandomEdge() {
+  if (nodes.length < 2) return;
+  let attempts = 0;
+  while (attempts < 20) {
+    const a = nodes[Math.floor(Math.random()*nodes.length)].id;
+    const b = nodes[Math.floor(Math.random()*nodes.length)].id;
+    if (a !== b && !edges.find(([x,y]) => (x===a&&y===b)||(x===b&&y===a))) {
+      edges.push([a,b]);
+      drawGraph();
+      return;
+    }
+    attempts++;
+  }
+}
+
+function resetGraph() {
+  nodes = [
+    { id: 0, x: 120, y: 150, label: 'الرياض' },
+    { id: 1, x: 250, y: 80,  label: 'جدة' },
+    { id: 2, x: 380, y: 180, label: 'الدمام' },
+    { id: 3, x: 480, y: 80,  label: 'مكة' },
+    { id: 4, x: 320, y: 250, label: 'أبها' },
+  ];
+  edges = [[0,1],[0,2],[1,3],[2,3],[2,4],[1,4]];
+  nodeIdCounter = 5;
+  usedCities = [];
+  selectedNode = null;
+  bfsTimers.forEach(clearTimeout);
+  bfsTimers = [];
+  document.getElementById('graph-info').innerHTML = 'اضغط على أي نقطة لترى معلوماتها • عدد المدن: <span id="v-count">5</span> • عدد الطرق: <span id="e-count">6</span>';
+  drawGraph();
+}
+
+function bfsHighlight() {
+  if (nodes.length === 0) return;
+  bfsTimers.forEach(clearTimeout); bfsTimers = [];
+  const start = nodes[0].id;
+  const visited = new Set();
+  const queue = [start];
+  visited.add(start);
+  let delay = 0;
+  const allCircles = nodes.map(n => `circle-${n.id}`);
+  allCircles.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('fill','#00d4ff');
+  });
+  const processNext = () => {
+    if (queue.length === 0) {
+      document.getElementById('graph-info').textContent = `BFS اكتمل! ترتيب الزيارة: ${[...visited].map(id => nodes.find(n=>n.id===id)?.label).join(' ← ')}`;
+      return;
+    }
+    const cur = queue.shift();
+    const t = setTimeout(() => {
+      const el = document.getElementById(`circle-${cur}`);
+      if (el) el.setAttribute('fill','#10b981');
+      const neighbors = edges.filter(([a,b])=>a===cur||b===cur).map(([a,b])=>a===cur?b:a);
+      neighbors.forEach(nb => {
+        if (!visited.has(nb)) { visited.add(nb); queue.push(nb);
+          const el2 = document.getElementById(`circle-${nb}`);
+          if (el2) el2.setAttribute('fill','#f59e0b');
+        }
+      });
+      document.getElementById('graph-info').textContent = `BFS: جاري زيارة ${nodes.find(n=>n.id===cur)?.label}...`;
+      processNext();
+    }, delay);
+    bfsTimers.push(t);
+    delay += 600;
+  };
+  processNext();
+}
+
+drawGraph();
+
+// ============================================================
+// ADJACENCY LIST DEMO
+// ============================================================
+function buildAdjList() {
+  const input = document.getElementById('adj-input').value.trim();
+  const lines = input.split('\n').map(l => l.trim()).filter(Boolean);
+  const adj = {};
+  lines.forEach(line => {
+    const parts = line.split(/\s+/);
+    if (parts.length >= 2) {
+      const u = parts[0], v = parts[1];
+      if (!adj[u]) adj[u] = [];
+      if (!adj[v]) adj[v] = [];
+      adj[u].push(v);
+      adj[v].push(u);
+    }
+  });
+  let out = '// Adjacency List\n';
+  Object.keys(adj).sort((a,b)=>+a-+b).forEach(k => {
+    out += `adj[${k}] = [${adj[k].join(', ')}]\n`;
+  });
+  document.getElementById('adj-output').textContent = out;
+}
+
+// ============================================================
+// ADJACENCY MATRIX DEMO
+// ============================================================
+let matrixData = [];
+let matrixN = 5;
+
+function buildMatrix() {
+  matrixN = parseInt(document.getElementById('matrix-n').value) || 5;
+  matrixN = Math.min(Math.max(matrixN, 2), 8);
+  matrixData = Array.from({length:matrixN+1}, () => Array(matrixN+1).fill(false));
+  renderMatrix();
+}
+
+function toggleCell(i, j) {
+  if (i === 0 || j === 0) return;
+  matrixData[i][j] = !matrixData[i][j];
+  matrixData[j][i] = !matrixData[j][i]; // undirected
+  renderMatrix();
+}
+
+function renderMatrix() {
+  const container = document.getElementById('matrix-display');
+  let html = '<table style="border-collapse:separate; border-spacing:4px; margin:0 auto; direction:ltr;">';
+  for (let i = 0; i <= matrixN; i++) {
+    html += '<tr>';
+    for (let j = 0; j <= matrixN; j++) {
+      if (i === 0 && j === 0) {
+        html += '<td style="width:36px;height:36px;"></td>';
+      } else if (i === 0) {
+        html += `<td style="width:36px;height:36px;text-align:center;color:var(--accent);font-family:Fira Code;font-size:12px;font-weight:700;">${j}</td>`;
+      } else if (j === 0) {
+        html += `<td style="width:36px;height:36px;text-align:center;color:var(--accent2);font-family:Fira Code;font-size:12px;font-weight:700;">${i}</td>`;
+      } else if (i === j) {
+        html += `<td style="width:36px;height:36px;background:rgba(255,255,255,0.04);border-radius:6px;text-align:center;color:rgba(255,255,255,0.2);font-size:12px;">—</td>`;
+      } else {
+        const val = matrixData[i][j];
+        const bg = val ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.04)';
+        const color = val ? '#10b981' : '#374151';
+        const border = val ? '1px solid rgba(16,185,129,0.4)' : '1px solid rgba(255,255,255,0.06)';
+        html += `<td onclick="toggleCell(${i},${j})" style="width:36px;height:36px;background:${bg};border:${border};border-radius:6px;text-align:center;cursor:pointer;color:${color};font-family:Fira Code;font-size:13px;font-weight:700;transition:all 0.2s;">${val ? '1' : '0'}</td>`;
+      }
+    }
+    html += '</tr>';
+  }
+  html += '</table>';
+  container.innerHTML = html;
+}
+
+buildMatrix();
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ============================================================
+// QUIZ
+// ============================================================
+const allQuestions = [
+  // EASY
+  {
+    id:1, diff:'easy',
+    q: 'ما هو تعريف الـ Vertex في الـ Graph؟',
+    options:['خط يربط بين عنصرين','عنصر منفرد في الـ Graph','مجموعة من الـ Edges','عدد الجيران لنقطة ما'],
+    correct:1,
+    explain:'الـ Vertex (أو Node) هو العنصر الأساسي في الـ Graph، يمثّل كياناً منفرداً مثل مدينة أو شخص.'
+  },
+  {
+    id:2, diff:'easy',
+    q: 'ما الفرق بين Directed وUndirected Graph؟',
+    options:['الـ Directed يحتوي أوزان والـ Undirected لا','في Directed لـ Edges اتجاه محدد، في Undirected العلاقة متبادلة','الـ Directed يحتوي Cycles فقط','لا فرق بينهما'],
+    correct:1,
+    explain:'في Directed Graph، Edge من u إلى v تختلف عن Edge من v إلى u. أما في Undirected فالعلاقة متبادلة في الاتجاهين.'
+  },
+  {
+    id:3, diff:'easy',
+    q: 'في Adjacency Matrix، ماذا تعني القيمة G[u][v] = true؟',
+    options:['الـ Vertex u متصل بنفسه','لا يوجد Edge بين u وv','يوجد Edge مباشر بين u وv','u وv نفس الـ Vertex'],
+    correct:2,
+    explain:'G[u][v] = true تعني وجود Edge مباشرة بين Vertex u وVertex v في الـ Graph.'
+  },
+  {
+    id:4, diff:'easy',
+    q: 'ما التعقيد المكاني لـ Array of Edges؟',
+    options:['O(N)', 'O(N²)', 'O(M)', 'O(N + M)'],
+    correct:2,
+    explain:'Array of Edges يخزّن M edge فقط، لذا تعقيده المكاني هو O(M).'
+  },
+  {
+    id:5, diff:'easy',
+    q: 'إذا كان لدينا Graph غير موجّه (Undirected) وأضفنا Edge بين u وv في Adjacency List، ماذا يجب أن نفعل؟',
+    options:['نضيف v لقائمة u فقط','نضيف u لقائمة v فقط','نضيف v لقائمة u ونضيف u لقائمة v','لا نحتاج إضافة شيء'],
+    correct:2,
+    explain:'في Undirected Graph، العلاقة متبادلة. لذا نضيف v لجيران u ونضيف u لجيران v.'
+  },
+  // MEDIUM
+  {
+    id:6, diff:'medium',
+    q: 'Graph يحتوي N=1000 vertices وM=500000 edges. أي طريقة تخزين الأنسب؟',
+    options:['Array of Edges لأنها الأبسط','Adjacency Matrix لسرعة التحقق من Edge','Adjacency List لتوازنها بين الذاكرة والكفاءة','أي طريقة مناسبة'],
+    correct:2,
+    explain:'مع N=1000 وM=500000، Adjacency Matrix ستحتاج N²=1,000,000 خلية وهو مقبول. لكن Adjacency List أفضل لأن M كبير والذاكرة O(N+M) أكفأ.'
+  },
+  {
+    id:7, diff:'medium',
+    q: 'ما التعقيد الزمني الكلي للمرور على جيران كل الـ Vertices باستخدام Adjacency List؟',
+    options:['O(N²)', 'O(M²)', 'O(N × M)', 'O(N + M)'],
+    correct:3,
+    explain:'رغم أن المرور على جيران vertex واحد هو O(degree)، إلا أن مجموع الـ degrees يساوي 2M (في Undirected)، لذا التعقيد الكلي O(N+M).'
+  },
+  {
+    id:8, diff:'medium',
+    q: 'في Weighted Graph، أي طريقة تخزين نستخدم مع Adjacency List؟',
+    options:['vector<int>','vector<pair<int,int>> حيث الـ pair هو (جار، وزن)','bool array','int array عادي'],
+    correct:1,
+    explain:'نستخدم vector<pair<int,int>> بحيث كل زوج يمثّل (الجار، وزن الـ Edge). مثلًا adj[u].push_back({v, w}).'
+  },
+  {
+    id:9, diff:'medium',
+    q: 'أي خوارزمية تستفيد أكثر من تخزين Array of Edges؟',
+    options:['BFS','DFS','Kruskal (Minimum Spanning Tree)','Dijkstra'],
+    correct:2,
+    explain:'خوارزمية Kruskal تحتاج ترتيب كل الـ Edges حسب الوزن ثم المرور عليها. Array of Edges هي الأنسب لهذا الغرض.'
+  },
+  {
+    id:10, diff:'medium',
+    q: 'Graph به 5 مدن و7 طرق. كم خلية تحتاجها Adjacency Matrix (بما فيها الـ header)؟',
+    options:['35','25','36','49'],
+    correct:2,
+    explain:'Adjacency Matrix تحتاج (N+1)×(N+1) خلية إذا استخدمنا 1-indexed. هنا (5+1)×(5+1) = 36 خلية.'
+  },
+  // HARD
+  {
+    id:11, diff:'hard',
+    q: 'Graph موجّه (Directed) به N=5 vertices. الـ Edges التالية: 1→2، 2→3، 3→1، 1→4، 4→5. هل يوجد مسار من vertex 5 إلى vertex 2؟',
+    options:['نعم: 5→4→1→2','لا، لا يوجد مسار من 5 إلى 2','نعم: 5→2 مباشرة','نعم: 5→1→2'],
+    correct:1,
+    explain:'الـ Graph موجّه! كل Edge لها اتجاه واحد فقط. الـ Edges الموجودة: 1→2، 2→3، 3→1، 1→4، 4→5. من vertex 5 لا يخرج منه أي edge، لذا لا يوجد مسار من 5 إلى 2.'
+  },
+  {
+    id:12, diff:'hard',
+    q: 'ما التعقيد الزمني لخوارزمية Floyd-Warshall لإيجاد أقصر مسار بين كل أزواج الـ Vertices؟',
+    options:['O(N log N)', 'O(N²)', 'O(N³)', 'O(N² log N)'],
+    correct:2,
+    explain:'Floyd-Warshall تستخدم ثلاث حلقات متداخلة (nested loops) كل منها يمر على N vertex، لذا تعقيدها O(N³). تعتمد على Adjacency Matrix.'
+  },
+  {
+    id:13, diff:'hard',
+    q: 'Graph به N=100,000 vertex وM=300,000 edge. نحتاج كثيرًا من استعلامات "هل توجد Edge بين u وv؟" بـ O(1). ما الحل الأمثل؟',
+    options:['Adjacency Matrix — تعقيد O(N²) للذاكرة','Array of Edges','Adjacency List مع unordered_set بدل vector','لا حل بـ O(1) مع هذا الحجم'],
+    correct:2,
+    explain:'استبدال vector في Adjacency List بـ unordered_set يجعل التحقق من Edge بـ O(1) بشكل متوسط، مع الحفاظ على تعقيد مكاني O(N+M) — أفضل بكثير من Matrix التي تحتاج 10^10 خلية!'
+  },
+  {
+    id:14, diff:'hard',
+    q: 'Graph غير موجّه به N vertices وM edges. عدد الـ Edges في Adjacency List إجمالًا (مجموع أحجام كل الـ vectors) يساوي؟',
+    options:['M','N × M','2M','M²'],
+    correct:2,
+    explain:'في Undirected Graph، كل Edge (u,v) تُضاف مرتين: مرة لقائمة u ومرة لقائمة v. لذا المجموع الكلي = 2M.'
+  },
+  {
+    id:15, diff:'hard',
+    q: 'في مسابقة، المسألة تقول N ≤ 200,000 وM ≤ 400,000. اخترت Adjacency Matrix. ما المشكلة؟',
+    options:['لا مشكلة، المصفوفة كافية','ستحتاج N² = 4×10^10 خلية — أكبر من ذاكرة أي جهاز','التعقيد الزمني سيكون O(1) وهذا بطيء','لا يمكن استخدام Matrix مع Weighted Graphs فقط'],
+    correct:1,
+    explain:'Adjacency Matrix تحتاج N² خلية. مع N=200,000، هذا 4×10^10 خلية = ~40GB! هذا يتجاوز ذاكرة أي جهاز. الحل هو Adjacency List بتعقيد مكاني O(N+M).'
+  },
+];
+
+let currentFilter = 'all';
+let filteredQuestions = [...allQuestions];
+let currentQIndex = 0;
+let answered = {};
+let score = 0;
+
+function filterQuiz(diff) {
+  currentFilter = diff;
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  filteredQuestions = diff === 'all' ? [...allQuestions] : allQuestions.filter(q => q.diff === diff);
+  currentQIndex = 0;
+  answered = {};
+  score = 0;
+  document.getElementById('score-display').classList.remove('visible');
+  document.getElementById('quiz-nav').style.display = 'flex';
+  renderQuestions();
+  showQuestion(0);
+}
+
+function renderQuestions() {
+  const container = document.getElementById('questions-container');
+  container.innerHTML = '';
+  filteredQuestions.forEach((q, idx) => {
+    const card = document.createElement('div');
+    card.className = 'question-card' + (idx === 0 ? ' visible' : '');
+    card.id = `qcard-${idx}`;
+    const letters = ['أ','ب','ج','د'];
+    const diffLabel = {easy:'سهل',medium:'متوسط',hard:'صعب'}[q.diff];
+    const diffClass = {easy:'q-easy',medium:'q-medium',hard:'q-hard'}[q.diff];
+    card.innerHTML = `
+      <div class="question-meta">
+        <span class="q-num">سؤال ${idx+1}</span>
+        <span class="q-badge ${diffClass}">${diffLabel}</span>
+      </div>
+      <div class="question-text">${q.q}</div>
+      <div class="options-grid" id="opts-${idx}">
+        ${q.options.map((opt,i) => `
+          <button class="option-btn" id="opt-${idx}-${i}" onclick="selectAnswer(${idx},${i})">
+            <span class="option-letter">${letters[i]}</span>
+            ${opt}
+          </button>
+        `).join('')}
+      </div>
+      <div class="answer-feedback" id="feedback-${idx}"></div>
+    `;
+    container.appendChild(card);
+  });
+  updateProgress();
+}
+
+function selectAnswer(qIdx, optIdx) {
+  if (answered[qIdx] !== undefined) return;
+  const q = filteredQuestions[qIdx];
+  answered[qIdx] = optIdx;
+  const isCorrect = optIdx === q.correct;
+  if (isCorrect) score++;
+
+  // Style options
+  q.options.forEach((_, i) => {
+    const btn = document.getElementById(`opt-${qIdx}-${i}`);
+    btn.classList.add('answered');
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === optIdx && !isCorrect) btn.classList.add('wrong');
+  });
+
+  // Show feedback
+  const fb = document.getElementById(`feedback-${qIdx}`);
+  fb.className = `answer-feedback ${isCorrect ? 'feedback-correct' : 'feedback-wrong'}`;
+  fb.innerHTML = isCorrect
+    ? `✅ <strong>ممتاز!</strong> ${q.explain}`
+    : `❌ <strong>الإجابة الصحيحة هي: ${q.options[q.correct]}</strong><br>${q.explain}`;
+
+  document.getElementById('correct-count').textContent = score;
+  updateProgress();
+}
+
+function showQuestion(idx) {
+  document.querySelectorAll('.question-card').forEach(c => c.classList.remove('visible'));
+  const card = document.getElementById(`qcard-${idx}`);
+  if (card) card.classList.add('visible');
+  document.getElementById('q-current').textContent = idx + 1;
+  document.getElementById('q-total').textContent = filteredQuestions.length;
+  document.getElementById('prev-btn').disabled = idx === 0;
+  document.getElementById('next-btn').textContent = idx === filteredQuestions.length - 1 ? 'إنهاء الاختبار ✓' : 'التالي ←';
+  updateProgress();
+}
+
+function nextQuestion() {
+  if (currentQIndex < filteredQuestions.length - 1) {
+    currentQIndex++;
+    showQuestion(currentQIndex);
+  } else {
+    showScore();
+  }
+}
+
+function prevQuestion() {
+  if (currentQIndex > 0) {
+    currentQIndex--;
+    showQuestion(currentQIndex);
+  }
+}
+
+function updateProgress() {
+  const total = filteredQuestions.length;
+  const done = Object.keys(answered).length;
+  const pct = total > 0 ? ((currentQIndex + 1) / total * 100) : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+function showScore() {
+  document.querySelectorAll('.question-card').forEach(c => c.classList.remove('visible'));
+  document.getElementById('quiz-nav').style.display = 'none';
+  const display = document.getElementById('score-display');
+  display.classList.add('visible');
+  const total = filteredQuestions.length;
+  const pct = total > 0 ? Math.round(score / total * 100) : 0;
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('final-total').textContent = total;
+  const msgs = [
+    [80, '🏆 ممتاز! أنت جاهز للمسابقات!', 'أداء رائع جداً — واصل التقدم!'],
+    [60, '👍 جيد! بعض المراجعة وستكون مثاليًا', 'راجع الأجزاء التي أخطأت فيها وحاول مجدداً.'],
+    [0,  '📚 تحتاج مزيدًا من الدراسة', 'اقرأ الشرح مجدداً ثم عاود الاختبار — ستتحسن!']
+  ];
+  const [, title, msg] = msgs.find(([min]) => pct >= min);
+  document.getElementById('score-title').textContent = `${pct}% — ${title}`;
+  document.getElementById('score-msg').textContent = msg;
+}
+
+function restartQuiz() {
+  currentQIndex = 0;
+  answered = {};
+  score = 0;
+  document.getElementById('score-display').classList.remove('visible');
+  document.getElementById('quiz-nav').style.display = 'flex';
+  document.getElementById('correct-count').textContent = '0';
+  renderQuestions();
+  showQuestion(0);
+}
+
+// Init quiz
+renderQuestions();
+showQuestion(0);
+
+// ============================================================
+// SCROLL REVEAL
+// ============================================================
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('shown'); observer.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

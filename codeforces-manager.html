@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>منصة امتحانات Codeforces</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e3a5f;
+    --accent: #00c6ff;
+    --accent2: #7b2ff7;
+    --green: #00e676;
+    --red: #ff4757;
+    --yellow: #ffd32a;
+    --text: #e8f0fe;
+    --muted: #7a8ba0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,198,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,198,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 20px 40px;
+    background: rgba(10,14,26,0.95);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    backdrop-filter: blur(10px);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 0 20px rgba(0,198,255,0.4);
+  }
+
+  .logo h1 {
+    font-size: 20px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .logo span { font-size: 12px; color: var(--muted); display: block; }
+
+  .header-badge {
+    background: rgba(0,198,255,0.1);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .main {
+    position: relative;
+    z-index: 5;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 30px 20px;
+  }
+
+  /* Tab Navigation */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    padding: 6px;
+    border-radius: 14px;
+    margin-bottom: 30px;
+    border: 1px solid var(--border);
+    width: fit-content;
+  }
+
+  .tab {
+    padding: 10px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.25s;
+    font-family: 'Cairo', sans-serif;
+  }
+
+  .tab.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    box-shadow: 0 4px 15px rgba(0,198,255,0.3);
+  }
+
+  .tab:hover:not(.active) { color: var(--text); background: var(--surface2); }
+
+  /* Panel */
+  .panel { display: none; animation: fadeIn 0.3s ease; }
+  .panel.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Cards Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 60px; height: 60px;
+    border-radius: 0 0 0 60px;
+    opacity: 0.15;
+  }
+
+  .stat-card.blue::before { background: var(--accent); }
+  .stat-card.purple::before { background: var(--accent2); }
+  .stat-card.green::before { background: var(--green); }
+  .stat-card.yellow::before { background: var(--yellow); }
+
+  .stat-num {
+    font-size: 36px;
+    font-weight: 900;
+    font-family: 'Space Mono', monospace;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-card.blue .stat-num { color: var(--accent); }
+  .stat-card.purple .stat-num { color: var(--accent2); }
+  .stat-card.green .stat-num { color: var(--green); }
+  .stat-card.yellow .stat-num { color: var(--yellow); }
+
+  .stat-label { font-size: 13px; color: var(--muted); }
+
+  /* Section Headers */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title::before {
+    content: '';
+    width: 4px; height: 20px;
+    background: linear-gradient(var(--accent), var(--accent2));
+    border-radius: 2px;
+    display: inline-block;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Cairo', sans-serif;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    box-shadow: 0 4px 15px rgba(0,198,255,0.25);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,198,255,0.4); }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  .btn-outline:hover { background: rgba(0,198,255,0.1); }
+
+  .btn-danger {
+    background: rgba(255,71,87,0.1);
+    color: var(--red);
+    border: 1px solid var(--red);
+  }
+  .btn-danger:hover { background: rgba(255,71,87,0.2); }
+
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+  /* Form */
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 8px; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  label { font-size: 13px; color: var(--muted); font-weight: 600; }
+
+  input, select, textarea {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,198,255,0.1);
+  }
+
+  /* Table */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  thead { background: var(--surface2); }
+  th {
+    padding: 14px 18px;
+    text-align: right;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    padding: 14px 18px;
+    font-size: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  tr:hover td { background: rgba(0,198,255,0.03); }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .badge-green { background: rgba(0,230,118,0.1); color: var(--green); border: 1px solid rgba(0,230,118,0.3); }
+  .badge-red { background: rgba(255,71,87,0.1); color: var(--red); border: 1px solid rgba(255,71,87,0.3); }
+  .badge-yellow { background: rgba(255,211,42,0.1); color: var(--yellow); border: 1px solid rgba(255,211,42,0.3); }
+  .badge-blue { background: rgba(0,198,255,0.1); color: var(--accent); border: 1px solid rgba(0,198,255,0.3); }
+  .badge-purple { background: rgba(123,47,247,0.1); color: #a855f7; border: 1px solid rgba(123,47,247,0.3); }
+
+  .cf-handle {
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+    font-size: 13px;
+  }
+
+  .avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    margin-left: 10px;
+  }
+
+  /* Steps guide */
+  .steps-guide {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+
+  .steps-guide h3 {
+    font-size: 16px;
+    margin-bottom: 20px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .step-item {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    width: 30px; height: 30px;
+    min-width: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Space Mono', monospace;
+    box-shadow: 0 0 10px rgba(0,198,255,0.3);
+  }
+
+  .step-content h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .step-content p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  .code-snippet {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    margin-top: 6px;
+    direction: ltr;
+    text-align: left;
+    overflow-x: auto;
+  }
+
+  /* Exam card */
+  .exam-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+
+  .exam-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .exam-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 8px 25px rgba(0,198,255,0.15);
+    transform: translateY(-3px);
+  }
+
+  .exam-card::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .exam-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+
+  .exam-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+  }
+
+  .exam-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .exam-students {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    margin-top: 12px;
+  }
+
+  .mini-avatars { display: flex; }
+  .mini-avatar {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 2px solid var(--surface);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    margin-left: -8px;
+  }
+
+  .progress-bar {
+    background: var(--surface2);
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.8s ease;
+  }
+
+  /* Search */
+  .search-bar {
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  .search-bar input {
+    padding-right: 45px;
+  }
+
+  .search-icon {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 30px;
+    width: min(90%, 520px);
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .modal-header h3 { font-size: 18px; font-weight: 700; }
+
+  .close-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.2s;
+  }
+  .close-btn:hover { color: var(--text); background: var(--border); }
+
+  /* Notification */
+  .notif {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    background: var(--surface);
+    border: 1px solid var(--green);
+    color: var(--green);
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 200;
+    transform: translateX(-120%);
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+
+  .notif.show { transform: translateX(0); }
+
+  /* CF API Result */
+  .api-result {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    direction: ltr;
+    text-align: left;
+    min-height: 80px;
+    color: var(--green);
+  }
+
+  .api-result.loading { color: var(--yellow); }
+  .api-result.error { color: var(--red); }
+
+  .cf-link {
+    color: var(--accent);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    transition: opacity 0.2s;
+  }
+  .cf-link:hover { opacity: 0.7; text-decoration: underline; }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 15px; }
+
+  @media (max-width: 768px) {
+    .form-grid { grid-template-columns: 1fr; }
+    header { padding: 16px 20px; }
+    .main { padding: 20px 12px; }
+    .tabs { width: 100%; overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <div>
+      <h1>CodeExam Platform</h1>
+      <span>منصة إدارة امتحانات Codeforces</span>
+    </div>
+  </div>
+  <div class="header-badge">v2.0 · CF Integration</div>
+</header>
+
+<div class="main">
+
+  <!-- Stats -->
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card blue">
+      <div class="stat-num" id="statStudents">0</div>
+      <div class="stat-label">👨‍💻 إجمالي الطلاب</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-num" id="statExams">0</div>
+      <div class="stat-label">📋 الامتحانات</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-num" id="statActive">0</div>
+      <div class="stat-label">✅ امتحانات نشطة</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="stat-num" id="statAssigned">0</div>
+      <div class="stat-label">🎯 تعيينات طلاب</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('guide')">📖 دليل الاستخدام</button>
+    <button class="tab" onclick="switchTab('students')">👨‍💻 الطلاب</button>
+    <button class="tab" onclick="switchTab('exams')">📋 الامتحانات</button>
+    <button class="tab" onclick="switchTab('assign')">🎯 التعيين</button>
+    <button class="tab" onclick="switchTab('results')">🏆 النتائج</button>
+  </div>
+
+  <!-- GUIDE PANEL -->
+  <div class="panel active" id="panel-guide">
+    <div class="steps-guide">
+      <h3>🚀 كيفية استخدام Codeforces مع منصتك التعليمية</h3>
+
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>إنشاء حساب على Codeforces</h4>
+          <p>اذهب إلى codeforces.com وأنشئ حساباً لمنصتك. سجّل كـ Coordinator لتتمكن من إنشاء مسابقات.</p>
+          <a href="https://codeforces.com/register" target="_blank" class="cf-link">🔗 سجّل الآن على Codeforces</a>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>إنشاء Mashup Contest (امتحان مخصص)</h4>
+          <p>اذهب إلى <strong>Gym → New Contest → Mashup</strong>، ثم أضف المسائل من أرشيف Codeforces واختر المستوى المناسب لطلابك.</p>
+          <a href="https://codeforces.com/mashup" target="_blank" class="cf-link">🔗 إنشاء Mashup Contest</a>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>طلب الطلاب إنشاء حسابات CF</h4>
+          <p>كل طالب يحتاج حساباً على Codeforces. اجمع <strong>handles</strong> الطلاب (أسماء المستخدمين) وأدخلها في هذه المنصة.</p>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h4>إضافة الطلاب للامتحان</h4>
+          <p>في إعدادات المسابقة على Codeforces، أضف handles الطلاب إلى قائمة المشاركين. يمكن استخدام API لجلب النتائج تلقائياً.</p>
+          <div class="code-snippet">GET https://codeforces.com/api/user.status?handle={student_handle}&count=20</div>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <h4>متابعة النتائج عبر Codeforces API</h4>
+          <p>استخدم Codeforces API لجلب نتائج الطلاب تلقائياً. الـ API مجاني ولا يحتاج مصادقة للبيانات العامة.</p>
+          <div class="code-snippet">GET https://codeforces.com/api/contest.standings?contestId={id}&handles={h1;h2;h3}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="section-title" style="margin-bottom:16px">🔍 اختبار Codeforces API</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">أدخل CF handle لأي مستخدم لعرض معلوماته مباشرة من Codeforces</p>
+      <div style="display:flex;gap:12px;align-items:flex-end">
+        <div class="form-group" style="flex:1">
+          <label>Codeforces Handle</label>
+          <input type="text" id="testHandle" placeholder="مثال: tourist" style="direction:ltr">
+        </div>
+        <button class="btn btn-primary" onclick="testCFApi()">🔍 جلب البيانات</button>
+      </div>
+      <div class="api-result" id="apiResult">// ستظهر نتيجة الـ API هنا...</div>
+    </div>
+  </div>
+
+  <!-- STUDENTS PANEL -->
+  <div class="panel" id="panel-students">
+    <div class="form-card">
+      <div class="section-title" style="margin-bottom:16px">➕ إضافة طالب جديد</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>الاسم الكامل</label>
+          <input type="text" id="sName" placeholder="مثال: أحمد محمد">
+        </div>
+        <div class="form-group">
+          <label>CF Handle (اسم Codeforces)</label>
+          <input type="text" id="sHandle" placeholder="مثال: ahmed_cf" style="direction:ltr">
+        </div>
+        <div class="form-group">
+          <label>البريد الإلكتروني</label>
+          <input type="email" id="sEmail" placeholder="student@email.com" style="direction:ltr">
+        </div>
+        <div class="form-group">
+          <label>المستوى</label>
+          <select id="sLevel">
+            <option value="">اختر المستوى</option>
+            <option value="مبتدئ">مبتدئ</option>
+            <option value="متوسط">متوسط</option>
+            <option value="متقدم">متقدم</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px">
+        <button class="btn btn-primary" onclick="addStudent()">➕ إضافة طالب</button>
+        <button class="btn btn-outline" onclick="verifyHandle()">✅ تحقق من CF Handle</button>
+      </div>
+      <div class="api-result" id="verifyResult" style="display:none;margin-top:10px"></div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">قائمة الطلاب</div>
+      <span id="studentCount" style="color:var(--muted);font-size:13px">0 طالب</span>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="searchStudents" placeholder="ابحث باسم الطالب أو الـ Handle..." oninput="renderStudents()">
+      <span class="search-icon">🔍</span>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>الطالب</th>
+            <th>CF Handle</th>
+            <th>المستوى</th>
+            <th>البريد</th>
+            <th>الحالة</th>
+            <th>إجراءات</th>
+          </tr>
+        </thead>
+        <tbody id="studentsTable">
+          <tr><td colspan="6"><div class="empty-state"><div class="icon">👨‍💻</div><p>لم يتم إضافة طلاب بعد</p></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- EXAMS PANEL -->
+  <div class="panel" id="panel-exams">
+    <div class="form-card">
+      <div class="section-title" style="margin-bottom:16px">📋 إنشاء امتحان جديد</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>اسم الامتحان</label>
+          <input type="text" id="eName" placeholder="مثال: امتحان الخوارزميات الأساسية">
+        </div>
+        <div class="form-group">
+          <label>رقم Contest على Codeforces</label>
+          <input type="text" id="eContestId" placeholder="مثال: 1234" style="direction:ltr">
+        </div>
+        <div class="form-group">
+          <label>تاريخ الامتحان</label>
+          <input type="datetime-local" id="eDate">
+        </div>
+        <div class="form-group">
+          <label>المدة (دقيقة)</label>
+          <input type="number" id="eDuration" placeholder="120" min="30">
+        </div>
+        <div class="form-group">
+          <label>المستوى المستهدف</label>
+          <select id="eLevel">
+            <option value="">جميع المستويات</option>
+            <option value="مبتدئ">مبتدئ</option>
+            <option value="متوسط">متوسط</option>
+            <option value="متقدم">متقدم</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>الحالة</label>
+          <select id="eStatus">
+            <option value="قادم">قادم</option>
+            <option value="نشط">نشط الآن</option>
+            <option value="منتهي">منتهي</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>وصف الامتحان</label>
+          <textarea id="eDesc" placeholder="اكتب وصفاً مختصراً عن الامتحان..." rows="3"></textarea>
+        </div>
+      </div>
+      <div style="margin-top:16px">
+        <button class="btn btn-primary" onclick="addExam()">➕ إنشاء الامتحان</button>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">قائمة الامتحانات</div>
+    </div>
+
+    <div class="exam-grid" id="examsGrid">
+      <div class="empty-state" style="grid-column:1/-1">
+        <div class="icon">📋</div>
+        <p>لم يتم إنشاء امتحانات بعد</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSIGN PANEL -->
+  <div class="panel" id="panel-assign">
+    <div class="form-card">
+      <div class="section-title" style="margin-bottom:16px">🎯 تعيين طلاب لامتحان</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:20px">حدد امتحاناً ثم اختر الطلاب المراد تعيينهم</p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>اختر الامتحان</label>
+          <select id="assignExam" onchange="renderAssignStudents()">
+            <option value="">-- اختر امتحاناً --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>تصفية حسب المستوى</label>
+          <select id="assignFilter" onchange="renderAssignStudents()">
+            <option value="">جميع المستويات</option>
+            <option value="مبتدئ">مبتدئ</option>
+            <option value="متوسط">متوسط</option>
+            <option value="متقدم">متقدم</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="assignPanel">
+      <div class="empty-state">
+        <div class="icon">🎯</div>
+        <p>اختر امتحاناً أولاً لعرض الطلاب</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS PANEL -->
+  <div class="panel" id="panel-results">
+    <div class="form-card">
+      <div class="section-title" style="margin-bottom:16px">🏆 عرض نتائج الامتحان من Codeforces</div>
+      <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+        <div class="form-group" style="flex:1;min-width:200px">
+          <label>رقم Contest ID</label>
+          <input type="text" id="resultContestId" placeholder="مثال: 1234" style="direction:ltr">
+        </div>
+        <div class="form-group" style="flex:1;min-width:200px">
+          <label>CF Handles (مفصولة بـ ;)</label>
+          <input type="text" id="resultHandles" placeholder="tourist;Petr;Um_nik" style="direction:ltr">
+        </div>
+        <button class="btn btn-primary" onclick="fetchResults()">📊 جلب النتائج</button>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">نتائج الطلاب</div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>الطالب</th>
+            <th>CF Handle</th>
+            <th>المسائل المحلولة</th>
+            <th>النقاط</th>
+            <th>الامتحان</th>
+            <th>الحالة</th>
+          </tr>
+        </thead>
+        <tbody id="resultsTable">
+          <tr><td colspan="7"><div class="empty-state"><div class="icon">🏆</div><p>ابدأ بجلب نتائج امتحان</p></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- end main -->
+
+<!-- Notification -->
+<div class="notif" id="notif">✅ <span id="notifMsg"></span></div>
+
+<script>
+// ===== DATA =====
+let students = [
+  { id: 1, name: 'أحمد محمد', handle: 'ahmed_code', email: 'ahmed@edu.com', level: 'متوسط', verified: true },
+  { id: 2, name: 'سارة علي', handle: 'sara_cf', email: 'sara@edu.com', level: 'مبتدئ', verified: true },
+  { id: 3, name: 'كريم حسن', handle: 'karim_dev', email: 'karim@edu.com', level: 'متقدم', verified: false },
+];
+
+let exams = [
+  { id: 1, name: 'امتحان الخوارزميات - المجموعة أ', contestId: '1900', date: '2025-05-15T10:00', duration: 120, level: 'متوسط', status: 'نشط', desc: 'امتحان يغطي الـ Greedy وDP الأساسية', assignedStudents: [1, 2] },
+  { id: 2, name: 'امتحان المبتدئين #1', contestId: '1850', date: '2025-05-20T14:00', duration: 90, level: 'مبتدئ', status: 'قادم', desc: 'مسائل Implementation و Brute Force', assignedStudents: [2] },
+];
+
+let assignments = {};
+let nextStudentId = 4;
+let nextExamId = 3;
+
+// ===== TAB SWITCH =====
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const tabs = ['guide','students','exams','assign','results'];
+    t.classList.toggle('active', tabs[i] === tab);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+
+  if (tab === 'students') renderStudents();
+  if (tab === 'exams') renderExams();
+  if (tab === 'assign') populateAssignExams();
+  if (tab === 'results') renderResults();
+  updateStats();
+}
+
+// ===== STATS =====
+function updateStats() {
+  document.getElementById('statStudents').textContent = students.length;
+  document.getElementById('statExams').textContent = exams.length;
+  document.getElementById('statActive').textContent = exams.filter(e => e.status === 'نشط').length;
+  const total = exams.reduce((s, e) => s + (e.assignedStudents || []).length, 0);
+  document.getElementById('statAssigned').textContent = total;
+}
+
+// ===== STUDENTS =====
+function addStudent() {
+  const name = document.getElementById('sName').value.trim();
+  const handle = document.getElementById('sHandle').value.trim();
+  const email = document.getElementById('sEmail').value.trim();
+  const level = document.getElementById('sLevel').value;
+  if (!name || !handle) return showNotif('⚠️ الاسم والـ Handle مطلوبان', 'red');
+  students.push({ id: nextStudentId++, name, handle, email, level, verified: false });
+  document.getElementById('sName').value = '';
+  document.getElementById('sHandle').value = '';
+  document.getElementById('sEmail').value = '';
+  document.getElementById('sLevel').value = '';
+  renderStudents();
+  updateStats();
+  showNotif('✅ تم إضافة الطالب: ' + name);
+}
+
+function renderStudents() {
+  const q = (document.getElementById('searchStudents').value || '').toLowerCase();
+  const filtered = students.filter(s => s.name.toLowerCase().includes(q) || s.handle.toLowerCase().includes(q));
+  document.getElementById('studentCount').textContent = filtered.length + ' طالب';
+  const colors = ['#00c6ff','#7b2ff7','#00e676','#ffd32a','#ff4757','#a855f7'];
+  if (!filtered.length) {
+    document.getElementById('studentsTable').innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="icon">🔍</div><p>لا توجد نتائج</p></div></td></tr>';
+    return;
+  }
+  document.getElementById('studentsTable').innerHTML = filtered.map((s, i) => {
+    const c = colors[s.id % colors.length];
+    const lvlBadge = s.level === 'متقدم' ? 'badge-purple' : s.level === 'متوسط' ? 'badge-blue' : 'badge-green';
+    return `<tr>
+      <td>
+        <div style="display:flex;align-items:center">
+          <div class="avatar" style="background:${c}22;color:${c};border:1.5px solid ${c}">${s.name[0]}</div>
+          <span>${s.name}</span>
+        </div>
+      </td>
+      <td><span class="cf-handle">@${s.handle}</span></td>
+      <td>${s.level ? `<span class="badge ${lvlBadge}">${s.level}</span>` : '—'}</td>
+      <td style="color:var(--muted);font-size:13px">${s.email || '—'}</td>
+      <td>${s.verified ? '<span class="badge badge-green">✅ محقق</span>' : '<span class="badge badge-yellow">⏳ غير محقق</span>'}</td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <a href="https://codeforces.com/profile/${s.handle}" target="_blank" class="btn btn-outline btn-sm">🔗 CF</a>
+          <button class="btn btn-danger btn-sm" onclick="deleteStudent(${s.id})">🗑️</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function deleteStudent(id) {
+  students = students.filter(s => s.id !== id);
+  renderStudents();
+  updateStats();
+  showNotif('🗑️ تم حذف الطالب');
+}
+
+// ===== VERIFY HANDLE =====
+async function verifyHandle() {
+  const handle = document.getElementById('sHandle').value.trim();
+  if (!handle) return showNotif('أدخل CF Handle أولاً', 'red');
+  const el = document.getElementById('verifyResult');
+  el.style.display = 'block';
+  el.className = 'api-result loading';
+  el.textContent = '// جاري التحقق من الـ Handle...';
+  try {
+    const r = await fetch(`https://codeforces.com/api/user.info?handles=${handle}`);
+    const d = await r.json();
+    if (d.status === 'OK') {
+      const u = d.result[0];
+      el.className = 'api-result';
+      el.textContent = `✅ Handle موجود!\nالاسم: ${u.firstName || ''} ${u.lastName || ''}\nالتقييم: ${u.rating || 'لا يوجد'}\nالرتبة: ${u.rank || 'unranked'}\nالدولة: ${u.country || '—'}`;
+      const s = students.find(s => s.handle === handle);
+      if (s) s.verified = true;
+      renderStudents();
+    } else {
+      el.className = 'api-result error';
+      el.textContent = '❌ الـ Handle غير موجود على Codeforces';
+    }
+  } catch (e) {
+    el.className = 'api-result error';
+    el.textContent = '⚠️ خطأ في الاتصال بـ Codeforces API';
+  }
+}
+
+// ===== TEST API =====
+async function testCFApi() {
+  const handle = document.getElementById('testHandle').value.trim();
+  if (!handle) return;
+  const el = document.getElementById('apiResult');
+  el.className = 'api-result loading';
+  el.textContent = `// جاري جلب بيانات @${handle}...`;
+  try {
+    const r = await fetch(`https://codeforces.com/api/user.info?handles=${handle}`);
+    const d = await r.json();
+    if (d.status === 'OK') {
+      const u = d.result[0];
+      el.className = 'api-result';
+      el.textContent = JSON.stringify({
+        handle: u.handle,
+        rating: u.rating,
+        maxRating: u.maxRating,
+        rank: u.rank,
+        maxRank: u.maxRank,
+        country: u.country,
+        city: u.city,
+        organization: u.organization,
+        contribution: u.contribution,
+        registrationTime: new Date(u.registrationTimeSeconds * 1000).toLocaleDateString('ar')
+      }, null, 2);
+    } else {
+      el.className = 'api-result error';
+      el.textContent = '// ❌ Handle غير موجود: ' + d.comment;
+    }
+  } catch(e) {
+    el.className = 'api-result error';
+    el.textContent = '// ⚠️ تعذّر الاتصال بـ Codeforces API\n// تأكد من اتصالك بالإنترنت';
+  }
+}
+
+// ===== EXAMS =====
+function addExam() {
+  const name = document.getElementById('eName').value.trim();
+  const contestId = document.getElementById('eContestId').value.trim();
+  const date = document.getElementById('eDate').value;
+  const duration = parseInt(document.getElementById('eDuration').value) || 120;
+  const level = document.getElementById('eLevel').value;
+  const status = document.getElementById('eStatus').value;
+  const desc = document.getElementById('eDesc').value.trim();
+  if (!name) return showNotif('⚠️ اسم الامتحان مطلوب', 'red');
+  exams.push({ id: nextExamId++, name, contestId, date, duration, level, status, desc, assignedStudents: [] });
+  document.getElementById('eName').value = '';
+  document.getElementById('eContestId').value = '';
+  renderExams();
+  updateStats();
+  showNotif('✅ تم إنشاء الامتحان: ' + name);
+}
+
+function renderExams() {
+  const grid = document.getElementById('examsGrid');
+  if (!exams.length) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="icon">📋</div><p>لم يتم إنشاء امتحانات بعد</p></div>';
+    return;
+  }
+  const statusBadge = { 'نشط': 'badge-green', 'قادم': 'badge-blue', 'منتهي': 'badge-red' };
+  const colors = ['#00c6ff','#7b2ff7','#00e676','#ffd32a'];
+  grid.innerHTML = exams.map((e, i) => {
+    const assigned = (e.assignedStudents || []).length;
+    const total = students.length;
+    const pct = total ? Math.round((assigned / total) * 100) : 0;
+    const studs = (e.assignedStudents || []).slice(0, 4).map(sid => {
+      const s = students.find(st => st.id === sid);
+      const c = colors[sid % colors.length];
+      return s ? `<div class="mini-avatar" style="background:${c}22;color:${c};border-color:${c}">${s.name[0]}</div>` : '';
+    }).join('');
+    const dateStr = e.date ? new Date(e.date).toLocaleString('ar') : '—';
+    return `<div class="exam-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <span class="badge ${statusBadge[e.status] || 'badge-blue'}">${e.status}</span>
+        ${e.level ? `<span class="badge badge-purple">${e.level}</span>` : ''}
+      </div>
+      <div class="exam-title">${e.name}</div>
+      ${e.desc ? `<p style="font-size:12px;color:var(--muted);margin-bottom:10px">${e.desc}</p>` : ''}
+      <div class="exam-meta">
+        ${e.contestId ? `<div class="exam-meta-item">🔢 <span class="cf-handle">#${e.contestId}</span></div>` : ''}
+        <div class="exam-meta-item">⏱️ ${e.duration} دقيقة</div>
+        <div class="exam-meta-item">📅 ${dateStr}</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">${assigned} / ${total} طالب معين (${pct}%)</div>
+      <div class="exam-students">
+        <div class="mini-avatars">${studs}</div>
+        <span style="font-size:12px;color:var(--muted);flex:1">${assigned} طالب</span>
+        ${e.contestId ? `<a href="https://codeforces.com/contest/${e.contestId}" target="_blank" class="btn btn-outline btn-sm">🔗 CF</a>` : ''}
+        <button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id})">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteExam(id) {
+  exams = exams.filter(e => e.id !== id);
+  renderExams();
+  updateStats();
+  showNotif('🗑️ تم حذف الامتحان');
+}
+
+// ===== ASSIGN =====
+function populateAssignExams() {
+  const sel = document.getElementById('assignExam');
+  sel.innerHTML = '<option value="">-- اختر امتحاناً --</option>' +
+    exams.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
+}
+
+function renderAssignStudents() {
+  const examId = parseInt(document.getElementById('assignExam').value);
+  const filterLevel = document.getElementById('assignFilter').value;
+  const exam = exams.find(e => e.id === examId);
+  const panel = document.getElementById('assignPanel');
+
+  if (!exam) {
+    panel.innerHTML = '<div class="empty-state"><div class="icon">🎯</div><p>اختر امتحاناً أولاً لعرض الطلاب</p></div>';
+    return;
+  }
+
+  const filtered = students.filter(s => !filterLevel || s.level === filterLevel);
+  const colors = ['#00c6ff','#7b2ff7','#00e676','#ffd32a'];
+
+  if (!filtered.length) {
+    panel.innerHTML = '<div class="empty-state"><div class="icon">👨‍💻</div><p>لا يوجد طلاب في هذا المستوى</p></div>';
+    return;
+  }
+
+  panel.innerHTML = `
+    <div class="form-card">
+      <div class="section-header">
+        <div class="section-title">طلاب الامتحان: ${exam.name}</div>
+        <button class="btn btn-primary btn-sm" onclick="assignAll(${exam.id})">✅ تعيين الكل</button>
+      </div>
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>الطالب</th><th>CF Handle</th><th>المستوى</th><th>الحالة</th><th>إجراء</th></tr></thead>
+          <tbody>
+            ${filtered.map(s => {
+              const c = colors[s.id % colors.length];
+              const assigned = (exam.assignedStudents || []).includes(s.id);
+              return `<tr>
+                <td><div style="display:flex;align-items:center">
+                  <div class="avatar" style="background:${c}22;color:${c};border:1.5px solid ${c}">${s.name[0]}</div>
+                  <span>${s.name}</span>
+                </div></td>
+                <td><span class="cf-handle">@${s.handle}</span></td>
+                <td>${s.level ? `<span class="badge badge-blue">${s.level}</span>` : '—'}</td>
+                <td>${assigned ? '<span class="badge badge-green">✅ معين</span>' : '<span class="badge badge-yellow">⭕ غير معين</span>'}</td>
+                <td>
+                  ${assigned
+                    ? `<button class="btn btn-danger btn-sm" onclick="unassignStudent(${exam.id}, ${s.id})">إلغاء التعيين</button>`
+                    : `<button class="btn btn-primary btn-sm" onclick="assignStudent(${exam.id}, ${s.id})">تعيين ➕</button>`
+                  }
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+      ${exam.assignedStudents && exam.assignedStudents.length > 0 ? `
+        <div style="margin-top:16px;padding:12px;background:var(--bg);border-radius:10px;border:1px solid var(--border)">
+          <div style="font-size:13px;color:var(--muted);margin-bottom:8px;font-weight:600">CF Handles للنسخ في Codeforces:</div>
+          <div class="code-snippet" id="handlesList">${exam.assignedStudents.map(sid => { const st = students.find(s => s.id === sid); return st ? st.handle : ''; }).filter(Boolean).join(';')}</div>
+          <button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="copyHandles()">📋 نسخ الـ Handles</button>
+        </div>
+      ` : ''}
+    </div>`;
+}
+
+function assignStudent(examId, studentId) {
+  const exam = exams.find(e => e.id === examId);
+  if (exam && !exam.assignedStudents.includes(studentId)) {
+    exam.assignedStudents.push(studentId);
+    showNotif('✅ تم تعيين الطالب');
+    renderAssignStudents();
+    updateStats();
+  }
+}
+
+function unassignStudent(examId, studentId) {
+  const exam = exams.find(e => e.id === examId);
+  if (exam) {
+    exam.assignedStudents = exam.assignedStudents.filter(id => id !== studentId);
+    showNotif('🗑️ تم إلغاء التعيين');
+    renderAssignStudents();
+    updateStats();
+  }
+}
+
+function assignAll(examId) {
+  const exam = exams.find(e => e.id === examId);
+  if (exam) {
+    exam.assignedStudents = students.map(s => s.id);
+    showNotif('✅ تم تعيين جميع الطلاب');
+    renderAssignStudents();
+    updateStats();
+  }
+}
+
+function copyHandles() {
+  const txt = document.getElementById('handlesList').textContent;
+  navigator.clipboard.writeText(txt).then(() => showNotif('📋 تم نسخ الـ Handles'));
+}
+
+// ===== RESULTS =====
+async function fetchResults() {
+  const contestId = document.getElementById('resultContestId').value.trim();
+  const handles = document.getElementById('resultHandles').value.trim();
+  if (!contestId) return showNotif('⚠️ أدخل Contest ID', 'red');
+
+  const tbody = document.getElementById('resultsTable');
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--yellow)">⏳ جاري جلب النتائج من Codeforces...</td></tr>';
+
+  try {
+    let url = `https://codeforces.com/api/contest.standings?contestId=${contestId}&showUnofficial=false`;
+    if (handles) url += `&handles=${handles}`;
+    const r = await fetch(url);
+    const d = await r.json();
+
+    if (d.status !== 'OK') {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">❌</div><p>${d.comment || 'خطأ في الجلب'}</p></div></td></tr>`;
+      return;
+    }
+
+    const rows = d.result.rows;
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="icon">🏆</div><p>لا توجد نتائج</p></div></td></tr>';
+      return;
+    }
+
+    const colors = ['#00c6ff','#7b2ff7','#00e676','#ffd32a'];
+    tbody.innerHTML = rows.slice(0, 30).map((row, i) => {
+      const handle = row.party.members[0]?.handle || '—';
+      const student = students.find(s => s.handle.toLowerCase() === handle.toLowerCase());
+      const solved = row.problemResults.filter(p => p.points > 0).length;
+      const total = row.problemResults.length;
+      const points = row.points;
+      const c = colors[(i + 1) % colors.length];
+      const rank = row.rank;
+      const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+      const exam = exams.find(e => e.contestId === contestId);
+
+      return `<tr>
+        <td style="font-family:'Space Mono',monospace;font-size:16px;text-align:center">${medal}</td>
+        <td>
+          ${student
+            ? `<div style="display:flex;align-items:center">
+                <div class="avatar" style="background:${c}22;color:${c};border:1.5px solid ${c}">${student.name[0]}</div>
+                <span>${student.name}</span>
+              </div>`
+            : `<span style="color:var(--muted)">—</span>`}
+        </td>
+        <td><a href="https://codeforces.com/profile/${handle}" target="_blank" class="cf-handle">@${handle}</a></td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-family:'Space Mono',monospace">${solved}/${total}</span>
+            <div style="flex:1;max-width:80px">
+              <div class="progress-bar"><div class="progress-fill" style="width:${Math.round((solved/total)*100)}%"></div></div>
+            </div>
+          </div>
+        </td>
+        <td><span style="font-family:'Space Mono',monospace;color:var(--yellow)">${points}</span></td>
+        <td>${exam ? exam.name : `Contest #${contestId}`}</td>
+        <td>${solved === total ? '<span class="badge badge-green">✅ كامل</span>' : solved > 0 ? '<span class="badge badge-yellow">🔄 جزئي</span>' : '<span class="badge badge-red">❌ لم يحل</span>'}</td>
+      </tr>`;
+    }).join('');
+    showNotif(`✅ تم جلب ${rows.length} نتيجة`);
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="icon">⚠️</div><p>خطأ في الاتصال بـ Codeforces API</p></div></td></tr>';
+  }
+}
+
+function renderResults() {}
+
+// ===== NOTIFICATION =====
+function showNotif(msg, type = 'green') {
+  const el = document.getElementById('notif');
+  document.getElementById('notifMsg').textContent = msg;
+  el.style.borderColor = type === 'red' ? 'var(--red)' : 'var(--green)';
+  el.style.color = type === 'red' ? 'var(--red)' : 'var(--green)';
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ===== INIT =====
+updateStats();
+</script>
+
+</body>
+</html>

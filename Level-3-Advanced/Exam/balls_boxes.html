@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الكرات والصناديق - البرمجة التنافسية</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:    #0d1117;
+    --bg2:   #161b22;
+    --bg3:   #1c2230;
+    --card:  #1f2937;
+    --bdr:   #2d3748;
+    --bdr2:  #4a5568;
+    --red:   #ef4444;
+    --green: #22c55e;
+    --blue:  #3b82f6;
+    --amber: #f59e0b;
+    --teal:  #14b8a6;
+    --purp:  #a855f7;
+    --text:  #f1f5f9;
+    --txt2:  #94a3b8;
+    --txt3:  #64748b;
+    --mono:  'IBM Plex Mono', monospace;
+    --sans:  'Tajawal', sans-serif;
+
+    --c1: #ef4444;   /* لون 1: أحمر */
+    --c2: #22c55e;   /* لون 2: أخضر */
+    --c3: #3b82f6;   /* لون 3: أزرق */
+  }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ══ HERO ══ */
+  .hero {
+    position: relative; overflow: hidden;
+    background: linear-gradient(160deg,#0d1117 0%,#111827 60%,#0d1a2a 100%);
+    border-bottom: 1px solid var(--bdr);
+    padding: 52px 0 44px;
+  }
+  .hero::before {
+    content:''; position:absolute; top:-120px; left:-80px;
+    width:500px; height:500px;
+    background: radial-gradient(circle,rgba(239,68,68,.07) 0%,transparent 65%);
+    pointer-events:none;
+  }
+  .hero::after {
+    content:''; position:absolute; bottom:-100px; right:5%;
+    width:400px; height:400px;
+    background: radial-gradient(circle,rgba(34,197,94,.05) 0%,transparent 65%);
+    pointer-events:none;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px; }
+
+  .badge {
+    display:inline-flex; align-items:center; gap:6px;
+    background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.3);
+    color:#f87171; font-size:12px; font-weight:700;
+    padding:4px 14px; border-radius:20px;
+    letter-spacing:.06em; text-transform:uppercase; margin-bottom:18px;
+  }
+  .hero h1 {
+    font-size:44px; font-weight:900; line-height:1.15;
+    background:linear-gradient(135deg,#f1f5f9 0%,#fca5a5 50%,#86efac 100%);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    background-clip:text; margin-bottom:12px;
+  }
+  .hero-meta { display:flex; gap:14px; flex-wrap:wrap; margin-top:22px; }
+  .chip {
+    display:flex; align-items:center; gap:8px;
+    background:var(--bg2); border:1px solid var(--bdr);
+    padding:6px 14px; border-radius:8px;
+    font-size:13px; color:var(--txt2);
+  }
+  .chip strong { color:var(--text); font-weight:700; }
+
+  /* ══ SECTION ══ */
+  .sec { padding:44px 0; border-bottom:1px solid var(--bdr); }
+  .sec-hd {
+    display:flex; align-items:center; gap:12px; margin-bottom:28px;
+  }
+  .sec-num {
+    width:34px; height:34px; border-radius:9px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:800; color:#fff;
+  }
+  .sec-title { font-size:22px; font-weight:800; color:var(--text); }
+
+  /* ══ PROBLEM CARD ══ */
+  .pcard {
+    background:var(--bg2); border:1px solid var(--bdr);
+    border-radius:16px; overflow:hidden;
+  }
+  .pcard-top {
+    background:var(--bg3); border-bottom:1px solid var(--bdr);
+    padding:12px 20px; display:flex; align-items:center; gap:8px;
+    font-size:12px; color:var(--txt3); font-family:var(--mono);
+  }
+  .dot { width:10px; height:10px; border-radius:50%; }
+  .pcard-body { padding:26px; }
+  .ptxt { font-size:15px; color:var(--txt2); line-height:1.9; }
+  .hl {
+    color:var(--blue); font-weight:700; font-family:var(--mono);
+    background:rgba(59,130,246,.08); padding:1px 5px; border-radius:4px;
+  }
+
+  /* info row */
+  .info-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:22px; }
+  .info-box {
+    background:var(--bg3); border:1px solid var(--bdr);
+    border-radius:10px; padding:12px 16px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .info-lbl { font-size:12px; color:var(--txt3); }
+  .info-val { font-size:14px; font-weight:700; color:var(--amber); font-family:var(--mono); }
+
+  /* conditions */
+  .cond-list { display:flex; flex-direction:column; gap:10px; margin:16px 0; }
+  .cond-item {
+    display:flex; align-items:flex-start; gap:10px;
+    background:var(--bg3); border:1px solid var(--bdr);
+    border-radius:10px; padding:12px 16px;
+    font-size:14px; color:var(--txt2);
+  }
+  .cond-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+
+  /* matrix display */
+  .matrix-wrap { overflow-x:auto; margin:16px 0; }
+  .mat {
+    border-collapse:collapse; font-family:var(--mono);
+    font-size:14px; margin:0 auto;
+  }
+  .mat th {
+    background:var(--bg3); border:1px solid var(--bdr);
+    padding:8px 16px; color:var(--txt2); font-weight:700;
+  }
+  .mat td {
+    border:1px solid var(--bdr);
+    padding:8px 16px; text-align:center; color:var(--text);
+  }
+  .mat .ch1 { color:var(--c1); font-weight:700; }
+  .mat .ch2 { color:var(--c2); font-weight:700; }
+  .mat .ch3 { color:var(--c3); font-weight:700; }
+
+  /* IO */
+  .io-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .io-box { background:var(--bg3); border:1px solid var(--bdr); border-radius:10px; overflow:hidden; }
+  .io-hd {
+    padding:7px 14px; font-size:11px; font-weight:800;
+    letter-spacing:.06em; text-transform:uppercase; border-bottom:1px solid var(--bdr);
+  }
+  .io-hd.in  { color:var(--teal);  background:rgba(20,184,166,.05); }
+  .io-hd.out { color:var(--green); background:rgba(34,197,94,.05); }
+  .io-box pre { padding:12px 14px; font-size:13px; font-family:var(--mono); direction:ltr; text-align:left; }
+
+  hr.sep { border:none; border-top:1px solid var(--bdr); margin:20px 0; }
+
+  /* constraints table */
+  .ctbl { border-collapse:collapse; width:100%; font-size:14px; }
+  .ctbl th { background:var(--bg3); border:1px solid var(--bdr); padding:9px 14px; color:var(--txt2); font-weight:700; text-align:right; }
+  .ctbl td { border:1px solid var(--bdr); padding:9px 14px; color:var(--text); }
+  .ctbl tr:hover td { background:rgba(255,255,255,.02); }
+  .pts {
+    color:var(--green); font-weight:800; font-family:var(--mono);
+    background:rgba(34,197,94,.08); padding:2px 8px; border-radius:4px;
+  }
+
+  /* ══ LAB ══ */
+  .lab { background:var(--bg2); border:1px solid var(--bdr); border-radius:16px; overflow:hidden; margin-bottom:18px; }
+  .lab-hd {
+    background:linear-gradient(90deg,rgba(59,130,246,.12),rgba(99,102,241,.08));
+    border-bottom:1px solid var(--bdr);
+    padding:14px 20px; display:flex; align-items:center; gap:10px;
+  }
+  .lab-hd h3 { font-size:15px; font-weight:800; color:var(--text); }
+  .lab-body { padding:24px; }
+
+  /* visual boxes */
+  .boxes-row { display:flex; gap:20px; justify-content:center; flex-wrap:wrap; margin-bottom:20px; }
+  .box-visual {
+    background:var(--bg3); border:2px solid var(--bdr);
+    border-radius:12px; padding:16px 14px; min-width:180px; flex:1; max-width:240px;
+    transition: border-color 0.2s;
+  }
+  .box-visual.highlight { border-color: var(--amber); }
+  .box-lbl { font-size:12px; color:var(--txt3); text-align:center; margin-bottom:12px; font-weight:700; letter-spacing:.05em; }
+  .balls-area { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; min-height:60px; align-content:flex-start; }
+  .ball {
+    width:26px; height:26px; border-radius:50%;
+    display:inline-block; transition:all .2s;
+    box-shadow:inset -3px -3px 6px rgba(0,0,0,.4), inset 2px 2px 4px rgba(255,255,255,.15);
+  }
+  .ball.c1 { background:radial-gradient(circle at 35% 35%, #fca5a5, var(--c1)); }
+  .ball.c2 { background:radial-gradient(circle at 35% 35%, #86efac, var(--c2)); }
+  .ball.c3 { background:radial-gradient(circle at 35% 35%, #93c5fd, var(--c3)); }
+
+  /* matrix input */
+  .mat-input { border-collapse:collapse; margin:0 auto; font-size:14px; }
+  .mat-input td { padding:4px 6px; text-align:center; }
+  .mat-input input {
+    width:54px; padding:6px; text-align:center;
+    background:var(--bg3); border:1px solid var(--bdr);
+    border-radius:7px; color:var(--text); font-family:var(--mono);
+    font-size:15px; font-weight:700;
+    transition:border-color .2s;
+  }
+  .mat-input input:focus { outline:none; border-color:var(--blue); }
+  .mat-input .c1-inp:focus { border-color:var(--c1); }
+  .mat-input .c2-inp:focus { border-color:var(--c2); }
+  .mat-input .c3-inp:focus { border-color:var(--c3); }
+
+  .col-hd { font-size:11px; font-weight:800; letter-spacing:.08em; padding:4px 8px !important; }
+  .row-hd { font-size:11px; color:var(--txt3); font-weight:700; padding:4px 10px !important; }
+
+  .calc-btn {
+    display:block; width:100%; margin-top:18px;
+    background:linear-gradient(135deg,#1d4ed8,#6366f1);
+    border:none; border-radius:10px; padding:12px;
+    color:#fff; font-family:var(--sans); font-size:15px; font-weight:800;
+    cursor:pointer; transition:opacity .15s;
+  }
+  .calc-btn:hover { opacity:.88; }
+
+  .result-area {
+    background:var(--bg3); border:1px solid var(--bdr);
+    border-radius:12px; padding:20px; margin-top:16px; text-align:center;
+    display:none;
+  }
+  .result-num { font-size:52px; font-weight:900; color:var(--green); font-family:var(--mono); line-height:1; }
+  .result-lbl { font-size:13px; color:var(--txt3); margin-top:6px; }
+  .perm-detail { margin-top:16px; text-align:right; }
+  .perm-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:8px 12px; border-radius:8px; margin-bottom:6px;
+    background:var(--bg); border:1px solid var(--bdr);
+    font-size:13px; font-family:var(--mono);
+    transition:all .2s;
+  }
+  .perm-row.best { background:rgba(34,197,94,.08); border-color:rgba(34,197,94,.35); }
+  .perm-saved { color:var(--green); font-weight:700; }
+  .perm-cost  { color:var(--amber); font-weight:700; }
+
+  /* ══ STEPS ══ */
+  .steps { display:flex; flex-direction:column; gap:18px; }
+  .step { display:flex; gap:16px; align-items:flex-start; }
+  .snum {
+    width:38px; height:38px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:800; color:#fff; margin-top:2px;
+  }
+  .scont { flex:1; }
+  .stitle { font-size:17px; font-weight:800; color:var(--text); margin-bottom:6px; }
+  .sdesc { font-size:14px; color:var(--txt2); line-height:1.85; }
+  .sdesc code {
+    background:rgba(59,130,246,.1); color:var(--blue);
+    padding:1px 6px; border-radius:4px;
+    font-family:var(--mono); font-size:13px;
+  }
+  .algo {
+    background:var(--bg3); border:1px solid var(--bdr);
+    border-right:3px solid var(--blue); border-radius:8px;
+    padding:14px 18px; margin-top:10px;
+    font-family:var(--mono); font-size:13px; color:var(--txt2);
+    line-height:2.1; direction:ltr; text-align:left;
+  }
+  .algo .kw  { color:#c792ea; font-weight:600; }
+  .algo .nm  { color:#f78c6c; }
+  .algo .cm  { color:#546e7a; font-style:italic; }
+  .algo .fn  { color:#82aaff; }
+
+  /* key insight */
+  .insight {
+    background:rgba(245,158,11,.07); border:1px solid rgba(245,158,11,.25);
+    border-radius:10px; padding:16px 20px; margin:16px 0;
+    font-size:14px; color:var(--txt2);
+  }
+  .insight strong { color:var(--amber); }
+
+  /* perm table */
+  .ptbl-wrap { overflow-x:auto; margin:14px 0; }
+  .ptbl { border-collapse:collapse; width:100%; font-size:13px; }
+  .ptbl th { background:var(--bg3); border:1px solid var(--bdr); padding:8px 12px; color:var(--txt2); font-weight:700; }
+  .ptbl td { border:1px solid var(--bdr); padding:8px 12px; text-align:center; font-family:var(--mono); }
+  .ptbl tr:hover td { background:rgba(255,255,255,.02); }
+
+  /* cx */
+  .cx-row { display:flex; gap:12px; flex-wrap:wrap; }
+  .cx-card {
+    background:var(--bg3); border:1px solid var(--bdr); border-radius:10px;
+    padding:16px 20px; flex:1; min-width:160px; text-align:center;
+  }
+  .cx-v { font-size:22px; font-weight:900; font-family:var(--mono); color:var(--blue); }
+  .cx-l { font-size:12px; color:var(--txt3); margin-top:4px; }
+
+  /* ══ CODE ══ */
+  .code-wrap { background:var(--bg3); border:1px solid var(--bdr); border-radius:12px; overflow:hidden; }
+  .code-hd {
+    background:var(--bg); border-bottom:1px solid var(--bdr);
+    padding:10px 16px; display:flex; align-items:center; justify-content:space-between;
+    font-family:var(--mono); font-size:12px; color:var(--txt3);
+  }
+  .cpbtn {
+    background:var(--card); border:1px solid var(--bdr); border-radius:6px;
+    padding:4px 10px; color:var(--txt2); font-family:var(--mono); font-size:11px;
+    cursor:pointer; transition:all .15s;
+  }
+  .cpbtn:hover { border-color:var(--blue); color:var(--blue); }
+  pre { padding:20px; overflow-x:auto; font-family:var(--mono); font-size:13px; line-height:1.9; tab-size:4; }
+  .code-wrap pre { direction:ltr; text-align:left; }
+  .kw  { color:#c792ea; }
+  .fn  { color:#82aaff; }
+  .st  { color:#c3e88d; }
+  .nm  { color:#f78c6c; }
+  .cm  { color:#546e7a; font-style:italic; }
+  .tp  { color:#ffcb6b; }
+
+  .color-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-left:6px; }
+
+  .tag {
+    display:inline-block; background:rgba(168,85,247,.12);
+    border:1px solid rgba(168,85,247,.3);
+    color:var(--purp); font-size:11px; font-weight:700;
+    padding:2px 8px; border-radius:4px; margin-right:6px;
+  }
+
+  /* color headers for table */
+  .ch-r { color:var(--c1); }
+  .ch-g { color:var(--c2); }
+  .ch-b { color:var(--c3); }
+</style>
+</head>
+<body>
+
+<!-- ══ HERO ══ -->
+<div class="hero">
+  <div class="wrap">
+    <div class="badge">🎱 البرمجة التنافسية · Permutations + Greedy</div>
+    <h1>مسألة: الكرات والصناديق</h1>
+    <div style="color:var(--txt2);font-size:16px;margin-top:8px;">
+      أقل عدد من النقلات لفصل الألوان — كل صندوق لون واحد، كل لون في صندوق واحد
+    </div>
+    <div class="hero-meta">
+      <div class="chip">⏱ الزمن: <strong>0.5 ثانية</strong></div>
+      <div class="chip">🧠 الذاكرة: <strong>256 MB</strong></div>
+      <div class="chip">📦 الصناديق: <strong>3</strong></div>
+      <div class="chip">🎨 الألوان: <strong>3</strong></div>
+      <div class="chip">🔢 A[i][j]: <strong>0 ≤ A ≤ 100</strong></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 1: وصف المسألة ══ -->
+<div class="sec">
+<div class="wrap">
+  <div class="sec-hd">
+    <div class="sec-num" style="background:linear-gradient(135deg,#ef4444,#f97316)">١</div>
+    <div class="sec-title">وصف المسألة الكاملة</div>
+  </div>
+
+  <div class="pcard">
+    <div class="pcard-top">
+      <div class="dot" style="background:#ef4444"></div>
+      <div class="dot" style="background:#f59e0b"></div>
+      <div class="dot" style="background:#22c55e"></div>
+      &nbsp; balls_and_boxes.cpp
+    </div>
+    <div class="pcard-body">
+
+      <div class="info-row">
+        <div class="info-box"><span class="info-lbl">الزمن المحدد</span><span class="info-val">0.5 ثانية</span></div>
+        <div class="info-box"><span class="info-lbl">الذاكرة المحددة</span><span class="info-val">256 MB</span></div>
+      </div>
+
+      <div class="ptxt">
+        يوجد <span class="hl">3</span> صناديق تحتوي على كرات من <span class="hl">3</span> ألوان مختلفة.
+        لكل صندوق، أنت تعرف عدد الكرات من كل لون الموجودة داخله.
+        <br><br>
+        هدفك هو نقل <strong style="color:var(--text)">أقل عدد ممكن من الكرات</strong> من صندوق إلى آخر، بحيث بعد انتهاء جميع النقلات تتحقق الشرطان:
+      </div>
+
+      <div class="cond-list">
+        <div class="cond-item">
+          <span class="cond-icon">🚫</span>
+          <span>لا توجد كرتان في <strong style="color:var(--text)">نفس الصندوق</strong> بلونين مختلفين — كل صندوق يحتوي لوناً واحداً فقط</span>
+        </div>
+        <div class="cond-item">
+          <span class="cond-icon">🚫</span>
+          <span>لا توجد كرتان في <strong style="color:var(--text)">صندوقين مختلفين</strong> ولهما نفس اللون — كل لون في صندوق واحد فقط</span>
+        </div>
+      </div>
+
+      <div class="ptxt" style="margin-top:12px;">
+        <strong style="color:var(--text)">بمعنى آخر:</strong> في النهاية، كل صندوق يحتوي كرات من لون واحد بالضبط، وكل لون موجود في صندوق واحد بالضبط — وهو تعيين <span class="hl">تبديلي (Permutation)</span> للألوان على الصناديق.
+      </div>
+
+      <hr class="sep">
+
+      <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:12px;">📥 المدخلات</div>
+      <div class="ptxt" style="margin-bottom:14px;">
+        التوزيع الابتدائي للكرات داخل الصناديق يُعطى على شكل مصفوفة <span class="hl">3×3</span>، تتكون المدخلات من ثلاثة أسطر:
+      </div>
+      <div class="matrix-wrap">
+        <table class="mat">
+          <tr>
+            <th></th>
+            <th class="ch-r">🔴 لون 1</th>
+            <th class="ch-g">🟢 لون 2</th>
+            <th class="ch-b">🔵 لون 3</th>
+          </tr>
+          <tr>
+            <th>📦 صندوق 1</th>
+            <td class="ch1">A₁,₁</td><td class="ch2">A₁,₂</td><td class="ch3">A₁,₃</td>
+          </tr>
+          <tr>
+            <th>📦 صندوق 2</th>
+            <td class="ch1">A₂,₁</td><td class="ch2">A₂,₂</td><td class="ch3">A₂,₃</td>
+          </tr>
+          <tr>
+            <th>📦 صندوق 3</th>
+            <td class="ch1">A₃,₁</td><td class="ch2">A₃,₂</td><td class="ch3">A₃,₃</td>
+          </tr>
+        </table>
+      </div>
+      <div class="ptxt" style="margin-top:8px;">
+        حيث <span class="hl">A[i][j]</span> يمثل عدد الكرات من اللون <span class="hl">j</span> الموجودة في الصندوق <span class="hl">i</span>
+        <br>القيد: <span class="hl">0 ≤ A[i][j] ≤ 100</span>
+      </div>
+
+      <hr class="sep">
+      <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:10px;">📤 المخرجات</div>
+      <div class="ptxt">اطبع عدداً صحيحاً واحداً: <strong style="color:var(--green)">أقل عدد من الكرات التي يجب نقلها</strong></div>
+
+      <hr class="sep">
+      <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:12px;">📊 القيود والتقييم</div>
+      <table class="ctbl">
+        <tr><th>الحالة</th><th>النقاط</th><th>القيد الإضافي</th></tr>
+        <tr><td>30%</td><td><span class="pts">30%</span></td><td>الصندوق الثالث فارغ (A[3][j] = 0 لكل j)</td></tr>
+        <tr><td>30%</td><td><span class="pts">30%</span></td><td>الصندوقان الثاني والثالث فارغان (A[2][j] = A[3][j] = 0 لكل j)</td></tr>
+        <tr><td>40%</td><td><span class="pts">40%</span></td><td>لا توجد قيود إضافية</td></tr>
+      </table>
+
+      <hr class="sep">
+      <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:14px;">📌 أمثلة</div>
+
+      <div style="font-size:13px;color:var(--txt3);margin-bottom:6px;">مثال 1 — صندوقان فارغان</div>
+      <div class="io-grid" style="margin-bottom:12px;">
+        <div class="io-box"><div class="io-hd in">مدخل</div><pre>2 0 0
+3 0 0
+0 0 0</pre></div>
+        <div class="io-box"><div class="io-hd out">مخرج</div><pre>2</pre></div>
+      </div>
+      <div style="font-size:13px;color:var(--txt2);margin-bottom:18px;padding:10px 14px;background:var(--bg3);border:1px solid var(--bdr);border-radius:8px;">
+        📝 الصندوق الأول: 2 كرات حمراء + 3 كرات خضراء. الصندوقان الآخران فارغان. ننقل الكرتين الحمراوتين للصندوق الثاني → 2 نقلة.
+      </div>
+
+      <div style="font-size:13px;color:var(--txt3);margin-bottom:6px;">مثال 2 — صندوق واحد فارغ</div>
+      <div class="io-grid" style="margin-bottom:12px;">
+        <div class="io-box"><div class="io-hd in">مدخل</div><pre>3 1 0
+9 5 0
+0 0 0</pre></div>
+        <div class="io-box"><div class="io-hd out">مخرج</div><pre>8</pre></div>
+      </div>
+      <div style="font-size:13px;color:var(--txt2);margin-bottom:18px;padding:10px 14px;background:var(--bg3);border:1px solid var(--bdr);border-radius:8px;">
+        📝 ننقل 3 حمراء من الصندوق الأول للثاني (+3)، وننقل 5 خضراء من الصندوق الثاني للأول (+5). المجموع = 8.
+      </div>
+
+      <div style="font-size:13px;color:var(--txt3);margin-bottom:6px;">مثال 3 — الحالة العامة (موضحة في الصورة)</div>
+      <div class="io-grid">
+        <div class="io-box"><div class="io-hd in">مدخل</div><pre>3 1 7
+6 6 8
+2 4 5</pre></div>
+        <div class="io-box"><div class="io-hd out">مخرج</div><pre>25</pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══ 2: المختبر التفاعلي ══ -->
+<div class="sec">
+<div class="wrap">
+  <div class="sec-hd">
+    <div class="sec-num" style="background:linear-gradient(135deg,#3b82f6,#6366f1)">٢</div>
+    <div class="sec-title">المختبر التفاعلي <span class="tag">تفاعلي</span></div>
+  </div>
+
+  <div class="lab">
+    <div class="lab-hd">
+      <span style="font-size:20px">🔬</span>
+      <h3>جرّب المسألة بنفسك — أدخل المصفوفة وشاهد الحل خطوة بخطوة</h3>
+    </div>
+    <div class="lab-body">
+
+      <!-- Visual boxes -->
+      <div style="font-size:13px;color:var(--txt3);margin-bottom:12px;text-align:center;">الحالة الحالية للصناديق:</div>
+      <div class="boxes-row" id="boxesViz">
+        <div class="box-visual" id="bv0">
+          <div class="box-lbl">📦 صندوق 1</div>
+          <div class="balls-area" id="ba0"></div>
+        </div>
+        <div class="box-visual" id="bv1">
+          <div class="box-lbl">📦 صندوق 2</div>
+          <div class="balls-area" id="ba1"></div>
+        </div>
+        <div class="box-visual" id="bv2">
+          <div class="box-lbl">📦 صندوق 3</div>
+          <div class="balls-area" id="ba2"></div>
+        </div>
+      </div>
+
+      <!-- Matrix input -->
+      <div style="font-size:13px;color:var(--txt2);margin-bottom:12px;">✏️ أدخل قيم المصفوفة A[i][j] — صف = صندوق، عمود = لون:</div>
+      <div style="overflow-x:auto;">
+      <table class="mat-input" id="matInput">
+        <tr>
+          <td class="col-hd"></td>
+          <td class="col-hd" style="color:var(--c1)">🔴 لون 1</td>
+          <td class="col-hd" style="color:var(--c2)">🟢 لون 2</td>
+          <td class="col-hd" style="color:var(--c3)">🔵 لون 3</td>
+        </tr>
+        <tr>
+          <td class="row-hd">📦 ص 1</td>
+          <td><input type="number" class="c1-inp" id="a00" value="3" min="0" max="100" oninput="updateViz()"></td>
+          <td><input type="number" class="c2-inp" id="a01" value="1" min="0" max="100" oninput="updateViz()"></td>
+          <td><input type="number" class="c3-inp" id="a02" value="7" min="0" max="100" oninput="updateViz()"></td>
+        </tr>
+        <tr>
+          <td class="row-hd">📦 ص 2</td>
+          <td><input type="number" class="c1-inp" id="a10" value="6" min="0" max="100" oninput="updateViz()"></td>
+          <td><input type="number" class="c2-inp" id="a11" value="6" min="0" max="100" oninput="updateViz()"></td>
+          <td><input type="number" class="c3-inp" id="a12" value="8" min="0" max="100" oninput="updateViz()"></td>
+        </tr>
+        <tr>
+          <td class="row-hd">📦 ص 3</td>
+          <td><input type="number" class="c1-inp" id="a20" value="2" min="0" max="100" oninput="updateViz()"></td>
+          <td><input type="number" class="c2-inp" id="a21" value="4" min="0" max="100" oninput="updateViz()"></td>
+          <td><input type="number" class="c3-inp" id="a22" value="5" min="0" max="100" oninput="updateViz()"></td>
+        </tr>
+      </table>
+      </div>
+
+      <button class="calc-btn" onclick="solve()">⚡ احسب أقل عدد نقلات</button>
+
+      <div class="result-area" id="resultArea">
+        <div class="result-lbl">أقل عدد من الكرات التي يجب نقلها</div>
+        <div class="result-num" id="resultNum">-</div>
+        <div class="perm-detail" id="permDetail"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══ 3: خطوات الحل ══ -->
+<div class="sec">
+<div class="wrap">
+  <div class="sec-hd">
+    <div class="sec-num" style="background:linear-gradient(135deg,#22c55e,#14b8a6)">٣</div>
+    <div class="sec-title">خطوات الحل والخوارزمية</div>
+  </div>
+
+  <div class="insight">
+    <strong>💡 الملاحظة الجوهرية:</strong> الحالة النهائية هي دائماً تبديل (Permutation) للألوان على الصناديق. بما أن 3 ألوان و3 صناديق، يوجد بالضبط <strong>3! = 6 تباديل</strong> ممكنة فقط. نجرب كلها ونأخذ الأفضل.
+  </div>
+
+  <div class="steps">
+
+    <div class="step">
+      <div class="snum" style="background:linear-gradient(135deg,#3b82f6,#6366f1)">1</div>
+      <div class="scont">
+        <div class="stitle">فهم الهدف النهائي</div>
+        <div class="sdesc">
+          في الحالة المثالية، كل صندوق يحتوي لوناً واحداً فقط، وكل لون في صندوق واحد. هذا يعني أننا نبحث عن تعيين بيجكتيف (Bijection): صندوق 1 → لون ؟، صندوق 2 → لون ؟، صندوق 3 → لون ؟<br><br>
+          عدد التعيينات الممكنة = <code>3! = 6</code> فقط.
+        </div>
+        <div class="ptbl-wrap">
+          <table class="ptbl">
+            <tr>
+              <th>رقم التبديل</th>
+              <th>صندوق 1 → لون</th>
+              <th>صندوق 2 → لون</th>
+              <th>صندوق 3 → لون</th>
+            </tr>
+            <tr><td>1</td><td class="ch-r">🔴 1</td><td class="ch-g">🟢 2</td><td class="ch-b">🔵 3</td></tr>
+            <tr><td>2</td><td class="ch-r">🔴 1</td><td class="ch-b">🔵 3</td><td class="ch-g">🟢 2</td></tr>
+            <tr><td>3</td><td class="ch-g">🟢 2</td><td class="ch-r">🔴 1</td><td class="ch-b">🔵 3</td></tr>
+            <tr><td>4</td><td class="ch-g">🟢 2</td><td class="ch-b">🔵 3</td><td class="ch-r">🔴 1</td></tr>
+            <tr><td>5</td><td class="ch-b">🔵 3</td><td class="ch-r">🔴 1</td><td class="ch-g">🟢 2</td></tr>
+            <tr><td>6</td><td class="ch-b">🔵 3</td><td class="ch-g">🟢 2</td><td class="ch-r">🔴 1</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="snum" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">2</div>
+      <div class="scont">
+        <div class="stitle">حساب تكلفة كل تبديل</div>
+        <div class="sdesc">
+          لتبديل معين، كل صندوق <code>i</code> مُعيَّن للون <code>p[i]</code>. الكرات التي <strong style="color:var(--text)">لا تُنقل</strong> هي الكرات من اللون <code>p[i]</code> الموجودة أصلاً في الصندوق <code>i</code>، وعددها <code>A[i][p[i]]</code>.<br><br>
+          إذن: <code>الكرات المُبقاة = Σ A[i][p[i]]</code> لكل i من 1 إلى 3.<br>
+          والكرات المنقولة = إجمالي كل الكرات − الكرات المُبقاة.
+        </div>
+        <div class="algo">
+<span class="cm">// لكل تبديل p حيث p = [p0, p1, p2] (اللون المعين لكل صندوق)</span><br>
+saved = A[<span class="nm">0</span>][p[<span class="nm">0</span>]] + A[<span class="nm">1</span>][p[<span class="nm">1</span>]] + A[<span class="nm">2</span>][p[<span class="nm">2</span>]]<br>
+cost  = total - saved<br>
+<span class="cm">// حيث total = مجموع كل عناصر المصفوفة</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="snum" style="background:linear-gradient(135deg,#22c55e,#14b8a6)">3</div>
+      <div class="scont">
+        <div class="stitle">الخوارزمية الكاملة</div>
+        <div class="sdesc">
+          نحسب المجموع الكلي ثم نجرب جميع التباديل الـ6 ونأخذ أقل تكلفة.
+        </div>
+        <div class="algo">
+<span class="cm">// 1) احسب المجموع الكلي</span><br>
+total = Σ A[i][j] <span class="kw">for all</span> i,j<br><br>
+<span class="cm">// 2) جرّب كل التباديل الـ6</span><br>
+perms = [[<span class="nm">0</span>,<span class="nm">1</span>,<span class="nm">2</span>],[<span class="nm">0</span>,<span class="nm">2</span>,<span class="nm">1</span>],[<span class="nm">1</span>,<span class="nm">0</span>,<span class="nm">2</span>],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">0</span>],[<span class="nm">2</span>,<span class="nm">0</span>,<span class="nm">1</span>],[<span class="nm">2</span>,<span class="nm">1</span>,<span class="nm">0</span>]]<br><br>
+best = total <span class="cm">// في أسوأ حال ننقل الكل</span><br>
+<span class="kw">for each</span> perm <span class="kw">in</span> perms:<br>
+&nbsp;&nbsp;saved = A[<span class="nm">0</span>][perm[<span class="nm">0</span>]] + A[<span class="nm">1</span>][perm[<span class="nm">1</span>]] + A[<span class="nm">2</span>][perm[<span class="nm">2</span>]]<br>
+&nbsp;&nbsp;best = <span class="fn">min</span>(best, total - saved)<br><br>
+<span class="kw">print</span> best
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="snum" style="background:linear-gradient(135deg,#a855f7,#6366f1)">4</div>
+      <div class="scont">
+        <div class="stitle">لماذا هذا صحيح؟ (إثبات)</div>
+        <div class="sdesc">
+          • أي حالة نهائية صحيحة هي بالضرورة تبديل للألوان على الصناديق (3 صناديق، 3 ألوان، كل لون مرة واحدة) — إذن مجموعة الحلول الممكنة = مجموعة التباديل الـ6 بالضبط.<br><br>
+          • تكلفة أي تبديل = إجمالي الكرات − الكرات التي تبقى في مكانها. لتقليل النقلات، نعظّم الكرات المُبقاة.<br><br>
+          • بجرب جميع الـ6 تباديل واختيار الأقل تكلفة، نضمن الحل الأمثل.
+        </div>
+        <div class="cx-row" style="margin-top:12px;">
+          <div class="cx-card"><div class="cx-v">O(1)</div><div class="cx-l">التعقيد الزمني (6 × 3 عمليات ثابتة)</div></div>
+          <div class="cx-card"><div class="cx-v">O(1)</div><div class="cx-l">التعقيد المكاني</div></div>
+          <div class="cx-card"><div class="cx-v">6</div><div class="cx-l">عدد التباديل المجرَّبة</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ══ 4: الكود ══ -->
+<div class="sec">
+<div class="wrap">
+  <div class="sec-hd">
+    <div class="sec-num" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">٤</div>
+    <div class="sec-title">الكود الكامل (C++)</div>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-hd">
+      <span>balls_boxes.cpp · جرب كل التباديل الـ6 · O(1)</span>
+      <button class="cpbtn" onclick="copyCode()">📋 نسخ</button>
+    </div>
+    <pre id="codeEl"><span class="cm">// مسألة: الكرات والصناديق
+// الخوارزمية: جرب جميع التباديل الـ6 الممكنة
+// التعقيد: O(1) — ثابت تماماً</span>
+
+<span class="kw">#include</span> <span class="st">&lt;bits/stdc++.h&gt;</span>
+<span class="kw">using namespace</span> fn;
+
+<span class="tp">int</span> <span class="fn">main</span>() {
+    <span class="fn">ios_base</span>::<span class="fn">sync_with_stdio</span>(<span class="kw">false</span>);
+    <span class="fn">cin</span>.<span class="fn">tie</span>(<span class="kw">NULL</span>);
+
+    <span class="tp">int</span> A[<span class="nm">3</span>][<span class="nm">3</span>];
+    <span class="tp">int</span> total = <span class="nm">0</span>;
+
+    <span class="kw">for</span> (<span class="tp">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">3</span>; i++)
+        <span class="kw">for</span> (<span class="tp">int</span> j = <span class="nm">0</span>; j &lt; <span class="nm">3</span>; j++) {
+            <span class="fn">cin</span> >> A[i][j];
+            total += A[i][j];
+        }
+
+    <span class="cm">// جميع التباديل الـ6 لـ {0,1,2}</span>
+    <span class="tp">int</span> perms[<span class="nm">6</span>][<span class="nm">3</span>] = {
+        {<span class="nm">0</span>,<span class="nm">1</span>,<span class="nm">2</span>}, {<span class="nm">0</span>,<span class="nm">2</span>,<span class="nm">1</span>},
+        {<span class="nm">1</span>,<span class="nm">0</span>,<span class="nm">2</span>}, {<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">0</span>},
+        {<span class="nm">2</span>,<span class="nm">0</span>,<span class="nm">1</span>}, {<span class="nm">2</span>,<span class="nm">1</span>,<span class="nm">0</span>}
+    };
+
+    <span class="tp">int</span> ans = total; <span class="cm">// أسوأ حالة: ننقل الكل</span>
+
+    <span class="kw">for</span> (<span class="tp">int</span> p = <span class="nm">0</span>; p &lt; <span class="nm">6</span>; p++) {
+        <span class="cm">// الكرات التي تبقى في مكانها في هذا التبديل</span>
+        <span class="tp">int</span> saved = A[<span class="nm">0</span>][perms[p][<span class="nm">0</span>]]
+                  + A[<span class="nm">1</span>][perms[p][<span class="nm">1</span>]]
+                  + A[<span class="nm">2</span>][perms[p][<span class="nm">2</span>]];
+        ans = <span class="fn">min</span>(ans, total - saved);
+    }
+
+    <span class="fn">cout</span> &lt;&lt; ans &lt;&lt; <span class="st">"\n"</span>;
+
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+  </div>
+
+  <!-- Test cases -->
+  <div style="margin-top:22px;">
+    <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:14px;">🧪 أمثلة الاختبار الثلاثة</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;">
+      <div>
+        <div style="font-size:12px;color:var(--txt3);margin-bottom:6px;">مثال 1 — الإجابة: 2</div>
+        <div class="io-grid">
+          <div class="io-box"><div class="io-hd in">مدخل</div><pre>2 0 0
+3 0 0
+0 0 0</pre></div>
+          <div class="io-box"><div class="io-hd out">مخرج</div><pre>2</pre></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--txt3);margin-bottom:6px;">مثال 2 — الإجابة: 8</div>
+        <div class="io-grid">
+          <div class="io-box"><div class="io-hd in">مدخل</div><pre>3 1 0
+9 5 0
+0 0 0</pre></div>
+          <div class="io-box"><div class="io-hd out">مخرج</div><pre>8</pre></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--txt3);margin-bottom:6px;">مثال 3 — الإجابة: 25</div>
+        <div class="io-grid">
+          <div class="io-box"><div class="io-hd in">مدخل</div><pre>3 1 7
+6 6 8
+2 4 5</pre></div>
+          <div class="io-box"><div class="io-hd out">مخرج</div><pre>25</pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- Footer -->
+<div style="padding:32px 0;text-align:center;color:var(--txt3);font-size:13px;border-top:1px solid var(--bdr);">
+  مسألة الكرات والصناديق · البرمجة التنافسية السعودية · Permutations + Greedy O(1)
+</div>
+
+<script>
+// ══ Viz update ══
+function getVal(id) {
+  const v = parseInt(document.getElementById(id).value);
+  return isNaN(v)||v<0 ? 0 : Math.min(v,100);
+}
+
+function getMatrix() {
+  return [
+    [getVal('a00'),getVal('a01'),getVal('a02')],
+    [getVal('a10'),getVal('a11'),getVal('a12')],
+    [getVal('a20'),getVal('a21'),getVal('a22')]
+  ];
+}
+
+function updateViz() {
+  const A = getMatrix();
+  const cls = ['c1','c2','c3'];
+  for (let i=0;i<3;i++) {
+    const area = document.getElementById('ba'+i);
+    area.innerHTML = '';
+    for (let j=0;j<3;j++) {
+      const cnt = Math.min(A[i][j], 20); // max 20 balls visual
+      for (let k=0;k<cnt;k++) {
+        const b = document.createElement('div');
+        b.className = 'ball '+cls[j];
+        area.appendChild(b);
+      }
+      if (A[i][j]>20) {
+        const sp = document.createElement('span');
+        sp.style.cssText='font-size:11px;color:var(--txt3);align-self:center;font-family:var(--mono);';
+        sp.textContent='+' + (A[i][j]-20);
+        area.appendChild(sp);
+      }
+    }
+  }
+}
+
+// ══ Solve ══
+const PERMS = [
+  [0,1,2],[0,2,1],[1,0,2],[1,2,1-1],[2,0,1],[2,1,0]
+];
+const ALL_PERMS = [[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]];
+const COLOR_NAMES = ['🔴 أحمر','🟢 أخضر','🔵 أزرق'];
+const COLOR_CSS = ['var(--c1)','var(--c2)','var(--c3)'];
+
+function solve() {
+  const A = getMatrix();
+  let total = 0;
+  for (let i=0;i<3;i++) for(let j=0;j<3;j++) total+=A[i][j];
+
+  let best = total;
+  let bestPerm = ALL_PERMS[0];
+  let results = [];
+
+  for (const perm of ALL_PERMS) {
+    const saved = A[0][perm[0]] + A[1][perm[1]] + A[2][perm[2]];
+    const cost = total - saved;
+    results.push({perm, saved, cost});
+    if (cost < best) { best=cost; bestPerm=perm; }
+  }
+
+  // show result
+  const ra = document.getElementById('resultArea');
+  ra.style.display='block';
+  document.getElementById('resultNum').textContent = best;
+
+  // sort: best first
+  results.sort((a,b)=>a.cost-b.cost);
+
+  let html = '<div style="font-size:13px;color:var(--txt3);margin-bottom:10px;font-weight:700;">جميع التباديل الـ6 مرتبة من الأفضل للأسوأ:</div>';
+  for (const r of results) {
+    const isBest = r.cost === best;
+    const pLabel = r.perm.map((c,i)=>`ص${i+1}→<span style="color:${COLOR_CSS[c]}">${COLOR_NAMES[c]}</span>`).join('، ');
+    html += `<div class="perm-row ${isBest?'best':''}">
+      <span style="font-size:12px;direction:rtl">${isBest?'⭐ ':''}${pLabel}</span>
+      <span>مُبقى: <span class="perm-saved">${r.saved}</span> &nbsp; تكلفة: <span class="perm-cost">${r.cost}</span></span>
+    </div>`;
+  }
+  document.getElementById('permDetail').innerHTML = html;
+
+  // update box colors for best perm
+  for (let i=0;i<3;i++) {
+    const bv = document.getElementById('bv'+i);
+    bv.style.borderColor = COLOR_CSS[bestPerm[i]];
+    bv.style.background = `rgba(${hexToRgb(COLOR_CSS[bestPerm[i]])},0.04)`;
+  }
+}
+
+function hexToRgb(cssVar) {
+  // simple approximation for highlight
+  if (cssVar.includes('c1')||cssVar.includes('ef4444')) return '239,68,68';
+  if (cssVar.includes('c2')||cssVar.includes('22c55e')) return '34,197,94';
+  return '59,130,246';
+}
+
+// ══ Copy code ══
+function copyCode() {
+  const code = `#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int A[3][3];
+    int total = 0;
+
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++) {
+            cin >> A[i][j];
+            total += A[i][j];
+        }
+
+    int perms[6][3] = {
+        {0,1,2}, {0,2,1},
+        {1,0,2}, {1,2,0},
+        {2,0,1}, {2,1,0}
+    };
+
+    int ans = total;
+
+    for (int p = 0; p < 6; p++) {
+        int saved = A[0][perms[p][0]]
+                  + A[1][perms[p][1]]
+                  + A[2][perms[p][2]];
+        ans = min(ans, total - saved);
+    }
+
+    cout << ans << "\\n";
+
+    return 0;
+}`;
+  navigator.clipboard.writeText(code).then(()=>{
+    const btn = document.querySelector('.cpbtn');
+    btn.textContent='✅ تم النسخ';
+    setTimeout(()=>btn.textContent='📋 نسخ',2000);
+  });
+}
+
+// init
+updateViz();
+</script>
+</body>
+</html>

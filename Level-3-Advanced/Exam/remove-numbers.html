@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إزالة الأعداد — مسألة الصف والطلاب</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:       #0e0c1a;
+    --ink-mid:   #1a1730;
+    --ink-light: #252040;
+    --violet:    #6c4fd4;
+    --violet-d:  #4a32a8;
+    --violet-l:  #9b7ff0;
+    --rose:      #d44f7a;
+    --rose-l:    #f087aa;
+    --teal:      #2fb89a;
+    --teal-l:    #5addc0;
+    --gold:      #f0c040;
+    --gold-l:    #ffd970;
+    --sand:      #f0e8d5;
+    --dim:       #8880aa;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Tajawal', sans-serif;
+    background: var(--ink);
+    color: var(--sand);
+    overflow-x: hidden;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 3rem 2rem;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 50% 0%,   #6c4fd433 0%, transparent 70%),
+      radial-gradient(ellipse 40% 30% at 15% 60%,  #d44f7a22 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 85% 70%,  #2fb89a1a 0%, transparent 60%),
+      linear-gradient(180deg, #0a0814 0%, #0e0c1a 60%, #12101f 100%);
+  }
+
+  /* animated grid lines */
+  .grid-lines {
+    position: absolute; inset: 0; opacity: .07;
+    background-image:
+      linear-gradient(#9b7ff0 1px, transparent 1px),
+      linear-gradient(90deg, #9b7ff0 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridShift 20s linear infinite;
+  }
+  @keyframes gridShift { from{background-position:0 0;} to{background-position:60px 60px;} }
+
+  /* floating orbs */
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    animation: orbFloat 8s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  .orb1 { width:300px;height:300px; background:#6c4fd422; top:-10%;left:-10%; animation-delay:0s; }
+  .orb2 { width:200px;height:200px; background:#d44f7a18; bottom:10%;right:5%; animation-delay:-3s; }
+  .orb3 { width:150px;height:150px; background:#2fb89a18; top:40%;left:60%; animation-delay:-5s; }
+  @keyframes orbFloat {
+    from{transform:translate(0,0) scale(1);}
+    to{transform:translate(30px,-30px) scale(1.1);}
+  }
+
+  .hero-eyebrow {
+    position: relative;
+    font-size: .8rem; font-weight:700; letter-spacing:.2em;
+    color: var(--violet-l); text-transform:uppercase;
+    margin-bottom:1.2rem;
+    display:flex; align-items:center; gap:.75rem;
+  }
+  .hero-eyebrow::before,.hero-eyebrow::after {
+    content:''; flex:1; height:1px;
+    background: linear-gradient(90deg, transparent, var(--violet)88, transparent);
+    max-width:80px;
+  }
+
+  .hero-title {
+    position: relative;
+    font-size: clamp(2.5rem,7vw,5rem);
+    font-weight:900; text-align:center; line-height:1.1;
+    background: linear-gradient(135deg, var(--gold-l) 0%, var(--violet-l) 40%, var(--rose-l) 100%);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    margin-bottom:1.2rem;
+  }
+
+  .hero-sub {
+    position:relative;
+    max-width:580px; text-align:center; line-height:1.9;
+    color:var(--dim); font-size:1.05rem; margin-bottom:2.5rem;
+  }
+
+  .badge-row { display:flex; gap:.75rem; flex-wrap:wrap; justify-content:center; position:relative; }
+  .badge {
+    padding:.4rem 1.1rem; border-radius:100px;
+    font-size:.78rem; font-weight:700; letter-spacing:.06em;
+  }
+  .b-time { background:#1a0f2a; border:1px solid var(--violet); color:var(--violet-l); }
+  .b-mem  { background:#0a1a16; border:1px solid var(--teal);   color:var(--teal-l); }
+  .b-n    { background:#1a100e; border:1px solid var(--rose);   color:var(--rose-l); }
+
+  .scroll-hint {
+    position:absolute; bottom:2rem; left:50%; transform:translateX(-50%);
+    color:var(--dim); font-size:.8rem; text-align:center;
+    animation: bounce 2s ease-in-out infinite;
+    display:flex; flex-direction:column; align-items:center; gap:.4rem;
+  }
+  .scroll-hint::after { content:'↓'; font-size:1.4rem; color:var(--gold); }
+  @keyframes bounce {
+    0%,100%{transform:translateX(-50%) translateY(0); opacity:.5;}
+    50%{transform:translateX(-50%) translateY(8px); opacity:1;}
+  }
+
+  /* ===== LAYOUT ===== */
+  section { max-width:1000px; margin:0 auto; padding:5rem 2rem; }
+
+  .sec-label {
+    font-size:.72rem; font-weight:700; letter-spacing:.18em;
+    color:var(--gold); text-transform:uppercase; margin-bottom:.6rem;
+  }
+
+  .sec-title {
+    font-size:clamp(1.5rem,3.5vw,2.3rem);
+    font-weight:800; color:var(--sand); margin-bottom:1.4rem; line-height:1.2;
+  }
+
+  .prose { font-size:1rem; line-height:2; color:var(--dim); max-width:720px; }
+
+  .divider { height:1px; background:linear-gradient(90deg,transparent,var(--violet)44,transparent); }
+
+  /* ===== CARDS ===== */
+  .card {
+    background:var(--ink-mid); border:1px solid #2e2850;
+    border-radius:16px; padding:2rem; margin-top:1.5rem;
+  }
+
+  .cond-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; margin-top:1.2rem; }
+
+  .cond-card {
+    background:var(--ink-light); border:1px solid #3a3060;
+    border-radius:12px; padding:1.2rem 1.4rem;
+    display:flex; gap:1rem; align-items:flex-start;
+    transition:border-color .3s, transform .3s;
+  }
+  .cond-card:hover { border-color:var(--gold); transform:translateY(-2px); }
+
+  .cond-num {
+    width:34px;height:34px;min-width:34px;
+    border-radius:50%; background:var(--violet-d);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:900; color:var(--gold); font-size:.9rem;
+  }
+  .cond-text { font-size:.93rem; line-height:1.7; color:var(--dim); }
+
+  /* ===== IO ===== */
+  .io-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-top:1.5rem; }
+  @media(max-width:640px){.io-grid{grid-template-columns:1fr;}}
+
+  .io-box { background:#080614; border:1px solid #2e2850; border-radius:12px; overflow:hidden; }
+  .io-hdr {
+    padding:.55rem 1rem; background:var(--ink-light);
+    font-size:.72rem; font-weight:700; letter-spacing:.1em;
+    color:var(--violet-l); text-transform:uppercase;
+  }
+  .io-body {
+    padding:1rem; font-family:var(--mono); font-size:.88rem;
+    color:var(--teal-l); line-height:1.9; white-space:pre;
+  }
+
+  /* ===== LAB ===== */
+  .lab {
+    background:var(--ink-mid); border:1px solid #2e2850;
+    border-radius:20px; padding:2rem; margin-top:2rem;
+  }
+
+  .lab-controls { display:flex; gap:.75rem; flex-wrap:wrap; margin-bottom:1.5rem; align-items:center; }
+
+  .lab-btn {
+    padding:.45rem 1.1rem; border-radius:8px;
+    border:1px solid #4a3880; background:var(--ink-light);
+    color:var(--sand); font-family:'Tajawal',sans-serif;
+    font-size:.88rem; cursor:pointer; transition:all .2s; font-weight:600;
+  }
+  .lab-btn:hover { background:var(--violet-d); border-color:var(--gold); }
+  .lab-btn.active { background:var(--violet); color:var(--ink); border-color:var(--gold); }
+  .lab-btn.run {
+    border-color:var(--teal); color:var(--teal-l); margin-right:auto;
+  }
+  .lab-btn.run:hover { background:#0d2a22; }
+
+  /* Queue visualization */
+  .queue-section { margin-bottom:1.5rem; }
+  .queue-label {
+    font-size:.72rem; font-weight:700; letter-spacing:.12em;
+    color:var(--violet-l); text-transform:uppercase; margin-bottom:.75rem;
+  }
+
+  .queue-display {
+    display:flex; flex-wrap:wrap; gap:8px; min-height:62px;
+    padding:10px; background:#08060f; border:1px solid #2e2850;
+    border-radius:10px; align-items:center;
+  }
+
+  .student {
+    width:52px;height:52px; border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono); font-size:1rem; font-weight:700;
+    border:2px solid transparent;
+    transition:all .35s cubic-bezier(.34,1.56,.64,1);
+    position:relative; cursor:default;
+  }
+
+  .student.active { background:#1a0f30; border-color:var(--violet-l); color:var(--violet-l); }
+  .student.removing {
+    animation:popOut .5s forwards;
+    background:#2a0a18; border-color:var(--rose); color:var(--rose-l);
+  }
+  .student.removed { display:none; }
+  .student.highlight {
+    background:#0d2218; border-color:var(--teal); color:var(--teal-l);
+    box-shadow:0 0 14px var(--teal)66;
+  }
+
+  @keyframes popOut {
+    0%  { transform:scale(1) translateY(0); opacity:1; }
+    40% { transform:scale(1.3) translateY(-10px); opacity:.8; }
+    100%{ transform:scale(0) translateY(20px); opacity:0; }
+  }
+  @keyframes popIn {
+    from{ transform:scale(0); opacity:0; }
+    to  { transform:scale(1); opacity:1; }
+  }
+  .student.popin { animation:popIn .3s cubic-bezier(.34,1.56,.64,1) forwards; }
+
+  .left-arrow {
+    font-size:.7rem; color:var(--dim);
+    display:flex;flex-direction:column;align-items:center; gap:2px;
+  }
+
+  /* Commands strip */
+  .cmd-strip {
+    display:flex; flex-wrap:wrap; gap:8px;
+    padding:10px; background:#08060f; border:1px solid #2e2850;
+    border-radius:10px; min-height:52px; align-items:center;
+  }
+
+  .cmd-pill {
+    padding:.35rem .85rem; border-radius:100px;
+    font-family:var(--mono); font-size:.88rem; font-weight:700;
+    border:1.5px solid #3a3060; color:var(--dim);
+    transition:all .3s;
+  }
+  .cmd-pill.current {
+    background:var(--gold)22; border-color:var(--gold); color:var(--gold);
+    box-shadow:0 0 12px var(--gold)44;
+    animation:pulse .6s ease-in-out infinite alternate;
+  }
+  @keyframes pulse {
+    from{box-shadow:0 0 8px var(--gold)44;}
+    to  {box-shadow:0 0 20px var(--gold)88;}
+  }
+  .cmd-pill.done { background:#1a1040; color:#5a5080; border-color:#2e2850; text-decoration:line-through; }
+  .cmd-pill.not-found { background:#1a0820; color:var(--rose-l); border-color:var(--rose); }
+
+  /* Step controls */
+  .step-nav {
+    display:flex; gap:.75rem; align-items:center; margin-top:1.2rem; flex-wrap:wrap;
+  }
+  .step-info {
+    font-family:var(--mono); font-size:.82rem; color:var(--dim);
+    padding:.3rem .8rem; background:#08060f; border-radius:6px;
+    border:1px solid #2e2850;
+  }
+
+  /* Result panel */
+  .result-panel {
+    display:flex; gap:1.5rem; flex-wrap:wrap; margin-top:1.5rem; align-items:flex-start;
+  }
+
+  .result-box {
+    flex:1; min-width:200px;
+    background:#08060f; border:1px solid #2e2850; border-radius:12px; padding:1rem 1.2rem;
+  }
+  .result-title { font-size:.72rem; font-weight:700; letter-spacing:.1em; color:var(--violet-l); text-transform:uppercase; margin-bottom:.75rem; }
+  .result-nums {
+    display:flex; flex-wrap:wrap; gap:6px;
+  }
+  .result-num {
+    width:42px;height:42px; border-radius:8px;
+    background:#1a1040; border:1.5px solid var(--violet);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono); font-size:.95rem; font-weight:700; color:var(--violet-l);
+    animation:popIn .3s ease forwards;
+  }
+
+  .log-box {
+    flex:0 0 260px;
+    background:#08060f; border:1px solid #2e2850; border-radius:12px;
+    padding:1rem; font-family:var(--mono); font-size:.78rem; color:var(--teal-l);
+    line-height:1.8; max-height:140px; overflow-y:auto;
+  }
+
+  /* ===== STEPS ===== */
+  .steps { display:flex; flex-direction:column; gap:1.5rem; margin-top:2rem; }
+
+  .step {
+    display:flex; gap:1.5rem; align-items:flex-start;
+    padding:1.5rem; background:var(--ink-mid);
+    border:1px solid #2e2850; border-radius:14px;
+    transition:border-color .3s;
+  }
+  .step:hover { border-color:var(--violet); }
+
+  .step-num {
+    width:48px;height:48px;min-width:48px;border-radius:50%;
+    background:linear-gradient(135deg,var(--violet-d),var(--ink-light));
+    border:2px solid var(--violet); display:flex;align-items:center;justify-content:center;
+    font-weight:900; color:var(--gold); font-size:1.1rem;
+  }
+  .step-title { font-size:1.05rem; font-weight:700; color:var(--sand); margin-bottom:.4rem; }
+  .step-desc  { font-size:.93rem; color:var(--dim); line-height:1.9; }
+  .step-code  {
+    margin-top:.75rem; padding:.75rem 1rem;
+    background:#08060f; border-radius:8px;
+    font-family:var(--mono); font-size:.78rem;
+    color:var(--teal-l); direction:ltr; text-align:left;
+    white-space:pre; overflow-x:auto;
+  }
+
+  /* complexity table */
+  .tbl-wrap { overflow-x:auto; margin-top:1.5rem; }
+  table { width:100%; border-collapse:collapse; font-size:.9rem; }
+  th {
+    padding:.7rem 1rem; background:var(--ink-light);
+    color:var(--violet-l); font-weight:700; text-align:right;
+    border-bottom:2px solid #2e2850;
+    font-size:.75rem; letter-spacing:.06em; text-transform:uppercase;
+  }
+  td { padding:.65rem 1rem; border-bottom:1px solid #1a1730; color:var(--dim); }
+  tr:hover td { background:var(--ink-mid); }
+  .td-g { color:var(--teal-l); font-weight:700; }
+  .td-y { color:var(--gold); font-family:var(--mono); }
+
+  /* ===== CODE ===== */
+  .code-block {
+    background:#060410; border:1px solid #2e2850;
+    border-radius:16px; overflow:hidden; margin-top:2rem;
+  }
+  .code-hdr {
+    padding:.7rem 1.2rem; background:var(--ink-light);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .code-lang { font-size:.78rem; font-weight:700; color:var(--violet-l); letter-spacing:.08em; }
+  .copy-btn {
+    padding:.28rem .8rem; border-radius:6px; border:1px solid #3a3060;
+    background:transparent; color:var(--dim); font-size:.73rem;
+    cursor:pointer; font-family:'Tajawal',sans-serif; transition:all .2s;
+  }
+  .copy-btn:hover { border-color:var(--gold); color:var(--gold); }
+  pre {
+    padding:1.5rem; overflow-x:auto;
+    font-family:var(--mono); font-size:.81rem; line-height:1.95;
+    direction:ltr; text-align:left;
+  }
+  .kw{color:#f087aa;} .ty{color:#7ab0f0;} .fn{color:#f0c040;}
+  .cm{color:#4a4870;font-style:italic;} .st{color:#5addc0;}
+  .nm{color:#c0a0f0;} .op{color:#7070a0;}
+
+  /* ===== FADE ===== */
+  .fs { opacity:0; transform:translateY(28px); transition:opacity .7s ease,transform .7s ease; }
+  .fs.visible { opacity:1; transform:translateY(0); }
+
+  footer {
+    text-align:center; padding:3rem 2rem;
+    color:var(--dim); font-size:.85rem;
+    border-top:1px solid #1a1730;
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="grid-lines"></div>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <p class="hero-eyebrow">مسألة بنى البيانات</p>
+  <h1 class="hero-title">إزالة الأعداد</h1>
+  <p class="hero-sub">
+    في ممر طويل، يقف طلاب في صف — كل واحد يحمل عددًا.
+    يأتي المعلم بقائمة أوامر ويُطلب منه إزالة الطالب الأقرب لليسار حاملًا ذلك العدد.
+  </p>
+  <div class="badge-row">
+    <span class="badge b-time">⏱ 1 ثانية</span>
+    <span class="badge b-mem">💾 256 MB</span>
+    <span class="badge b-n">🔢 N, Q ≤ 2·10⁵</span>
+  </div>
+  <div class="scroll-hint">اكتشف المسألة</div>
+</div>
+
+<!-- DESCRIPTION -->
+<section class="fs">
+  <p class="sec-label">وصف المسألة</p>
+  <h2 class="sec-title">ما الذي يحدث؟</h2>
+  <p class="prose">
+    لديك مصفوفة A من N عنصر تمثّل طلابًا في صف — كل طالب يحمل عددًا.
+    يدخل المعلم بقائمة Q أمر. في كل أمر يُنادي بعدد X، فيغادر <strong style="color:var(--sand)">الطالب الأقرب إلى اليسار</strong> الذي يحمل هذا العدد بهدوء.
+    إذا لم يوجد أحد يحمل X، لا يحدث شيء. في النهاية، اطبع الطلاب الباقين بترتيبهم.
+  </p>
+
+  <div class="card">
+    <p class="sec-label" style="margin-bottom:.5rem">ملخص القواعد</p>
+    <div class="cond-grid">
+      <div class="cond-card">
+        <div class="cond-num">١</div>
+        <div class="cond-text"><strong style="color:var(--sand)">الأقرب لليسار</strong><br>عند وجود أكثر من طالب بنفس العدد، يُزال الأقرب لبداية الصف.</div>
+      </div>
+      <div class="cond-card">
+        <div class="cond-num">٢</div>
+        <div class="cond-text"><strong style="color:var(--sand)">لا شيء إن غاب</strong><br>إذا لم يحمل أحد العدد X، الأمر يُتجاهل تمامًا.</div>
+      </div>
+      <div class="cond-card">
+        <div class="cond-num">٣</div>
+        <div class="cond-text"><strong style="color:var(--sand)">الترتيب محفوظ</strong><br>الطلاب الباقون يُطبعون بترتيبهم الأصلي من اليسار لليمين.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- IO -->
+<section class="fs">
+  <p class="sec-label">المدخلات والمخرجات</p>
+  <h2 class="sec-title">صيغة الإدخال والإخراج</h2>
+  <p class="prose">
+    سطر أول: عددان N وQ.<br>
+    سطر ثانٍ: N عددًا هي قيم الطلاب A₁, A₂, …, Aₙ.<br>
+    سطر ثالث: Q عددًا هي الأوامر X₁, X₂, …, X_Q.
+  </p>
+
+  <div class="io-grid">
+    <div class="io-box">
+      <div class="io-hdr">⌨ المدخل</div>
+      <div class="io-body">7 4
+2 5 4 2 1 3 4
+5 9 4 2</div>
+    </div>
+    <div class="io-box">
+      <div class="io-hdr">🖨 المخرج</div>
+      <div class="io-body" style="color:var(--gold)">2 1 3 4</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1.5rem">
+    <p class="sec-label" style="margin-bottom:.75rem">الخطوات المفصّلة للمثال</p>
+    <div style="font-family:var(--mono);font-size:.85rem;line-height:2.2;color:var(--dim)">
+      <div>البداية: &nbsp;&nbsp;<span style="color:var(--teal-l)">[2, 5, 4, 2, 1, 3, 4]</span></div>
+      <div>أمر <span style="color:var(--gold)">5</span>  → إزالة أول 5: <span style="color:var(--teal-l)">[2, 4, 2, 1, 3, 4]</span></div>
+      <div>أمر <span style="color:var(--rose-l)">9</span>  → غير موجود: <span style="color:var(--teal-l)">[2, 4, 2, 1, 3, 4]</span> (لا تغيير)</div>
+      <div>أمر <span style="color:var(--gold)">4</span>  → إزالة أول 4: <span style="color:var(--teal-l)">[2, 2, 1, 3, 4]</span></div>
+      <div>أمر <span style="color:var(--gold)">2</span>  → إزالة أول 2: <span style="color:var(--teal-l)">[2, 1, 3, 4]</span></div>
+      <div style="margin-top:.5rem">النتيجة: <span style="color:var(--gold);font-weight:700">2 1 3 4</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- INTERACTIVE LAB -->
+<section class="fs">
+  <p class="sec-label">المختبر التفاعلي</p>
+  <h2 class="sec-title">شاهد الخوارزمية خطوة بخطوة</h2>
+  <p class="prose">شاهد كيف يُنفَّذ كل أمر على الصف بشكل مرئي. استخدم الأزرار للتحكم في السرعة.</p>
+
+  <div class="lab">
+    <div class="lab-controls">
+      <button class="lab-btn active" onclick="loadEx(1)">المثال الأساسي</button>
+      <button class="lab-btn" onclick="loadEx(2)">مثال التكرار</button>
+      <button class="lab-btn" onclick="loadEx(3)">مثال مخصص</button>
+      <button class="lab-btn run" onclick="autoPlay()">▶ تشغيل تلقائي</button>
+    </div>
+
+    <!-- Commands -->
+    <div class="queue-section">
+      <p class="queue-label">أوامر المعلم</p>
+      <div class="cmd-strip" id="cmd-strip"></div>
+    </div>
+
+    <!-- Queue -->
+    <div class="queue-section">
+      <p class="queue-label">
+        ← اليسار &nbsp;&nbsp;&nbsp; الصف الحالي &nbsp;&nbsp;&nbsp; اليمين →
+      </p>
+      <div class="queue-display" id="queue-display"></div>
+    </div>
+
+    <!-- Nav -->
+    <div class="step-nav">
+      <button class="lab-btn" onclick="prevStep()">◀ السابق</button>
+      <button class="lab-btn" onclick="nextStep()">التالي ▶</button>
+      <span class="step-info" id="step-info">الخطوة 0 / 0</span>
+      <button class="lab-btn" onclick="resetLab()" style="border-color:var(--rose);color:var(--rose-l);">↺ إعادة</button>
+    </div>
+
+    <!-- Results -->
+    <div class="result-panel">
+      <div class="result-box">
+        <p class="result-title">الطلاب الباقون</p>
+        <div class="result-nums" id="result-nums"><span style="color:var(--dim);font-size:.85rem">بانتظار اكتمال الأوامر...</span></div>
+      </div>
+      <div class="log-box" id="log-box">جاهز...</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- STEPS -->
+<section class="fs">
+  <p class="sec-label">خطوات الحل</p>
+  <h2 class="sec-title">المنهجية الأساسية للحل</h2>
+  <p class="prose">
+    الفكرة الجوهرية: لكل قيمة نحتفظ بـ <strong style="color:var(--gold)">قائمة انتظار (queue)</strong> من المؤشرات.
+    عند كل أمر، نُزيل الرأس من قائمة تلك القيمة — وهو دائمًا الأقرب لليسار.
+  </p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">١</div>
+      <div>
+        <p class="step-title">بناء خريطة القيم ← قوائم المؤشرات</p>
+        <p class="step-desc">
+          نمر على المصفوفة مرة واحدة ونملأ خريطة (map) تربط كل قيمة بقائمة (queue) من مؤشرات مواضعها بالترتيب من اليسار لليمين.
+        </p>
+        <div class="step-code">map&lt;int, queue&lt;int&gt;&gt; pos;
+for (int i = 0; i &lt; n; i++)
+    pos[A[i]].push(i);   // نضيف المؤشر لقائمة قيمته</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">٢</div>
+      <div>
+        <p class="step-title">تنفيذ كل أمر في O(log k)</p>
+        <p class="step-desc">
+          لكل أمر X: نبحث في الخريطة عن X. إن وُجدت قائمة غير فارغة، نأخذ رأسها (المؤشر الأصغر = الأقرب لليسار) ونضعه في مجموعة المُزالين، ثم نحذفه من القائمة.
+        </p>
+        <div class="step-code">set&lt;int&gt; removed;          // مجموعة المؤشرات المُزالة
+
+for (int x : queries) {
+    if (pos.count(x) && !pos[x].empty()) {
+        int idx = pos[x].front(); // الأقرب لليسار
+        pos[x].pop();
+        removed.insert(idx);
+    }
+}</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">٣</div>
+      <div>
+        <p class="step-title">طباعة الباقين بالترتيب</p>
+        <p class="step-desc">
+          نمر على المصفوفة الأصلية مرة أخيرة ونطبع كل عنصر لم يكن مؤشره في مجموعة المُزالين — الترتيب الأصلي محفوظ تلقائيًا.
+        </p>
+        <div class="step-code">for (int i = 0; i &lt; n; i++)
+    if (!removed.count(i))
+        cout &lt;&lt; A[i] &lt;&lt; ' ';</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">٤</div>
+      <div>
+        <p class="step-title">لماذا هذا صحيح؟ — الأقرب لليسار دائمًا</p>
+        <p class="step-desc">
+          لأننا ملأنا قوائم المؤشرات من اليسار لليمين (i=0,1,2,...) فإن
+          <strong style="color:var(--gold)">front()</strong> دائمًا يعطي أصغر مؤشر لم يُزَل بعد = الأقرب لليسار.
+          لا نحتاج لأي بحث خطي!
+        </p>
+        <div class="step-code">// مثال: A = [2, 5, 4, 2, 1, 3, 4]
+// pos[2] = queue{0, 3}  ← مؤشرات 2 من اليسار
+// pos[4] = queue{2, 6}  ← مؤشرات 4 من اليسار
+// أمر X=2 → نأخذ front()=0 → نُزيل A[0]=2
+// أمر X=2 → نأخذ front()=3 → نُزيل A[3]=2</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tbl-wrap">
+    <p class="sec-label" style="margin-top:2rem">التعقيد الزمني</p>
+    <table>
+      <thead>
+        <tr><th>المرحلة</th><th>التعقيد</th><th>الملاحظة</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>بناء الخريطة</td><td class="td-y">O(N log N)</td><td class="td-g">تمريرة واحدة</td></tr>
+        <tr><td>تنفيذ Q أمر</td><td class="td-y">O(Q log N)</td><td class="td-g">كل أمر O(log k) في الخريطة</td></tr>
+        <tr><td>طباعة الباقين</td><td class="td-y">O(N)</td><td class="td-g">تمريرة نهائية</td></tr>
+        <tr><td><strong>الإجمالي</strong></td><td class="td-y"><strong>O((N+Q) log N)</strong></td><td class="td-g">✅ يجتاز كل القيود</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CODE -->
+<section class="fs">
+  <p class="sec-label">الكود الكامل</p>
+  <h2 class="sec-title">الحل بلغة C++</h2>
+  <p class="prose">الكود التالي يعالج جميع الحالات ضمن القيود. يستخدم unordered_map للوصول الأسرع.</p>
+
+  <div class="code-block">
+    <div class="code-hdr">
+      <span class="code-lang">C++ — O((N+Q) log N)</span>
+      <button class="copy-btn" onclick="copyCode()">📋 نسخ الكود</button>
+    </div>
+    <pre id="code-pre"><span class="cm">// =====================================================
+// إزالة الأعداد — Queue + HashMap
+// التعقيد: O((N+Q) log N)
+// =====================================================</span>
+
+<span class="kw">#include</span> <span class="st">&lt;bits/stdc++.h&gt;</span>
+<span class="kw">using namespace</span> <span class="ty">std</span>;
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    ios::<span class="fn">sync_with_stdio</span>(<span class="kw">false</span>);
+    cin.<span class="fn">tie</span>(<span class="kw">nullptr</span>);
+
+    <span class="kw">int</span> n, q;
+    cin >> n >> q;
+
+    vector&lt;<span class="kw">int</span>&gt; A(n);
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; n; i++) cin >> A[i];
+
+    <span class="cm">// لكل قيمة: قائمة مؤشراتها من اليسار لليمين</span>
+    unordered_map&lt;<span class="kw">int</span>, queue&lt;<span class="kw">int</span>&gt;&gt; pos;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; n; i++)
+        pos[A[i]].<span class="fn">push</span>(i);
+
+    <span class="cm">// مجموعة المؤشرات التي سيُزال أصحابها</span>
+    unordered_set&lt;<span class="kw">int</span>&gt; removed;
+
+    <span class="cm">// تنفيذ الأوامر</span>
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; q; i++) {
+        <span class="kw">int</span> x;
+        cin >> x;
+
+        <span class="kw">auto</span> it = pos.<span class="fn">find</span>(x);
+        <span class="kw">if</span> (it != pos.<span class="fn">end</span>() && !it->second.<span class="fn">empty</span>()) {
+            <span class="kw">int</span> idx = it->second.<span class="fn">front</span>(); <span class="cm">// الأقرب لليسار</span>
+            it->second.<span class="fn">pop</span>();
+            removed.<span class="fn">insert</span>(idx);
+        }
+        <span class="cm">// إن لم يوجد: لا شيء يحدث</span>
+    }
+
+    <span class="cm">// طباعة الباقين بترتيبهم الأصلي</span>
+    <span class="kw">bool</span> first = <span class="kw">true</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; n; i++) {
+        <span class="kw">if</span> (!removed.<span class="fn">count</span>(i)) {
+            <span class="kw">if</span> (!first) cout &lt;&lt; <span class="st">' '</span>;
+            cout &lt;&lt; A[i];
+            first = <span class="kw">false</span>;
+        }
+    }
+    cout &lt;&lt; <span class="st">'\n'</span>;
+
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+  </div>
+
+  <div class="card" style="margin-top:1.5rem">
+    <p class="sec-label" style="margin-bottom:.5rem">💡 لماذا Queue وليس Vector؟</p>
+    <p style="color:var(--dim);font-size:.93rem;line-height:1.9">
+      استخدمنا <strong style="color:var(--gold)">queue</strong> لأننا نحتاج دائمًا إلى أصغر مؤشر (الأقرب لليسار).
+      الـ queue تعطينا <code style="color:var(--teal-l)">front()</code> و <code style="color:var(--teal-l)">pop()</code> في <strong style="color:var(--gold)">O(1)</strong>،
+      بينما حذف من vector يكون O(n). كذلك استخدمنا <strong style="color:var(--gold)">unordered_set</strong> للإزالة
+      بدلًا من التعديل المباشر لتجنب إزاحة العناصر وللحفاظ على الترتيب الأصلي.
+    </p>
+  </div>
+</section>
+
+<footer>
+  🎓 مسألة إزالة الأعداد — بنى البيانات: Queue + HashMap
+</footer>
+
+<script>
+// ===== EXAMPLES =====
+const EXAMPLES = {
+  1: { arr:[2,5,4,2,1,3,4], queries:[5,9,4,2] },
+  2: { arr:[3,3,3,1,2,3,1], queries:[3,3,1,3,1] },
+  3: { arr:[7,1,2,7,3,1,5,2], queries:[7,2,1,9,7,5] }
+};
+
+let state = { arr:[], queries:[], step:-1, removed:new Set(), posMap:{}, steps:[] };
+
+// ===== INIT =====
+function loadEx(n) {
+  document.querySelectorAll('.lab-btn').forEach((b,i) => b.classList.toggle('active', i===n-1));
+  const ex = EXAMPLES[n];
+  state.arr = [...ex.arr];
+  state.queries = [...ex.queries];
+  buildSteps();
+  resetLab();
+}
+
+function buildSteps() {
+  // precompute all steps
+  const arr = state.arr;
+  const queries = state.queries;
+
+  // build posMap
+  let pm = {};
+  arr.forEach((v,i) => {
+    if (!pm[v]) pm[v] = [];
+    pm[v].push(i);
+  });
+  // convert to queues (use pointer)
+  let ptrs = {};
+  for (let v in pm) ptrs[v] = 0;
+
+  state.steps = [];
+  let removed = new Set();
+
+  queries.forEach((x, qi) => {
+    let found = false, idx = -1;
+    if (pm[x] && ptrs[x] < pm[x].length) {
+      // find next non-removed
+      while (ptrs[x] < pm[x].length && removed.has(pm[x][ptrs[x]])) ptrs[x]++;
+      if (ptrs[x] < pm[x].length) {
+        idx = pm[x][ptrs[x]];
+        ptrs[x]++;
+        removed.add(idx);
+        found = true;
+      }
+    }
+    state.steps.push({ qi, x, found, idx, removedSnapshot: new Set(removed) });
+  });
+
+  state.posMap = pm;
+}
+
+function resetLab() {
+  state.step = -1;
+  state.removed = new Set();
+  renderQueue(new Set(), -1, -1);
+  renderCmds(-1, null);
+  document.getElementById('result-nums').innerHTML = '<span style="color:var(--dim);font-size:.85rem">بانتظار اكتمال الأوامر...</span>';
+  clearLog();
+  log('جاهز — اضغط "التالي" أو "تشغيل تلقائي"');
+  updateStepInfo();
+}
+
+// ===== RENDER =====
+function renderQueue(removed, highlightIdx, removeIdx) {
+  const container = document.getElementById('queue-display');
+  container.innerHTML = '';
+  state.arr.forEach((v, i) => {
+    if (removed.has(i)) return;
+    const el = document.createElement('div');
+    el.className = 'student active';
+    el.textContent = v;
+    el.title = `الموضع الأصلي: ${i+1}`;
+    if (i === removeIdx) el.className = 'student removing';
+    else if (i === highlightIdx) el.className = 'student highlight';
+    container.appendChild(el);
+  });
+  if (container.children.length === 0) {
+    container.innerHTML = '<span style="color:var(--dim);font-size:.85rem">الصف فارغ!</span>';
+  }
+}
+
+function renderCmds(currentQi, found) {
+  const strip = document.getElementById('cmd-strip');
+  strip.innerHTML = '';
+  state.queries.forEach((x, qi) => {
+    const pill = document.createElement('div');
+    pill.className = 'cmd-pill';
+    pill.textContent = x;
+    if (qi < currentQi) {
+      pill.classList.add(state.steps[qi].found ? 'done' : 'not-found');
+    } else if (qi === currentQi) {
+      pill.classList.add('current');
+    }
+    strip.appendChild(pill);
+  });
+}
+
+function renderResult(removed) {
+  const el = document.getElementById('result-nums');
+  const remaining = state.arr.filter((_,i) => !removed.has(i));
+  if (state.step < state.steps.length - 1) {
+    el.innerHTML = '<span style="color:var(--dim);font-size:.85rem">بانتظار اكتمال الأوامر...</span>';
+    return;
+  }
+  el.innerHTML = '';
+  remaining.forEach(v => {
+    const d = document.createElement('div');
+    d.className = 'result-num';
+    d.textContent = v;
+    el.appendChild(d);
+  });
+}
+
+function updateStepInfo() {
+  document.getElementById('step-info').textContent =
+    `الخطوة ${Math.max(0,state.step+1)} / ${state.steps.length}`;
+}
+
+// ===== LOG =====
+function log(msg, color='') {
+  const box = document.getElementById('log-box');
+  const line = document.createElement('div');
+  line.style.color = color;
+  line.textContent = msg;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+function clearLog() { document.getElementById('log-box').innerHTML = ''; }
+
+// ===== NAVIGATION =====
+function nextStep() {
+  if (state.step >= state.steps.length - 1) return;
+  state.step++;
+  const s = state.steps[state.step];
+  state.removed = new Set(s.removedSnapshot);
+
+  renderCmds(s.qi, s.found);
+  renderQueue(
+    state.step > 0 ? state.steps[state.step-1].removedSnapshot : new Set(),
+    s.found ? s.idx : -1,
+    s.found ? s.idx : -1
+  );
+
+  setTimeout(() => {
+    renderQueue(s.removedSnapshot, -1, -1);
+    renderResult(s.removedSnapshot);
+  }, s.found ? 600 : 0);
+
+  if (s.found)
+    log(`أمر ${s.x} ✅ → أُزيل الطالب في الموضع ${s.idx+1}`, '#5addc0');
+  else
+    log(`أمر ${s.x} ❌ → غير موجود، لا شيء يحدث`, '#f087aa');
+
+  updateStepInfo();
+}
+
+function prevStep() {
+  if (state.step < 0) return;
+  state.step--;
+  if (state.step < 0) { resetLab(); return; }
+
+  const s = state.steps[state.step];
+  state.removed = new Set(s.removedSnapshot);
+  renderCmds(s.qi, s.found);
+  renderQueue(s.removedSnapshot, -1, -1);
+  renderResult(s.removedSnapshot);
+  updateStepInfo();
+
+  const logBox = document.getElementById('log-box');
+  if (logBox.lastChild) logBox.removeChild(logBox.lastChild);
+}
+
+let autoTimer = null;
+function autoPlay() {
+  if (autoTimer) { clearInterval(autoTimer); autoTimer = null; return; }
+  autoTimer = setInterval(() => {
+    if (state.step >= state.steps.length - 1) { clearInterval(autoTimer); autoTimer = null; return; }
+    nextStep();
+  }, 900);
+}
+
+// ===== COPY =====
+function copyCode() {
+  const code = document.getElementById('code-pre').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✅ تم النسخ!';
+    setTimeout(() => btn.textContent = '📋 نسخ الكود', 2000);
+  });
+}
+
+// ===== OBSERVER =====
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, {threshold:.1});
+document.querySelectorAll('.fs').forEach(s => obs.observe(s));
+
+// INIT
+loadEx(1);
+</script>
+</body>
+</html>
