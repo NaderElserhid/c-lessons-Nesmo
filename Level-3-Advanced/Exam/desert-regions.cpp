@@ -1,7 +1,8 @@
-// =====================================================
-// إزالة الأعداد — Queue + HashMap
-// التعقيد: O((N+Q) log N)
-// =====================================================
+// ===================================================
+// المناطق الخاصة في الصحراء
+// الخوارزمية: Bounding Box + Prefix Sum
+// التعقيد: O(n*m + k)
+// ===================================================
 
 #include <bits/stdc++.h>
 using namespace std;
@@ -10,44 +11,62 @@ int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    int n, q;
-    cin >> n >> q;
+    int n, m, k;
+    cin >> n >> m >> k;
 
-    vector<int> A(n);
-    for (int i = 0; i < n; i++) cin >> A[i];
+    // الشبكة الرئيسية
+    vector<vector<int>> grid(n + 1, vector<int>(m + 1));
 
-    // لكل قيمة: قائمة مؤشراتها من اليسار لليمين
-    unordered_map<int, queue<int>> pos;
-    for (int i = 0; i < n; i++)
-        pos[A[i]].push(i);
+    // الصندوق المحيط + عدد الخلايا لكل نوع
+    vector<int> r1(k + 1, n + 1), r2(k + 1, 0);
+    vector<int> c1(k + 1, m + 1), c2(k + 1, 0);
+    vector<long long> cnt(k + 1, 0);
 
-    // مجموعة المؤشرات التي سيُزال أصحابها
-    unordered_set<int> removed;
-
-    // تنفيذ الأوامر
-    for (int i = 0; i < q; i++) {
-        int x;
-        cin >> x;
-
-        auto it = pos.find(x);
-        if (it != pos.end() && !it->second.empty()) {
-            int idx = it->second.front(); // الأقرب لليسار
-            it->second.pop();
-            removed.insert(idx);
-        }
-        // إن لم يوجد: لا شيء يحدث
-    }
-
-    // طباعة الباقين بترتيبهم الأصلي
-    bool first = true;
-    for (int i = 0; i < n; i++) {
-        if (!removed.count(i)) {
-            if (!first) cout << ' ';
-            cout << A[i];
-            first = false;
+    // قراءة الشبكة وحساب الـ bounding box
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            cin >> grid[i][j];
+            int t = grid[i][j];
+            r1[t] = min(r1[t], i);
+            r2[t] = max(r2[t], i);
+            c1[t] = min(c1[t], j);
+            c2[t] = max(c2[t], j);
+            cnt[t]++;
         }
     }
-    cout << '\n';
 
+    // prefix sum ثنائي الأبعاد
+    vector<vector<long long>> pre(n + 2, vector<long long>(m + 2, 0));
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= m; j++)
+            pre[i][j] = 1 + pre[i-1][j] + pre[i][j-1] - pre[i-1][j-1];
+
+    // دالة الاستعلام عن مجموع مستطيل
+    auto query = [&](int r1, int c1, int r2, int c2) -> long long {
+        return pre[r2][c2] - pre[r1-1][c2]
+                            - pre[r2][c1-1]
+                            + pre[r1-1][c1-1];
+    };
+
+    int ans = 0;
+
+    // فحص كل نوع من الجمال
+    for (int t = 1; t <= k; t++) {
+        if (cnt[t] == 0) continue; // النوع غير موجود
+
+        long long box = (long long)(r2[t] - r1[t] + 1)
+                       * (c2[t] - c1[t] + 1);
+
+        // الشرط الأول: يملأ الصندوق تمامًا
+        if (box != cnt[t]) continue;
+
+        // الشرط الثاني: كل الصندوق مشغول (لا خلايا فارغة أو مختلطة)
+        long long total_in_box = query(r1[t], c1[t], r2[t], c2[t]);
+        if (total_in_box != box) continue;
+
+        ans++;
+    }
+
+    cout << ans << '\n';
     return 0;
 }

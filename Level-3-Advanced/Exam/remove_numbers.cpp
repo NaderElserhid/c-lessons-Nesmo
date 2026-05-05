@@ -1,24 +1,53 @@
-#include <iostream>
-#include <vector>
+// =====================================================
+// إزالة الأعداد — Queue + HashMap
+// التعقيد: O((N+Q) log N)
+// =====================================================
+
+#include <bits/stdc++.h>
 using namespace std;
 
-vector<long long> dp;
-
-long long fib(int n) {
-    if (n == 0) return 0;
-    if (n == 1) return 1;
-
-    if (dp[n] != -1) return dp[n]; // تم حسابه مسبقاً ✔
-
-    dp[n] = fib(n - 1) + fib(n - 2);
-    cout << " dp [" <<n<<"] = "  <<dp[n] << " " << "\n";
-    return dp[n];
-}
-
 int main() {
-    int n = 50;
-    dp.assign(n + 1, -1); // تهيئة بـ -1 (لم يُحسب بعد)
-   long long  ans= fib(n);
-    cout << "F(" << n << ") = " << ans << "\n";
-    // النتيجة: F(50) = 12586269025
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, q;
+    cin >> n >> q;
+
+    vector<int> A(n);
+    for (int i = 0; i < n; i++) cin >> A[i];
+
+
+    unordered_map<int, queue<int>> pos;
+    for (int i = 0; i < n; i++)
+        pos[A[i]].push(i);
+
+
+    unordered_set<int> removed;
+
+
+    for (int i = 0; i < q; i++) {
+        int x;
+        cin >> x;
+
+        auto it = pos.find(x);
+        if (it != pos.end() && !it->second.empty()) {
+            int idx = it->second.front();
+            it->second.pop();
+            removed.insert(idx);
+        }
+
+    }
+
+    // طباعة الباقين بترتيبهم الأصلي
+    bool first = true;
+    for (int i = 0; i < n; i++) {
+        if (!removed.count(i)) {
+            if (!first) cout << ' ';
+            cout << A[i];
+            first = false;
+        }
+    }
+    cout << '\n';
+
+    return 0;
 }
