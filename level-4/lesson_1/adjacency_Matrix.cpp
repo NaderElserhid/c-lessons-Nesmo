@@ -28,6 +28,7 @@ int main() {
         }
     }
 
+    cout << cur << "\n";
 
     return 0;
 }
