@@ -1,34 +1,26 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <utility> // ضرورية لاستخدام std::pair
+
 using namespace std;
 
+const int maxN = 100'000;
+const int maxM = 200'000;
+pair<int, int> E[maxM];
+
 int main() {
+
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n;
-    cin >> n;
+    int n, m;
+    cin >> n >> m;
 
-    vector<int> a(n);
-    for (int i = 0; i < n; i++) {
-        cin >> a[i];
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        cin >> u >> v; // نخزّن كل Edge كزوج في المصفوفة 
+        E[i] = {u, v}; // نخزّن كل Edge كزوج في المصفوفة
     }
 
-    int cur = 0;
-
-    for (int b = 29; b >= 0; b--) {
-        int candidate = cur | (1 << b);
-        int count = 0;
-        for (int i = 0; i < n; i++) {
-            if ((a[i] & candidate) == candidate) {
-                count++;
-            }
-        }
-        if (count >= 2) {
-            cur = candidate;
-        }
-    }
-
-    cout << cur << "\n";
-
+    
     return 0;
 }
