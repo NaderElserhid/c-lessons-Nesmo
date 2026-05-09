@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاكي خوارزمية البحث بالعرض (BFS)</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #475569;
+            --visited: #16a34a;
+            --queue: #f59e0b;
+            --unvisited: #e2e8f0;
+            --bg: #f8fafc;
+            --text: #0f172a;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: var(--secondary);
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .container {
+            display: flex;
+            gap: 30px;
+            max-width: 1000px;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        /* Graph Canvas */
+        .graph-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            position: relative;
+            width: 500px;
+            height: 400px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .node {
+            width: 40px;
+            height: 40px;
+            background-color: var(--unvisited);
+            border: 2px solid #cbd5e1;
+            border-radius: 50%;
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            transform: translate(-50%, -50%); /* Center based on coords */
+            transition: all 0.4s ease;
+            z-index: 10;
+        }
+
+        .node.in-queue {
+            background-color: var(--queue);
+            border-color: #d97706;
+            color: white;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+        }
+
+        .node.current {
+            background-color: var(--primary);
+            border-color: #1d4ed8;
+            color: white;
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.6);
+        }
+
+        .node.visited {
+            background-color: var(--visited);
+            border-color: #15803d;
+            color: white;
+        }
+
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        line {
+            stroke: #cbd5e1;
+            stroke-width: 3;
+            transition: stroke 0.4s ease;
+        }
+
+        line.active-edge {
+            stroke: var(--primary);
+            stroke-width: 4;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 300px;
+        }
+
+        .box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .box-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--secondary);
+            border-bottom: 2px solid var(--bg);
+            padding-bottom: 5px;
+        }
+
+        /* Queue Visualization */
+        .queue-container {
+            display: flex;
+            gap: 10px;
+            min-height: 50px;
+            align-items: center;
+        }
+
+        .queue-item {
+            width: 40px;
+            height: 40px;
+            background-color: var(--queue);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            font-weight: bold;
+            animation: popIn 0.3s ease;
+        }
+
+        .empty-queue {
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        /* Log / Explanation */
+        .log-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            min-height: 80px;
+        }
+
+        .highlight {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .btn-next {
+            background-color: var(--primary);
+            color: white;
+            flex: 2;
+        }
+
+        .btn-next:hover { background-color: #1d4ed8; }
+        .btn-next:disabled { background-color: #93c5fd; cursor: not-allowed; }
+
+        .btn-reset {
+            background-color: #e2e8f0;
+            color: var(--secondary);
+            flex: 1;
+        }
+
+        .btn-reset:hover { background-color: #cbd5e1; }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>محاكي البحث بالعرض (BFS)</h1>
+    <div class="subtitle">استكشاف العقد طبقةً تلو الأخرى باستخدام الطابور (Queue)</div>
+
+    <div class="container">
+        <div class="graph-container" id="graph">
+            <svg id="edges"></svg>
+            </div>
+
+        <div class="control-panel">
+            <div class="box">
+                <div class="box-title">الشرح التفاعلي</div>
+                <div class="log-text" id="log">
+                    اضغط على "الخطوة التالية" للبدء بالخوارزمية من العقدة <span class="highlight">0</span>.
+                </div>
+            </div>
+
+            <div class="box">
+                <div class="box-title">حالة الطابور (Queue)</div>
+                <div class="queue-container" id="queue-display">
+                    <span class="empty-queue">الطابور فارغ حالياً</span>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-next" id="next-btn" onclick="nextStep()">الخطوة التالية</button>
+                <button class="btn-reset" onclick="resetGraph()">إعادة التشغيل</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item"><div class="dot" style="background: var(--unvisited); border: 1px solid #ccc;"></div> لم تُزر (Unvisited)</div>
+        <div class="legend-item"><div class="dot" style="background: var(--queue);"></div> في الطابور (In Queue)</div>
+        <div class="legend-item"><div class="dot" style="background: var(--primary);"></div> العقدة الحالية (Current)</div>
+        <div class="legend-item"><div class="dot" style="background: var(--visited);"></div> تمت الزيارة (Visited)</div>
+    </div>
+
+    <script>
+        // Graph Configuration
+        const nodesData = [
+            { id: 0, x: 250, y: 50, layer: 0 },
+            { id: 1, x: 150, y: 150, layer: 1 },
+            { id: 2, x: 350, y: 150, layer: 1 },
+            { id: 3, x: 80, y: 270, layer: 2 },
+            { id: 4, x: 250, y: 270, layer: 2 },
+            { id: 5, x: 420, y: 270, layer: 2 },
+            { id: 6, x: 250, y: 360, layer: 3 }
+        ];
+
+        const edgesData = [
+            [0, 1], [0, 2],
+            [1, 3], [1, 4],
+            [2, 4], [2, 5],
+            [4, 6]
+        ];
+
+        // Adjacency List for BFS
+        const adjList = {};
+        nodesData.forEach(n => adjList[n.id] = []);
+        edgesData.forEach(([u, v]) => {
+            adjList[u].push(v);
+            adjList[v].push(u); // Undirected graph
+        });
+
+        // State Variables
+        let queue = [];
+        let visited = new Set();
+        let enqueued = new Set();
+        let stepPhase = 0; // 0: Start, 1: Dequeue, 2: Explore Neighbors
+        let currentNode = null;
+
+        // DOM Elements
+        const graphEl = document.getElementById('graph');
+        const edgesEl = document.getElementById('edges');
+        const queueDisplay = document.getElementById('queue-display');
+        const logDisplay = document.getElementById('log');
+        const nextBtn = document.getElementById('next-btn');
+
+        // Initialization
+        function initGraph() {
+            // Draw Edges
+            edgesEl.innerHTML = '';
+            edgesData.forEach(([u, v]) => {
+                const n1 = nodesData.find(n => n.id === u);
+                const n2 = nodesData.find(n => n.id === v);
+                edgesEl.innerHTML += `<line id="edge-${u}-${v}" x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}"></line>`;
+            });
+
+            // Draw Nodes
+            document.querySelectorAll('.node').forEach(el => el.remove());
+            nodesData.forEach(n => {
+                const nodeDiv = document.createElement('div');
+                nodeDiv.className = 'node';
+                nodeDiv.id = `node-${n.id}`;
+                nodeDiv.style.left = `${n.x}px`;
+                nodeDiv.style.top = `${n.y}px`;
+                nodeDiv.innerText = n.id;
+                graphEl.appendChild(nodeDiv);
+            });
+        }
+
+        function resetGraph() {
+            queue = [];
+            visited.clear();
+            enqueued.clear();
+            stepPhase = 0;
+            currentNode = null;
+            nextBtn.disabled = false;
+            nextBtn.innerText = "الخطوة التالية";
+            
+            initGraph();
+            updateQueueDisplay();
+            logDisplay.innerHTML = `اضغط على "الخطوة التالية" للبدء بالخوارزمية من العقدة <span class="highlight">0</span>.`;
+        }
+
+        function updateQueueDisplay() {
+            if (queue.length === 0) {
+                queueDisplay.innerHTML = '<span class="empty-queue">الطابور فارغ</span>';
+            } else {
+                queueDisplay.innerHTML = '';
+                queue.forEach(item => {
+                    const el = document.createElement('div');
+                    el.className = 'queue-item';
+                    el.innerText = item;
+                    queueDisplay.appendChild(el);
+                });
+            }
+        }
+
+        function updateNodeClass(id, className) {
+            const node = document.getElementById(`node-${id}`);
+            if(node) {
+                node.className = `node ${className}`;
+            }
+        }
+
+        // BFS Algorithm Step-by-Step Logic
+        function nextStep() {
+            // Phase 0: Initialize and enqueue start node
+            if (stepPhase === 0) {
+                const startNode = 0;
+                queue.push(startNode);
+                enqueued.add(startNode);
+                updateNodeClass(startNode, 'in-queue');
+                updateQueueDisplay();
+                logDisplay.innerHTML = `البداية: أضفنا العقدة المصدر <span class="highlight">${startNode}</span> إلى الطابور. مسافتها الآن = 0.`;
+                stepPhase = 1;
+                return;
+            }
+
+            // Phase 1: Dequeue a node
+            if (stepPhase === 1) {
+                if (queue.length === 0) {
+                    logDisplay.innerHTML = `🎉 <span class="highlight">انتهت الخوارزمية!</span> الطابور فارغ، وتمت زيارة جميع العقد المتاحة وتحديد أقصر مسار لها.`;
+                    nextBtn.disabled = true;
+                    return;
+                }
+                
+                // If there was a previous current node, mark it visited
+                if (currentNode !== null) {
+                    updateNodeClass(currentNode, 'visited');
+                }
+
+                currentNode = queue.shift(); // Dequeue (FIFO)
+                visited.add(currentNode);
+                updateNodeClass(currentNode, 'current');
+                updateQueueDisplay();
+                
+                logDisplay.innerHTML = `قمنا بسحب العقدة <span class="highlight">${currentNode}</span> من مقدمة الطابور لمعالجة جيرانها.`;
+                stepPhase = 2;
+                return;
+            }
+
+            // Phase 2: Explore neighbors
+            if (stepPhase === 2) {
+                const neighbors = adjList[currentNode];
+                const unvisitedNeighbors = neighbors.filter(n => !enqueued.has(n));
+
+                if (unvisitedNeighbors.length > 0) {
+                    let msg = `نستكشف جيران العقدة ${currentNode}: `;
+                    unvisitedNeighbors.forEach(neighbor => {
+                        queue.push(neighbor);
+                        enqueued.add(neighbor);
+                        updateNodeClass(neighbor, 'in-queue');
+                        
+                        // Highlight edge
+                        const edgeId1 = `edge-${currentNode}-${neighbor}`;
+                        const edgeId2 = `edge-${neighbor}-${currentNode}`;
+                        const edgeEl = document.getElementById(edgeId1) || document.getElementById(edgeId2);
+                        if(edgeEl) edgeEl.classList.add('active-edge');
+                    });
+                    
+                    msg += `أضفنا العقد <span class="highlight">[${unvisitedNeighbors.join(', ')}]</span> إلى الطابور لأننا لم نزرهم بعد.`;
+                    logDisplay.innerHTML = msg;
+                } else {
+                    logDisplay.innerHTML = `جميع جيران العقدة <span class="highlight">${currentNode}</span> تمت زيارتهم أو هم في الطابور بالفعل. لا يوجد شيء لنضيفه.`;
+                }
+                
+                updateQueueDisplay();
+                stepPhase = 1; // Go back to dequeue phase
+            }
+        }
+
+        // Initialize on load
+        window.onload = resetGraph;
+    </script>
+</body>
+</html>

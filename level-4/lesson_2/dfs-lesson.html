@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>البحث في العمق - DFS | أولمبياد نسمة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e1a;
+  --bg2: #0f1628;
+  --bg3: #141d35;
+  --card: #1a2340;
+  --card2: #1e2a4a;
+  --accent: #00d4ff;
+  --accent2: #7c3aed;
+  --accent3: #10b981;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --border: #2a3a5c;
+  --glow: 0 0 20px rgba(0,212,255,0.3);
+  --glow2: 0 0 20px rgba(124,58,237,0.3);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Cairo', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ───── Background ───── */
+.bg-mesh {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(0,212,255,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 80% 80%, rgba(124,58,237,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 50% 50%, rgba(16,185,129,0.04) 0%, transparent 70%);
+}
+
+/* ───── Header ───── */
+header {
+  position: relative; z-index: 10;
+  padding: 2rem 3rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(10,14,26,0.9);
+  backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo {
+  font-size: 1.1rem; font-weight: 700; color: var(--accent);
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.lesson-badge {
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  padding: 0.3rem 1rem; border-radius: 20px;
+  font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em;
+}
+.header-title {
+  text-align: center;
+}
+.header-title h1 {
+  font-size: 2rem; font-weight: 900;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.header-title p { color: var(--text2); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ───── Layout ───── */
+main {
+  position: relative; z-index: 1;
+  max-width: 1100px; margin: 0 auto;
+  padding: 2.5rem 2rem 4rem;
+  display: flex; flex-direction: column; gap: 2rem;
+}
+
+/* ───── Section Cards ───── */
+.section-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  animation: fadeUp 0.5s ease both;
+}
+.section-card:nth-child(2) { animation-delay: 0.1s; }
+.section-card:nth-child(3) { animation-delay: 0.2s; }
+.section-card:nth-child(4) { animation-delay: 0.3s; }
+.section-card:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(24px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+.section-title {
+  font-size: 1.3rem; font-weight: 700;
+  display: flex; align-items: center; gap: 0.7rem;
+  margin-bottom: 1.3rem;
+}
+.section-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+}
+.icon-blue  { background: rgba(0,212,255,0.15); color: var(--accent); }
+.icon-purple{ background: rgba(124,58,237,0.15); color: var(--accent2); }
+.icon-green { background: rgba(16,185,129,0.15); color: var(--accent3); }
+.icon-warn  { background: rgba(245,158,11,0.15); color: var(--warn); }
+.icon-red   { background: rgba(239,68,68,0.15);  color: var(--danger); }
+
+p { line-height: 1.9; color: var(--text2); margin-bottom: 0.8rem; }
+p:last-child { margin-bottom: 0; }
+
+/* ───── Complexity Badge ───── */
+.complexity {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3);
+  padding: 0.4rem 1rem; border-radius: 8px;
+  font-family: 'Fira Code', monospace; font-size: 0.9rem; color: var(--accent);
+  margin: 0.8rem 0;
+}
+
+/* ───── Step List ───── */
+.steps {
+  display: flex; flex-direction: column; gap: 0.75rem;
+  margin: 1rem 0;
+}
+.step {
+  display: flex; align-items: flex-start; gap: 1rem;
+  padding: 0.9rem 1.1rem;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.step:hover { border-color: var(--accent); transform: translateX(-4px); }
+.step-num {
+  min-width: 28px; height: 28px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 700; color: white;
+}
+.step p { margin: 0; font-size: 0.92rem; }
+
+/* ───── Code Block ───── */
+.code-wrap {
+  position: relative;
+  background: #090d1a;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 1rem 0;
+  direction: ltr;
+  text-align: left;
+}
+.code-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.6rem 1rem;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid var(--border);
+  direction: ltr;
+}
+.code-dots { display: flex; gap: 0.4rem; }
+.code-dots span {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.dot-r { background: #ff5f57; }
+.dot-y { background: #ffbd2e; }
+.dot-g { background: #28ca41; }
+.code-lang {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem; color: var(--text3);
+  direction: ltr;
+}
+.copy-btn {
+  background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3);
+  color: var(--accent); padding: 0.25rem 0.7rem; border-radius: 6px;
+  font-size: 0.75rem; cursor: pointer; transition: all 0.2s;
+  font-family: 'Cairo', sans-serif;
+}
+.copy-btn:hover { background: rgba(0,212,255,0.2); }
+pre {
+  padding: 1.3rem 1.5rem;
+  overflow-x: auto;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: embed;
+}
+code {
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: embed;
+}
+.kw  { color: #c792ea; }
+.tp  { color: #82aaff; }
+.fn  { color: #82aaff; }
+.cm  { color: #546e7a; font-style: italic; }
+.st  { color: #c3e88d; }
+.nm  { color: #f78c6c; }
+.op  { color: #89ddff; }
+.va  { color: #eeffff; }
+
+/* ───── Callout ───── */
+.callout {
+  display: flex; gap: 1rem; align-items: flex-start;
+  padding: 1rem 1.2rem; border-radius: 10px;
+  margin: 0.8rem 0;
+}
+.callout-tip  { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); }
+.callout-imp  { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); }
+.callout-warn { background: rgba(239,68,68,0.08);  border: 1px solid rgba(239,68,68,0.3); }
+.callout-icon { font-size: 1.2rem; margin-top: 0.1rem; }
+.callout-body { flex: 1; }
+.callout-body strong { display: block; margin-bottom: 0.3rem; font-size: 0.95rem; }
+.callout-body p { font-size: 0.88rem; margin: 0; line-height: 1.7; }
+
+/* ───── DFS Simulator ───── */
+#simulator {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+#sim-title {
+  font-size: 1rem; font-weight: 700; color: var(--accent);
+  margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;
+}
+#graph-canvas {
+  width: 100%; height: 320px;
+  background: #08111f;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  margin-bottom: 1rem;
+}
+.sim-controls {
+  display: flex; gap: 0.7rem; flex-wrap: wrap; align-items: center;
+  margin-bottom: 1rem;
+}
+.sim-btn {
+  padding: 0.5rem 1.2rem; border-radius: 8px;
+  border: none; cursor: pointer;
+  font-family: 'Cairo', sans-serif; font-size: 0.88rem; font-weight: 600;
+  transition: all 0.2s;
+}
+.sim-btn-primary {
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  color: white;
+}
+.sim-btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+.sim-btn-sec {
+  background: var(--card2); border: 1px solid var(--border);
+  color: var(--text2);
+}
+.sim-btn-sec:hover { border-color: var(--accent); color: var(--accent); }
+.sim-speed {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.82rem; color: var(--text2);
+}
+.sim-speed input { accent-color: var(--accent); }
+.sim-log {
+  background: #05080f; border-radius: 8px; padding: 0.8rem 1rem;
+  font-family: 'Fira Code', monospace; font-size: 0.82rem;
+  color: var(--accent3); min-height: 60px; max-height: 120px; overflow-y: auto;
+  line-height: 1.8; border: 1px solid var(--border);
+}
+.sim-log .log-visit { color: var(--accent); }
+.sim-log .log-back  { color: var(--warn); }
+.sim-log .log-done  { color: var(--accent3); }
+
+/* Legend */
+.legend {
+  display: flex; gap: 1.2rem; flex-wrap: wrap;
+  margin: 0.8rem 0; font-size: 0.82rem; color: var(--text2);
+}
+.legend-item { display: flex; align-items: center; gap: 0.4rem; }
+.legend-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  display: inline-block;
+}
+
+/* ───── Problems ───── */
+.problems-tabs {
+  display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;
+}
+.tab-btn {
+  padding: 0.5rem 1.1rem; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--card2);
+  color: var(--text2); cursor: pointer;
+  font-family: 'Cairo', sans-serif; font-size: 0.85rem;
+  transition: all 0.2s;
+}
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  border-color: transparent; color: white;
+}
+
+.problem-card {
+  display: none;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  animation: fadeUp 0.3s ease;
+}
+.problem-card.active { display: block; }
+.prob-header {
+  display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem;
+}
+.diff-badge {
+  font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.7rem;
+  border-radius: 20px; letter-spacing: 0.05em;
+}
+.diff-easy   { background: rgba(16,185,129,0.2); color: var(--accent3); border: 1px solid rgba(16,185,129,0.4); }
+.diff-medium { background: rgba(245,158,11,0.2); color: var(--warn);    border: 1px solid rgba(245,158,11,0.4); }
+
+/* ───── Quiz ───── */
+.quiz-section { }
+.quiz-progress {
+  display: flex; gap: 0.4rem; margin-bottom: 1.5rem; flex-wrap: wrap;
+}
+.qp-dot {
+  width: 28px; height: 6px; border-radius: 3px;
+  background: var(--border); transition: background 0.3s;
+  cursor: pointer;
+}
+.qp-dot.answered { background: var(--accent3); }
+.qp-dot.current  { background: var(--accent); }
+.qp-dot.wrong    { background: var(--danger); }
+
+.quiz-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.quiz-num { font-size: 0.85rem; color: var(--text3); }
+.quiz-diff {
+  font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.7rem;
+  border-radius: 20px;
+}
+
+.question-text {
+  font-size: 1rem; font-weight: 600; color: var(--text);
+  margin-bottom: 1.2rem; line-height: 1.8;
+}
+.options {
+  display: flex; flex-direction: column; gap: 0.6rem;
+  margin-bottom: 1.2rem;
+}
+.option {
+  padding: 0.8rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+  background: var(--bg3);
+  display: flex; align-items: center; gap: 0.7rem;
+}
+.option:hover:not(.disabled) { border-color: var(--accent); background: rgba(0,212,255,0.05); }
+.option.correct { border-color: var(--accent3); background: rgba(16,185,129,0.1); color: var(--accent3); }
+.option.wrong   { border-color: var(--danger);  background: rgba(239,68,68,0.1);  color: var(--danger); }
+.option.disabled { cursor: default; }
+.opt-letter {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--border); display: flex; align-items: center;
+  justify-content: center; font-size: 0.75rem; font-weight: 700;
+  flex-shrink: 0;
+}
+.option.correct .opt-letter { background: var(--accent3); color: white; }
+.option.wrong   .opt-letter { background: var(--danger);  color: white; }
+
+.quiz-feedback {
+  padding: 0.9rem 1.1rem; border-radius: 10px;
+  margin-bottom: 1rem; display: none;
+  font-size: 0.9rem; line-height: 1.7;
+}
+.quiz-feedback.show { display: block; animation: fadeUp 0.3s ease; }
+.quiz-feedback.correct-fb { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; }
+.quiz-feedback.wrong-fb   { background: rgba(239,68,68,0.1);  border: 1px solid rgba(239,68,68,0.3);  color: #fca5a5; }
+
+.quiz-nav { display: flex; gap: 0.8rem; align-items: center; justify-content: space-between; }
+.quiz-score {
+  display: none; text-align: center; padding: 2rem;
+  animation: fadeUp 0.5s ease;
+}
+.score-circle {
+  width: 120px; height: 120px; border-radius: 50%;
+  border: 4px solid var(--accent);
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; margin: 0 auto 1rem;
+  box-shadow: var(--glow);
+}
+.score-num { font-size: 2rem; font-weight: 900; color: var(--accent); }
+.score-total { font-size: 0.85rem; color: var(--text2); }
+.score-msg { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+.score-sub { color: var(--text2); font-size: 0.9rem; }
+
+/* ───── Responsive ───── */
+@media (max-width: 700px) {
+  header { padding: 1.2rem; flex-wrap: wrap; gap: 0.5rem; }
+  .header-title h1 { font-size: 1.4rem; }
+  main { padding: 1.2rem 1rem 3rem; }
+  .section-card { padding: 1.3rem; }
+}
+</style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+
+<!-- Header -->
+<header>
+  <div class="logo">🏅 أولمبياد نسمة</div>
+  <div class="header-title">
+    <h1>البحث في العمق — DFS</h1>
+    <p>Depth-First Search | الدرس الثاني</p>
+  </div>
+  <div class="lesson-badge">الدرس 02</div>
+</header>
+
+<main>
+
+  <!-- 1. المفهوم -->
+  <div class="section-card">
+    <div class="section-title">
+      <div class="section-icon icon-blue">🔍</div>
+      ما هو البحث في العمق؟
+    </div>
+    <p>
+      <strong style="color:var(--accent)">البحث في العمق (DFS)</strong> هو خوارزمية اجتياز على الرسوم البيانية (Graphs). تعمل بأسلوب المتاهة: تسير للأمام بأقصى عمق ممكن، فإذا وصلت إلى طريق مسدود عادت خطوة للخلف وجربت مساراً آخر.
+    </p>
+    <p>
+      يُستخدم DFS في العديد من المسائل مثل: إيجاد المسارات، اكتشاف الدورات، التلوين الثنائي للرسوم البيانية، وغيرها.
+    </p>
+    <div class="complexity">⏱ التعقيد الزمني: O(V + E) — حيث V = عدد الرؤوس، E = عدد الأحرف</div>
+    <div class="callout callout-tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <strong style="color:var(--accent3)">نصيحة المدرب</strong>
+        <p>فكّر في DFS كشخص يستكشف متاهة: يضع يده دائماً على الجدار الأيمن ويمشي حتى يزور كل ركن.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. خطوات DFS -->
+  <div class="section-card">
+    <div class="section-title">
+      <div class="section-icon icon-purple">⚙️</div>
+      كيف يعمل DFS خطوة بخطوة؟
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <p>ابدأ عند الرأس المصدر وضع عليه علامة <strong style="color:var(--accent)">مُزار (visited)</strong>.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <p>انظر إلى جميع جيران الرأس الحالي. إذا وجدت جاراً لم يُزَر بعد، <strong style="color:var(--accent)">انتقل إليه</strong> وكرر العملية.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <p>إذا تمت زيارة جميع الجيران، <strong style="color:var(--warn)">ارجع (backtrack)</strong> إلى الرأس الأب واستمر.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <p>تنتهي الخوارزمية عندما تُزار جميع الرؤوس المتصلة بالمصدر.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. المحاكي التفاعلي -->
+  <div class="section-card">
+    <div class="section-title">
+      <div class="section-icon icon-green">▶️</div>
+      محاكي DFS التفاعلي
+    </div>
+    <p style="font-size:0.88rem;">اضغط على <strong>تشغيل</strong> لرؤية كيف يتحرك DFS على الرسم البياني خطوة بخطوة.</p>
+    <div id="simulator">
+      <canvas id="graph-canvas"></canvas>
+      <div class="legend">
+        <div class="legend-item"><span class="legend-dot" style="background:#1e3a5f;border:2px solid #64748b"></span> لم يُزَر</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#7c3aed"></span> قيد الزيارة (Stack)</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#00d4ff"></span> مُزار</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#10b981"></span> اكتملت زيارته</div>
+      </div>
+      <div class="sim-controls">
+        <button class="sim-btn sim-btn-primary" onclick="startDFS()">▶ تشغيل</button>
+        <button class="sim-btn sim-btn-sec" onclick="stepDFS()">خطوة →</button>
+        <button class="sim-btn sim-btn-sec" onclick="resetDFS()">↺ إعادة</button>
+        <div class="sim-speed">
+          <span>السرعة:</span>
+          <input type="range" id="speed-slider" min="200" max="1500" value="800" style="width:80px">
+          <span id="speed-label">1x</span>
+        </div>
+      </div>
+      <div class="sim-log" id="sim-log">الضغط على "تشغيل" لبدء المحاكاة...</div>
+    </div>
+  </div>
+
+  <!-- 4. الكود الأساسي -->
+  <div class="section-card">
+    <div class="section-title">
+      <div class="section-icon icon-blue">💻</div>
+      الكود الأساسي لـ DFS
+    </div>
+    <p>الكود التالي يُنفّذ DFS باستخدام <strong>التعاود (Recursion)</strong>، وهو الأسلوب الأكثر وضوحاً:</p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        <span class="code-lang">C++ — DFS الأساسي</span>
+        <button class="copy-btn" onclick="copyCode(this, 'code1')">نسخ</button>
+      </div>
+      <pre id="code1"><span class="kw">const</span> <span class="tp">int</span> <span class="va">maxN</span> <span class="op">=</span> <span class="nm">200001</span>;
+
+<span class="tp">bool</span> <span class="va">vis</span>[<span class="va">maxN</span>];                    <span class="cm">// مصفوفة الزيارة</span>
+<span class="va">vector</span><span class="op">&lt;</span><span class="tp">int</span><span class="op">&gt;</span> <span class="va">adj</span>[<span class="va">maxN</span>];            <span class="cm">// قائمة التجاور</span>
+
+<span class="tp">void</span> <span class="fn">dfs</span>(<span class="tp">int</span> <span class="va">u</span>) {
+    <span class="va">vis</span>[<span class="va">u</span>] <span class="op">=</span> <span class="kw">true</span>;               <span class="cm">// ضع علامة على الرأس الحالي</span>
+
+    <span class="kw">for</span> (<span class="tp">int</span> <span class="va">v</span> : <span class="va">adj</span>[<span class="va">u</span>]) {
+        <span class="kw">if</span> (!<span class="va">vis</span>[<span class="va">v</span>])             <span class="cm">// إذا لم يُزَر الجار</span>
+            <span class="fn">dfs</span>(<span class="va">v</span>);             <span class="cm">// زُره بشكل تكراري</span>
+    }
+}</pre>
+    </div>
+    <div class="callout callout-imp">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <strong style="color:var(--warn)">نقطة مهمة</strong>
+        <p>مصفوفة <code style="color:var(--accent)">vis[]</code> ضرورية جداً — بدونها ستدخل الخوارزمية في حلقة لا نهائية إذا كان الرسم البياني يحتوي على دورات!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. مسائل -->
+  <div class="section-card">
+    <div class="section-title">
+      <div class="section-icon icon-purple">🧩</div>
+      المسائل التطبيقية
+    </div>
+    <div class="problems-tabs">
+      <button class="tab-btn active" onclick="showProblem(0, this)">مسألة 1: إيجاد المسار</button>
+      <button class="tab-btn" onclick="showProblem(1, this)">مسألة 2: تشكيل الفرق</button>
+    </div>
+
+    <!-- Problem 1 -->
+    <div class="problem-card active" id="prob0">
+      <div class="prob-header">
+        <h3>Path Finding — إيجاد المسار</h3>
+        <span class="diff-badge diff-easy">سهل</span>
+      </div>
+      <p>معطى رسم بياني غير موجه يتكون من <strong>N</strong> رأساً مرقمة من 1 إلى N و <strong>M</strong> حرفاً. تحقق مما إذا كان الرأس <strong>1</strong> يمكنه الوصول إلى الرأس <strong>N</strong>، واطبع المسار الممكن.</p>
+
+      <div class="callout callout-tip">
+        <div class="callout-icon">💡</div>
+        <div class="callout-body">
+          <strong style="color:var(--accent3)">فكرة الحل</strong>
+          <p>نخزن مصفوفة <code style="color:var(--accent)">p[]</code> حيث p[v] = الرأس الذي اكتشف v. بعد انتهاء DFS نتتبع المسار عكسياً من N إلى 1.</p>
+        </div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">C++ — Path Finding</span>
+          <button class="copy-btn" onclick="copyCode(this, 'code2')">نسخ</button>
+        </div>
+        <pre id="code2"><span class="kw">const</span> <span class="tp">int</span> <span class="va">maxN</span> <span class="op">=</span> <span class="nm">200001</span>;
+<span class="tp">int</span> <span class="va">vis</span>[<span class="va">maxN</span>], <span class="va">p</span>[<span class="va">maxN</span>];        <span class="cm">// vis = زيارة, p = الأب</span>
+<span class="va">vector</span><span class="op">&lt;</span><span class="tp">int</span><span class="op">&gt;</span> <span class="va">adj</span>[<span class="va">maxN</span>];
+
+<span class="tp">void</span> <span class="fn">dfs</span>(<span class="tp">int</span> <span class="va">u</span>) {
+    <span class="va">vis</span>[<span class="va">u</span>] <span class="op">=</span> <span class="kw">true</span>;
+    <span class="kw">for</span> (<span class="tp">int</span> <span class="va">v</span> : <span class="va">adj</span>[<span class="va">u</span>]) {
+        <span class="kw">if</span> (!<span class="va">vis</span>[<span class="va">v</span>]) {
+            <span class="va">p</span>[<span class="va">v</span>] <span class="op">=</span> <span class="va">u</span>;          <span class="cm">// u أب v</span>
+            <span class="fn">dfs</span>(<span class="va">v</span>);
+        }
+    }
+}
+
+<span class="tp">int</span> <span class="fn">main</span>() {
+    <span class="tp">int</span> <span class="va">n</span>, <span class="va">m</span>;
+    <span class="va">cin</span> <span class="op">&gt;&gt;</span> <span class="va">n</span> <span class="op">&gt;&gt;</span> <span class="va">m</span>;
+
+    <span class="kw">for</span> (<span class="tp">int</span> <span class="va">i</span> <span class="op">=</span> <span class="nm">0</span>; <span class="va">i</span> <span class="op">&lt;</span> <span class="va">m</span>; <span class="va">i</span><span class="op">++</span>) {
+        <span class="tp">int</span> <span class="va">u</span>, <span class="va">v</span>;
+        <span class="va">cin</span> <span class="op">&gt;&gt;</span> <span class="va">u</span> <span class="op">&gt;&gt;</span> <span class="va">v</span>;
+        <span class="va">adj</span>[<span class="va">u</span>].<span class="fn">push_back</span>(<span class="va">v</span>);
+        <span class="va">adj</span>[<span class="va">v</span>].<span class="fn">push_back</span>(<span class="va">u</span>);
+    }
+
+    <span class="fn">dfs</span>(<span class="nm">1</span>);
+
+    <span class="kw">if</span> (!<span class="va">vis</span>[<span class="va">n</span>]) <span class="va">cout</span> <span class="op">&lt;&lt;</span> <span class="st">"No"</span>;
+    <span class="kw">else</span> {
+        <span class="va">cout</span> <span class="op">&lt;&lt;</span> <span class="st">"Yes\n"</span>;
+        <span class="va">vector</span><span class="op">&lt;</span><span class="tp">int</span><span class="op">&gt;</span> <span class="va">pth</span>;
+        <span class="cm">// تتبع المسار عكسياً</span>
+        <span class="kw">for</span> (<span class="tp">int</span> <span class="va">i</span> <span class="op">=</span> <span class="va">n</span>; <span class="va">i</span> <span class="op">!=</span> <span class="nm">1</span>; <span class="va">i</span> <span class="op">=</span> <span class="va">p</span>[<span class="va">i</span>])
+            <span class="va">pth</span>.<span class="fn">push_back</span>(<span class="va">i</span>);
+        <span class="fn">reverse</span>(<span class="va">pth</span>.<span class="fn">begin</span>(), <span class="va">pth</span>.<span class="fn">end</span>());
+        <span class="va">cout</span> <span class="op">&lt;&lt;</span> <span class="nm">1</span> <span class="op">&lt;&lt;</span> <span class="st">' '</span>;
+        <span class="kw">for</span> (<span class="tp">int</span> <span class="va">i</span> : <span class="va">pth</span>) <span class="va">cout</span> <span class="op">&lt;&lt;</span> <span class="va">i</span> <span class="op">&lt;&lt;</span> <span class="st">' '</span>;
+    }
+}</pre>
+      </div>
+    </div>
+
+    <!-- Problem 2 -->
+    <div class="problem-card" id="prob1">
+      <div class="prob-header">
+        <h3>Building Teams — تشكيل الفرق (CSES)</h3>
+        <span class="diff-badge diff-medium">متوسط</span>
+      </div>
+      <p>يوجد N تلميذاً في الصف وM صداقة بينهم. قسّم التلاميذ إلى فريقين بحيث لا يكون أي تلميذين في نفس الفريق أصدقاء. هذا يُعرف بـ <strong style="color:var(--accent)">التلوين الثنائي (Bipartite Coloring)</strong>.</p>
+
+      <div class="callout callout-tip">
+        <div class="callout-icon">💡</div>
+        <div class="callout-body">
+          <strong style="color:var(--accent3)">فكرة الحل</strong>
+          <p>لوّن كل رأس بلون (0 أو 1). جميع جيرانه يجب أن يكون لونهم مختلفاً. إذا وجدت تناقضاً (جاران بنفس اللون)، فالتقسيم مستحيل.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-warn">
+        <div class="callout-icon">🚨</div>
+        <div class="callout-body">
+          <strong style="color:var(--danger)">تنبيه</strong>
+          <p>قد يتكون الرسم البياني من مكونات منفصلة، لذا يجب تشغيل DFS على كل رأس غير مُزار في الحلقة الرئيسية.</p>
+        </div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">C++ — Building Teams</span>
+          <button class="copy-btn" onclick="copyCode(this, 'code3')">نسخ</button>
+        </div>
+        <pre id="code3"><span class="kw">const</span> <span class="tp">int</span> <span class="va">maxN</span> <span class="op">=</span> <span class="nm">200001</span>;
+
+<span class="tp">bool</span> <span class="va">vis</span>[<span class="va">maxN</span>], <span class="va">clr</span>[<span class="va">maxN</span>];
+<span class="tp">bool</span> <span class="va">contradiction</span> <span class="op">=</span> <span class="kw">false</span>;
+<span class="va">vector</span><span class="op">&lt;</span><span class="tp">int</span><span class="op">&gt;</span> <span class="va">adj</span>[<span class="va">maxN</span>];
+
+<span class="tp">void</span> <span class="fn">dfs</span>(<span class="tp">int</span> <span class="va">u</span>) {
+    <span class="va">vis</span>[<span class="va">u</span>] <span class="op">=</span> <span class="kw">true</span>;
+    <span class="kw">for</span> (<span class="tp">int</span> <span class="va">v</span> : <span class="va">adj</span>[<span class="va">u</span>]) {
+        <span class="kw">if</span> (<span class="va">vis</span>[<span class="va">v</span>]) {
+            <span class="cm">// الجار مُزار: تحقق من عدم التناقض</span>
+            <span class="kw">if</span> (<span class="va">clr</span>[<span class="va">v</span>] <span class="op">==</span> <span class="va">clr</span>[<span class="va">u</span>]) <span class="va">contradiction</span> <span class="op">=</span> <span class="kw">true</span>;
+        } <span class="kw">else</span> {
+            <span class="cm">// الجار غير مُزار: لوّنه باللون العكسي</span>
+            <span class="va">clr</span>[<span class="va">v</span>] <span class="op">=</span> !<span class="va">clr</span>[<span class="va">u</span>];
+            <span class="fn">dfs</span>(<span class="va">v</span>);
+        }
+    }
+}
+
+<span class="tp">int</span> <span class="fn">main</span>() {
+    <span class="tp">int</span> <span class="va">n</span>, <span class="va">m</span>;
+    <span class="va">cin</span> <span class="op">&gt;&gt;</span> <span class="va">n</span> <span class="op">&gt;&gt;</span> <span class="va">m</span>;
+    <span class="kw">for</span> (<span class="tp">int</span> <span class="va">i</span> <span class="op">=</span> <span class="nm">0</span>; <span class="va">i</span> <span class="op">&lt;</span> <span class="va">m</span>; <span class="va">i</span><span class="op">++</span>) {
+        <span class="tp">int</span> <span class="va">u</span>, <span class="va">v</span>;
+        <span class="va">cin</span> <span class="op">&gt;&gt;</span> <span class="va">u</span> <span class="op">&gt;&gt;</span> <span class="va">v</span>;
+        <span class="va">adj</span>[<span class="va">u</span>].<span class="fn">push_back</span>(<span class="va">v</span>);
+        <span class="va">adj</span>[<span class="va">v</span>].<span class="fn">push_back</span>(<span class="va">u</span>);
+    }
+    <span class="cm">// نشغل DFS على كل مكون</span>
+    <span class="kw">for</span> (<span class="tp">int</span> <span class="va">i</span> <span class="op">=</span> <span class="nm">1</span>; <span class="va">i</span> <span class="op">&lt;=</span> <span class="va">n</span>; <span class="va">i</span><span class="op">++</span>)
+        <span class="kw">if</span> (!<span class="va">vis</span>[<span class="va">i</span>]) <span class="fn">dfs</span>(<span class="va">i</span>);
+
+    <span class="kw">if</span> (<span class="va">contradiction</span>) <span class="va">cout</span> <span class="op">&lt;&lt;</span> <span class="st">"IMPOSSIBLE"</span>;
+    <span class="kw">else</span>
+        <span class="kw">for</span> (<span class="tp">int</span> <span class="va">i</span> <span class="op">=</span> <span class="nm">1</span>; <span class="va">i</span> <span class="op">&lt;=</span> <span class="va">n</span>; <span class="va">i</span><span class="op">++</span>)
+            <span class="va">cout</span> <span class="op">&lt;&lt;</span> <span class="nm">1</span> <span class="op">+</span> <span class="va">clr</span>[<span class="va">i</span>] <span class="op">&lt;&lt;</span> <span class="st">' '</span>;
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Quiz -->
+  <div class="section-card">
+    <div class="section-title">
+      <div class="section-icon icon-warn">📝</div>
+      اختبر نفسك — 15 سؤالاً
+    </div>
+
+    <div class="quiz-progress" id="quiz-progress"></div>
+
+    <div id="quiz-container">
+      <div class="quiz-header">
+        <span class="quiz-num" id="q-num">السؤال 1 من 15</span>
+        <span class="quiz-diff" id="q-diff"></span>
+      </div>
+      <div class="question-text" id="q-text"></div>
+      <div class="options" id="q-options"></div>
+      <div class="quiz-feedback" id="q-feedback"></div>
+      <div class="quiz-nav">
+        <span id="q-score-live" style="font-size:0.85rem;color:var(--text3)">النقاط: 0</span>
+        <button class="sim-btn sim-btn-primary" id="next-btn" onclick="nextQuestion()" style="display:none">التالي →</button>
+      </div>
+    </div>
+
+    <div class="quiz-score" id="quiz-score">
+      <div class="score-circle">
+        <div class="score-num" id="final-score">0</div>
+        <div class="score-total">من 15</div>
+      </div>
+      <div class="score-msg" id="score-msg"></div>
+      <div class="score-sub" id="score-sub"></div>
+      <br>
+      <button class="sim-btn sim-btn-primary" onclick="restartQuiz()">↺ إعادة الاختبار</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════
+// GRAPH SIMULATOR
+// ═══════════════════════════════════════
+const canvas = document.getElementById('graph-canvas');
+const ctx = canvas.getContext('2d');
+
+const nodes = [
+  {id:0, x:0.08, y:0.45, label:'0', state:'unvisited'},
+  {id:1, x:0.28, y:0.45, label:'1', state:'unvisited'},
+  {id:2, x:0.38, y:0.72, label:'2', state:'unvisited'},
+  {id:3, x:0.52, y:0.45, label:'3', state:'unvisited'},
+  {id:4, x:0.68, y:0.45, label:'4', state:'unvisited'},
+  {id:5, x:0.74, y:0.72, label:'5', state:'unvisited'},
+  {id:6, x:0.80, y:0.20, label:'6', state:'unvisited'},
+  {id:7, x:0.94, y:0.45, label:'7', state:'unvisited'},
+];
+
+const edges = [[0,1],[1,2],[1,3],[2,3],[3,4],[4,5],[4,6],[5,7],[6,7]];
+
+let simSteps = [], stepIdx = 0, simTimer = null, simRunning = false;
+
+function getPos(node) {
+  return { x: node.x * canvas.width, y: node.y * canvas.height };
+}
+
+function drawGraph() {
+  const w = canvas.width, h = canvas.height;
+  ctx.clearRect(0,0,w,h);
+
+  // Draw edges
+  edges.forEach(([a,b]) => {
+    const pa = getPos(nodes[a]), pb = getPos(nodes[b]);
+    ctx.beginPath();
+    ctx.moveTo(pa.x, pa.y);
+    ctx.lineTo(pb.x, pb.y);
+    ctx.strokeStyle = '#2a3a5c';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  });
+
+  // Draw nodes
+  nodes.forEach(n => {
+    const p = getPos(n);
+    const r = 20;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r, 0, Math.PI*2);
+    let fill, stroke;
+    if (n.state === 'unvisited') { fill = '#1e3a5f'; stroke = '#64748b'; }
+    else if (n.state === 'active') { fill = '#7c3aed'; stroke = '#a78bfa'; }
+    else if (n.state === 'visiting') { fill = '#1a4a7a'; stroke = '#00d4ff'; }
+    else { fill = '#064e3b'; stroke = '#10b981'; }
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Glow for active
+    if (n.state === 'active') {
+      ctx.beginPath(); ctx.arc(p.x, p.y, r+6, 0, Math.PI*2);
+      ctx.strokeStyle = 'rgba(124,58,237,0.3)'; ctx.lineWidth = 6; ctx.stroke();
+    }
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 13px Cairo';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(n.label, p.x, p.y);
+
+    if (n.id === 0) {
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = '11px Cairo';
+      ctx.fillText('source', p.x, p.y - 28);
+    }
+  });
+}
+
+function resizeCanvas() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = Math.min(rect.width - 40, 900);
+  canvas.height = 300;
+  drawGraph();
+}
+
+// Build DFS steps
+function buildSteps() {
+  const steps = [];
+  const visited = new Array(8).fill(false);
+  function dfs(u, parent) {
+    visited[u] = true;
+    steps.push({type:'visit', node:u, msg:`زيارة الرأس ${u}`, state: JSON.parse(JSON.stringify(visited))});
+    const neighbors = edges.filter(e => e[0]===u||e[1]===u).map(e=>e[0]===u?e[1]:e[0]);
+    for (const v of neighbors) {
+      if (!visited[v]) {
+        steps.push({type:'explore', node:v, from:u, msg:`استكشاف الرأس ${v} من ${u}`});
+        dfs(v, u);
+      }
+    }
+    steps.push({type:'done', node:u, msg:`اكتملت زيارة الرأس ${u} — backtrack ↑`});
+  }
+  dfs(0, -1);
+  return steps;
+}
+
+simSteps = buildSteps();
+
+function applyStep(idx) {
+  const step = simSteps[idx];
+  const log = document.getElementById('sim-log');
+
+  nodes.forEach(n => { if(n.state==='active') n.state='visiting'; });
+
+  if (step.type === 'visit') {
+    nodes[step.node].state = 'active';
+    log.innerHTML += `<div class="log-visit">▶ زيارة الرأس <strong>${step.node}</strong></div>`;
+  } else if (step.type === 'explore') {
+    log.innerHTML += `<span style="color:var(--text3)">  → استكشاف ${step.node} من ${step.from}</span><br>`;
+  } else if (step.type === 'done') {
+    nodes[step.node].state = 'done';
+    log.innerHTML += `<div class="log-back">✓ اكتمل الرأس ${step.node} — backtrack</div>`;
+  }
+
+  log.scrollTop = log.scrollHeight;
+  drawGraph();
+}
+
+function getDelay() {
+  const s = document.getElementById('speed-slider').value;
+  const lbl = document.getElementById('speed-label');
+  const d = parseInt(s);
+  lbl.textContent = d < 500 ? '2x' : d < 900 ? '1x' : '0.5x';
+  return d;
+}
+
+function startDFS() {
+  if (simRunning) return;
+  simRunning = true;
+  function next() {
+    if (stepIdx >= simSteps.length) {
+      simRunning = false;
+      document.getElementById('sim-log').innerHTML += '<div class="log-done">✅ انتهى DFS من زيارة جميع الرؤوس!</div>';
+      return;
+    }
+    applyStep(stepIdx++);
+    simTimer = setTimeout(next, getDelay());
+  }
+  next();
+}
+
+function stepDFS() {
+  if (stepIdx >= simSteps.length) return;
+  applyStep(stepIdx++);
+}
+
+function resetDFS() {
+  clearTimeout(simTimer);
+  simRunning = false; stepIdx = 0;
+  nodes.forEach(n => n.state = 'unvisited');
+  document.getElementById('sim-log').textContent = 'تم الإعادة. اضغط تشغيل أو خطوة للبدء.';
+  drawGraph();
+}
+
+document.getElementById('speed-slider').addEventListener('input', getDelay);
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// ═══════════════════════════════════════
+// PROBLEMS TABS
+// ═══════════════════════════════════════
+function showProblem(idx, btn) {
+  document.querySelectorAll('.problem-card').forEach((c,i) => c.classList.toggle('active', i===idx));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// COPY CODE
+// ═══════════════════════════════════════
+function copyCode(btn, id) {
+  const el = document.getElementById(id);
+  navigator.clipboard.writeText(el.innerText).then(() => {
+    btn.textContent = '✓ تم النسخ';
+    setTimeout(() => btn.textContent = 'نسخ', 1500);
+  });
+}
+
+// ═══════════════════════════════════════
+// QUIZ
+// ═══════════════════════════════════════
+const questions = [
+  // ───── سهل (5) ─────
+  {
+    diff: 'سهل', diffClass: 'diff-easy',
+    text: 'ما الاختصار الكامل لـ DFS؟',
+    options: ['Depth-First Search','Data Flow System','Direct Find Strategy','Deep Function Search'],
+    correct: 0,
+    feedback: 'DFS تعني Depth-First Search أي البحث في العمق — تستكشف الخوارزمية أعمق مسار ممكن قبل الرجوع.'
+  },
+  {
+    diff: 'سهل', diffClass: 'diff-easy',
+    text: 'ما التعقيد الزمني لخوارزمية DFS على رسم بياني بـ V رأساً و E حرفاً؟',
+    options: ['O(V × E)','O(V + E)','O(V²)','O(log V)'],
+    correct: 1,
+    feedback: 'التعقيد الزمني هو O(V + E) لأننا نزور كل رأس مرة واحدة ونمر على كل حرف مرة واحدة.'
+  },
+  {
+    diff: 'سهل', diffClass: 'diff-easy',
+    text: 'لماذا نستخدم مصفوفة vis[] في DFS؟',
+    options: ['لحساب عدد الحروف','لمنع الدخول في حلقة لا نهائية','لتخزين المسار','لترتيب الرؤوس'],
+    correct: 1,
+    feedback: 'مصفوفة vis[] تمنع زيارة نفس الرأس مرتين مما يمنع الحلقات اللانهائية في الرسوم البيانية الدائرية.'
+  },
+  {
+    diff: 'سهل', diffClass: 'diff-easy',
+    text: 'ما نوع البنية البيانية التي تستخدمها DFS بشكل ضمني (عبر التعاود)؟',
+    options: ['Queue (طابور)','Stack (مكدس)','Heap','LinkedList'],
+    correct: 1,
+    feedback: 'DFS تستخدم Stack ضمنياً عبر stack الاستدعاءات في التعاود (recursion call stack).'
+  },
+  {
+    diff: 'سهل', diffClass: 'diff-easy',
+    text: 'على رسم بياني بـ 5 رؤوس و 4 حروف غير موجهة وشجرة متصلة، كم مرة سيستدعي DFS دالة dfs()؟',
+    options: ['4','5','9','8'],
+    correct: 1,
+    feedback: 'في رسم بياني متصل، DFS تستدعي dfs() مرة واحدة لكل رأس، إذاً 5 مرات.'
+  },
+  // ───── متوسط (5) ─────
+  {
+    diff: 'متوسط', diffClass: 'diff-medium',
+    text: 'في مسألة Path Finding، ما الغرض من مصفوفة p[] (الأب)؟',
+    options: ['تخزين عدد الجيران لكل رأس','تتبع المسار من النهاية إلى البداية','تسريع الخوارزمية','تخزين ألوان الرؤوس'],
+    correct: 1,
+    feedback: 'p[v] = u يعني أن DFS اكتشف v عبر u. بعد الانتهاء نتتبع p[] عكسياً من N إلى 1 للحصول على المسار.'
+  },
+  {
+    diff: 'متوسط', diffClass: 'diff-medium',
+    text: 'في مسألة Building Teams، ما الذي يعنيه "التناقض" (contradiction)؟',
+    options: ['عدم اتصال الرسم البياني','وجود رأسين جاران بنفس اللون','أن عدد الرؤوس فردي','عدم وجود حروف'],
+    correct: 1,
+    feedback: 'التناقض يحدث عندما يكون جاران ملوّنان بنفس اللون، مما يعني أن التقسيم إلى فريقين متعادلين مستحيل.'
+  },
+  {
+    diff: 'متوسط', diffClass: 'diff-medium',
+    text: 'رسم بياني يحتوي على دورة بطول فردي (مثلاً مثلث). هل يمكن التلوين الثنائي له؟',
+    options: ['نعم دائماً','لا، مستحيل','نعم إذا كان متصلاً','يعتمد على عدد الرؤوس'],
+    correct: 1,
+    feedback: 'الدورة ذات الطول الفردي تجعل التلوين الثنائي مستحيلاً. الرسم البياني الثنائي (Bipartite) لا يحتوي على دورات بطول فردي.'
+  },
+  {
+    diff: 'متوسط', diffClass: 'diff-medium',
+    text: 'في الكود: `for (int i = n; i != 1; i = p[i])` — ما وظيفة هذه الحلقة؟',
+    options: ['طباعة جميع الرؤوس','بناء المسار من N إلى 1 عكسياً','حساب عدد الحروف','تشغيل DFS مجدداً'],
+    correct: 1,
+    feedback: 'هذه الحلقة تتتبع مصفوفة الآباء p[] بدءاً من N وتعود خطوة بخطوة إلى الرأس 1 لبناء المسار عكسياً.'
+  },
+  {
+    diff: 'متوسط', diffClass: 'diff-medium',
+    text: 'لماذا نشغّل DFS في حلقة `for (int i=1; i<=n; i++) if (!vis[i]) dfs(i)` في مسألة Building Teams؟',
+    options: ['لأن الرسم البياني موجّه','لأن الرسم البياني قد يحتوي على مكونات منفصلة','لتسريع الكود','لأن DFS تحتاج نقطة بداية مختلفة في كل مرة'],
+    correct: 1,
+    feedback: 'الرسم البياني قد يكون غير متصل (Disconnected Graph)، أي يحتوي على مكونات منفصلة. يجب تشغيل DFS على كل رأس لم يُزَر بعد.'
+  },
+  // ───── صعب (5) ─────
+  {
+    diff: 'صعب', diffClass: 'diff-easy',
+    text: 'رسم بياني بـ N رأساً و N-1 حرفاً متصل وغير موجه. ما اسم هذا الهيكل؟',
+    options: ['Cycle','Complete Graph','Tree (شجرة)','Bipartite Graph'],
+    correct: 2,
+    feedback: 'رسم بياني متصل بـ N رأس وN-1 حرف بدون دورات هو بالتعريف شجرة (Tree). DFS على الشجرة يعطي DFS Tree مباشرة.'
+  },
+  {
+    diff: 'صعب', diffClass: 'diff-easy',
+    text: 'إذا كان الرسم البياني موجّهاً (Directed) وأردنا التحقق من وجود دورة، ماذا نضيف لـ DFS؟',
+    options: ['مصفوفة p[] للأباء','تتبع حالة "قيد المعالجة" بمصفوفة ثالثة','استبدال DFS بـ BFS','زيادة maxN'],
+    correct: 1,
+    feedback: 'نستخدم 3 حالات: unvisited / in-stack / done. إذا وصلنا لرأس "in-stack" فهذا يعني وجود دورة في الرسم الموجّه.'
+  },
+  {
+    diff: 'صعب', diffClass: 'diff-easy',
+    text: 'ما مشكلة استخدام DFS التعاودي على رسم بياني بـ 10⁵ رأس في سلسلة متتالية (مثلاً 1-2-3-...-N)؟',
+    options: ['لن تعمل الخوارزمية','Stack Overflow بسبب عمق التعاود الكبير','التعقيد الزمني يصبح O(N²)','لن يُطبع المسار بشكل صحيح'],
+    correct: 1,
+    feedback: 'التعاود العميق جداً يؤدي إلى Stack Overflow. الحل: تحويل DFS إلى نسخة تكرارية (Iterative) باستخدام Stack يدوي.'
+  },
+  {
+    diff: 'صعب', diffClass: 'diff-easy',
+    text: 'في التلوين الثنائي، إذا لوّن الرأس 1 باللون 0، ما لون الرأس 3 في المسار: 1 → 2 → 3؟',
+    options: ['0','1','غير محدد','يعتمد على اتجاه الحرف'],
+    correct: 0,
+    feedback: '1 (لون 0) → 2 (لون 1) → 3 (لون 0). كل خطوة تعكس اللون. المسافة الزوجية = نفس لون المصدر.'
+  },
+  {
+    diff: 'صعب', diffClass: 'diff-easy',
+    text: 'ماذا تفعل دالة reverse() في كود Path Finding ولماذا هي ضرورية؟',
+    options: [
+      'تعكس قائمة التجاور للرسم البياني',
+      'تعكس المسار الذي بُني من N إلى 1 ليصبح من 1 إلى N',
+      'تعيد الرأس 1 إلى بداية القائمة',
+      'تحوّل المصفوفة إلى ترتيب تنازلي'
+    ],
+    correct: 1,
+    feedback: 'بنينا المسار بتتبع p[] من N إلى 1 (عكسي). reverse() يعكسه ليصبح من 1 إلى N وهو الاتجاه المطلوب للإخراج.'
+  }
+];
+
+let currentQ = 0, score = 0, answered = false;
+
+function renderProgress() {
+  const el = document.getElementById('quiz-progress');
+  el.innerHTML = '';
+  questions.forEach((q, i) => {
+    const d = document.createElement('div');
+    d.className = 'qp-dot' + (i === currentQ ? ' current' : '');
+    d.title = `السؤال ${i+1}`;
+    el.appendChild(d);
+  });
+}
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  document.getElementById('q-num').textContent = `السؤال ${currentQ+1} من ${questions.length}`;
+  document.getElementById('q-diff').textContent = q.diff;
+  document.getElementById('q-diff').className = 'quiz-diff ' + q.diffClass;
+  document.getElementById('q-text').textContent = q.text;
+  document.getElementById('q-feedback').className = 'quiz-feedback';
+  document.getElementById('next-btn').style.display = 'none';
+  answered = false;
+
+  const opts = document.getElementById('q-options');
+  opts.innerHTML = '';
+  const letters = ['أ','ب','ج','د'];
+  q.options.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.innerHTML = `<span class="opt-letter">${letters[i]}</span>${opt}`;
+    div.onclick = () => selectOption(i, div);
+    opts.appendChild(div);
+  });
+
+  renderProgress();
+}
+
+function selectOption(idx, el) {
+  if (answered) return;
+  answered = true;
+  const q = questions[currentQ];
+  const fb = document.getElementById('q-feedback');
+  document.querySelectorAll('.option').forEach(o => o.classList.add('disabled'));
+
+  if (idx === q.correct) {
+    el.classList.add('correct');
+    score++;
+    fb.className = 'quiz-feedback show correct-fb';
+    fb.innerHTML = `✅ <strong>إجابة صحيحة!</strong> ${q.feedback}`;
+  } else {
+    el.classList.add('wrong');
+    document.querySelectorAll('.option')[q.correct].classList.add('correct');
+    fb.className = 'quiz-feedback show wrong-fb';
+    fb.innerHTML = `❌ <strong>إجابة خاطئة.</strong> ${q.feedback}`;
+  }
+
+  document.getElementById('q-score-live').textContent = `النقاط: ${score}`;
+  document.getElementById('next-btn').style.display = 'block';
+
+  // Update progress dots
+  const dots = document.querySelectorAll('.qp-dot');
+  if (dots[currentQ]) {
+    dots[currentQ].classList.remove('current');
+    dots[currentQ].classList.add(idx === q.correct ? 'answered' : 'wrong');
+  }
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= questions.length) {
+    showScore();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showScore() {
+  document.getElementById('quiz-container').style.display = 'none';
+  document.getElementById('quiz-score').style.display = 'block';
+  document.getElementById('final-score').textContent = score;
+
+  let msg, sub;
+  if (score >= 13) { msg = '🏆 ممتاز! أنت جاهز للمسابقة!'; sub = 'إتقان تام لخوارزمية DFS — استمر هكذا!'; }
+  else if (score >= 10) { msg = '👏 أداء جيد جداً!'; sub = 'راجع الأسئلة التي أخطأت فيها وحاول مرة أخرى.'; }
+  else if (score >= 7) { msg = '📚 لا بأس — تحتاج مزيداً من التدريب.'; sub = 'اقرأ الشرح مرة أخرى وركّز على الأمثلة البرمجية.'; }
+  else { msg = '💪 لا تستسلم!'; sub = 'راجع الدرس من البداية وجرّب المحاكي مجدداً.'; }
+
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('score-sub').textContent = sub;
+}
+
+function restartQuiz() {
+  currentQ = 0; score = 0;
+  document.getElementById('quiz-container').style.display = 'block';
+  document.getElementById('quiz-score').style.display = 'none';
+  document.getElementById('q-score-live').textContent = 'النقاط: 0';
+  renderQuestion();
+}
+
+renderQuestion();
+</script>
+</body>
+</html>

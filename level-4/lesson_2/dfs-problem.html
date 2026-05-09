@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مسألة DFS — جزر المحيط | أولمبياد نسمة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #07090f;
+  --bg2:     #0c1018;
+  --bg3:     #111827;
+  --card:    #13192a;
+  --card2:   #1a2238;
+  --border:  #1e2d4a;
+  --border2: #263552;
+  --accent:  #38bdf8;
+  --gold:    #fbbf24;
+  --green:   #34d399;
+  --red:     #f87171;
+  --purple:  #a78bfa;
+  --text:    #e2e8f0;
+  --text2:   #94a3b8;
+  --text3:   #4b6080;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Cairo', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Ambient bg ── */
+.ambient {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 40% at 10% 10%, rgba(56,189,248,0.05) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 50% at 90% 90%, rgba(167,139,250,0.05) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 60% at 50% 50%, rgba(52,211,153,0.03) 0%, transparent 70%);
+}
+
+/* ── Header ── */
+header {
+  position: relative; z-index: 10;
+  padding: 1.4rem 2.5rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(7,9,15,0.95);
+  backdrop-filter: blur(12px);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo { font-size: 1rem; font-weight: 700; color: var(--accent); letter-spacing:.08em; }
+.header-center { text-align: center; }
+.header-center h1 {
+  font-size: 1.5rem; font-weight: 900;
+  background: linear-gradient(120deg, var(--accent), var(--purple));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.header-center p { font-size: .8rem; color: var(--text3); margin-top:.2rem; }
+.diff-pill {
+  background: rgba(251,191,36,0.12);
+  border: 1px solid rgba(251,191,36,0.35);
+  color: var(--gold);
+  padding: .3rem .9rem; border-radius: 20px;
+  font-size: .78rem; font-weight: 700; letter-spacing:.06em;
+}
+
+/* ── Main layout ── */
+main {
+  position: relative; z-index: 1;
+  max-width: 960px; margin: 0 auto;
+  padding: 2rem 1.5rem 5rem;
+  display: flex; flex-direction: column; gap: 1.6rem;
+}
+
+/* ── Cards ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.8rem 2rem;
+  animation: rise .5s ease both;
+}
+.card:nth-child(2){animation-delay:.07s}
+.card:nth-child(3){animation-delay:.14s}
+.card:nth-child(4){animation-delay:.21s}
+.card:nth-child(5){animation-delay:.28s}
+
+@keyframes rise {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.card-title {
+  font-size: 1.1rem; font-weight: 700;
+  display: flex; align-items: center; gap: .6rem;
+  margin-bottom: 1.2rem;
+  padding-bottom: .8rem;
+  border-bottom: 1px solid var(--border);
+}
+.ct-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; font-size:.95rem;
+}
+.i-blue   { background:rgba(56,189,248,.12);  color:var(--accent);  }
+.i-gold   { background:rgba(251,191,36,.12);  color:var(--gold);    }
+.i-green  { background:rgba(52,211,153,.12);  color:var(--green);   }
+.i-purple { background:rgba(167,139,250,.12); color:var(--purple);  }
+.i-red    { background:rgba(248,113,113,.12); color:var(--red);     }
+
+p { line-height:1.9; color:var(--text2); margin-bottom:.7rem; }
+p:last-child { margin-bottom:0; }
+strong { color:var(--text); }
+
+/* ── IO boxes ── */
+.io-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem; }
+.io-box {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px; overflow:hidden;
+}
+.io-label {
+  background: var(--card2); padding:.4rem .9rem;
+  font-size:.75rem; font-weight:700; color:var(--text3);
+  letter-spacing:.07em; direction:ltr; text-align:left;
+}
+.io-content {
+  font-family:'Fira Code',monospace; font-size:.88rem;
+  color:var(--accent); padding:.8rem .9rem;
+  direction:ltr; text-align:left; line-height:1.8;
+  white-space: pre;
+}
+
+/* ── Constraints ── */
+.constraints {
+  display: flex; flex-wrap:wrap; gap:.6rem; margin-top:.8rem;
+}
+.con-tag {
+  background:var(--bg3); border:1px solid var(--border2);
+  border-radius:8px; padding:.3rem .8rem;
+  font-family:'Fira Code',monospace; font-size:.82rem; color:var(--purple);
+}
+
+/* ── Steps ── */
+.steps-container { display:flex; flex-direction:column; gap:0; }
+.step-item {
+  display:flex; gap:1rem; position:relative;
+  padding-bottom: 1.4rem;
+}
+.step-item:last-child { padding-bottom:0; }
+.step-item:last-child .step-line { display:none; }
+.step-left { display:flex; flex-direction:column; align-items:center; }
+.step-circle {
+  width:36px; height:36px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:.85rem; z-index:1;
+  transition: all .3s;
+  cursor: pointer;
+}
+.step-line {
+  width:2px; flex:1; background:var(--border); margin-top:.3rem;
+  min-height: 20px;
+}
+.step-body { flex:1; padding-top:.4rem; }
+.step-title {
+  font-size:.95rem; font-weight:700; color:var(--text);
+  margin-bottom:.4rem; cursor:pointer; user-select:none;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.step-title .chevron { transition:transform .3s; font-size:.8rem; color:var(--text3); }
+.step-detail {
+  overflow:hidden; max-height:0;
+  transition: max-height .4s ease, opacity .3s ease;
+  opacity:0;
+}
+.step-detail.open { max-height:600px; opacity:1; }
+.step-detail p { font-size:.88rem; margin:.3rem 0; }
+
+/* Step states */
+.step-todo   .step-circle { background:var(--border2); color:var(--text3); border:2px solid var(--border2); }
+.step-active .step-circle { background:rgba(56,189,248,.15); color:var(--accent); border:2px solid var(--accent); box-shadow:0 0 14px rgba(56,189,248,.3); }
+.step-done   .step-circle { background:rgba(52,211,153,.15); color:var(--green); border:2px solid var(--green); }
+
+/* Step code */
+.step-code {
+  background:#070b12; border:1px solid var(--border);
+  border-radius:8px; padding:1rem 1.1rem; margin:.6rem 0;
+  font-family:'Fira Code',monospace; font-size:.82rem;
+  line-height:1.75; direction:ltr; text-align:left;
+  overflow-x:auto;
+}
+.kw{color:#c792ea} .tp{color:#82aaff} .fn{color:#82aaff}
+.cm{color:#4a6070;font-style:italic} .st{color:#c3e88d}
+.nm{color:#f78c6c} .op{color:#89ddff} .va{color:#eeffff}
+
+/* Hint box */
+.hint-box {
+  background:rgba(251,191,36,.06); border:1px solid rgba(251,191,36,.25);
+  border-radius:8px; padding:.8rem 1rem; margin:.6rem 0;
+  font-size:.86rem; color:#fde68a; line-height:1.75;
+  display:flex; gap:.6rem; align-items:flex-start;
+}
+.hint-box .hi { flex-shrink:0; font-size:1rem; }
+
+/* ── Solution reveal ── */
+.sol-tabs {
+  display:flex; gap:.5rem; margin-bottom:1.2rem; flex-wrap:wrap;
+}
+.sol-tab {
+  padding:.45rem 1rem; border-radius:8px;
+  border:1px solid var(--border); background:var(--card2);
+  color:var(--text2); cursor:pointer;
+  font-family:'Cairo',sans-serif; font-size:.84rem;
+  transition:all .2s;
+}
+.sol-tab.active {
+  background:linear-gradient(135deg,#1d4ed8,#0ea5e9);
+  border-color:transparent; color:white;
+}
+.sol-panel { display:none; animation:rise .3s ease; }
+.sol-panel.active { display:block; }
+
+/* full solution code block */
+.full-code {
+  background:#06090f; border:1px solid var(--border);
+  border-radius:10px; overflow:hidden; direction:ltr;
+}
+.full-code-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.55rem 1rem; background:rgba(255,255,255,.02);
+  border-bottom:1px solid var(--border); direction:ltr;
+}
+.fc-dots { display:flex; gap:.35rem; }
+.fc-dots span { width:9px; height:9px; border-radius:50%; }
+.fc-r{background:#ff5f57} .fc-y{background:#ffbd2e} .fc-g{background:#28ca41}
+.fc-lang { font-family:'Fira Code',monospace; font-size:.72rem; color:var(--text3); }
+.copy-btn {
+  background:rgba(56,189,248,.1); border:1px solid rgba(56,189,248,.3);
+  color:var(--accent); padding:.22rem .7rem; border-radius:6px;
+  font-size:.72rem; cursor:pointer; transition:all .2s;
+  font-family:'Cairo',sans-serif;
+}
+.copy-btn:hover { background:rgba(56,189,248,.2); }
+.full-code pre {
+  padding:1.3rem 1.5rem; overflow-x:auto;
+  font-family:'Fira Code',monospace; font-size:.83rem;
+  line-height:1.75; direction:ltr; text-align:left;
+}
+
+/* complexity badge */
+.cplx {
+  display:inline-flex; align-items:center; gap:.5rem;
+  background:rgba(56,189,248,.08); border:1px solid rgba(56,189,248,.25);
+  padding:.35rem .9rem; border-radius:8px;
+  font-family:'Fira Code',monospace; font-size:.85rem; color:var(--accent);
+  margin:.6rem 0;
+}
+
+/* ── Visual graph ── */
+#vis-canvas {
+  width:100%; height:240px;
+  background:#060912; border-radius:10px;
+  border:1px solid var(--border); display:block;
+  margin:.8rem 0;
+}
+.vis-controls { display:flex; gap:.6rem; flex-wrap:wrap; margin-bottom:.6rem; }
+.vis-btn {
+  padding:.45rem 1.1rem; border-radius:8px; border:none; cursor:pointer;
+  font-family:'Cairo',sans-serif; font-size:.84rem; font-weight:600;
+  transition:all .2s;
+}
+.vb-primary { background:linear-gradient(135deg,var(--purple),var(--accent)); color:white; }
+.vb-primary:hover { opacity:.85; transform:translateY(-1px); }
+.vb-sec { background:var(--card2); border:1px solid var(--border); color:var(--text2); }
+.vb-sec:hover { border-color:var(--accent); color:var(--accent); }
+.vis-log {
+  background:#04060d; border:1px solid var(--border); border-radius:8px;
+  padding:.7rem 1rem; font-family:'Fira Code',monospace; font-size:.8rem;
+  color:var(--green); min-height:52px; max-height:100px; overflow-y:auto;
+  line-height:1.9; direction:ltr; text-align:left;
+}
+.vl-visit { color:var(--accent); }
+.vl-island { color:var(--gold); font-weight:600; }
+.vl-done  { color:var(--green); }
+
+/* ── Island grid ── */
+.grid-wrap {
+  display:flex; flex-direction:column; gap:.3rem;
+  margin:.8rem 0; direction:ltr; text-align:left;
+}
+.grid-row { display:flex; gap:.3rem; }
+.grid-cell {
+  width:36px; height:36px; border-radius:6px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Fira Code',monospace; font-size:.85rem; font-weight:600;
+  transition:all .3s; cursor:default; border:2px solid transparent;
+  flex-shrink:0;
+}
+.cell-water { background:#0a1220; color:var(--text3); border-color:#1a2840; }
+.cell-land  { background:#1a3a25; color:var(--green); border-color:#2a5a35; }
+.cell-visited { background:#2a3a18; color:#a3e635; border-color:#4a6a25; }
+.cell-current { background:rgba(56,189,248,.2); color:var(--accent); border-color:var(--accent); box-shadow:0 0 10px rgba(56,189,248,.3); }
+.cell-counted { background:rgba(251,191,36,.15); color:var(--gold); border-color:var(--gold); }
+.grid-legend { display:flex; gap:1rem; flex-wrap:wrap; margin:.5rem 0; font-size:.8rem; color:var(--text2); }
+.gl-item { display:flex; align-items:center; gap:.4rem; }
+.gl-swatch { width:14px; height:14px; border-radius:3px; flex-shrink:0; }
+
+/* ── Answer check ── */
+.answer-area {
+  display:flex; gap:.8rem; align-items:center; flex-wrap:wrap;
+  margin-top:.8rem;
+}
+.answer-input {
+  width:90px; padding:.55rem .9rem; border-radius:8px;
+  border:2px solid var(--border); background:var(--bg3);
+  color:var(--text); font-family:'Fira Code',monospace; font-size:1.1rem;
+  text-align:center; outline:none; transition:border-color .2s;
+  direction:ltr;
+}
+.answer-input:focus { border-color:var(--accent); }
+.check-btn {
+  padding:.55rem 1.3rem; border-radius:8px; border:none;
+  background:linear-gradient(135deg,var(--accent),var(--purple));
+  color:white; font-family:'Cairo',sans-serif; font-size:.88rem; font-weight:700;
+  cursor:pointer; transition:all .2s;
+}
+.check-btn:hover { opacity:.85; transform:translateY(-1px); }
+.answer-feedback {
+  font-size:.88rem; font-weight:600; display:none;
+  padding:.4rem .9rem; border-radius:8px;
+}
+.answer-feedback.correct { display:block; background:rgba(52,211,153,.1); color:var(--green); border:1px solid rgba(52,211,153,.3); }
+.answer-feedback.wrong   { display:block; background:rgba(248,113,113,.1); color:var(--red);   border:1px solid rgba(248,113,113,.3); }
+
+/* ── Progress tracker ── */
+.progress-bar-wrap {
+  background:var(--border); border-radius:4px; height:4px; overflow:hidden;
+  margin-bottom:1.2rem;
+}
+.progress-bar-fill {
+  height:100%; border-radius:4px;
+  background:linear-gradient(90deg,var(--purple),var(--accent));
+  transition:width .4s ease;
+}
+
+/* ── Responsive ── */
+@media(max-width:650px){
+  header { padding:1rem; flex-wrap:wrap; gap:.5rem; }
+  .header-center h1 { font-size:1.2rem; }
+  main { padding:1rem .8rem 3rem; }
+  .card { padding:1.2rem; }
+  .io-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div class="ambient"></div>
+
+<!-- ═══ HEADER ═══ -->
+<header>
+  <div class="logo">🏅 أولمبياد نسمة</div>
+  <div class="header-center">
+    <h1>جزر المحيط — Island Count</h1>
+    <p>مسألة تطبيقية على خوارزمية DFS</p>
+  </div>
+  <div class="diff-pill">⚡ متوسط</div>
+</header>
+
+<main>
+
+  <!-- ═══ 1. نص المسألة ═══ -->
+  <div class="card">
+    <div class="card-title">
+      <div class="ct-icon i-blue">📋</div>
+      نص المسألة
+    </div>
+
+    <p>
+      لديك شبكة (Grid) من الأرقام أبعادها <strong>N × M</strong>، تحتوي على <strong>1</strong> (أرض) و <strong>0</strong> (ماء).
+      الجزيرة هي مجموعة من خلايا الأرض (<strong>1</strong>) المتصلة ببعضها أفقياً أو رأسياً (ليس قطرياً).
+    </p>
+    <p>
+      مهمتك هي إيجاد <strong style="color:var(--accent)">عدد الجزر</strong> الموجودة في الشبكة.
+    </p>
+
+    <div class="io-grid">
+      <div class="io-box">
+        <div class="io-label">INPUT — المدخلات</div>
+        <div class="io-content">السطر الأول: N M
+التالي: N سطراً، كل سطر M عدد
+(0 أو 1 فقط)</div>
+      </div>
+      <div class="io-box">
+        <div class="io-label">OUTPUT — المخرجات</div>
+        <div class="io-content">عدد صحيح واحد:
+عدد الجزر في الشبكة</div>
+      </div>
+    </div>
+
+    <div class="io-grid" style="margin-top:.8rem">
+      <div class="io-box">
+        <div class="io-label">EXAMPLE INPUT</div>
+        <div class="io-content">5 6
+1 1 0 0 0 1
+1 0 0 0 1 1
+0 0 1 0 0 0
+0 1 1 0 0 0
+0 0 0 0 1 0</div>
+      </div>
+      <div class="io-box">
+        <div class="io-label">EXAMPLE OUTPUT</div>
+        <div class="io-content">5</div>
+      </div>
+    </div>
+
+    <div class="constraints" style="margin-top:1rem">
+      <div class="con-tag">1 ≤ N, M ≤ 1000</div>
+      <div class="con-tag">cell ∈ {0, 1}</div>
+      <div class="con-tag">O(N × M) مطلوب</div>
+    </div>
+
+    <!-- mini answer check -->
+    <div style="margin-top:1.2rem; padding-top:1rem; border-top:1px solid var(--border);">
+      <p style="font-size:.88rem; margin-bottom:.5rem; color:var(--text2);">🎯 قبل أن تبدأ — احسب يدوياً: كم عدد الجزر في المثال أعلاه؟</p>
+      <div class="answer-area">
+        <input class="answer-input" type="number" id="quick-ans" placeholder="؟" min="0">
+        <button class="check-btn" onclick="checkQuickAnswer()">تحقق</button>
+        <span class="answer-feedback" id="quick-fb"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 2. المحاكي البصري ═══ -->
+  <div class="card">
+    <div class="card-title">
+      <div class="ct-icon i-green">🗺️</div>
+      محاكي الشبكة التفاعلي
+    </div>
+    <p style="font-size:.88rem">اضغط <strong>تشغيل</strong> لترى كيف تكتشف DFS كل جزيرة خطوة بخطوة.</p>
+
+    <div class="vis-controls">
+      <button class="vis-btn vb-primary" onclick="startVis()">▶ تشغيل</button>
+      <button class="vis-btn vb-sec"     onclick="stepVis()">خطوة →</button>
+      <button class="vis-btn vb-sec"     onclick="resetVis()">↺ إعادة</button>
+    </div>
+
+    <div class="grid-legend">
+      <div class="gl-item"><div class="gl-swatch" style="background:#0a1220;border:1px solid #1a2840"></div> ماء (0)</div>
+      <div class="gl-item"><div class="gl-swatch" style="background:#1a3a25;border:1px solid #2a5a35"></div> أرض (1)</div>
+      <div class="gl-item"><div class="gl-swatch" style="background:rgba(56,189,248,.2);border:1px solid #38bdf8"></div> قيد الفحص</div>
+      <div class="gl-item"><div class="gl-swatch" style="background:#2a3a18;border:1px solid #4a6a25"></div> مُزارة</div>
+      <div class="gl-item"><div class="gl-swatch" style="background:rgba(251,191,36,.15);border:1px solid #fbbf24"></div> جزيرة مكتملة</div>
+    </div>
+
+    <div id="grid-display" class="grid-wrap"></div>
+    <div id="island-counter" style="font-size:.9rem; color:var(--gold); margin:.4rem 0; font-weight:700;">عدد الجزر المكتشفة: 0</div>
+    <div class="vis-log" id="vis-log">اضغط تشغيل لبدء المحاكاة...</div>
+  </div>
+
+  <!-- ═══ 3. خطوات الحل ═══ -->
+  <div class="card">
+    <div class="card-title">
+      <div class="ct-icon i-gold">🧭</div>
+      خطوات الحل — اضغط لكشف كل خطوة
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="steps-progress" style="width:0%"></div>
+    </div>
+
+    <div class="steps-container" id="steps-container">
+
+      <div class="step-item step-todo" id="step1">
+        <div class="step-left">
+          <div class="step-circle" onclick="toggleStep(1)">1</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-body">
+          <div class="step-title" onclick="toggleStep(1)">
+            <span>تمثيل المسألة كرسم بياني</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="step-detail" id="sd1">
+            <p>كل خلية في الشبكة هي <strong>رأس</strong>، والخلايا المجاورة أفقياً/رأسياً ترتبط بـ <strong>حرف</strong>. لكن لا نبني قائمة التجاور صراحةً — بل نستخدم مصفوفتين للاتجاهات:</p>
+            <div class="step-code">
+<span class="cm">// الاتجاهات الأربعة: أعلى، أسفل، يسار، يمين</span>
+<span class="tp">int</span> <span class="va">dx</span>[] = {-<span class="nm">1</span>, <span class="nm">1</span>, <span class="nm">0</span>, <span class="nm">0</span>};
+<span class="tp">int</span> <span class="va">dy</span>[] = { <span class="nm">0</span>, <span class="nm">0</span>, -<span class="nm">1</span>, <span class="nm">1</span>};</div>
+            <div class="hint-box">
+              <span class="hi">💡</span>
+              <span>لماذا 4 اتجاهات فقط؟ لأن الجزيرة تتصل أفقياً ورأسياً فقط — الاتصال القطري لا يُعتبر جزيرة واحدة.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-item step-todo" id="step2">
+        <div class="step-left">
+          <div class="step-circle" onclick="toggleStep(2)">2</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-body">
+          <div class="step-title" onclick="toggleStep(2)">
+            <span>دالة DFS على الشبكة</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="step-detail" id="sd2">
+            <p>عند زيارة خلية أرض (1)، نضعها كـ <strong>مُزارة</strong> ثم نستدعي DFS على جيرانها غير المُزارين:</p>
+            <div class="step-code">
+<span class="tp">void</span> <span class="fn">dfs</span>(<span class="tp">int</span> <span class="va">x</span>, <span class="tp">int</span> <span class="va">y</span>) {
+    <span class="va">vis</span>[<span class="va">x</span>][<span class="va">y</span>] = <span class="kw">true</span>;    <span class="cm">// ضع علامة</span>
+
+    <span class="kw">for</span> (<span class="tp">int</span> <span class="va">d</span> = <span class="nm">0</span>; <span class="va">d</span> &lt; <span class="nm">4</span>; <span class="va">d</span>++) {
+        <span class="tp">int</span> <span class="va">nx</span> = <span class="va">x</span> + <span class="va">dx</span>[<span class="va">d</span>];
+        <span class="tp">int</span> <span class="va">ny</span> = <span class="va">y</span> + <span class="va">dy</span>[<span class="va">d</span>];
+        <span class="cm">// تحقق أن الخلية داخل الشبكة وأرض وغير مُزارة</span>
+        <span class="kw">if</span> (<span class="va">nx</span> &gt;= <span class="nm">0</span> &amp;&amp; <span class="va">nx</span> &lt; <span class="va">n</span> &amp;&amp; <span class="va">ny</span> &gt;= <span class="nm">0</span> &amp;&amp; <span class="va">ny</span> &lt; <span class="va">m</span>
+            &amp;&amp; <span class="va">grid</span>[<span class="va">nx</span>][<span class="va">ny</span>] == <span class="nm">1</span> &amp;&amp; !<span class="va">vis</span>[<span class="va">nx</span>][<span class="va">ny</span>]) {
+            <span class="fn">dfs</span>(<span class="va">nx</span>, <span class="va">ny</span>);
+        }
+    }
+}</div>
+            <div class="hint-box">
+              <span class="hi">⚠️</span>
+              <span>شرط الحدود <code style="color:var(--accent)">nx &gt;= 0 &amp;&amp; nx &lt; n</code> ضروري جداً لتجنب الخروج من الشبكة (Out of Bounds).</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-item step-todo" id="step3">
+        <div class="step-left">
+          <div class="step-circle" onclick="toggleStep(3)">3</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-body">
+          <div class="step-title" onclick="toggleStep(3)">
+            <span>عد الجزر في الدالة الرئيسية</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="step-detail" id="sd3">
+            <p>نمر على <strong>كل خلية</strong> في الشبكة. إذا كانت أرضاً ولم تُزَر → نشغّل DFS عليها ونزيد العداد بـ 1:</p>
+            <div class="step-code">
+<span class="tp">int</span> <span class="va">islands</span> = <span class="nm">0</span>;
+
+<span class="kw">for</span> (<span class="tp">int</span> <span class="va">i</span> = <span class="nm">0</span>; <span class="va">i</span> &lt; <span class="va">n</span>; <span class="va">i</span>++) {
+    <span class="kw">for</span> (<span class="tp">int</span> <span class="va">j</span> = <span class="nm">0</span>; <span class="va">j</span> &lt; <span class="va">m</span>; <span class="va">j</span>++) {
+        <span class="kw">if</span> (<span class="va">grid</span>[<span class="va">i</span>][<span class="va">j</span>] == <span class="nm">1</span> &amp;&amp; !<span class="va">vis</span>[<span class="va">i</span>][<span class="va">j</span>]) {
+            <span class="fn">dfs</span>(<span class="va">i</span>, <span class="va">j</span>);   <span class="cm">// زر جميع خلايا هذه الجزيرة</span>
+            <span class="va">islands</span>++;   <span class="cm">// جزيرة جديدة!</span>
+        }
+    }
+}
+<span class="va">cout</span> &lt;&lt; <span class="va">islands</span>;</div>
+            <div class="hint-box">
+              <span class="hi">💡</span>
+              <span>نفس الفكرة تماماً كـ <strong>Building Teams</strong>: نشغّل DFS على كل مكوّن غير مُزار. هنا المكوّنات هي الجزر!</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-item step-todo" id="step4">
+        <div class="step-left">
+          <div class="step-circle" onclick="toggleStep(4)">4</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-body">
+          <div class="step-title" onclick="toggleStep(4)">
+            <span>تحليل التعقيد الزمني</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="step-detail" id="sd4">
+            <p>كل خلية تُزار مرة واحدة على الأكثر (بفضل vis[][])، وكل خلية تفحص 4 جيران:</p>
+            <div class="cplx">⏱ O(N × M) — الوقت &nbsp;|&nbsp; O(N × M) — الذاكرة</div>
+            <p style="margin-top:.5rem;">لشبكة 1000×1000 = مليون خلية — هذا سريع جداً ✅</p>
+            <div class="hint-box">
+              <span class="hi">🏆</span>
+              <span>إذا كانت الشبكة كبيرة جداً (مثلاً 10⁵ × 10⁵)، ستحتاج إلى DFS تكراري (Iterative) بدل التعاودي لتجنب Stack Overflow.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end steps -->
+  </div>
+
+  <!-- ═══ 4. الحل الكامل ═══ -->
+  <div class="card">
+    <div class="card-title">
+      <div class="ct-icon i-purple">💻</div>
+      الحل الكامل
+    </div>
+
+    <div class="sol-tabs">
+      <button class="sol-tab active" onclick="showSol(0,this)">الكود الكامل C++</button>
+      <button class="sol-tab" onclick="showSol(1,this)">شرح سطر بسطر</button>
+    </div>
+
+    <!-- Panel 0: Full code -->
+    <div class="sol-panel active" id="sp0">
+      <div class="full-code">
+        <div class="full-code-header">
+          <div class="fc-dots"><span class="fc-r"></span><span class="fc-y"></span><span class="fc-g"></span></div>
+          <span class="fc-lang">C++ — Island Count using DFS</span>
+          <button class="copy-btn" onclick="copyFull(this)">نسخ الكود</button>
+        </div>
+        <pre id="full-code-pre"><span class="kw">#include</span> <span class="st">&lt;bits/stdc++.h&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="kw">const</span> <span class="tp">int</span> <span class="va">MAXN</span> = <span class="nm">1005</span>;
+
+<span class="tp">int</span>  <span class="va">grid</span>[<span class="va">MAXN</span>][<span class="va">MAXN</span>];
+<span class="tp">bool</span> <span class="va">vis</span>[<span class="va">MAXN</span>][<span class="va">MAXN</span>];
+<span class="tp">int</span>  <span class="va">n</span>, <span class="va">m</span>;
+
+<span class="cm">// الاتجاهات الأربعة: أعلى، أسفل، يسار، يمين</span>
+<span class="tp">int</span> <span class="va">dx</span>[] = {-<span class="nm">1</span>,  <span class="nm">1</span>,  <span class="nm">0</span>, <span class="nm">0</span>};
+<span class="tp">int</span> <span class="va">dy</span>[] = { <span class="nm">0</span>,  <span class="nm">0</span>, -<span class="nm">1</span>, <span class="nm">1</span>};
+
+<span class="tp">void</span> <span class="fn">dfs</span>(<span class="tp">int</span> <span class="va">x</span>, <span class="tp">int</span> <span class="va">y</span>) {
+    <span class="va">vis</span>[<span class="va">x</span>][<span class="va">y</span>] = <span class="kw">true</span>;
+
+    <span class="kw">for</span> (<span class="tp">int</span> <span class="va">d</span> = <span class="nm">0</span>; <span class="va">d</span> &lt; <span class="nm">4</span>; <span class="va">d</span>++) {
+        <span class="tp">int</span> <span class="va">nx</span> = <span class="va">x</span> + <span class="va">dx</span>[<span class="va">d</span>];
+        <span class="tp">int</span> <span class="va">ny</span> = <span class="va">y</span> + <span class="va">dy</span>[<span class="va">d</span>];
+
+        <span class="kw">if</span> (<span class="va">nx</span> &gt;= <span class="nm">0</span> &amp;&amp; <span class="va">nx</span> &lt; <span class="va">n</span> &amp;&amp;
+            <span class="va">ny</span> &gt;= <span class="nm">0</span> &amp;&amp; <span class="va">ny</span> &lt; <span class="va">m</span> &amp;&amp;
+            <span class="va">grid</span>[<span class="va">nx</span>][<span class="va">ny</span>] == <span class="nm">1</span> &amp;&amp;
+            !<span class="va">vis</span>[<span class="va">nx</span>][<span class="va">ny</span>]) {
+            <span class="fn">dfs</span>(<span class="va">nx</span>, <span class="va">ny</span>);
+        }
+    }
+}
+
+<span class="tp">int</span> <span class="fn">main</span>() {
+    ios_base::sync_with_stdio(<span class="kw">false</span>);
+    cin.tie(<span class="kw">nullptr</span>);
+
+    cin &gt;&gt; <span class="va">n</span> &gt;&gt; <span class="va">m</span>;
+    <span class="kw">for</span> (<span class="tp">int</span> <span class="va">i</span> = <span class="nm">0</span>; <span class="va">i</span> &lt; <span class="va">n</span>; <span class="va">i</span>++)
+        <span class="kw">for</span> (<span class="tp">int</span> <span class="va">j</span> = <span class="nm">0</span>; <span class="va">j</span> &lt; <span class="va">m</span>; <span class="va">j</span>++)
+            cin &gt;&gt; <span class="va">grid</span>[<span class="va">i</span>][<span class="va">j</span>];
+
+    <span class="tp">int</span> <span class="va">islands</span> = <span class="nm">0</span>;
+
+    <span class="kw">for</span> (<span class="tp">int</span> <span class="va">i</span> = <span class="nm">0</span>; <span class="va">i</span> &lt; <span class="va">n</span>; <span class="va">i</span>++) {
+        <span class="kw">for</span> (<span class="tp">int</span> <span class="va">j</span> = <span class="nm">0</span>; <span class="va">j</span> &lt; <span class="va">m</span>; <span class="va">j</span>++) {
+            <span class="kw">if</span> (<span class="va">grid</span>[<span class="va">i</span>][<span class="va">j</span>] == <span class="nm">1</span> &amp;&amp; !<span class="va">vis</span>[<span class="va">i</span>][<span class="va">j</span>]) {
+                <span class="fn">dfs</span>(<span class="va">i</span>, <span class="va">j</span>);
+                <span class="va">islands</span>++;
+            }
+        }
+    }
+
+    cout &lt;&lt; <span class="va">islands</span> &lt;&lt; <span class="st">"\n"</span>;
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+      </div>
+    </div>
+
+    <!-- Panel 1: Line by line -->
+    <div class="sol-panel" id="sp1">
+      <div style="display:flex; flex-direction:column; gap:.7rem;">
+
+        <div style="padding:.9rem 1rem; background:var(--bg3); border:1px solid var(--border); border-radius:9px;">
+          <div style="font-family:'Fira Code',monospace; font-size:.83rem; color:var(--accent); direction:ltr; text-align:left; margin-bottom:.5rem;">int dx[] = {-1, 1, 0, 0};<br>int dy[] = { 0, 0, -1, 1};</div>
+          <p style="font-size:.86rem; margin:0;">مصفوفتا الاتجاهات: كل زوج (dx[d], dy[d]) يمثل حركة في اتجاه واحد (أعلى/أسفل/يسار/يمين).</p>
+        </div>
+
+        <div style="padding:.9rem 1rem; background:var(--bg3); border:1px solid var(--border); border-radius:9px;">
+          <div style="font-family:'Fira Code',monospace; font-size:.83rem; color:var(--green); direction:ltr; text-align:left; margin-bottom:.5rem;">vis[x][y] = true;</div>
+          <p style="font-size:.86rem; margin:0;">نضع علامة على الخلية الحالية قبل استكشاف جيرانها — هذا يمنع زيارتها مرة ثانية.</p>
+        </div>
+
+        <div style="padding:.9rem 1rem; background:var(--bg3); border:1px solid var(--border); border-radius:9px;">
+          <div style="font-family:'Fira Code',monospace; font-size:.83rem; color:var(--purple); direction:ltr; text-align:left; margin-bottom:.5rem;">if (nx &gt;= 0 &amp;&amp; nx &lt; n &amp;&amp; ny &gt;= 0 &amp;&amp; ny &lt; m ...)</div>
+          <p style="font-size:.86rem; margin:0;">شرط الحدود: التأكد أن الخلية المجاورة موجودة داخل الشبكة قبل الوصول إليها.</p>
+        </div>
+
+        <div style="padding:.9rem 1rem; background:var(--bg3); border:1px solid var(--border); border-radius:9px;">
+          <div style="font-family:'Fira Code',monospace; font-size:.83rem; color:var(--gold); direction:ltr; text-align:left; margin-bottom:.5rem;">if (grid[i][j] == 1 &amp;&amp; !vis[i][j]) { dfs(i,j); islands++; }</div>
+          <p style="font-size:.86rem; margin:0;">كل استدعاء لـ dfs() من الدالة الرئيسية = جزيرة جديدة مكتشفة. الدالة ستزور تلقائياً كل خلايها.</p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ 5. تحدٍّ إضافي ═══ -->
+  <div class="card">
+    <div class="card-title">
+      <div class="ct-icon i-red">🔥</div>
+      تحدٍّ إضافي للمتميزين
+    </div>
+    <p>هل يمكنك تعديل الكود ليجد <strong style="color:var(--accent)">مساحة أكبر جزيرة</strong> (أي عدد خلايا الأرض في الجزيرة الأكبر)؟</p>
+    <div style="margin-top:.8rem; padding:.9rem 1rem; background:var(--bg3); border:1px solid var(--border2); border-radius:9px;">
+      <p style="font-size:.88rem; color:var(--gold); margin-bottom:.3rem;">💡 تلميح:</p>
+      <p style="font-size:.86rem; margin:0;">أضف متغير <code style="color:var(--accent); font-family:'Fira Code',monospace">int size</code> واجعل dfs() تُرجع عدد الخلايا التي زارتها. ثم احفظ الحد الأقصى.</p>
+    </div>
+    <div style="margin-top:1rem; padding:.9rem 1rem; background:var(--bg3); border:1px solid var(--border2); border-radius:9px;">
+      <p style="font-size:.88rem; color:var(--purple); margin-bottom:.3rem;">🚀 تحدٍّ أصعب:</p>
+      <p style="font-size:.86rem; margin:0;">اكتب نفس الحل باستخدام <strong>BFS</strong> (البحث في العرض) بدلاً من DFS. ماذا يتغير في الكود؟</p>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ═══════════════════════════════
+// GRID DATA
+// ═══════════════════════════════
+const GRID = [
+  [1,1,0,0,0,1],
+  [1,0,0,0,1,1],
+  [0,0,1,0,0,0],
+  [0,1,1,0,0,0],
+  [0,0,0,0,1,0]
+];
+const ROWS = 5, COLS = 6;
+let visGrid = [], cellStates = [], simSteps = [], stepIdx = 0, simTimer = null, simRunning = false;
+let islandCount = 0;
+
+// ── build cell states ──
+function initGrid() {
+  visGrid    = Array.from({length:ROWS}, () => new Array(COLS).fill(false));
+  cellStates = Array.from({length:ROWS}, (_, r) => GRID[r].map(v => v===1 ? 'land' : 'water'));
+  islandCount = 0;
+  renderGrid();
+}
+
+function renderGrid() {
+  const wrap = document.getElementById('grid-display');
+  wrap.innerHTML = '';
+  for (let r=0; r<ROWS; r++) {
+    const row = document.createElement('div');
+    row.className = 'grid-row';
+    for (let c=0; c<COLS; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'grid-cell';
+      cell.id = `cell-${r}-${c}`;
+      const s = cellStates[r][c];
+      if      (s==='water')   cell.className += ' cell-water';
+      else if (s==='land')    cell.className += ' cell-land';
+      else if (s==='current') cell.className += ' cell-current';
+      else if (s==='visited') cell.className += ' cell-visited';
+      else if (s==='counted') cell.className += ' cell-counted';
+      cell.textContent = GRID[r][c];
+      row.appendChild(cell);
+    }
+    wrap.appendChild(row);
+  }
+  document.getElementById('island-counter').textContent = `عدد الجزر المكتشفة: ${islandCount}`;
+}
+
+function updateCell(r, c, state) {
+  cellStates[r][c] = state;
+  const cell = document.getElementById(`cell-${r}-${c}`);
+  if (!cell) return;
+  cell.className = 'grid-cell';
+  if      (state==='water')   cell.className += ' cell-water';
+  else if (state==='land')    cell.className += ' cell-land';
+  else if (state==='current') cell.className += ' cell-current';
+  else if (state==='visited') cell.className += ' cell-visited';
+  else if (state==='counted') cell.className += ' cell-counted';
+}
+
+// ── build sim steps ──
+const dx = [-1, 1, 0, 0];
+const dy = [ 0, 0,-1, 1];
+
+function buildSimSteps() {
+  const steps = [];
+  const seen = Array.from({length:ROWS}, () => new Array(COLS).fill(false));
+
+  function dfs(r, c, islandNum) {
+    seen[r][c] = true;
+    steps.push({type:'visit', r, c, island:islandNum});
+    for (let d=0; d<4; d++) {
+      const nr = r+dx[d], nc = c+dy[d];
+      if (nr>=0 && nr<ROWS && nc>=0 && nc<COLS && GRID[nr][nc]===1 && !seen[nr][nc]) {
+        dfs(nr, nc, islandNum);
+      }
+    }
+    steps.push({type:'done', r, c, island:islandNum});
+  }
+
+  let islandNum = 0;
+  for (let r=0; r<ROWS; r++) {
+    for (let c=0; c<COLS; c++) {
+      if (GRID[r][c]===1 && !seen[r][c]) {
+        islandNum++;
+        steps.push({type:'island_start', island:islandNum});
+        dfs(r, c, islandNum);
+        steps.push({type:'island_end', island:islandNum});
+      }
+    }
+  }
+  return steps;
+}
+
+function applyStep(idx) {
+  const step = simSteps[idx];
+  const log = document.getElementById('vis-log');
+
+  if (step.type === 'island_start') {
+    log.innerHTML += `<div class="vl-island">🏝️ جزيرة رقم ${step.island} مكتشفة!</div>`;
+    islandCount = step.island;
+    document.getElementById('island-counter').textContent = `عدد الجزر المكتشفة: ${islandCount}`;
+  } else if (step.type === 'visit') {
+    updateCell(step.r, step.c, 'current');
+    log.innerHTML += `<span class="vl-visit">  ▶ زيارة (${step.r},${step.c})</span><br>`;
+  } else if (step.type === 'done') {
+    updateCell(step.r, step.c, 'visited');
+  } else if (step.type === 'island_end') {
+    // mark entire island as counted
+    for (let r=0; r<ROWS; r++)
+      for (let c=0; c<COLS; c++)
+        if (cellStates[r][c]==='visited') updateCell(r, c, 'counted');
+    log.innerHTML += `<div class="vl-done">✅ اكتملت الجزيرة ${step.island}</div>`;
+  }
+
+  log.scrollTop = log.scrollHeight;
+}
+
+function startVis() {
+  if (simRunning) return;
+  simRunning = true;
+  function next() {
+    if (stepIdx >= simSteps.length) {
+      simRunning = false;
+      document.getElementById('vis-log').innerHTML += '<div class="vl-done">🎉 انتهى! إجمالي الجزر: ' + islandCount + '</div>';
+      return;
+    }
+    applyStep(stepIdx++);
+    simTimer = setTimeout(next, 320);
+  }
+  next();
+}
+
+function stepVis() {
+  if (stepIdx >= simSteps.length) return;
+  applyStep(stepIdx++);
+}
+
+function resetVis() {
+  clearTimeout(simTimer); simRunning = false; stepIdx = 0;
+  initGrid();
+  simSteps = buildSimSteps();
+  document.getElementById('vis-log').textContent = 'تم الإعادة. اضغط تشغيل أو خطوة.';
+}
+
+initGrid();
+simSteps = buildSimSteps();
+
+// ═══════════════════════════════
+// STEPS ACCORDION
+// ═══════════════════════════════
+let openedSteps = new Set();
+
+function toggleStep(num) {
+  const detail = document.getElementById(`sd${num}`);
+  const item   = document.getElementById(`step${num}`);
+  const chev   = item.querySelector('.chevron');
+  const circle = item.querySelector('.step-circle');
+
+  if (detail.classList.contains('open')) {
+    detail.classList.remove('open');
+    chev.style.transform = 'rotate(0deg)';
+  } else {
+    detail.classList.add('open');
+    chev.style.transform = 'rotate(180deg)';
+    openedSteps.add(num);
+    item.className = `step-item step-active`;
+    // mark previous as done
+    if (num > 1) {
+      for (let i=1; i<num; i++) {
+        const prev = document.getElementById(`step${i}`);
+        if (prev) prev.className = 'step-item step-done';
+        const c = prev.querySelector('.step-circle');
+        if (c) c.textContent = '✓';
+      }
+    }
+    updateProgress();
+  }
+}
+
+function updateProgress() {
+  const total = 4;
+  const pct = (openedSteps.size / total) * 100;
+  document.getElementById('steps-progress').style.width = pct + '%';
+}
+
+// ═══════════════════════════════
+// SOLUTION TABS
+// ═══════════════════════════════
+function showSol(idx, btn) {
+  document.querySelectorAll('.sol-panel').forEach((p,i) => p.classList.toggle('active', i===idx));
+  document.querySelectorAll('.sol-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ═══════════════════════════════
+// COPY
+// ═══════════════════════════════
+function copyFull(btn) {
+  const pre = document.getElementById('full-code-pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '✓ تم النسخ';
+    setTimeout(() => btn.textContent = 'نسخ الكود', 1600);
+  });
+}
+
+// ═══════════════════════════════
+// QUICK ANSWER CHECK
+// ═══════════════════════════════
+function checkQuickAnswer() {
+  const val = parseInt(document.getElementById('quick-ans').value);
+  const fb = document.getElementById('quick-fb');
+  fb.className = 'answer-feedback';
+  if (val === 5) {
+    fb.className = 'answer-feedback correct';
+    fb.textContent = '✅ صحيح! يوجد 5 جزر.';
+  } else {
+    fb.className = 'answer-feedback wrong';
+    fb.textContent = `❌ ليس ${val}. حاول مرة أخرى!`;
+  }
+}
+</script>
+</body>
+</html>

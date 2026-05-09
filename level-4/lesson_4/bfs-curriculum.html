@@ -1,0 +1,1822 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>البحث بالعرض — BFS</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #090e1a;
+    --surface: #0f1729;
+    --surface2: #162040;
+    --border: #1e2f55;
+    --accent: #3b82f6;
+    --accent2: #06b6d4;
+    --accent3: #a855f7;
+    --green: #22c55e;
+    --orange: #f97316;
+    --red: #ef4444;
+    --yellow: #eab308;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+    --glow: rgba(59,130,246,0.15);
+    --glow2: rgba(6,182,212,0.1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
+    background-size: 50px 50px;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* Glowing orbs */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .orb2 {
+    position: fixed;
+    bottom: -100px;
+    left: -100px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(168,85,247,0.1) 0%, transparent 70%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 60px 0 40px;
+    position: relative;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 100px;
+    padding: 6px 18px;
+    font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 24px;
+    letter-spacing: 0.05em;
+  }
+
+  .hero-badge::before {
+    content: '●';
+    animation: pulse 2s ease-in-out infinite;
+    color: var(--green);
+    font-size: 8px;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .hero h1 {
+    font-size: clamp(42px, 8vw, 72px);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #e2e8f0 0%, #3b82f6 50%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-en {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(20px, 4vw, 32px);
+    color: var(--accent2);
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+  }
+
+  .hero p {
+    font-size: 17px;
+    color: var(--text-dim);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.8;
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 40px 0;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 48px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .section-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .icon-blue { background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.3); }
+  .icon-cyan { background: rgba(6,182,212,0.15); border: 1px solid rgba(6,182,212,0.3); }
+  .icon-purple { background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.3); }
+  .icon-green { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); }
+  .icon-orange { background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.3); }
+
+  .section-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 16px;
+    transition: border-color 0.3s;
+  }
+
+  .card:hover {
+    border-color: rgba(59,130,246,0.4);
+  }
+
+  .card p {
+    line-height: 1.9;
+    color: var(--text-dim);
+    font-size: 15.5px;
+  }
+
+  .card h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  /* Definition box */
+  .definition-box {
+    background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(6,182,212,0.08));
+    border: 1px solid rgba(59,130,246,0.25);
+    border-right: 4px solid var(--accent);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 20px 0;
+  }
+
+  .definition-box .def-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .definition-box p {
+    line-height: 1.8;
+    color: var(--text);
+    font-size: 15px;
+  }
+
+  /* Quote / highlight */
+  .highlight-box {
+    background: rgba(6,182,212,0.06);
+    border: 1px solid rgba(6,182,212,0.2);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 16px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent2);
+    text-align: center;
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  /* Code block */
+  .code-wrapper {
+    margin: 20px 0;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  .code-header {
+    background: #0d1b32;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-dots {
+    display: flex;
+    gap: 7px;
+  }
+
+  .code-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #febc2e; }
+  .dot-green { background: #28c840; }
+
+  .code-lang {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .code-body {
+    background: #060d1c;
+    padding: 24px 24px;
+    overflow-x: auto;
+    direction: ltr;
+    text-align: left;
+  }
+
+  .code-body pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.8;
+    color: #cdd6f4;
+    white-space: pre;
+  }
+
+  /* Syntax highlighting */
+  .kw { color: #cba6f7; }
+  .type { color: #89b4fa; }
+  .fn { color: #89dceb; }
+  .num { color: #fab387; }
+  .cmt { color: #6c7086; font-style: italic; }
+  .str { color: #a6e3a1; }
+  .var { color: #cdd6f4; }
+  .op { color: #89b4fa; }
+
+  /* Interactive annotations */
+  .annotation {
+    margin: 0;
+    padding: 0;
+  }
+
+  .annotation-item {
+    display: flex;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(30,47,85,0.5);
+    align-items: flex-start;
+    transition: all 0.2s;
+    cursor: default;
+  }
+
+  .annotation-item:last-child { border-bottom: none; }
+
+  .annotation-item:hover {
+    padding-right: 8px;
+  }
+
+  .ann-num {
+    min-width: 28px;
+    height: 28px;
+    background: rgba(59,130,246,0.15);
+    border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .ann-text {
+    color: var(--text-dim);
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+
+  .ann-text strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .ann-code {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(59,130,246,0.1);
+    color: var(--accent2);
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 12.5px;
+    direction: ltr;
+    display: inline-block;
+  }
+
+  /* Layer visualization */
+  .layer-viz {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  .layer-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .layer-label {
+    min-width: 80px;
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-muted);
+    text-align: left;
+    direction: ltr;
+  }
+
+  .layer-nodes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .node-chip {
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid;
+    animation: fadeIn 0.5s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .node-start { background: rgba(59,130,246,0.2); border-color: var(--accent); color: var(--accent); }
+  .node-1 { background: rgba(34,197,94,0.15); border-color: var(--green); color: var(--green); }
+  .node-2 { background: rgba(249,115,22,0.15); border-color: var(--orange); color: var(--orange); }
+  .node-3 { background: rgba(168,85,247,0.15); border-color: var(--accent3); color: var(--accent3); }
+  .node-unreach { background: rgba(239,68,68,0.1); border-color: var(--red); color: var(--red); }
+
+  /* Compare grid */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .compare-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+  }
+
+  .compare-card.bfs-card { border-top: 3px solid var(--accent); }
+  .compare-card.dfs-card { border-top: 3px solid var(--accent3); }
+
+  .compare-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  .compare-title.blue { color: var(--accent); }
+  .compare-title.purple { color: var(--accent3); }
+
+  .compare-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .compare-list li {
+    display: flex;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    align-items: flex-start;
+  }
+
+  .compare-list li::before {
+    content: '→';
+    color: var(--accent2);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* Steps viz */
+  .steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+  }
+
+  .steps-list::before {
+    content: '';
+    position: absolute;
+    right: 19px;
+    top: 40px;
+    bottom: 40px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), var(--accent2), var(--accent3));
+    opacity: 0.4;
+    z-index: 0;
+  }
+
+  .step-item {
+    display: flex;
+    gap: 16px;
+    padding: 18px 0;
+    align-items: flex-start;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-num {
+    min-width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .step-content h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .step-content p {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  /* Questions */
+  .questions-section {
+    margin-top: 60px;
+  }
+
+  .q-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .q-header h2 {
+    font-size: 30px;
+    font-weight: 900;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .q-header p {
+    color: var(--text-muted);
+    font-size: 15px;
+  }
+
+  .q-levels {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .q-level-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .level-badge {
+    padding: 5px 16px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  .badge-easy { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.4); color: var(--green); }
+  .badge-medium { background: rgba(234,179,8,0.15); border: 1px solid rgba(234,179,8,0.4); color: var(--yellow); }
+  .badge-hard { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: var(--red); }
+
+  .q-level-title h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .q-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+
+  .q-card:hover { border-color: rgba(59,130,246,0.35); }
+  .q-card.easy:hover { border-color: rgba(34,197,94,0.35); }
+  .q-card.hard:hover { border-color: rgba(239,68,68,0.35); }
+  .q-card.medium:hover { border-color: rgba(234,179,8,0.35); }
+
+  .q-question {
+    padding: 20px 24px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .q-num-badge {
+    min-width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .num-easy { background: rgba(34,197,94,0.15); color: var(--green); }
+  .num-medium { background: rgba(234,179,8,0.15); color: var(--yellow); }
+  .num-hard { background: rgba(239,68,68,0.15); color: var(--red); }
+
+  .q-text {
+    flex: 1;
+  }
+
+  .q-text h4 {
+    font-size: 15.5px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 4px;
+  }
+
+  .q-text .q-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .q-tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(59,130,246,0.1);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .q-toggle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 14px;
+    transition: all 0.3s;
+    color: var(--text-muted);
+  }
+
+  .q-answer {
+    display: none;
+    padding: 0 24px 20px;
+    border-top: 1px solid var(--border);
+    margin-top: 0;
+  }
+
+  .q-answer.open { display: block; }
+
+  .q-answer-inner {
+    padding-top: 16px;
+  }
+
+  .q-answer p {
+    font-size: 14.5px;
+    color: var(--text-dim);
+    line-height: 1.8;
+    margin-bottom: 12px;
+  }
+
+  .q-card.open .q-toggle {
+    transform: rotate(45deg);
+    background: rgba(59,130,246,0.15);
+    border-color: rgba(59,130,246,0.4);
+    color: var(--accent);
+  }
+
+  /* Summary grid */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-top: 16px;
+  }
+
+  .summary-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .summary-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .summary-item h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+
+  .summary-item p {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .compare-grid { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 36px; }
+  }
+
+  /* Animations */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.6s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-up:nth-child(1) { animation-delay: 0.1s; }
+  .fade-up:nth-child(2) { animation-delay: 0.2s; }
+  .fade-up:nth-child(3) { animation-delay: 0.3s; }
+
+  /* Table */
+  .info-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    direction: rtl;
+  }
+
+  .info-table th {
+    background: rgba(59,130,246,0.1);
+    color: var(--accent);
+    padding: 12px 16px;
+    text-align: right;
+    font-weight: 700;
+    border: 1px solid var(--border);
+  }
+
+  .info-table td {
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .info-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  .tag-mono {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(6,182,212,0.1);
+    color: var(--accent2);
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+    direction: ltr;
+    display: inline-block;
+  }
+</style>
+</head>
+<body>
+<div class="orb2"></div>
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero fade-up">
+    <div class="hero-badge">البرمجة التنافسية · هياكل البيانات والخوارزميات</div>
+    <h1>البحث بالعرض</h1>
+    <div class="hero-en">Breadth-First Search — BFS</div>
+    <p>استكشف الرسوم البيانية طبقةً طبقةً، واكتشف أقصر المسارات في الرسوم غير الموزونة بكفاءة وأناقة.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 1: التعريفات -->
+  <div class="section fade-up">
+    <div class="section-header">
+      <div class="section-icon icon-blue">📚</div>
+      <h2>التعريفات الأساسية</h2>
+    </div>
+
+    <div class="card">
+      <div class="definition-box">
+        <div class="def-label">تعريف — الرسم البياني (Graph)</div>
+        <p>هيكل بيانات يتكون من مجموعة من <strong>العقد (Vertices/Nodes)</strong> المتصلة ببعضها عبر <strong>الحواف (Edges)</strong>. يُستخدم لتمثيل العلاقات بين الكيانات كالشبكات والخرائط وغيرها.</p>
+      </div>
+      <div class="definition-box">
+        <div class="def-label">تعريف — BFS (البحث بالعرض)</div>
+        <p>خوارزمية اجتياز للرسم البياني تبدأ من عقدة مصدر وتستكشف جميع العقد المجاورة أولاً قبل الانتقال إلى العقد الأبعد. تعمل بمبدأ <strong>"الطبقة تلو الطبقة"</strong> وتضمن العثور على أقصر مسار في الرسوم غير الموزونة.</p>
+      </div>
+      <div class="definition-box">
+        <div class="def-label">تعريف — الطابور (Queue)</div>
+        <p>هيكل بيانات يعمل بمبدأ <strong>FIFO (أول داخل أول خارج)</strong>. تُدخل العناصر من الخلف وتُسحب من الأمام. هو العنصر الجوهري الذي تعتمد عليه BFS لضمان ترتيب المعالجة الصحيح.</p>
+      </div>
+      <div class="definition-box">
+        <div class="def-label">تعريف — قائمة المجاورة (Adjacency List)</div>
+        <p>طريقة لتخزين الرسم البياني حيث لكل عقدة قائمة بجيرانها المباشرين. تُستخدم في أغلب تطبيقات BFS لكفاءتها في الذاكرة والوقت.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: الفكرة -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-cyan">💡</div>
+      <h2>الفكرة الجوهرية</h2>
+    </div>
+
+    <div class="card">
+      <div class="highlight-box">
+        "زر كل شيء يبعد خطوةً واحدة، ثم خطوتين، ثم ثلاث خطوات…"
+      </div>
+      <p>BFS تعمل على مبدأ استكشاف الرسم البياني على شكل دوائر متسعة حول نقطة البداية. تماماً كما ينتشر الموج في الماء عند إلقاء حجر — يصل للقريب أولاً، ثم يتسع تدريجياً للأبعد.</p>
+
+      <div class="layer-viz" style="margin-top:24px;">
+        <div style="font-size:13px; color: var(--text-muted); margin-bottom:8px; font-family:'JetBrains Mono',monospace; direction:ltr;">طبقات الاستكشاف:</div>
+        <div class="layer-row">
+          <div class="layer-label">dist = 0</div>
+          <div class="layer-nodes">
+            <span class="node-chip node-start">A (start)</span>
+          </div>
+        </div>
+        <div class="layer-row">
+          <div class="layer-label">dist = 1</div>
+          <div class="layer-nodes">
+            <span class="node-chip node-1">B</span>
+            <span class="node-chip node-1">C</span>
+            <span class="node-chip node-1">D</span>
+          </div>
+        </div>
+        <div class="layer-row">
+          <div class="layer-label">dist = 2</div>
+          <div class="layer-nodes">
+            <span class="node-chip node-2">E</span>
+            <span class="node-chip node-2">F</span>
+            <span class="node-chip node-2">G</span>
+          </div>
+        </div>
+        <div class="layer-row">
+          <div class="layer-label">dist = 3</div>
+          <div class="layer-nodes">
+            <span class="node-chip node-3">H</span>
+            <span class="node-chip node-3">I</span>
+          </div>
+        </div>
+        <div class="layer-row">
+          <div class="layer-label">غير قابل</div>
+          <div class="layer-nodes">
+            <span class="node-chip node-unreach">Z (dist = -1)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: استخدامات BFS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-purple">🎯</div>
+      <h2>متى تستخدم BFS؟</h2>
+    </div>
+
+    <div class="card">
+      <table class="info-table">
+        <thead>
+          <tr>
+            <th>المسألة</th>
+            <th>لماذا BFS؟</th>
+            <th>الضمان</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>أقصر مسار في رسم غير موزون</td>
+            <td>تستكشف الطبقات بالترتيب</td>
+            <td><span class="tag-mono">O(V + E)</span></td>
+          </tr>
+          <tr>
+            <td>أقل عدد خطوات من A إلى B</td>
+            <td>أول وصول = أقصر مسار</td>
+            <td>مضمون رياضياً</td>
+          </tr>
+          <tr>
+            <td>التحقق من الاتصال (Connectivity)</td>
+            <td>تصل لكل العقد القابلة للوصول</td>
+            <td>شاملة</td>
+          </tr>
+          <tr>
+            <td>إيجاد المكونات المتصلة</td>
+            <td>تجتاز مكوناً كاملاً في كل تشغيل</td>
+            <td><span class="tag-mono">dist[v] != -1</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 4: خطوات الخوارزمية -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-green">⚙️</div>
+      <h2>خطوات الخوارزمية</h2>
+    </div>
+
+    <div class="card">
+      <div class="steps-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>تهيئة المسافات</h4>
+            <p>اضبط <span class="ann-code">dist[v] = -1</span> لجميع العقد (يعني "لم تُزر بعد")، ثم اضبط <span class="ann-code">dist[start] = 0</span> لعقدة البداية.</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>أدخل عقدة البداية في الطابور</h4>
+            <p>أضف عقدة البداية إلى الطابور <span class="ann-code">q.push(start)</span> — هذا هو بذرة الاستكشاف.</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>اسحب عقدة من الطابور</h4>
+            <p>خذ العقدة الأمامية من الطابور <span class="ann-code">v = q.front(); q.pop();</span> وابدأ معالجة جيرانها.</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h4>استكشف كل الجيران</h4>
+            <p>لكل جار <span class="ann-code">to</span> غير مُزار، اضبط <span class="ann-code">dist[to] = dist[v] + 1</span> ثم أدخله للطابور.</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <h4>كرر حتى يفرغ الطابور</h4>
+            <p>استمر في الخطوات 3 و4 حتى <span class="ann-code">q.empty()</span>. عند الانتهاء، <span class="ann-code">dist[v]</span> يحتوي أقصر مسافة من البداية لكل عقدة.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: الكود الأساسي -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-blue">💻</div>
+      <h2>التنفيذ الأساسي — BFS من مصدر واحد</h2>
+    </div>
+
+    <div class="card">
+      <p>نفترض أن الرسم البياني مخزن في قائمة مجاورة <span class="ann-code">g[]</span> وعدد العقد <span class="ann-code">n</span>:</p>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots">
+            <div class="code-dot dot-red"></div>
+            <div class="code-dot dot-yellow"></div>
+            <div class="code-dot dot-green"></div>
+          </div>
+          <div class="code-lang">C++ — BFS Basic</div>
+        </div>
+        <div class="code-body">
+<pre><span class="cmt">// إعلان قائمة المجاورة</span>
+<span class="type">int</span> <span class="var">n</span>;
+<span class="type">vector</span>&lt;<span class="type">int</span>&gt; <span class="var">g</span>[<span class="var">n</span>];
+
+<span class="cmt">// BFS من مصدر واحد</span>
+<span class="type">vector</span>&lt;<span class="type">int</span>&gt; <span class="var">dist</span>(<span class="var">n</span>, -<span class="num">1</span>);   <span class="cmt">// -1 تعني "لم تُزر"</span>
+<span class="type">queue</span>&lt;<span class="type">int</span>&gt; <span class="var">q</span>;
+
+<span class="type">int</span> <span class="var">s</span> = <span class="num">0</span>;               <span class="cmt">// عقدة البداية</span>
+<span class="var">dist</span>[<span class="var">s</span>] = <span class="num">0</span>;
+<span class="var">q</span>.<span class="fn">push</span>(<span class="var">s</span>);
+
+<span class="kw">while</span> (!<span class="var">q</span>.<span class="fn">empty</span>()) {
+    <span class="type">int</span> <span class="var">v</span> = <span class="var">q</span>.<span class="fn">front</span>();
+    <span class="var">q</span>.<span class="fn">pop</span>();
+
+    <span class="kw">for</span> (<span class="type">int</span> <span class="var">to</span> : <span class="var">g</span>[<span class="var">v</span>]) {
+        <span class="kw">if</span> (<span class="var">dist</span>[<span class="var">to</span>] != -<span class="num">1</span>) <span class="kw">continue</span>;  <span class="cmt">// تجاوز المُزارة</span>
+        <span class="var">dist</span>[<span class="var">to</span>] = <span class="var">dist</span>[<span class="var">v</span>] + <span class="num">1</span>;
+        <span class="var">q</span>.<span class="fn">push</span>(<span class="var">to</span>);
+    }
+}</pre>
+        </div>
+      </div>
+
+      <!-- Interactive Annotations -->
+      <div style="margin-top:24px;">
+        <div style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); margin-bottom:16px;">شرح تفاعلي سطر بسطر</div>
+        <div class="annotation">
+          <div class="annotation-item">
+            <div class="ann-num">1</div>
+            <div class="ann-text"><strong>تهيئة المسافات:</strong> <span class="ann-code">vector&lt;int&gt; dist(n, -1)</span> — ننشئ مصفوفة بحجم <span class="ann-code">n</span> ونملؤها بـ <span class="ann-code">-1</span>، وهو "رمز" لعدم الزيارة. أي عقدة قيمتها <span class="ann-code">-1</span> تعني أن BFS لم تصل إليها بعد.</div>
+          </div>
+          <div class="annotation-item">
+            <div class="ann-num">2</div>
+            <div class="ann-text"><strong>بداية BFS:</strong> <span class="ann-code">dist[s] = 0</span> و <span class="ann-code">q.push(s)</span> — نضبط مسافة عقدة البداية على صفر (لأنها المصدر نفسه) ونضعها في الطابور لتكون أول ما يُعالج.</div>
+          </div>
+          <div class="annotation-item">
+            <div class="ann-num">3</div>
+            <div class="ann-text"><strong>حلقة البحث الرئيسية:</strong> <span class="ann-code">while (!q.empty())</span> — نستمر في المعالجة طالما الطابور فيه عقد. عند فراغه، وصلنا لجميع العقد القابلة للوصول.</div>
+          </div>
+          <div class="annotation-item">
+            <div class="ann-num">4</div>
+            <div class="ann-text"><strong>سحب العقدة الحالية:</strong> <span class="ann-code">q.front()</span> ثم <span class="ann-code">q.pop()</span> — نأخذ العقدة الأمامية في الطابور (الأقدم دخولاً) ونحذفها. هذا هو قلب مبدأ FIFO الذي يضمن استكشاف الطبقات بالترتيب.</div>
+          </div>
+          <div class="annotation-item">
+            <div class="ann-num">5</div>
+            <div class="ann-text"><strong>تجاوز المُزارة:</strong> <span class="ann-code">if (dist[to] != -1) continue</span> — إذا كان الجار قد زُر مسبقاً (مسافته ليست <span class="ann-code">-1</span>)، نتجاوزه. هذا يمنع الدورات اللانهائية ويضمن أننا نسجل <em>أقصر</em> مسافة فقط.</div>
+          </div>
+          <div class="annotation-item">
+            <div class="ann-num">6</div>
+            <div class="ann-text"><strong>تحديث المسافة وإدخال الجار:</strong> <span class="ann-code">dist[to] = dist[v] + 1</span> — مسافة الجار = مسافة العقدة الحالية زائد 1 (خطوة واحدة إضافية). ثم <span class="ann-code">q.push(to)</span> لمعالجة جيرانه لاحقاً.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="definition-box" style="margin-top:20px;">
+        <div class="def-label">نتيجة التشغيل</div>
+        <p>بعد انتهاء الكود: <span class="ann-code">dist[v] = 0</span> لعقدة البداية | <span class="ann-code">dist[v] = k</span> للعقد التي تبعد <strong>k</strong> حرفاً | <span class="ann-code">dist[v] = -1</span> للعقد غير القابلة للوصول من <span class="ann-code">s</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: إعادة بناء المسار -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-cyan">🔍</div>
+      <h2>استخراج المسار الفعلي (Parent Array)</h2>
+    </div>
+
+    <div class="card">
+      <p>المسافة وحدها لا تكفي أحياناً — نحتاج مسار العقد بالترتيب من <span class="ann-code">s</span> إلى <span class="ann-code">t</span>. الحل: نخزن <strong>المصدر (parent)</strong> لكل عقدة عند اكتشافها.</p>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots">
+            <div class="code-dot dot-red"></div>
+            <div class="code-dot dot-yellow"></div>
+            <div class="code-dot dot-green"></div>
+          </div>
+          <div class="code-lang">C++ — BFS + Path Reconstruction</div>
+        </div>
+        <div class="code-body">
+<pre><span class="type">vector</span>&lt;<span class="type">int</span>&gt; <span class="var">dist</span>(<span class="var">n</span>, -<span class="num">1</span>), <span class="var">parent</span>(<span class="var">n</span>, -<span class="num">1</span>);
+<span class="type">queue</span>&lt;<span class="type">int</span>&gt; <span class="var">q</span>;
+
+<span class="type">int</span> <span class="var">s</span> = <span class="num">0</span>;
+<span class="var">dist</span>[<span class="var">s</span>] = <span class="num">0</span>;
+<span class="var">q</span>.<span class="fn">push</span>(<span class="var">s</span>);
+
+<span class="kw">while</span> (!<span class="var">q</span>.<span class="fn">empty</span>()) {
+    <span class="type">int</span> <span class="var">v</span> = <span class="var">q</span>.<span class="fn">front</span>();
+    <span class="var">q</span>.<span class="fn">pop</span>();
+    <span class="kw">for</span> (<span class="type">int</span> <span class="var">to</span> : <span class="var">g</span>[<span class="var">v</span>]) {
+        <span class="kw">if</span> (<span class="var">dist</span>[<span class="var">to</span>] != -<span class="num">1</span>) <span class="kw">continue</span>;
+        <span class="var">dist</span>[<span class="var">to</span>] = <span class="var">dist</span>[<span class="var">v</span>] + <span class="num">1</span>;
+        <span class="var">parent</span>[<span class="var">to</span>] = <span class="var">v</span>;   <span class="cmt">// خزن من أين وصلنا</span>
+        <span class="var">q</span>.<span class="fn">push</span>(<span class="var">to</span>);
+    }
+}
+
+<span class="cmt">// إعادة بناء المسار من s إلى t</span>
+<span class="type">vector</span>&lt;<span class="type">int</span>&gt; <span class="var">path</span>;
+<span class="type">int</span> <span class="var">t</span> = <span class="num">7</span>;
+<span class="kw">if</span> (<span class="var">dist</span>[<span class="var">t</span>] != -<span class="num">1</span>) {
+    <span class="kw">for</span> (<span class="type">int</span> <span class="var">v</span> = <span class="var">t</span>; <span class="var">v</span> != -<span class="num">1</span>; <span class="var">v</span> = <span class="var">parent</span>[<span class="var">v</span>])
+        <span class="var">path</span>.<span class="fn">push_back</span>(<span class="var">v</span>);
+    <span class="fn">reverse</span>(<span class="var">path</span>.<span class="fn">begin</span>(), <span class="var">path</span>.<span class="fn">end</span>());
+}</pre>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;">
+        <div style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); margin-bottom:16px;">شرح تفاعلي</div>
+        <div class="annotation">
+          <div class="annotation-item">
+            <div class="ann-num">1</div>
+            <div class="ann-text"><strong>مصفوفة parent:</strong> <span class="ann-code">parent[to] = v</span> — في كل مرة نكتشف عقدة جديدة، نخزن من أي عقدة وصلنا إليها. في البداية كل القيم <span class="ann-code">-1</span> (لا مصدر).</div>
+          </div>
+          <div class="annotation-item">
+            <div class="ann-num">2</div>
+            <div class="ann-text"><strong>التتبع العكسي:</strong> <span class="ann-code">for (int v = t; v != -1; v = parent[v])</span> — نبدأ من الهدف <span class="ann-code">t</span> ونتبع سلسلة الآباء للوراء حتى نصل للمصدر (حيث <span class="ann-code">parent[s] = -1</span>).</div>
+          </div>
+          <div class="annotation-item">
+            <div class="ann-num">3</div>
+            <div class="ann-text"><strong>عكس المسار:</strong> <span class="ann-code">reverse(...)</span> — بما أن التتبع يسير من الهدف للمصدر، نعكس المتجه في النهاية ليكون بالترتيب الصحيح من <span class="ann-code">s</span> إلى <span class="ann-code">t</span>.</div>
+          </div>
+          <div class="annotation-item">
+            <div class="ann-num">4</div>
+            <div class="ann-text"><strong>التحقق من إمكانية الوصول:</strong> <span class="ann-code">if (dist[t] != -1)</span> — قبل بناء المسار، نتحقق أن <span class="ann-code">t</span> قابل للوصول من <span class="ann-code">s</span>. إذا كانت <span class="ann-code">dist[t] == -1</span> فلا يوجد مسار.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 7: لماذا تعمل BFS؟ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-purple">🧮</div>
+      <h2>لماذا تضمن BFS أقصر المسارات؟</h2>
+    </div>
+
+    <div class="card">
+      <p>البرهان الحدسي يعتمد على <strong>خاصية الطابور</strong>:</p>
+      <div class="definition-box">
+        <div class="def-label">البرهان</div>
+        <p>الطابور في BFS يحتوي في أي لحظة على عقد من طبقتين متتاليتين على الأكثر. عقد المسافة <strong>k</strong> تُعالج كلها قبل أي عقدة بمسافة <strong>k+1</strong>. لذا، <em>أول مرة</em> تصل BFS لعقدة ما، تكون قادمة عبر أقصر طريق ممكن — لأنه لو وُجد طريق أقصر لكانت BFS قد سلكته بالفعل قبل هذه اللحظة.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 8: BFS vs DFS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-orange">⚖️</div>
+      <h2>BFS مقابل DFS</h2>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-card bfs-card">
+        <div class="compare-title blue">BFS</div>
+        <ul class="compare-list">
+          <li>تستخدم <strong>طابوراً (Queue)</strong></li>
+          <li>تستكشف طبقةً طبقة</li>
+          <li>أقصر مسارات في الرسوم غير الموزونة</li>
+          <li>مسائل "أقل عدد خطوات"</li>
+          <li>الاستكشاف المتوازن من المصدر</li>
+        </ul>
+      </div>
+      <div class="compare-card dfs-card">
+        <div class="compare-title purple">DFS</div>
+        <ul class="compare-list">
+          <li>تستخدم <strong>مكدساً (Stack / Recursion)</strong></li>
+          <li>تستكشف عمقاً قبل العرض</li>
+          <li>كشف الدورات في الرسوم</li>
+          <li>الفرز الطوبولوجي</li>
+          <li>إيجاد المكونات المتصلة</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 9: ملخص -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-green">✅</div>
+      <h2>ملخص سريع</h2>
+    </div>
+
+    <div class="card">
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="summary-icon">🗂️</div>
+          <div>
+            <h4>هيكل البيانات</h4>
+            <p>طابور (Queue) — FIFO</p>
+          </div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-icon">⏱️</div>
+          <div>
+            <h4>التعقيد الزمني</h4>
+            <p dir="ltr">O(V + E)</p>
+          </div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-icon">💾</div>
+          <div>
+            <h4>تعقيد الذاكرة</h4>
+            <p dir="ltr">O(V)</p>
+          </div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-icon">🎯</div>
+          <div>
+            <h4>الضمان الأساسي</h4>
+            <p>أقصر مسار في الرسوم غير الموزونة</p>
+          </div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-icon">🔑</div>
+          <div>
+            <h4>المصفوفة الرئيسية</h4>
+            <p dir="ltr">dist[] — تخزن المسافات</p>
+          </div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-icon">🗺️</div>
+          <div>
+            <h4>استخراج المسار</h4>
+            <p dir="ltr">parent[] + reverse()</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUESTIONS SECTION -->
+  <div class="questions-section">
+    <div class="q-header">
+      <h2>أسئلة تدريبية — 15 سؤالاً</h2>
+      <p>خمسة أسئلة سهلة · خمسة متوسطة · خمسة صعبة — اضغط على السؤال لرؤية الإجابة</p>
+    </div>
+
+    <div class="q-levels">
+
+      <!-- EASY -->
+      <div>
+        <div class="q-level-title">
+          <span class="level-badge badge-easy">سهل</span>
+          <h3>المستوى الأول</h3>
+        </div>
+        <div class="q-list">
+
+          <div class="q-card easy" onclick="toggleQ(this)">
+            <div class="q-question">
+              <div class="q-num-badge num-easy">س١</div>
+              <div class="q-text">
+                <h4>ما هيكل البيانات الذي تستخدمه خوارزمية BFS؟ ولماذا هو ضروري لصحة الخوارزمية؟</h4>
+                <div class="q-tags"><span class="q-tag">تعريف</span><span class="q-tag">queue</span></div>
+              </div>
+              <div class="q-toggle">+</div>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <p>تستخدم BFS <strong>الطابور (Queue)</strong> الذي يعمل بمبدأ FIFO (أول داخل أول خارج).</p>
+                <p>الطابور ضروري لأنه يضمن معالجة العقد <em>بنفس ترتيب اكتشافها</em>. هذا يعني أن جميع عقد المسافة <strong>k</strong> تُعالج قبل أي عقدة بمسافة <strong>k+1</strong>، وهو ما يضمن الحصول على أقصر المسارات. لو استخدمنا مكدساً (Stack) بدلاً منه لأصبحنا نجري DFS وليس BFS.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="q-card easy" onclick="toggleQ(this)">
+            <div class="q-question">
+              <div class="q-num-badge num-easy">س٢</div>
+              <div class="q-text">
+                <h4>ماذا يعني <code style="font-family:monospace;color:var(--accent2)">dist[v] = -1</code> في تنفيذ BFS؟</h4>
+                <div class="q-tags"><span class="q-tag">تعريف</span><span class="q-tag">dist[]</span></div>
+              </div>
+              <div class="q-toggle">+</div>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <p>القيمة <strong>-1</strong> في مصفوفة <span class="ann-code">dist</span> تعني أن العقدة <strong>v لم تُزر بعد</strong> من قبل BFS.</p>
+                <p>نستخدم -1 كعلامة لأن المسافات الحقيقية دائماً أعداد صحيحة موجبة أو صفر. في نهاية تشغيل BFS، أي عقدة لا تزال قيمتها -1 تعني أنه <strong>لا يوجد مسار</strong> من عقدة البداية إليها (غير قابلة للوصول).</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="q-card easy" onclick="toggleQ(this)">
+            <div class="q-question">
+              <div class="q-num-badge num-easy">س٣</div>
+              <div class="q-text">
+                <h4>في رسم بياني غير موزون، هل تضمن BFS إيجاد أقصر مسار؟ وضح الإجابة.</h4>
+                <div class="q-tags"><span class="q-tag">مفهوم</span><span class="q-tag">أقصر مسار</span></div>
+              </div>
+              <div class="q-toggle">+</div>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <p><strong>نعم</strong>، BFS تضمن إيجاد أقصر مسار في الرسوم البيانية غير الموزونة (حيث تكلفة كل حرف = 1).</p>
+                <p>السبب: BFS تستكشف العقد بترتيب مسافة متزايد من المصدر. فأول مرة تصل لعقدة ما، تكون عبر أقصر طريق ممكن. لو وُجد طريق أقصر، لكانت BFS قد سلكته مسبقاً لأن الطابور يضمن معالجة الأقرب دائماً أولاً.</p>
+                <p><em>ملاحظة:</em> في الرسوم الموزونة (أوزان مختلفة) نستخدم Dijkstra بدلاً من BFS.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="q-card easy" onclick="toggleQ(this)">
+            <div class="q-question">
+              <div class="q-num-badge num-easy">س٤</div>
+              <div class="q-text">
+                <h4>ما الفرق الجوهري بين BFS وDFS من حيث ترتيب الاستكشاف؟</h4>
+                <div class="q-tags"><span class="q-tag">مقارنة</span><span class="q-tag">BFS vs DFS</span></div>
+              </div>
+              <div class="q-toggle">+</div>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <p><strong>BFS</strong> تستكشف <em>عرضياً</em>: تزور جميع جيران العقدة الحالية قبل الانتقال لأبعد منها. تعمل طبقةً طبقة وتستخدم <strong>طابوراً</strong>.</p>
+                <p><strong>DFS</strong> تستكشف <em>عمقياً</em>: تتبع فرعاً واحداً حتى نهايته قبل العودة لاستكشاف فروع أخرى. تستخدم <strong>مكدساً أو الاستدعاء التكراري</strong>.</p>
+                <p>النتيجة: BFS تجد أقصر مسار، بينما DFS لا تضمن ذلك لكنها أفضل في كشف الدورات والفرز الطوبولوجي.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="q-card easy" onclick="toggleQ(this)">
+            <div class="q-question">
+              <div class="q-num-badge num-easy">س٥</div>
+              <div class="q-text">
+                <h4>ما التعقيد الزمني لخوارزمية BFS؟ وما المقصود بـ V وE في هذا السياق؟</h4>
+                <div class="q-tags"><span class="q-tag">تعقيد زمني</span><span class="q-tag">O(V+E)</span></div>
+              </div>
+              <div class="q-toggle">+</div>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <p>التعقيد الزمني لـ BFS هو <strong>O(V + E)</strong>.</p>
+                <p><strong>V (Vertices)</strong> = عدد العقد في الرسم البياني. كل عقدة تُدخل الطابور وتُسحب منه مرة واحدة بالضبط.</p>
+                <p><strong>E (Edges)</strong> = عدد الحواف. كل حرف يُفحص مرة أو مرتين (في الرسوم غير الموجهة).</p>
+                <p>هذا التعقيد ممتاز — خطي في حجم المدخلات — مما يجعل BFS من أكفأ خوارزميات الرسوم البيانية.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- MEDIUM -->
+      <div>
+        <div class="q-level-title">
+          <span class="level-badge badge-medium">متوسط</span>
+          <h3>المستوى الثاني</h3>
+        </div>
+        <div class="q-list">
+
+          <div class="q-card medium" onclick="toggleQ(this)">
+            <div class="q-question">
+              <div class="q-num-badge num-medium">س٦</div>
+              <div class="q-text">
+                <h4>اكتب كود C++ يستخدم BFS لإيجاد عدد العقد التي تبعد بالضبط مسافة k من عقدة المصدر.</h4>
+                <div class="q-tags"><span class="q-tag">تطبيق</span><span class="q-tag">كود</span></div>
+              </div>
+              <div class="q-toggle">+</div>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <p>بعد تشغيل BFS وحساب المسافات، نمر على جميع العقد ونحسب تلك التي <span class="ann-code">dist[v] == k</span>:</p>
+                <div class="code-wrapper">
+                  <div class="code-header">
+                    <div class="code-dots"><div class="code-dot dot-red"></div><div class="code-dot dot-yellow"></div><div class="code-dot dot-green"></div></div>
+                    <div class="code-lang">C++</div>
+                  </div>
+                  <div class="code-body">
+<pre><span class="cmt">// بعد تشغيل BFS وحساب dist[]</span>
+<span class="type">int</span> <span class="fn">countAtDistance</span>(<span class="type">vector</span>&lt;<span class="type">int</span>&gt;&amp; <span class="var">dist</span>, <span class="type">int</span> <span class="var">k</span>) {
+    <span class="type">int</span> <span class="var">count</span> = <span class="num">0</span>;
+    <span class="kw">for</span> (<span class="type">int</span> <span class="var">v</span> = <span class="num">0</span>; <span class="var">v</span> &lt; (<span class="type">int</span>)<span class="var">dist</span>.<span class="fn">size</span>(); <span class="var">v</span>++) {
+        <span class="kw">if</span> (<span class="var">dist</span>[<span class="var">v</span>] == <span class="var">k</span>)
+            <span class="var">count</span>++;
+    }
+    <span class="kw">return</span> <span class="var">count</span>;
+}</pre>
+                  </div>
+                </div>
+                <p>الفكرة بسيطة: مصفوفة <span class="ann-code">dist[]</span> تخزن المسافة الدقيقة لكل عقدة من المصدر، فنكتفي بعد العقد ذات المسافة k.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="q-card medium" onclick="toggleQ(this)">
+            <div class="q-question">
+              <div class="q-num-badge num-medium">س٧</div>
+              <div class="q-text">
+                <h4>كيف تستخدم BFS للتحقق مما إذا كان الرسم البياني غير الموجه متصلاً (Connected Graph)؟</h4>
+                <div class="q-tags"><span class="q-tag">اتصال</span><span class="q-tag">تطبيق</span></div>
+              </div>
+              <div class="q-toggle">+</div>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <p>الفكرة: نشغّل BFS مرة واحدة من أي عقدة. إذا كانت جميع العقد قد زُيرت (لا توجد قيمة -1 في dist[])، فالرسم البياني <strong>متصل</strong>.</p>
+                <div class="code-wrapper">
+                  <div class="code-header">
+                    <div class="code-dots"><div class="code-dot dot-red"></div><div class="code-dot dot-yellow"></div><div class="code-dot dot-green"></div></div>
+                    <div class="code-lang">C++</div>
+                  </div>
+                  <div class="code-body">
+<pre><span class="type">bool</span> <span class="fn">isConnected</span>(<span class="type">int</span> <span class="var">n</span>, <span class="type">vector</span>&lt;<span class="type">int</span>&gt; <span class="var">g</span>[]) {
+    <span class="type">vector</span>&lt;<span class="type">int</span>&gt; <span class="var">dist</span>(<span class="var">n</span>, -<span class="num">1</span>);
+    <span class="type">queue</span>&lt;<span class="type">int</span>&gt; <span class="var">q</span>;
+    <span class="var">dist</span>[<span class="num">0</span>] = <span class="num">0</span>;
+    <span class="var">q</span>.<span class="fn">push</span>(<span class="num">0</span>);
+    <span class="kw">while</span> (!<span class="var">q</span>.<span class="fn">empty</span>()) {
+        <span class="type">int</span> <span class="var">v</span> = <span class="var">q</span>.<span class="fn">front</span>(); <span class="var">q</span>.<span class="fn">pop</span>();
+        <span class="kw">for</span> (<span class="type">int</span> <span class="var">to</span> : <span class="var">g</span>[<span class="var">v</span>]) {
+            <span class="kw">if</span> (<span class="var">dist</span>[<span class="var">to</span>] == -<span class="num">1</span>) {
+                <span class="var">dist</span>[<span class="var">to</span>] = <span class="var">dist</span>[<span class="var">v</span>] + <span class="num">1</span>;
+                <span class="var">q</span>.<span class="fn">push</span>(<span class="var">to</span>);
+            }
+        }
+    }
+    <span class="kw">for</span> (<span class="type">int</span> <span class="var">i</span> = <span class="num">0</span>; <span class="var">i</span> &lt; <span class="var">n</span>; <span class="var">i</span>++)
+        <span class="kw">if</span> (<span class="var">dist</span>[<span class="var">i</span>] == -<span class="num">1</span>) <span class="kw">return</span> <span class="kw">false</span>;
+    <span class="kw">return</span> <span class="kw">true</span>;
+}</pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="q-card medium" onclick="toggleQ(this)">
+            <div class="q-question">
+              <div class="q-num-badge num-medium">س٨</div>
+              <div class="q-text">
+                <h4>لديك شبكة مدن وطرق. كيف تُمثّل المسألة كرسم بياني وتستخدم BFS لإيجاد أقل عدد طرق بين مدينتين؟</h4>
+                <div class="q-tags"><span class="q-tag">نمذجة</span><span class="q-tag">تطبيق واقعي</span></div>
+              </div>
+              <div class="q-toggle">+</div>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <p><strong>خطوات النمذجة:</strong></p>
+                <p>١. كل <strong>مدينة = عقدة</strong> في الرسم البياني (ارقمها من 0 إلى n-1).</p>
+                <p>٢. كل <strong>طريق بين مدينتين = حرف</strong> في الرسم البياني (غير موزون لأن جميع الطرق بتكلفة 1).</p>
+                <p>٣. شغّل BFS من مدينة المصدر. قيمة <span class="ann-code">dist[target]</span> بعد الانتهاء = أقل عدد طرق للوصول للهدف.</p>
+                <p>٤. إذا <span class="ann-code">dist[target] == -1</span> فلا يوجد طريق بينهما.</p>
+                <p>هذا النموذج يُستخدم في GPS والشبكات الاجتماعية (درجات الفصل) وتوجيه الحزم في الشبكات.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="q-card medium" onclick="toggleQ(this)">
+            <div class="q-question">
+              <div class="q-num-badge num-medium">س٩</div>
+              <div class="q-text">
+                <h4>ما الذي يحدث لو نسينا شرط التحقق <code style="font-family:monospace;color:var(--accent2)">if (dist[to] != -1) continue</code> في كود BFS؟</h4>
+                <div class="q-tags"><span class="q-tag">أخطاء شائعة</span><span class="q-tag">تحليل</span></div>
+              </div>
+              <div class="q-toggle">+</div>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <p>بدون هذا الشرط ستحدث <strong>مشكلتان خطيرتان</strong>:</p>
+                <p>١. <strong>دورات لانهائية:</strong> في الرسوم التي تحتوي دورات، ستعود BFS لزيارة العقد مراراً وتكراراً — الطابور لن يفرغ أبداً وسينفذ البرنامج بلا توقف.</p>
+                <p>٢. <strong>مسافات خاطئة:</strong> حتى لو توقف البرنامج، ستُستبدل المسافات الصحيحة بقيم أكبر منها لأن العقد تُعاد زيارتها عبر مسارات أطول.</p>
+                <p>هذا الشرط هو <strong>ضمان الزيارة الواحدة</strong> — قلب صحة خوارزمية BFS.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="q-card medium" onclick="toggleQ(this)">
+            <div class="q-question">
+              <div class="q-num-badge num-medium">س١٠</div>
+              <div class="q-text">
+                <h4>في مسألة المتاهة (Maze)، كيف تُطبّق BFS للعثور على أقصر مسار من نقطة البداية لنقطة الخروج؟</h4>
+                <div class="q-tags"><span class="q-tag">متاهة</span><span class="q-tag">شبكة 2D</span></div>
+              </div>
+              <div class="q-toggle">+</div>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <p>المتاهة تُمثَّل كشبكة ثنائية الأبعاد. كل خلية <span class="ann-code">(r, c)</span> هي عقدة، وجيرانها الأربعة (أعلى/أسفل/يسار/يمين) هي الحواف.</p>
+                <div class="code-wrapper">
+                  <div class="code-header">
+                    <div class="code-dots"><div class="code-dot dot-red"></div><div class="code-dot dot-yellow"></div><div class="code-dot dot-green"></div></div>
+                    <div class="code-lang">C++ — BFS on 2D Grid</div>
+                  </div>
+                  <div class="code-body">
+<pre><span class="type">int</span> <span class="var">dx</span>[] = {<span class="num">0</span>, <span class="num">0</span>, <span class="num">1</span>, -<span class="num">1</span>};
+<span class="type">int</span> <span class="var">dy</span>[] = {<span class="num">1</span>, -<span class="num">1</span>, <span class="num">0</span>, <span class="num">0</span>};
+
+<span class="type">queue</span>&lt;<span class="type">pair</span>&lt;<span class="type">int</span>,<span class="type">int</span>&gt;&gt; <span class="var">q</span>;
+<span class="var">dist</span>[<span class="var">sr</span>][<span class="var">sc</span>] = <span class="num">0</span>;
+<span class="var">q</span>.<span class="fn">push</span>({<span class="var">sr</span>, <span class="var">sc</span>});
+
+<span class="kw">while</span> (!<span class="var">q</span>.<span class="fn">empty</span>()) {
+    <span class="kw">auto</span> [<span class="var">r</span>, <span class="var">c</span>] = <span class="var">q</span>.<span class="fn">front</span>(); <span class="var">q</span>.<span class="fn">pop</span>();
+    <span class="kw">for</span> (<span class="type">int</span> <span class="var">d</span> = <span class="num">0</span>; <span class="var">d</span> &lt; <span class="num">4</span>; <span class="var">d</span>++) {
+        <span class="type">int</span> <span class="var">nr</span> = <span class="var">r</span> + <span class="var">dx</span>[<span class="var">d</span>];
+        <span class="type">int</span> <span class="var">nc</span> = <span class="var">c</span> + <span class="var">dy</span>[<span class="var">d</span>];
+        <span class="kw">if</span> (<span class="fn">valid</span>(<span class="var">nr</span>,<span class="var">nc</span>) && <span class="var">dist</span>[<span class="var">nr</span>][<span class="var">nc</span>] == -<span class="num">1</span>
+            && !<span class="var">wall</span>[<span class="var">nr</span>][<span class="var">nc</span>]) {
+            <span class="var">dist</span>[<span class="var">nr</span>][<span class="var">nc</span>] = <span class="var">dist</span>[<span class="var">r</span>][<span class="var">c</span>] + <span class="num">1</span>;
+            <span class="var">q</span>.<span class="fn">push</span>({<span class="var">nr</span>, <span class="var">nc</span>});
+        }
+    }
+}</pre>
+                  </div>
+                </div>
+                <p>الإجابة = <span class="ann-code">dist[er][ec]</span> حيث <span class="ann-code">(er, ec)</span> هي نقطة الخروج.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- HARD -->
+      <div>
+        <div class="q-level-title">
+          <span class="level-badge badge-hard">صعب</span>
+          <h3>المستوى الثالث</h3>
+        </div>
+        <div class="q-list">
+
+          <div class="q-card hard" onclick="toggleQ(this)">
+            <div class="q-question">
+              <div class="q-num-badge num-hard">س١١</div>
+              <div class="q-text">
+                <h4>اشرح كيف تُطبّق BFS ثنائية المصدر (0-1 BFS) وما الفرق بينها وبين BFS التقليدية؟</h4>
+                <div class="q-tags"><span class="q-tag">0-1 BFS</span><span class="q-tag">deque</span><span class="q-tag">متقدم</span></div>
+              </div>
+              <div class="q-toggle">+</div>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <p><strong>0-1 BFS</strong> تُستخدم عندما تكون أوزان الحواف إما <strong>0 أو 1</strong> فقط (وليس أرقاماً عشوائية).</p>
+                <p>الفرق: بدلاً من <span class="ann-code">queue</span> عادية، نستخدم <span class="ann-code">deque</span> (طابور من طرفين):</p>
+                <div class="code-wrapper">
+                  <div class="code-header">
+                    <div class="code-dots"><div class="code-dot dot-red"></div><div class="code-dot dot-yellow"></div><div class="code-dot dot-green"></div></div>
+                    <div class="code-lang">C++ — 0-1 BFS</div>
+                  </div>
+                  <div class="code-body">
+<pre><span class="type">deque</span>&lt;<span class="type">int</span>&gt; <span class="var">dq</span>;
+<span class="var">dist</span>[<span class="var">s</span>] = <span class="num">0</span>;
+<span class="var">dq</span>.<span class="fn">push_back</span>(<span class="var">s</span>);
+
+<span class="kw">while</span> (!<span class="var">dq</span>.<span class="fn">empty</span>()) {
+    <span class="type">int</span> <span class="var">v</span> = <span class="var">dq</span>.<span class="fn">front</span>(); <span class="var">dq</span>.<span class="fn">pop_front</span>();
+    <span class="kw">for</span> (<span class="kw">auto</span> [<span class="var">to</span>, <span class="var">w</span>] : <span class="var">g</span>[<span class="var">v</span>]) {  <span class="cmt">// w = 0 أو 1</span>
+        <span class="kw">if</span> (<span class="var">dist</span>[<span class="var">v</span>] + <span class="var">w</span> &lt; <span class="var">dist</span>[<span class="var">to</span>]) {
+            <span class="var">dist</span>[<span class="var">to</span>] = <span class="var">dist</span>[<span class="var">v</span>] + <span class="var">w</span>;
+            <span class="kw">if</span> (<span class="var">w</span> == <span class="num">0</span>)
+                <span class="var">dq</span>.<span class="fn">push_front</span>(<span class="var">to</span>);  <span class="cmt">// حواف بوزن 0 تُضاف للأمام</span>
+            <span class="kw">else</span>
+                <span class="var">dq</span>.<span class="fn">push_back</span>(<span class="var">to</span>);   <span class="cmt">// حواف بوزن 1 تُضاف للخلف</span>
+        }
+    }
+}</pre>
+                  </div>
+                </div>
+                <p>الحواف بوزن 0 تُضاف لمقدمة الطابور (لأنها لا تزيد المسافة)، بينما الحواف بوزن 1 تُضاف للخلف. هذا يحقق كفاءة <span class="ann-code">O(V + E)</span> بدلاً من <span class="ann-code">O((V+E) log V)</span> في Dijkstra.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="q-card hard" onclick="toggleQ(this)">
+            <div class="q-question">
+              <div class="q-num-badge num-hard">س١٢</div>
+              <div class="q-text">
+                <h4>كيف تستخدم Multi-Source BFS (BFS متعددة المصادر) لحساب أقرب خلية ملوّنة لكل خلية في شبكة؟</h4>
+                <div class="q-tags"><span class="q-tag">multi-source</span><span class="q-tag">شبكة 2D</span><span class="q-tag">متقدم</span></div>
+              </div>
+              <div class="q-toggle">+</div>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <p><strong>Multi-Source BFS</strong> تبدأ من <em>عدة مصادر في آنٍ واحد</em> بدلاً من مصدر واحد فقط.</p>
+                <p>الحيلة: نُدخل جميع المصادر في الطابور معاً في البداية بمسافة 0:</p>
+                <div class="code-wrapper">
+                  <div class="code-header">
+                    <div class="code-dots"><div class="code-dot dot-red"></div><div class="code-dot dot-yellow"></div><div class="code-dot dot-green"></div></div>
+                    <div class="code-lang">C++ — Multi-Source BFS</div>
+                  </div>
+                  <div class="code-body">
+<pre><span class="type">queue</span>&lt;<span class="type">pair</span>&lt;<span class="type">int</span>,<span class="type">int</span>&gt;&gt; <span class="var">q</span>;
+
+<span class="cmt">// أدخل جميع الخلايا الملوّنة معاً</span>
+<span class="kw">for</span> (<span class="type">int</span> <span class="var">r</span> = <span class="num">0</span>; <span class="var">r</span> &lt; <span class="var">R</span>; <span class="var">r</span>++)
+    <span class="kw">for</span> (<span class="type">int</span> <span class="var">c</span> = <span class="num">0</span>; <span class="var">c</span> &lt; <span class="var">C</span>; <span class="var">c</span>++)
+        <span class="kw">if</span> (<span class="fn">isColored</span>(<span class="var">r</span>, <span class="var">c</span>)) {
+            <span class="var">dist</span>[<span class="var">r</span>][<span class="var">c</span>] = <span class="num">0</span>;
+            <span class="var">q</span>.<span class="fn">push</span>({<span class="var">r</span>, <span class="var">c</span>});
+        }
+
+<span class="cmt">// BFS اعتيادية من هنا</span>
+<span class="kw">while</span> (!<span class="var">q</span>.<span class="fn">empty</span>()) {
+    <span class="kw">auto</span> [<span class="var">r</span>, <span class="var">c</span>] = <span class="var">q</span>.<span class="fn">front</span>(); <span class="var">q</span>.<span class="fn">pop</span>();
+    <span class="kw">for</span> (<span class="type">int</span> <span class="var">d</span> = <span class="num">0</span>; <span class="var">d</span> &lt; <span class="num">4</span>; <span class="var">d</span>++) {
+        <span class="type">int</span> <span class="var">nr</span> = <span class="var">r</span>+<span class="var">dx</span>[<span class="var">d</span>], <span class="var">nc</span> = <span class="var">c</span>+<span class="var">dy</span>[<span class="var">d</span>];
+        <span class="kw">if</span> (<span class="fn">valid</span>(<span class="var">nr</span>,<span class="var">nc</span>) && <span class="var">dist</span>[<span class="var">nr</span>][<span class="var">nc</span>] == -<span class="num">1</span>) {
+            <span class="var">dist</span>[<span class="var">nr</span>][<span class="var">nc</span>] = <span class="var">dist</span>[<span class="var">r</span>][<span class="var">c</span>] + <span class="num">1</span>;
+            <span class="var">q</span>.<span class="fn">push</span>({<span class="var">nr</span>, <span class="var">nc</span>});
+        }
+    }
+}</pre>
+                  </div>
+                </div>
+                <p>النتيجة: <span class="ann-code">dist[r][c]</span> = المسافة لأقرب خلية ملوّنة لكل خلية في الشبكة — بتعقيد <span class="ann-code">O(R × C)</span>.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="q-card hard" onclick="toggleQ(this)">
+            <div class="q-question">
+              <div class="q-num-badge num-hard">س١٣</div>
+              <div class="q-text">
+                <h4>في مسألة تبديل الكلمات (Word Ladder)، كيف تُنمذج المسألة كرسم بياني وتحلها باستخدام BFS؟</h4>
+                <div class="q-tags"><span class="q-tag">Word Ladder</span><span class="q-tag">نمذجة متقدمة</span></div>
+              </div>
+              <div class="q-toggle">+</div>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <p><strong>المسألة:</strong> حوّل الكلمة A إلى الكلمة B بتغيير حرف واحد في كل خطوة، وكل كلمة وسيطة يجب أن تكون في قاموس معطى. أوجد أقل عدد خطوات.</p>
+                <p><strong>النمذجة:</strong></p>
+                <p>١. كل <strong>كلمة = عقدة</strong>.</p>
+                <p>٢. حرف بين كلمتين إذا <strong>اختلفتا بحرف واحد فقط</strong>.</p>
+                <p>٣. شغّل BFS من الكلمة المصدر — أول وصول للكلمة الهدف = أقل عدد تحويلات.</p>
+                <div class="code-wrapper">
+                  <div class="code-header">
+                    <div class="code-dots"><div class="code-dot dot-red"></div><div class="code-dot dot-yellow"></div><div class="code-dot dot-green"></div></div>
+                    <div class="code-lang">C++ — Word Ladder</div>
+                  </div>
+                  <div class="code-body">
+<pre><span class="type">bool</span> <span class="fn">diffByOne</span>(<span class="type">string</span>& <span class="var">a</span>, <span class="type">string</span>& <span class="var">b</span>) {
+    <span class="type">int</span> <span class="var">diff</span> = <span class="num">0</span>;
+    <span class="kw">for</span> (<span class="type">int</span> <span class="var">i</span> = <span class="num">0</span>; <span class="var">i</span> &lt; <span class="var">a</span>.<span class="fn">size</span>(); <span class="var">i</span>++)
+        <span class="kw">if</span> (<span class="var">a</span>[<span class="var">i</span>] != <span class="var">b</span>[<span class="var">i</span>]) <span class="var">diff</span>++;
+    <span class="kw">return</span> <span class="var">diff</span> == <span class="num">1</span>;
+}
+
+<span class="cmt">// BFS على قاموس الكلمات</span>
+<span class="type">map</span>&lt;<span class="type">string</span>, <span class="type">int</span>&gt; <span class="var">dist</span>;
+<span class="type">queue</span>&lt;<span class="type">string</span>&gt; <span class="var">q</span>;
+<span class="var">dist</span>[<span class="var">start</span>] = <span class="num">0</span>;
+<span class="var">q</span>.<span class="fn">push</span>(<span class="var">start</span>);
+
+<span class="kw">while</span> (!<span class="var">q</span>.<span class="fn">empty</span>()) {
+    <span class="type">string</span> <span class="var">cur</span> = <span class="var">q</span>.<span class="fn">front</span>(); <span class="var">q</span>.<span class="fn">pop</span>();
+    <span class="kw">for</span> (<span class="type">string</span>& <span class="var">word</span> : <span class="var">dict</span>) {
+        <span class="kw">if</span> (!<span class="var">dist</span>.<span class="fn">count</span>(<span class="var">word</span>) && <span class="fn">diffByOne</span>(<span class="var">cur</span>, <span class="var">word</span>)) {
+            <span class="var">dist</span>[<span class="var">word</span>] = <span class="var">dist</span>[<span class="var">cur</span>] + <span class="num">1</span>;
+            <span class="var">q</span>.<span class="fn">push</span>(<span class="var">word</span>);
+        }
+    }
+}</pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="q-card hard" onclick="toggleQ(this)">
+            <div class="q-question">
+              <div class="q-num-badge num-hard">س١٤</div>
+              <div class="q-text">
+                <h4>كيف تُحسب عدد أقصر المسارات (وليس فقط طولها) بين عقدتين باستخدام BFS؟</h4>
+                <div class="q-tags"><span class="q-tag">عد المسارات</span><span class="q-tag">count[]</span><span class="q-tag">متقدم</span></div>
+              </div>
+              <div class="q-toggle">+</div>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <p>نضيف مصفوفة <span class="ann-code">cnt[]</span> لحساب عدد المسارات الأقصر لكل عقدة:</p>
+                <div class="code-wrapper">
+                  <div class="code-header">
+                    <div class="code-dots"><div class="code-dot dot-red"></div><div class="code-dot dot-yellow"></div><div class="code-dot dot-green"></div></div>
+                    <div class="code-lang">C++ — Count Shortest Paths</div>
+                  </div>
+                  <div class="code-body">
+<pre><span class="type">vector</span>&lt;<span class="type">int</span>&gt; <span class="var">dist</span>(<span class="var">n</span>, -<span class="num">1</span>);
+<span class="type">vector</span>&lt;<span class="type">long long</span>&gt; <span class="var">cnt</span>(<span class="var">n</span>, <span class="num">0</span>);
+<span class="type">queue</span>&lt;<span class="type">int</span>&gt; <span class="var">q</span>;
+
+<span class="var">dist</span>[<span class="var">s</span>] = <span class="num">0</span>;
+<span class="var">cnt</span>[<span class="var">s</span>] = <span class="num">1</span>;  <span class="cmt">// مسار واحد للمصدر (المسار الفارغ)</span>
+<span class="var">q</span>.<span class="fn">push</span>(<span class="var">s</span>);
+
+<span class="kw">while</span> (!<span class="var">q</span>.<span class="fn">empty</span>()) {
+    <span class="type">int</span> <span class="var">v</span> = <span class="var">q</span>.<span class="fn">front</span>(); <span class="var">q</span>.<span class="fn">pop</span>();
+    <span class="kw">for</span> (<span class="type">int</span> <span class="var">to</span> : <span class="var">g</span>[<span class="var">v</span>]) {
+        <span class="kw">if</span> (<span class="var">dist</span>[<span class="var">to</span>] == -<span class="num">1</span>) {
+            <span class="var">dist</span>[<span class="var">to</span>] = <span class="var">dist</span>[<span class="var">v</span>] + <span class="num">1</span>;
+            <span class="var">cnt</span>[<span class="var">to</span>] = <span class="var">cnt</span>[<span class="var">v</span>];  <span class="cmt">// ورث عدد المسارات</span>
+            <span class="var">q</span>.<span class="fn">push</span>(<span class="var">to</span>);
+        } <span class="kw">else if</span> (<span class="var">dist</span>[<span class="var">to</span>] == <span class="var">dist</span>[<span class="var">v</span>] + <span class="num">1</span>) {
+            <span class="var">cnt</span>[<span class="var">to</span>] += <span class="var">cnt</span>[<span class="var">v</span>];  <span class="cmt">// مسار آخر بنفس الطول</span>
+        }
+    }
+}</pre>
+                  </div>
+                </div>
+                <p>القيمة <span class="ann-code">cnt[t]</span> = عدد أقصر المسارات من <span class="ann-code">s</span> إلى <span class="ann-code">t</span>. المفتاح هو الحالة الثانية <span class="ann-code">else if</span>: عندما نجد عقدة تبعد نفس المسافة من مسار مختلف، نجمع الأعداد.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="q-card hard" onclick="toggleQ(this)">
+            <div class="q-question">
+              <div class="q-num-badge num-hard">س١٥</div>
+              <div class="q-text">
+                <h4>في رسم بياني ثنائي التقسيم (Bipartite Graph)، كيف تستخدم BFS للتحقق من الخاصية وتلوين العقد؟</h4>
+                <div class="q-tags"><span class="q-tag">Bipartite</span><span class="q-tag">تلوين</span><span class="q-tag">متقدم</span></div>
+              </div>
+              <div class="q-toggle">+</div>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <p><strong>الرسم البياني ثنائي التقسيم</strong> هو رسم يمكن تقسيم عقده لمجموعتين بحيث لا توجد حواف بين عقد نفس المجموعة. يمكن التحقق من ذلك بتلوين العقد بلونين متناوبين باستخدام BFS:</p>
+                <div class="code-wrapper">
+                  <div class="code-header">
+                    <div class="code-dots"><div class="code-dot dot-red"></div><div class="code-dot dot-yellow"></div><div class="code-dot dot-green"></div></div>
+                    <div class="code-lang">C++ — Bipartite Check via BFS</div>
+                  </div>
+                  <div class="code-body">
+<pre><span class="type">vector</span>&lt;<span class="type">int</span>&gt; <span class="var">color</span>(<span class="var">n</span>, -<span class="num">1</span>);
+
+<span class="type">bool</span> <span class="fn">isBipartite</span>() {
+    <span class="kw">for</span> (<span class="type">int</span> <span class="var">start</span> = <span class="num">0</span>; <span class="var">start</span> &lt; <span class="var">n</span>; <span class="var">start</span>++) {
+        <span class="kw">if</span> (<span class="var">color</span>[<span class="var">start</span>] != -<span class="num">1</span>) <span class="kw">continue</span>;
+        <span class="type">queue</span>&lt;<span class="type">int</span>&gt; <span class="var">q</span>;
+        <span class="var">color</span>[<span class="var">start</span>] = <span class="num">0</span>;
+        <span class="var">q</span>.<span class="fn">push</span>(<span class="var">start</span>);
+
+        <span class="kw">while</span> (!<span class="var">q</span>.<span class="fn">empty</span>()) {
+            <span class="type">int</span> <span class="var">v</span> = <span class="var">q</span>.<span class="fn">front</span>(); <span class="var">q</span>.<span class="fn">pop</span>();
+            <span class="kw">for</span> (<span class="type">int</span> <span class="var">to</span> : <span class="var">g</span>[<span class="var">v</span>]) {
+                <span class="kw">if</span> (<span class="var">color</span>[<span class="var">to</span>] == -<span class="num">1</span>) {
+                    <span class="var">color</span>[<span class="var">to</span>] = <span class="num">1</span> - <span class="var">color</span>[<span class="var">v</span>]; <span class="cmt">// تبادل اللون</span>
+                    <span class="var">q</span>.<span class="fn">push</span>(<span class="var">to</span>);
+                } <span class="kw">else if</span> (<span class="var">color</span>[<span class="var">to</span>] == <span class="var">color</span>[<span class="var">v</span>]) {
+                    <span class="kw">return</span> <span class="kw">false</span>; <span class="cmt">// تعارض → ليس bipartite</span>
+                }
+            }
+        }
+    }
+    <span class="kw">return</span> <span class="kw">true</span>;
+}</pre>
+                  </div>
+                </div>
+                <p>الحيلة: <span class="ann-code">1 - color[v]</span> تعطي اللون المعاكس (0→1، 1→0). إذا وجدنا حرفاً بين عقدتين بنفس اللون، فالرسم <strong>ليس ثنائي التقسيم</strong>.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider" style="margin-top:60px;"></div>
+  <div style="text-align:center; padding:20px 0; color:var(--text-muted); font-size:13px;">
+    منهج البرمجة التنافسية · خوارزمية البحث بالعرض (BFS)
+  </div>
+
+</div>
+
+<script>
+function toggleQ(card) {
+  const answer = card.querySelector('.q-answer');
+  const isOpen = card.classList.contains('open');
+
+  // Close all
+  document.querySelectorAll('.q-card').forEach(c => {
+    c.classList.remove('open');
+    c.querySelector('.q-answer').classList.remove('open');
+  });
+
+  if (!isOpen) {
+    card.classList.add('open');
+    answer.classList.add('open');
+  }
+}
+
+// Animate sections on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.section, .q-card').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(16px)';
+  el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
