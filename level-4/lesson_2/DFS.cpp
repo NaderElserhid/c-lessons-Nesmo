@@ -4,7 +4,8 @@
 using namespace std;
 
 const int maxN = 200001;
-int vis[maxN], p[maxN];
+bool vis[maxN];
+int  p[maxN];
 vector<int> adj[maxN];
 
 void dfs(int u) {

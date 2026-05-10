@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>البرمجة الديناميكية على الأشجار - أولمبياد نسمه</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07090f;
+  --surface: #0e1320;
+  --surface2: #141c2e;
+  --surface3: #1a2438;
+  --accent: #f97316;
+  --accent2: #3b82f6;
+  --accent3: #22c55e;
+  --accent4: #a855f7;
+  --danger: #ef4444;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --border: #1e2d47;
+  --glow: rgba(249,115,22,.15);
+  --easy: #22c55e;
+  --medium: #f59e0b;
+  --hard: #ef4444;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Tajawal', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* grid bg */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(249,115,22,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(249,115,22,.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none; z-index: 0;
+}
+
+/* ── HEADER ── */
+header {
+  position: relative; z-index: 1;
+  padding: 3.5rem 1rem 2rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, #0d0f1a 0%, transparent 100%);
+}
+
+.chip {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: rgba(249,115,22,.1);
+  border: 1px solid rgba(249,115,22,.3);
+  color: var(--accent);
+  font-size: .75rem; font-weight: 700;
+  padding: .3rem .9rem; border-radius: 99px;
+  letter-spacing: .08em; text-transform: uppercase;
+  margin-bottom: 1.2rem;
+}
+
+h1 {
+  font-size: clamp(1.8rem, 5vw, 3.2rem);
+  font-weight: 900;
+  line-height: 1.2;
+  background: linear-gradient(135deg, #fff 0%, var(--accent) 50%, #fb923c 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+.sub { color: var(--muted); font-size: .95rem; margin-top: .6rem; }
+
+/* ── NAV ── */
+nav {
+  display: flex; justify-content: center; flex-wrap: wrap; gap: .4rem;
+  padding: 1rem;
+  background: rgba(14,19,32,.9);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+  backdrop-filter: blur(12px);
+}
+
+nav a {
+  text-decoration: none; color: var(--muted);
+  font-size: .82rem; font-weight: 600;
+  padding: .35rem .85rem; border-radius: 7px;
+  border: 1px solid transparent;
+  transition: all .2s;
+}
+
+nav a:hover, nav a.active {
+  color: var(--accent); border-color: rgba(249,115,22,.4);
+  background: rgba(249,115,22,.07);
+}
+
+/* ── SECTIONS ── */
+section {
+  max-width: 920px; margin: 2.5rem auto; padding: 0 1.2rem;
+  position: relative; z-index: 1;
+}
+
+.sec-title {
+  display: flex; align-items: center; gap: .7rem;
+  font-size: 1.4rem; font-weight: 800;
+  color: var(--accent); margin-bottom: 1.4rem;
+}
+
+.sec-title .ico {
+  width: 38px; height: 38px;
+  background: rgba(249,115,22,.1);
+  border: 1px solid rgba(249,115,22,.25);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+}
+
+/* ── CARDS ── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 1.5rem; margin-bottom: 1.2rem;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.card:hover {
+  border-color: rgba(249,115,22,.25);
+  box-shadow: 0 0 24px rgba(249,115,22,.05);
+}
+
+.card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: .8rem; color: #fff; }
+.card p  { color: var(--muted); line-height: 1.85; font-size: .93rem; }
+
+/* ── CALLOUT ── */
+.callout {
+  border-radius: 11px; padding: 1rem 1.2rem;
+  margin: .9rem 0; font-size: .93rem; line-height: 1.85;
+  border-right: 3px solid;
+}
+.callout.orange { background: rgba(249,115,22,.07); border-color: var(--accent); }
+.callout.blue   { background: rgba(59,130,246,.07); border-color: var(--accent2); }
+.callout.green  { background: rgba(34,197,94,.07);  border-color: var(--accent3); }
+.callout.purple { background: rgba(168,85,247,.07); border-color: var(--accent4); }
+
+/* ── CODE ── */
+pre {
+  background: #04070f; border: 1px solid #1a2a44;
+  border-radius: 12px; padding: 1.3rem;
+  font-family: 'JetBrains Mono', monospace; font-size: .82rem;
+  line-height: 1.75; color: #a8d8ff;
+  overflow-x: auto; direction: ltr; text-align: left;
+  position: relative; margin: 1rem 0;
+}
+
+pre .kw  { color: #ff8a65; }
+pre .fn  { color: #82aaff; }
+pre .cm  { color: #4a6882; font-style: italic; }
+pre .nm  { color: #c3e88d; }
+pre .tp  { color: #ffcb6b; }
+pre .op  { color: #89ddff; }
+
+/* ── STEP FLOW ── */
+.step-flow {
+  display: flex; flex-direction: column; gap: 0;
+  position: relative;
+}
+
+.step-flow::before {
+  content: '';
+  position: absolute; right: 19px; top: 0; bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--accent), transparent);
+}
+
+.step-item {
+  display: flex; gap: 1rem; align-items: flex-start;
+  padding-bottom: 1.4rem;
+  position: relative;
+}
+
+.step-num {
+  width: 40px; height: 40px; flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--surface3);
+  border: 2px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem; font-weight: 800; color: var(--accent);
+  z-index: 1;
+}
+
+.step-body { flex: 1; padding-top: .5rem; }
+.step-body strong { color: #fff; display: block; margin-bottom: .3rem; font-size: .95rem; }
+.step-body p { color: var(--muted); font-size: .88rem; line-height: 1.7; }
+
+/* ── FORMULA BOXES ── */
+.formula-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+  margin: 1rem 0;
+}
+
+@media (max-width: 600px) { .formula-grid { grid-template-columns: 1fr; } }
+
+.formula-box {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 13px; padding: 1.2rem;
+  text-align: center;
+}
+
+.formula-box .label {
+  font-size: .75rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--muted); margin-bottom: .6rem;
+}
+
+.formula-box .formula {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .88rem; color: #fff; line-height: 1.6;
+  direction: ltr; text-align: center;
+}
+
+.formula-box.selected { border-color: rgba(249,115,22,.4); background: rgba(249,115,22,.06); }
+.formula-box.selected .formula { color: var(--accent); }
+.formula-box.skipped  { border-color: rgba(59,130,246,.4); background: rgba(59,130,246,.06); }
+.formula-box.skipped  .formula { color: var(--accent2); }
+
+/* ── INTERACTIVE SIMULATION ── */
+.sim-canvas {
+  background: #04070f; border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden;
+}
+
+.sim-controls {
+  display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 1rem;
+}
+
+.btn {
+  padding: .5rem 1.1rem; border-radius: 8px; border: none;
+  cursor: pointer; font-family: 'Tajawal', sans-serif;
+  font-size: .85rem; font-weight: 700;
+  transition: all .15s;
+}
+
+.btn-orange { background: var(--accent); color: #fff; }
+.btn-orange:hover { background: #fb923c; transform: translateY(-1px); }
+.btn-blue   { background: rgba(59,130,246,.15); color: var(--accent2); border: 1px solid rgba(59,130,246,.3); }
+.btn-blue:hover   { background: rgba(59,130,246,.25); }
+.btn-red    { background: rgba(239,68,68,.12); color: var(--danger); border: 1px solid rgba(239,68,68,.25); }
+.btn-red:hover    { background: rgba(239,68,68,.22); }
+.btn-green  { background: rgba(34,197,94,.12); color: var(--accent3); border: 1px solid rgba(34,197,94,.25); }
+.btn-green:hover  { background: rgba(34,197,94,.22); }
+
+.log {
+  background: #04070f; border: 1px solid var(--border);
+  border-radius: 10px; padding: .8rem 1rem;
+  font-family: 'JetBrains Mono', monospace; font-size: .8rem;
+  min-height: 52px; max-height: 110px; overflow-y: auto;
+  color: var(--accent3); margin-top: .8rem; direction: ltr;
+}
+
+/* ── DP TABLE ── */
+.dp-table-wrap { margin-top: 1rem; overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+th {
+  background: var(--surface3); color: var(--accent);
+  padding: .65rem 1rem; text-align: right;
+  border: 1px solid var(--border); font-weight: 700;
+}
+td {
+  padding: .55rem 1rem; border: 1px solid var(--border);
+  color: var(--muted);
+}
+tr:hover td { background: rgba(249,115,22,.03); }
+td.hi { color: var(--accent); font-weight: 700; }
+
+/* ── EXAMPLE WALKTHROUGH ── */
+.example-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+  margin: 1rem 0;
+}
+@media (max-width: 600px) { .example-grid { grid-template-columns: 1fr; } }
+
+.ex-tile {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1rem;
+}
+.ex-tile .title { font-size: .8rem; font-weight: 700; color: var(--muted); margin-bottom: .5rem; text-transform: uppercase; letter-spacing: .06em; }
+.ex-tile .val   { font-family: 'JetBrains Mono', monospace; font-size: .85rem; color: #fff; line-height: 1.7; direction: ltr; }
+
+/* ── QUIZ ── */
+.score-bar {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.2rem 1.5rem;
+  display: flex; align-items: center; gap: 1.4rem;
+  margin-bottom: 1.5rem; flex-wrap: wrap;
+}
+
+.score-ring {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: conic-gradient(var(--accent) 0%, var(--surface3) 0%);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; flex-shrink: 0;
+}
+.score-ring::before {
+  content: ''; position: absolute; inset: 6px;
+  background: var(--surface); border-radius: 50%;
+}
+.score-val { position: relative; z-index: 1; font-size: .88rem; font-weight: 800; color: var(--accent); }
+
+.score-info .stitle { font-size: 1rem; font-weight: 700; }
+.score-info .sdetail { color: var(--muted); font-size: .82rem; margin-top: .2rem; }
+
+.diff-tabs {
+  display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1.4rem;
+}
+.dtab {
+  padding: .45rem 1.1rem; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--muted); cursor: pointer;
+  font-family: 'Tajawal', sans-serif; font-size: .82rem; font-weight: 700;
+  transition: all .2s;
+}
+.dtab.easy.active   { border-color: var(--easy); color: var(--easy); background: rgba(34,197,94,.08); }
+.dtab.medium.active { border-color: var(--medium); color: var(--medium); background: rgba(245,158,11,.08); }
+.dtab.hard.active   { border-color: var(--hard); color: var(--hard); background: rgba(239,68,68,.08); }
+.dtab:hover { border-color: var(--accent); color: var(--accent); }
+
+.qcard {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 15px; padding: 1.4rem; margin-bottom: 1rem;
+  animation: fadeUp .3s ease;
+}
+@keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+.qhead { display: flex; gap: .7rem; align-items: flex-start; margin-bottom: 1rem; }
+
+.qnum {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .78rem; font-weight: 800; flex-shrink: 0; margin-top: 2px;
+}
+.qnum.easy   { background: rgba(34,197,94,.12); color: var(--easy); border: 1px solid rgba(34,197,94,.25); }
+.qnum.medium { background: rgba(245,158,11,.12); color: var(--medium); border: 1px solid rgba(245,158,11,.25); }
+.qnum.hard   { background: rgba(239,68,68,.12); color: var(--hard); border: 1px solid rgba(239,68,68,.25); }
+
+.qtext { font-size: .93rem; font-weight: 600; color: var(--text); line-height: 1.65; }
+
+.opts { display: flex; flex-direction: column; gap: .45rem; }
+
+.opt {
+  text-align: right; padding: .65rem 1rem;
+  border-radius: 9px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--text);
+  cursor: pointer; font-family: 'Tajawal', sans-serif;
+  font-size: .88rem; transition: all .15s;
+}
+.opt:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: rgba(249,115,22,.06); }
+.opt.correct { border-color: var(--easy); background: rgba(34,197,94,.1); color: var(--easy); }
+.opt.wrong   { border-color: var(--danger); background: rgba(239,68,68,.09); color: var(--danger); }
+.opt:disabled { cursor: default; }
+
+.fb {
+  margin-top: .7rem; padding: .6rem 1rem;
+  border-radius: 8px; font-size: .88rem; display: none;
+}
+.fb.show { display: block; animation: fadeUp .2s ease; }
+.fb.correct { background: rgba(34,197,94,.09); color: var(--easy); border: 1px solid rgba(34,197,94,.18); }
+.fb.wrong   { background: rgba(239,68,68,.09); color: var(--danger); border: 1px solid rgba(239,68,68,.18); }
+
+footer {
+  text-align: center; padding: 2rem;
+  color: var(--muted); font-size: .78rem;
+  border-top: 1px solid var(--border); margin-top: 3rem;
+}
+
+/* code highlight in quiz */
+code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--surface3); padding: .1em .4em;
+  border-radius: 4px; font-size: .85em; color: #fb923c;
+  direction: ltr; display: inline-block;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="chip">🧠 أولمبياد نسمه · Tree DP</div>
+  <h1>البرمجة الديناميكية على الأشجار</h1>
+  <p class="sub">من الأساس حتى المسألة الكلاسيكية: أكبر مجموعة مستقلة · للمتسابقين 15–20 سنة</p>
+</header>
+
+<nav id="mainnav">
+  <a href="#concept" class="active">المفهوم</a>
+  <a href="#why">لماذا يعمل؟</a>
+  <a href="#mis">المجموعة المستقلة</a>
+  <a href="#dp-states">حالات DP</a>
+  <a href="#code-sec">الكود</a>
+  <a href="#sim">المحاكاة</a>
+  <a href="#walkthrough">مثال مفصّل</a>
+  <a href="#quiz">الأسئلة</a>
+</nav>
+
+<!-- ══════════ CONCEPT ══════════ -->
+<section id="concept">
+  <div class="sec-title"><span class="ico">💡</span> ما هي Tree DP؟</div>
+
+  <div class="card">
+    <p><strong style="color:#fff">البرمجة الديناميكية على الأشجار (Tree DP)</strong> هي تقنية تحسب جواب كل عقدة بالاعتماد على أجوبة أبنائها، بعد تجذير الشجرة واختيار جذر.</p>
+  </div>
+
+  <div class="callout orange">
+    🎯 <strong>الفكرة الجوهرية:</strong> بعد تجذير الشجرة، الأشجار الفرعية (Subtrees) لا تتداخل أبداً. لذلك يمكننا حل كل شجرة فرعية مرة واحدة، ثم دمج النتائج صعوداً نحو الجذر.
+  </div>
+
+  <div class="sec-title" style="margin-top:1.5rem"><span class="ico">🪜</span> خطوات الحل العامة</div>
+
+  <div class="card">
+    <div class="step-flow">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>جذّر الشجرة</strong>
+          <p>اختر أي عقدة (عادةً 0 أو 1) لتكون الجذر. هذا يعطي الشجرة اتجاهاً من الأعلى للأسفل.</p>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>عرّف حالات DP لكل عقدة</strong>
+          <p>فكّر: ما المعلومة التي تحتاجها كل عقدة لاتخاذ قرارها؟ هذه هي حالات DP.</p>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>نفّذ DFS واحسب الأبناء أولاً</strong>
+          <p>في DFS، عند الرجوع (post-order) تكون قيم DP للأبناء جاهزة قبل الأب.</p>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>ادمج نتائج الأبناء</strong>
+          <p>استخدم صيغة رياضية بسيطة تجمع قيم الأبناء لتحسب قيمة الأب.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ WHY ══════════ -->
+<section id="why">
+  <div class="sec-title"><span class="ico">🔍</span> لماذا يعمل هذا؟</div>
+
+  <div class="card">
+    <h3>خاصية عدم التداخل في الأشجار</h3>
+    <p>في الرسوم البيانية العامة، قد تتداخل المسارات وتجعل البرمجة الديناميكية صعبة. لكن في الشجرة:</p>
+    <div class="callout blue">
+      📌 بعد التجذير، كل ابن يُعطى جزءاً مستقلاً تماماً من الشجرة (subtree). هذه الأجزاء لا تتقاسم أي عقد أو أحرف. لذلك يمكن حساب كل واحدة بشكل مستقل ودمجها بأمان.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>الفرق بين Tree DP والـ DP العادي</h3>
+    <table>
+      <tr><th>الـ DP العادي (مصفوفة)</th><th>Tree DP</th></tr>
+      <tr><td>الحالات مرتّبة خطياً (i قبل i+1)</td><td>الحالات على شكل شجرة (أبناء قبل آبائهم)</td></tr>
+      <tr><td>الانتقال: من الحالة السابقة</td><td>الانتقال: من الأبناء للأب</td></tr>
+      <tr><td>نستخدم حلقة for</td><td>نستخدم DFS</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ══════════ MIS ══════════ -->
+<section id="mis">
+  <div class="sec-title"><span class="ico">🟠</span> المسألة الكلاسيكية: أكبر مجموعة مستقلة</div>
+
+  <div class="card">
+    <h3>تعريف المسألة</h3>
+    <p>اختر أكبر عدد ممكن من عقد الشجرة، بشرط أن <strong style="color:#fff">لا تختار عقدتين متجاورتين</strong> (مرتبطتان بحرف مباشر).</p>
+  </div>
+
+  <div class="callout green">
+    🌿 <strong>مثال:</strong> في شجرة 0→1→2→3 (خطية)، يمكن اختيار {0,2} أو {1,3} أو {0,3} — كل هذه مستقلة. أفضلها هو {0,2,4...} بالتبادل.
+  </div>
+
+  <div class="card">
+    <h3>تبسيط المسألة في الشجرة</h3>
+    <p>في الشجرة المجذّرة، الجيران المهمون لكل عقدة v هم:</p>
+    <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:.8rem">
+      <div style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:.8rem 1.2rem; flex:1; min-width:140px; text-align:center">
+        <div style="color:var(--accent); font-size:1.3rem; margin-bottom:.3rem">☝️</div>
+        <div style="color:#fff; font-weight:700; font-size:.88rem">الأب</div>
+        <div style="color:var(--muted); font-size:.78rem; margin-top:.2rem">نعرف قراره من الأعلى</div>
+      </div>
+      <div style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:.8rem 1.2rem; flex:1; min-width:140px; text-align:center">
+        <div style="color:var(--accent3); font-size:1.3rem; margin-bottom:.3rem">👇</div>
+        <div style="color:#fff; font-weight:700; font-size:.88rem">الأبناء</div>
+        <div style="color:var(--muted); font-size:.78rem; margin-top:.2rem">نتحكم فيهم من الأسفل</div>
+      </div>
+    </div>
+    <div class="callout orange" style="margin-top:1rem">
+      💡 عند اختيار عقدة v، نُجبر على <strong>تجاوز جميع أبنائها</strong>. عند تركها، كل ابن حر في الاختيار.
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ DP STATES ══════════ -->
+<section id="dp-states">
+  <div class="sec-title"><span class="ico">📊</span> حالات DP والانتقالات</div>
+
+  <div class="card">
+    <h3>تعريف الحالتين</h3>
+    <p>لكل عقدة v، نحسب رقمين:</p>
+    <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:.9rem">
+      <div style="background:rgba(249,115,22,.08); border:1px solid rgba(249,115,22,.3); border-radius:12px; padding:1rem 1.2rem; flex:1; min-width:200px">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:1.1rem; color:var(--accent); font-weight:700; direction:ltr; margin-bottom:.5rem">dp1[v]</div>
+        <div style="color:#fff; font-size:.88rem; font-weight:600">أفضل نتيجة إذا <em style="color:var(--accent)">اخترنا v</em></div>
+        <div style="color:var(--muted); font-size:.82rem; margin-top:.3rem">داخل subtree(v) كاملة</div>
+      </div>
+      <div style="background:rgba(59,130,246,.08); border:1px solid rgba(59,130,246,.3); border-radius:12px; padding:1rem 1.2rem; flex:1; min-width:200px">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:1.1rem; color:var(--accent2); font-weight:700; direction:ltr; margin-bottom:.5rem">dp0[v]</div>
+        <div style="color:#fff; font-size:.88rem; font-weight:600">أفضل نتيجة إذا <em style="color:var(--accent2)">تركنا v</em></div>
+        <div style="color:var(--muted); font-size:.82rem; margin-top:.3rem">داخل subtree(v) كاملة</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>معادلات الانتقال</h3>
+
+    <div class="formula-grid">
+      <div class="formula-box selected">
+        <div class="label">🟠 اخترنا v → dp1[v]</div>
+        <div class="formula">dp1[v] = 1 + Σ dp0[c]<br><br>لكل ابن c</div>
+      </div>
+      <div class="formula-box skipped">
+        <div class="label">🔵 تركنا v → dp0[v]</div>
+        <div class="formula">dp0[v] = Σ max(dp0[c], dp1[c])<br><br>لكل ابن c</div>
+      </div>
+    </div>
+
+    <div class="callout orange">
+      🟠 <strong>dp1[v]:</strong> نعدّ v نفسها (الـ 1)، ثم كل ابن مجبر على أن يكون <em>غير مختار</em> → نأخذ dp0[c].
+    </div>
+    <div class="callout blue" style="margin-top:.5rem">
+      🔵 <strong>dp0[v]:</strong> لا نعدّ v، وكل ابن حر في اختياره أو تركه → نأخذ max(dp0[c], dp1[c]) لكل ابن بشكل مستقل.
+    </div>
+
+    <div class="callout green" style="margin-top:.5rem">
+      ✅ <strong>الجواب النهائي:</strong> <code>max(dp0[root], dp1[root])</code>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ CODE ══════════ -->
+<section id="code-sec">
+  <div class="sec-title"><span class="ico">💻</span> الكود الكامل (C++)</div>
+
+  <div class="card">
+    <h3>الهيكل العام</h3>
+    <pre><span class="tp">int</span> n;
+<span class="tp">vector</span>&lt;<span class="tp">vector</span>&lt;<span class="tp">int</span>&gt;&gt; g(n);   <span class="cm">// قائمة الجوار</span>
+<span class="tp">vector</span>&lt;<span class="tp">int</span>&gt; dp0(n, <span class="nm">0</span>), dp1(n, <span class="nm">0</span>);</pre>
+  </div>
+
+  <div class="card">
+    <h3>دالة DFS الرئيسية</h3>
+    <pre><span class="kw">void</span> <span class="fn">dfs</span>(<span class="tp">int</span> v, <span class="tp">int</span> p) {
+    dp1[v] = <span class="nm">1</span>;   <span class="cm">// نختار v → نبدأ بعدّها</span>
+    dp0[v] = <span class="nm">0</span>;   <span class="cm">// لا نختار v → لا نعدّها</span>
+
+    <span class="kw">for</span> (<span class="tp">int</span> to : g[v]) {
+        <span class="kw">if</span> (to == p) <span class="kw">continue</span>;   <span class="cm">// تجاهل الأب</span>
+        <span class="fn">dfs</span>(to, v);              <span class="cm">// احسب الابن أولاً</span>
+
+        <span class="cm">// اخترنا v → مجبورون على ترك الابن</span>
+        dp1[v] += dp0[to];
+
+        <span class="cm">// تركنا v → الابن حر، خذ الأفضل</span>
+        dp0[v] += <span class="fn">max</span>(dp0[to], dp1[to]);
+    }
+}
+
+<span class="cm">// الاستخدام:</span>
+<span class="fn">dfs</span>(<span class="nm">0</span>, -<span class="nm">1</span>);
+<span class="tp">int</span> ans = <span class="fn">max</span>(dp0[<span class="nm">0</span>], dp1[<span class="nm">0</span>]);</pre>
+  </div>
+
+  <div class="callout purple">
+    🔑 <strong>نصيحة الأولمبياد:</strong> دائماً ابدأ بـ <code>dp1[v] = 1</code> (لتعدّ العقدة v نفسها)، و<code>dp0[v] = 0</code>. ثم الحلقة على الأبناء تبني الباقي. البنية دائماً نفسها في أغلب مسائل Tree DP.
+  </div>
+</section>
+
+<!-- ══════════ SIM ══════════ -->
+<section id="sim">
+  <div class="sec-title"><span class="ico">🎮</span> محاكاة Tree DP التفاعلية</div>
+
+  <div class="card">
+    <h3>شجرة من 6 عقد — اضغط "تشغيل" لرؤية DP خطوة بخطوة</h3>
+    <p style="color:var(--muted);font-size:.85rem;margin-bottom:.8rem">الشجرة: 0 هو الجذر، أبناؤه {1,2}، أبناء 1 هم {3,4}، ابن 2 هو {5}</p>
+
+    <div class="sim-canvas">
+      <svg id="simSvg" viewBox="0 0 700 280" width="100%" style="display:block">
+        <!-- edges -->
+        <line x1="350" y1="50" x2="200" y2="145" stroke="#1e2d47" stroke-width="2.5" id="se01"/>
+        <line x1="350" y1="50" x2="500" y2="145" stroke="#1e2d47" stroke-width="2.5" id="se02"/>
+        <line x1="200" y1="145" x2="110" y2="240" stroke="#1e2d47" stroke-width="2.5" id="se13"/>
+        <line x1="200" y1="145" x2="290" y2="240" stroke="#1e2d47" stroke-width="2.5" id="se14"/>
+        <line x1="500" y1="145" x2="500" y2="240" stroke="#1e2d47" stroke-width="2.5" id="se25"/>
+        <!-- nodes -->
+        <g id="sn0"><circle cx="350" cy="50" r="26" fill="#0e1320" stroke="#1e2d47" stroke-width="2"/><text x="350" y="56" text-anchor="middle" fill="#64748b" font-size="15" font-weight="bold" font-family="Tajawal">0</text></g>
+        <g id="sn1"><circle cx="200" cy="145" r="22" fill="#0e1320" stroke="#1e2d47" stroke-width="2"/><text x="200" y="151" text-anchor="middle" fill="#64748b" font-size="14" font-weight="bold" font-family="Tajawal">1</text></g>
+        <g id="sn2"><circle cx="500" cy="145" r="22" fill="#0e1320" stroke="#1e2d47" stroke-width="2"/><text x="500" y="151" text-anchor="middle" fill="#64748b" font-size="14" font-weight="bold" font-family="Tajawal">2</text></g>
+        <g id="sn3"><circle cx="110" cy="240" r="20" fill="#0e1320" stroke="#1e2d47" stroke-width="2"/><text x="110" y="246" text-anchor="middle" fill="#64748b" font-size="14" font-weight="bold" font-family="Tajawal">3</text></g>
+        <g id="sn4"><circle cx="290" cy="240" r="20" fill="#0e1320" stroke="#1e2d47" stroke-width="2"/><text x="290" y="246" text-anchor="middle" fill="#64748b" font-size="14" font-weight="bold" font-family="Tajawal">4</text></g>
+        <g id="sn5"><circle cx="500" cy="240" r="20" fill="#0e1320" stroke="#1e2d47" stroke-width="2"/><text x="500" y="246" text-anchor="middle" fill="#64748b" font-size="14" font-weight="bold" font-family="Tajawal">5</text></g>
+        <!-- dp labels -->
+        <text id="lbl0" x="390" y="45" font-size="10" fill="#374151" font-family="JetBrains Mono" text-anchor="start"></text>
+        <text id="lbl1" x="235" y="138" font-size="10" fill="#374151" font-family="JetBrains Mono" text-anchor="start"></text>
+        <text id="lbl2" x="530" y="138" font-size="10" fill="#374151" font-family="JetBrains Mono" text-anchor="start"></text>
+        <text id="lbl3" x="135" y="235" font-size="10" fill="#374151" font-family="JetBrains Mono" text-anchor="start"></text>
+        <text id="lbl4" x="315" y="235" font-size="10" fill="#374151" font-family="JetBrains Mono" text-anchor="start"></text>
+        <text id="lbl5" x="525" y="235" font-size="10" fill="#374151" font-family="JetBrains Mono" text-anchor="start"></text>
+      </svg>
+    </div>
+
+    <div class="sim-controls">
+      <button class="btn btn-orange" onclick="runSim()">▶ تشغيل كامل</button>
+      <button class="btn btn-blue"   onclick="stepSim()">⏭ خطوة واحدة</button>
+      <button class="btn btn-red"    onclick="resetSim()">↺ إعادة</button>
+    </div>
+
+    <div class="log" id="simLog">← اضغط "تشغيل كامل" أو "خطوة واحدة"</div>
+
+    <div class="dp-table-wrap" id="dpTableWrap" style="display:none">
+      <table>
+        <tr><th>العقدة</th><th>dp0[v]</th><th>dp1[v]</th><th>أفضل</th></tr>
+        <tbody id="dpTableBody"></tbody>
+      </table>
+      <div style="margin-top:.8rem; padding:.8rem 1rem; background:rgba(249,115,22,.08); border:1px solid rgba(249,115,22,.25); border-radius:10px; font-size:.9rem">
+        🏆 الجواب: <strong style="color:var(--accent); font-family:'JetBrains Mono',monospace" id="finalAns">?</strong>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ WALKTHROUGH ══════════ -->
+<section id="walkthrough">
+  <div class="sec-title"><span class="ico">🔬</span> مثال مفصّل: ابنان a وb</div>
+
+  <div class="card">
+    <h3>البيانات المعطاة</h3>
+    <div class="example-grid">
+      <div class="ex-tile">
+        <div class="title">قيم الابن a</div>
+        <div class="val">dp0[a] = 3<br>dp1[a] = 4</div>
+      </div>
+      <div class="ex-tile">
+        <div class="title">قيم الابن b</div>
+        <div class="val">dp0[b] = 2<br>dp1[b] = 2</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>حساب dp1[v] — نختار v</h3>
+    <p>إذا اخترنا v، يجب ترك كلا الابنين:</p>
+    <pre style="margin:.8rem 0; font-size:.85rem">dp1[v] = 1 + dp0[a] + dp0[b]
+       = 1 +   3   +   2
+       = 6</pre>
+  </div>
+
+  <div class="card">
+    <h3>حساب dp0[v] — نترك v</h3>
+    <p>إذا تركنا v، كل ابن حر، نأخذ الأفضل منهما:</p>
+    <pre style="margin:.8rem 0; font-size:.85rem">dp0[v] = max(dp0[a], dp1[a]) + max(dp0[b], dp1[b])
+       = max(3, 4)           + max(2, 2)
+       =    4                +    2
+       = 6</pre>
+    <div class="callout green">
+      ✅ في هذا المثال، الحالتان تعطيان 6. الجواب النهائي: <strong>max(6, 6) = 6</strong>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📋 ملخص نمط Tree DP</h3>
+    <table>
+      <tr><th>الخطوة</th><th>ماذا تفعل</th></tr>
+      <tr><td>اختر جذراً</td><td>أي عقدة، عادةً 0</td></tr>
+      <tr><td>عرّف الحالات</td><td>dp[v][حالة] مثل اختيار/ترك</td></tr>
+      <tr><td>DFS post-order</td><td>الأبناء تُحسب قبل الأب</td></tr>
+      <tr><td>ادمج الأبناء</td><td>صيغة بسيطة: جمع أو max</td></tr>
+      <tr><td>الجواب</td><td>max(dp[root][0], dp[root][1])</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ══════════ QUIZ ══════════ -->
+<section id="quiz">
+  <div class="sec-title"><span class="ico">🏆</span> بنك الأسئلة — 15 سؤالاً</div>
+
+  <div class="score-bar">
+    <div class="score-ring" id="scoreRing"><span class="score-val" id="scoreVal">0/0</span></div>
+    <div class="score-info">
+      <div class="stitle">نتيجتك الحالية</div>
+      <div class="sdetail" id="scoreDetail">أجب على الأسئلة لترى نتيجتك</div>
+    </div>
+    <button class="btn btn-red" onclick="resetQuiz()">↺ إعادة</button>
+  </div>
+
+  <div class="diff-tabs">
+    <button class="dtab easy active" onclick="showDiff('easy',this)">🟢 سهل (5)</button>
+    <button class="dtab medium"      onclick="showDiff('medium',this)">🟡 متوسط (5)</button>
+    <button class="dtab hard"        onclick="showDiff('hard',this)">🔴 صعب (5)</button>
+  </div>
+
+  <div id="qg-easy"></div>
+  <div id="qg-medium" style="display:none"></div>
+  <div id="qg-hard" style="display:none"></div>
+</section>
+
+<footer>صُنع بعناية لأولمبياد نسمه 🌴 · قسم البرمجة التنافسية · جميع الحقوق محفوظة</footer>
+
+<script>
+// ══════════ SIMULATION ══════════
+const adj6 = {0:[1,2], 1:[0,3,4], 2:[0,5], 3:[1], 4:[1], 5:[2]};
+const nodeColors = {
+  idle:     {stroke:'#1e2d47', fill:'#0e1320', text:'#64748b'},
+  visiting: {stroke:'#f97316', fill:'rgba(249,115,22,.12)', text:'#f97316'},
+  done:     {stroke:'#22c55e', fill:'rgba(34,197,94,.1)',   text:'#22c55e'},
+};
+
+let simSteps=[], simIdx=0, simTimer=null;
+let dp0s={}, dp1s={};
+
+function paintNode(id, state) {
+  const g = document.getElementById('sn'+id);
+  const c = g.querySelector('circle'), t = g.querySelector('text');
+  const col = nodeColors[state];
+  c.setAttribute('stroke', col.stroke);
+  c.setAttribute('fill', col.fill);
+  t.setAttribute('fill', col.text);
+}
+
+function setLabel(id, d0, d1) {
+  const lbl = document.getElementById('lbl'+id);
+  if (d0 !== undefined) {
+    lbl.textContent = `dp0=${d0} dp1=${d1}`;
+    lbl.setAttribute('fill', '#f97316');
+  } else {
+    lbl.textContent = '';
+  }
+}
+
+function buildSimSteps(v, p) {
+  simSteps.push({type:'enter', node:v});
+  dp0s[v] = 0; dp1s[v] = 1;
+  for (const to of adj6[v]) {
+    if (to === p) continue;
+    buildSimSteps(to, v);
+    dp1s[v] += dp0s[to];
+    dp0s[v] += Math.max(dp0s[to], dp1s[to]);
+    simSteps.push({type:'merge', parent:v, child:to});
+  }
+  simSteps.push({type:'done', node:v});
+}
+
+function applySimStep(s) {
+  const logEl = document.getElementById('simLog');
+  if (s.type === 'enter') {
+    paintNode(s.node, 'visiting');
+    logEl.textContent = `→ دخول العقدة ${s.node}: dp1[${s.node}]=1, dp0[${s.node}]=0`;
+  } else if (s.type === 'merge') {
+    const c = s.child, p = s.parent;
+    logEl.textContent = `⚙ دمج الابن ${c} في الأب ${p}: dp1[${p}]+=${dp0s[c]} → dp1=${dp1s[p]}, dp0[${p}]+=max(${dp0s[c]},${dp1s[c]}) → dp0=${dp0s[p]}`;
+    setLabel(p, dp0s[p], dp1s[p]);
+  } else if (s.type === 'done') {
+    paintNode(s.node, 'done');
+    setLabel(s.node, dp0s[s.node], dp1s[s.node]);
+    logEl.textContent = `✓ انتهى ${s.node}: dp0=${dp0s[s.node]}, dp1=${dp1s[s.node]}`;
+  }
+}
+
+function runSim() {
+  if (simTimer) clearInterval(simTimer);
+  resetSim(false);
+  simSteps=[]; dp0s={}; dp1s={};
+  buildSimSteps(0,-1);
+  simIdx=0;
+  simTimer = setInterval(()=>{
+    if (simIdx >= simSteps.length) {
+      clearInterval(simTimer);
+      showDPTable();
+      document.getElementById('simLog').textContent = `✅ اكتمل الـ DP! الجواب = max(dp0[0], dp1[0]) = max(${dp0s[0]}, ${dp1s[0]}) = ${Math.max(dp0s[0],dp1s[0])}`;
+      return;
+    }
+    applySimStep(simSteps[simIdx++]);
+  }, 700);
+}
+
+function stepSim() {
+  if (!simSteps.length) {
+    simSteps=[]; dp0s={}; dp1s={};
+    buildSimSteps(0,-1);
+    simIdx=0;
+  }
+  if (simIdx < simSteps.length) {
+    applySimStep(simSteps[simIdx++]);
+    if (simIdx >= simSteps.length) {
+      showDPTable();
+      document.getElementById('simLog').textContent = `✅ اكتمل! الجواب = ${Math.max(dp0s[0],dp1s[0])}`;
+    }
+  }
+}
+
+function resetSim(full=true) {
+  if (simTimer) clearInterval(simTimer);
+  if (full) { simSteps=[]; simIdx=0; dp0s={}; dp1s={}; }
+  [0,1,2,3,4,5].forEach(i => { paintNode(i,'idle'); setLabel(i,undefined,undefined); });
+  document.getElementById('simLog').textContent = '← اضغط "تشغيل كامل" أو "خطوة واحدة"';
+  document.getElementById('dpTableWrap').style.display='none';
+}
+
+function showDPTable() {
+  const tbody = document.getElementById('dpTableBody');
+  tbody.innerHTML='';
+  [0,1,2,3,4,5].forEach(i=>{
+    const best = Math.max(dp0s[i],dp1s[i]);
+    const tr = document.createElement('tr');
+    tr.innerHTML=`<td><strong style="color:var(--accent)">${i}</strong></td><td>${dp0s[i]}</td><td>${dp1s[i]}</td><td class="hi">${best}</td>`;
+    tbody.appendChild(tr);
+  });
+  const ans = Math.max(dp0s[0],dp1s[0]);
+  document.getElementById('finalAns').textContent = `max(dp0[0]=${dp0s[0]}, dp1[0]=${dp1s[0]}) = ${ans}`;
+  document.getElementById('dpTableWrap').style.display='block';
+}
+
+// ══════════ QUIZ DATA ══════════
+const questions = {
+  easy: [
+    {
+      q: 'ما قيمة dp1[v] للعقد الورقية (التي لا أبناء لها)؟',
+      opts:['0','1','2','غير محدد'],
+      ans:1,
+      exp:'الورقة لا أبناء لها. dp1[v] = 1 (نعدّها) + صفر من الأبناء = 1.'
+    },
+    {
+      q: 'ما قيمة dp0[v] للعقد الورقية (التي لا أبناء لها)؟',
+      opts:['0','1','-1','1 دائماً'],
+      ans:0,
+      exp:'dp0[v] = Σ max(dp0[c],dp1[c]) لجميع الأبناء. الورقة لا أبناء → المجموع = 0.'
+    },
+    {
+      q: 'في Tree DP، متى نحسب قيمة DP للأب؟',
+      opts:['قبل زيارة الأبناء','بعد حساب جميع الأبناء','في نفس وقت الأبناء','لا يهم الترتيب'],
+      ans:1,
+      exp:'نستخدم post-order DFS: الأبناء تُحسب أولاً، ثم نرجع ونحسب الأب باستخدام قيمهم.'
+    },
+    {
+      q: 'ما الجواب النهائي لمسألة المجموعة المستقلة بعد تنفيذ DFS؟',
+      opts:['dp0[root]','dp1[root]','max(dp0[root], dp1[root])','dp0[root] + dp1[root]'],
+      ans:2,
+      exp:'الجذر يمكن أن يكون مختاراً أو لا، فنأخذ الأفضل: max(dp0[root], dp1[root]).'
+    },
+    {
+      q: 'في دالة DFS للـ Tree DP، لماذا نكتب if (to == p) continue؟',
+      opts:['لتجنب العقد المكررة','لتجنب زيارة الأب مرة ثانية','لتسريع الكود','لحساب العمق'],
+      ans:1,
+      exp:'الحرف غير الموجّه يظهر في كلا الطرفين. نتجاهل الأب لكي لا نظنّه ابناً ونحسبه مرتين.'
+    }
+  ],
+  medium: [
+    {
+      q: 'عقدة v لها ابن واحد c. dp0[c]=5, dp1[c]=3. ما قيمة dp1[v]؟',
+      opts:['4','6','8','9'],
+      ans:1,
+      exp:'dp1[v] = 1 + dp0[c] = 1 + 5 = 6. (نختار v → لا بد أن يكون c غير مختار → dp0[c])'
+    },
+    {
+      q: 'نفس السؤال السابق: ما قيمة dp0[v]؟',
+      opts:['3','5','8','6'],
+      ans:1,
+      exp:'dp0[v] = max(dp0[c], dp1[c]) = max(5, 3) = 5. (نترك v → c حر → نأخذ الأفضل)'
+    },
+    {
+      q: 'شجرة خطية: 0-1-2-3. الجذر 0. ما الحل الأمثل لمسألة المجموعة المستقلة؟',
+      opts:['1','2','3','4'],
+      ans:1,
+      exp:'يمكن اختيار {0,2} أو {1,3} أو {0,3} كل منها حجمه 2. الأمثل هو 2.'
+    },
+    {
+      q: 'لماذا تعمل Tree DP بكفاءة O(n)؟',
+      opts:['لأن DFS تزور كل حرف مرتين','لأن كل عقدة تُعالج مرة واحدة فقط و الأشجار الفرعية لا تتداخل','لأن الشجرة أصغر من الرسم البياني','لأننا نستخدم BFS بدل DFS'],
+      ans:1,
+      exp:'كل عقدة تُزار مرة واحدة في DFS، وحساب DP في كل عقدة يعتمد على أبنائها المباشرين فقط. المجموع O(n).'
+    },
+    {
+      q: 'عقدة v لها ثلاثة أبناء a,b,c. dp0[a]=2,dp1[a]=3, dp0[b]=4,dp1[b]=1, dp0[c]=2,dp1[c]=2. ما dp0[v]؟',
+      opts:['6','7','8','9'],
+      ans:2,
+      exp:'dp0[v] = max(2,3) + max(4,1) + max(2,2) = 3 + 4 + 2 = 9. خطأ مني: 3+4+2=9. الجواب الصحيح 9.'
+    }
+  ],
+  hard: [
+    {
+      q: 'في مسألة المجموعة المستقلة على شجرة نجمية (جذر وk ورقة)، ما الجواب الأمثل؟',
+      opts:['1','k','k+1','k/2'],
+      ans:1,
+      exp:'إما نختار الجذر (1 عقدة) أو نختار جميع الأوراق (k عقدة). الأفضل هو max(1, k) = k عندما k≥2.'
+    },
+    {
+      q: 'أي التعديلات الصحيحة لتُحسب Tree DP بشكل تكراري (iterative) بدلاً من recursive؟',
+      opts:['نستبدل DFS بـ BFS','نبني ترتيب post-order بـ BFS ثم نعالج العقد بالترتيب العكسي','نستخدم stack للإطارات','كلا الإجابتان B وC صحيحتان'],
+      ans:3,
+      exp:'يمكن BFS لبناء ترتيب الطبقات ثم معالجتها عكسياً (من الأوراق للجذر)، أو تحاكي recursion بـ stack صريح. كلاهما صحيح.'
+    },
+    {
+      q: 'شجرة بـ n عقدة. حجم subtree الجذر هو؟',
+      opts:['1','n-1','n','يعتمد على الجذر المختار'],
+      ans:2,
+      exp:'subtree(root) تشمل جميع عقد الشجرة إذ الجذر هو الأعلى. إذن حجمها دائماً = n.'
+    },
+    {
+      q: 'في مسألة "صبغ الشجرة" حيث لا يجوز صبغ عقدتين متجاورتين بنفس اللون من بين 3 ألوان، كم حالة DP تحتاج لكل عقدة؟',
+      opts:['2','3','4','6'],
+      ans:1,
+      exp:'تحتاج حالة لكل لون: dp[v][color0], dp[v][color1], dp[v][color2] → 3 حالات لكل عقدة.'
+    },
+    {
+      q: 'خوارزمية "إعادة التجذير" (Rerooting) تُستخدم عندما؟',
+      opts:['لا نعرف الجذر','نحتاج حساب قيم DP لكل عقدة كجذر بكفاءة O(n)','الشجرة عميقة جداً','الشجرة تحتوي على دورات'],
+      ans:1,
+      exp:'Rerooting تسمح بحساب "لو كانت العقدة v هي الجذر، ما الجواب؟" لجميع العقد بـ O(n) بدل O(n²).'
+    }
+  ]
+};
+
+// fix medium q4 answer
+questions.medium[4].ans = 3; // 3+4+2=9, index 3 = '9'
+
+let totAns=0, totCorrect=0;
+
+function buildQuiz() {
+  ['easy','medium','hard'].forEach(diff=>{
+    const cont = document.getElementById('qg-'+diff);
+    questions[diff].forEach((q,qi)=>{
+      const card = document.createElement('div');
+      card.className='qcard';
+      card.innerHTML=`
+        <div class="qhead">
+          <div class="qnum ${diff}">${qi+1}</div>
+          <div class="qtext">${q.q}</div>
+        </div>
+        <div class="opts" id="opts-${diff}-${qi}">
+          ${q.opts.map((o,i)=>`<button class="opt" onclick="answer('${diff}',${qi},${i})">${o}</button>`).join('')}
+        </div>
+        <div class="fb" id="fb-${diff}-${qi}"></div>`;
+      cont.appendChild(card);
+    });
+  });
+}
+
+function answer(diff, qi, chosen) {
+  const q = questions[diff][qi];
+  const opts = document.querySelectorAll(`#opts-${diff}-${qi} .opt`);
+  const fb = document.getElementById(`fb-${diff}-${qi}`);
+  opts.forEach(b=>b.disabled=true);
+  const correct = chosen===q.ans;
+  opts[chosen].classList.add(correct?'correct':'wrong');
+  if (!correct) opts[q.ans].classList.add('correct');
+  fb.textContent = correct ? `✅ صحيح! ${q.exp}` : `❌ خطأ. ${q.exp}`;
+  fb.className = `fb show ${correct?'correct':'wrong'}`;
+  totAns++; if(correct) totCorrect++;
+  updateScore();
+}
+
+function updateScore() {
+  const pct = totAns>0 ? Math.round(totCorrect/totAns*100) : 0;
+  document.getElementById('scoreVal').textContent=`${totCorrect}/${totAns}`;
+  document.getElementById('scoreDetail').textContent=`${pct}% إجابات صحيحة`;
+  document.getElementById('scoreRing').style.background=
+    `conic-gradient(var(--accent) ${pct*3.6}deg, var(--surface3) 0deg)`;
+}
+
+function resetQuiz() {
+  totAns=0; totCorrect=0;
+  document.querySelectorAll('.qcard').forEach(c=>c.remove());
+  buildQuiz(); updateScore();
+}
+
+function showDiff(diff, btn) {
+  document.querySelectorAll('[id^=qg-]').forEach(g=>g.style.display='none');
+  document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('qg-'+diff).style.display='block';
+  btn.classList.add('active');
+}
+
+// ══════════ NAV ══════════
+window.addEventListener('scroll',()=>{
+  const secs = document.querySelectorAll('section');
+  let cur='';
+  secs.forEach(s=>{ if(window.scrollY+130>=s.offsetTop) cur=s.id; });
+  document.querySelectorAll('nav a').forEach(l=>{
+    l.classList.toggle('active', l.getAttribute('href')==='#'+cur);
+  });
+});
+
+buildQuiz();
+</script>
+</body>
+</html>

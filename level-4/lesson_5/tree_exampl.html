@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>درس تفاعلي: الأشجار وخوارزمية البحث في العمق (DFS)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background-color: #f8fafc;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="bg-indigo-600 text-white p-6">
+            <h1 class="text-3xl font-bold mb-2">بنية الأشجار (Trees) وتطبيق الـ DFS</h1>
+            <p class="text-indigo-100">الشجرة هي بنية بيانات تتكون من <strong>عُقد (Nodes)</strong> متصلة بواسطة <strong>روابط (Edges)</strong>. في هذا التمرين التفاعلي، سنستعرض شجرة تحتوي على 20 عقدة، وسنطبق عليها خوارزمية البحث في العمق أولاً (Depth-First Search).</p>
+        </div>
+
+        <div class="p-6 border-b border-slate-200 flex flex-wrap gap-4 items-center justify-between bg-slate-50">
+            <div class="flex gap-3">
+                <button id="startBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 shadow-sm flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+                    ابدأ الـ DFS
+                </button>
+                <button id="resetBtn" class="bg-slate-500 hover:bg-slate-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 shadow-sm">
+                    إعادة ضبط
+                </button>
+            </div>
+            
+            <div class="flex items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
+                <label for="speed" class="font-medium text-slate-600 text-sm">سرعة العرض:</label>
+                <input type="range" id="speed" min="100" max="2000" value="800" class="w-32 md:w-48 cursor-pointer" dir="ltr">
+            </div>
+        </div>
+
+        <div class="px-6 py-4 flex flex-wrap gap-4 items-center text-sm font-medium">
+            <div class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded-full border-2 border-slate-400 bg-white inline-block"></span> لم يتم زيارتها
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded-full bg-yellow-400 inline-block"></span> العقدة الحالية
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded-full bg-green-500 inline-block"></span> تمت زيارتها
+            </div>
+            <div class="mr-auto text-lg text-indigo-700 font-bold bg-indigo-50 px-4 py-1 rounded-full border border-indigo-100">
+                المسار: <span id="pathDisplay" class="font-mono" dir="ltr"></span>
+            </div>
+        </div>
+
+        <div class="p-6 overflow-x-auto w-full flex justify-center">
+            <canvas id="treeCanvas" width="800" height="400"></canvas>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('treeCanvas');
+        const ctx = canvas.getContext('2d');
+        const pathDisplay = document.getElementById('pathDisplay');
+        const speedInput = document.getElementById('speed');
+        
+        // إعداد العقد (20 عقدة مرتبة كشجرة شبه ثنائية)
+        const nodes = [
+            { id: 1, x: 400, y: 40, children: [2, 3] },
+            { id: 2, x: 200, y: 110, children: [4, 5] },
+            { id: 3, x: 600, y: 110, children: [6, 7] },
+            { id: 4, x: 100, y: 180, children: [8, 9] },
+            { id: 5, x: 300, y: 180, children: [10, 11] },
+            { id: 6, x: 500, y: 180, children: [12, 13] },
+            { id: 7, x: 700, y: 180, children: [14, 15] },
+            { id: 8, x: 50,  y: 250, children: [16, 17] },
+            { id: 9, x: 150, y: 250, children: [18, 19] },
+            { id: 10, x: 250, y: 250, children: [20] },
+            { id: 11, x: 350, y: 250, children: [] },
+            { id: 12, x: 450, y: 250, children: [] },
+            { id: 13, x: 550, y: 250, children: [] },
+            { id: 14, x: 650, y: 250, children: [] },
+            { id: 15, x: 750, y: 250, children: [] },
+            { id: 16, x: 20,  y: 320, children: [] },
+            { id: 17, x: 80,  y: 320, children: [] },
+            { id: 18, x: 120, y: 320, children: [] },
+            { id: 19, x: 180, y: 320, children: [] },
+            { id: 20, x: 250, y: 320, children: [] }
+        ];
+
+        // تهيئة حالة العقد (unvisited, current, visited)
+        let nodeStates = {};
+        nodes.forEach(n => nodeStates[n.id] = 'unvisited');
+
+        // استخراج الروابط من العلاقات بين العقد
+        const edges = [];
+        nodes.forEach(node => {
+            node.children.forEach(childId => {
+                edges.push({ from: node.id, to: childId });
+            });
+        });
+
+        // دوال الرسم
+        function drawTree() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // رسم الروابط (Edges)
+            ctx.lineWidth = 2;
+            edges.forEach(edge => {
+                const fromNode = nodes.find(n => n.id === edge.from);
+                const toNode = nodes.find(n => n.id === edge.to);
+                
+                ctx.beginPath();
+                ctx.moveTo(fromNode.x, fromNode.y);
+                ctx.lineTo(toNode.x, toNode.y);
+                
+                // تلوين الرابط إذا تم زيارة العقدة الهدف
+                if (nodeStates[toNode.id] === 'visited' || nodeStates[toNode.id] === 'current') {
+                    ctx.strokeStyle = '#22c55e'; // أخضر
+                    ctx.lineWidth = 3;
+                } else {
+                    ctx.strokeStyle = '#cbd5e1'; // رمادي فاتح
+                    ctx.lineWidth = 2;
+                }
+                ctx.stroke();
+            });
+
+            // رسم العقد (Nodes)
+            nodes.forEach(node => {
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, 18, 0, 2 * Math.PI);
+                
+                // تحديد ألوان العقدة بناءً على حالتها
+                if (nodeStates[node.id] === 'current') {
+                    ctx.fillStyle = '#facc15'; // أصفر للعقدة الحالية
+                    ctx.strokeStyle = '#ca8a04';
+                } else if (nodeStates[node.id] === 'visited') {
+                    ctx.fillStyle = '#22c55e'; // أخضر للمزارة
+                    ctx.strokeStyle = '#16a34a';
+                } else {
+                    ctx.fillStyle = '#ffffff'; // أبيض لغير المزارة
+                    ctx.strokeStyle = '#94a3b8';
+                }
+
+                ctx.fill();
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                // رسم النص (رقم العقدة)
+                ctx.fillStyle = (nodeStates[node.id] === 'unvisited') ? '#334155' : '#ffffff';
+                if(nodeStates[node.id] === 'current') ctx.fillStyle = '#854d0e';
+                
+                ctx.font = 'bold 14px "Segoe UI", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(node.id, node.x, node.y);
+            });
+        }
+
+        // خوارزمية البحث في العمق أولاً (توليد التسلسل)
+        let dfsSequence = [];
+        function generateDFS(nodeId) {
+            dfsSequence.push(nodeId);
+            const node = nodes.find(n => n.id === nodeId);
+            node.children.forEach(childId => {
+                generateDFS(childId);
+            });
+        }
+
+        let animationInterval;
+        let isRunning = false;
+
+        function startDFSAnimation() {
+            if (isRunning) return;
+            
+            // إعادة الضبط قبل البدء
+            resetTree();
+            isRunning = true;
+            
+            generateDFS(1); // البدء من العقدة الجذرية
+            
+            let step = 0;
+            let currentPath = [];
+            
+            function animateStep() {
+                if (step > 0 && step <= dfsSequence.length) {
+                    // تحويل العقدة السابقة إلى "مزارة"
+                    nodeStates[dfsSequence[step - 1]] = 'visited';
+                }
+                
+                if (step < dfsSequence.length) {
+                    // تعيين العقدة الحالية
+                    let currentNode = dfsSequence[step];
+                    nodeStates[currentNode] = 'current';
+                    currentPath.push(currentNode);
+                    pathDisplay.innerText = currentPath.join(' → ');
+                    step++;
+                    drawTree();
+                    
+                    // سرعة العكسية (كلما زاد شريط التمرير، قلت المدة الزمنية)
+                    let delay = 2100 - speedInput.value;
+                    animationInterval = setTimeout(animateStep, delay);
+                } else {
+                    // انتهاء الخوارزمية
+                    drawTree();
+                    isRunning = false;
+                    document.getElementById('startBtn').innerHTML = 'اكتملت الزيارة ✓';
+                    setTimeout(() => {
+                        document.getElementById('startBtn').innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg> إعادة التشغيل`;
+                    }, 2000);
+                }
+            }
+            
+            animateStep();
+        }
+
+        function resetTree() {
+            clearTimeout(animationInterval);
+            nodes.forEach(n => nodeStates[n.id] = 'unvisited');
+            dfsSequence = [];
+            pathDisplay.innerText = '';
+            isRunning = false;
+            document.getElementById('startBtn').innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg> ابدأ الـ DFS`;
+            drawTree();
+        }
+
+        // مستمعي الأحداث
+        document.getElementById('startBtn').addEventListener('click', () => {
+            if(!isRunning && dfsSequence.length === nodes.length) {
+                resetTree(); // إذا انتهى سابقاً وضغط زر البدء، نُصفر ثم نبدأ
+            }
+            startDFSAnimation();
+        });
+        document.getElementById('resetBtn').addEventListener('click', resetTree);
+
+        // الرسم الأولي
+        drawTree();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الأشجار - أولمبياد نسمه</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --accent: #00e5ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --accent4: #f59e0b;
+    --danger: #ef4444;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --border: #1e3a5f;
+    --easy: #10b981;
+    --medium: #f59e0b;
+    --hard: #ef4444;
+    --node-fill: #1a2235;
+    --node-stroke: #00e5ff;
+    --edge: #334155;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Stars background ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(0,229,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 70%, rgba(124,58,237,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 80% 20%, rgba(16,185,129,0.2) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Header ── */
+  header {
+    position: relative;
+    text-align: center;
+    padding: 3rem 1rem 2rem;
+    background: linear-gradient(180deg, #0d1b3e 0%, transparent 100%);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 60%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+
+  .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: #fff;
+    font-size: .75rem;
+    font-weight: 700;
+    padding: .3rem .9rem;
+    border-radius: 999px;
+    letter-spacing: .1em;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    background: linear-gradient(135deg, #fff 0%, var(--accent) 60%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 1rem;
+    margin-top: .5rem;
+  }
+
+  /* ── Nav ── */
+  nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: .5rem;
+    padding: 1.2rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+  }
+
+  nav a {
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: .85rem;
+    font-weight: 600;
+    padding: .4rem .9rem;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: all .2s;
+  }
+
+  nav a:hover, nav a.active {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(0,229,255,.07);
+  }
+
+  /* ── Sections ── */
+  section {
+    max-width: 900px;
+    margin: 2.5rem auto;
+    padding: 0 1.2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: var(--accent);
+  }
+
+  .section-title .icon {
+    width: 36px; height: 36px;
+    background: rgba(0,229,255,.1);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    border: 1px solid rgba(0,229,255,.2);
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.2rem;
+    transition: border-color .2s, box-shadow .2s;
+  }
+
+  .card:hover {
+    border-color: rgba(0,229,255,.3);
+    box-shadow: 0 0 20px rgba(0,229,255,.05);
+  }
+
+  .card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: .8rem;
+    color: #fff;
+  }
+
+  .card p {
+    color: var(--text-muted);
+    line-height: 1.8;
+    font-size: .95rem;
+  }
+
+  /* ── Highlight boxes ── */
+  .highlight {
+    background: rgba(0,229,255,.06);
+    border: 1px solid rgba(0,229,255,.2);
+    border-right: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+    font-size: .95rem;
+    line-height: 1.8;
+  }
+
+  .highlight.green {
+    background: rgba(16,185,129,.06);
+    border-color: rgba(16,185,129,.2);
+    border-right-color: var(--accent3);
+  }
+
+  .highlight.amber {
+    background: rgba(245,158,11,.06);
+    border-color: rgba(245,158,11,.2);
+    border-right-color: var(--accent4);
+  }
+
+  .highlight.purple {
+    background: rgba(124,58,237,.06);
+    border-color: rgba(124,58,237,.2);
+    border-right-color: var(--accent2);
+  }
+
+  /* ── Code blocks ── */
+  pre {
+    background: #060d1a;
+    border: 1px solid #1a2a44;
+    border-radius: 12px;
+    padding: 1.3rem;
+    overflow-x: auto;
+    font-family: 'Fira Code', monospace;
+    font-size: .85rem;
+    line-height: 1.7;
+    color: #a8d8ff;
+    position: relative;
+    margin: 1rem 0;
+    direction: ltr;
+    text-align: left;
+  }
+
+  pre .kw  { color: #c792ea; }
+  pre .fn  { color: #82aaff; }
+  pre .cm  { color: #546e7a; font-style: italic; }
+  pre .nm  { color: #f78c6c; }
+  pre .str { color: #c3e88d; }
+  pre .op  { color: #89ddff; }
+
+  /* ── SVG Tree Viz ── */
+  .tree-canvas {
+    background: #060d1a;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  /* ── Interactive DFS ── */
+  .dfs-controls {
+    display: flex;
+    gap: .6rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  .btn {
+    padding: .5rem 1.1rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-size: .85rem;
+    font-weight: 600;
+    transition: all .15s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .btn-primary:hover { background: #33eaff; transform: translateY(-1px); }
+
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-danger {
+    background: rgba(239,68,68,.15);
+    color: var(--danger);
+    border: 1px solid rgba(239,68,68,.3);
+  }
+
+  .btn-danger:hover { background: rgba(239,68,68,.25); }
+
+  /* ── DFS Log ── */
+  .log-box {
+    background: #060d1a;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: .8rem 1rem;
+    font-family: 'Fira Code', monospace;
+    font-size: .82rem;
+    min-height: 60px;
+    max-height: 120px;
+    overflow-y: auto;
+    color: var(--accent3);
+    margin-top: .8rem;
+    direction: ltr;
+  }
+
+  /* ── Info grid ── */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .info-tile {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .info-tile .val {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .info-tile .lbl {
+    font-size: .78rem;
+    color: var(--text-muted);
+    margin-top: .3rem;
+  }
+
+  /* ── Quiz ── */
+  .quiz-section {
+    max-width: 900px;
+    margin: 2.5rem auto;
+    padding: 0 1.2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .difficulty-tabs {
+    display: flex;
+    gap: .5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .diff-tab {
+    padding: .5rem 1.2rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-size: .85rem;
+    font-weight: 600;
+    transition: all .2s;
+  }
+
+  .diff-tab.easy.active  { border-color: var(--easy); color: var(--easy); background: rgba(16,185,129,.08); }
+  .diff-tab.medium.active{ border-color: var(--medium); color: var(--medium); background: rgba(245,158,11,.08); }
+  .diff-tab.hard.active  { border-color: var(--hard); color: var(--hard); background: rgba(239,68,68,.08); }
+  .diff-tab:hover { border-color: var(--accent); color: var(--accent); }
+
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    animation: fadeIn .3s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .question-card .q-header {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    margin-bottom: 1rem;
+  }
+
+  .q-num {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .q-num.easy   { background: rgba(16,185,129,.15); color: var(--easy); border: 1px solid rgba(16,185,129,.3); }
+  .q-num.medium { background: rgba(245,158,11,.15); color: var(--medium); border: 1px solid rgba(245,158,11,.3); }
+  .q-num.hard   { background: rgba(239,68,68,.15); color: var(--hard); border: 1px solid rgba(239,68,68,.3); }
+
+  .q-text { font-size: .95rem; font-weight: 600; color: var(--text); line-height: 1.6; }
+
+  .options { display: flex; flex-direction: column; gap: .5rem; margin-top: 1rem; }
+
+  .option-btn {
+    text-align: right;
+    padding: .7rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-size: .88rem;
+    transition: all .15s;
+  }
+
+  .option-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,.05); }
+  .option-btn.correct  { border-color: var(--easy); background: rgba(16,185,129,.12); color: var(--easy); }
+  .option-btn.wrong    { border-color: var(--danger); background: rgba(239,68,68,.1); color: var(--danger); }
+  .option-btn:disabled { cursor: default; }
+
+  .feedback {
+    margin-top: .8rem;
+    padding: .6rem 1rem;
+    border-radius: 8px;
+    font-size: .88rem;
+    display: none;
+  }
+
+  .feedback.show { display: block; animation: fadeIn .2s ease; }
+  .feedback.correct { background: rgba(16,185,129,.1); color: var(--easy); border: 1px solid rgba(16,185,129,.2); }
+  .feedback.wrong   { background: rgba(239,68,68,.1); color: var(--danger); border: 1px solid rgba(239,68,68,.2); }
+
+  /* ── Score bar ── */
+  .score-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .score-circle {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent) 0%, transparent 0%);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .score-circle::before {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    background: var(--surface);
+    border-radius: 50%;
+  }
+
+  .score-val {
+    position: relative; z-index: 1;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .score-info { flex: 1; }
+  .score-info .title { font-size: 1rem; font-weight: 700; }
+  .score-info .detail { color: var(--text-muted); font-size: .85rem; margin-top: .2rem; }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    font-size: .8rem;
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+  }
+
+  /* ── Tooltip ── */
+  .tooltip-wrap { position: relative; display: inline-block; }
+  .tooltip-wrap .tt {
+    visibility: hidden; opacity: 0;
+    background: #0d1b3e;
+    color: var(--text);
+    font-size: .8rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .4rem .8rem;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%; transform: translateX(-50%);
+    white-space: nowrap;
+    transition: opacity .2s;
+    z-index: 10;
+  }
+  .tooltip-wrap:hover .tt { visibility: visible; opacity: 1; }
+
+  .tag {
+    display: inline-block;
+    padding: .2rem .6rem;
+    border-radius: 6px;
+    font-size: .75rem;
+    font-weight: 600;
+  }
+
+  .tag-blue { background: rgba(0,229,255,.1); color: var(--accent); border: 1px solid rgba(0,229,255,.2); }
+  .tag-green { background: rgba(16,185,129,.1); color: var(--easy); border: 1px solid rgba(16,185,129,.2); }
+
+  table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  th { background: var(--surface2); color: var(--accent); padding: .7rem 1rem; text-align: right; font-weight: 700; border: 1px solid var(--border); }
+  td { padding: .6rem 1rem; border: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: rgba(0,229,255,.03); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">🌴 أولمبياد نسمه · علوم الحاسوب</div>
+  <h1>الأشجار في علوم الحاسوب</h1>
+  <p class="subtitle">منهج تفاعلي للمتسابقين · المستوى المتقدم · 15–20 سنة</p>
+</header>
+
+<nav id="mainnav">
+  <a href="#intro" class="active">المفهوم</a>
+  <a href="#visual">المحاكاة</a>
+  <a href="#props">الخصائص</a>
+  <a href="#code">الكود</a>
+  <a href="#dfs-demo">DFS تفاعلي</a>
+  <a href="#quiz">الأسئلة</a>
+</nav>
+
+<!-- ════════════════════════════════ INTRO ════════════════════════════════ -->
+<section id="intro">
+  <div class="section-title"><span class="icon">🌳</span> ما هي الشجرة؟</div>
+
+  <div class="card">
+    <p>الشجرة هي <strong>رسم بياني غير موجّه ومتصل ولا يحتوي على دورات</strong>. تُستخدم في حل طيف واسع من مسائل الأولمبياد لأنها تضمن وجود مسار <em>وحيد</em> بين أي عقدتين.</p>
+  </div>
+
+  <div class="highlight">
+    📌 <strong>التعريف الرسمي:</strong><br>
+    الرسم البياني G = (V, E) يكون شجرةً إذا وفقط إذا كان:<br>
+    &nbsp;&nbsp;① متصلاً (Connected)<br>
+    &nbsp;&nbsp;② خالياً من الدورات (Acyclic)
+  </div>
+
+  <div class="highlight green">
+    ✅ <strong>الخاصية الذهبية:</strong><br>
+    بين أي عقدتين u وv، يوجد <em>بالضبط مسار بسيط واحد</em>.<br>
+    هذه الخاصية هي سر كثرة ظهور الأشجار في مسائل الأولمبياد.
+  </div>
+
+  <div class="info-grid">
+    <div class="info-tile">
+      <div class="val">n</div>
+      <div class="lbl">عدد العقد (Nodes)</div>
+    </div>
+    <div class="info-tile">
+      <div class="val">n−1</div>
+      <div class="lbl">عدد الأحرف (Edges)</div>
+    </div>
+    <div class="info-tile">
+      <div class="val">1</div>
+      <div class="lbl">مسار بين كل عقدتين</div>
+    </div>
+    <div class="info-tile">
+      <div class="val">∞</div>
+      <div class="lbl">تطبيقات في الأولمبياد</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ VISUAL ════════════════════════════════ -->
+<section id="visual">
+  <div class="section-title"><span class="icon">🔵</span> تصور الشجرة</div>
+
+  <div class="card">
+    <h3>شجرة مجذّرة بـ 7 عقد — اضغط على عقدة لرؤية معلوماتها</h3>
+    <div class="tree-canvas">
+      <svg id="treeSvg" viewBox="0 0 700 300" width="100%" style="display:block">
+        <!-- edges -->
+        <line x1="350" y1="50" x2="200" y2="130" stroke="#334155" stroke-width="2"/>
+        <line x1="350" y1="50" x2="500" y2="130" stroke="#334155" stroke-width="2"/>
+        <line x1="200" y1="130" x2="120" y2="220" stroke="#334155" stroke-width="2"/>
+        <line x1="200" y1="130" x2="280" y2="220" stroke="#334155" stroke-width="2"/>
+        <line x1="500" y1="130" x2="430" y2="220" stroke="#334155" stroke-width="2"/>
+        <line x1="500" y1="130" x2="580" y2="220" stroke="#334155" stroke-width="2"/>
+        <!-- nodes -->
+        <g class="tree-node" data-id="0" data-depth="0" data-parent="-" data-sub="7" onclick="selectNode(this)">
+          <circle cx="350" cy="50" r="26" fill="#1a2235" stroke="#00e5ff" stroke-width="2.5"/>
+          <text x="350" y="55" text-anchor="middle" fill="#00e5ff" font-size="14" font-weight="bold" font-family="Cairo">0</text>
+        </g>
+        <g class="tree-node" data-id="1" data-depth="1" data-parent="0" data-sub="3" onclick="selectNode(this)">
+          <circle cx="200" cy="130" r="22" fill="#1a2235" stroke="#7c3aed" stroke-width="2"/>
+          <text x="200" y="135" text-anchor="middle" fill="#a78bfa" font-size="14" font-weight="bold" font-family="Cairo">1</text>
+        </g>
+        <g class="tree-node" data-id="2" data-depth="1" data-parent="0" data-sub="3" onclick="selectNode(this)">
+          <circle cx="500" cy="130" r="22" fill="#1a2235" stroke="#7c3aed" stroke-width="2"/>
+          <text x="500" y="135" text-anchor="middle" fill="#a78bfa" font-size="14" font-weight="bold" font-family="Cairo">2</text>
+        </g>
+        <g class="tree-node" data-id="3" data-depth="2" data-parent="1" data-sub="1" onclick="selectNode(this)">
+          <circle cx="120" cy="220" r="20" fill="#1a2235" stroke="#10b981" stroke-width="2"/>
+          <text x="120" y="226" text-anchor="middle" fill="#6ee7b7" font-size="14" font-weight="bold" font-family="Cairo">3</text>
+        </g>
+        <g class="tree-node" data-id="4" data-depth="2" data-parent="1" data-sub="1" onclick="selectNode(this)">
+          <circle cx="280" cy="220" r="20" fill="#1a2235" stroke="#10b981" stroke-width="2"/>
+          <text x="280" y="226" text-anchor="middle" fill="#6ee7b7" font-size="14" font-weight="bold" font-family="Cairo">4</text>
+        </g>
+        <g class="tree-node" data-id="5" data-depth="2" data-parent="2" data-sub="1" onclick="selectNode(this)">
+          <circle cx="430" cy="220" r="20" fill="#1a2235" stroke="#10b981" stroke-width="2"/>
+          <text x="430" y="226" text-anchor="middle" fill="#6ee7b7" font-size="14" font-weight="bold" font-family="Cairo">5</text>
+        </g>
+        <g class="tree-node" data-id="6" data-depth="2" data-parent="2" data-sub="1" onclick="selectNode(this)">
+          <circle cx="580" cy="220" r="20" fill="#1a2235" stroke="#10b981" stroke-width="2"/>
+          <text x="580" y="226" text-anchor="middle" fill="#6ee7b7" font-size="14" font-family="Cairo">6</text>
+        </g>
+        <!-- Labels -->
+        <text x="350" y="285" text-anchor="middle" fill="#546e7a" font-size="11" font-family="Cairo">الجذر (root)</text>
+      </svg>
+    </div>
+
+    <div id="nodeInfo" style="margin-top:1rem; padding:.8rem 1rem; background:var(--surface2); border-radius:10px; border:1px solid var(--border); display:none;">
+      <strong style="color:var(--accent)" id="ni-title">العقدة ؟</strong><br>
+      <span style="color:var(--text-muted); font-size:.88rem" id="ni-body"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ PROPS ════════════════════════════════ -->
+<section id="props">
+  <div class="section-title"><span class="icon">📐</span> خصائص رياضية مهمة</div>
+
+  <div class="card">
+    <h3>① إضافة حرف → دورة</h3>
+    <p>في الشجرة يوجد مسار وحيد بين أي u وv. لو أضفت حرفاً جديداً (u,v) تحصل على دورة: المسار القديم + الحرف الجديد.</p>
+    <div class="highlight amber">⚠️ الشجرة هي الرسم البياني المتصل الأدنى: لا يمكن حذف أي حرف مع الحفاظ على الاتصال، ولا يمكن إضافة أي حرف دون إنشاء دورة.</div>
+  </div>
+
+  <div class="card">
+    <h3>② حذف حرف → انفصال</h3>
+    <p>كل حرف في الشجرة هو <strong>جسر (Bridge)</strong>. حذف أي حرف يُنتج مكوّنين منفصلين تماماً.</p>
+  </div>
+
+  <div class="card">
+    <h3>③ التجذير يُعطي هيكلاً عائلياً</h3>
+    <table>
+      <tr><th>المصطلح</th><th>التعريف</th><th>مثال (جذر = 0)</th></tr>
+      <tr><td>الجذر (Root)</td><td>العقدة المختارة كبداية</td><td>العقدة 0</td></tr>
+      <tr><td>الأب (Parent)</td><td>الجار الأقرب للجذر</td><td>أب(1) = 0</td></tr>
+      <tr><td>الأبناء (Children)</td><td>الجيران الأبعد عن الجذر</td><td>أبناء(0) = {1,2}</td></tr>
+      <tr><td>العمق (Depth)</td><td>عدد الأحرف من الجذر</td><td>depth(3) = 2</td></tr>
+      <tr><td>الشجرة الفرعية (Subtree)</td><td>العقدة + كل نسلها</td><td>subtree(1) = {1,3,4}</td></tr>
+      <tr><td>الورقة (Leaf)</td><td>عقدة بلا أبناء</td><td>3, 4, 5, 6</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ CODE ════════════════════════════════ -->
+<section id="code">
+  <div class="section-title"><span class="icon">💻</span> التمثيل البرمجي</div>
+
+  <div class="card">
+    <h3>قائمة الجوار (Adjacency List)</h3>
+    <pre><span class="kw">int</span> n;                           <span class="cm">// عدد العقد (0..n-1)</span>
+<span class="fn">vector</span>&lt;<span class="kw">int</span>&gt; g[n];              <span class="cm">// g[v] = قائمة جيران v</span>
+
+<span class="cm">// قراءة الأحرف من المدخلات</span>
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; n-<span class="nm">1</span>; i++) {
+    <span class="kw">int</span> u, v;
+    cin &gt;&gt; u &gt;&gt; v;
+    g[u].push_back(v);
+    g[v].push_back(u);   <span class="cm">// غير موجّه</span>
+}</pre>
+  </div>
+
+  <div class="card">
+    <h3>DFS لحساب الأب والعمق</h3>
+    <pre><span class="fn">vector</span>&lt;<span class="kw">int</span>&gt; parent(n, -<span class="nm">1</span>), depth(n, <span class="nm">0</span>);
+
+<span class="kw">void</span> <span class="fn">dfs</span>(<span class="kw">int</span> v, <span class="kw">int</span> p) {
+    parent[v] = p;
+    <span class="kw">for</span> (<span class="kw">int</span> to : g[v]) {
+        <span class="kw">if</span> (to == p) <span class="kw">continue</span>;  <span class="cm">// تجنب الرجوع للأب</span>
+        depth[to] = depth[v] + <span class="nm">1</span>;
+        <span class="fn">dfs</span>(to, v);
+    }
+}
+<span class="cm">// استدعاء: dfs(root, -1);</span></pre>
+  </div>
+
+  <div class="card">
+    <h3>DFS لحساب حجم الشجرة الفرعية (sub)</h3>
+    <pre><span class="fn">vector</span>&lt;<span class="kw">int</span>&gt; sub(n, <span class="nm">1</span>);
+
+<span class="kw">void</span> <span class="fn">dfs_sub</span>(<span class="kw">int</span> v, <span class="kw">int</span> p) {
+    <span class="kw">for</span> (<span class="kw">int</span> to : g[v]) {
+        <span class="kw">if</span> (to == p) <span class="kw">continue</span>;
+        <span class="fn">dfs_sub</span>(to, v);
+        sub[v] += sub[to];   <span class="cm">// اجمع أحجام الأبناء</span>
+    }
+}
+<span class="cm">/* sub[v] = عدد عقد الشجرة الفرعية لـ v */</span></pre>
+  </div>
+
+  <div class="highlight purple">
+    💡 <strong>نصيحة الأولمبياد:</strong> دائماً مرّر الأب <code>p</code> في DFS على الأشجار غير الموجّهة لتتجنب العودة للأب الذي يُفسد المنطق.
+  </div>
+</section>
+
+<!-- ════════════════════════════════ DFS DEMO ════════════════════════════════ -->
+<section id="dfs-demo">
+  <div class="section-title"><span class="icon">🔍</span> محاكاة DFS التفاعلية</div>
+
+  <div class="card">
+    <h3>جرّب DFS خطوة بخطوة على شجرة مخصصة</h3>
+    <p style="color:var(--text-muted);font-size:.88rem;margin-bottom:1rem">اختر الجذر وابدأ المحاكاة لترى ترتيب زيارة العقد وقيم depth وparent وsub.</p>
+
+    <div class="tree-canvas">
+      <svg id="demoSvg" viewBox="0 0 700 300" width="100%" style="display:block">
+        <!-- demo edges -->
+        <line id="de01" x1="350" y1="50" x2="200" y2="140" stroke="#334155" stroke-width="2"/>
+        <line id="de02" x1="350" y1="50" x2="500" y2="140" stroke="#334155" stroke-width="2"/>
+        <line id="de13" x1="200" y1="140" x2="110" y2="235" stroke="#334155" stroke-width="2"/>
+        <line id="de14" x1="200" y1="140" x2="290" y2="235" stroke="#334155" stroke-width="2"/>
+        <line id="de25" x1="500" y1="140" x2="610" y2="235" stroke="#334155" stroke-width="2"/>
+        <!-- demo nodes -->
+        <g id="dn0" class="demo-node" onclick="setRoot(0)" style="cursor:pointer">
+          <circle cx="350" cy="50" r="24" fill="#1a2235" stroke="#334155" stroke-width="2"/>
+          <text x="350" y="55" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="bold" font-family="Cairo">0</text>
+        </g>
+        <g id="dn1" class="demo-node" onclick="setRoot(1)" style="cursor:pointer">
+          <circle cx="200" cy="140" r="22" fill="#1a2235" stroke="#334155" stroke-width="2"/>
+          <text x="200" y="145" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="bold" font-family="Cairo">1</text>
+        </g>
+        <g id="dn2" class="demo-node" onclick="setRoot(2)" style="cursor:pointer">
+          <circle cx="500" cy="140" r="22" fill="#1a2235" stroke="#334155" stroke-width="2"/>
+          <text x="500" y="145" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="bold" font-family="Cairo">2</text>
+        </g>
+        <g id="dn3" class="demo-node" onclick="setRoot(3)" style="cursor:pointer">
+          <circle cx="110" cy="235" r="20" fill="#1a2235" stroke="#334155" stroke-width="2"/>
+          <text x="110" y="241" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="bold" font-family="Cairo">3</text>
+        </g>
+        <g id="dn4" class="demo-node" onclick="setRoot(4)" style="cursor:pointer">
+          <circle cx="290" cy="235" r="20" fill="#1a2235" stroke="#334155" stroke-width="2"/>
+          <text x="290" y="241" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="bold" font-family="Cairo">4</text>
+        </g>
+        <g id="dn5" class="demo-node" onclick="setRoot(5)" style="cursor:pointer">
+          <circle cx="610" cy="235" r="20" fill="#1a2235" stroke="#334155" stroke-width="2"/>
+          <text x="610" y="241" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="bold" font-family="Cairo">5</text>
+        </g>
+      </svg>
+    </div>
+
+    <p style="font-size:.82rem; color:var(--text-muted); margin-top:.5rem">اضغط على عقدة لاختيارها جذراً، ثم اضغط "تشغيل DFS"</p>
+
+    <div class="dfs-controls">
+      <button class="btn btn-primary" onclick="runDFS()">▶ تشغيل DFS</button>
+      <button class="btn btn-secondary" onclick="stepDFS()">⏭ خطوة واحدة</button>
+      <button class="btn btn-danger" onclick="resetDFS()">↺ إعادة تعيين</button>
+    </div>
+
+    <div class="log-box" id="dfsLog">← اضغط "تشغيل DFS" أو "خطوة واحدة" للبدء</div>
+
+    <div id="dfsTable" style="margin-top:1rem; display:none;">
+      <table>
+        <tr><th>العقدة</th><th>الأب</th><th>العمق</th><th>sub</th></tr>
+        <tbody id="dfsTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ QUIZ ════════════════════════════════ -->
+<section class="quiz-section" id="quiz">
+  <div class="section-title"><span class="icon">🏆</span> بنك الأسئلة</div>
+
+  <div class="score-bar">
+    <div class="score-circle" id="scoreCircle">
+      <span class="score-val" id="scoreVal">0/0</span>
+    </div>
+    <div class="score-info">
+      <div class="title">نتيجتك الحالية</div>
+      <div class="detail" id="scoreDetail">أجب على الأسئلة لترى نتيجتك</div>
+    </div>
+    <button class="btn btn-danger" onclick="resetQuiz()">↺ إعادة تعيين</button>
+  </div>
+
+  <div class="difficulty-tabs">
+    <button class="diff-tab easy active" onclick="showDiff('easy',this)">🟢 سهل (5 أسئلة)</button>
+    <button class="diff-tab medium" onclick="showDiff('medium',this)">🟡 متوسط (5 أسئلة)</button>
+    <button class="diff-tab hard" onclick="showDiff('hard',this)">🔴 صعب (5 أسئلة)</button>
+  </div>
+
+  <div id="quiz-easy" class="quiz-group"></div>
+  <div id="quiz-medium" class="quiz-group" style="display:none"></div>
+  <div id="quiz-hard" class="quiz-group" style="display:none"></div>
+</section>
+
+<footer>
+  صُنع بعناية لأولمبياد نسمه 🌴 · قسم البرمجة التنافسية · جميع الحقوق محفوظة
+</footer>
+
+<script>
+// ════ NODE INFO ════
+function selectNode(g) {
+  document.querySelectorAll('.tree-node circle').forEach(c => c.style.filter = '');
+  g.querySelector('circle').style.filter = 'drop-shadow(0 0 8px #00e5ff)';
+  const id = g.dataset.id;
+  const depth = g.dataset.depth;
+  const parent = g.dataset.parent;
+  const sub = g.dataset.sub;
+  const info = document.getElementById('nodeInfo');
+  document.getElementById('ni-title').textContent = `العقدة ${id}`;
+  document.getElementById('ni-body').innerHTML =
+    `العمق: <strong style="color:var(--accent)">${depth}</strong> &nbsp;|&nbsp; الأب: <strong style="color:var(--accent)">${parent == -1 ? 'لا يوجد (جذر)' : parent}</strong> &nbsp;|&nbsp; حجم الشجرة الفرعية: <strong style="color:var(--accent3)">${sub}</strong>`;
+  info.style.display = 'block';
+}
+
+// ════ DFS DEMO ════
+const demoAdj = {0:[1,2], 1:[0,3,4], 2:[0,5], 3:[1], 4:[1], 5:[2]};
+const nodePos = {0:[350,50], 1:[200,140], 2:[500,140], 3:[110,235], 4:[290,235], 5:[610,235]};
+
+let demoRoot = 0;
+let dfsSteps = [];
+let stepIdx = 0;
+let demoParent = {}, demoDepth = {}, demoSub = {};
+let autoTimer = null;
+
+function setRoot(id) {
+  resetDFS();
+  demoRoot = id;
+  document.querySelectorAll('.demo-node circle').forEach((c,i) => {
+    c.setAttribute('stroke', i == id ? '#00e5ff' : '#334155');
+    c.nextElementSibling.setAttribute('fill', i == id ? '#00e5ff' : '#94a3b8');
+  });
+  log(`🌳 اخترت العقدة ${id} جذراً`);
+}
+
+function buildSteps(v, p, depth) {
+  dfsSteps.push({type:'visit', node:v, parent:p, depth});
+  demoParent[v] = p;
+  demoDepth[v] = depth;
+  demoSub[v] = 1;
+  for (const to of demoAdj[v]) {
+    if (to === p) continue;
+    buildSteps(to, v, depth + 1);
+    demoSub[v] += demoSub[to];
+  }
+  dfsSteps.push({type:'done', node:v});
+}
+
+function runDFS() {
+  if (autoTimer) clearInterval(autoTimer);
+  resetDFS(false);
+  dfsSteps = [];
+  demoParent = {}; demoDepth = {}; demoSub = {};
+  buildSteps(demoRoot, -1, 0);
+  log(`🚀 بدء DFS من الجذر ${demoRoot}`);
+  autoTimer = setInterval(() => {
+    if (stepIdx >= dfsSteps.length) {
+      clearInterval(autoTimer);
+      showTable();
+      log('✅ اكتمل DFS');
+      return;
+    }
+    applyStep(dfsSteps[stepIdx++]);
+  }, 600);
+}
+
+function stepDFS() {
+  if (dfsSteps.length === 0) {
+    dfsSteps = [];
+    demoParent = {}; demoDepth = {}; demoSub = {};
+    buildSteps(demoRoot, -1, 0);
+    log(`🚀 بدء DFS خطوة بخطوة من الجذر ${demoRoot}`);
+  }
+  if (stepIdx < dfsSteps.length) {
+    applyStep(dfsSteps[stepIdx++]);
+    if (stepIdx >= dfsSteps.length) { showTable(); log('✅ اكتمل DFS'); }
+  }
+}
+
+function applyStep(step) {
+  const g = document.getElementById('dn' + step.node);
+  const circ = g.querySelector('circle');
+  if (step.type === 'visit') {
+    circ.setAttribute('stroke', '#00e5ff');
+    circ.setAttribute('fill', 'rgba(0,229,255,0.12)');
+    g.querySelector('text').setAttribute('fill', '#00e5ff');
+    log(`→ زيارة عقدة ${step.node} | depth=${step.depth} | parent=${step.parent === -1 ? 'جذر' : step.parent}`);
+  } else {
+    circ.setAttribute('stroke', '#10b981');
+    circ.setAttribute('fill', 'rgba(16,185,129,0.1)');
+    g.querySelector('text').setAttribute('fill', '#10b981');
+    log(`✓ انتهى sub[${step.node}] = ${demoSub[step.node]}`);
+  }
+}
+
+function resetDFS(full = true) {
+  if (autoTimer) clearInterval(autoTimer);
+  if (full) demoRoot = 0;
+  dfsSteps = []; stepIdx = 0;
+  document.querySelectorAll('.demo-node circle').forEach(c => {
+    c.setAttribute('stroke', '#334155');
+    c.setAttribute('fill', '#1a2235');
+    c.nextElementSibling.setAttribute('fill', '#94a3b8');
+  });
+  document.getElementById('dfsLog').textContent = '← اضغط "تشغيل DFS" أو "خطوة واحدة" للبدء';
+  document.getElementById('dfsTable').style.display = 'none';
+}
+
+function showTable() {
+  const tbody = document.getElementById('dfsTableBody');
+  tbody.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><strong style="color:var(--accent)">${i}</strong></td><td>${demoParent[i] === -1 ? 'جذر' : demoParent[i]}</td><td>${demoDepth[i]}</td><td>${demoSub[i]}</td>`;
+    tbody.appendChild(tr);
+  }
+  document.getElementById('dfsTable').style.display = 'block';
+}
+
+function log(msg) {
+  const box = document.getElementById('dfsLog');
+  box.textContent = msg;
+}
+
+// ════ QUIZ ════
+const questions = {
+  easy: [
+    {
+      q: 'كم عدد الأحرف في شجرة تحتوي على 10 عقد؟',
+      opts: ['8','9','10','11'],
+      ans: 1,
+      exp: 'الشجرة ذات n عقدة تحتوي دائماً على n-1 حرفاً. إذن 10-1 = 9.'
+    },
+    {
+      q: 'ما الذي يحدث عند إزالة حرف واحد من الشجرة؟',
+      opts: ['تنشأ دورة','تبقى شجرة','تنقسم إلى مكوّنين','لا شيء يتغير'],
+      ans: 2,
+      exp: 'كل حرف في الشجرة هو جسر، إزالته تنتج مكوّنين منفصلين.'
+    },
+    {
+      q: 'كم مساراً بسيطاً يوجد بين أي عقدتين في الشجرة؟',
+      opts: ['صفر','واحد فقط','اثنان','غير محدود'],
+      ans: 1,
+      exp: 'هذه هي الخاصية الجوهرية للأشجار: مسار بسيط وحيد بين أي عقدتين.'
+    },
+    {
+      q: 'ما اسم العقدة التي لا أبناء لها في الشجرة المجذّرة؟',
+      opts: ['الجذر','الأب','الورقة','الجسر'],
+      ans: 2,
+      exp: 'الورقة (Leaf) هي العقدة التي لا يوجد لها أبناء في الشجرة المجذّرة.'
+    },
+    {
+      q: 'في الشجرة المجذّرة، ما depth الجذر؟',
+      opts: ['1','-1','0','يعتمد على الشجرة'],
+      ans: 2,
+      exp: 'الجذر يقع على بُعد 0 أحرف من نفسه، إذن depth(root) = 0.'
+    }
+  ],
+  medium: [
+    {
+      q: 'شجرة بها 6 عقد، وكل عقدة (ما عدا الجذر) لها أب واحد. ما مجموع القيم depth لجميع العقد في أسوأ حالة (شجرة خطية)؟',
+      opts: ['10','15','21','6'],
+      ans: 1,
+      exp: 'في الشجرة الخطية: 0+1+2+3+4+5 = 15.'
+    },
+    {
+      q: 'ما قيمة sub[root] دائماً؟',
+      opts: ['1','عدد الأوراق','n (عدد العقد الكلي)','n-1'],
+      ans: 2,
+      exp: 'subtree(root) تشمل جميع عقد الشجرة، إذن sub[root] = n.'
+    },
+    {
+      q: 'لماذا نمرر الأب p في دالة DFS للأشجار غير الموجهة؟',
+      opts: ['لحساب العمق فقط','لتجنب زيارة الأب مرة ثانية كحرف عكسي','لتحديد الجذر','لحساب sub'],
+      ans: 1,
+      exp: 'الحرف غير الموجّه يظهر في قائمة جوار الطرفين؛ تمرير p يمنع العودة للأب ظناً أنه ابن.'
+    },
+    {
+      q: 'رسم بياني متصل بـ 5 عقد و 5 أحرف، هل يمكن أن يكون شجرة؟',
+      opts: ['نعم دائماً','لا، لأن الشجرة تحتاج 4 أحرف فقط','نعم إذا كانت موجّهة','نعم إذا لم تكن دائرية'],
+      ans: 1,
+      exp: 'الشجرة ذات 5 عقد تحتاج 4 أحرف فقط. 5 أحرف يعني وجود دورة.'
+    },
+    {
+      q: 'ما الفرق الرئيسي بين الشجرة والغابة (Forest)؟',
+      opts: ['الغابة تحتوي دورات','الشجرة قد تكون غير متصلة','الغابة مجموعة أشجار منفصلة','لا فرق'],
+      ans: 2,
+      exp: 'الغابة هي مجموعة من الأشجار المنفصلة (رسم بياني خالٍ من الدورات وليس بالضرورة متصلاً).'
+    }
+  ],
+  hard: [
+    {
+      q: 'لحساب مسافة أطول مسار في الشجرة (القطر/Diameter)، كم مرة نحتاج لتشغيل BFS/DFS؟',
+      opts: ['مرة واحدة','مرتان','n مرات','n² مرات'],
+      ans: 1,
+      exp: 'خوارزمية الشجرة القُطر: BFS/DFS مرة لإيجاد أبعد عقدة u، ثم مرة ثانية من u لإيجاد القطر. O(n).'
+    },
+    {
+      q: 'في خوارزمية dfs_subtree، لماذا نبدأ بـ sub[v] = 1 قبل الحلقة؟',
+      opts: ['خطأ برمجي','لأن الجذر يُعدّ دائماً','لتضمين العقدة v نفسها في الشجرة الفرعية','لتجنب تجاوز الحد'],
+      ans: 2,
+      exp: 'sub[v] = عدد العقد في subtree(v) بما فيها v نفسها، لذا نبدأ بـ 1 ثم نضيف sub للأبناء.'
+    },
+    {
+      q: 'عقدة v في شجرة بـ n عقد. ما عدد الأزواج (u,w) حيث u في subtree(v) وw خارجها، وتمر مسارها عبر v؟',
+      opts: ['sub[v]','(n - sub[v]) × sub[v]','sub[v] × sub[v]','n-1'],
+      ans: 1,
+      exp: 'كل عقدة داخل subtree(v) تكوّن زوجاً مع كل عقدة خارجها. الناتج: sub[v] × (n - sub[v]).'
+    },
+    {
+      q: 'أي هياكل البيانات التالية يمكن تمثيلها كشجرة ثنائية مُجذّرة؟',
+      opts: ['قائمة المجاورة لرسم بياني دوري','الكومة (Heap)','الجدول الهاش (Hash Table)','الرسم البياني الكامل K₅'],
+      ans: 1,
+      exp: 'الكومة (Min/Max Heap) هي شجرة ثنائية شبه كاملة يمكن تمثيلها بمصفوفة أو شجرة مجذّرة.'
+    },
+    {
+      q: 'ماذا تُنتج خوارزمية Kruskal عند تطبيقها على رسم بياني موزون متصل؟',
+      opts: ['شجرة فضاء أدنى (MST)','أقصر مسار','شجرة DFS','شجرة BFS'],
+      ans: 0,
+      exp: 'Kruskal تبني شجرة الفضاء الدنيا (Minimum Spanning Tree) باختيار أقل أحرف بحيث تبقى الشجرة متصلة.'
+    }
+  ]
+};
+
+let scores = {easy:0, medium:0, hard:0};
+let answered = {easy:0, medium:0, hard:0};
+let totalAns = 0, totalCorrect = 0;
+
+function buildQuiz() {
+  ['easy','medium','hard'].forEach(diff => {
+    const container = document.getElementById('quiz-' + diff);
+    questions[diff].forEach((q, qi) => {
+      const card = document.createElement('div');
+      card.className = 'question-card';
+      card.innerHTML = `
+        <div class="q-header">
+          <div class="q-num ${diff}">${qi+1}</div>
+          <div class="q-text">${q.q}</div>
+        </div>
+        <div class="options" id="opts-${diff}-${qi}">
+          ${q.opts.map((o,i) => `<button class="option-btn" onclick="answer('${diff}',${qi},${i})">${o}</button>`).join('')}
+        </div>
+        <div class="feedback" id="fb-${diff}-${qi}"></div>
+      `;
+      container.appendChild(card);
+    });
+  });
+}
+
+function answer(diff, qi, chosen) {
+  const q = questions[diff][qi];
+  const opts = document.querySelectorAll(`#opts-${diff}-${qi} .option-btn`);
+  const fb = document.getElementById(`fb-${diff}-${qi}`);
+  opts.forEach(b => b.disabled = true);
+  const correct = chosen === q.ans;
+  opts[chosen].classList.add(correct ? 'correct' : 'wrong');
+  if (!correct) opts[q.ans].classList.add('correct');
+  fb.textContent = correct ? `✅ صحيح! ${q.exp}` : `❌ خطأ. ${q.exp}`;
+  fb.className = `feedback show ${correct ? 'correct' : 'wrong'}`;
+  totalAns++;
+  if (correct) { totalCorrect++; scores[diff]++; }
+  updateScore();
+}
+
+function updateScore() {
+  const pct = totalAns > 0 ? Math.round(totalCorrect / totalAns * 100) : 0;
+  document.getElementById('scoreVal').textContent = `${totalCorrect}/${totalAns}`;
+  document.getElementById('scoreDetail').textContent = `${pct}% إجابات صحيحة · أجب على كل الأسئلة للتحقق من مستواك`;
+  const circ = document.getElementById('scoreCircle');
+  circ.style.background = `conic-gradient(var(--accent) ${pct * 3.6}deg, #1a2235 0deg)`;
+}
+
+function resetQuiz() {
+  scores = {easy:0,medium:0,hard:0};
+  totalAns = 0; totalCorrect = 0;
+  document.querySelectorAll('.question-card').forEach(c => c.remove());
+  buildQuiz();
+  updateScore();
+}
+
+function showDiff(diff, btn) {
+  document.querySelectorAll('.quiz-group').forEach(g => g.style.display = 'none');
+  document.querySelectorAll('.diff-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('quiz-' + diff).style.display = 'block';
+  btn.classList.add('active');
+}
+
+// ════ NAV HIGHLIGHT ════
+window.addEventListener('scroll', () => {
+  const secs = document.querySelectorAll('section');
+  const links = document.querySelectorAll('nav a');
+  let cur = '';
+  secs.forEach(s => {
+    if (window.scrollY + 120 >= s.offsetTop) cur = s.id;
+  });
+  links.forEach(l => {
+    l.classList.toggle('active', l.getAttribute('href') === '#' + cur);
+  });
+});
+
+// ════ INIT ════
+buildQuiz();
+</script>
+</body>
+</html>

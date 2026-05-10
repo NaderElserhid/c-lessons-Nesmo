@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مختبر مصطلحات الأشجار التفاعلي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f8fafc;
+        }
+        .tree-node {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .tree-edge {
+            transition: all 0.3s ease;
+            stroke: #cbd5e1;
+            stroke-width: 2;
+        }
+        /* حالات التظليل */
+        .highlight-root { fill: #11CAA0 !important; r: 25; stroke: #005088; stroke-width: 3; }
+        .highlight-leaf { fill: #ef4444 !important; stroke: #991b1b; }
+        .highlight-parent { fill: #3b82f6 !important; stroke: #1d4ed8; }
+        .highlight-child { fill: #f59e0b !important; stroke: #b45309; }
+        .highlight-subtree { fill: #8b5cf6 !important; stroke: #6d28d9; }
+        .highlight-edge { stroke: #11CAA0; stroke-width: 4; }
+
+        .term-row { transition: all 0.2s; cursor: pointer; }
+        .term-row:hover { background-color: #f1f5f9; }
+        .active-row { background-color: #e2e8f0 !important; border-right: 4px solid #005088; }
+    </style>
+</head>
+<body class="p-4 md:p-10">
+
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-slate-800 mb-2">قاموس هيكل الشجرة التفاعلي</h1>
+            <p class="text-slate-500 italic">مرر الفأرة فوق المصطلحات في الجدول لرؤية تمثيلها في الشجرة</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+            
+            <div class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100 flex justify-center sticky top-10">
+                <svg width="500" height="400" id="treeSvg" viewBox="0 0 500 400">
+                    <line class="tree-edge edge-0-1" x1="250" y1="50" x2="150" y2="150" />
+                    <line class="tree-edge edge-0-2" x1="250" y1="50" x2="350" y2="150" />
+                    <line class="tree-edge edge-1-3" x1="150" y1="150" x2="80" y2="280" />
+                    <line class="tree-edge edge-1-4" x1="150" y1="150" x2="220" y2="280" />
+                    <line class="tree-edge edge-2-5" x1="350" y1="150" x2="350" y2="280" />
+
+                    <g class="node-group" data-id="0">
+                        <circle cx="250" cy="50" r="20" fill="#005088" class="tree-node node-0" />
+                        <text x="250" y="55" text-anchor="middle" fill="white" font-size="14" font-weight="bold">0</text>
+                        <text x="250" y="25" text-anchor="middle" fill="#64748b" font-size="12">الجذر</text>
+                    </g>
+
+                    <g class="node-group" data-id="1">
+                        <circle cx="150" cy="150" r="20" fill="#475569" class="tree-node node-1" />
+                        <text x="150" y="155" text-anchor="middle" fill="white" font-size="14">1</text>
+                    </g>
+                    <g class="node-group" data-id="2">
+                        <circle cx="350" cy="150" r="20" fill="#475569" class="tree-node node-2" />
+                        <text x="350" y="155" text-anchor="middle" fill="white" font-size="14">2</text>
+                    </g>
+
+                    <g class="node-group" data-id="3">
+                        <circle cx="80" cy="280" r="20" fill="#94a3b8" class="tree-node node-3" />
+                        <text x="80" y="285" text-anchor="middle" fill="white" font-size="14">3</text>
+                    </g>
+                    <g class="node-group" data-id="4">
+                        <circle cx="220" cy="280" r="20" fill="#94a3b8" class="tree-node node-4" />
+                        <text x="220" y="285" text-anchor="middle" fill="white" font-size="14">4</text>
+                    </g>
+                    <g class="node-group" data-id="5">
+                        <circle cx="350" cy="280" r="20" fill="#94a3b8" class="tree-node node-5" />
+                        <text x="350" y="285" text-anchor="middle" fill="white" font-size="14">5</text>
+                    </g>
+
+                    <line x1="450" y1="50" x2="450" y2="280" stroke="#94a3b8" stroke-dasharray="4" />
+                    <text x="470" y="170" transform="rotate(90 470,170)" fill="#94a3b8" font-size="12">العمق (Depth)</text>
+                </svg>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+                <table class="w-full text-right border-collapse">
+                    <thead>
+                        <tr class="bg-slate-800 text-white">
+                            <th class="p-4 border-b border-slate-700">المصطلح</th>
+                            <th class="p-4 border-b border-slate-700">التعريف</th>
+                            <th class="p-4 border-b border-slate-700">مثال (العقدة)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="termsTableBody">
+                        <tr class="term-row border-b" data-term="root">
+                            <td class="p-4 font-bold text-emerald-600">الجذر (Root)</td>
+                            <td class="p-4 text-slate-600">العقدة المختارة كبداية (لا يوجد لها أب).</td>
+                            <td class="p-4 font-mono">0</td>
+                        </tr>
+                        <tr class="term-row border-b" data-term="parent">
+                            <td class="p-4 font-bold text-blue-600">الأب (Parent)</td>
+                            <td class="p-4 text-slate-600">العقدة التي تسبق عقدة أخرى مباشرة.</td>
+                            <td class="p-4 font-mono">1 هو أب لـ 3 و 4</td>
+                        </tr>
+                        <tr class="term-row border-b" data-term="children">
+                            <td class="p-4 font-bold text-orange-600">الأبناء (Children)</td>
+                            <td class="p-4 text-slate-600">العقد التابعة مباشرة لعقدة معينة.</td>
+                            <td class="p-4 font-mono">1 و 2 أبناء لـ 0</td>
+                        </tr>
+                        <tr class="term-row border-b" data-term="depth">
+                            <td class="p-4 font-bold text-slate-700">العمق (Depth)</td>
+                            <td class="p-4 text-slate-600">عدد الحواف من الجذر حتى تلك العقدة.</td>
+                            <td class="p-4 font-mono">عمق 3 هو 2</td>
+                        </tr>
+                        <tr class="term-row border-b" data-term="subtree">
+                            <td class="p-4 font-bold text-purple-600">شجرة فرعية (Subtree)</td>
+                            <td class="p-4 text-slate-600">عقدة مع كافة أحفادها.</td>
+                            <td class="p-4 font-mono">1، 3، 4 تشكل شجرة</td>
+                        </tr>
+                        <tr class="term-row" data-term="leaf">
+                            <td class="p-4 font-bold text-red-600">الورقة (Leaf)</td>
+                            <td class="p-4 text-slate-600">عقدة ليس لها أي أبناء (نهاية الطرف).</td>
+                            <td class="p-4 font-mono">3، 4، 5</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const rows = document.querySelectorAll('.term-row');
+        const nodes = document.querySelectorAll('.tree-node');
+        const edges = document.querySelectorAll('.tree-edge');
+
+        function clearHighlights() {
+            nodes.forEach(n => n.classList.remove('highlight-root', 'highlight-leaf', 'highlight-parent', 'highlight-child', 'highlight-subtree'));
+            edges.forEach(e => e.classList.remove('highlight-edge'));
+            rows.forEach(r => r.classList.remove('active-row'));
+        }
+
+        rows.forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                clearHighlights();
+                row.classList.add('active-row');
+                const term = row.getAttribute('data-term');
+
+                if (term === 'root') {
+                    document.querySelector('.node-0').classList.add('highlight-root');
+                } 
+                else if (term === 'parent') {
+                    document.querySelector('.node-1').classList.add('highlight-parent');
+                    document.querySelector('.node-2').classList.add('highlight-parent');
+                } 
+                else if (term === 'leaf') {
+                    document.querySelector('.node-3').classList.add('highlight-leaf');
+                    document.querySelector('.node-4').classList.add('highlight-leaf');
+                    document.querySelector('.node-5').classList.add('highlight-leaf');
+                } 
+                else if (term === 'children') {
+                    document.querySelector('.node-1').classList.add('highlight-child');
+                    document.querySelector('.node-2').classList.add('highlight-child');
+                    document.querySelector('.edge-0-1').classList.add('highlight-edge');
+                    document.querySelector('.edge-0-2').classList.add('highlight-edge');
+                }
+                else if (term === 'subtree') {
+                    document.querySelector('.node-1').classList.add('highlight-subtree');
+                    document.querySelector('.node-3').classList.add('highlight-subtree');
+                    document.querySelector('.node-4').classList.add('highlight-subtree');
+                    document.querySelector('.edge-1-3').classList.add('highlight-edge');
+                    document.querySelector('.edge-1-4').classList.add('highlight-edge');
+                }
+                else if (term === 'depth') {
+                    document.querySelector('.edge-0-1').classList.add('highlight-edge');
+                    document.querySelector('.edge-1-3').classList.add('highlight-edge');
+                }
+            });
+
+            row.addEventListener('mouseleave', clearHighlights);
+        });
+    </script>
+</body>
+</html>
