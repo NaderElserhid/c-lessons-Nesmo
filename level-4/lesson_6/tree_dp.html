@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>شرح البرمجة الديناميكية على الأشجار - Maximum Independent Set</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 { color: #2c3e50; margin-bottom: 5px; text-align: center; }
+        .description { color: #555; margin-bottom: 20px; text-align: center; max-width: 800px; line-height: 1.6; }
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            gap: 20px;
+        }
+        .visualization {
+            flex: 2;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .panel {
+            flex: 1;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #3498db;
+            color: white;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+        button:hover { background-color: #2980b9; }
+        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        .log-box {
+            flex-grow: 1;
+            background: #eef2f3;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 16px;
+            line-height: 1.8;
+            overflow-y: auto;
+            border: 1px solid #dcdcdc;
+            color: #333;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            color: white;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        /* SVG Styles */
+        svg { width: 100%; height: 500px; }
+        .link { stroke: #bdc3c7; stroke-width: 2px; transition: stroke 0.3s; }
+        .node circle { fill: #ecf0f1; stroke: #95a5a6; stroke-width: 3px; transition: fill 0.3s, stroke 0.3s; }
+        .node text { font-size: 14px; font-weight: bold; fill: #2c3e50; text-anchor: middle; dominant-baseline: central; }
+        .dp-label { font-size: 12px; fill: #c0392b; font-weight: bold; }
+        
+        /* State Colors */
+        .visiting circle { fill: #f1c40f !important; stroke: #f39c12 !important; } /* أصفر للنزول */
+        .calculated circle { fill: #2ecc71 !important; stroke: #27ae60 !important; } /* أخضر بعد الحساب */
+        .chosen circle { fill: #3498db !important; stroke: #2980b9 !important; color: white; } /* أزرق للحل النهائي */
+        .not-chosen circle { fill: #e74c3c !important; stroke: #c0392b !important; } /* أحمر للمستبعد */
+    </style>
+</head>
+<body>
+
+    <h1>البرمجة الديناميكية على الأشجار (DP on Trees)</h1>
+    <p class="description">
+        <strong>المسألة:</strong> اختر أكبر عدد ممكن من العقد بحيث لا توجد عقدتان متجاورتان مختارتان.<br>
+        <strong>القاعدة:</strong> 
+        <code>DP[u][0] = ∑ max(DP[v][0], DP[v][1])</code> (إذا لم نختر العقدة). <br>
+        <code>DP[u][1] = 1 + ∑ DP[v][0]</code> (إذا اخترنا العقدة).
+    </p>
+
+    <div class="container">
+        <div class="visualization">
+            <svg id="tree-svg" viewBox="0 0 800 500"></svg>
+        </div>
+        <div class="panel">
+            <div class="controls">
+                <button id="prev-btn" onclick="prevStep()" disabled>السابق</button>
+                <button id="next-btn" onclick="nextStep()">الخطوة التالية</button>
+            </div>
+            <div class="status-badge" id="status-badge" style="background: #34495e;">في انتظار البدء...</div>
+            <div class="log-box" id="log-box">
+                اضغط على "الخطوة التالية" لبدء خوارزمية البحث بالعمق (DFS) وحساب القيم.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // إعداد الشجرة ذات 20 عقدة وإحداثياتها
+        const treeData = [
+            { id: 0, x: 400, y: 40, parent: null },
+            { id: 1, x: 200, y: 120, parent: 0 },
+            { id: 2, x: 600, y: 120, parent: 0 },
+            { id: 3, x: 100, y: 220, parent: 1 },
+            { id: 4, x: 200, y: 220, parent: 1 },
+            { id: 5, x: 300, y: 220, parent: 1 },
+            { id: 6, x: 500, y: 220, parent: 2 },
+            { id: 7, x: 700, y: 220, parent: 2 },
+            { id: 8, x: 50,  y: 320, parent: 3 },
+            { id: 9, x: 150, y: 320, parent: 3 },
+            { id: 10, x: 200, y: 320, parent: 4 },
+            { id: 11, x: 450, y: 320, parent: 6 },
+            { id: 12, x: 550, y: 320, parent: 6 },
+            { id: 13, x: 700, y: 320, parent: 7 },
+            { id: 14, x: 20,  y: 420, parent: 8 },
+            { id: 15, x: 80,  y: 420, parent: 8 },
+            { id: 16, x: 170, y: 420, parent: 10 },
+            { id: 17, x: 230, y: 420, parent: 10 },
+            { id: 18, x: 520, y: 420, parent: 12 },
+            { id: 19, x: 580, y: 420, parent: 12 }
+        ];
+
+        const svg = document.getElementById('tree-svg');
+        const adj = Array(20).fill(null).map(() => []);
+
+        // بناء قائمة التجاور ورسم الروابط
+        treeData.forEach(node => {
+            if (node.parent !== null) {
+                adj[node.parent].push(node.id);
+                adj[node.id].push(node.parent);
+                
+                let parentNode = treeData.find(n => n.id === node.parent);
+                let line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', parentNode.x);
+                line.setAttribute('y1', parentNode.y);
+                line.setAttribute('x2', node.x);
+                line.setAttribute('y2', node.y);
+                line.setAttribute('class', 'link');
+                line.setAttribute('id', `link-${node.parent}-${node.id}`);
+                svg.appendChild(line);
+            }
+        });
+
+        // رسم العقد (الدوائر والنصوص)
+        treeData.forEach(node => {
+            let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            g.setAttribute('class', 'node');
+            g.setAttribute('id', `node-${node.id}`);
+            
+            let circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', node.x);
+            circle.setAttribute('cy', node.y);
+            circle.setAttribute('r', 18);
+            
+            let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', node.x);
+            text.setAttribute('y', node.y);
+            text.textContent = node.id;
+
+            let dpText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            dpText.setAttribute('x', node.x + 25);
+            dpText.setAttribute('y', node.y - 15);
+            dpText.setAttribute('class', 'dp-label');
+            dpText.setAttribute('id', `dp-${node.id}`);
+            dpText.textContent = '[?, ?]';
+
+            g.appendChild(circle);
+            g.appendChild(text);
+            g.appendChild(dpText);
+            svg.appendChild(g);
+        });
+
+        // خوارزمية البرمجة الديناميكية وتوليد خطوات الشرح
+        let steps = [];
+        let dp = Array(20).fill(null).map(() => [0, 0]);
+
+        function dfs(u, p) {
+            steps.push({ type: 'visit', node: u, msg: `<strong>النزول إلى العقدة ${u}</strong><br>نبدأ في فحص هذه العقدة وأبنائها.` });
+
+            let sum0 = 0; 
+            let sum1 = 0; 
+
+            for (let v of adj[u]) {
+                if (v !== p) {
+                    dfs(v, u);
+                    sum0 += Math.max(dp[v][0], dp[v][1]);
+                    sum1 += dp[v][0];
+                }
+            }
+
+            dp[u][0] = sum0;
+            dp[u][1] = 1 + sum1;
+
+            steps.push({
+                type: 'calc',
+                node: u,
+                dp0: dp[u][0],
+                dp1: dp[u][1],
+                msg: `<strong>تم حساب العقدة ${u}:</strong><br>
+                      - بدون العقدة <code>DP[${u}][0]</code> = ${dp[u][0]} (مجموع أفضل قرارات الأبناء)<br>
+                      - مع العقدة <code>DP[${u}][1]</code> = ${dp[u][1]} (1 + مجموع عدم اختيار الأبناء)`
+            });
+        }
+        
+        dfs(0, -1); // بدء التنفيذ
+
+        // تتبع مسار الحل الأمثل لإظهاره في النهاية
+        steps.push({ type: 'info', msg: `<strong>اكتملت الحسابات!</strong><br>أفضل نتيجة نحصل عليها هي: <strong>${Math.max(dp[0][0], dp[0][1])}</strong> عقد.<br>الآن سنتتبع الشجرة من الجذر لتحديد أي العقد سنختار فعلياً (باللون الأزرق).` });
+        
+        function trace(u, p, isChosen) {
+            steps.push({
+                type: 'trace',
+                node: u,
+                chosen: isChosen,
+                msg: `<strong>العقدة ${u}:</strong> ${isChosen ? 'تم اختيارها (أزرق)' : 'تم استبعادها (أحمر)'} بناءً على قرار العقدة الأب والقيم المحسوبة.`
+            });
+
+            for (let v of adj[u]) {
+                if (v !== p) {
+                    if (isChosen) {
+                        trace(v, u, false); // إذا اخترنا الأب، يمنع اختيار الابن
+                    } else {
+                        trace(v, u, dp[v][1] > dp[v][0]); // إذا لم نختر الأب، نختار الأفضل للابن
+                    }
+                }
+            }
+        }
+        trace(0, -1, dp[0][1] > dp[0][0]);
+        steps.push({ type: 'done', msg: `<strong>تم الانتهاء!</strong><br>العقد الملونة بالأزرق تمثل أكبر مجموعة مستقلة في هذه الشجرة.` });
+
+        // محرك التشغيل للخطوات
+        let currentStep = -1;
+
+        function updateUI() {
+            document.getElementById('prev-btn').disabled = (currentStep <= 0);
+            document.getElementById('next-btn').disabled = (currentStep >= steps.length - 1);
+
+            // إعادة ضبط جميع العقد عند التمرير
+            document.querySelectorAll('.node').forEach(n => n.className.baseVal = 'node');
+            document.querySelectorAll('.dp-label').forEach(l => l.textContent = '[?, ?]');
+
+            let logBox = document.getElementById('log-box');
+            let badge = document.getElementById('status-badge');
+
+            if (currentStep === -1) {
+                logBox.innerHTML = "اضغط على 'الخطوة التالية' لبدء الشرح.";
+                badge.textContent = "مستعد";
+                badge.style.background = "#34495e";
+                return;
+            }
+
+            // تطبيق التأثيرات حتى الخطوة الحالية
+            for (let i = 0; i <= currentStep; i++) {
+                let s = steps[i];
+                let el = document.getElementById(`node-${s.node}`);
+                let dpLabel = document.getElementById(`dp-${s.node}`);
+
+                if (s.type === 'visit') {
+                    el.className.baseVal = 'node visiting';
+                } else if (s.type === 'calc') {
+                    el.className.baseVal = 'node calculated';
+                    dpLabel.textContent = `[${s.dp0}, ${s.dp1}]`;
+                } else if (s.type === 'trace') {
+                    el.className.baseVal = s.chosen ? 'node chosen' : 'node not-chosen';
+                    // استرجاع قيم الـ DP لأننا أعدنا ضبطها
+                    dpLabel.textContent = `[${dp[s.node][0]}, ${dp[s.node][1]}]`;
+                }
+            }
+
+            // عرض رسالة الخطوة الحالية
+            let currentAction = steps[currentStep];
+            logBox.innerHTML = currentAction.msg;
+
+            // تحديث الشارة (Badge)
+            if (currentAction.type === 'visit') { badge.textContent = "نزول (DFS)"; badge.style.background = "#f39c12"; }
+            else if (currentAction.type === 'calc') { badge.textContent = "حساب (Bottom-Up)"; badge.style.background = "#27ae60"; }
+            else if (currentAction.type === 'info') { badge.textContent = "تتبع الحل"; badge.style.background = "#8e44ad"; }
+            else if (currentAction.type === 'trace') { badge.textContent = "تحديد العقد"; badge.style.background = "#2980b9"; }
+            else { badge.textContent = "نهاية"; badge.style.background = "#2c3e50"; }
+        }
+
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                updateUI();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > -1) {
+                currentStep--;
+                updateUI();
+            }
+        }
+    </script>
+</body>
+</html>
