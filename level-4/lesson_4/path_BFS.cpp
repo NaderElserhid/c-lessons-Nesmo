@@ -1,65 +1,69 @@
 #include <bits/stdc++.h>
-
 using namespace std;
 
-int main() {
+const int maxN = 200005; // Slightly larger for 1-based indexing safety
+queue<int> q;
+vector<int> g[maxN];
+vector<int> p(maxN, -1);   // Fixed: Use maxN for vertex properties
+vector<int> dis(maxN, -1); // Fixed: Use maxN for vertex properties
 
-    int n = 8;
+void bfs(int u) {
+    dis[u] = 0;  // Fixed: Assign to 'u', not hardcoded '0'
+    q.push(u);   // Fixed: Must push the starting node into the queue!
 
-    vector<vector<int>> g(n);
-    vector<int> dist(n, -1), parent(n, -1);
-    queue<int> q;
-
-
-    g[0] = {1, 2};
-    g[1] = {0, 3};
-    g[2] = {0, 4, 5};
-    g[3] = {1};
-    g[4] = {2};
-    g[5] = {2, 6, 7};
-    g[6] = {5};
-    g[7] = {5};
-
-
-    int s = 0;
-    dist[s] = 0;
-    q.push(s);
-
-
-    while(!q.empty()){
+    while (!q.empty()) {
         int v = q.front();
         q.pop();
 
-        for (int to : g[v]){
-            if(dist[to] != -1) continue;
+        for (int to : g[v]) {
+            if (dis[to] != -1) continue;
 
-            dist[to] = dist[v] + 1;
-            parent[to] = v;
+            dis[to] = dis[v] + 1; // Fixed: Use '=', not '+='
+            p[to] = v;
             q.push(to);
         }
     }
+}
 
+int main() {
+    // Fast I/O
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int n, m;
+    if (!(cin >> n >> m)) return 0;
+
+    for (int i = 0; i < m; i++) {
+        int v, u;
+        cin >> v >> u;
+
+        g[v].push_back(u);
+        g[u].push_back(v);
+    }
+
+    int s = 1; // Assuming 1-based indexing, start at node 1
+
+    bfs(s);
+
+    // Check if the destination node 'n' was actually reached
+    if (dis[n] == -1) {
+        cout << "IMPOSSIBLE\n";
+        return 0;
+    }
 
     vector<int> path;
-    int t = 7;
 
-
-    if(dist[t] != -1) {
-        for(int v = t; v != -1; v = parent[v]) {
-            path.push_back(v);
-        }
-        reverse(path.begin(), path.end());
-
-
-        cout << "number of steps is : " << dist[t] << " steps\n";
-        cout << " path : ";
-        for(int node : path) {
-            cout << node << " ";
-        }
-        cout << "\n";
-    } else {
-        cout << "no path \n";
+    // Reconstruct path from destination 'n' back to start
+    for (int i = n; i != -1; i = p[i]) {
+        path.push_back(i);
     }
+    reverse(path.begin(), path.end());
+
+    // Print path with spaces
+    for (int i = 0; i < path.size(); i++) {
+        cout << path[i] << (i == path.size() - 1 ? "" : " ");
+    }
+    cout << "\n";
 
     return 0;
 }

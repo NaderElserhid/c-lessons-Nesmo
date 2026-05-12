@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تدريبات أولمبياد البرمجة التنافسية - السعودية</title>
+    <style>
+        :root {
+            --primary-color: #0A5A36; /* لون أخضر مستوحى من الهوية السعودية */
+            --secondary-color: #8CC63F;
+            --bg-color: #f4f9f5;
+            --text-color: #333;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 900px;
+            margin: auto;
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: var(--primary-color);
+            margin-top: 30px;
+            background-color: #e2f0e6;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .question-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .interactive-box {
+            background-color: #fdfdfd;
+            border: 2px dashed var(--secondary-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        input[type="number"] {
+            padding: 8px;
+            margin: 5px;
+            width: 100px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #064025;
+        }
+        .output {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #d32f2f;
+            text-align: right;
+            background: #ffebee;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        pre {
+            background-color: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+        }
+        .code-comment { color: #5c6370; font-style: italic; }
+        .code-keyword { color: #c678dd; }
+        .code-type { color: #e5c07b; }
+        .code-func { color: #61afef; }
+    </style>
+</head>
+<body>
+
+    <h1>🏆 تدريبات أولمبياد البرمجة التنافسية (نظرية الأعداد) 🏆</h1>
+
+    <div class="question-box">
+        <h2>السؤال الأول: صناديق تمور القصيم (مستوى مبتدئ)</h2>
+        <p><strong>نص المسألة:</strong><br>
+        يمتلك مزارع في منطقة القصيم <code>A</code> كيلوجرام من تمر السكري، و <code>B</code> كيلوجرام من تمر العجوة. يريد المزارع تعبئة هذه التمور في صناديق متطابقة، بحيث يحتوي كل صندوق على نفس الكمية من السكري ونفس الكمية من العجوة، دون أن يتبقى لديه أي تمور خارج الصناديق. <br>
+        <strong>المطلوب:</strong> ما هو <strong>أكبر عدد ممكن من الصناديق</strong> التي يمكن للمزارع تجهيزها؟</p>
+
+        <p><strong>شرح خطوات الحل:</strong><br>
+        1. بما أننا نريد تقسيم الكميتين إلى أجزاء متساوية، فنحن نبحث عن "قاسم".<br>
+        2. وبما أننا نريد "أكبر عدد ممكن من الصناديق"، فنحن نبحث عن "القاسم المشترك الأكبر" (GCD).<br>
+        3. لحل المسألة بسرعة دون تجاوز الوقت (TLE)، سنستخدم <strong>خوارزمية إقليدس</strong> التي تعتمد على باقي القسمة.</p>
+
+        <div class="interactive-box">
+            <h3>⚙️ عرض تفاعلي لخوارزمية إقليدس</h3>
+            <p>أدخل كميات التمور لترى كيف تحسب الخوارزمية الحل خطوة بخطوة:</p>
+            <input type="number" id="sukkari" placeholder="كمية السكري (A)">
+            <input type="number" id="ajwa" placeholder="كمية العجوة (B)">
+            <button onclick="calculateGCDSteps()">احسب أكبر عدد من الصناديق</button>
+            <div id="gcd-output" class="output"></div>
+        </div>
+
+        <p><strong>الكود البرمجي (C++):</strong></p>
+        <pre><code><span class="code-comment">// تضمين المكتبات الأساسية</span>
+#include &lt;iostream&gt;
+<span class="code-keyword">using namespace</span> std;
+
+<span class="code-comment">// دالة خوارزمية إقليدس الذكية</span>
+<span class="code-type">int</span> <span class="code-func">gcd</span>(<span class="code-type">int</span> a, <span class="code-type">int</span> b) {
+    <span class="code-keyword">if</span> (b == 0) 
+        <span class="code-keyword">return</span> a; <span class="code-comment">// إذا وصلنا للصفر، فالعدد الآخر هو الحل</span>
+    
+    <span class="code-keyword">return</span> <span class="code-func">gcd</span>(b, a % b); <span class="code-comment">// نمرر الرقم الثاني، وباقي القسمة</span>
+}
+
+<span class="code-type">int</span> <span class="code-func">main</span>() {
+    <span class="code-type">int</span> a, b;
+    cin &gt;&gt; a &gt;&gt; b; <span class="code-comment">// قراءة كمية السكري والعجوة</span>
+    
+    <span class="code-type">int</span> max_boxes = <span class="code-func">gcd</span>(a, b);
+    
+    cout &lt;&lt; max_boxes &lt;&lt; endl;
+    <span class="code-keyword">return</span> 0;
+}</code></pre>
+    </div>
+
+    <div class="question-box">
+        <h2>السؤال الثاني: رحلات مترو الرياض (مستوى متوسط)</h2>
+        <p><strong>نص المسألة:</strong><br>
+        انطلق قطاران من المحطة الرئيسية لمترو الرياض (محطة مركز الملك عبدالله المالي) في نفس اللحظة. القطار على المسار الأزرق يقوم برحلة دائرية ويعود للمحطة كل <code>X</code> دقيقة، والقطار على المسار الأحمر يعود للمحطة كل <code>Y</code> دقيقة. <br>
+        <strong>المطلوب:</strong> بعد كم دقيقة سيلتقي القطاران معاً في المحطة الرئيسية للمرة القادمة؟</p>
+
+        <p><strong>شرح خطوات الحل:</strong><br>
+        1. القطار الأول يعود في الدقائق: X, 2X, 3X... والقطار الثاني في: Y, 2Y, 3Y...<br>
+        2. نحن نبحث عن "مضاعف" مشترك للوقتين، ونريد أول لقاء، أي "المضاعف المشترك الأصغر" (LCM).<br>
+        3. لحساب LCM بكفاءة ودون التعرض لمشكلة تجاوز سعة الأرقام (Overflow)، نستخدم القاعدة الذهبية: <code>LCM = (X / GCD(X,Y)) * Y</code>.<br>
+        <em>ملاحظة: تذكر استخدام نوع البيانات <code>long long</code> لأن الوقت قد يكون كبيراً جداً!</em></p>
+
+        <div class="interactive-box">
+            <h3>🔄 عرض تفاعلي لحساب نقطة الالتقاء</h3>
+            <p>أدخل زمن دورة كل قطار بالدقائق:</p>
+            <input type="number" id="metroX" placeholder="المسار الأزرق (X)">
+            <input type="number" id="metroY" placeholder="المسار الأحمر (Y)">
+            <button onclick="calculateLCMSteps()">احسب وقت اللقاء القادم</button>
+            <div id="lcm-output" class="output"></div>
+        </div>
+
+        <p><strong>الكود البرمجي (C++):</strong></p>
+        <pre><code><span class="code-comment">// تضمين المكتبات</span>
+#include &lt;iostream&gt;
+<span class="code-keyword">using namespace</span> std;
+
+<span class="code-comment">// دالة GCD مطلوبة لحساب LCM</span>
+<span class="code-type">long long</span> <span class="code-func">gcd</span>(<span class="code-type">long long</span> a, <span class="code-type">long long</span> b) {
+    <span class="code-keyword">if</span> (b == 0) <span class="code-keyword">return</span> a;
+    <span class="code-keyword">return</span> <span class="code-func">gcd</span>(b, a % b);
+}
+
+<span class="code-comment">// دالة LCM الآمنة من الفيض (Overflow)</span>
+<span class="code-type">long long</span> <span class="code-func">lcm</span>(<span class="code-type">long long</span> a, <span class="code-type">long long</span> b) {
+    <span class="code-keyword">if</span> (a == 0 || b == 0) <span class="code-keyword">return</span> 0;
+    <span class="code-keyword">return</span> (a / <span class="code-func">gcd</span>(a, b)) * b; <span class="code-comment">// نقسم أولاً ثم نضرب!</span>
+}
+
+<span class="code-type">int</span> <span class="code-func">main</span>() {
+    <span class="code-type">long long</span> x, y; <span class="code-comment">// استخدمنا long long لتجنب الأخطاء مع الأرقام الكبيرة</span>
+    cin &gt;&gt; x &gt;&gt; y;
+    
+    <span class="code-type">long long</span> meeting_time = <span class="code-func">lcm</span>(x, y);
+    
+    cout &lt;&lt; meeting_time &lt;&lt; endl;
+    <span class="code-keyword">return</span> 0;
+}</code></pre>
+    </div>
+
+    <script>
+        function calculateGCDSteps() {
+            let a = parseInt(document.getElementById('sukkari').value);
+            let b = parseInt(document.getElementById('ajwa').value);
+            let outputDiv = document.getElementById('gcd-output');
+            
+            if (isNaN(a) || isNaN(b) || a <= 0 || b <= 0) {
+                outputDiv.innerHTML = "الرجاء إدخال أرقام صحيحة موجبة!";
+                outputDiv.style.display = "block";
+                return;
+            }
+
+            let steps = "<b>خطوات خوارزمية إقليدس:</b><br>";
+            let stepNum = 1;
+            
+            let originalA = a;
+            let originalB = b;
+
+            while (b !== 0) {
+                steps += `الخطوة ${stepNum}: باقي قسمة ${a} على ${b} يساوي (${a % b})<br>`;
+                let temp = b;
+                b = a % b;
+                a = temp;
+                stepNum++;
+            }
+            
+            steps += `<br><b>النتيجة:</b> أكبر عدد ممكن من الصناديق هو <span style="color:#2e7d32; font-size:1.2em;">${a}</span> صندوق!`;
+            outputDiv.innerHTML = steps;
+            outputDiv.style.display = "block";
+        }
+
+        function calculateLCMSteps() {
+            let x = parseInt(document.getElementById('metroX').value);
+            let y = parseInt(document.getElementById('metroY').value);
+            let outputDiv = document.getElementById('lcm-output');
+            
+            if (isNaN(x) || isNaN(y) || x <= 0 || y <= 0) {
+                outputDiv.innerHTML = "الرجاء إدخال أرقام صحيحة موجبة للوقت!";
+                outputDiv.style.display = "block";
+                return;
+            }
+
+            // حساب GCD
+            let tempA = x, tempB = y;
+            while (tempB !== 0) {
+                let temp = tempB;
+                tempB = tempA % tempB;
+                tempA = temp;
+            }
+            let currentGCD = tempA;
+
+            let steps = `<b>الخطوة 1:</b> نحسب القاسم المشترك الأكبر (GCD) للوقتين ${x} و ${y}.<br>`;
+            steps += `الـ GCD يساوي: ${currentGCD}<br><br>`;
+            
+            steps += `<b>الخطوة 2:</b> نطبق معادلة LCM الآمنة:<br>`;
+            steps += `LCM = (${x} ÷ ${currentGCD}) × ${y}<br>`;
+            
+            let currentLCM = (x / currentGCD) * y;
+            steps += `LCM = ${(x / currentGCD)} × ${y} = ${currentLCM}<br><br>`;
+            
+            steps += `<b>النتيجة:</b> سيلتقي القطاران بعد <span style="color:#2e7d32; font-size:1.2em;">${currentLCM}</span> دقيقة!`;
+            
+            outputDiv.innerHTML = steps;
+            outputDiv.style.display = "block";
+        }
+    </script>
+</body>
+</html>
