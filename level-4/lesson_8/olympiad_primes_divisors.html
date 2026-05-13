@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>القواسم والأعداد الأولية | أولمبياد نسمه</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --accent: #00d4aa;
+    --accent2: #7c3aed;
+    --accent3: #f59e0b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --border: #1e3a5f;
+    --code-bg: #0d1117;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 50% at 20% 20%, rgba(0,212,170,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(124,58,237,0.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+
+  /* Header */
+  header {
+    background: linear-gradient(135deg, #0d1b2a 0%, #1a1040 50%, #0a1628 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
+  }
+
+  .header-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 32px 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .logo-badge {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    font-size: 12px;
+    font-weight: 900;
+    padding: 6px 14px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .header-text h1 {
+    font-size: 26px;
+    font-weight: 900;
+    background: linear-gradient(90deg, var(--accent), #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header-text p {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  /* Nav tabs */
+  .nav-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .nav-tab {
+    padding: 8px 18px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+
+  .nav-tab:hover { border-color: var(--accent); color: var(--accent); }
+  .nav-tab.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+
+  /* Sections */
+  .section {
+    display: none;
+    padding: 40px 0;
+    animation: fadeIn 0.3s ease;
+  }
+  .section.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 100px; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--accent));
+    border-radius: 0 16px 0 0;
+  }
+
+  .card h2 {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 20px 0 10px;
+    color: #a78bfa;
+  }
+
+  .card p { line-height: 1.9; color: var(--text); margin-bottom: 12px; font-size: 15px; }
+
+  .highlight-box {
+    background: rgba(0,212,170,0.06);
+    border: 1px solid rgba(0,212,170,0.25);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin: 16px 0;
+  }
+
+  .highlight-box.purple {
+    background: rgba(124,58,237,0.06);
+    border-color: rgba(124,58,237,0.25);
+  }
+
+  .highlight-box.amber {
+    background: rgba(245,158,11,0.06);
+    border-color: rgba(245,158,11,0.25);
+  }
+
+  /* Code blocks */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid #1e2d3d;
+    border-radius: 12px;
+    padding: 20px;
+    overflow-x: auto;
+    margin: 16px 0;
+    position: relative;
+  }
+
+  pre code {
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    direction: ltr;
+    display: block;
+  }
+
+  .kw { color: #ff79c6; }
+  .type { color: #8be9fd; }
+  .fn { color: #50fa7b; }
+  .num { color: #bd93f9; }
+  .str { color: #f1fa8c; }
+  .cmt { color: #6272a4; font-style: italic; }
+  .op { color: #ff79c6; }
+
+  .lang-badge {
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'Fira Code', monospace;
+    background: var(--surface2);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  /* Complexity badges */
+  .complexity {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Fira Code', monospace;
+  }
+  .complexity.bad { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+  .complexity.good { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+
+  /* Pair visualization */
+  .pair-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    margin: 16px 0;
+  }
+
+  .pair-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+    transition: all 0.2s;
+    cursor: default;
+  }
+
+  .pair-item.mirror { border-color: var(--accent2); color: #a78bfa; }
+  .pair-item.pivot { border-color: var(--accent); color: var(--accent); background: rgba(0,212,170,0.08); }
+
+  /* Interactive demos */
+  .demo-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin: 20px 0;
+  }
+
+  .demo-box h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent3);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .input-row label { color: var(--text-muted); font-size: 14px; }
+
+  input[type="number"] {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-family: 'Fira Code', monospace;
+    font-size: 14px;
+    width: 140px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="number"]:focus { border-color: var(--accent); }
+
+  .btn {
+    padding: 9px 20px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { background: #00f0c0; transform: translateY(-1px); }
+
+  .btn-secondary { background: var(--accent2); color: white; }
+  .btn-secondary:hover { background: #8b5cf6; transform: translateY(-1px); }
+
+  .output-area {
+    background: var(--code-bg);
+    border: 1px solid #1e2d3d;
+    border-radius: 10px;
+    padding: 16px;
+    min-height: 50px;
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    direction: ltr;
+    word-break: break-all;
+  }
+
+  .divisor-chip {
+    display: inline-block;
+    margin: 3px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .divisor-chip.small { background: rgba(0,212,170,0.15); color: var(--accent); border: 1px solid rgba(0,212,170,0.3); }
+  .divisor-chip.big { background: rgba(124,58,237,0.15); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); }
+
+  /* Quiz section */
+  .quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .difficulty-tag {
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .easy { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+  .medium { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+  .hard { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+
+  .question-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+  }
+
+  .question-card:hover { border-color: #2d4a6e; }
+
+  .q-number {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    font-family: 'Fira Code', monospace;
+  }
+
+  .q-text {
+    font-size: 15px;
+    line-height: 1.8;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  .q-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .q-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+  }
+
+  .q-option:hover { border-color: var(--accent); background: rgba(0,212,170,0.05); }
+  .q-option.selected { border-color: var(--accent2); background: rgba(124,58,237,0.1); }
+  .q-option.correct { border-color: var(--success) !important; background: rgba(34,197,94,0.1) !important; color: #4ade80; }
+  .q-option.wrong { border-color: var(--danger) !important; background: rgba(239,68,68,0.1) !important; color: #f87171; }
+
+  .q-option input[type="radio"] { accent-color: var(--accent); }
+
+  .q-explain {
+    display: none;
+    margin-top: 12px;
+    padding: 12px 16px;
+    background: rgba(0,212,170,0.06);
+    border: 1px solid rgba(0,212,170,0.2);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  .q-explain.visible { display: block; }
+
+  .submit-btn-wrap { text-align: center; margin: 30px 0; }
+
+  .score-display {
+    display: none;
+    background: var(--surface2);
+    border: 2px solid var(--accent);
+    border-radius: 16px;
+    padding: 28px;
+    text-align: center;
+    margin: 20px 0;
+  }
+
+  .score-display.show { display: block; animation: fadeIn 0.5s ease; }
+  .score-display .score-num { font-size: 52px; font-weight: 900; color: var(--accent); font-family: 'Fira Code', monospace; }
+  .score-display .score-label { color: var(--text-muted); margin-top: 6px; }
+
+  .progress-bar {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    margin: 16px 0;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.5s ease;
+  }
+
+  /* Divider */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 32px 0 24px;
+  }
+  .section-divider::before, .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .section-divider span {
+    color: var(--text-muted);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  /* Visualization */
+  .sqrt-viz {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .sqrt-viz table {
+    border-collapse: collapse;
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+    width: 100%;
+  }
+  .sqrt-viz th {
+    background: var(--surface2);
+    color: var(--text-muted);
+    padding: 8px 12px;
+    text-align: center;
+    font-weight: 600;
+    border: 1px solid var(--border);
+  }
+  .sqrt-viz td {
+    padding: 7px 12px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .sqrt-viz tr.pivot-row td { color: var(--accent); background: rgba(0,212,170,0.06); font-weight: 700; }
+  .sqrt-viz tr.dup-row td { color: var(--text-muted); opacity: 0.5; }
+
+  /* Problem examples */
+  .problem-box {
+    background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(0,212,170,0.04));
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 14px;
+    padding: 22px;
+    margin: 20px 0;
+  }
+
+  .problem-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: #a78bfa;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-top: 60px;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .header-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .header-text h1 { font-size: 20px; }
+    .nav-tab { font-size: 12px; padding: 7px 14px; }
+    .card { padding: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-badge">🏆 أولمبياد نسمه</div>
+    <div class="header-text">
+      <h1>القواسم والأعداد الأولية</h1>
+      <p>Divisors & Prime Numbers · نظرية الأعداد الأساسية</p>
+    </div>
+  </div>
+</header>
+
+<div style="background:var(--surface); border-bottom:1px solid var(--border);">
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showSection('theory')">📚 الشرح النظري</button>
+    <button class="nav-tab" onclick="showSection('sqrt')">⚡ حيلة الجذر</button>
+    <button class="nav-tab" onclick="showSection('interactive')">🧪 التجربة التفاعلية</button>
+    <button class="nav-tab" onclick="showSection('problems')">🧩 المسائل</button>
+    <button class="nav-tab" onclick="showSection('quiz')">✏️ الاختبار</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ====== THEORY ====== -->
+  <div id="theory" class="section active">
+
+    <div class="card">
+      <h2>🎯 ما الهدف من هذا الدرس؟</h2>
+      <p>عندما يكون العدد <code>N</code> صغيراً (مثل 50)، يمكننا فعل أي شيء. لكن عندما يصل <code>N</code> إلى مليار — <strong>1,000,000,000</strong> — الطريقة الخاطئة ستجمّد كودك تماماً!</p>
+      <p>في هذا الدرس نتعلم سؤالين أساسيين:</p>
+      <div class="highlight-box">
+        <p>🔹 <strong>ما هي الأعداد التي تقسم N؟</strong> (إيجاد القواسم Divisors)</p>
+        <p>🔹 <strong>هل N عدد أولي؟</strong> (اختبار الأولية Primality Test)</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📌 تعريفات أساسية</h2>
+      <h3>القاسم (Divisor)</h3>
+      <p>العدد <code>d</code> يُسمّى قاسمًا لـ<code>n</code> إذا كان <code>n % d == 0</code>، أي أن <code>n</code> يقبل القسمة على <code>d</code> بدون باقٍ.</p>
+      <div class="highlight-box">
+        <p><strong>مثال:</strong> قواسم 12 هي: 1, 2, 3, 4, 6, 12</p>
+        <p>لأن: 12÷1=12 ، 12÷2=6 ، 12÷3=4 ، 12÷4=3 ، 12÷6=2 ، 12÷12=1</p>
+      </div>
+
+      <h3>العدد الأولي (Prime Number)</h3>
+      <p>العدد الأولي هو عدد أكبر من 1، له بالضبط قاسمان فقط: <strong>1 ونفسه</strong>.</p>
+      <div class="highlight-box purple">
+        <p><strong>أعداد أولية:</strong> 2, 3, 5, 7, 11, 13, 17, 19, 23 ...</p>
+        <p><strong>ليست أولية:</strong> 1 (قاسم واحد)، 4 (له قاسم 2)، 9 (له قاسم 3)</p>
+        <p>⚠️ <strong>الاستثناء المهم:</strong> العدد 2 هو العدد الأولي الزوجي الوحيد!</p>
+      </div>
+
+      <h3>لماذا التحسين مهم جداً؟</h3>
+      <div class="highlight-box amber">
+        <p>الطريقة البطيئة: حلقة من 1 إلى N</p>
+        <p>إذا كان N = 1,000,000,000 → يحتاج <strong>~10 ثوانٍ</strong> ❌</p>
+        <p>الطريقة المحسّنة: حلقة من 1 إلى √N</p>
+        <p>إذا كان N = 1,000,000,000 → √N ≈ 31,623 → يحتاج <strong>جزء من الثانية</strong> ✅</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>💻 الكود: إيجاد القواسم</h2>
+      <h3>❌ الطريقة البطيئة — O(N)</h3>
+      <pre><span class="lang-badge">C++</span><code><span class="cmt">// إذا كان N = 10^9، هذا يستغرق ~10 ثوانٍ — بطيء جداً!</span>
+<span class="kw">for</span> (<span class="type">int</span> i = <span class="num">1</span>; i <= n; i++) {
+    <span class="kw">if</span> (n % i == <span class="num">0</span>) cout << i << <span class="str">" "</span>;
+}</code></pre>
+      <div style="margin: 8px 0;"><span class="complexity bad">⚠ O(N) — بطيء</span></div>
+
+      <h3>✅ الطريقة المحسّنة — O(√N)</h3>
+      <pre><span class="lang-badge">C++</span><code><span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;vector&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;algorithm&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="type">int</span> <span class="fn">main</span>() {
+    <span class="type">long long</span> n = <span class="num">36</span>;
+    vector<<span class="type">long long</span>> divisors;
+
+    <span class="cmt">// i * i <= n أفضل من i <= sqrt(n)</span>
+    <span class="cmt">// لأنها تتجنب الأعداد العشرية البطيئة</span>
+    <span class="kw">for</span> (<span class="type">long long</span> i = <span class="num">1</span>; i * i <= n; i++) {
+        <span class="kw">if</span> (n % i == <span class="num">0</span>) {
+            divisors.<span class="fn">push_back</span>(i);       <span class="cmt">// القاسم الصغير</span>
+            
+            <span class="kw">if</span> (i != n / i) {           <span class="cmt">// تجنّب التكرار (مثل 6 في n=36)</span>
+                divisors.<span class="fn">push_back</span>(n / i); <span class="cmt">// الشريك الكبير</span>
+            }
+        }
+    }
+
+    <span class="kw">for</span> (<span class="type">long long</span> d : divisors) cout << d << <span class="str">" "</span>;
+}</code></pre>
+      <div style="margin: 8px 0;"><span class="complexity good">✓ O(√N) — سريع جداً</span></div>
+
+      <h3>✅ الكود: اختبار الأولية</h3>
+      <pre><span class="lang-badge">C++</span><code><span class="type">bool</span> <span class="fn">isPrime</span>(<span class="type">long long</span> n) {
+    <span class="kw">if</span> (n <= <span class="num">1</span>) <span class="kw">return false</span>; <span class="cmt">// 0 و 1 ليسا أوليين</span>
+    
+    <span class="kw">for</span> (<span class="type">long long</span> i = <span class="num">2</span>; i * i <= n; i++) {
+        <span class="kw">if</span> (n % i == <span class="num">0</span>) {
+            <span class="kw">return false</span>; <span class="cmt">// وجدنا قاسماً! إذن ليس أولياً</span>
+        }
+    }
+    <span class="kw">return true</span>; <span class="cmt">// نجا من الحلقة؟ إذن هو أولي!</span>
+}</code></pre>
+      <div style="margin: 8px 0;"><span class="complexity good">✓ O(√N)</span></div>
+    </div>
+
+  </div>
+
+  <!-- ====== SQRT TRICK ====== -->
+  <div id="sqrt" class="section">
+
+    <div class="card">
+      <h2>⚡ الفكرة الكبرى: حيلة الجذر التربيعي</h2>
+      <p>هذه الحيلة هي <strong>الأهم</strong> في نظرية الأعداد الأساسية. دعنا نفهمها بالتفصيل.</p>
+
+      <div class="highlight-box">
+        <p><strong>المبدأ:</strong> القواسم دائماً تأتي في أزواج! إذا كان <code>a × b = n</code> وكان <code>a</code> صغيراً، فإن <code>b</code> يجب أن يكون كبيراً. الزوجان "يلتقيان" بالضبط عند <code>√n</code>.</p>
+      </div>
+
+      <h3>مثال: قواسم 36 في أزواج</h3>
+      <div class="sqrt-viz">
+        <table>
+          <tr>
+            <th>a</th><th>b = 36/a</th><th>ملاحظة</th>
+          </tr>
+          <tr><td>1</td><td>36</td><td>زوج جديد ✅</td></tr>
+          <tr><td>2</td><td>18</td><td>زوج جديد ✅</td></tr>
+          <tr><td>3</td><td>12</td><td>زوج جديد ✅</td></tr>
+          <tr><td>4</td><td>9</td><td>زوج جديد ✅</td></tr>
+          <tr><td>5</td><td>—</td><td>36 % 5 ≠ 0</td></tr>
+          <tr class="pivot-row"><td>6</td><td>6</td><td>🎯 نقطة التحول (√36 = 6)</td></tr>
+          <tr class="dup-row"><td>9</td><td>4</td><td>تكرار! رأيناه بالفعل ↩</td></tr>
+          <tr class="dup-row"><td>12</td><td>3</td><td>تكرار! ↩</td></tr>
+          <tr class="dup-row"><td>18</td><td>2</td><td>تكرار! ↩</td></tr>
+          <tr class="dup-row"><td>36</td><td>1</td><td>تكرار! ↩</td></tr>
+        </table>
+      </div>
+
+      <div class="highlight-box amber" style="margin-top: 16px;">
+        <p>🔑 <strong>القاعدة الذهبية:</strong> لا تحتاج للتحقق من الأعداد الأكبر من <code>√n</code>. إذا لم تجد عاملاً بحلول ذلك الوقت، إما أنه غير موجود، أو أنك وجدت شريكه بالفعل!</p>
+      </div>
+
+      <h3>لماذا <code>i * i &lt;= n</code> وليس <code>i &lt;= sqrt(n)</code>؟</h3>
+      <div class="highlight-box purple">
+        <p>⚠️ <code>sqrt(n)</code> تُرجع عدداً عشرياً (double)، وهذا بطيء ويمكن أن يسبب أخطاء تقريبية.</p>
+        <p>✅ <code>i * i &lt;= n</code> تستخدم ضرب الأعداد الصحيحة فقط — أسرع وأدق.</p>
+        <p>⚠️ <strong>تحذير:</strong> إذا كان N كبيراً جداً، <code>i * i</code> قد يتجاوز حد <code>int</code>، لذا استخدم دائماً <code>long long</code>.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🔢 تمثيل القواسم بصرياً</h2>
+      <p>القواسم الصغيرة باللون الأخضر والكبيرة بالبنفسجي — كل زوج متصل:</p>
+      <div class="pair-grid" id="pairViz">
+        <div class="pair-item small">1</div>
+        <div class="pair-item small">2</div>
+        <div class="pair-item small">3</div>
+        <div class="pair-item small">4</div>
+        <div class="pair-item pivot">6 = √36</div>
+        <div class="pair-item mirror">9</div>
+        <div class="pair-item mirror">12</div>
+        <div class="pair-item mirror">18</div>
+        <div class="pair-item mirror">36</div>
+      </div>
+      <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">الأخضر: القواسم التي نجدها في حلقتنا (≤ √36) | البنفسجي: شركاؤها التلقائيون</p>
+    </div>
+
+  </div>
+
+  <!-- ====== INTERACTIVE ====== -->
+  <div id="interactive" class="section">
+
+    <div class="card">
+      <h2>🧪 أداة إيجاد القواسم التفاعلية</h2>
+      <div class="demo-box">
+        <h4>⚙️ جرّب بنفسك: أدخل أي عدد</h4>
+        <div class="input-row">
+          <label>العدد N =</label>
+          <input type="number" id="divInput" value="36" min="1" max="1000000">
+          <button class="btn btn-primary" onclick="findDivisors()">🔍 إيجاد القواسم</button>
+        </div>
+        <div class="output-area" id="divOutput">اضغط الزر لإيجاد القواسم...</div>
+        <div id="divStats" style="margin-top: 10px; font-size: 13px; color: var(--text-muted);"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🔬 أداة اختبار الأولية</h2>
+      <div class="demo-box">
+        <h4>⚙️ هل هذا العدد أولي؟</h4>
+        <div class="input-row">
+          <label>العدد =</label>
+          <input type="number" id="primeInput" value="17" min="1" max="10000000">
+          <button class="btn btn-secondary" onclick="checkPrime()">🧪 اختبار</button>
+        </div>
+        <div class="output-area" id="primeOutput">أدخل عدداً واضغط اختبار...</div>
+      </div>
+      <div class="demo-box" style="margin-top: 16px;">
+        <h4>⚙️ أعداد أولية في نطاق معين</h4>
+        <div class="input-row">
+          <label>من</label>
+          <input type="number" id="rangeFrom" value="1" min="1" max="1000">
+          <label>إلى</label>
+          <input type="number" id="rangeTo" value="50" min="2" max="1000">
+          <button class="btn btn-primary" onclick="primesInRange()">🔍 البحث</button>
+        </div>
+        <div class="output-area" id="rangeOutput">أدخل نطاقاً واضغط...</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📊 محاكاة خطوات الخوارزمية</h2>
+      <div class="demo-box">
+        <h4>⚙️ شاهد الخوارزمية خطوة بخطوة</h4>
+        <div class="input-row">
+          <label>N =</label>
+          <input type="number" id="stepInput" value="24" min="2" max="200">
+          <button class="btn btn-primary" onclick="stepByStep()">▶️ تشغيل</button>
+        </div>
+        <div id="stepsContainer" style="margin-top:12px;"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ====== PROBLEMS ====== -->
+  <div id="problems" class="section">
+
+    <div class="card">
+      <h2>🥁 مسألة 1: The Marching Band</h2>
+      <div class="problem-box">
+        <div class="problem-title">📋 نص المسألة</div>
+        <p>فرقة موسيقية لديها <strong>240 عضواً</strong>. يريد المدير ترتيبهم في تشكيل مستطيل مع الشروط:</p>
+        <ul style="margin: 10px 0 10px 20px; line-height: 2;">
+          <li>يجب تضمين جميع الأعضاء (بدون فراغات)</li>
+          <li>يجب أن يكون هناك <strong>10 صفوف على الأقل</strong></li>
+          <li>لا يمكن أن يكون هناك <strong>أكثر من 20 صفاً</strong></li>
+        </ul>
+        <p>كم عدد التشكيلات المختلفة الممكنة؟</p>
+      </div>
+
+      <h3>🧠 التحليل</h3>
+      <p>نحتاج إيجاد قواسم 240 التي تقع بين 10 و 20. كل قاسم يمثل عدد الصفوف، والشريك يمثل عدد الأعمدة.</p>
+
+      <pre><span class="lang-badge">C++</span><code><span class="type">int</span> <span class="fn">findFormations</span>(<span class="type">int</span> n) {
+    vector<pair<<span class="type">int</span>, <span class="type">int</span>>> divisors;
+    
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num">1</span>; i * i <= n; i++) {
+        <span class="kw">if</span> (n % i == <span class="num">0</span>) {
+            <span class="kw">if</span> (i * i == n) {
+                divisors.<span class="fn">push_back</span>({i, i});
+            } <span class="kw">else</span> {
+                divisors.<span class="fn">push_back</span>({i, n/i});
+                divisors.<span class="fn">push_back</span>({n/i, i}); <span class="cmt">// كلا الاتجاهين</span>
+            }
+        }
+    }
+
+    <span class="type">int</span> count = <span class="num">0</span>;
+    <span class="kw">for</span> (<span class="kw">auto</span> p : divisors) {
+        <span class="kw">if</span> (p.first >= <span class="num">10</span> && p.first <= <span class="num">20</span>) {
+            count++;
+            cout << p.first << <span class="str">" صفوف × "</span> << p.second << <span class="str">" أعمدة\n"</span>;
+        }
+    }
+    <span class="kw">return</span> count;
+}</code></pre>
+
+      <div class="demo-box">
+        <h4>⚙️ جرّب المسألة تفاعلياً</h4>
+        <div class="input-row">
+          <label>عدد الأعضاء =</label>
+          <input type="number" id="bandInput" value="240" min="10" max="10000">
+          <label>صفوف من</label>
+          <input type="number" id="bandMin" value="10" min="1" max="100">
+          <label>إلى</label>
+          <input type="number" id="bandMax" value="20" min="2" max="200">
+          <button class="btn btn-primary" onclick="solveBand()">🔍 حل</button>
+        </div>
+        <div class="output-area" id="bandOutput">اضغط لحل المسألة...</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>⭐ مسألة 2: T-Prime</h2>
+      <div class="problem-box">
+        <div class="problem-title">📋 نص المسألة</div>
+        <p>العدد الأولي له <strong>قاسمان</strong>. نسمي عدداً <strong>T-Prime</strong> إذا كان له بالضبط <strong>ثلاثة قواسم مختلفة</strong>. لكل عدد في المصفوفة، حدد هل هو T-Prime أم لا.</p>
+      </div>
+
+      <h3>🧠 الحل التحليلي</h3>
+      <div class="highlight-box purple">
+        <p><strong>الإثبات:</strong> الأعداد T-Prime هي <em>فقط</em> مربعات الأعداد الأولية!</p>
+        <p>إذا كان X = p² (حيث p أولي) → القواسم هي: 1, p, p² (ثلاثة بالضبط) ✅</p>
+        <p>إذا كان X له عاملان أوليان مختلفان p وq → له على الأقل أربعة قواسم: 1, p, q, pq ❌</p>
+      </div>
+
+      <pre><span class="lang-badge">C++</span><code><span class="type">int</span> n;
+cin >> n;
+
+<span class="kw">for</span> (<span class="type">int</span> i = <span class="num">0</span>; i < n; ++i) {
+    <span class="type">long long</span> x;
+    cin >> x;
+
+    <span class="type">long long</span> y = <span class="fn">sqrt</span>(x);
+    <span class="kw">if</span> (y * y != x) {
+        cout << <span class="str">"NO\n"</span>; <span class="cmt">// ليس مربعاً كاملاً</span>
+        <span class="kw">continue</span>;
+    }
+
+    <span class="kw">if</span> (<span class="fn">isPrime</span>(y))
+        cout << <span class="str">"YES\n"</span>;
+    <span class="kw">else</span>
+        cout << <span class="str">"NO\n"</span>;
+}</code></pre>
+
+      <div class="demo-box">
+        <h4>⚙️ اختبر T-Prime تفاعلياً</h4>
+        <div class="input-row">
+          <label>العدد =</label>
+          <input type="number" id="tprimeInput" value="9" min="1" max="1000000">
+          <button class="btn btn-secondary" onclick="checkTPrime()">🔬 اختبار T-Prime</button>
+        </div>
+        <div class="output-area" id="tprimeOutput">أدخل عدداً وجرّب...</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ====== QUIZ ====== -->
+  <div id="quiz" class="section">
+
+    <div class="quiz-header">
+      <h2 style="font-size: 22px; font-weight: 900;">✏️ اختبار الدرس</h2>
+      <span style="color: var(--text-muted); font-size: 14px;">15 سؤال · قواسم وأعداد أولية</span>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="quizProgress" style="width:0%"></div>
+    </div>
+
+    <!-- ===== EASY ===== -->
+    <div class="section-divider"><span>🟢 سهل (5 أسئلة)</span></div>
+
+    <div class="question-card" id="q1">
+      <div class="q-number"><span class="difficulty-tag easy">سهل</span> &nbsp;سؤال 1</div>
+      <div class="q-text">كم عدد قواسم العدد 12؟</div>
+      <div class="q-options">
+        <label class="q-option" onclick="selectOption(this,'q1',false)"><input type="radio" name="q1"> 4</label>
+        <label class="q-option" onclick="selectOption(this,'q1',true)"><input type="radio" name="q1"> 6</label>
+        <label class="q-option" onclick="selectOption(this,'q1',false)"><input type="radio" name="q1"> 5</label>
+        <label class="q-option" onclick="selectOption(this,'q1',false)"><input type="radio" name="q1"> 3</label>
+      </div>
+      <div class="q-explain" id="exp1">قواسم 12 هي: 1, 2, 3, 4, 6, 12 — ستة قواسم.</div>
+    </div>
+
+    <div class="question-card" id="q2">
+      <div class="q-number"><span class="difficulty-tag easy">سهل</span> &nbsp;سؤال 2</div>
+      <div class="q-text">أيّ من التالي هو عدد أولي؟</div>
+      <div class="q-options">
+        <label class="q-option" onclick="selectOption(this,'q2',false)"><input type="radio" name="q2"> 9</label>
+        <label class="q-option" onclick="selectOption(this,'q2',false)"><input type="radio" name="q2"> 15</label>
+        <label class="q-option" onclick="selectOption(this,'q2',true)"><input type="radio" name="q2"> 13</label>
+        <label class="q-option" onclick="selectOption(this,'q2',false)"><input type="radio" name="q2"> 21</label>
+      </div>
+      <div class="q-explain" id="exp2">13 عدد أولي لأن قواسمه فقط 1 و13. أما 9=3×3, 15=3×5, 21=3×7.</div>
+    </div>
+
+    <div class="question-card" id="q3">
+      <div class="q-number"><span class="difficulty-tag easy">سهل</span> &nbsp;سؤال 3</div>
+      <div class="q-text">ما هي نقطة التوقف في حيلة الجذر التربيعي لإيجاد قواسم العدد 100؟</div>
+      <div class="q-options">
+        <label class="q-option" onclick="selectOption(this,'q3',false)"><input type="radio" name="q3"> 50</label>
+        <label class="q-option" onclick="selectOption(this,'q3',true)"><input type="radio" name="q3"> 10</label>
+        <label class="q-option" onclick="selectOption(this,'q3',false)"><input type="radio" name="q3"> 25</label>
+        <label class="q-option" onclick="selectOption(this,'q3',false)"><input type="radio" name="q3"> 100</label>
+      </div>
+      <div class="q-explain" id="exp3">√100 = 10، لذا نتوقف عند 10. أي قاسم أكبر من 10 هو شريك لقاسم أصغر وجدناه بالفعل.</div>
+    </div>
+
+    <div class="question-card" id="q4">
+      <div class="q-number"><span class="difficulty-tag easy">سهل</span> &nbsp;سؤال 4</div>
+      <div class="q-text">لماذا نفضّل كتابة <code>i * i &lt;= n</code> بدلاً من <code>i &lt;= sqrt(n)</code>؟</div>
+      <div class="q-options">
+        <label class="q-option" onclick="selectOption(this,'q4',false)"><input type="radio" name="q4"> لأن نتائجهما مختلفة</label>
+        <label class="q-option" onclick="selectOption(this,'q4',true)"><input type="radio" name="q4"> لتجنب أخطاء الأعداد العشرية وهي أسرع</label>
+        <label class="q-option" onclick="selectOption(this,'q4',false)"><input type="radio" name="q4"> لأن sqrt غير موجودة في C++</label>
+        <label class="q-option" onclick="selectOption(this,'q4',false)"><input type="radio" name="q4"> لا فرق بينهما</label>
+      </div>
+      <div class="q-explain" id="exp4">sqrt() تُرجع عدداً عشرياً (double) وقد تسبب أخطاء تقريبية، بينما i*i تعمل على الأعداد الصحيحة فقط وهي أسرع وأدق.</div>
+    </div>
+
+    <div class="question-card" id="q5">
+      <div class="q-number"><span class="difficulty-tag easy">سهل</span> &nbsp;سؤال 5</div>
+      <div class="q-text">هل العدد 1 يعتبر عدداً أولياً؟</div>
+      <div class="q-options">
+        <label class="q-option" onclick="selectOption(this,'q5',true)"><input type="radio" name="q5"> لا، ليس أولياً</label>
+        <label class="q-option" onclick="selectOption(this,'q5',false)"><input type="radio" name="q5"> نعم، هو أولي</label>
+        <label class="q-option" onclick="selectOption(this,'q5',false)"><input type="radio" name="q5"> يعتمد على تعريف المسألة</label>
+        <label class="q-option" onclick="selectOption(this,'q5',false)"><input type="radio" name="q5"> نعم لأنه يقبل القسمة على نفسه</label>
+      </div>
+      <div class="q-explain" id="exp5">بالتعريف، العدد الأولي يجب أن يكون أكبر من 1 وله بالضبط قاسمان. العدد 1 له قاسم واحد فقط (نفسه)، لذا ليس أولياً.</div>
+    </div>
+
+    <!-- ===== MEDIUM ===== -->
+    <div class="section-divider"><span>🟡 متوسط (5 أسئلة)</span></div>
+
+    <div class="question-card" id="q6">
+      <div class="q-number"><span class="difficulty-tag medium">متوسط</span> &nbsp;سؤال 6</div>
+      <div class="q-text">كم عدد خطوات الحلقة لإيجاد قواسم العدد 10,000 باستخدام حيلة الجذر؟ (تقريباً)</div>
+      <div class="q-options">
+        <label class="q-option" onclick="selectOption(this,'q6',false)"><input type="radio" name="q6"> 10,000</label>
+        <label class="q-option" onclick="selectOption(this,'q6',false)"><input type="radio" name="q6"> 5,000</label>
+        <label class="q-option" onclick="selectOption(this,'q6',true)"><input type="radio" name="q6"> 100</label>
+        <label class="q-option" onclick="selectOption(this,'q6',false)"><input type="radio" name="q6"> 1,000</label>
+      </div>
+      <div class="q-explain" id="exp6">√10,000 = 100، لذا الحلقة تُنفَّذ ~100 مرة فقط بدلاً من 10,000 مرة. هذا توفير ضخم في الوقت!</div>
+    </div>
+
+    <div class="question-card" id="q7">
+      <div class="q-number"><span class="difficulty-tag medium">متوسط</span> &nbsp;سؤال 7</div>
+      <div class="q-text">عند إيجاد قواسم 25، لماذا لا نضيف القاسم 5 مرتين؟</div>
+      <div class="q-options">
+        <label class="q-option" onclick="selectOption(this,'q7',false)"><input type="radio" name="q7"> لأن 5 ليس قاسماً لـ 25</label>
+        <label class="q-option" onclick="selectOption(this,'q7',true)"><input type="radio" name="q7"> لأن 5 = √25، أي i == n/i، فنضيفه مرة واحدة فقط</label>
+        <label class="q-option" onclick="selectOption(this,'q7',false)"><input type="radio" name="q7"> لأن 25 عدد أولي</label>
+        <label class="q-option" onclick="selectOption(this,'q7',false)"><input type="radio" name="q7"> لأن القواسم يجب أن تكون زوجية</label>
+      </div>
+      <div class="q-explain" id="exp7">عندما i == n/i (أي عندما i = √n مربع كامل)، القاسم وشريكه هما نفس العدد. الكود يتحقق: if (i != n/i) قبل إضافة الشريك لتجنب التكرار.</div>
+    </div>
+
+    <div class="question-card" id="q8">
+      <div class="q-number"><span class="difficulty-tag medium">متوسط</span> &nbsp;سؤال 8</div>
+      <div class="q-text">ما هو تعريف العدد T-Prime؟</div>
+      <div class="q-options">
+        <label class="q-option" onclick="selectOption(this,'q8',false)"><input type="radio" name="q8"> عدد له قاسمان فقط</label>
+        <label class="q-option" onclick="selectOption(this,'q8',true)"><input type="radio" name="q8"> عدد له بالضبط ثلاثة قواسم مختلفة</label>
+        <label class="q-option" onclick="selectOption(this,'q8',false)"><input type="radio" name="q8"> عدد هو مجموع عددين أوليين</label>
+        <label class="q-option" onclick="selectOption(this,'q8',false)"><input type="radio" name="q8"> عدد أولي مضاعف ثلاث مرات</label>
+      </div>
+      <div class="q-explain" id="exp8">T-Prime هو عدد له بالضبط 3 قواسم مختلفة. وقد أثبتنا أن هذه الأعداد هي فقط مربعات الأعداد الأولية: p².</div>
+    </div>
+
+    <div class="question-card" id="q9">
+      <div class="q-number"><span class="difficulty-tag medium">متوسط</span> &nbsp;سؤال 9</div>
+      <div class="q-text">هل العدد 49 هو T-Prime؟ ولماذا؟</div>
+      <div class="q-options">
+        <label class="q-option" onclick="selectOption(this,'q9',true)"><input type="radio" name="q9"> نعم، لأن 49 = 7² وقواسمه: 1, 7, 49</label>
+        <label class="q-option" onclick="selectOption(this,'q9',false)"><input type="radio" name="q9"> لا، لأن 49 ليس عدداً أولياً</label>
+        <label class="q-option" onclick="selectOption(this,'q9',false)"><input type="radio" name="q9"> نعم، لأن 49 فردي</label>
+        <label class="q-option" onclick="selectOption(this,'q9',false)"><input type="radio" name="q9"> لا، لأن 49 مربع كامل</label>
+      </div>
+      <div class="q-explain" id="exp9">49 = 7², و7 عدد أولي. قواسم 49 هي: 1, 7, 49 — ثلاثة بالضبط. إذن هو T-Prime! ✅</div>
+    </div>
+
+    <div class="question-card" id="q10">
+      <div class="q-number"><span class="difficulty-tag medium">متوسط</span> &nbsp;سؤال 10</div>
+      <div class="q-text">ما هو التعقيد الزمني لدالة isPrime() باستخدام حيلة الجذر؟</div>
+      <div class="q-options">
+        <label class="q-option" onclick="selectOption(this,'q10',false)"><input type="radio" name="q10"> O(N)</label>
+        <label class="q-option" onclick="selectOption(this,'q10',false)"><input type="radio" name="q10"> O(N²)</label>
+        <label class="q-option" onclick="selectOption(this,'q10',true)"><input type="radio" name="q10"> O(√N)</label>
+        <label class="q-option" onclick="selectOption(this,'q10',false)"><input type="radio" name="q10"> O(log N)</label>
+      </div>
+      <div class="q-explain" id="exp10">الدالة تتكرر من 2 إلى √N فقط، لذا تعقيدها O(√N). هذا أسرع بكثير من O(N).</div>
+    </div>
+
+    <!-- ===== HARD ===== -->
+    <div class="section-divider"><span>🔴 صعب (5 أسئلة)</span></div>
+
+    <div class="question-card" id="q11">
+      <div class="q-number"><span class="difficulty-tag hard">صعب</span> &nbsp;سؤال 11</div>
+      <div class="q-text">إذا كان N = 10⁶، كم مرة تكرر الحلقة في الطريقة المحسّنة مقارنة بالطريقة البطيئة؟</div>
+      <div class="q-options">
+        <label class="q-option" onclick="selectOption(this,'q11',false)"><input type="radio" name="q11"> الطريقة المحسّنة أبطأ بـ 1000 مرة</label>
+        <label class="q-option" onclick="selectOption(this,'q11',true)"><input type="radio" name="q11"> الطريقة المحسّنة أسرع بـ 1000 مرة تقريباً</label>
+        <label class="q-option" onclick="selectOption(this,'q11',false)"><input type="radio" name="q11"> لا فرق بينهما</label>
+        <label class="q-option" onclick="selectOption(this,'q11',false)"><input type="radio" name="q11"> الطريقة المحسّنة أسرع بـ 100 مرة فقط</label>
+      </div>
+      <div class="q-explain" id="exp11">√(10⁶) = 10³ = 1000. الطريقة البطيئة: 10⁶ خطوة. الطريقة المحسّنة: 10³ خطوة. النسبة = 10⁶/10³ = 1000 مرة أسرع! ✅</div>
+    </div>
+
+    <div class="question-card" id="q12">
+      <div class="q-number"><span class="difficulty-tag hard">صعب</span> &nbsp;سؤال 12</div>
+      <div class="q-text">عند استخدام <code>long long i</code> والتحقق بـ <code>i * i &lt;= n</code>، ما المشكلة المحتملة إذا استخدمنا <code>int i</code> و N = 10⁹؟</div>
+      <div class="q-options">
+        <label class="q-option" onclick="selectOption(this,'q12',false)"><input type="radio" name="q12"> لا توجد مشكلة، int كافٍ</label>
+        <label class="q-option" onclick="selectOption(this,'q12',true)"><input type="radio" name="q12"> i*i يتجاوز حد int (overflow) عندما i > 46,340</label>
+        <label class="q-option" onclick="selectOption(this,'q12',false)"><input type="radio" name="q12"> الكود لن يُترجَم</label>
+        <label class="q-option" onclick="selectOption(this,'q12',false)"><input type="radio" name="q12"> الحلقة لن تتوقف أبداً</label>
+      </div>
+      <div class="q-explain" id="exp12">حد int هو ~2.1 × 10⁹. عندما i ≈ 46,341، فإن i*i ≈ 2.1 × 10⁹ تتجاوز حد int وتسبب overflow (أعداد سالبة خاطئة). الحل: استخدم long long دائماً مع الأعداد الكبيرة.</div>
+    </div>
+
+    <div class="question-card" id="q13">
+      <div class="q-number"><span class="difficulty-tag hard">صعب</span> &nbsp;سؤال 13</div>
+      <div class="q-text">لماذا لا يمكن لأي عدد T-Prime أن يكون زوجياً (ما عدا 4)؟</div>
+      <div class="q-options">
+        <label class="q-option" onclick="selectOption(this,'q13',false)"><input type="radio" name="q13"> لأن الأعداد الزوجية لها دائماً قاسمان فقط</label>
+        <label class="q-option" onclick="selectOption(this,'q13',true)"><input type="radio" name="q13"> لأن الأعداد الأولية الزوجية فقط هي 2، ومربعها 4. كل زوجي آخر = 4k يملك 1,2,4,k,... قواسم</label>
+        <label class="q-option" onclick="selectOption(this,'q13',false)"><input type="radio" name="q13"> لأن مربعات الأعداد الزوجية ليست مربعات كاملة</label>
+        <label class="q-option" onclick="selectOption(this,'q13',false)"><input type="radio" name="q13"> لا يوجد سبب منطقي لذلك</label>
+      </div>
+      <div class="q-explain" id="exp13">T-Prime يجب أن يكون p² حيث p أولي. العدد الأولي الزوجي الوحيد هو 2، إذن 2²=4 هو T-Prime الزوجي الوحيد. أي p أولي آخر فردي → p² فردي.</div>
+    </div>
+
+    <div class="question-card" id="q14">
+      <div class="q-number"><span class="difficulty-tag hard">صعب</span> &nbsp;سؤال 14</div>
+      <div class="q-text">في مسألة الفرقة الموسيقية (240 عضو)، إذا كان الشرط 15 صفاً على الأقل و30 صفاً كحد أقصى، كم تشكيلاً يكون ممكناً؟</div>
+      <div class="q-options">
+        <label class="q-option" onclick="selectOption(this,'q14',false)"><input type="radio" name="q14"> 2</label>
+        <label class="q-option" onclick="selectOption(this,'q14',true)"><input type="radio" name="q14"> 3</label>
+        <label class="q-option" onclick="selectOption(this,'q14',false)"><input type="radio" name="q14"> 4</label>
+        <label class="q-option" onclick="selectOption(this,'q14',false)"><input type="radio" name="q14"> 5</label>
+      </div>
+      <div class="q-explain" id="exp14">قواسم 240 بين 15 و30: 16 (240÷16=15)، 20 (240÷20=12)، 24 (240÷24=10). هذه ثلاثة تشكيلات. يمكنك التحقق تفاعلياً في قسم المسائل!</div>
+    </div>
+
+    <div class="question-card" id="q15">
+      <div class="q-number"><span class="difficulty-tag hard">صعب</span> &nbsp;سؤال 15</div>
+      <div class="q-text">كم عدداً T-Prime موجود أصغر من 100؟ وما هي؟</div>
+      <div class="q-options">
+        <label class="q-option" onclick="selectOption(this,'q15',false)"><input type="radio" name="q15"> 3 أعداد: 4, 9, 25</label>
+        <label class="q-option" onclick="selectOption(this,'q15',true)"><input type="radio" name="q15"> 4 أعداد: 4, 9, 25, 49</label>
+        <label class="q-option" onclick="selectOption(this,'q15',false)"><input type="radio" name="q15"> 5 أعداد: 4, 9, 25, 49, 121</label>
+        <label class="q-option" onclick="selectOption(this,'q15',false)"><input type="radio" name="q15"> 4 أعداد: 4, 9, 25, 36</label>
+      </div>
+      <div class="q-explain" id="exp15">الأعداد الأولية ≤ √100 = 10 هي: 2,3,5,7. مربعاتها: 4, 9, 25, 49 — كلها أقل من 100. 11² = 121 > 100. إذن الإجابة 4 أعداد: 4, 9, 25, 49. ✅</div>
+    </div>
+
+    <div class="submit-btn-wrap">
+      <button class="btn btn-primary" style="font-size: 16px; padding: 12px 36px;" onclick="submitQuiz()">📊 عرض النتيجة</button>
+    </div>
+
+    <div class="score-display" id="scoreDisplay">
+      <div class="score-num" id="scoreNum">0/15</div>
+      <div class="score-label" id="scoreLabel">نتيجتك</div>
+      <div class="progress-bar" style="margin-top:16px;">
+        <div class="progress-fill" id="scoreBar" style="width:0%"></div>
+      </div>
+      <button class="btn btn-secondary" style="margin-top: 16px;" onclick="resetQuiz()">🔄 إعادة المحاولة</button>
+    </div>
+
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <p>أولمبياد نسمه · القواسم والأعداد الأولية · برمجة للشباب السعودي</p>
+    <p style="margin-top: 6px; color: #475569;">الفئة العمرية: 15–20 سنة</p>
+  </div>
+</footer>
+
+<script>
+// ===== NAV =====
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ===== DIVISORS =====
+function getDivisors(n) {
+  const divs = [];
+  for (let i = 1; i * i <= n; i++) {
+    if (n % i === 0) {
+      divs.push({ val: i, type: 'small' });
+      if (i !== n / i) divs.push({ val: n / i, type: 'big' });
+    }
+  }
+  divs.sort((a, b) => a.val - b.val);
+  return divs;
+}
+
+function findDivisors() {
+  const n = parseInt(document.getElementById('divInput').value);
+  if (!n || n < 1) return;
+  const divs = getDivisors(n);
+  const out = document.getElementById('divOutput');
+  out.innerHTML = divs.map(d =>
+    `<span class="divisor-chip ${d.type}">${d.val}</span>`
+  ).join('');
+  document.getElementById('divStats').innerHTML =
+    `عدد القواسم: <strong style="color:var(--accent)">${divs.length}</strong> &nbsp;|&nbsp; نطاق البحث: 1 إلى √${n} ≈ <strong style="color:var(--accent)">${Math.floor(Math.sqrt(n))}</strong>`;
+}
+
+// ===== PRIME =====
+function isPrime(n) {
+  if (n <= 1) return false;
+  for (let i = 2; i * i <= n; i++) {
+    if (n % i === 0) return false;
+  }
+  return true;
+}
+
+function checkPrime() {
+  const n = parseInt(document.getElementById('primeInput').value);
+  const out = document.getElementById('primeOutput');
+  if (!n || n < 1) { out.textContent = 'أدخل عدداً صحيحاً موجباً'; return; }
+  const result = isPrime(n);
+  if (result) {
+    out.innerHTML = `<span style="color:var(--success)">✅ ${n} عدد أولي!</span>`;
+  } else {
+    const divs = getDivisors(n).map(d => d.val);
+    out.innerHTML = `<span style="color:var(--danger)">❌ ${n} ليس أولياً</span> — قواسمه: ${divs.join(', ')}`;
+  }
+}
+
+function primesInRange() {
+  const from = parseInt(document.getElementById('rangeFrom').value);
+  const to = parseInt(document.getElementById('rangeTo').value);
+  const out = document.getElementById('rangeOutput');
+  if (to - from > 500) { out.textContent = 'النطاق كبير جداً، حدد أقل من 500 عدد.'; return; }
+  const primes = [];
+  for (let i = from; i <= to; i++) {
+    if (isPrime(i)) primes.push(i);
+  }
+  out.innerHTML = primes.length
+    ? primes.map(p => `<span class="divisor-chip small">${p}</span>`).join('')
+    : '<span style="color:var(--text-muted)">لا توجد أعداد أولية في هذا النطاق</span>';
+}
+
+// ===== STEP BY STEP =====
+function stepByStep() {
+  const n = parseInt(document.getElementById('stepInput').value);
+  const c = document.getElementById('stepsContainer');
+  c.innerHTML = '';
+  if (!n || n < 2) return;
+  
+  const steps = [];
+  const divs = [];
+  
+  for (let i = 1; i * i <= n; i++) {
+    if (n % i === 0) {
+      const partner = n / i;
+      const isDup = i === partner;
+      steps.push({
+        i, mod: n % i, partner, isDup,
+        msg: isDup
+          ? `i=${i}: ${n} % ${i} = 0 ✅ → أضف ${i} (هو وشريكه نفس العدد √${n})`
+          : `i=${i}: ${n} % ${i} = 0 ✅ → أضف ${i} و ${partner}`
+      });
+      divs.push(i);
+      if (!isDup) divs.push(partner);
+    } else {
+      steps.push({ i, mod: n % i, skip: true, msg: `i=${i}: ${n} % ${i} = ${n % i} ≠ 0 ✗ تخطّ` });
+    }
+  }
+  
+  let html = `<div style="font-family:'Fira Code',monospace; font-size:13px; direction:ltr;">`;
+  steps.forEach(s => {
+    const color = s.skip ? '#64748b' : '#4ade80';
+    html += `<div style="padding:5px 10px; margin:4px 0; background:var(--code-bg); border-radius:6px; border-right:3px solid ${color}; color:${color};">${s.msg}</div>`;
+  });
+  html += `</div>`;
+  html += `<div style="margin-top:12px; padding:10px 14px; background:rgba(0,212,170,0.08); border:1px solid rgba(0,212,170,0.3); border-radius:8px; font-size:13px;">`;
+  html += `<strong style="color:var(--accent)">النتيجة:</strong> قواسم ${n} هي: ${divs.sort((a,b)=>a-b).map(d => `<span class="divisor-chip small">${d}</span>`).join('')}`;
+  html += `</div>`;
+  c.innerHTML = html;
+}
+
+// ===== BAND =====
+function solveBand() {
+  const n = parseInt(document.getElementById('bandInput').value);
+  const mn = parseInt(document.getElementById('bandMin').value);
+  const mx = parseInt(document.getElementById('bandMax').value);
+  const out = document.getElementById('bandOutput');
+  
+  const formations = [];
+  for (let i = 1; i * i <= n; i++) {
+    if (n % i === 0) {
+      const pairs = [[i, n/i], [n/i, i]];
+      pairs.forEach(([rows, cols]) => {
+        if (rows >= mn && rows <= mx) {
+          formations.push({ rows, cols });
+        }
+      });
+    }
+  }
+  
+  formations.sort((a,b) => a.rows - b.rows);
+  
+  if (formations.length === 0) {
+    out.innerHTML = `<span style="color:var(--danger)">❌ لا توجد تشكيلات ممكنة بهذه الشروط</span>`;
+    return;
+  }
+  
+  out.innerHTML = `<span style="color:var(--accent)">✅ ${formations.length} تشكيل ممكن:</span><br><br>` +
+    formations.map(f =>
+      `<span class="divisor-chip small">${f.rows} صفوف × ${f.cols} أعمدة</span>`
+    ).join('&nbsp;');
+}
+
+// ===== T-PRIME =====
+function checkTPrime() {
+  const x = parseInt(document.getElementById('tprimeInput').value);
+  const out = document.getElementById('tprimeOutput');
+  const y = Math.floor(Math.sqrt(x));
+  
+  if (y * y !== x) {
+    out.innerHTML = `<span style="color:var(--danger)">❌ ${x} ليس T-Prime — ليس مربعاً كاملاً</span>`;
+    return;
+  }
+  if (isPrime(y)) {
+    out.innerHTML = `<span style="color:var(--success)">✅ ${x} = ${y}² وهو T-Prime! (قواسمه: 1, ${y}, ${x})</span>`;
+  } else {
+    out.innerHTML = `<span style="color:var(--danger)">❌ ${x} = ${y}² لكن ${y} ليس أولياً، إذن ليس T-Prime</span>`;
+  }
+}
+
+// ===== QUIZ =====
+let answers = {};
+let quizSubmitted = false;
+
+const correctAnswers = {
+  q1: 'option1', q2: 'option2', q3: 'option1', q4: 'option1', q5: 'option0',
+  q6: 'option2', q7: 'option1', q8: 'option1', q9: 'option0', q10: 'option2',
+  q11: 'option1', q12: 'option1', q13: 'option1', q14: 'option1', q15: 'option1'
+};
+
+function selectOption(el, qId, isCorrect) {
+  if (quizSubmitted) return;
+  document.querySelectorAll(`#${qId} .q-option`).forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  answers[qId] = isCorrect;
+  
+  // Update progress
+  const answered = Object.keys(answers).length;
+  document.getElementById('quizProgress').style.width = (answered / 15 * 100) + '%';
+}
+
+function submitQuiz() {
+  quizSubmitted = true;
+  let score = 0;
+  
+  for (let i = 1; i <= 15; i++) {
+    const qId = 'q' + i;
+    const opts = document.querySelectorAll(`#${qId} .q-option`);
+    opts.forEach(opt => {
+      const correct = opt.getAttribute('onclick').includes('true');
+      if (opt.classList.contains('selected')) {
+        opt.classList.add(correct ? 'correct' : 'wrong');
+        if (correct) score++;
+      } else if (correct) {
+        opt.classList.add('correct');
+      }
+    });
+    document.getElementById('exp' + i).classList.add('visible');
+  }
+  
+  const display = document.getElementById('scoreDisplay');
+  const pct = Math.round(score / 15 * 100);
+  document.getElementById('scoreNum').textContent = score + '/15';
+  document.getElementById('scoreBar').style.width = pct + '%';
+  
+  let label = '', color = '';
+  if (pct >= 90) { label = '🏆 ممتاز! أنت مستعد للأولمبياد!'; color = 'var(--success)'; }
+  else if (pct >= 70) { label = '⭐ جيد جداً! راجع الأسئلة الخاطئة.'; color = 'var(--accent3)'; }
+  else if (pct >= 50) { label = '📚 جيد، راجع الشرح مرة أخرى.'; color = 'var(--accent)'; }
+  else { label = '💪 لا تيأس! راجع الدرس بتأنٍّ.'; color = 'var(--danger)'; }
+  
+  document.getElementById('scoreLabel').innerHTML = `<span style="color:${color}">${label}</span>`;
+  display.classList.add('show');
+  display.scrollIntoView({ behavior: 'smooth' });
+}
+
+function resetQuiz() {
+  quizSubmitted = false;
+  answers = {};
+  document.querySelectorAll('.q-option').forEach(o => {
+    o.classList.remove('selected', 'correct', 'wrong');
+    const r = o.querySelector('input[type="radio"]');
+    if (r) r.checked = false;
+  });
+  document.querySelectorAll('.q-explain').forEach(e => e.classList.remove('visible'));
+  document.getElementById('scoreDisplay').classList.remove('show');
+  document.getElementById('quizProgress').style.width = '0%';
+}
+
+// Init
+findDivisors();
+</script>
+</body>
+</html>
