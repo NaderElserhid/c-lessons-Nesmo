@@ -1,7 +1,7 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-const int MAX_N = 2000000;
+const long long MAX_N = 10'000'000;
 
 vector<bool> is_prime(MAX_N + 1, true);
 
@@ -25,7 +25,7 @@ int main() {
 
     for(int i = 2; i <= n; i++) {
         if(is_prime[i]) {
-            cout << "  " << i << " is prime\n";
+            cout  << i << "\t";
         }
     }
 

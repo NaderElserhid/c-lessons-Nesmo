@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>التحليل إلى عوامل أولية — البرمجة التنافسية</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0d14;
+    --surface: #111520;
+    --surface2: #161b28;
+    --surface3: #1c2335;
+    --border: #232d42;
+    --accent: #4f8ef7;
+    --accent2: #38d9a9;
+    --accent3: #f7a84f;
+    --danger: #f75f5f;
+    --text: #e8edf5;
+    --text-muted: #7a8aa8;
+    --text-dim: #4a5870;
+    --prime-color: #a78bfa;
+    --easy: #38d9a9;
+    --medium: #f7a84f;
+    --hard: #f75f5f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    font-size: 16px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,13,20,0.92);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+  }
+
+  .nav-inner {
+    max-width: 1100px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 62px;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .nav-logo .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent2); }
+
+  nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: .88rem;
+    margin-right: 1.6rem;
+    transition: color .2s;
+  }
+
+  nav a:hover { color: var(--text); }
+
+  /* ── HERO ── */
+  .hero {
+    max-width: 1100px;
+    margin: 4rem auto 2rem;
+    padding: 0 2rem;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    background: rgba(79,142,247,.12);
+    border: 1px solid rgba(79,142,247,.25);
+    color: var(--accent);
+    font-size: .8rem;
+    padding: .35rem .85rem;
+    border-radius: 100px;
+    margin-bottom: 1.4rem;
+    font-weight: 500;
+  }
+
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -.02em;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #e8edf5 30%, #7a8aa8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    max-width: 600px;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    color: var(--text-muted);
+    font-size: .88rem;
+  }
+
+  .meta-item strong { color: var(--text); }
+
+  /* ── LAYOUT ── */
+  .content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section-title {
+    font-size: 1.55rem;
+    font-weight: 700;
+    margin: 3.5rem 0 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .section-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: .85rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.6rem;
+    margin-bottom: 1.4rem;
+  }
+
+  .card-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: .8rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+
+  p { color: var(--text-muted); margin-bottom: .9rem; }
+  p:last-child { margin-bottom: 0; }
+
+  .highlight { color: var(--accent2); font-weight: 600; }
+  .highlight-orange { color: var(--accent3); font-weight: 600; }
+  .highlight-purple { color: var(--prime-color); font-weight: 600; }
+
+  /* ── INFO BOXES ── */
+  .info-box {
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    margin-bottom: 1.2rem;
+    border-right: 3px solid;
+  }
+
+  .info-box.blue   { background: rgba(79,142,247,.07);  border-color: var(--accent);  }
+  .info-box.green  { background: rgba(56,217,169,.07);  border-color: var(--accent2); }
+  .info-box.orange { background: rgba(247,168,79,.07);  border-color: var(--accent3); }
+  .info-box.purple { background: rgba(167,139,250,.07); border-color: var(--prime-color); }
+
+  .info-box .label {
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: .5rem;
+  }
+
+  .info-box.blue   .label { color: var(--accent); }
+  .info-box.green  .label { color: var(--accent2); }
+  .info-box.orange .label { color: var(--accent3); }
+  .info-box.purple .label { color: var(--prime-color); }
+
+  /* ── CODE BLOCKS ── */
+  .code-block {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin: 1.2rem 0;
+    overflow: hidden;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .7rem 1.2rem;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-lang {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .75rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: .25rem .7rem;
+    border-radius: 6px;
+    font-size: .75rem;
+    cursor: pointer;
+    transition: all .2s;
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+  }
+
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  pre {
+    padding: 1.4rem 1.6rem;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .85rem;
+    line-height: 1.7;
+    direction: ltr;
+    text-align: left;
+  }
+
+  /* Syntax colors */
+  .kw  { color: #c792ea; }
+  .ty  { color: #82aaff; }
+  .fn  { color: #82aaff; }
+  .cm  { color: #546e7a; font-style: italic; }
+  .nu  { color: #f78c6c; }
+  .st  { color: #c3e88d; }
+  .op  { color: #89ddff; }
+
+  /* ── STEP EXPLANATION ── */
+  .steps { counter-reset: step; list-style: none; }
+  .steps li {
+    counter-increment: step;
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.1rem;
+    align-items: flex-start;
+  }
+  .steps li::before {
+    content: counter(step);
+    min-width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-size: .8rem;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    margin-top: .15rem;
+  }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); margin: 1.2rem 0; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: var(--surface2); padding: .85rem 1.2rem; text-align: right; font-size: .85rem; color: var(--text-muted); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: .85rem 1.2rem; font-size: .9rem; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { color: var(--text); font-weight: 500; }
+
+  /* ── COMPLEXITY BADGE ── */
+  .complexity {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    background: rgba(167,139,250,.12);
+    border: 1px solid rgba(167,139,250,.3);
+    color: var(--prime-color);
+    padding: .25rem .75rem;
+    border-radius: 100px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .8rem;
+    font-weight: 600;
+  }
+
+  /* ── LAB ── */
+  .lab {
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 16px;
+    padding: 1.8rem;
+    margin: 2rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .lab::before {
+    content: 'مختبر تفاعلي';
+    position: absolute;
+    top: 0; left: 0;
+    background: var(--accent);
+    color: #fff;
+    font-size: .7rem;
+    font-weight: 700;
+    padding: .3rem .9rem;
+    border-radius: 0 0 10px 0;
+    letter-spacing: .06em;
+  }
+
+  .lab-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 1.2rem 0 .8rem;
+    color: var(--text);
+  }
+
+  .lab-controls {
+    display: flex;
+    gap: .8rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 1.2rem;
+  }
+
+  .lab-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: .6rem 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    width: 160px;
+    transition: border-color .2s;
+    direction: ltr;
+  }
+
+  .lab-input:focus { outline: none; border-color: var(--accent); }
+
+  .lab-btn {
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    padding: .6rem 1.4rem;
+    border-radius: 8px;
+    font-size: .95rem;
+    cursor: pointer;
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-weight: 600;
+    transition: opacity .2s, transform .1s;
+  }
+
+  .lab-btn:hover { opacity: .88; }
+  .lab-btn:active { transform: scale(.97); }
+
+  .lab-btn.green { background: var(--accent2); }
+  .lab-btn.orange { background: var(--accent3); }
+
+  .lab-output {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem;
+    min-height: 80px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .9rem;
+    direction: ltr;
+    text-align: left;
+  }
+
+  .step-display {
+    margin-top: 1rem;
+  }
+
+  .step-row {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    padding: .5rem .8rem;
+    border-radius: 8px;
+    margin-bottom: .4rem;
+    background: var(--surface2);
+    animation: slideIn .3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .step-row .arrow { color: var(--accent3); font-size: 1rem; }
+  .step-row .prime-pill {
+    background: rgba(167,139,250,.15);
+    border: 1px solid rgba(167,139,250,.4);
+    color: var(--prime-color);
+    padding: .15rem .5rem;
+    border-radius: 5px;
+    font-weight: 700;
+  }
+
+  .factor-pills { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .8rem; }
+
+  .factor-pill {
+    background: rgba(79,142,247,.15);
+    border: 1px solid rgba(79,142,247,.4);
+    color: var(--accent);
+    padding: .3rem .8rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    animation: popIn .25s ease;
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(.7); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  /* SPF Lab */
+  .spf-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: .4rem;
+    margin-top: .8rem;
+  }
+
+  .spf-cell {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .5rem .3rem;
+    text-align: center;
+    font-size: .78rem;
+    font-family: 'JetBrains Mono', monospace;
+    transition: all .3s;
+  }
+
+  .spf-cell .num { color: var(--text-muted); font-size: .7rem; }
+  .spf-cell .val { color: var(--accent2); font-weight: 700; margin-top: 2px; }
+  .spf-cell.prime { border-color: var(--prime-color); background: rgba(167,139,250,.08); }
+  .spf-cell.prime .val { color: var(--prime-color); }
+  .spf-cell.highlighted { border-color: var(--accent3); background: rgba(247,168,79,.12); }
+
+  /* ── QUESTIONS ── */
+  .questions-grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+
+  .q-card:hover { border-color: var(--text-dim); }
+
+  .q-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.2rem 1.4rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .q-num {
+    font-size: .75rem;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    min-width: 30px;
+    padding-top: .1rem;
+  }
+
+  .q-card.easy   .q-num { color: var(--easy); }
+  .q-card.medium .q-num { color: var(--medium); }
+  .q-card.hard   .q-num { color: var(--hard); }
+
+  .q-text { flex: 1; font-size: .95rem; color: var(--text); line-height: 1.6; }
+
+  .q-difficulty {
+    font-size: .7rem;
+    font-weight: 700;
+    padding: .2rem .6rem;
+    border-radius: 100px;
+    flex-shrink: 0;
+  }
+
+  .q-card.easy   .q-difficulty { background: rgba(56,217,169,.12); color: var(--easy); }
+  .q-card.medium .q-difficulty { background: rgba(247,168,79,.12);  color: var(--medium); }
+  .q-card.hard   .q-difficulty { background: rgba(247,95,95,.12);   color: var(--hard); }
+
+  .q-toggle { color: var(--text-dim); transition: transform .25s; flex-shrink: 0; font-size: 1rem; }
+  .q-card.open .q-toggle { transform: rotate(180deg); }
+
+  .q-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .35s ease;
+  }
+
+  .q-card.open .q-body { max-height: 600px; }
+
+  .q-body-inner {
+    padding: 0 1.4rem 1.4rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+  }
+
+  .q-body-inner p { font-size: .9rem; }
+  .q-body-inner .code-block { margin: .8rem 0; }
+
+  /* ── DIFFICULTY LEGEND ── */
+  .diff-legend {
+    display: flex;
+    gap: 1.4rem;
+    margin-bottom: 1.4rem;
+    flex-wrap: wrap;
+  }
+
+  .diff-item {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .85rem;
+    color: var(--text-muted);
+  }
+
+  .diff-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── FORMULA ── */
+  .formula {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: .9rem 1.3rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.05rem;
+    color: var(--prime-color);
+    direction: ltr;
+    text-align: center;
+    margin: 1rem 0;
+    letter-spacing: .02em;
+  }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar-wrap { background: var(--surface2); border-radius: 100px; height: 4px; margin: .5rem 0; }
+  .progress-bar { height: 4px; border-radius: 100px; background: var(--accent); transition: width .4s ease; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 1.8rem; }
+    .hero-meta { gap: 1rem; }
+    pre { font-size: .78rem; }
+  }
+
+  /* animation on load */
+  .fade-in { animation: fadeIn .5s ease both; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .delay-1 { animation-delay: .1s; }
+  .delay-2 { animation-delay: .2s; }
+  .delay-3 { animation-delay: .3s; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ HEADER ═══════════════════ -->
+<header>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <div class="dot"></div>
+      برمجة تنافسية · KSA
+    </a>
+    <nav>
+      <a href="#method1">الطريقة الأولى</a>
+      <a href="#method2">الطريقة الثانية</a>
+      <a href="#problem">المسألة</a>
+      <a href="#questions">الأسئلة</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<div class="hero fade-in">
+  <div class="hero-badge">📚 نظرية الأعداد</div>
+  <h1>التحليل إلى عوامل أولية</h1>
+  <p>
+    تفكيك الأعداد إلى لبناتها الأساسية، مع مختبرات تفاعلية وأسئلة تدريبية متدرجة في الصعوبة.
+  </p>
+  <div class="hero-meta">
+    <div class="meta-item"><strong>المستوى:</strong> متوسط</div>
+    <div class="meta-item"><strong>الوقت التقديري:</strong> 60 دقيقة</div>
+    <div class="meta-item"><strong>الأسئلة:</strong> 15 سؤالاً</div>
+  </div>
+</div>
+
+<!-- ═══════════════════ CONTENT ═══════════════════ -->
+<div class="content">
+
+  <!-- ─── INTRO ─── -->
+  <div class="card fade-in delay-1">
+    <div class="card-title">🔑 ما هو التحليل إلى عوامل أولية؟</div>
+    <p>
+      التحليل إلى عوامل أولية هو عملية <span class="highlight">تفكيك عدد صحيح</span> إلى ضرب مجموعة من الأعداد الأولية.
+      الأعداد الأولية هي البنى التحتية لجميع الأعداد الصحيحة، تماماً كما أن الذرات هي البنى التحتية للمادة.
+    </p>
+    <div class="info-box purple">
+      <div class="label">المبرهنة الأساسية في الحساب</div>
+      <p style="margin:0">كل عدد صحيح أكبر من 1 يمتلك تحليلاً <span class="highlight-purple">وحيداً وفريداً</span> إلى عوامل أولية (باستثناء ترتيب العوامل).</p>
+    </div>
+    <div class="formula">360 = 2³ × 3² × 5¹</div>
+    <p>
+      العدد 1 لا يُعدّ أولياً. أما العدد الأولي فهو عدد لا يقسمه سوى 1 ونفسه.
+      إذا كان العدد <span class="highlight">n</span> نفسه أولياً، فتحليله هو هو مباشرةً.
+    </p>
+  </div>
+
+  <!-- ─── METHOD 1 ─── -->
+  <div class="section-title" id="method1">
+    <div class="section-num">1</div>
+    القسمة التجريبية
+  </div>
+
+  <div class="card">
+    <div class="card-title">🧩 الفكرة العامة</div>
+    <p>
+      هذه الطريقة مثالية حين نريد تحليل <span class="highlight">عدد واحد كبير</span> (حتى 10¹²).
+      تعتمد على قسمة العدد <strong>n</strong> على كل عدد صحيح <strong>i</strong> بدءاً من 2،
+      مع تكرار القسمة طالما أن <strong>i</strong> يقسم <strong>n</strong> بلا باقٍ.
+    </p>
+    <div class="info-box blue">
+      <div class="label">لماذا نتوقف عند √n ؟</div>
+      <p style="margin:0">
+        إذا كان لـ <strong>n</strong> عامل أولي أكبر من √n، فبإمكانه أن يكون عاملاً واحداً فقط (لأن ضرب عاملين أكبر من √n يتجاوز n).
+        لذا نكتفي بالتكرار حتى i² ≤ n، وإن بقي n > 1 في النهاية فهو نفسه عامل أولي.
+      </p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">⚙️ خطوات الخوارزمية</div>
+    <ol class="steps">
+      <li>ابدأ بـ <span class="highlight">i = 2</span> (أصغر عدد أولي).</li>
+      <li>طالما <strong>i × i ≤ n</strong>: قسّم <strong>n</strong> على <strong>i</strong> مراراً وسجّل <strong>i</strong> كعامل في كل مرة.</li>
+      <li>زِد <strong>i</strong> بمقدار 1 وكرّر.</li>
+      <li>
+        <strong>الحالة الحرجة:</strong> إذا بقي <strong>n > 1</strong> بعد انتهاء الحلقة، فهذا يعني أن <strong>n</strong> نفسه عامل أولي.
+        أضفه إلى قائمة العوامل.
+      </li>
+    </ol>
+  </div>
+
+  <!-- Code 1 -->
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">C++</span>
+      <button class="copy-btn" onclick="copyCode(this)">نسخ</button>
+    </div>
+    <pre><span class="kw">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="kw">#include</span> <span class="st">&lt;vector&gt;</span>
+<span class="kw">using namespace</span> std<span class="op">;</span>
+
+<span class="ty">void</span> <span class="fn">factorize</span>(<span class="ty">long long</span> n) {
+    cout <span class="op">&lt;&lt;</span> <span class="st">"Factors of "</span> <span class="op">&lt;&lt;</span> n <span class="op">&lt;&lt;</span> <span class="st">": "</span><span class="op">;</span>
+
+    <span class="kw">for</span> (<span class="ty">long long</span> i <span class="op">=</span> <span class="nu">2</span><span class="op">;</span> i <span class="op">*</span> i <span class="op">&lt;=</span> n<span class="op">;</span> i<span class="op">++</span>) {
+        <span class="cm">// طالما i يقسم n، فهو عامل أولي</span>
+        <span class="kw">while</span> (n <span class="op">%</span> i <span class="op">==</span> <span class="nu">0</span>) {
+            cout <span class="op">&lt;&lt;</span> i <span class="op">&lt;&lt;</span> <span class="st">" "</span><span class="op">;</span>
+            n <span class="op">/=</span> i<span class="op">;</span>
+        }
+    }
+
+    <span class="cm">// الحالة الحرجة: إذا بقي n > 1 فهو عامل أولي</span>
+    <span class="kw">if</span> (n <span class="op">&gt;</span> <span class="nu">1</span>) {
+        cout <span class="op">&lt;&lt;</span> n<span class="op">;</span>
+    }
+    cout <span class="op">&lt;&lt;</span> endl<span class="op">;</span>
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">long long</span> n<span class="op">;</span>
+    cin <span class="op">&gt;&gt;</span> n<span class="op">;</span>
+    <span class="fn">factorize</span>(n)<span class="op">;</span>
+    <span class="kw">return</span> <span class="nu">0</span><span class="op">;</span>
+}</pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔍 شرح الكود سطراً بسطر</div>
+    <ol class="steps">
+      <li>
+        <div>
+          <strong>الحلقة الخارجية:</strong> <code style="font-family:monospace;color:var(--accent)">for (long long i = 2; i * i &lt;= n; i++)</code>
+          <br>نبحث عن كل عامل ابتداءً من 2 حتى √n. نستخدم <code style="font-family:monospace;color:var(--accent)">i * i &lt;= n</code> بدلاً من <code style="font-family:monospace;color:var(--accent)">i &lt;= sqrt(n)</code> لتجنب مشاكل الأعداد العشرية.
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>الحلقة الداخلية:</strong> <code style="font-family:monospace;color:var(--accent)">while (n % i == 0)</code>
+          <br>نستخرج كل نسخ من العامل i. مثلاً إذا كان n = 12 و i = 2، ستُسجَّل 2 مرتين وتصبح n = 3.
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>الحالة الحرجة:</strong> <code style="font-family:monospace;color:var(--accent)">if (n > 1)</code>
+          <br>بعد استنفاد جميع العوامل الصغيرة، إذا بقي n > 1، فهذا يعني أن n نفسه عامل أولي لم يُقسم على أي شيء.
+        </div>
+      </li>
+    </ol>
+    <div style="margin-top:1rem;display:flex;align-items:center;gap:1rem;">
+      <span>التعقيد الزمني:</span>
+      <span class="complexity">O(√n)</span>
+    </div>
+  </div>
+
+  <!-- LAB 1 -->
+  <div class="lab">
+    <div class="lab-title">⚗️ مختبر التحليل التجريبي</div>
+    <p style="color:var(--text-muted);font-size:.9rem;margin-bottom:1rem">أدخل أي عدد صحيح وشاهد خطوات التحليل خطوةً بخطوة.</p>
+    <div class="lab-controls">
+      <input type="number" class="lab-input" id="lab1-input" value="360" min="2" max="10000000" placeholder="أدخل عدداً...">
+      <button class="lab-btn" onclick="runLab1()">▶ حلّل</button>
+      <button class="lab-btn" style="background:var(--surface3);color:var(--text-muted);border:1px solid var(--border);" onclick="randomLab1()">🎲 عشوائي</button>
+    </div>
+    <div class="step-display" id="lab1-steps"></div>
+    <div class="factor-pills" id="lab1-pills" style="margin-top:1.2rem"></div>
+    <div id="lab1-result" style="margin-top:1rem;font-size:.9rem;color:var(--text-muted);font-family:monospace;direction:ltr;text-align:left;"></div>
+  </div>
+
+  <!-- ─── METHOD 2 ─── -->
+  <div class="section-title" id="method2">
+    <div class="section-num">2</div>
+    تحسين SPF — أصغر عامل أولي
+  </div>
+
+  <div class="card">
+    <div class="card-title">⚡ متى نستخدم هذه الطريقة؟</div>
+    <p>
+      عندما نحتاج إلى تحليل <span class="highlight-orange">مئة ألف عدد</span> أو أكثر في وقت واحد (حيث كل عدد ≤ 10⁶)،
+      تصبح الطريقة الأولى بطيئة جداً. الحل هو الحساب المسبق باستخدام <strong>غربال SPF</strong>.
+    </p>
+    <div class="info-box orange">
+      <div class="label">فكرة SPF (Smallest Prime Factor)</div>
+      <p style="margin:0">
+        بدلاً من تخزين "هل العدد أولي؟"، نخزن <span class="highlight-orange">أصغر عامل أولي</span> لكل عدد.
+        مثال: spf[10] = 2، spf[15] = 3، spf[7] = 7.
+        ثم لتحليل أي عدد، نقفز تنازلياً بقسمته على spf[x] مراراً حتى يصبح 1.
+      </p>
+    </div>
+  </div>
+
+  <!-- Code 2 -->
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">C++ — الحساب المسبق (Sieve)</span>
+      <button class="copy-btn" onclick="copyCode(this)">نسخ</button>
+    </div>
+    <pre><span class="kw">const</span> <span class="ty">int</span> MAXN <span class="op">=</span> <span class="nu">1000000</span><span class="op">;</span>
+<span class="ty">int</span> spf[MAXN <span class="op">+</span> <span class="nu">1</span>]<span class="op">;</span>
+
+<span class="ty">void</span> <span class="fn">sieve</span>() {
+    <span class="cm">// خطوة التهيئة: كل عدد هو أصغر عامل أولي لنفسه في البداية</span>
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> <span class="nu">1</span><span class="op">;</span> i <span class="op">&lt;=</span> MAXN<span class="op">;</span> i<span class="op">++</span>) spf[i] <span class="op">=</span> i<span class="op">;</span>
+
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> <span class="nu">2</span><span class="op">;</span> i <span class="op">*</span> i <span class="op">&lt;=</span> MAXN<span class="op">;</span> i<span class="op">++</span>) {
+        <span class="kw">if</span> (spf[i] <span class="op">==</span> i) { <span class="cm">// i أولي (لم يُعدَّل)</span>
+            <span class="kw">for</span> (<span class="ty">int</span> j <span class="op">=</span> i <span class="op">*</span> i<span class="op">;</span> j <span class="op">&lt;=</span> MAXN<span class="op">;</span> j <span class="op">+=</span> i) {
+                <span class="cm">// سجّل i كأصغر عامل أولي لـ j إن لم يُسجَّل بعد</span>
+                <span class="kw">if</span> (spf[j] <span class="op">==</span> j) {
+                    spf[j] <span class="op">=</span> i<span class="op">;</span>
+                }
+            }
+        }
+    }
+}</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">C++ — استعلام التحليل السريع</span>
+      <button class="copy-btn" onclick="copyCode(this)">نسخ</button>
+    </div>
+    <pre>vector<span class="op">&lt;</span><span class="ty">int</span><span class="op">&gt;</span> <span class="fn">getFactors</span>(<span class="ty">int</span> x) {
+    vector<span class="op">&lt;</span><span class="ty">int</span><span class="op">&gt;</span> ret<span class="op">;</span>
+    <span class="kw">while</span> (x <span class="op">!=</span> <span class="nu">1</span>) {
+        ret<span class="op">.</span><span class="fn">push_back</span>(spf[x])<span class="op">;</span>  <span class="cm">// أضف أصغر عامل أولي</span>
+        x <span class="op">=</span> x <span class="op">/</span> spf[x]<span class="op">;</span>          <span class="cm">// اقسم وتابع</span>
+    }
+    <span class="kw">return</span> ret<span class="op">;</span>
+}</pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔍 شرح كود الغربال</div>
+    <ol class="steps">
+      <li>
+        <strong>التهيئة:</strong> نملأ مصفوفة spf بحيث <code style="font-family:monospace;color:var(--accent)">spf[i] = i</code> لكل i. هذا يعني "لم أجد عاملاً أصغر بعد".
+      </li>
+      <li>
+        <strong>الغربال:</strong> لكل عدد أولي i (حيث spf[i] == i)، نبدأ من i² ونضع <code style="font-family:monospace;color:var(--accent)">spf[j] = i</code> لكل مضاعفاته، لكن فقط إن لم يُحدَّث spf[j] من قبل. نبدأ من i² لأن الأعداد i×2، i×3، … تغطيها أعداد أولية أصغر.
+      </li>
+      <li>
+        <strong>الاستعلام:</strong> لتحليل العدد x، نأخذ <code style="font-family:monospace;color:var(--accent)">spf[x]</code> ونضيفه، ثم نقسم x عليه، ونكرر حتى x = 1. التعقيد: O(log x) فقط!
+      </li>
+    </ol>
+    <div style="margin-top:1rem;display:flex;align-items:center;gap:1rem;">
+      <span>تعقيد الحساب المسبق:</span>
+      <span class="complexity">O(N log log N)</span>
+      <span style="color:var(--text-muted);font-size:.85rem">لكل الأعداد حتى N</span>
+    </div>
+    <div style="margin-top:.6rem;display:flex;align-items:center;gap:1rem;">
+      <span>تعقيد كل استعلام:</span>
+      <span class="complexity">O(log x)</span>
+    </div>
+  </div>
+
+  <!-- LAB 2 -->
+  <div class="lab">
+    <div class="lab-title">⚗️ مختبر غربال SPF</div>
+    <p style="color:var(--text-muted);font-size:.9rem;margin-bottom:1rem">
+      اضغط "بناء الغربال" لمعاينة مصفوفة spf للأعداد حتى 50، ثم استعلم عن أي عدد.
+    </p>
+    <div class="lab-controls">
+      <button class="lab-btn green" onclick="buildSPF()">🔨 بناء الغربال</button>
+      <input type="number" class="lab-input" id="lab2-input" value="30" min="2" max="50" placeholder="استعلام...">
+      <button class="lab-btn orange" onclick="querySPF()">🔍 حلّل بـ SPF</button>
+    </div>
+    <div class="spf-grid" id="spf-grid"></div>
+    <div id="lab2-result" style="margin-top:1.2rem;font-family:monospace;font-size:.9rem;direction:ltr;text-align:left;color:var(--accent2)"></div>
+  </div>
+
+  <!-- ─── COMPARISON TABLE ─── -->
+  <div class="section-title">
+    <div class="section-num" style="background:var(--accent2)">≡</div>
+    مقارنة الطريقتين
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>السيناريو</th>
+          <th>الطريقة المناسبة</th>
+          <th>التعقيد الزمني</th>
+          <th>الذاكرة</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>عدد واحد ضخم (حتى 10¹²)</td>
+          <td>القسمة التجريبية</td>
+          <td><span class="complexity">O(√n)</span></td>
+          <td>O(1)</td>
+        </tr>
+        <tr>
+          <td>استعلامات كثيرة، n صغير (≤ 10⁶)</td>
+          <td>غربال SPF</td>
+          <td><span class="complexity">O(log n)</span> / استعلام</td>
+          <td>O(N)</td>
+        </tr>
+        <tr>
+          <td>الذاكرة محدودة جداً</td>
+          <td>القسمة التجريبية</td>
+          <td><span class="complexity">O(√n)</span></td>
+          <td>O(1)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ─── PROBLEM ─── -->
+  <div class="section-title" id="problem">
+    <div class="section-num" style="background:var(--accent3)">📦</div>
+    المسألة التطبيقية — مستودع المربع المثالي
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 نص المسألة</div>
+    <p>
+      مدير مستودع تلقّى شحنةً من <span class="highlight">n</span> صندوقاً متطابقاً.
+      يريد تكديسها على الأرض لتشكيل ترتيب مربعي (مثلاً: 2×2، 5×5).
+      أدرك أن n قد لا يكون عدداً مربعاً كاملاً، فقرّر طلب شحنات إضافية بنفس الحجم
+      حتى يصبح الإجمالي مربعاً كاملاً.
+    </p>
+    <div class="info-box green">
+      <div class="label">المطلوب</div>
+      <p style="margin:0">ما هو <span class="highlight">أقل عدد من الشحنات</span> (بما فيها الأولى) يحتاجها حتى يتمكن من بناء المربع المثالي؟</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">💡 طريقة الحل</div>
+    <p>
+      لكي يكون العدد <span class="highlight-orange">n × k</span> مربعاً كاملاً، يجب أن يكون كل أس في تحليله الأولي <span class="highlight-orange">زوجياً</span>.
+      إذن:
+    </p>
+    <ol class="steps">
+      <li>حلّل n إلى عوامل أولية.</li>
+      <li>لكل عامل أولي ذي أسٍ فردي، يجب ضرب n بذلك العامل مرةً واحدة لجعل الأس زوجياً.</li>
+      <li>ناتج ضرب هذه العوامل الفردية هو أصغر مضاعف k.</li>
+    </ol>
+    <div class="info-box blue">
+      <div class="label">مثال تفصيلي</div>
+      <p style="margin:0">
+        n = 45 = 3² × 5¹ → الأس الوحيد الفردي هو أس العامل 5. إذن k = 5، والمجموع = 45 × 5 = 225 = 15².
+      </p>
+    </div>
+  </div>
+
+  <!-- Code 3 -->
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">C++ — حل المسألة الكاملة</span>
+      <button class="copy-btn" onclick="copyCode(this)">نسخ</button>
+    </div>
+    <pre><span class="kw">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="kw">using namespace</span> std<span class="op">;</span>
+
+<span class="cm">// تجد أصغر مضاعف يجعل n مربعاً كاملاً</span>
+<span class="ty">int</span> <span class="fn">findSmallestMultiplier</span>(<span class="ty">int</span> n) {
+    <span class="ty">int</span> multiplier <span class="op">=</span> <span class="nu">1</span><span class="op">;</span>
+
+    <span class="cm">// الخطوة 1: فحص قابلية القسمة على 2</span>
+    <span class="ty">int</span> count <span class="op">=</span> <span class="nu">0</span><span class="op">;</span>
+    <span class="kw">while</span> (n <span class="op">%</span> <span class="nu">2</span> <span class="op">==</span> <span class="nu">0</span>) { count<span class="op">++</span><span class="op">;</span> n <span class="op">/=</span> <span class="nu">2</span><span class="op">;</span> }
+    <span class="kw">if</span> (count <span class="op">%</span> <span class="nu">2</span> <span class="op">!=</span> <span class="nu">0</span>) multiplier <span class="op">*=</span> <span class="nu">2</span><span class="op">;</span> <span class="cm">// أسٌ فردي → نحتاج 2 إضافية</span>
+
+    <span class="cm">// الخطوة 2: العوامل الفردية (3، 5، 7، …)</span>
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> <span class="nu">3</span><span class="op">;</span> i <span class="op">*</span> i <span class="op">&lt;=</span> n<span class="op">;</span> i <span class="op">+=</span> <span class="nu">2</span>) {
+        count <span class="op">=</span> <span class="nu">0</span><span class="op">;</span>
+        <span class="kw">while</span> (n <span class="op">%</span> i <span class="op">==</span> <span class="nu">0</span>) { count<span class="op">++</span><span class="op">;</span> n <span class="op">/=</span> i<span class="op">;</span> }
+        <span class="kw">if</span> (count <span class="op">%</span> <span class="nu">2</span> <span class="op">!=</span> <span class="nu">0</span>) multiplier <span class="op">*=</span> i<span class="op">;</span>
+    }
+
+    <span class="cm">// الخطوة 3: إذا بقي n > 2 فهو عامل أولي بأسٍ = 1 (فردي)</span>
+    <span class="kw">if</span> (n <span class="op">&gt;</span> <span class="nu">2</span>) multiplier <span class="op">*=</span> n<span class="op">;</span>
+
+    <span class="kw">return</span> multiplier<span class="op">;</span>
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">int</span> n<span class="op">;</span>
+    cin <span class="op">&gt;&gt;</span> n<span class="op">;</span>
+    cout <span class="op">&lt;&lt;</span> <span class="fn">findSmallestMultiplier</span>(n) <span class="op">&lt;&lt;</span> <span class="st">"\n"</span><span class="op">;</span>
+    <span class="kw">return</span> <span class="nu">0</span><span class="op">;</span>
+}</pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔍 شرح كود المسألة</div>
+    <ol class="steps">
+      <li>
+        <strong>نبدأ بـ multiplier = 1.</strong> هذا هو العامل التصحيحي الذي سنبنيه تدريجياً.
+      </li>
+      <li>
+        <strong>فحص العامل 2 بشكل منفصل:</strong> لأننا نزيد i بمقدار 2 في الحلقة الرئيسية (لتخطي الأعداد الزوجية)، يجب معالجة 2 أولاً.
+        إذا كان عدد مرات القسمة على 2 فردياً، نضرب multiplier في 2.
+      </li>
+      <li>
+        <strong>حلقة الأعداد الفردية (i += 2):</strong> نفحص 3، 5، 7، … فقط، مما يوفر نصف الوقت تقريباً.
+        كلما كان عدد تكرارات العامل i فردياً، أضفناه إلى multiplier.
+      </li>
+      <li>
+        <strong>الحالة الحرجة (n > 2):</strong> إذا بقي n > 2 بعد الحلقة، فهو عامل أولي بأسٍ = 1، وهو فردي، فنضيفه إلى multiplier.
+      </li>
+    </ol>
+  </div>
+
+  <!-- LAB 3 -->
+  <div class="lab">
+    <div class="lab-title">⚗️ مختبر المربع المثالي</div>
+    <p style="color:var(--text-muted);font-size:.9rem;margin-bottom:1rem">
+      أدخل n وشاهد كيف نجد أصغر عدد شحنات يجعل المجموع مربعاً كاملاً.
+    </p>
+    <div class="lab-controls">
+      <input type="number" class="lab-input" id="lab3-input" value="45" min="1" max="1000000" placeholder="أدخل n...">
+      <button class="lab-btn orange" onclick="runLab3()">▶ احسب</button>
+      <button class="lab-btn" style="background:var(--surface3);color:var(--text-muted);border:1px solid var(--border);" onclick="randomLab3()">🎲 عشوائي</button>
+    </div>
+    <div id="lab3-output" style="margin-top:1rem;"></div>
+  </div>
+
+  <!-- ─── QUESTIONS ─── -->
+  <div class="section-title" id="questions">
+    <div class="section-num" style="background:var(--prime-color)">?</div>
+    أسئلة تدريبية
+  </div>
+
+  <div class="diff-legend">
+    <div class="diff-item"><div class="diff-dot" style="background:var(--easy)"></div> سهل (5 أسئلة)</div>
+    <div class="diff-item"><div class="diff-dot" style="background:var(--medium)"></div> متوسط (5 أسئلة)</div>
+    <div class="diff-item"><div class="diff-dot" style="background:var(--hard)"></div> صعب (5 أسئلة)</div>
+  </div>
+
+  <div class="questions-grid" id="questions-list"></div>
+
+</div><!-- /content -->
+
+<script>
+// ════════════════════════════════════════
+// COPY CODE
+// ════════════════════════════════════════
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '✓ تم النسخ';
+    setTimeout(() => btn.textContent = 'نسخ', 2000);
+  });
+}
+
+// ════════════════════════════════════════
+// LAB 1 — Trial Division
+// ════════════════════════════════════════
+function factorizeSteps(n) {
+  const steps = [];
+  const orig = n;
+  for (let i = 2n; i * i <= BigInt(n); i++) {
+    while (BigInt(n) % i === 0n) {
+      steps.push({ divisor: Number(i), remaining: n / Number(i) });
+      n = n / Number(i);
+    }
+  }
+  if (n > 1) steps.push({ divisor: n, remaining: 1, isLast: true });
+  return { steps, orig };
+}
+
+function runLab1(val) {
+  const input = val || parseInt(document.getElementById('lab1-input').value);
+  if (!input || input < 2) return;
+  document.getElementById('lab1-input').value = input;
+
+  const stepsDiv = document.getElementById('lab1-steps');
+  const pillsDiv = document.getElementById('lab1-pills');
+  const resultDiv = document.getElementById('lab1-result');
+  stepsDiv.innerHTML = '';
+  pillsDiv.innerHTML = '';
+  resultDiv.innerHTML = '';
+
+  let n = input;
+  const factors = [];
+
+  // Build steps visually
+  const allSteps = [];
+  for (let i = 2; i * i <= n; i++) {
+    while (n % i === 0) {
+      allSteps.push({ n: n, divisor: i, result: n / i });
+      factors.push(i);
+      n = n / i;
+    }
+  }
+  if (n > 1) {
+    allSteps.push({ n: n, divisor: n, result: 1, prime: true });
+    factors.push(n);
+  }
+
+  allSteps.forEach((s, idx) => {
+    setTimeout(() => {
+      const row = document.createElement('div');
+      row.className = 'step-row';
+      row.style.direction = 'ltr';
+      row.innerHTML = `
+        <span style="color:var(--text-muted);min-width:60px">${s.n}</span>
+        <span class="arrow">÷</span>
+        <span class="prime-pill">${s.divisor}</span>
+        <span class="arrow">=</span>
+        <span style="color:var(--accent2);font-weight:700">${s.result}</span>
+        ${s.prime ? '<span style="margin-right:.5rem;font-size:.75rem;color:var(--prime-color)">(عدد أولي)</span>' : ''}
+      `;
+      stepsDiv.appendChild(row);
+    }, idx * 200);
+  });
+
+  // Pills
+  const fmap = {};
+  factors.forEach(f => fmap[f] = (fmap[f] || 0) + 1);
+  setTimeout(() => {
+    Object.entries(fmap).forEach(([f, e]) => {
+      const pill = document.createElement('div');
+      pill.className = 'factor-pill';
+      pill.textContent = e > 1 ? `${f}^${e}` : `${f}`;
+      pillsDiv.appendChild(pill);
+    });
+    const expr = Object.entries(fmap).map(([f,e]) => e > 1 ? `${f}^${e}` : f).join(' × ');
+    resultDiv.textContent = `${input} = ${expr}`;
+  }, allSteps.length * 200 + 200);
+}
+
+function randomLab1() {
+  const nums = [12, 36, 100, 360, 2310, 720, 1024, 999, 1000000, 7919, 997, 48, 504];
+  const n = nums[Math.floor(Math.random() * nums.length)];
+  document.getElementById('lab1-input').value = n;
+  runLab1(n);
+}
+
+// ════════════════════════════════════════
+// LAB 2 — SPF Sieve
+// ════════════════════════════════════════
+const MAXN2 = 50;
+const spf = new Array(MAXN2 + 1).fill(0);
+
+function buildSPF() {
+  for (let i = 1; i <= MAXN2; i++) spf[i] = i;
+  for (let i = 2; i * i <= MAXN2; i++) {
+    if (spf[i] === i) {
+      for (let j = i * i; j <= MAXN2; j += i) {
+        if (spf[j] === j) spf[j] = i;
+      }
+    }
+  }
+
+  const grid = document.getElementById('spf-grid');
+  grid.innerHTML = '';
+  for (let i = 2; i <= MAXN2; i++) {
+    const cell = document.createElement('div');
+    const isPrime = spf[i] === i;
+    cell.className = 'spf-cell' + (isPrime ? ' prime' : '');
+    cell.innerHTML = `<div class="num">${i}</div><div class="val">${spf[i]}</div>`;
+    cell.style.animationDelay = (i * 20) + 'ms';
+    cell.style.animation = 'popIn .3s ease both';
+    grid.appendChild(cell);
+  }
+}
+
+function querySPF() {
+  const x = parseInt(document.getElementById('lab2-input').value);
+  if (!x || x < 2 || x > MAXN2) {
+    document.getElementById('lab2-result').textContent = 'أدخل عدداً بين 2 و 50';
+    return;
+  }
+  if (spf[2] === 0) { buildSPF(); }
+
+  // Highlight cells
+  const cells = document.querySelectorAll('.spf-cell');
+  cells.forEach(c => c.classList.remove('highlighted'));
+
+  let cur = x;
+  const factors = [];
+  while (cur !== 1) {
+    factors.push(spf[cur]);
+    cur = Math.floor(cur / spf[cur]);
+  }
+
+  // Highlight used cells
+  let tmp = x;
+  while (tmp !== 1) {
+    const cellIdx = tmp - 2;
+    if (cells[cellIdx]) cells[cellIdx].classList.add('highlighted');
+    tmp = Math.floor(tmp / spf[tmp]);
+  }
+
+  const fmap = {};
+  factors.forEach(f => fmap[f] = (fmap[f] || 0) + 1);
+  const expr = Object.entries(fmap).map(([f,e]) => e > 1 ? `${f}^${e}` : f).join(' × ');
+  document.getElementById('lab2-result').textContent = `getFactors(${x}) = [${factors.join(', ')}]  →  ${x} = ${expr}`;
+}
+
+// ════════════════════════════════════════
+// LAB 3 — Perfect Square
+// ════════════════════════════════════════
+function findMultiplier(n) {
+  let multiplier = 1;
+  const orig = n;
+  const details = [];
+
+  let count = 0;
+  while (n % 2 === 0) { count++; n = Math.floor(n / 2); }
+  if (count % 2 !== 0) { multiplier *= 2; details.push({ p: 2, exp: count, odd: true }); }
+  else if (count > 0) details.push({ p: 2, exp: count, odd: false });
+
+  for (let i = 3; i * i <= n; i += 2) {
+    count = 0;
+    while (n % i === 0) { count++; n = Math.floor(n / i); }
+    if (count > 0) {
+      if (count % 2 !== 0) { multiplier *= i; details.push({ p: i, exp: count, odd: true }); }
+      else details.push({ p: i, exp: count, odd: false });
+    }
+  }
+  if (n > 2) { multiplier *= n; details.push({ p: n, exp: 1, odd: true }); }
+
+  return { multiplier, details, total: orig * multiplier };
+}
+
+function runLab3(val) {
+  const n = val || parseInt(document.getElementById('lab3-input').value);
+  if (!n || n < 1) return;
+  document.getElementById('lab3-input').value = n;
+  const { multiplier, details, total } = findMultiplier(n);
+  const sqrtTotal = Math.round(Math.sqrt(total));
+
+  let html = '<div style="display:flex;flex-direction:column;gap:.7rem;">';
+
+  // Factorization
+  const expr = details.map(d => `${d.p}^${d.exp}`).join(' × ');
+  html += `<div class="step-row" style="direction:ltr"><span style="color:var(--text-muted);min-width:100px">تحليل ${n}</span><span class="arrow">=</span><span style="color:var(--accent2)">${expr || n}</span></div>`;
+
+  // Odd exponents
+  details.filter(d => d.odd).forEach(d => {
+    html += `<div class="step-row" style="direction:rtl"><span style="color:var(--accent3)">الأس ${d.exp} للعامل ${d.p} فردي → نحتاج ضربه في ${d.p}</span></div>`;
+  });
+
+  // Multiplier
+  html += `<div class="step-row" style="direction:ltr"><span style="color:var(--text-muted);min-width:100px">المضاعف k</span><span class="arrow">=</span><span class="prime-pill" style="font-size:1.1rem">${multiplier}</span></div>`;
+
+  // Total
+  html += `<div class="step-row" style="direction:ltr"><span style="color:var(--text-muted);min-width:100px">المجموع</span><span class="arrow">=</span><span style="color:var(--accent)">${n} × ${multiplier} = ${total} = ${sqrtTotal}²</span></div>`;
+
+  // Verification
+  const isPerfect = sqrtTotal * sqrtTotal === total;
+  html += `<div class="step-row" style="direction:rtl;border-color:${isPerfect ? 'var(--accent2)' : 'var(--danger)'}">
+    <span>${isPerfect ? '✅' : '❌'}</span>
+    <span style="color:${isPerfect ? 'var(--accent2)' : 'var(--danger)'}">
+      ${isPerfect ? `التحقق: √${total} = ${sqrtTotal} ✓ مربع كامل!` : 'خطأ في الحساب'}
+    </span>
+  </div>`;
+
+  html += '</div>';
+  document.getElementById('lab3-output').innerHTML = html;
+}
+
+function randomLab3() {
+  const nums = [45, 12, 98, 200, 1000, 72, 50, 180, 2, 7, 360, 48, 75, 1800, 2310];
+  const n = nums[Math.floor(Math.random() * nums.length)];
+  document.getElementById('lab3-input').value = n;
+  runLab3(n);
+}
+
+// ════════════════════════════════════════
+// QUESTIONS
+// ════════════════════════════════════════
+const questions = [
+  // Easy
+  {
+    diff: 'easy', label: 'سهل', num: 'Q01',
+    text: 'ما هو التحليل الأولي للعدد 84؟ اكتب كل العوامل الأولية مع أسسها.',
+    answer: `84 = 2² × 3 × 7. نحلّله: 84 ÷ 2 = 42، 42 ÷ 2 = 21، 21 ÷ 3 = 7، وأخيراً 7 عدد أولي. إذن العوامل هي: 2 (بأسٍ 2)، 3 (بأسٍ 1)، 7 (بأسٍ 1).`,
+    code: null
+  },
+  {
+    diff: 'easy', label: 'سهل', num: 'Q02',
+    text: 'أي من الأعداد التالية أولية؟ 49، 53، 51، 57.',
+    answer: `53 هو الوحيد الأولي. 49 = 7²، 51 = 3 × 17، 57 = 3 × 19. أما 53 فلا يقسمه أي عدد سوى 1 ونفسه.`,
+    code: null
+  },
+  {
+    diff: 'easy', label: 'سهل', num: 'Q03',
+    text: 'كم عدد العوامل الأولية المختلفة للعدد 360؟',
+    answer: `360 = 2³ × 3² × 5. إذن هناك 3 عوامل أولية مختلفة: 2 و 3 و 5.`,
+    code: null
+  },
+  {
+    diff: 'easy', label: 'سهل', num: 'Q04',
+    text: 'ما هو أصغر عدد صحيح موجب يمكن ضرب 18 به لجعله مربعاً كاملاً؟',
+    answer: `18 = 2 × 3². الأس الفردي هو أس العامل 2. إذن نضرب في 2، فيصبح 18 × 2 = 36 = 6². الجواب: 2.`,
+    code: null
+  },
+  {
+    diff: 'easy', label: 'سهل', num: 'Q05',
+    text: 'ما الفرق الجوهري بين خوارزمية القسمة التجريبية وغربال SPF من حيث حالات الاستخدام؟',
+    answer: `القسمة التجريبية مثالية لعدد واحد كبير (حتى 10¹²) بتعقيد O(√n) وذاكرة O(1). غربال SPF مثالي حين نحتاج تحليل آلاف الأعداد الصغيرة (≤ 10⁶) بتعقيد O(log n) لكل استعلام بعد حساب مسبق O(N log log N).`,
+    code: null
+  },
+  // Medium
+  {
+    diff: 'medium', label: 'متوسط', num: 'Q06',
+    text: 'اكتب دالة بلغة C++ تجد عدد قواسم العدد n باستخدام تحليله الأولي. (تلميح: إذا كان n = p1^a1 × p2^a2 × …، فعدد القواسم = (a1+1)(a2+1)…)',
+    answer: `عدد قواسم n = ضرب (الأس + 1) لكل عامل أولي. مثال: 12 = 2² × 3¹، عدد القواسم = (2+1)(1+1) = 6.`,
+    code: `int countDivisors(int n) {
+    int result = 1;
+    for (int i = 2; i * i <= n; i++) {
+        int count = 0;
+        while (n % i == 0) { count++; n /= i; }
+        if (count > 0) result *= (count + 1);
+    }
+    if (n > 1) result *= 2; // عامل أولي بأسٍ 1 → (1+1) = 2
+    return result;
+}`
+  },
+  {
+    diff: 'medium', label: 'متوسط', num: 'Q07',
+    text: 'عدد N أعداد صحيحة تُعطى لك (كل منها ≤ 10⁶). أوجد الـ GCD (القاسم المشترك الأكبر) لمجموعها باستخدام SPF.',
+    answer: `نبني الغربال مرة واحدة، ثم لكل عدد نحلّله باستخدام getFactors. نجمع الأسس لكل عامل أولي بأخذ الحد الأدنى بين جميع الأعداد. الناتج هو GCD.`,
+    code: `// بعد بناء الغربال
+int gcd(int a, int b) { return b == 0 ? a : gcd(b, a % b); }
+int findGCD(vector<int>& arr) {
+    int g = arr[0];
+    for (int x : arr) g = gcd(g, x);
+    return g;
+}`
+  },
+  {
+    diff: 'medium', label: 'متوسط', num: 'Q08',
+    text: 'أعداد مثيلة (Powerful Numbers) هي الأعداد التي كل عامل أولي فيها له أسٌ ≥ 2. أوجد كل الأعداد المثيلة بين 1 و 1000.',
+    answer: `نحلّل كل عدد من 1 إلى 1000. إذا كان جميع أسوس عوامله الأولية ≥ 2، فهو عدد مثيل. الأعداد المثيلة تشمل: 1, 4, 8, 9, 16, 25, 27, 32, 36, ...`,
+    code: `bool isPowerful(int n) {
+    for (int i = 2; i * i <= n; i++) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) { cnt++; n /= i; }
+            if (cnt < 2) return false;
+        }
+    }
+    return n == 1; // إذا بقي عامل أولي بأسٍ 1 فهو ليس مثيلاً
+}`
+  },
+  {
+    diff: 'medium', label: 'متوسط', num: 'Q09',
+    text: 'ما هو أصغر عدد له بالضبط 12 قاسماً؟ استخدم فكرة التحليل الأولي للإجابة.',
+    answer: `عدد القواسم = 12. نجد توليفات الأسوس: 12=12، 6×2، 4×3، 3×2×2، 2×2×3. الأصغر يكون عند ترتيب الأسوس تنازلياً على الأعداد الأولية الأصغر. 60 = 2²×3×5 له (2+1)(1+1)(1+1) = 12 قاسماً وهو أصغر عدد بهذه الخاصية.`,
+    code: null
+  },
+  {
+    diff: 'medium', label: 'متوسط', num: 'Q10',
+    text: 'لديك مصفوفة من N عدد. لكل عدد في المصفوفة أوجد مجموع قواسمه باستخدام غربال SPF. الحدود: N ≤ 10⁵، كل عدد ≤ 10⁶.',
+    answer: `نبني الغربال، ثم لكل عدد x نحلّله باستخدام getFactors. من التحليل نحسب مجموع القواسم بمعادلة: ∏(p^(e+1)-1)/(p-1) لكل عامل أولي p بأسٍ e.`,
+    code: `// بعد بناء الغربال
+long long sumDivisors(int x) {
+    long long result = 1;
+    while (x != 1) {
+        int p = spf[x], cnt = 0;
+        long long pk = 1;
+        while (x % p == 0) { cnt++; x /= p; pk *= p; }
+        result *= (pk * p - 1) / (p - 1); // مجموع المتسلسلة الهندسية
+    }
+    return result;
+}`
+  },
+  // Hard
+  {
+    diff: 'hard', label: 'صعب', num: 'Q11',
+    text: 'أعداد خالية من المربعات (Squarefree) هي الأعداد التي لا تحتوي على عامل أولي بأسٍ ≥ 2. احسب عدد الأعداد الخالية من المربعات في المجال [L, R] حيث R - L ≤ 10⁶ و R ≤ 10¹².',
+    answer: `نستخدم مبدأ الإدراج والإقصاء (Inclusion-Exclusion) مع أعداد المربعات الأولية. نعدّ الأعداد التي تقسمها p² لكل عدد أولي p ≤ √R، ثم نطرح/نجمع وفق مبدأ موبيوس. يمكن أيضاً غربلة المجال [L,R] مباشرة.`,
+    code: `// غربال للمجال [L, R] (Segmented Sieve approach)
+// الفكرة: نبني مصفوفة offset بحجم (R-L+1)
+// لكل p أولي، نشطب مضاعفات p² في المجال`
+  },
+  {
+    diff: 'hard', label: 'صعب', num: 'Q12',
+    text: 'دالة أويلر φ(n) تعطي عدد الأعداد الأقل من n والأولية معه. اثبت أن φ(n) = n × ∏(1 - 1/p) لكل عامل أولي p يقسم n، ثم اكتب دالة تحسبها.',
+    answer: `الإثبات يعتمد على مبدأ الإدراج والإقصاء: نبدأ بكل الأعداد من 1 إلى n، نطرح مضاعفات كل عامل أولي، نجمع مضاعفات التقاطعات، وهكذا. الناتج هو الصيغة المضاعفة.`,
+    code: `int eulerPhi(int n) {
+    int result = n;
+    for (int i = 2; i * i <= n; i++) {
+        if (n % i == 0) {
+            while (n % i == 0) n /= i;
+            result -= result / i; // result *= (1 - 1/i)
+        }
+    }
+    if (n > 1) result -= result / n;
+    return result;
+}`
+  },
+  {
+    diff: 'hard', label: 'صعب', num: 'Q13',
+    text: 'أوجد أكبر عامل أولي للعدد n حيث n ≤ 10¹⁸ بأسرع طريقة ممكنة. (تلميح: ابحث عن خوارزمية بولارد رو)',
+    answer: `لأعداد ضخمة جداً تتجاوز 10¹²، نستخدم اختبار ميلر-رابين للتحقق من البدائية، ثم خوارزمية بولارد رو للتحليل في O(n^(1/4)). هذه الطريقة أسرع بكثير من القسمة التجريبية للأعداد الضخمة.`,
+    code: `// مخطط بولارد رو المبسّط
+long long pollardRho(long long n) {
+    if (n % 2 == 0) return 2;
+    long long x = rand() % (n - 2) + 2;
+    long long y = x, c = rand() % (n - 1) + 1, d = 1;
+    while (d == 1) {
+        x = (__int128(x) * x + c) % n;
+        y = (__int128(y) * y + c) % n;
+        y = (__int128(y) * y + c) % n;
+        d = __gcd(abs(x - y), n);
+    }
+    return d;
+}`
+  },
+  {
+    diff: 'hard', label: 'صعب', num: 'Q14',
+    text: 'احسب n! mod p حيث p عدد أولي وn ≤ 10⁶ باستخدام مبرهنة ويلسون ومفهوم التحليل الأولي لقوة العامل الأولي في المضروب.',
+    answer: `قوة العامل الأولي p في n! تُحسب بصيغة ليجندر: ∑⌊n/p^k⌋ لجميع k حتى يصبح p^k > n. لحساب n! mod p بشكل دقيق نستخدم مبرهنة ويلسون-لوكاس للأسس الكبيرة.`,
+    code: `// قوة العامل الأولي p في n! (صيغة ليجندر)
+long long legendreFormula(long long n, long long p) {
+    long long result = 0;
+    long long pk = p;
+    while (pk <= n) {
+        result += n / pk;
+        pk *= p;
+    }
+    return result;
+}`
+  },
+  {
+    diff: 'hard', label: 'صعب', num: 'Q15',
+    text: 'لديك مصفوفة من N عدد (N ≤ 10⁵، كل عدد ≤ 10⁶). أجب عن Q استعلام (Q ≤ 10⁵): لكل استعلام [l, r]، هل ناتج ضرب جميع عناصر المصفوفة من الموضع l إلى r مربعٌ كامل؟',
+    answer: `الفكرة: ضرب أعداد هو مربع كامل إذا وفقط إذا كان مجموع كل أسٍ أولي زوجياً. نخزّن لكل عدد XOR لمجموعة أسوسه الفردية. نستخدم Prefix XOR للإجابة عن كل استعلام في O(1). لكن التخزين يحتاج تمثيلاً ذكياً (بصمة XOR باستخدام أعداد عشوائية).`,
+    code: `// بعد بناء الغربال — Offline XOR hashing
+// لكل عدد x، نوجد hash = XOR لأعداد عشوائية لعواملها الفردية
+// prefix[i] = hash[1] XOR hash[2] XOR ... XOR hash[i]
+// الاستعلام [l,r]: prefix[r] XOR prefix[l-1] == 0`
+  }
+];
+
+function buildQuestions() {
+  const container = document.getElementById('questions-list');
+  questions.forEach((q, i) => {
+    const card = document.createElement('div');
+    card.className = `q-card ${q.diff}`;
+    card.innerHTML = `
+      <div class="q-header" onclick="toggleQ(this)">
+        <span class="q-num">${q.num}</span>
+        <span class="q-text">${q.text}</span>
+        <span class="q-difficulty">${q.label}</span>
+        <span class="q-toggle">▼</span>
+      </div>
+      <div class="q-body">
+        <div class="q-body-inner">
+          <p><strong style="color:var(--accent2)">الإجابة:</strong></p>
+          <p>${q.answer}</p>
+          ${q.code ? `<div class="code-block"><div class="code-header"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)">نسخ</button></div><pre dir="ltr" style="text-align:left">${escapeHtml(q.code)}</pre></div>` : ''}
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function toggleQ(header) {
+  const card = header.closest('.q-card');
+  card.classList.toggle('open');
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  buildQuestions();
+  runLab1(360);
+  buildSPF();
+  runLab3(45);
+});
+</script>
+</body>
+</html>

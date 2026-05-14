@@ -9,6 +9,8 @@ int main (){
 
     for(long long i = 1; i * i <= n; i++){
         if (n % i == 0){
+                cout << i;
+
             divisors.push_back(i);
 
             if(i != n/i){
@@ -17,11 +19,6 @@ int main (){
         }
     }
 
-sort(divisors.begin(), divisors.end());
-
-    for(long long i : divisors){
-        cout << "the divisors of " << n << " = " << i << "\n";
-    }
 
     return 0;
 }
