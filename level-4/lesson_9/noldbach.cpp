@@ -26,7 +26,7 @@ int findPrime(int n){
 
     for(long long i = 1 ; i < primes.size(); ++i){
         int sum = primes[i] + primes[i - 1] + 1;
-        if(sum <= n && is_prime[sum]){
+        if(sum  <= n && is_prime[sum]){
                 cout << sum << " \n";
             counter++;
         }

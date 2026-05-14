@@ -4,7 +4,7 @@ using namespace std;
 void factorize(long long n){
 for(long long i = 2 ; i * i <= n ; i++){
     while(n % i == 0){
-        cout << i <<" , " ;
+        cout << i << "\n";
         n /=  i;
     }
 }
