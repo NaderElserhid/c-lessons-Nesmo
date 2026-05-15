@@ -25,7 +25,14 @@ void sieve(int n) {
     }
 }
 
-
+vector<int> getFactors(int x) {
+    vector<int> ret;
+    while (x != 1) {
+        ret.push_back(spf[x]);  // أضف أصغر عامل أولي
+        x = x / spf[x];          // اقسم وتابع
+    }
+    return ret;
+}
 
 int main() {
     ios_base::sync_with_stdio(false);
