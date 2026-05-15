@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ordered Set - أولمبياد نسمة</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e3a5f;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --accent4: #f59e0b;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --danger: #ef4444;
+    --code-bg: #0d1117;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Tajawal', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Header */
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 2rem 3rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(0,212,255,0.05), transparent);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .logo-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    color: white;
+    box-shadow: 0 0 20px rgba(0,212,255,0.3);
+  }
+
+  .logo-text h1 {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+  .logo-text p {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .badge {
+    padding: 0.4rem 1rem;
+    background: rgba(124,58,237,0.15);
+    border: 1px solid rgba(124,58,237,0.4);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    color: #a78bfa;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* Main layout */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .section-number {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 200px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent));
+  }
+
+  .card p {
+    line-height: 1.9;
+    color: #94a3b8;
+    margin-bottom: 0.8rem;
+  }
+
+  .card p:last-child { margin-bottom: 0; }
+
+  /* Info boxes */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 600px) { .info-grid { grid-template-columns: 1fr; } }
+
+  .info-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem;
+  }
+
+  .info-box-label {
+    font-size: 0.75rem;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .info-box-label span { font-size: 1rem; }
+
+  .info-box-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+    direction: ltr;
+    text-align: right;
+  }
+
+  .info-box p {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .complexity {
+    display: inline-block;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.3);
+    color: var(--accent);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    padding: 0.2rem 0.7rem;
+    border-radius: 6px;
+    margin-top: 0.5rem;
+  }
+
+  /* Code block */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 1rem 0;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 1rem;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-lang {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .copy-btn {
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.3);
+    color: var(--accent);
+    padding: 0.3rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Tajawal', sans-serif;
+  }
+  .copy-btn:hover { background: rgba(0,212,255,0.2); }
+  .copy-btn.copied { background: rgba(16,185,129,0.2); border-color: var(--accent3); color: var(--accent3); }
+
+  .code-content {
+    padding: 1.2rem;
+    overflow-x: auto;
+    direction: ltr;
+  }
+
+  pre {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: #e2e8f0;
+    white-space: pre;
+  }
+
+  /* Syntax highlighting */
+  .kw { color: #c792ea; }
+  .fn { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .cm { color: #546e7a; font-style: italic; }
+  .ty { color: #ffcb6b; }
+  .op { color: #89ddff; }
+
+  /* Interactive demo */
+  .demo-area {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+  }
+
+  .demo-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    font-family: 'IBM Plex Mono', monospace;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .demo-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-bottom: 1.2rem;
+    align-items: center;
+  }
+
+  .demo-input {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9rem;
+    width: 100px;
+    outline: none;
+    transition: border-color 0.2s;
+    direction: ltr;
+  }
+  .demo-input:focus { border-color: var(--accent); }
+
+  .demo-btn {
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+
+  .btn-insert { background: linear-gradient(135deg, var(--accent), #0099cc); color: #000; }
+  .btn-insert:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(0,212,255,0.3); }
+
+  .btn-erase { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #fca5a5; }
+  .btn-erase:hover { background: rgba(239,68,68,0.25); }
+
+  .btn-find { background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4); color: #c4b5fd; }
+  .btn-find:hover { background: rgba(124,58,237,0.35); }
+
+  .btn-order { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); color: #fcd34d; }
+  .btn-order:hover { background: rgba(245,158,11,0.25); }
+
+  .os-visual {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    min-height: 60px;
+    padding: 1rem;
+    background: var(--code-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    align-items: center;
+    margin-bottom: 1rem;
+    direction: ltr;
+  }
+
+  .os-elem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .os-elem-val {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: white;
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+  }
+
+  .os-elem.highlighted .os-elem-val {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    box-shadow: 0 0 15px rgba(245,158,11,0.5);
+    transform: scale(1.15);
+  }
+
+  .os-elem-idx {
+    font-size: 0.65rem;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .empty-msg {
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-style: italic;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .demo-result {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent3);
+    min-height: 40px;
+    transition: all 0.3s;
+  }
+
+  /* Sliding window demo */
+  .sw-array {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    direction: ltr;
+    margin-bottom: 1rem;
+  }
+
+  .sw-cell {
+    width: 44px; height: 44px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    border: 2px solid var(--border);
+    background: var(--code-bg);
+    color: var(--text);
+    transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    position: relative;
+  }
+
+  .sw-cell.in-window {
+    background: rgba(124,58,237,0.2);
+    border-color: var(--accent2);
+    color: #c4b5fd;
+  }
+
+  .sw-cell.median {
+    background: rgba(245,158,11,0.25);
+    border-color: var(--accent4);
+    color: var(--accent4);
+    transform: scale(1.1);
+    box-shadow: 0 0 12px rgba(245,158,11,0.4);
+  }
+
+  .sw-controls {
+    display: flex;
+    gap: 0.7rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .sw-info {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.8rem;
+  }
+
+  .sw-stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .sw-stat-label { color: var(--muted); }
+  .sw-stat-val { color: var(--accent); font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
+
+  .results-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    direction: ltr;
+    min-height: 36px;
+    background: var(--code-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    padding: 0.5rem 0.8rem;
+    align-items: center;
+  }
+
+  .result-pill {
+    background: rgba(16,185,129,0.15);
+    border: 1px solid rgba(16,185,129,0.35);
+    color: var(--accent3);
+    padding: 0.2rem 0.6rem;
+    border-radius: 5px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    animation: popIn 0.3s ease both;
+  }
+
+  /* Quiz */
+  .quiz-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .quiz-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: border-color 0.3s;
+  }
+
+  .quiz-item.answered-correct { border-color: var(--accent3); }
+  .quiz-item.answered-wrong { border-color: var(--danger); }
+
+  .quiz-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .quiz-level {
+    padding: 0.25rem 0.7rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .level-easy { background: rgba(16,185,129,0.15); color: var(--accent3); border: 1px solid rgba(16,185,129,0.3); }
+  .level-med { background: rgba(245,158,11,0.15); color: var(--accent4); border: 1px solid rgba(245,158,11,0.3); }
+  .level-hard { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); }
+
+  .quiz-q {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .quiz-code {
+    font-family: 'IBM Plex Mono', monospace;
+    background: rgba(0,212,255,0.08);
+    color: var(--accent);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .quiz-option {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.7rem 1rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: right;
+  }
+
+  .quiz-option:hover:not(.disabled) {
+    border-color: var(--accent);
+    background: rgba(0,212,255,0.05);
+  }
+
+  .quiz-option.correct { border-color: var(--accent3) !important; background: rgba(16,185,129,0.1); }
+  .quiz-option.wrong { border-color: var(--danger) !important; background: rgba(239,68,68,0.1); }
+  .quiz-option.disabled { cursor: default; }
+
+  .option-letter {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .quiz-option.correct .option-letter { background: var(--accent3); border-color: var(--accent3); color: #000; }
+  .quiz-option.wrong .option-letter { background: var(--danger); border-color: var(--danger); color: white; }
+
+  .quiz-feedback {
+    margin-top: 0.8rem;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    display: none;
+  }
+
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; }
+  .quiz-feedback.wrong { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+
+  /* Score */
+  .score-bar {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .score-display {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .score-label { color: var(--muted); font-size: 0.85rem; margin-top: 0.3rem; }
+
+  .score-progress {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    margin-top: 1rem;
+    overflow: hidden;
+  }
+
+  .score-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 3px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .tab {
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted);
+    border: 1px solid transparent;
+    border-bottom: none;
+    transition: all 0.2s;
+  }
+
+  .tab.active {
+    color: var(--accent);
+    border-color: var(--border);
+    background: var(--surface);
+    border-bottom-color: var(--surface);
+    margin-bottom: -1px;
+  }
+
+  .tab:hover:not(.active) { color: var(--text); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Alert */
+  .alert {
+    padding: 1rem 1.2rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.8rem;
+    align-items: flex-start;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .alert-info { background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.25); color: #7dd3fc; }
+  .alert-warn { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); color: #fcd34d; }
+  .alert-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+  /* Step list */
+  .steps { display: flex; flex-direction: column; gap: 0.8rem; }
+  .step {
+    display: flex; gap: 1rem; align-items: flex-start;
+    padding: 0.8rem;
+    background: var(--surface2);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 700;
+    flex-shrink: 0;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .step p { color: #94a3b8; line-height: 1.7; font-size: 0.9rem; }
+
+  /* Footer */
+  footer {
+    position: relative; z-index: 1;
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 2rem 0;
+  }
+
+  /* Tooltip */
+  [data-tip] {
+    position: relative;
+    cursor: help;
+    text-decoration: underline dotted var(--accent);
+  }
+  [data-tip]:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: 125%;
+    right: 50%;
+    transform: translateX(50%);
+    background: #1e293b;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    z-index: 100;
+  }
+
+  .q-num {
+    font-size: 0.72rem;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">OS</div>
+    <div class="logo-text">
+      <h1>Ordered Set</h1>
+      <p>أولمبياد نسمة — منهج البرمجة التنافسية</p>
+    </div>
+  </div>
+  <div class="badge">🏆 المستوى المتقدم</div>
+</header>
+
+<main>
+
+  <!-- Score bar -->
+  <div class="score-bar">
+    <div class="score-display" id="scoreDisplay">0 / 15</div>
+    <div class="score-label">نقاطك في اختبار الدرس</div>
+    <div class="score-progress"><div class="score-fill" id="scoreFill"></div></div>
+  </div>
+
+  <!-- ===== SECTION 1: What is ordered_set ===== -->
+  <div class="section" style="animation-delay:0.1s">
+    <div class="section-header">
+      <div class="section-number">01</div>
+      <div class="section-title">ما هي ordered_set ؟</div>
+    </div>
+    <div class="card">
+      <p>
+        <strong style="color:var(--accent)">ordered_set</strong> هي بنية بيانات متقدمة تعمل تمامًا مثل
+        <code class="quiz-code">set</code> العادي في C++ (لا تسمح بالتكرار، ومرتبة تلقائيًا)،
+        لكنها تُضيف عليه قدرتين استثنائيتين لا تجدهما في الـ <code class="quiz-code">set</code> العادي.
+      </p>
+      <p>
+        هي جزء من <span data-tip="GNU Policy-Based Data Structures">PBDS</span> وليست جزءًا من
+        المعيار الرسمي لـ C++، لكنها متاحة في جميع المسابقات تقريبًا (Codeforces، CSES، إلخ).
+      </p>
+      <div class="info-grid">
+        <div class="info-box">
+          <div class="info-box-label"><span>🔍</span> find_by_order(k)</div>
+          <div class="info-box-title">إيجاد العنصر بترتيبه</div>
+          <p>تُرجع مؤشرًا للعنصر في الترتيب <code class="quiz-code">k</code> (يبدأ من 0) من الأصغر إلى الأكبر.</p>
+          <div class="complexity">O(log n)</div>
+        </div>
+        <div class="info-box">
+          <div class="info-box-label"><span>📊</span> order_of_key(x)</div>
+          <div class="info-box-title">إيجاد رتبة العنصر</div>
+          <p>تُرجع عدد العناصر الأصغر من <code class="quiz-code">x</code> في المجموعة.</p>
+          <div class="complexity">O(log n)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 2: مقارنة مع set ===== -->
+  <div class="section" style="animation-delay:0.15s">
+    <div class="section-header">
+      <div class="section-number">02</div>
+      <div class="section-title">مقارنة: set العادي vs ordered_set</div>
+    </div>
+    <div class="card">
+      <div class="info-grid">
+        <div class="info-box">
+          <div class="info-box-label"><span>📦</span> set العادي</div>
+          <div class="info-box-title" style="color:#94a3b8">std::set</div>
+          <p>✅ إدراج وحذف وبحث بـ O(log n)<br>
+             ✅ لا تكرار<br>
+             ✅ مرتب تلقائيًا<br>
+             ❌ لا يمكن الوصول بالفهرس<br>
+             ❌ لا يمكن معرفة رتبة عنصر</p>
+        </div>
+        <div class="info-box">
+          <div class="info-box-label"><span>⚡</span> ordered_set</div>
+          <div class="info-box-title">PBDS Tree</div>
+          <p>✅ كل ميزات set العادي<br>
+             ✅ find_by_order بـ O(log n)<br>
+             ✅ order_of_key بـ O(log n)<br>
+             ⚠️ غير موجودة في كل المترجمات<br>
+             ⚠️ تحتاج headers إضافية</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 3: Implementation ===== -->
+  <div class="section" style="animation-delay:0.2s">
+    <div class="section-header">
+      <div class="section-number">03</div>
+      <div class="section-title">الكود الأساسي (Template)</div>
+    </div>
+
+    <div class="alert alert-warn">
+      <span class="alert-icon">⚠️</span>
+      <span>هذا الكود يعمل مع <strong>GCC</strong> فقط. لن يعمل مع MSVC (Visual Studio) أو Clang بدون تعديلات.</span>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">C++ — الملفات المطلوبة والـ Template</span>
+        <button class="copy-btn" onclick="copyCode(this, 'code1')">نسخ</button>
+      </div>
+      <div class="code-content"><pre id="code1"><span class="cm">// الملفات المطلوبة</span>
+<span class="kw">#include</span> <span class="str">&lt;ext/pb_ds/assoc_container.hpp&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;ext/pb_ds/tree_policy.hpp&gt;</span>
+<span class="kw">using namespace</span> __gnu_pbds;
+
+<span class="cm">// التعريف الكامل لـ ordered_set</span>
+<span class="kw">template</span>&lt;<span class="kw">typename</span> <span class="ty">T</span>&gt;
+<span class="kw">using</span> <span class="ty">ordered_set</span> = <span class="fn">tree</span>&lt;
+    <span class="ty">T</span>,                                    <span class="cm">// نوع العناصر</span>
+    null_type,                            <span class="cm">// لا يوجد value (مثل set)</span>
+    less&lt;<span class="ty">T</span>&gt;,                              <span class="cm">// ترتيب تصاعدي</span>
+    rb_tree_tag,                          <span class="cm">// Red-Black Tree</span>
+    tree_order_statistics_node_update     <span class="cm">// يتيح find_by_order/order_of_key</span>
+&gt;;
+
+<span class="cm">// طريقة الاستخدام:</span>
+<span class="ty">ordered_set</span>&lt;<span class="kw">int</span>&gt; os;
+os.<span class="fn">insert</span>(<span class="num">10</span>);
+os.<span class="fn">insert</span>(<span class="num">20</span>);
+os.<span class="fn">insert</span>(<span class="num">30</span>);
+
+<span class="cm">// العنصر في الرتبة 0 (الأصغر): 10</span>
+<span class="kw">auto</span> it = os.<span class="fn">find_by_order</span>(<span class="num">0</span>); <span class="cm">// يشير إلى 10</span>
+
+<span class="cm">// كم عنصر أصغر من 25؟ الجواب: 2 (وهما 10 و 20)</span>
+<span class="kw">int</span> cnt = os.<span class="fn">order_of_key</span>(<span class="num">25</span>); <span class="cm">// = 2</span></pre></div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 4: Interactive Demo ===== -->
+  <div class="section" style="animation-delay:0.25s">
+    <div class="section-header">
+      <div class="section-number">04</div>
+      <div class="section-title">🎮 تجربة تفاعلية — العب مع ordered_set</div>
+    </div>
+
+    <div class="demo-area">
+      <div class="demo-title">⚡ محاكاة ordered_set مباشرة</div>
+
+      <div class="demo-controls">
+        <input type="number" class="demo-input" id="insertVal" placeholder="قيمة" min="-99" max="999">
+        <button class="demo-btn btn-insert" onclick="osInsert()">إدراج ➕</button>
+        <button class="demo-btn btn-erase" onclick="osErase()">حذف 🗑️</button>
+      </div>
+
+      <div class="demo-controls">
+        <input type="number" class="demo-input" id="kVal" placeholder="k" min="0">
+        <button class="demo-btn btn-find" onclick="osFindByOrder()">find_by_order(k) 🔍</button>
+        <input type="number" class="demo-input" id="xVal" placeholder="x" min="-99" max="999">
+        <button class="demo-btn btn-order" onclick="osOrderOfKey()">order_of_key(x) 📊</button>
+      </div>
+
+      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.8rem;font-family:'IBM Plex Mono',monospace;">
+        العناصر في المجموعة (مرتبة تصاعديًا):
+      </p>
+      <div class="os-visual" id="osVisual">
+        <span class="empty-msg">المجموعة فارغة — أدرج بعض الأرقام!</span>
+      </div>
+
+      <div class="demo-result" id="demoResult">النتيجة ستظهر هنا...</div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 5: Important Note on Pairs ===== -->
+  <div class="section" style="animation-delay:0.3s">
+    <div class="section-header">
+      <div class="section-number">05</div>
+      <div class="section-title">💡 حل مشكلة التكرار — استخدام الأزواج</div>
+    </div>
+
+    <div class="alert alert-info">
+      <span class="alert-icon">💡</span>
+      <span>
+        الـ <code class="quiz-code">ordered_set</code> لا تقبل تكرار القيم تمامًا كـ <code class="quiz-code">set</code>.
+        الحل الذكي في مسائل كـ Sliding Window Median: نخزن كل عنصر كزوج
+        <code class="quiz-code">(قيمة، فهرس)</code> بدلًا من مجرد القيمة!
+      </span>
+    </div>
+
+    <div class="card">
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <p><strong style="color:var(--text)">المشكلة:</strong> إذا كان لدينا مصفوفة <code class="quiz-code">[3, 1, 3, 2]</code> والنافذة تحتوي على <code class="quiz-code">[3, 1, 3]</code>، فلن نستطيع إدراج الـ 3 مرتين!</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <p><strong style="color:var(--text)">الحل:</strong> نحوّل كل عنصر <code class="quiz-code">a[i]</code> إلى زوج <code class="quiz-code">(a[i], i)</code>. الآن <code class="quiz-code">(3,0)</code> و <code class="quiz-code">(3,2)</code> عنصران مختلفان!</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <p><strong style="color:var(--text)">الترتيب محفوظ:</strong> الأزواج تُرتب أولًا بالقيمة ثم بالفهرس، لذا ترتيبنا من الأصغر إلى الأكبر لا يتأثر.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 6: Problem + Solution ===== -->
+  <div class="section" style="animation-delay:0.35s">
+    <div class="section-header">
+      <div class="section-number">06</div>
+      <div class="section-title">📘 مسألة: Sliding Window Median</div>
+    </div>
+
+    <div class="card">
+      <p>
+        <strong style="color:var(--accent)">المسألة:</strong> لديك مصفوفة من <code class="quiz-code">n</code> عنصر وقيمة <code class="quiz-code">k</code>.
+        اطبع <strong>الوسيط</strong> لكل مصفوفة جزئية بطول <code class="quiz-code">k</code>.
+      </p>
+      <p>
+        <strong>الوسيط:</strong> العنصر الأوسط بعد الترتيب. إذا كان <code class="quiz-code">k</code> زوجيًا فالوسيط هو القيمة الصغرى من الوسطين.
+        مثال: <code class="quiz-code">[1, 2, 3, 4]</code> ← الوسيط = <code class="quiz-code">2</code>
+      </p>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Sliding Window Interactive -->
+    <div class="demo-area">
+      <div class="demo-title">🪟 محاكاة النافذة المنزلقة</div>
+
+      <div class="sw-controls">
+        <span style="color:var(--muted);font-size:0.85rem;">مصفوفة:</span>
+        <input type="text" class="demo-input" id="swArray" value="2 4 7 3 8 1 9" style="width:180px" placeholder="أرقام مفصولة بمسافات">
+        <span style="color:var(--muted);font-size:0.85rem;">k=</span>
+        <input type="number" class="demo-input" id="swK" value="3" min="1" style="width:70px">
+        <button class="demo-btn btn-insert" onclick="swInit()" style="font-size:0.8rem">تشغيل ▶</button>
+        <button class="demo-btn btn-find" onclick="swNext()" id="swNextBtn" disabled style="font-size:0.8rem">التالي ⟶</button>
+      </div>
+
+      <div class="sw-info" id="swInfo"></div>
+
+      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.5rem;font-family:'IBM Plex Mono',monospace;">
+        المصفوفة (🟣 = في النافذة، 🟡 = الوسيط):
+      </p>
+      <div class="sw-array" id="swArrayVis"></div>
+
+      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.5rem;font-family:'IBM Plex Mono',monospace;">
+        الوسيطات المستخرجة:
+      </p>
+      <div class="results-list" id="swResults"><span class="empty-msg">...</span></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Solution Code -->
+    <div class="section-header" style="margin-top:1.5rem">
+      <div class="section-number" style="background:linear-gradient(135deg,var(--accent3),#059669)">06</div>
+      <div class="section-title">الكود الكامل للحل</div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">C++ — Sliding Window Median</span>
+        <button class="copy-btn" onclick="copyCode(this, 'code2')">نسخ</button>
+      </div>
+      <div class="code-content"><pre id="code2"><span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="kw">#include</span> <span class="str">&lt;ext/pb_ds/assoc_container.hpp&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;ext/pb_ds/tree_policy.hpp&gt;</span>
+<span class="kw">using namespace</span> __gnu_pbds;
+
+<span class="kw">template</span>&lt;<span class="kw">typename</span> <span class="ty">T</span>&gt;
+<span class="kw">using</span> <span class="ty">ordered_set</span> = <span class="fn">tree</span>&lt;<span class="ty">T</span>, null_type, less&lt;<span class="ty">T</span>&gt;, rb_tree_tag, tree_order_statistics_node_update&gt;;
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> n, k;
+    cin <span class="op">&gt;&gt;</span> n <span class="op">&gt;&gt;</span> k;
+
+    pair&lt;<span class="kw">int</span>, <span class="kw">int</span>&gt; a[n];
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i <span class="op">&lt;</span> n; i++) {
+        cin <span class="op">&gt;&gt;</span> a[i].first;
+        a[i].second = i;  <span class="cm">// الفهرس يضمن عدم التكرار</span>
+    }
+
+    <span class="ty">ordered_set</span>&lt;pair&lt;<span class="kw">int</span>, <span class="kw">int</span>&gt;&gt; os;
+
+    <span class="cm">// أدخل النافذة الأولى</span>
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i <span class="op">&lt;</span> k; i++) {
+        os.<span class="fn">insert</span>(a[i]);
+    }
+
+    <span class="cm">// حساب موضع الوسيط</span>
+    <span class="kw">int</span> median = (k <span class="op">%</span> <span class="num">2</span> == <span class="num">0</span>) ? k/<span class="num">2</span> - <span class="num">1</span> : k/<span class="num">2</span>;
+
+    <span class="cm">// طباعة وسيط النافذة الأولى</span>
+    pair&lt;<span class="kw">int</span>, <span class="kw">int</span>&gt; ans = *os.<span class="fn">find_by_order</span>(median);
+    cout <span class="op">&lt;&lt;</span> ans.first <span class="op">&lt;&lt;</span> <span class="str">' '</span>;
+
+    <span class="cm">// التحرك عبر جميع النوافذ</span>
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i <span class="op">&lt;</span> n - k; i++) {
+        os.<span class="fn">erase</span>(a[i]);      <span class="cm">// احذف أول عنصر في النافذة</span>
+        os.<span class="fn">insert</span>(a[i + k]); <span class="cm">// أضف العنصر الجديد</span>
+
+        pair&lt;<span class="kw">int</span>, <span class="kw">int</span>&gt; ans = *os.<span class="fn">find_by_order</span>(median);
+        cout <span class="op">&lt;&lt;</span> ans.first <span class="op">&lt;&lt;</span> <span class="str">' '</span>;
+    }
+    <span class="kw">return</span> <span class="num">0</span>;
+}
+<span class="cm">// التعقيد الزمني: O(n log n)</span>
+<span class="cm">// التعقيد المكاني: O(k)</span></pre></div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 7: Quiz ===== -->
+  <div class="section" style="animation-delay:0.4s">
+    <div class="section-header">
+      <div class="section-number">07</div>
+      <div class="section-title">📝 اختبر نفسك — 15 سؤال</div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('easy')">🟢 سهل (5)</div>
+      <div class="tab" onclick="switchTab('med')">🟡 متوسط (5)</div>
+      <div class="tab" onclick="switchTab('hard')">🔴 صعب (5)</div>
+    </div>
+
+    <!-- Easy Questions -->
+    <div class="tab-content active quiz-container" id="tab-easy">
+
+      <!-- Q1 -->
+      <div class="quiz-item" id="q1">
+        <div class="quiz-header">
+          <div class="quiz-level level-easy">سهل</div>
+          <div>
+            <div class="q-num">السؤال 1 من 15</div>
+            <div class="quiz-q">ما هو التعقيد الزمني لعملية <span class="quiz-code">find_by_order(k)</span> في ordered_set؟</div>
+          </div>
+        </div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answer(this,'q1','A')"><div class="option-letter">A</div> O(1)</div>
+          <div class="quiz-option" onclick="answer(this,'q1','B')"><div class="option-letter">B</div> O(log n) ✓</div>
+          <div class="quiz-option" onclick="answer(this,'q1','C')"><div class="option-letter">C</div> O(n)</div>
+          <div class="quiz-option" onclick="answer(this,'q1','D')"><div class="option-letter">D</div> O(n log n)</div>
+        </div>
+        <div class="quiz-feedback" id="fb-q1"></div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="quiz-item" id="q2">
+        <div class="quiz-header">
+          <div class="quiz-level level-easy">سهل</div>
+          <div>
+            <div class="q-num">السؤال 2 من 15</div>
+            <div class="quiz-q">هل تسمح ordered_set بإدراج قيمة مكررة مثلًا إدراج الرقم <span class="quiz-code">5</span> مرتين؟</div>
+          </div>
+        </div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answer(this,'q2','A')"><div class="option-letter">A</div> نعم، تسمح بأي عدد من التكرارات</div>
+          <div class="quiz-option" onclick="answer(this,'q2','B')"><div class="option-letter">B</div> لا، لا تسمح بالتكرار ✓</div>
+          <div class="quiz-option" onclick="answer(this,'q2','C')"><div class="option-letter">C</div> نعم، لكن فقط مرتين</div>
+          <div class="quiz-option" onclick="answer(this,'q2','D')"><div class="option-letter">D</div> تعتمد على نوع البيانات</div>
+        </div>
+        <div class="quiz-feedback" id="fb-q2"></div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="quiz-item" id="q3">
+        <div class="quiz-header">
+          <div class="quiz-level level-easy">سهل</div>
+          <div>
+            <div class="q-num">السؤال 3 من 15</div>
+            <div class="quiz-q">
+              إذا كانت ordered_set تحتوي على <span class="quiz-code">{3, 7, 15, 20}</span>،
+              فماذا يُرجع <span class="quiz-code">find_by_order(0)</span>؟
+            </div>
+          </div>
+        </div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answer(this,'q3','A')"><div class="option-letter">A</div> 20</div>
+          <div class="quiz-option" onclick="answer(this,'q3','B')"><div class="option-letter">B</div> 7</div>
+          <div class="quiz-option" onclick="answer(this,'q3','C')"><div class="option-letter">C</div> 3 ✓</div>
+          <div class="quiz-option" onclick="answer(this,'q3','D')"><div class="option-letter">D</div> 15</div>
+        </div>
+        <div class="quiz-feedback" id="fb-q3"></div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="quiz-item" id="q4">
+        <div class="quiz-header">
+          <div class="quiz-level level-easy">سهل</div>
+          <div>
+            <div class="q-num">السؤال 4 من 15</div>
+            <div class="quiz-q">
+              ماذا يُرجع <span class="quiz-code">order_of_key(x)</span>؟
+            </div>
+          </div>
+        </div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answer(this,'q4','A')"><div class="option-letter">A</div> قيمة العنصر عند الفهرس x</div>
+          <div class="quiz-option" onclick="answer(this,'q4','B')"><div class="option-letter">B</div> عدد العناصر الأصغر من x ✓</div>
+          <div class="quiz-option" onclick="answer(this,'q4','C')"><div class="option-letter">C</div> عدد العناصر الأكبر من x</div>
+          <div class="quiz-option" onclick="answer(this,'q4','D')"><div class="option-letter">D</div> موضع x في المصفوفة الأصلية</div>
+        </div>
+        <div class="quiz-feedback" id="fb-q4"></div>
+      </div>
+
+      <!-- Q5 -->
+      <div class="quiz-item" id="q5">
+        <div class="quiz-header">
+          <div class="quiz-level level-easy">سهل</div>
+          <div>
+            <div class="q-num">السؤال 5 من 15</div>
+            <div class="quiz-q">
+              من أي library تأتي ordered_set؟
+            </div>
+          </div>
+        </div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answer(this,'q5','A')"><div class="option-letter">A</div> &lt;algorithm&gt;</div>
+          <div class="quiz-option" onclick="answer(this,'q5','B')"><div class="option-letter">B</div> &lt;bits/stdc++.h&gt;</div>
+          <div class="quiz-option" onclick="answer(this,'q5','C')"><div class="option-letter">C</div> &lt;ext/pb_ds/assoc_container.hpp&gt; ✓</div>
+          <div class="quiz-option" onclick="answer(this,'q5','D')"><div class="option-letter">D</div> &lt;set&gt;</div>
+        </div>
+        <div class="quiz-feedback" id="fb-q5"></div>
+      </div>
+
+    </div>
+
+    <!-- Medium Questions -->
+    <div class="tab-content quiz-container" id="tab-med">
+
+      <!-- Q6 -->
+      <div class="quiz-item" id="q6">
+        <div class="quiz-header">
+          <div class="quiz-level level-med">متوسط</div>
+          <div>
+            <div class="q-num">السؤال 6 من 15</div>
+            <div class="quiz-q">
+              ordered_set تحتوي على <span class="quiz-code">{1, 5, 10, 15, 20}</span>.
+              ما قيمة <span class="quiz-code">order_of_key(11)</span>؟
+            </div>
+          </div>
+        </div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answer(this,'q6','A')"><div class="option-letter">A</div> 2</div>
+          <div class="quiz-option" onclick="answer(this,'q6','B')"><div class="option-letter">B</div> 3 ✓</div>
+          <div class="quiz-option" onclick="answer(this,'q6','C')"><div class="option-letter">C</div> 4</div>
+          <div class="quiz-option" onclick="answer(this,'q6','D')"><div class="option-letter">D</div> 5</div>
+        </div>
+        <div class="quiz-feedback" id="fb-q6"></div>
+      </div>
+
+      <!-- Q7 -->
+      <div class="quiz-item" id="q7">
+        <div class="quiz-header">
+          <div class="quiz-level level-med">متوسط</div>
+          <div>
+            <div class="q-num">السؤال 7 من 15</div>
+            <div class="quiz-q">
+              في مسألة Sliding Window Median، نستخدم <span class="quiz-code">pair&lt;int,int&gt;</span> بدلًا من <span class="quiz-code">int</span>.
+              ما السبب الرئيسي لذلك؟
+            </div>
+          </div>
+        </div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answer(this,'q7','A')"><div class="option-letter">A</div> لتسريع عمليات البحث</div>
+          <div class="quiz-option" onclick="answer(this,'q7','B')"><div class="option-letter">B</div> لأن ordered_set لا تعمل مع int</div>
+          <div class="quiz-option" onclick="answer(this,'q7','C')"><div class="option-letter">C</div> لتجنب مشكلة القيم المكررة في المصفوفة ✓</div>
+          <div class="quiz-option" onclick="answer(this,'q7','D')"><div class="option-letter">D</div> لتقليل استهلاك الذاكرة</div>
+        </div>
+        <div class="quiz-feedback" id="fb-q7"></div>
+      </div>
+
+      <!-- Q8 -->
+      <div class="quiz-item" id="q8">
+        <div class="quiz-header">
+          <div class="quiz-level level-med">متوسط</div>
+          <div>
+            <div class="q-num">السؤال 8 من 15</div>
+            <div class="quiz-q">
+              لديك مصفوفة <span class="quiz-code">[2, 4, 7, 3]</span> و <span class="quiz-code">k=3</span>.
+              ما هو وسيط النافذة الأولى <span class="quiz-code">[2, 4, 7]</span>؟
+            </div>
+          </div>
+        </div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answer(this,'q8','A')"><div class="option-letter">A</div> 2</div>
+          <div class="quiz-option" onclick="answer(this,'q8','B')"><div class="option-letter">B</div> 7</div>
+          <div class="quiz-option" onclick="answer(this,'q8','C')"><div class="option-letter">C</div> 4 ✓</div>
+          <div class="quiz-option" onclick="answer(this,'q8','D')"><div class="option-letter">D</div> 13</div>
+        </div>
+        <div class="quiz-feedback" id="fb-q8"></div>
+      </div>
+
+      <!-- Q9 -->
+      <div class="quiz-item" id="q9">
+        <div class="quiz-header">
+          <div class="quiz-level level-med">متوسط</div>
+          <div>
+            <div class="q-num">السؤال 9 من 15</div>
+            <div class="quiz-q">
+              ما هو التعقيد الزمني الكلي لحل مسألة Sliding Window Median باستخدام ordered_set؟
+            </div>
+          </div>
+        </div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answer(this,'q9','A')"><div class="option-letter">A</div> O(n)</div>
+          <div class="quiz-option" onclick="answer(this,'q9','B')"><div class="option-letter">B</div> O(n log n) ✓</div>
+          <div class="quiz-option" onclick="answer(this,'q9','C')"><div class="option-letter">C</div> O(n · k)</div>
+          <div class="quiz-option" onclick="answer(this,'q9','D')"><div class="option-letter">D</div> O(n² log n)</div>
+        </div>
+        <div class="quiz-feedback" id="fb-q9"></div>
+      </div>
+
+      <!-- Q10 -->
+      <div class="quiz-item" id="q10">
+        <div class="quiz-header">
+          <div class="quiz-level level-med">متوسط</div>
+          <div>
+            <div class="q-num">السؤال 10 من 15</div>
+            <div class="quiz-q">
+              إذا كان <span class="quiz-code">k = 4</span> (زوجي)، ما هو فهرس الوسيط الذي نستخدمه في <span class="quiz-code">find_by_order</span>؟
+            </div>
+          </div>
+        </div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answer(this,'q10','A')"><div class="option-letter">A</div> k/2 = 2</div>
+          <div class="quiz-option" onclick="answer(this,'q10','B')"><div class="option-letter">B</div> k/2 - 1 = 1 ✓</div>
+          <div class="quiz-option" onclick="answer(this,'q10','C')"><div class="option-letter">C</div> k - 1 = 3</div>
+          <div class="quiz-option" onclick="answer(this,'q10','D')"><div class="option-letter">D</div> 0</div>
+        </div>
+        <div class="quiz-feedback" id="fb-q10"></div>
+      </div>
+
+    </div>
+
+    <!-- Hard Questions -->
+    <div class="tab-content quiz-container" id="tab-hard">
+
+      <!-- Q11 -->
+      <div class="quiz-item" id="q11">
+        <div class="quiz-header">
+          <div class="quiz-level level-hard">صعب</div>
+          <div>
+            <div class="q-num">السؤال 11 من 15</div>
+            <div class="quiz-q">
+              ordered_set تحتوي على <span class="quiz-code">{2, 5, 8, 12, 18}</span>.
+              ماذا يُرجع: <span class="quiz-code">*os.find_by_order(os.order_of_key(9))</span>؟
+            </div>
+          </div>
+        </div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answer(this,'q11','A')"><div class="option-letter">A</div> 8</div>
+          <div class="quiz-option" onclick="answer(this,'q11','B')"><div class="option-letter">B</div> 12 ✓</div>
+          <div class="quiz-option" onclick="answer(this,'q11','C')"><div class="option-letter">C</div> 9</div>
+          <div class="quiz-option" onclick="answer(this,'q11','D')"><div class="option-letter">D</div> خطأ في التنفيذ</div>
+        </div>
+        <div class="quiz-feedback" id="fb-q11"></div>
+      </div>
+
+      <!-- Q12 -->
+      <div class="quiz-item" id="q12">
+        <div class="quiz-header">
+          <div class="quiz-level level-hard">صعب</div>
+          <div>
+            <div class="q-num">السؤال 12 من 15</div>
+            <div class="quiz-q">
+              مصفوفة <span class="quiz-code">[3, 3, 3, 3]</span> و <span class="quiz-code">k=3</span>.
+              لماذا لا يمكن حل هذه المسألة مباشرة باستخدام <span class="quiz-code">ordered_set&lt;int&gt;</span>؟
+            </div>
+          </div>
+        </div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answer(this,'q12','A')"><div class="option-letter">A</div> لأن قيمة 3 لا يمكن تخزينها في int</div>
+          <div class="quiz-option" onclick="answer(this,'q12','B')"><div class="option-letter">B</div> لأن جميع القيم متساوية وستُرفض كتكرارات عند الإدراج ✓</div>
+          <div class="quiz-option" onclick="answer(this,'q12','C')"><div class="option-letter">C</div> لأن ordered_set لا تعمل مع k=3</div>
+          <div class="quiz-option" onclick="answer(this,'q12','D')"><div class="option-letter">D</div> لا يوجد مشكلة</div>
+        </div>
+        <div class="quiz-feedback" id="fb-q12"></div>
+      </div>
+
+      <!-- Q13 -->
+      <div class="quiz-item" id="q13">
+        <div class="quiz-header">
+          <div class="quiz-level level-hard">صعب</div>
+          <div>
+            <div class="q-num">السؤال 13 من 15</div>
+            <div class="quiz-q">
+              ما عدد الوسيطات المطبوعة لمصفوفة طولها <span class="quiz-code">n=7</span> مع نافذة <span class="quiz-code">k=3</span>؟
+            </div>
+          </div>
+        </div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answer(this,'q13','A')"><div class="option-letter">A</div> 3</div>
+          <div class="quiz-option" onclick="answer(this,'q13','B')"><div class="option-letter">B</div> 7</div>
+          <div class="quiz-option" onclick="answer(this,'q13','C')"><div class="option-letter">C</div> 5 ✓</div>
+          <div class="quiz-option" onclick="answer(this,'q13','D')"><div class="option-letter">D</div> 4</div>
+        </div>
+        <div class="quiz-feedback" id="fb-q13"></div>
+      </div>
+
+      <!-- Q14 -->
+      <div class="quiz-item" id="q14">
+        <div class="quiz-header">
+          <div class="quiz-level level-hard">صعب</div>
+          <div>
+            <div class="q-num">السؤال 14 من 15</div>
+            <div class="quiz-q">
+              في هيكل <span class="quiz-code">tree&lt;T, null_type, less&lt;T&gt;, rb_tree_tag, tree_order_statistics_node_update&gt;</span>،
+              ما وظيفة المعامل <span class="quiz-code">tree_order_statistics_node_update</span>؟
+            </div>
+          </div>
+        </div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answer(this,'q14','A')"><div class="option-letter">A</div> يحدد نوع الترتيب (تصاعدي/تنازلي)</div>
+          <div class="quiz-option" onclick="answer(this,'q14','B')"><div class="option-letter">B</div> يجعل الشجرة توفر إحصاءات الترتيب في كل عقدة ✓</div>
+          <div class="quiz-option" onclick="answer(this,'q14','C')"><div class="option-letter">C</div> يحدد نوع الذاكرة المستخدمة</div>
+          <div class="quiz-option" onclick="answer(this,'q14','D')"><div class="option-letter">D</div> يسمح بالتكرار</div>
+        </div>
+        <div class="quiz-feedback" id="fb-q14"></div>
+      </div>
+
+      <!-- Q15 -->
+      <div class="quiz-item" id="q15">
+        <div class="quiz-header">
+          <div class="quiz-level level-hard">صعب</div>
+          <div>
+            <div class="q-num">السؤال 15 من 15</div>
+            <div class="quiz-q">
+              أريد استخدام ordered_set لحل مسألة تحتاج إلى ترتيب <strong>تنازلي</strong> (من الأكبر للأصغر).
+              كيف أعدّل التعريف؟
+            </div>
+          </div>
+        </div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answer(this,'q15','A')"><div class="option-letter">A</div> لا يمكن تغيير الترتيب في ordered_set</div>
+          <div class="quiz-option" onclick="answer(this,'q15','B')"><div class="option-letter">B</div> أستخدم <span class="quiz-code">greater&lt;T&gt;</span> بدلًا من <span class="quiz-code">less&lt;T&gt;</span> ✓</div>
+          <div class="quiz-option" onclick="answer(this,'q15','C')"><div class="option-letter">C</div> أُدرج عناصر سالبة</div>
+          <div class="quiz-option" onclick="answer(this,'q15','D')"><div class="option-letter">D</div> أستخدم <span class="quiz-code">reverse_iterator</span></div>
+        </div>
+        <div class="quiz-feedback" id="fb-q15"></div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>🏆 أولمبياد نسمة — البرمجة التنافسية للشباب السعودي | تم إعداد هذا المنهج للطلاب (15-20 سنة)</p>
+</footer>
+
+<script>
+// ===== STATE =====
+const answers = {
+  q1:'B', q2:'B', q3:'C', q4:'B', q5:'C',
+  q6:'B', q7:'C', q8:'C', q9:'B', q10:'B',
+  q11:'B', q12:'B', q13:'C', q14:'B', q15:'B'
+};
+
+const feedbacks = {
+  q1: { correct: 'صحيح! find_by_order تعمل بـ O(log n) لأن الشجرة الحمراء-السوداء تخزن إحصاءات في كل عقدة.', wrong: 'الإجابة الصحيحة B. التعقيد هو O(log n) وليس O(1) أو O(n).' },
+  q2: { correct: 'صحيح! ordered_set تتصرف مثل set تمامًا — لا تكرار مطلقًا.', wrong: 'خطأ. ordered_set مشتقة من set لذا لا تسمح بالتكرار أبدًا.' },
+  q3: { correct: 'ممتاز! الترقيم يبدأ من 0، لذا find_by_order(0) يُرجع أصغر عنصر وهو 3.', wrong: 'خطأ. find_by_order(0) يُرجع العنصر ذا الترتيب 0 وهو الأصغر = 3.' },
+  q4: { correct: 'صحيح! order_of_key(x) تحسب كم عنصرًا في المجموعة أصغر من x.', wrong: 'خطأ. order_of_key(x) يُرجع عدد العناصر الأصغر من x، وليس قيمة العنصر عند فهرس x.' },
+  q5: { correct: 'صحيح! نحتاج لـ include كلا الملفين من مجلد ext/pb_ds.', wrong: 'خطأ. ordered_set تأتي من ext/pb_ds/assoc_container.hpp وهي ليست في المكتبة القياسية.' },
+  q6: { correct: 'ممتاز! العناصر الأصغر من 11 هي: 1, 5, 10 → 3 عناصر.', wrong: 'خطأ. العناصر الأصغر من 11 هي {1, 5, 10} → الجواب 3.' },
+  q7: { correct: 'صحيح! إذا أدرجنا فقط القيمة، ستُرفض القيم المكررة. الفهرس يجعل كل زوج فريدًا.', wrong: 'خطأ. السبب هو منع رفض القيم المكررة لأن ordered_set لا تقبل التكرار.' },
+  q8: { correct: 'صحيح! بعد ترتيب [2,4,7] ← [2,4,7]، الوسيط عند k/2=1 هو 4.', wrong: 'خطأ. بعد الترتيب [2,4,7]، الوسيط هو العنصر الأوسط = 4.' },
+  q9: { correct: 'ممتاز! n عملية إدراج وحذف كل منها O(log n) ← إجمالي O(n log n).', wrong: 'خطأ. التعقيد الكلي هو O(n log n): n نافذة × O(log n) لكل عملية.' },
+  q10: { correct: 'صحيح! عند k زوجي، نأخذ الوسيط الأصغر وهو في الفهرس k/2 - 1.', wrong: 'خطأ. عند k=4 (زوجي)، فهرس الوسيط الأصغر هو k/2 - 1 = 1.' },
+  q11: { correct: 'ممتاز! order_of_key(9) = 3 (عناصر {2,5,8} أصغر من 9)، ثم find_by_order(3) يُرجع 12.', wrong: 'خطأ. order_of_key(9)=3 لأن {2,5,8} أصغر من 9، ثم find_by_order(3) = 12 (الرابع بالترتيب).' },
+  q12: { correct: 'صحيح! جميع القيم 3 متساوية، فعند إدراج الثانية ستُتجاهل. النافذة ستحتوي 1 عنصر فقط بدلًا من 3.', wrong: 'خطأ. المشكلة أن ordered_set<int> ستتجاهل القيم المكررة → لن تُخزن النافذة بشكل صحيح.' },
+  q13: { correct: 'صحيح! عدد النوافذ = n - k + 1 = 7 - 3 + 1 = 5 نوافذ → 5 وسيطات.', wrong: 'خطأ. عدد النوافذ = n - k + 1 = 7 - 3 + 1 = 5.' },
+  q14: { correct: 'ممتاز! هذا المعامل يجعل كل عقدة في الشجرة تحتفظ بحجم شجرتها الفرعية، مما يتيح إيجاد الترتيب في O(log n).', wrong: 'خطأ. tree_order_statistics_node_update هو الذي يخزن إحصاءات الحجم في كل عقدة لدعم عمليتي find_by_order و order_of_key.' },
+  q15: { correct: 'ممتاز! باستبدال less<T> بـ greater<T>، يصبح الترتيب تنازليًا وستعمل find_by_order من الأكبر للأصغر.', wrong: 'خطأ. الحل هو استبدال less<T> بـ greater<T> في تعريف الشجرة.' }
+};
+
+let score = 0;
+let answered = {};
+
+function answer(el, qid, chosen) {
+  if (answered[qid]) return;
+  answered[qid] = true;
+  const correct = answers[qid];
+  const options = el.parentElement.querySelectorAll('.quiz-option');
+  options.forEach(o => o.classList.add('disabled'));
+
+  const letters = ['A','B','C','D'];
+  options.forEach((o, i) => {
+    if (letters[i] === correct) o.classList.add('correct');
+    else if (letters[i] === chosen && chosen !== correct) o.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('fb-' + qid);
+  const isCorrect = chosen === correct;
+  if (isCorrect) {
+    score++;
+    fb.textContent = '✅ ' + feedbacks[qid].correct;
+    fb.className = 'quiz-feedback correct show';
+    document.getElementById(qid).classList.add('answered-correct');
+  } else {
+    fb.textContent = '❌ ' + feedbacks[qid].wrong;
+    fb.className = 'quiz-feedback wrong show';
+    document.getElementById(qid).classList.add('answered-wrong');
+  }
+
+  document.getElementById('scoreDisplay').textContent = score + ' / 15';
+  document.getElementById('scoreFill').style.width = (score / 15 * 100) + '%';
+}
+
+// ===== TABS =====
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', ['easy','med','hard'][i] === name);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => {
+    c.classList.toggle('active', c.id === 'tab-' + name);
+  });
+}
+
+// ===== COPY CODE =====
+function copyCode(btn, id) {
+  const pre = document.getElementById(id);
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '✓ تم النسخ!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'نسخ'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ===== ORDERED SET DEMO =====
+let osData = [];
+
+function osInsert() {
+  const v = parseInt(document.getElementById('insertVal').value);
+  if (isNaN(v)) { setResult('⚠️ أدخل رقمًا صحيحًا!', '#fbbf24'); return; }
+  if (osData.includes(v)) { setResult(`⚠️ العنصر ${v} موجود بالفعل! ordered_set لا تقبل التكرار.`, '#fbbf24'); return; }
+  osData.push(v);
+  osData.sort((a,b)=>a-b);
+  renderOS(-1);
+  setResult(`✅ تم إدراج ${v}. الحجم الجديد: ${osData.length}`, '#6ee7b7');
+}
+
+function osErase() {
+  const v = parseInt(document.getElementById('insertVal').value);
+  if (isNaN(v)) { setResult('⚠️ أدخل رقمًا!', '#fbbf24'); return; }
+  const idx = osData.indexOf(v);
+  if (idx === -1) { setResult(`⚠️ العنصر ${v} غير موجود في المجموعة!`, '#fbbf24'); return; }
+  osData.splice(idx, 1);
+  renderOS(-1);
+  setResult(`🗑️ تم حذف ${v}. الحجم الجديد: ${osData.length}`, '#fca5a5');
+}
+
+function osFindByOrder() {
+  const k = parseInt(document.getElementById('kVal').value);
+  if (isNaN(k)) { setResult('⚠️ أدخل قيمة k!', '#fbbf24'); return; }
+  if (k < 0 || k >= osData.length) {
+    setResult(`⚠️ k=${k} خارج النطاق! يجب أن يكون بين 0 و ${osData.length-1}`, '#fbbf24');
+    renderOS(-1); return;
+  }
+  renderOS(k);
+  setResult(`🔍 find_by_order(${k}) = ${osData[k]}  (العنصر ذو الترتيب ${k} من الأصغر)`, '#c4b5fd');
+}
+
+function osOrderOfKey() {
+  const x = parseInt(document.getElementById('xVal').value);
+  if (isNaN(x)) { setResult('⚠️ أدخل قيمة x!', '#fbbf24'); return; }
+  const cnt = osData.filter(v => v < x).length;
+  renderOS(-1);
+  setResult(`📊 order_of_key(${x}) = ${cnt}  (عدد العناصر الأصغر من ${x})`, '#fcd34d');
+}
+
+function renderOS(highlighted) {
+  const vis = document.getElementById('osVisual');
+  if (osData.length === 0) {
+    vis.innerHTML = '<span class="empty-msg">المجموعة فارغة — أدرج بعض الأرقام!</span>';
+    return;
+  }
+  vis.innerHTML = osData.map((v, i) => `
+    <div class="os-elem ${i === highlighted ? 'highlighted' : ''}">
+      <div class="os-elem-val">${v}</div>
+      <div class="os-elem-idx">[${i}]</div>
+    </div>`).join('');
+}
+
+function setResult(msg, color) {
+  const el = document.getElementById('demoResult');
+  el.textContent = msg;
+  el.style.color = color;
+}
+
+// ===== SLIDING WINDOW DEMO =====
+let swArr = [], swKval = 3, swPos = 0, swResults = [], swReady = false;
+
+function swInit() {
+  const raw = document.getElementById('swArray').value.trim().split(/\s+/).map(Number);
+  const k = parseInt(document.getElementById('swK').value);
+  if (raw.some(isNaN) || isNaN(k) || k < 1 || k > raw.length) {
+    alert('⚠️ تحقق من المصفوفة وقيمة k!');
+    return;
+  }
+  swArr = raw; swKval = k; swPos = 0; swResults = []; swReady = true;
+  document.getElementById('swNextBtn').disabled = false;
+  renderSwArray();
+  document.getElementById('swResults').innerHTML = '<span class="empty-msg">اضغط "التالي" لبدء...</span>';
+  updateSwInfo();
+}
+
+function swNext() {
+  if (!swReady || swPos > swArr.length - swKval) return;
+  const window = swArr.slice(swPos, swPos + swKval);
+  const sorted = [...window].sort((a,b)=>a-b);
+  const mIdx = swKval % 2 === 0 ? swKval/2 - 1 : Math.floor(swKval/2);
+  const median = sorted[mIdx];
+  swResults.push(median);
+  renderSwArray(swPos, swPos + swKval - 1, window.indexOf(median) + swPos);
+  renderSwResults();
+  updateSwInfo();
+  swPos++;
+  if (swPos > swArr.length - swKval) {
+    document.getElementById('swNextBtn').disabled = true;
+    document.getElementById('swNextBtn').textContent = 'اكتمل ✓';
+  }
+}
+
+function renderSwArray(start=-1, end=-1, medIdx=-1) {
+  const container = document.getElementById('swArrayVis');
+  container.innerHTML = swArr.map((v,i) => {
+    let cls = 'sw-cell';
+    if (i >= start && i <= end) cls += ' in-window';
+    if (start >= 0) {
+      const window = swArr.slice(start, end+1);
+      const sorted = [...window].sort((a,b)=>a-b);
+      const mIdx = swKval%2===0 ? swKval/2-1 : Math.floor(swKval/2);
+      if (i >= start && i <= end && v === sorted[mIdx]) {
+        const alreadyMarked = swArr.slice(start, i).some(x => x === sorted[mIdx]);
+        if (!alreadyMarked) cls += ' median';
+      }
+    }
+    return `<div class="${cls}">${v}</div>`;
+  }).join('');
+}
+
+function renderSwResults() {
+  const el = document.getElementById('swResults');
+  el.innerHTML = swResults.map(v => `<div class="result-pill">${v}</div>`).join('');
+}
+
+function updateSwInfo() {
+  const el = document.getElementById('swInfo');
+  const total = Math.max(0, swArr.length - swKval + 1);
+  el.innerHTML = `
+    <div class="sw-stat"><span class="sw-stat-label">n = </span><span class="sw-stat-val">${swArr.length}</span></div>
+    <div class="sw-stat"><span class="sw-stat-label">k = </span><span class="sw-stat-val">${swKval}</span></div>
+    <div class="sw-stat"><span class="sw-stat-label">النافذة الحالية: </span><span class="sw-stat-val">${swPos + 1} / ${total}</span></div>
+    <div class="sw-stat"><span class="sw-stat-label">وسيطات مستخرجة: </span><span class="sw-stat-val">${swResults.length}</span></div>
+  `;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تحليل الجذر التربيعي — هياكل البيانات</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#07090f;--s1:#0e1118;--s2:#131720;--s3:#191f2c;--border:#1f2840;
+  --accent:#00d4aa;--accent2:#4e8cff;--accent3:#ffb347;--danger:#ff5f7e;
+  --text:#dde4f0;--muted:#6b7c99;--dim:#333f58;
+  --ca:#4e8cff;--cb:#00d4aa;--cc:#ffb347;--cd:#c084fc;
+  --easy:#00d4aa;--mid:#ffb347;--hard:#ff5f7e;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);line-height:1.85;font-size:16px}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(78,140,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(78,140,255,.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+header{position:sticky;top:0;z-index:200;background:rgba(7,9,15,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1080px;margin:auto;display:flex;align-items:center;justify-content:space-between;height:58px;padding:0 1.5rem}
+.nav-brand{display:flex;align-items:center;gap:.55rem;font-weight:800;font-size:1rem;color:var(--accent);text-decoration:none}
+.brand-icon{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-size:.8rem;font-weight:800;color:#000}
+nav{display:flex;gap:.2rem}
+nav a{color:var(--muted);text-decoration:none;font-size:.83rem;padding:.35rem .75rem;border-radius:7px;transition:all .2s}
+nav a:hover{background:var(--s3);color:var(--text)}
+.hero{max-width:1080px;margin:3.5rem auto 0;padding:0 1.5rem;position:relative;z-index:1}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:.5rem;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:1.2rem}
+.hero-eyebrow::before{content:'';display:block;width:24px;height:2px;background:var(--accent);border-radius:2px}
+.hero h1{font-size:clamp(2.1rem,5vw,3.4rem);font-weight:800;line-height:1.15;letter-spacing:-.03em;margin-bottom:1rem}
+.hero h1 span{color:var(--accent)}
+.hero p{color:var(--muted);font-size:1.05rem;max-width:560px}
+.hero-chips{display:flex;gap:.7rem;margin-top:1.8rem;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:.4rem;background:var(--s2);border:1px solid var(--border);color:var(--muted);font-size:.8rem;padding:.3rem .85rem;border-radius:100px}
+.chip strong{color:var(--text)}
+.page{max-width:1080px;margin:0 auto;padding:0 1.5rem 7rem;position:relative;z-index:1}
+.sec-title{display:flex;align-items:center;gap:.9rem;font-size:1.45rem;font-weight:800;margin:3.8rem 0 1.4rem;letter-spacing:-.02em}
+.sec-num{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-size:.82rem;font-weight:800;flex-shrink:0}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:1.6rem 1.8rem;margin-bottom:1.2rem}
+.card-head{font-size:1rem;font-weight:700;margin-bottom:.85rem;display:flex;align-items:center;gap:.5rem}
+p{color:var(--muted);margin-bottom:.85rem}
+p:last-child{margin-bottom:0}
+strong{color:var(--text)}
+.info{border-radius:10px;padding:1.1rem 1.4rem;margin:.9rem 0;border-right:3px solid}
+.info .tag{font-size:.72rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;margin-bottom:.4rem}
+.info p{margin:0}
+.info.teal{background:rgba(0,212,170,.06);border-color:var(--accent)}.info.teal .tag{color:var(--accent)}
+.info.blue{background:rgba(78,140,255,.07);border-color:var(--accent2)}.info.blue .tag{color:var(--accent2)}
+.info.amber{background:rgba(255,179,71,.07);border-color:var(--accent3)}.info.amber .tag{color:var(--accent3)}
+.info.pink{background:rgba(255,95,126,.07);border-color:var(--danger)}.info.pink .tag{color:var(--danger)}
+.cx{display:inline-flex;align-items:center;font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.2rem .7rem;border-radius:100px;background:rgba(78,140,255,.1);border:1px solid rgba(78,140,255,.25);color:var(--accent2)}
+.code-block{background:#080c14;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:1.1rem 0}
+.code-top{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.1rem;background:var(--s2);border-bottom:1px solid var(--border)}
+.code-lang{font-family:'JetBrains Mono',monospace;font-size:.73rem;color:var(--accent2);font-weight:600}
+.copy-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:.22rem .65rem;border-radius:6px;font-size:.73rem;cursor:pointer;transition:all .2s;font-family:'Tajawal',sans-serif}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+pre{padding:1.3rem 1.5rem;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.84rem;line-height:1.72;direction:ltr;text-align:left}
+.kw{color:#c792ea}.ty{color:#82aaff}.fn{color:#82aaff}.cm{color:#4a5870;font-style:italic}.nu{color:#f78c6c}.st{color:#c3e88d}.op{color:#89ddff}.pp{color:#c3e88d}
+.steps{counter-reset:s;list-style:none}
+.steps li{counter-increment:s;display:flex;gap:.9rem;margin-bottom:1rem;align-items:flex-start}
+.steps li::before{content:counter(s);min-width:26px;height:26px;border-radius:50%;background:var(--s3);border:1px solid var(--border);color:var(--accent2);font-size:.78rem;font-weight:800;display:grid;place-items:center;flex-shrink:0;margin-top:.2rem}
+.tbl-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);margin:1.2rem 0}
+table{width:100%;border-collapse:collapse}
+th{background:var(--s2);padding:.8rem 1.1rem;text-align:right;font-size:.83rem;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border)}
+td{padding:.8rem 1.1rem;font-size:.88rem;border-bottom:1px solid var(--border);color:var(--muted)}
+tr:last-child td{border-bottom:none}
+td:first-child,td:nth-child(2){color:var(--text);font-weight:600}
+/* LAB */
+.lab{background:var(--s1);border:1px solid var(--accent);border-radius:16px;padding:1.8rem;margin:2rem 0;position:relative;overflow:hidden}
+.lab::before{content:'مختبر تفاعلي';position:absolute;top:0;right:0;background:var(--accent);color:#000;font-size:.68rem;font-weight:800;padding:.28rem .85rem;border-radius:0 14px 0 10px;letter-spacing:.07em}
+.lab-title{font-size:1.05rem;font-weight:800;margin:1rem 0 .4rem;color:var(--text)}
+.lab-sub{font-size:.88rem;color:var(--muted);margin-bottom:1.2rem}
+.ctrl{display:flex;gap:.65rem;flex-wrap:wrap;align-items:center;margin-bottom:1.2rem}
+.lab-btn{border:none;color:#000;padding:.55rem 1.3rem;border-radius:8px;font-size:.9rem;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:700;transition:opacity .2s,transform .1s}
+.lab-btn:hover{opacity:.85}.lab-btn:active{transform:scale(.96)}
+.lab-btn.teal{background:var(--accent)}.lab-btn.blue{background:var(--accent2);color:#fff}
+.lab-btn.amber{background:var(--accent3)}.lab-btn.ghost{background:var(--s3);color:var(--muted);border:1px solid var(--border)}
+.lab-inp{background:var(--s2);border:1px solid var(--border);color:var(--text);padding:.52rem .9rem;border-radius:8px;font-size:.92rem;font-family:'JetBrains Mono',monospace;width:80px;direction:ltr;transition:border-color .2s}
+.lab-inp:focus{outline:none;border-color:var(--accent)}
+.lab-inp.wide{width:140px}
+label{font-size:.85rem;color:var(--muted)}
+/* Array */
+.arr-wrap{overflow-x:auto;padding-bottom:.4rem}
+.arr-row{display:flex;gap:4px;min-width:max-content}
+.arr-row+.arr-row{margin-top:4px}
+.cell{width:48px;height:48px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:600;border:2px solid transparent;transition:all .25s;flex-shrink:0;position:relative}
+.cell .idx{position:absolute;top:2px;left:3px;font-size:.56rem;color:var(--dim);font-weight:400}
+.cell.normal{background:var(--s2);border-color:var(--border);color:var(--muted)}
+.cell.hl-q{background:rgba(78,140,255,.18);border-color:var(--accent2);color:var(--accent2)}
+.cell.hl-full{background:rgba(0,212,170,.15);border-color:var(--accent);color:var(--accent)}
+.cell.hl-ans{background:rgba(255,95,126,.2);border-color:var(--danger);color:var(--danger)}
+.cell.hl-upd{background:rgba(255,179,71,.18);border-color:var(--accent3);color:var(--accent3)}
+.block-cell{height:42px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:700;border:2px solid;transition:all .3s;flex-shrink:0;padding:0 .7rem;min-width:52px}
+.bracket-row{display:flex;gap:4px;min-width:max-content;margin-top:2px;margin-bottom:6px}
+.bracket-seg{height:8px;border-radius:3px}
+.legend{display:flex;gap:1.2rem;flex-wrap:wrap;margin:1rem 0}
+.leg-item{display:flex;align-items:center;gap:.45rem;font-size:.8rem;color:var(--muted)}
+.leg-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.log{background:#060a12;border:1px solid var(--border);border-radius:10px;padding:1rem 1.2rem;min-height:60px;font-family:'JetBrains Mono',monospace;font-size:.82rem;direction:rtl;text-align:right;margin-top:1rem}
+.log-line{padding:.18rem 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.log-line:last-child{border:none}
+.log-line.info{color:var(--accent2)}.log-line.ok{color:var(--accent)}.log-line.warn{color:var(--accent3)}.log-line.ans{color:var(--danger);font-weight:700}
+/* Q */
+.q-list{display:grid;gap:.9rem}
+.q-card{background:var(--s1);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .2s}
+.q-card:hover{border-color:var(--dim)}
+.q-head{display:flex;align-items:flex-start;gap:.9rem;padding:1.1rem 1.3rem;cursor:pointer;user-select:none}
+.q-num{font-family:'JetBrains Mono',monospace;font-size:.73rem;font-weight:700;min-width:32px;padding-top:.12rem}
+.q-card.easy .q-num{color:var(--easy)}.q-card.mid .q-num{color:var(--mid)}.q-card.hard .q-num{color:var(--hard)}
+.q-txt{flex:1;font-size:.93rem;color:var(--text);line-height:1.6}
+.q-badge{font-size:.68rem;font-weight:800;padding:.18rem .6rem;border-radius:100px;flex-shrink:0}
+.q-card.easy .q-badge{background:rgba(0,212,170,.1);color:var(--easy)}
+.q-card.mid .q-badge{background:rgba(255,179,71,.1);color:var(--mid)}
+.q-card.hard .q-badge{background:rgba(255,95,126,.1);color:var(--hard)}
+.q-arrow{color:var(--dim);transition:transform .25s;flex-shrink:0;font-size:.95rem}
+.q-card.open .q-arrow{transform:rotate(180deg)}
+.q-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.q-card.open .q-body{max-height:800px}
+.q-inner{padding:0 1.3rem 1.3rem;border-top:1px solid var(--border);padding-top:1rem}
+.q-inner p{font-size:.88rem}
+.diff-row{display:flex;gap:1.4rem;margin-bottom:1.2rem;flex-wrap:wrap}
+.diff-it{display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:var(--muted)}
+.diff-dot{width:9px;height:9px;border-radius:50%}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.fade-in{animation:fadeUp .5s ease both}
+.d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.3s}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+@media(max-width:640px){.hero h1{font-size:1.9rem}pre{font-size:.76rem}nav{display:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav-inner">
+    <a class="nav-brand" href="#">
+      <div class="brand-icon">√</div>
+      هياكل البيانات · KSA
+    </a>
+    <nav>
+      <a href="#concept">المفهوم</a>
+      <a href="#query">الاستعلام</a>
+      <a href="#update">التحديث</a>
+      <a href="#code">الكود</a>
+      <a href="#problem">المسألة</a>
+      <a href="#questions">الأسئلة</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero fade-in">
+  <div class="hero-eyebrow">هياكل البيانات</div>
+  <h1>تحليل<br><span>الجذر التربيعي</span></h1>
+  <p>تقنية أنيقة لمعالجة استعلامات النطاق بزمن √n، تجمع بين البساطة والكفاءة في التنفيذ.</p>
+  <div class="hero-chips">
+    <div class="chip"><strong>المستوى:</strong> متوسط–متقدم</div>
+    <div class="chip"><strong>الوقت التقديري:</strong> 75 دقيقة</div>
+    <div class="chip"><strong>الأسئلة:</strong> 15 سؤالاً</div>
+    <div class="chip">التعقيد <span class="cx" style="margin-right:.4rem">O(√n)</span></div>
+  </div>
+</div>
+
+<div class="page">
+
+<div class="sec-title" id="concept">
+  <div class="sec-num" style="background:var(--accent);color:#000">1</div>الفكرة الأساسية
+</div>
+
+<div class="card fade-in d1">
+  <div class="card-head">🧩 لماذا نحتاج هذه التقنية؟</div>
+  <p>عندما نمتلك مصفوفةً ونريد الإجابة عن استعلامات تطلب قيمةً محددة (مجموع، أو أصغر قيمة، أو أكبر قيمة) لنطاق من العناصر، فإن الطريقة الساذجة تستغرق زمن <span class="cx">O(n)</span> لكل استعلام. إذا كان عدد الاستعلامات Q كبيراً، يصبح الأداء الكلي <span class="cx">O(n × Q)</span> وهو ضعيف جداً.</p>
+  <p>تحليل الجذر التربيعي يُقدّم حلاً وسطاً ذكياً: يُقسّم المصفوفة إلى <strong>كتل</strong> بحجم √n تقريباً، ويُخزّن نتيجةً محسوبةً مسبقاً لكل كتلة. هذا يُتيح الإجابة عن أي استعلام في زمن <span class="cx">O(√n)</span>.</p>
+  <div class="info teal">
+    <div class="tag">استعلام النطاق — تعريف</div>
+    <p>استعلام على مستوى نطاق هو استعلام يطلب حساب قيمة محددة (مجموع / أصغر / أكبر) لجميع عناصر المصفوفة في النطاق [l, r].</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-head">🏗️ بناء الهيكل خطوةً بخطوة</div>
+  <p>لنفترض أن لدينا مصفوفة <strong>a</strong> بطول <strong>n</strong>. خطوات بناء هيكل الجذر التربيعي:</p>
+  <ol class="steps">
+    <li>نحسب حجم الكتلة: <strong>sz = ⌈√n⌉</strong>. بما أن √n × √n = n، يكون عدد الكتل تقريباً √n أيضاً.</li>
+    <li>ننشئ مصفوفة مساعدة <strong>b</strong> بطول √n، حيث يخزّن b[i] القيمة المحسوبة مسبقاً للكتلة رقم i.</li>
+    <li>ينتمي العنصر a[j] إلى الكتلة رقم <strong>j / sz</strong> (القسمة الصحيحة).</li>
+    <li>نملأ مصفوفة b بمرور واحد على المصفوفة a، وهو ما يستغرق زمن <span class="cx">O(n)</span>.</li>
+  </ol>
+  <div class="info blue">
+    <div class="tag">مثال عددي</div>
+    <p>إذا كانت n = 9، فإن sz = 3. الكتلة الأولى (b[0]) تضم العناصر a[0], a[1], a[2]. الكتلة الثانية (b[1]) تضم a[3], a[4], a[5]. الثالثة (b[2]) تضم a[6], a[7], a[8].</p>
+  </div>
+</div>
+
+<div class="lab fade-in d2" id="lab-build">
+  <div class="lab-title">⚗️ مختبر بناء الهيكل</div>
+  <p class="lab-sub">أدخل مصفوفةً من الأعداد مفصولةً بمسافات، ثم اضغط «بناء» لمشاهدة تقسيمها إلى كتل وحساب مصفوفة b.</p>
+  <div class="ctrl">
+    <input class="lab-inp wide" id="arr-inp" value="3 1 4 1 5 9 2 6 5 3 5 8">
+    <button class="lab-btn teal" onclick="buildArr()">🔨 بناء الهيكل</button>
+    <button class="lab-btn ghost" onclick="randomArr()">🎲 عشوائي</button>
+    <select id="q-type" style="background:var(--s2);border:1px solid var(--border);color:var(--text);padding:.52rem .8rem;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:.88rem">
+      <option value="max">أكبر قيمة</option>
+      <option value="min">أصغر قيمة</option>
+      <option value="sum">المجموع</option>
+    </select>
+  </div>
+  <div class="arr-wrap" id="vis-arr"></div>
+  <div id="vis-legend" style="display:none">
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:var(--s2);border:2px solid var(--border)"></div>عنصر عادي</div>
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(78,140,255,.18);border:2px solid var(--accent2)"></div>نطاق الاستعلام (جزئي)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(0,212,170,.15);border:2px solid var(--accent)"></div>كتلة كاملة</div>
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(255,95,126,.2);border:2px solid var(--danger)"></div>الجواب النهائي</div>
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(255,179,71,.18);border:2px solid var(--accent3)"></div>عنصر محدَّث</div>
+    </div>
+  </div>
+  <div class="log" id="build-log"><span style="color:var(--dim)">في انتظار البناء…</span></div>
+</div>
+
+<div class="sec-title" id="query">
+  <div class="sec-num" style="background:var(--accent2)">2</div>معالجة الاستعلامات
+</div>
+
+<div class="card">
+  <div class="card-head">🔍 كيف نُجيب عن استعلام [l, r]؟</div>
+  <p>النطاق [l, r] ينقسم إلى ثلاثة أجزاء:</p>
+  <ol class="steps">
+    <li><strong>الكتلة الأولى (جزئية):</strong> من l حتى نهاية كتلتها. نمشي على هذه العناصر واحداً واحداً.</li>
+    <li><strong>الكتل الوسطى (كاملة):</strong> كتل مغطاة بالكامل. نستخدم القيم في b مباشرةً دون المرور على عناصرها الفردية.</li>
+    <li><strong>الكتلة الأخيرة (جزئية):</strong> من بداية كتلتها حتى r. نمشي على هذه العناصر واحداً واحداً.</li>
+  </ol>
+  <div class="info amber">
+    <div class="tag">الحالة الخاصة</div>
+    <p>إذا كان l و r ينتميان إلى الكتلة ذاتها (<strong>blockL == blockR</strong>)، نمشي على جميع العناصر من l إلى r مباشرةً. لا توجد كتل كاملة في هذه الحالة.</p>
+  </div>
+  <div style="margin-top:1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+    <span style="color:var(--muted)">التعقيد الزمني للاستعلام:</span>
+    <span class="cx">O(√n)</span>
+    <span style="color:var(--dim);font-size:.83rem">≈ √n عنصراً جزئياً + √n كتلةً كاملة</span>
+  </div>
+</div>
+
+<div class="lab" id="lab-query">
+  <div class="lab-title">⚗️ مختبر الاستعلام</div>
+  <p class="lab-sub">بعد بناء الهيكل أعلاه، أدخل نطاقاً [l, r] لمشاهدة الخطوات بالتفصيل.</p>
+  <div class="ctrl">
+    <label>l =</label><input class="lab-inp" id="q-l" value="2">
+    <label>r =</label><input class="lab-inp" id="q-r" value="9">
+    <button class="lab-btn blue" onclick="runQuery()">🔍 استعلام</button>
+  </div>
+  <div class="arr-wrap" id="vis-arr2"></div>
+  <div class="arr-wrap" id="vis-blocks2" style="margin-top:.5rem"></div>
+  <div class="log" id="query-log"><span style="color:var(--dim)">ابنِ الهيكل أولاً من المختبر أعلاه…</span></div>
+</div>
+
+<div class="sec-title" id="update">
+  <div class="sec-num" style="background:var(--accent3);color:#000">3</div>تحديث نقطة
+</div>
+
+<div class="card">
+  <div class="card-head">✏️ كيف نُحدّث عنصراً؟</div>
+  <p>تحديث العنصر في الموضع <strong>j</strong> إلى القيمة <strong>v</strong> يمر بخطوتين:</p>
+  <ol class="steps">
+    <li><strong>تحديث المصفوفة الأصلية:</strong> <code style="font-family:monospace;color:var(--accent)">a[j] = v</code> بزمن O(1).</li>
+    <li><strong>إعادة حساب الكتلة كاملةً:</strong> نمر على جميع عناصر الكتلة التي ينتمي إليها j ونحسب قيمتها من الصفر. بما أن حجم الكتلة √n، يستغرق هذا زمن <span class="cx">O(√n)</span>.</li>
+  </ol>
+  <div class="info teal">
+    <div class="tag">لماذا نُعيد حساب الكتلة كاملةً؟</div>
+    <p>بعد تغيير a[j]، قد تكون القيمة القديمة هي التي كانت تحدد نتيجة الكتلة (مثلاً القيمة الكبرى). لذا لا يمكننا تحديث b[blockJ] بشكل مباشر دون إعادة المرور على كامل الكتلة.</p>
+  </div>
+  <div style="margin-top:1rem;display:flex;align-items:center;gap:1rem">
+    <span style="color:var(--muted)">التعقيد الكلي للتحديث:</span>
+    <span class="cx">O(√n)</span>
+  </div>
+</div>
+
+<div class="lab" id="lab-update">
+  <div class="lab-title">⚗️ مختبر التحديث</div>
+  <p class="lab-sub">حدّد الموضع j والقيمة الجديدة v لمشاهدة كيفية تحديث المصفوفة والكتلة المقابلة.</p>
+  <div class="ctrl">
+    <label>j =</label><input class="lab-inp" id="u-j" value="4">
+    <label>v =</label><input class="lab-inp" id="u-v" value="99">
+    <button class="lab-btn amber" onclick="runUpdate()">✏️ حدّث</button>
+  </div>
+  <div class="arr-wrap" id="vis-arr3"></div>
+  <div class="arr-wrap" id="vis-blocks3" style="margin-top:.5rem"></div>
+  <div class="log" id="update-log"><span style="color:var(--dim)">ابنِ الهيكل أولاً من المختبر أعلاه…</span></div>
+</div>
+
+<div class="sec-title" id="code">
+  <div class="sec-num" style="background:#c084fc;color:#fff">4</div>كتابة الكود
+</div>
+
+<div class="card">
+  <div class="card-head">⚙️ الحسابات المسبقة — بناء الهيكل</div>
+  <p>نمر مرةً واحدة على المصفوفة ونملأ b. العنصر a[i] ينتمي إلى الكتلة رقم <code style="font-family:monospace;color:var(--accent)">i / sz</code>.</p>
+</div>
+<div class="code-block">
+  <div class="code-top"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)">نسخ</button></div>
+  <pre><span class="cm">// نملأ مصفوفة الكتل b بمرور واحد على a</span>
+<span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> <span class="nu">0</span><span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) {
+    b[i <span class="op">/</span> sz] <span class="op">=</span> <span class="fn">max</span>(a[i]<span class="op">,</span> b[i <span class="op">/</span> sz])<span class="op">;</span>  <span class="cm">// i/sz هو رقم الكتلة التي ينتمي إليها i</span>
+}</pre>
+</div>
+
+<div class="card">
+  <div class="card-head">🔍 دالة الاستعلام — القيمة العظمى</div>
+  <p>نُعالج الكتلة الأولى الجزئية، ثم الكتل الوسطى الكاملة، ثم الكتلة الأخيرة الجزئية. الحالة الخاصة عندما يقع l و r في الكتلة ذاتها.</p>
+</div>
+<div class="code-block">
+  <div class="code-top"><span class="code-lang">C++ — queryMax</span><button class="copy-btn" onclick="copyCode(this)">نسخ</button></div>
+  <pre><span class="ty">int</span> <span class="fn">queryMax</span>(<span class="ty">int</span> l<span class="op">,</span> <span class="ty">int</span> r) {
+    <span class="ty">int</span> blockL <span class="op">=</span> l <span class="op">/</span> sz<span class="op">;</span>
+    <span class="ty">int</span> blockR <span class="op">=</span> r <span class="op">/</span> sz<span class="op">;</span>
+    <span class="ty">int</span> ans <span class="op">=</span> INT_MIN<span class="op">;</span>
+
+    <span class="cm">// الحالة الخاصة: l و r في الكتلة ذاتها</span>
+    <span class="kw">if</span> (blockL <span class="op">==</span> blockR) {
+        <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> l<span class="op">;</span> i <span class="op">&lt;=</span> r<span class="op">;</span> i<span class="op">++</span>)
+            ans <span class="op">=</span> <span class="fn">max</span>(ans<span class="op">,</span> a[i])<span class="op">;</span>
+        <span class="kw">return</span> ans<span class="op">;</span>
+    }
+
+    <span class="cm">// الجزء الأيسر — الكتلة الأولى الجزئية</span>
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> l<span class="op">;</span> i <span class="op">&lt;</span> (blockL <span class="op">+</span> <span class="nu">1</span>) <span class="op">*</span> sz<span class="op">;</span> i<span class="op">++</span>)
+        ans <span class="op">=</span> <span class="fn">max</span>(ans<span class="op">,</span> a[i])<span class="op">;</span>
+
+    <span class="cm">// الكتل الوسطى الكاملة (نستخدم b مباشرةً — لا نمر على عناصرها)</span>
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> blockL <span class="op">+</span> <span class="nu">1</span><span class="op">;</span> i <span class="op">&lt;</span> blockR<span class="op">;</span> i<span class="op">++</span>)
+        ans <span class="op">=</span> <span class="fn">max</span>(ans<span class="op">,</span> b[i])<span class="op">;</span>
+
+    <span class="cm">// الجزء الأيمن — الكتلة الأخيرة الجزئية</span>
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> blockR <span class="op">*</span> sz<span class="op">;</span> i <span class="op">&lt;=</span> r<span class="op">;</span> i<span class="op">++</span>)
+        ans <span class="op">=</span> <span class="fn">max</span>(ans<span class="op">,</span> a[i])<span class="op">;</span>
+
+    <span class="kw">return</span> ans<span class="op">;</span>
+}</pre>
+</div>
+
+<div class="card">
+  <div class="card-head">🔍 شرح كود الاستعلام سطراً بسطر</div>
+  <ol class="steps">
+    <li><strong>blockL و blockR:</strong> نحسب رقم الكتلة التي تنتمي إليها l و r بقسمتهما على sz. هذا يُخبرنا إذا كانا في نفس الكتلة أم لا.</li>
+    <li><strong>الحالة الخاصة (blockL == blockR):</strong> إذا كان النطاق بأكمله داخل كتلة واحدة، نمشي عليه مباشرةً. لا توجد كتل كاملة هنا ولا جزء آخر.</li>
+    <li><strong>الكتلة الأولى الجزئية:</strong> من l حتى <code style="font-family:monospace;color:var(--accent)">(blockL + 1) * sz - 1</code>. نمشي فردياً لأنها غير مغطاة بالكامل.</li>
+    <li><strong>الكتل الكاملة:</strong> من الكتلة blockL+1 حتى blockR-1. نقرأ b[i] مباشرةً. هذا هو جوهر التحسين — نتجنب المرور على كل عنصر داخل هذه الكتل.</li>
+    <li><strong>الكتلة الأخيرة الجزئية:</strong> من <code style="font-family:monospace;color:var(--accent)">blockR * sz</code> حتى r. نمشي فردياً لأنها غير مغطاة بالكامل.</li>
+  </ol>
+</div>
+
+<div class="card">
+  <div class="card-head">✏️ دالة التحديث النقطي — شرح مفصّل</div>
+  <p>نُحدّث a[j] أولاً، ثم نُعيد حساب الكتلة blockJ كاملةً من الصفر.</p>
+</div>
+<div class="code-block">
+  <div class="code-top"><span class="code-lang">C++ — pointUpdate</span><button class="copy-btn" onclick="copyCode(this)">نسخ</button></div>
+  <pre><span class="ty">void</span> <span class="fn">pointUpdate</span>(<span class="ty">int</span> j<span class="op">,</span> <span class="ty">int</span> v) {
+    <span class="ty">int</span> blockJ <span class="op">=</span> j <span class="op">/</span> sz<span class="op">;</span>  <span class="cm">// رقم الكتلة التي ينتمي إليها j</span>
+
+    a[j] <span class="op">=</span> v<span class="op">;</span>              <span class="cm">// تحديث المصفوفة الأصلية — O(1)</span>
+
+    <span class="cm">// إعادة حساب b[blockJ] من الصفر</span>
+    b[blockJ] <span class="op">=</span> INT_MIN<span class="op">;</span>
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> blockJ <span class="op">*</span> sz<span class="op">;</span> i <span class="op">&lt;</span> (blockJ <span class="op">+</span> <span class="nu">1</span>) <span class="op">*</span> sz<span class="op">;</span> i<span class="op">++</span>) {
+        b[blockJ] <span class="op">=</span> <span class="fn">max</span>(b[blockJ]<span class="op">,</span> a[i])<span class="op">;</span>
+    }
+}</pre>
+</div>
+
+<div class="card">
+  <div class="card-head">🔍 شرح كود التحديث</div>
+  <ol class="steps">
+    <li><strong>blockJ = j / sz:</strong> نجد رقم الكتلة التي ينتمي إليها j.</li>
+    <li><strong>a[j] = v:</strong> نُحدّث قيمة العنصر في المصفوفة الأصلية مباشرةً. هذا O(1).</li>
+    <li><strong>b[blockJ] = INT_MIN:</strong> نُعيد ضبط قيمة الكتلة إلى القيمة الأدنى ممكنة تمهيداً لإعادة حساب الحد الأقصى.</li>
+    <li><strong>حلقة إعادة الحساب:</strong> نمر على جميع عناصر الكتلة من <code style="font-family:monospace;color:var(--accent)">blockJ * sz</code> حتى <code style="font-family:monospace;color:var(--accent)">(blockJ + 1) * sz - 1</code> ونحسب الحد الأقصى الجديد. التعقيد: O(sz) = O(√n).</li>
+  </ol>
+</div>
+
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>العملية</th><th>التعقيد الزمني</th><th>السبب</th></tr></thead>
+    <tbody>
+      <tr><td>بناء الهيكل</td><td><span class="cx">O(n)</span></td><td>مرور واحد على المصفوفة</td></tr>
+      <tr><td>استعلام النطاق</td><td><span class="cx">O(√n)</span></td><td>√n عنصراً جزئياً + √n كتلة كاملة</td></tr>
+      <tr><td>تحديث نقطة</td><td><span class="cx">O(√n)</span></td><td>إعادة حساب كتلة بحجم √n</td></tr>
+      <tr><td>الذاكرة الإضافية</td><td><span class="cx">O(√n)</span></td><td>مصفوفة b بطول √n فقط</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="sec-title" id="problem">
+  <div class="sec-num" style="background:var(--danger)">5</div>المسألة التطبيقية — Dynamic Range Minimum Queries
+</div>
+
+<div class="card">
+  <div class="card-head">📋 نص المسألة (CSES)</div>
+  <p>لديك مصفوفة <strong>a</strong> من <strong>n</strong> عنصر، وتريد معالجة <strong>q</strong> استعلام من نوعين:</p>
+  <div class="info blue"><div class="tag">النوع الأول</div><p><strong>1 k u</strong> — حدّث القيمة في الموضع k إلى u.</p></div>
+  <div class="info teal"><div class="tag">النوع الثاني</div><p><strong>2 l r</strong> — ما أصغر قيمة في النطاق [l, r]؟</p></div>
+</div>
+
+<div class="card">
+  <div class="card-head">💡 الملاحظات المهمة في الكود</div>
+  <ol class="steps">
+    <li><strong>MAXN و sz في النطاق العام:</strong> المصفوفات الكبيرة يجب أن تكون في الذاكرة الثابتة (Static Memory) لا في المكدّس (Stack)، لذا نُعرّفها خارج main.</li>
+    <li><strong>k-- و l-- و r--:</strong> المسألة ترقّم العناصر ابتداءً من 1، لكن مصفوفات C++ تبدأ من 0. نطرح 1 من كل مؤشر قبل التعامل معه.</li>
+    <li><strong>تهيئة b بـ INT_MAX:</strong> لأننا نحسب الحد الأدنى، نهيّئ الكتل بأكبر قيمة ممكنة حتى لا تُؤثر على النتيجة قبل ملئها.</li>
+    <li><strong>ceil(sqrt(MAXN)):</strong> نستخدم القيمة القصوى MAXN لضمان صحة حجم مصفوفة b في جميع الأحوال بدلاً من sqrt(n).</li>
+  </ol>
+</div>
+
+<div class="code-block">
+  <div class="code-top"><span class="code-lang">C++ — الكود الكامل للمسألة</span><button class="copy-btn" onclick="copyCode(this)">نسخ</button></div>
+  <pre><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;cmath&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;climits&gt;</span>
+<span class="kw">using namespace</span> std<span class="op">;</span>
+
+<span class="kw">const</span> <span class="ty">int</span> MAXN <span class="op">=</span> <span class="nu">200000</span><span class="op">;</span>
+<span class="kw">const</span> <span class="ty">int</span> sz   <span class="op">=</span> (<span class="ty">int</span>)<span class="fn">ceil</span>(<span class="fn">sqrt</span>(MAXN))<span class="op">;</span>  <span class="cm">// ≈ 448</span>
+<span class="ty">int</span> a[MAXN]<span class="op">;</span>   <span class="cm">// المصفوفة الأصلية</span>
+<span class="ty">int</span> b[sz]<span class="op">;</span>     <span class="cm">// الحد الأدنى لكل كتلة</span>
+
+<span class="ty">int</span> <span class="fn">queryMin</span>(<span class="ty">int</span> l<span class="op">,</span> <span class="ty">int</span> r) {
+    <span class="ty">int</span> blockL <span class="op">=</span> l <span class="op">/</span> sz<span class="op">,</span> blockR <span class="op">=</span> r <span class="op">/</span> sz<span class="op">;</span>
+    <span class="ty">int</span> ans <span class="op">=</span> INT_MAX<span class="op">;</span>
+
+    <span class="kw">if</span> (blockL <span class="op">==</span> blockR) {
+        <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> l<span class="op">;</span> i <span class="op">&lt;=</span> r<span class="op">;</span> i<span class="op">++</span>) ans <span class="op">=</span> <span class="fn">min</span>(ans<span class="op">,</span> a[i])<span class="op">;</span>
+        <span class="kw">return</span> ans<span class="op">;</span>
+    }
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> l<span class="op">;</span>         i <span class="op">&lt;</span> (blockL<span class="op">+</span><span class="nu">1</span>)<span class="op">*</span>sz<span class="op">;</span> i<span class="op">++</span>) ans <span class="op">=</span> <span class="fn">min</span>(ans<span class="op">,</span> a[i])<span class="op">;</span>
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> blockL<span class="op">+</span><span class="nu">1</span><span class="op">;</span>  i <span class="op">&lt;</span> blockR<span class="op">;</span>        i<span class="op">++</span>) ans <span class="op">=</span> <span class="fn">min</span>(ans<span class="op">,</span> b[i])<span class="op">;</span>
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> blockR<span class="op">*</span>sz<span class="op">;</span> i <span class="op">&lt;=</span> r<span class="op">;</span>          i<span class="op">++</span>) ans <span class="op">=</span> <span class="fn">min</span>(ans<span class="op">,</span> a[i])<span class="op">;</span>
+    <span class="kw">return</span> ans<span class="op">;</span>
+}
+
+<span class="ty">void</span> <span class="fn">pointUpdate</span>(<span class="ty">int</span> j<span class="op">,</span> <span class="ty">int</span> v) {
+    <span class="ty">int</span> blockJ <span class="op">=</span> j <span class="op">/</span> sz<span class="op">;</span>
+    a[j] <span class="op">=</span> v<span class="op">;</span>
+    b[blockJ] <span class="op">=</span> INT_MAX<span class="op">;</span>
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> blockJ<span class="op">*</span>sz<span class="op">;</span> i <span class="op">&lt;</span> (blockJ<span class="op">+</span><span class="nu">1</span>)<span class="op">*</span>sz<span class="op">;</span> i<span class="op">++</span>)
+        b[blockJ] <span class="op">=</span> <span class="fn">min</span>(b[blockJ]<span class="op">,</span> a[i])<span class="op">;</span>
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">int</span> n<span class="op">,</span> q<span class="op">;</span>
+    cin <span class="op">&gt;&gt;</span> n <span class="op">&gt;&gt;</span> q<span class="op">;</span>
+
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> <span class="nu">0</span><span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) cin <span class="op">&gt;&gt;</span> a[i]<span class="op">;</span>
+
+    <span class="cm">// تهيئة الكتل</span>
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> <span class="nu">0</span><span class="op">;</span> i <span class="op">&lt;</span> sz<span class="op">;</span> i<span class="op">++</span>) b[i] <span class="op">=</span> INT_MAX<span class="op">;</span>
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> <span class="nu">0</span><span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>)
+        b[i <span class="op">/</span> sz] <span class="op">=</span> <span class="fn">min</span>(a[i]<span class="op">,</span> b[i <span class="op">/</span> sz])<span class="op">;</span>
+
+    <span class="kw">while</span> (q<span class="op">--</span>) {
+        <span class="ty">int</span> type<span class="op">;</span> cin <span class="op">&gt;&gt;</span> type<span class="op">;</span>
+        <span class="kw">if</span> (type <span class="op">==</span> <span class="nu">1</span>) {
+            <span class="ty">int</span> k<span class="op">,</span> u<span class="op">;</span> cin <span class="op">&gt;&gt;</span> k <span class="op">&gt;&gt;</span> u<span class="op">;</span>
+            <span class="fn">pointUpdate</span>(--k<span class="op">,</span> u)<span class="op">;</span>  <span class="cm">// k-- لأن الترقيم يبدأ من 1</span>
+        } <span class="kw">else</span> {
+            <span class="ty">int</span> l<span class="op">,</span> r<span class="op">;</span> cin <span class="op">&gt;&gt;</span> l <span class="op">&gt;&gt;</span> r<span class="op">;</span>
+            cout <span class="op">&lt;&lt;</span> <span class="fn">queryMin</span>(--l<span class="op">,</span> --r) <span class="op">&lt;&lt;</span> <span class="st">"\n"</span><span class="op">;</span>
+        }
+    }
+    <span class="kw">return</span> <span class="nu">0</span><span class="op">;</span>
+}</pre>
+</div>
+
+<div class="sec-title" id="questions">
+  <div class="sec-num" style="background:#c084fc;color:#fff">?</div>أسئلة تدريبية
+</div>
+
+<div class="diff-row">
+  <div class="diff-it"><div class="diff-dot" style="background:var(--easy)"></div>سهل (5 أسئلة)</div>
+  <div class="diff-it"><div class="diff-dot" style="background:var(--mid)"></div>متوسط (5 أسئلة)</div>
+  <div class="diff-it"><div class="diff-dot" style="background:var(--hard)"></div>صعب (5 أسئلة)</div>
+</div>
+
+<div class="q-list" id="q-list"></div>
+</div>
+
+<script>
+// ── STATE ──
+let ARR=[], BLK=[], SZ=0;
+const COLORS=['#4e8cff','#00d4aa','#ffb347','#c084fc','#f47fff','#ffdd57','#7fffd4','#ff6b6b'];
+
+function getOP(){ return document.getElementById('q-type')?.value||'max'; }
+function applyOp(a,b){ const o=getOP(); return o==='max'?Math.max(a,b):o==='min'?Math.min(a,b):a+b; }
+function initVal(){ const o=getOP(); return o==='max'?-Infinity:o==='min'?Infinity:0; }
+
+// ── COPY ──
+function copyCode(btn){
+  navigator.clipboard.writeText(btn.closest('.code-block').querySelector('pre').innerText).then(()=>{
+    btn.textContent='✓ تم'; setTimeout(()=>btn.textContent='نسخ',2000);
+  });
+}
+
+// ── RENDER ──
+function renderArr(id, hlMap={}){
+  const w=document.getElementById(id); if(!w||!ARR.length)return;
+  w.innerHTML='';
+  // index labels
+  const ir=document.createElement('div'); ir.className='arr-row'; ir.style.marginBottom='2px';
+  ARR.forEach((_,i)=>{const d=document.createElement('div');d.style.cssText='width:48px;text-align:center;font-family:monospace;font-size:.6rem;color:var(--dim);flex-shrink:0';d.textContent=i;ir.appendChild(d);});
+  w.appendChild(ir);
+  // brackets
+  const br=document.createElement('div'); br.className='bracket-row';
+  for(let b=0;b*SZ<ARR.length;b++){
+    const s=b*SZ, e=Math.min((b+1)*SZ,ARR.length);
+    const seg=document.createElement('div'); seg.className='bracket-seg';
+    seg.style.cssText=`width:${(e-s)*52-4}px;background:${COLORS[b%COLORS.length]};opacity:.35`;
+    br.appendChild(seg);
+    if(e<ARR.length){const g=document.createElement('div');g.style.cssText='width:4px;flex-shrink:0';br.appendChild(g);}
+  }
+  w.appendChild(br);
+  // cells
+  const row=document.createElement('div'); row.className='arr-row';
+  ARR.forEach((v,i)=>{
+    const c=document.createElement('div'); c.className='cell '+(hlMap[i]||'normal');
+    c.innerHTML=`<span class="idx">${i}</span>${v}`; row.appendChild(c);
+  });
+  w.appendChild(row);
+  // block labels
+  const bl=document.createElement('div'); bl.className='arr-row'; bl.style.marginTop='4px';
+  ARR.forEach((_,i)=>{const d=document.createElement('div');d.style.cssText='width:48px;text-align:center;font-family:monospace;font-size:.58rem;color:var(--dim);flex-shrink:0';d.textContent='B'+Math.floor(i/SZ);bl.appendChild(d);});
+  w.appendChild(bl);
+}
+
+function renderBlocks(id, hlBlock=-1){
+  const w=document.getElementById(id); if(!w||!BLK.length)return;
+  w.innerHTML='';
+  const lbl=document.createElement('div');
+  lbl.style.cssText='font-size:.75rem;color:var(--muted);margin-bottom:.4rem;font-family:monospace';
+  lbl.textContent='مصفوفة b (قيم الكتل المحسوبة مسبقاً):'; w.appendChild(lbl);
+  const row=document.createElement('div'); row.className='arr-row';
+  BLK.forEach((v,i)=>{
+    const c=document.createElement('div'); c.className='block-cell';
+    const col=COLORS[i%COLORS.length];
+    const hl=i===hlBlock?'animation:pulse 1.2s 3;':'';
+    c.style.cssText=`color:${col};border-color:${col};background:${col}18;${hl}`;
+    c.innerHTML=`<span style="font-size:.6rem;margin-left:.3rem;opacity:.55">b[${i}]</span>${v===Infinity?'∞':v===-Infinity?'-∞':v}`;
+    row.appendChild(c);
+  });
+  w.appendChild(row);
+}
+
+// ── BUILD ──
+function buildArr(){
+  const raw=document.getElementById('arr-inp').value.trim().split(/\s+/).map(Number).filter(x=>!isNaN(x));
+  if(raw.length<2)return;
+  ARR=[...raw]; SZ=Math.ceil(Math.sqrt(ARR.length));
+  const nb=Math.ceil(ARR.length/SZ); BLK=new Array(nb).fill(initVal());
+  ARR.forEach((v,i)=>{ BLK[Math.floor(i/SZ)]=applyOp(BLK[Math.floor(i/SZ)],v); });
+  renderArr('vis-arr'); document.getElementById('vis-legend').style.display='block';
+  const log=document.getElementById('build-log');
+  log.innerHTML=`<div class="log-line info">▸ المصفوفة: [${ARR.join(', ')}]</div>`
+    +`<div class="log-line info">▸ n = ${ARR.length}، sz = ⌈√${ARR.length}⌉ = ${SZ}، عدد الكتل = ${nb}</div>`
+    +BLK.map((v,i)=>`<div class="log-line ok">▸ b[${i}] = ${getOP()}(a[${i*SZ}..${Math.min((i+1)*SZ-1,ARR.length-1)}]) = ${v}</div>`).join('')
+    +`<div class="log-line ok">✓ بُني الهيكل بنجاح في O(n)</div>`;
+  syncLabs();
+}
+
+function randomArr(){
+  const len=10+Math.floor(Math.random()*6);
+  document.getElementById('arr-inp').value=Array.from({length:len},()=>Math.floor(Math.random()*30)+1).join(' ');
+  buildArr();
+}
+
+function syncLabs(){
+  renderArr('vis-arr2'); renderBlocks('vis-blocks2');
+  renderArr('vis-arr3'); renderBlocks('vis-blocks3');
+}
+
+// ── QUERY ──
+function runQuery(){
+  if(!ARR.length){document.getElementById('query-log').innerHTML='<span style="color:var(--danger)">⚠ ابنِ الهيكل أولاً!</span>';return;}
+  let l=parseInt(document.getElementById('q-l').value), r=parseInt(document.getElementById('q-r').value);
+  if(isNaN(l)||isNaN(r)||l<0||r>=ARR.length||l>r){
+    document.getElementById('query-log').innerHTML=`<span style="color:var(--danger)">⚠ نطاق غير صالح (0 ≤ l ≤ r < ${ARR.length})</span>`;return;}
+  const bL=Math.floor(l/SZ), bR=Math.floor(r/SZ);
+  const hl={}, lines=[];
+  let ans=initVal();
+  lines.push(`<div class="log-line info">▸ استعلام ${getOP()}(a[${l}..${r}]) — blockL=${bL}، blockR=${bR}</div>`);
+  if(bL===bR){
+    lines.push(`<div class="log-line warn">▸ حالة خاصة: l و r في الكتلة ذاتها — نمشي فردياً</div>`);
+    for(let i=l;i<=r;i++){hl[i]='hl-q';ans=applyOp(ans,ARR[i]);}
+  } else {
+    lines.push(`<div class="log-line info">▸ الكتلة الأولى الجزئية: a[${l}..${(bL+1)*SZ-1}]</div>`);
+    for(let i=l;i<(bL+1)*SZ;i++){hl[i]='hl-q';ans=applyOp(ans,ARR[i]);}
+    if(bL+1<bR){
+      lines.push(`<div class="log-line ok">▸ الكتل الكاملة: b[${bL+1}..${bR-1}] — نستخدم b مباشرةً دون المرور على العناصر!</div>`);
+      for(let i=bL+1;i<bR;i++){for(let j=i*SZ;j<Math.min((i+1)*SZ,ARR.length);j++)hl[j]='hl-full';ans=applyOp(ans,BLK[i]);}
+    }
+    lines.push(`<div class="log-line info">▸ الكتلة الأخيرة الجزئية: a[${bR*SZ}..${r}]</div>`);
+    for(let i=bR*SZ;i<=r;i++){hl[i]='hl-q';ans=applyOp(ans,ARR[i]);}
+  }
+  lines.push(`<div class="log-line ans">✓ الجواب = ${ans}</div>`);
+  document.getElementById('query-log').innerHTML=lines.join('');
+  renderArr('vis-arr2',hl); renderBlocks('vis-blocks2');
+}
+
+// ── UPDATE ──
+function runUpdate(){
+  if(!ARR.length){document.getElementById('update-log').innerHTML='<span style="color:var(--danger)">⚠ ابنِ الهيكل أولاً!</span>';return;}
+  const j=parseInt(document.getElementById('u-j').value), v=parseInt(document.getElementById('u-v').value);
+  if(isNaN(j)||j<0||j>=ARR.length||isNaN(v)){document.getElementById('update-log').innerHTML=`<span style="color:var(--danger)">⚠ قيم غير صالحة</span>`;return;}
+  const old=ARR[j], bJ=Math.floor(j/SZ), oldB=BLK[bJ];
+  ARR[j]=v; BLK[bJ]=initVal();
+  for(let i=bJ*SZ;i<Math.min((bJ+1)*SZ,ARR.length);i++) BLK[bJ]=applyOp(BLK[bJ],ARR[i]);
+  const hl={};
+  for(let i=bJ*SZ;i<Math.min((bJ+1)*SZ,ARR.length);i++) hl[i]='hl-upd';
+  hl[j]='hl-ans';
+  document.getElementById('update-log').innerHTML=
+    `<div class="log-line warn">▸ تحديث a[${j}]: ${old} → ${v}</div>`
+    +`<div class="log-line info">▸ الكتلة المتأثرة: b[${bJ}] (العناصر a[${bJ*SZ}..${Math.min((bJ+1)*SZ-1,ARR.length-1)}])</div>`
+    +`<div class="log-line ok">▸ b[${bJ}]: ${oldB} → ${BLK[bJ]} (إعادة حساب كاملة بـ O(√n))</div>`
+    +`<div class="log-line ans">✓ التحديث اكتمل</div>`;
+  renderArr('vis-arr3',hl); renderBlocks('vis-blocks3',bJ);
+}
+
+// ── QUESTIONS ──
+const QS=[
+  {d:'easy',b:'سهل',n:'Q01',q:'إذا كانت n = 16، فما هو حجم الكتلة sz وعدد الكتل؟',
+   a:'sz = ⌈√16⌉ = 4. عدد الكتل = ⌈16/4⌉ = 4 كتل، كل كتلة تضم 4 عناصر بالضبط.',c:null},
+  {d:'easy',b:'سهل',n:'Q02',q:'ما هي قيمة b[2] إذا كانت المصفوفة a = [5, 3, 8, 1, 7, 2, 4, 9, 6] مع sz = 3 وعملية الحد الأقصى؟',
+   a:'الكتلة رقم 2 تضم العناصر a[6], a[7], a[8] = {4, 9, 6}. إذن b[2] = max(4, 9, 6) = 9.',c:null},
+  {d:'easy',b:'سهل',n:'Q03',q:'في استعلام النطاق، متى نستخدم قيم b مباشرةً ومتى نمشي على العناصر فردياً؟',
+   a:'نستخدم b مباشرةً فقط للكتل المغطاة بالكامل بين الكتلة الأولى والأخيرة. للكتلتين الحديّتين (الجزئيتين) نمشي على عناصرهما فردياً، وكذلك حين يقع l و r في الكتلة ذاتها.',c:null},
+  {d:'easy',b:'سهل',n:'Q04',q:'لماذا نُعيد حساب الكتلة كاملةً عند التحديث النقطي بدلاً من تحديث b[blockJ] مباشرةً؟',
+   a:'لأن القيمة القديمة قد تكون هي المحدِّدة لنتيجة الكتلة. مثلاً إذا كانت الكبرى = 10 وهي قيمة العنصر المُحدَّث، ووضعنا 3 بدلاً منه، فلا يمكننا معرفة الكبرى الجديدة إلا بمرور كامل على الكتلة.',c:null},
+  {d:'easy',b:'سهل',n:'Q05',q:'ما التعقيد الزمني الكلي لمعالجة Q استعلام بعد بناء هيكل تحليل الجذر التربيعي؟',
+   a:'تعقيد البناء O(n). كل استعلام أو تحديث يستغرق O(√n). إذن التعقيد الكلي = O(n + Q × √n). للمقارنة: الطريقة الساذجة تستغرق O(Q × n).',c:null},
+  {d:'mid',b:'متوسط',n:'Q06',q:'عدّل دالة queryMax لتحسب مجموع النطاق. ما الذي يتغير بالضبط في الكود؟',
+   a:'نستبدل INT_MIN بـ 0 كقيمة ابتدائية لـ ans، ونستبدل جميع max(...) بعملية الجمع +=. مصفوفة b ستخزّن مجموع كل كتلة. يُستحسن استخدام long long لتجنب فيض الجمع.',
+   c:`int querySum(int l, int r) {
+    int blockL = l / sz, blockR = r / sz;
+    long long ans = 0;
+
+    if (blockL == blockR) {
+        for (int i = l; i <= r; i++) ans += a[i];
+        return ans;
+    }
+    for (int i = l;          i < (blockL+1)*sz; i++) ans += a[i];
+    for (int i = blockL + 1; i < blockR;        i++) ans += b[i];
+    for (int i = blockR*sz;  i <= r;            i++) ans += a[i];
+    return ans;
+}`},
+  {d:'mid',b:'متوسط',n:'Q07',q:'إذا كانت n = 100 وsz = 10، كم عملية مقارنة يستغرق الاستعلام عن النطاق [5, 94] على الأكثر؟',
+   a:`النطاق [5,94]: blockL = 0، blockR = 9.
+• الكتلة الأولى الجزئية: a[5..9] = 5 عناصر.
+• الكتل الكاملة: b[1..8] = 8 مقارنات فقط.
+• الكتلة الأخيرة الجزئية: a[90..94] = 5 عناصر.
+المجموع = 5 + 8 + 5 = 18 مقارنة، مقارنةً بـ 90 في الطريقة الساذجة.`,c:null},
+  {d:'mid',b:'متوسط',n:'Q08',q:'اكتب دالة لحساب عدد مرات ظهور القيمة x في النطاق [l, r] باستخدام تحليل الجذر التربيعي. (تلميح: استخدم مصفوفات مرتّبة للكتل)',
+   a:'بدلاً من تخزين max أو min، نخزّن في كل كتلة مصفوفةً مرتّبةً من عناصرها. للكتل الجزئية نعدّ فردياً. للكتل الكاملة نستخدم البحث الثنائي (lower_bound و upper_bound) للعدّ في O(log sz) لكل كتلة.',
+   c:`vector<int> sorted_blocks[BLOCK_COUNT];
+
+// البناء: بعد ملء a، نرتّب كل كتلة
+for (int i = 0; i < num_blocks; i++) {
+    sorted_blocks[i] = vector<int>(a+i*sz, a+min((i+1)*sz, n));
+    sort(sorted_blocks[i].begin(), sorted_blocks[i].end());
+}
+
+int countX(int l, int r, int x) {
+    int bL = l/sz, bR = r/sz, cnt = 0;
+    if (bL == bR) {
+        for (int i=l; i<=r; i++) if (a[i]==x) cnt++;
+        return cnt;
+    }
+    for (int i=l;      i<(bL+1)*sz;  i++) if (a[i]==x) cnt++;
+    for (int i=bL+1;   i<bR;         i++) {
+        auto& v = sorted_blocks[i];
+        cnt += (int)(upper_bound(v.begin(),v.end(),x)
+                   - lower_bound(v.begin(),v.end(),x));
+    }
+    for (int i=bR*sz;  i<=r;         i++) if (a[i]==x) cnt++;
+    return cnt;
+}`},
+  {d:'mid',b:'متوسط',n:'Q09',q:'ما الحجم الأمثل للكتلة نظرياً لتحقيق أفضل توازن؟ اشتق الحجم الأمثل رياضياً.',
+   a:`إذا اخترنا حجم كتلة K، فإن:
+• وقت الاستعلام = O(K + n/K): K للأجزاء الجزئية، وn/K للكتل الكاملة.
+• وقت التحديث = O(K): إعادة حساب الكتلة.
+لتقليل الحد الأقصى، نُسوّي الحدَّين: K = n/K ⟹ K² = n ⟹ K = √n.
+عند K = √n: الوقت = O(√n + n/√n) = O(√n + √n) = O(√n). ✓`,c:null},
+  {d:'mid',b:'متوسط',n:'Q10',q:'كيف تتعامل مع المسألة إذا كان n غير معروف مسبقاً (يُقرأ من المدخلات)؟ هل يتغير تعريف sz؟',
+   a:`نعم، يتغير التعامل قليلاً. إذا عرّفنا sz = ceil(sqrt(MAXN)) (القيمة القصوى) في النطاق العام فهذا آمن لأنه يضمن حجم مصفوفة b كافياً. أما إذا أردنا الحجم الأمثل بناءً على n الفعلي، نحسبه بعد قراءة n:
+sz = (int)ceil(sqrt(n))
+ونُنشئ مصفوفة b بحجم ceil(n/sz). الفارق عملياً صغير لكن الحجم المثالي يحسّن الأداء قليلاً.`,c:null},
+  {d:'hard',b:'صعب',n:'Q11',q:'نفّذ خوارزمية Mo لحساب عدد الأرقام المميزة (distinct) في استعلامات نطاق متعددة بكفاءة.',
+   a:`خوارزمية Mo هي تقنية offline تعتمد على تحليل الجذر التربيعي. نرتّب الاستعلامات حسب رقم كتلة l، ثم r. نحافظ على نافذة [curL, curR] ونوسّعها/نضيّقها بخطوات O(1). التعقيد الكلي: O((n+Q)√n).`,
+   c:`struct Query { int l, r, idx; };
+int cnt[MAXVAL]={}, distinct=0, ans[MAXQ];
+
+void add(int pos) { if (++cnt[a[pos]] == 1) distinct++; }
+void rem(int pos) { if (--cnt[a[pos]] == 0) distinct--; }
+
+// ترتيب Mo المحسّن (Hilbert Curve Order)
+sort(queries.begin(), queries.end(), [](const Query& a, const Query& b){
+    int ba = a.l/sz, bb = b.l/sz;
+    if (ba != bb) return ba < bb;
+    return (ba & 1) ? a.r > b.r : a.r < b.r; // تبديل الاتجاه للكتل الفردية
+});
+
+int curL = 0, curR = -1;
+for (auto& q : queries) {
+    while (curR < q.r) add(++curR);
+    while (curL > q.l) add(--curL);
+    while (curR > q.r) rem(curR--);
+    while (curL < q.l) rem(curL++);
+    ans[q.idx] = distinct;
+}`},
+  {d:'hard',b:'صعب',n:'Q12',q:'نفّذ هيكل تحليل الجذر التربيعي مع تحديث نطاق كامل (أضف v لكل عناصر [l, r]) واستعلام نطاق.',
+   a:`نحتاج مصفوفة lazy لتخزين التأجيل على مستوى الكتل الكاملة. عند التحديث: للكتل الجزئية نُفعّل lazy ونُحدّث فردياً، وللكتل الكاملة نُضيف إلى lazy فقط. عند الاستعلام: نأخذ b[i] + lazy[i] للكتل الكاملة.`,
+   c:`long long lazy[BLOCK_COUNT] = {0};
+
+void pushDown(int block) {
+    int start = block * sz, end = min((block+1)*sz, n);
+    for (int i = start; i < end; i++) a[i] += lazy[block];
+    b[block] += lazy[block]; // أو نُعيد الحساب حسب العملية
+    lazy[block] = 0;
+}
+
+void rangeAdd(int l, int r, long long v) {
+    int bL = l/sz, bR = r/sz;
+    if (bL == bR) {
+        pushDown(bL);
+        for (int i=l; i<=r; i++) a[i] += v;
+        // إعادة حساب b[bL]
+        return;
+    }
+    pushDown(bL);
+    for (int i=l; i<(bL+1)*sz; i++) a[i] += v;
+    // إعادة حساب b[bL]
+    for (int i=bL+1; i<bR; i++) lazy[i] += v; // تأجيل للكتل الكاملة
+    pushDown(bR);
+    for (int i=bR*sz; i<=r; i++) a[i] += v;
+    // إعادة حساب b[bR]
+}`},
+  {d:'hard',b:'صعب',n:'Q13',q:'مقارنة تحليل الجذر التربيعي بشجرة Segment Tree: متى تُفضّل أيّاً منهما؟',
+   a:`شجرة Segment Tree: استعلام O(log n)، تحديث O(log n). أسرع للمسائل المعيارية لكن أصعب في التنفيذ وأقل مرونة.
+
+تحليل الجذر التربيعي: استعلام O(√n)، تحديث O(√n). أبطأ قليلاً لكن أسهل تنفيذاً وأكثر مرونة.
+
+افضّل الجذر التربيعي في: خوارزمية Mo، استعلامات الأعداد المميزة أو الوسيط، أي عملية لا تدعم الدمج العكسي (Non-invertible Merge).
+افضّل Segment Tree في: المسائل المعيارية (مجموع، أقصى/أدنى) مع قيود صارمة على الوقت تتطلب O(log n).`,c:null},
+  {d:'hard',b:'صعب',n:'Q14',q:'نفّذ استعلام الوسيط (Median Query) في نطاق [l, r] مع تحديثات نقطية باستخدام تحليل الجذر التربيعي.',
+   a:`الفكرة: كل كتلة تخزّن عناصرها مرتّبة. للعثور على الوسيط: نستخدم Binary Search على القيمة المفترضة mid، ونعدّ العناصر الأصغر منها في النطاق (باستخدام lower_bound للكتل الكاملة وعدّ فردي للجزئية). نستمر في البحث حتى نجد الوسيط. للتحديث: نُزيل القيمة القديمة ونُدرج الجديدة في المصفوفة المرتّبة O(√n). التعقيد: O(√n × log(max_val)) للاستعلام.`,
+   c:`// عدد العناصر <= x في النطاق [l, r]
+int countLE(int l, int r, int x) {
+    int bL=l/sz, bR=r/sz, cnt=0;
+    if (bL==bR) {
+        for(int i=l;i<=r;i++) if(a[i]<=x) cnt++;
+        return cnt;
+    }
+    for(int i=l;i<(bL+1)*sz;i++) if(a[i]<=x) cnt++;
+    for(int i=bL+1;i<bR;i++)
+        cnt += (int)(upper_bound(sb[i].begin(),sb[i].end(),x) - sb[i].begin());
+    for(int i=bR*sz;i<=r;i++) if(a[i]<=x) cnt++;
+    return cnt;
+}
+// الوسيط: Binary Search على x
+// نجد أصغر x حيث countLE(l,r,x) >= (r-l+2)/2`},
+  {d:'hard',b:'صعب',n:'Q15',q:'صمّم هيكلاً يدعم تحديث نطاق (أضف v لـ [l, r]) واستعلام نقطي (ما قيمة a[i]؟) بزمن O(√n) لكل عملية.',
+   a:`هذا عكس المسألة الأصلية! الحل الذكي يعتمد على مصفوفة lazy فقط:
+• التحديث a[l..r] += v: للكتل الجزئية نُحدّث a فردياً بـ O(√n)، وللكتل الكاملة نُضيف v إلى lazy[block] فقط.
+• الاستعلام النقطي a[i]: الجواب = a[i] + lazy[i/sz] بزمن O(1)!
+
+والمثير أن التحديث هو O(√n) والاستعلام O(1)، وهو عكس الحالة الاعتيادية تماماً.`,
+   c:`long long lazy[BLOCK_COUNT] = {0};
+
+void rangeUpdate(int l, int r, long long v) {
+    int bL = l/sz, bR = r/sz;
+    if (bL == bR) {
+        for (int i=l; i<=r; i++) a[i] += v; // O(sz) = O(√n)
+        return;
+    }
+    for (int i=l;      i<(bL+1)*sz; i++) a[i] += v;
+    for (int i=bL+1;   i<bR;        i++) lazy[i] += v; // O(√n) كتلة
+    for (int i=bR*sz;  i<=r;        i++) a[i] += v;
+}
+
+long long pointQuery(int i) {
+    return a[i] + lazy[i / sz]; // O(1) فقط!
+}`}
+];
+
+function buildQ(){
+  const c=document.getElementById('q-list');
+  QS.forEach(q=>{
+    const card=document.createElement('div'); card.className=`q-card ${q.d}`;
+    card.innerHTML=`<div class="q-head" onclick="this.closest('.q-card').classList.toggle('open')">
+      <span class="q-num">${q.n}</span><span class="q-txt">${q.q}</span>
+      <span class="q-badge">${q.b}</span><span class="q-arrow">▼</span></div>
+    <div class="q-body"><div class="q-inner">
+      <p><strong style="color:var(--accent)">الإجابة:</strong></p>
+      <p>${q.a.replace(/\n/g,'<br>')}</p>
+      ${q.c?`<div class="code-block"><div class="code-top"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)">نسخ</button></div><pre dir="ltr" style="text-align:left">${q.c.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre></div>`:''}
+    </div></div>`;
+    c.appendChild(card);
+  });
+}
+
+document.addEventListener('DOMContentLoaded',()=>{ buildQ(); buildArr(); });
+</script>
+</body>
+</html>
