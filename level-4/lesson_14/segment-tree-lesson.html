@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Segment Tree — هياكل البيانات</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07090f;--s1:#0e1118;--s2:#131720;--s3:#191f2c;--border:#1f2840;
+  --accent:#00d4aa;--accent2:#4e8cff;--accent3:#ffb347;--danger:#ff5f7e;--purple:#c084fc;
+  --text:#dde4f0;--muted:#6b7c99;--dim:#333f58;
+  --easy:#00d4aa;--mid:#ffb347;--hard:#ff5f7e;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);line-height:1.85;font-size:16px}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(78,140,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(78,140,255,.025) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0}
+/* HEADER */
+header{position:sticky;top:0;z-index:200;background:rgba(7,9,15,.93);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1100px;margin:auto;display:flex;align-items:center;justify-content:space-between;height:58px;padding:0 1.5rem}
+.nav-brand{display:flex;align-items:center;gap:.55rem;font-weight:800;font-size:1rem;color:var(--accent);text-decoration:none}
+.brand-icon{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-size:.82rem;font-weight:800;color:#000}
+nav{display:flex;gap:.15rem}
+nav a{color:var(--muted);text-decoration:none;font-size:.82rem;padding:.3rem .7rem;border-radius:7px;transition:all .2s}
+nav a:hover{background:var(--s3);color:var(--text)}
+/* HERO */
+.hero{max-width:1100px;margin:3.5rem auto 0;padding:0 1.5rem;position:relative;z-index:1}
+.eyebrow{display:inline-flex;align-items:center;gap:.5rem;font-size:.77rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:1.2rem}
+.eyebrow::before{content:'';width:22px;height:2px;background:var(--accent);border-radius:2px}
+.hero h1{font-size:clamp(2rem,5vw,3.4rem);font-weight:800;line-height:1.15;letter-spacing:-.03em;margin-bottom:1rem}
+.hero h1 .hl{color:var(--accent)}
+.hero p{color:var(--muted);font-size:1.05rem;max-width:580px}
+.chips{display:flex;gap:.65rem;margin-top:1.8rem;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:.4rem;background:var(--s2);border:1px solid var(--border);color:var(--muted);font-size:.79rem;padding:.28rem .82rem;border-radius:100px}
+.chip strong{color:var(--text)}
+/* PAGE */
+.page{max-width:1100px;margin:0 auto;padding:0 1.5rem 8rem;position:relative;z-index:1}
+.sec{display:flex;align-items:center;gap:.9rem;font-size:1.42rem;font-weight:800;margin:3.8rem 0 1.4rem;letter-spacing:-.02em}
+.sec-num{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-size:.82rem;font-weight:800;flex-shrink:0}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
+.card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:1.6rem 1.8rem;margin-bottom:1.2rem}
+.card-head{font-size:1rem;font-weight:700;margin-bottom:.85rem;display:flex;align-items:center;gap:.5rem}
+p{color:var(--muted);margin-bottom:.85rem}p:last-child{margin-bottom:0}
+strong{color:var(--text)}
+/* INFO */
+.info{border-radius:10px;padding:1.1rem 1.4rem;margin:.9rem 0;border-right:3px solid}
+.info .tag{font-size:.71rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;margin-bottom:.4rem}
+.info p{margin:0}
+.info.teal{background:rgba(0,212,170,.06);border-color:var(--accent)}.info.teal .tag{color:var(--accent)}
+.info.blue{background:rgba(78,140,255,.07);border-color:var(--accent2)}.info.blue .tag{color:var(--accent2)}
+.info.amber{background:rgba(255,179,71,.07);border-color:var(--accent3)}.info.amber .tag{color:var(--accent3)}
+.info.pink{background:rgba(255,95,126,.07);border-color:var(--danger)}.info.pink .tag{color:var(--danger)}
+.info.purple{background:rgba(192,132,252,.07);border-color:var(--purple)}.info.purple .tag{color:var(--purple)}
+.cx{display:inline-flex;font-family:'JetBrains Mono',monospace;font-size:.79rem;font-weight:600;padding:.18rem .68rem;border-radius:100px;background:rgba(78,140,255,.1);border:1px solid rgba(78,140,255,.25);color:var(--accent2)}
+/* CODE */
+.code-block{background:#080c14;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:1.1rem 0}
+.code-top{display:flex;align-items:center;justify-content:space-between;padding:.58rem 1.1rem;background:var(--s2);border-bottom:1px solid var(--border)}
+.code-lang{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent2);font-weight:600}
+.copy-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:.2rem .62rem;border-radius:6px;font-size:.72rem;cursor:pointer;transition:all .2s;font-family:'Tajawal',sans-serif}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+pre{padding:1.3rem 1.5rem;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.83rem;line-height:1.72;direction:ltr;text-align:left}
+.kw{color:#c792ea}.ty{color:#82aaff}.fn{color:#82aaff}.cm{color:#4a5870;font-style:italic}.nu{color:#f78c6c}.st{color:#c3e88d}.op{color:#89ddff}.pp{color:#c3e88d}
+.steps{counter-reset:s;list-style:none}
+.steps li{counter-increment:s;display:flex;gap:.9rem;margin-bottom:1rem;align-items:flex-start}
+.steps li::before{content:counter(s);min-width:26px;height:26px;border-radius:50%;background:var(--s3);border:1px solid var(--border);color:var(--accent2);font-size:.77rem;font-weight:800;display:grid;place-items:center;flex-shrink:0;margin-top:.2rem}
+.tbl-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);margin:1.2rem 0}
+table{width:100%;border-collapse:collapse}
+th{background:var(--s2);padding:.78rem 1.1rem;text-align:right;font-size:.82rem;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border)}
+td{padding:.78rem 1.1rem;font-size:.87rem;border-bottom:1px solid var(--border);color:var(--muted)}
+tr:last-child td{border-bottom:none}
+td:first-child{color:var(--text);font-weight:600}
+/* TREE VIS */
+.tree-container{overflow-x:auto;padding:1rem 0 .5rem}
+.tree-svg-wrap{min-width:600px;width:100%}
+.node-circle{transition:all .3s;cursor:default}
+.node-text{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;pointer-events:none;text-anchor:middle;dominant-baseline:middle}
+.edge{stroke:var(--border);stroke-width:1.5;transition:stroke .3s}
+.range-text{font-family:'Tajawal',sans-serif;font-size:9px;fill:var(--dim);text-anchor:middle}
+/* LAB */
+.lab{background:var(--s1);border:1px solid var(--accent);border-radius:16px;padding:1.8rem;margin:2rem 0;position:relative;overflow:hidden}
+.lab::before{content:'مختبر تفاعلي';position:absolute;top:0;right:0;background:var(--accent);color:#000;font-size:.68rem;font-weight:800;padding:.28rem .85rem;border-radius:0 14px 0 10px;letter-spacing:.07em}
+.lab-title{font-size:1.05rem;font-weight:800;margin:1rem 0 .4rem;color:var(--text)}
+.lab-sub{font-size:.87rem;color:var(--muted);margin-bottom:1.2rem}
+.ctrl{display:flex;gap:.65rem;flex-wrap:wrap;align-items:center;margin-bottom:1.2rem}
+.lab-btn{border:none;color:#000;padding:.52rem 1.25rem;border-radius:8px;font-size:.9rem;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:700;transition:opacity .2s,transform .1s}
+.lab-btn:hover{opacity:.85}.lab-btn:active{transform:scale(.96)}
+.lab-btn.teal{background:var(--accent)}.lab-btn.blue{background:var(--accent2);color:#fff}
+.lab-btn.amber{background:var(--accent3)}.lab-btn.ghost{background:var(--s3);color:var(--muted);border:1px solid var(--border)}
+.lab-btn.purple{background:var(--purple)}
+.lab-inp{background:var(--s2);border:1px solid var(--border);color:var(--text);padding:.5rem .88rem;border-radius:8px;font-size:.92rem;font-family:'JetBrains Mono',monospace;width:78px;direction:ltr;transition:border-color .2s}
+.lab-inp:focus{outline:none;border-color:var(--accent)}
+.lab-inp.wide{width:200px}
+label{font-size:.84rem;color:var(--muted)}
+.log{background:#060a12;border:1px solid var(--border);border-radius:10px;padding:.9rem 1.1rem;min-height:56px;font-family:'JetBrains Mono',monospace;font-size:.81rem;direction:rtl;text-align:right;margin-top:1rem}
+.log-line{padding:.16rem 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.log-line:last-child{border:none}
+.ll-info{color:var(--accent2)}.ll-ok{color:var(--accent)}.ll-warn{color:var(--accent3)}.ll-ans{color:var(--danger);font-weight:700}.ll-dim{color:var(--dim)}
+/* Q */
+.q-list{display:grid;gap:.9rem}
+.q-card{background:var(--s1);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .2s}
+.q-card:hover{border-color:var(--dim)}
+.q-head{display:flex;align-items:flex-start;gap:.9rem;padding:1.1rem 1.3rem;cursor:pointer;user-select:none}
+.q-num{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;min-width:32px;padding-top:.12rem}
+.q-card.easy .q-num{color:var(--easy)}.q-card.mid .q-num{color:var(--mid)}.q-card.hard .q-num{color:var(--hard)}
+.q-txt{flex:1;font-size:.92rem;color:var(--text);line-height:1.6}
+.q-badge{font-size:.67rem;font-weight:800;padding:.17rem .58rem;border-radius:100px;flex-shrink:0}
+.q-card.easy .q-badge{background:rgba(0,212,170,.1);color:var(--easy)}
+.q-card.mid  .q-badge{background:rgba(255,179,71,.1);color:var(--mid)}
+.q-card.hard .q-badge{background:rgba(255,95,126,.1);color:var(--hard)}
+.q-arrow{color:var(--dim);transition:transform .25s;flex-shrink:0}
+.q-card.open .q-arrow{transform:rotate(180deg)}
+.q-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.q-card.open .q-body{max-height:900px}
+.q-inner{padding:0 1.3rem 1.3rem;border-top:1px solid var(--border);padding-top:1rem}
+.q-inner p{font-size:.87rem}
+.diff-row{display:flex;gap:1.4rem;margin-bottom:1.2rem;flex-wrap:wrap}
+.diff-it{display:flex;align-items:center;gap:.5rem;font-size:.81rem;color:var(--muted)}
+.diff-dot{width:9px;height:9px;border-radius:50%}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.fade-in{animation:fadeUp .45s ease both}
+.d1{animation-delay:.1s}.d2{animation-delay:.2s}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+@media(max-width:640px){.hero h1{font-size:1.85rem}pre{font-size:.75rem}nav{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="nav-inner">
+    <a class="nav-brand" href="#"><div class="brand-icon">ST</div>هياكل البيانات · KSA</a>
+    <nav>
+      <a href="#what">ما هي؟</a>
+      <a href="#structure">البنية</a>
+      <a href="#query">الاستعلام</a>
+      <a href="#update">التحديث</a>
+      <a href="#code">الكود</a>
+      <a href="#problem">المسألة</a>
+      <a href="#questions">الأسئلة</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero fade-in">
+  <div class="eyebrow">هياكل البيانات</div>
+  <h1><span class="hl">Segment Tree</span><br>شجرة القطاعات</h1>
+  <p>هيكل بيانات قوي لمعالجة استعلامات النطاق والتحديثات على المصفوفات بكفاءة O(log n).</p>
+  <div class="chips">
+    <div class="chip"><strong>المستوى:</strong> متوسط–متقدم</div>
+    <div class="chip"><strong>الوقت التقديري:</strong> 90 دقيقة</div>
+    <div class="chip"><strong>الأسئلة:</strong> 15 سؤالاً</div>
+    <div class="chip">التعقيد <span class="cx" style="margin-right:.4rem">O(log n)</span></div>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- §1 ما هي؟ -->
+<div class="sec" id="what">
+  <div class="sec-num" style="background:var(--accent);color:#000">1</div>ما هي Segment Tree؟
+</div>
+
+<div class="card fade-in d1">
+  <div class="card-head">🌳 التعريف</div>
+  <p>Segment Tree (شجرة القطاعات) هي <strong>شجرة ثنائية</strong> يمثّل كل عقدة (node) فيها قيمةً مجمَّعةً لمقطع (نطاق) معين من المصفوفة الأصلية. تتميز بأنها تُتيح معالجة استعلامات النطاق والتحديثات في زمن <span class="cx">O(log n)</span> بدلاً من <span class="cx">O(n)</span>.</p>
+  <div class="info teal">
+    <div class="tag">قاعدة البناء</div>
+    <p>كل <strong>leaf node</strong> يمثّل عنصراً واحداً فقط من المصفوفة. كل <strong>internal node</strong> يمثّل دمجاً لطفليه (مجموع، أو أصغر قيمة، أو أكبر قيمة، أو غير ذلك).</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-head">📐 مثال بصري على المصفوفة [2, 4, 6, 8]</div>
+  <p>شجرة القطاعات لحساب <strong>المجموع</strong> على المصفوفة [2, 4, 6, 8] تبدو هكذا. الأرقام بين الأقواس تمثّل النطاق الذي يغطيه كل node.</p>
+</div>
+
+<!-- Static tree diagram for [2,4,6,8] -->
+<div class="card" style="padding:1rem">
+  <div class="tree-container">
+    <div class="tree-svg-wrap">
+      <svg id="static-tree" viewBox="0 0 700 260" style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">
+        <!-- edges -->
+        <line class="edge" x1="350" y1="45" x2="200" y2="115"/>
+        <line class="edge" x1="350" y1="45" x2="500" y2="115"/>
+        <line class="edge" x1="200" y1="135" x2="120" y2="205"/>
+        <line class="edge" x1="200" y1="135" x2="280" y2="205"/>
+        <line class="edge" x1="500" y1="135" x2="420" y2="205"/>
+        <line class="edge" x1="500" y1="135" x2="580" y2="205"/>
+        <!-- root -->
+        <circle class="node-circle" cx="350" cy="35" r="28" fill="rgba(0,212,170,.15)" stroke="#00d4aa" stroke-width="2"/>
+        <text class="node-text" x="350" y="31" fill="#00d4aa">20</text>
+        <text class="range-text" x="350" y="50">[1–4]</text>
+        <!-- L1 -->
+        <circle class="node-circle" cx="200" cy="125" r="26" fill="rgba(78,140,255,.12)" stroke="#4e8cff" stroke-width="2"/>
+        <text class="node-text" x="200" y="121" fill="#4e8cff">6</text>
+        <text class="range-text" x="200" y="138">[1–2]</text>
+        <circle class="node-circle" cx="500" cy="125" r="26" fill="rgba(78,140,255,.12)" stroke="#4e8cff" stroke-width="2"/>
+        <text class="node-text" x="500" y="121" fill="#4e8cff">14</text>
+        <text class="range-text" x="500" y="138">[3–4]</text>
+        <!-- Leaves -->
+        <circle class="node-circle" cx="120" cy="215" r="24" fill="rgba(192,132,252,.12)" stroke="#c084fc" stroke-width="2"/>
+        <text class="node-text" x="120" y="211" fill="#c084fc">2</text>
+        <text class="range-text" x="120" y="228">[1–1]</text>
+        <circle class="node-circle" cx="280" cy="215" r="24" fill="rgba(192,132,252,.12)" stroke="#c084fc" stroke-width="2"/>
+        <text class="node-text" x="280" y="211" fill="#c084fc">4</text>
+        <text class="range-text" x="280" y="228">[2–2]</text>
+        <circle class="node-circle" cx="420" cy="215" r="24" fill="rgba(192,132,252,.12)" stroke="#c084fc" stroke-width="2"/>
+        <text class="node-text" x="420" y="211" fill="#c084fc">6</text>
+        <text class="range-text" x="420" y="228">[3–3]</text>
+        <circle class="node-circle" cx="580" cy="215" r="24" fill="rgba(192,132,252,.12)" stroke="#c084fc" stroke-width="2"/>
+        <text class="node-text" x="580" y="211" fill="#c084fc">8</text>
+        <text class="range-text" x="580" y="228">[4–4]</text>
+        <!-- labels -->
+        <text x="16" y="38" fill="#4a5870" font-family="Tajawal,sans-serif" font-size="11">الجذر</text>
+        <text x="16" y="128" fill="#4a5870" font-family="Tajawal,sans-serif" font-size="11">المستوى 2</text>
+        <text x="16" y="218" fill="#4a5870" font-family="Tajawal,sans-serif" font-size="11">أوراق</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- §2 البنية -->
+<div class="sec" id="structure">
+  <div class="sec-num" style="background:var(--accent2)">2</div>عدد العقد والحشو والتمثيل
+</div>
+
+<div class="card">
+  <div class="card-head">🔢 عدد العقد</div>
+  <p>في كل مستوى من الشجرة يتضاعف عدد العقد: 1، 2، 4، 8، … أي قوى العدد 2. وبما أن كل قوة تساوي مجموع القوى السابقة زائد 1، فإن العدد الكلي لعقد شجرة ذات N ورقة هو:</p>
+  <div style="background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:.85rem 1.2rem;font-family:'JetBrains Mono',monospace;color:var(--purple);text-align:center;font-size:1.1rem;margin:.9rem 0;direction:ltr">
+    Total Nodes = 2N − 1
+  </div>
+  <p>لذا نُخصّص مصفوفة بحجم <code style="font-family:monospace;color:var(--accent)">2 * N</code> لتخزين الشجرة (نُهمل الموضع 0 للتبسيط).</p>
+</div>
+
+<div class="card">
+  <div class="card-head">🧩 الحشو (Padding)</div>
+  <p>إذا كان طول المصفوفة n ليس قوةً للعدد 2، نحتاج إلى <strong>حشو</strong> العناصر حتى يكون عدد الأوراق N هو أقرب قوة للعدد 2 لا تقل عن n.</p>
+  <div class="info amber">
+    <div class="tag">مثال</div>
+    <p>المصفوفة [2, 4, 6] بطول 3. أقرب قوة لـ 2 تعلو 3 هي N = 4. نُضيف 0 كعنصر رابع، فتصبح الشجرة بـ 7 عقد (2×4 − 1). القيمة المُضافة 0 لا تُؤثر على حسابات المجموع ولا الحد الأقصى، لكن للحد الأدنى نُضيف INT_MAX.</p>
+  </div>
+  <div class="info blue">
+    <div class="tag">حساب N برمجياً</div>
+    <p>يمكن حساب N بطريقتين متكافئتين في C++:</p>
+  </div>
+  <div class="code-block">
+    <div class="code-top"><span class="code-lang">C++ — حساب N</span><button class="copy-btn" onclick="copyCode(this)">نسخ</button></div>
+    <pre><span class="cm">// الطريقة الأولى: بالبت</span>
+<span class="ty">int</span> N <span class="op">=</span> <span class="nu">1</span> <span class="op">&lt;&lt;</span> (<span class="nu">32</span> <span class="op">-</span> <span class="fn">__builtin_clz</span>(n <span class="op">-</span> <span class="nu">1</span>))<span class="op">;</span>
+
+<span class="cm">// الطريقة الثانية: بالحلقة (ملاحظة: الفاصلة المنقوطة في نهاية for مهمة!)</span>
+<span class="ty">int</span> N<span class="op">;</span>
+<span class="kw">for</span> (N <span class="op">=</span> <span class="nu">1</span><span class="op">;</span> N <span class="op">&lt;</span> n<span class="op">;</span> N <span class="op">*=</span> <span class="nu">2</span>)<span class="op">;</span>  <span class="cm">// الفاصلة المنقوطة هنا تعني أن جسم الحلقة فارغ</span></pre>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-head">📍 التمثيل كمصفوفة — خاصية الأرقام</div>
+  <p>نُمثّل الشجرة كمصفوفة seg بدلاً من بنية شجرية صريحة. هذا يُوفّر الذاكرة ويُسرّع العمليات. العقدة رقم i لها العلاقات التالية:</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>العلاقة</th><th>الصيغة</th><th>المعنى</th></tr></thead>
+      <tbody>
+        <tr><td>الطفل الأيسر</td><td><code style="font-family:monospace;color:var(--accent)">2 * i</code></td><td>الفرع الأيسر للعقدة i</td></tr>
+        <tr><td>الطفل الأيمن</td><td><code style="font-family:monospace;color:var(--accent)">2 * i + 1</code></td><td>الفرع الأيمن للعقدة i</td></tr>
+        <tr><td>الوالد</td><td><code style="font-family:monospace;color:var(--accent)">i / 2</code></td><td>الأب في الشجرة</td></tr>
+        <tr><td>الورقة للعنصر j</td><td><code style="font-family:monospace;color:var(--accent)">j + N - 1</code></td><td>موضع العنصر j في مصفوفة seg</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="info teal">
+    <div class="tag">مثال على التمثيل</div>
+    <p>للشجرة السابقة مع N = 4: الجذر في الموضع 1 (يغطي [1,4]). أبناؤه في الموضعين 2 و 3. الأوراق في المواضع 4, 5, 6, 7 وتقابل العناصر a[1], a[2], a[3], a[4] على التوالي.</p>
+  </div>
+</div>
+
+<!-- LAB 1 — Build -->
+<div class="lab" id="lab-build">
+  <div class="lab-title">⚗️ مختبر بناء الشجرة</div>
+  <p class="lab-sub">أدخل مصفوفةً وعملية الدمج، ثم اضغط «بناء» لمشاهدة الشجرة بالكامل بشكل مرئي.</p>
+  <div class="ctrl">
+    <input class="lab-inp wide" id="arr-inp" value="2 4 6 8">
+    <select id="op-sel" style="background:var(--s2);border:1px solid var(--border);color:var(--text);padding:.5rem .8rem;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:.88rem">
+      <option value="sum">مجموع</option>
+      <option value="min">أصغر قيمة</option>
+      <option value="max">أكبر قيمة</option>
+    </select>
+    <button class="lab-btn teal" onclick="buildTree()">🔨 بناء</button>
+    <button class="lab-btn ghost" onclick="randomTree()">🎲 عشوائي</button>
+  </div>
+  <div id="tree-svg-container" style="overflow-x:auto;min-height:80px"></div>
+  <div class="log" id="build-log"><span class="ll-dim">في انتظار البناء…</span></div>
+</div>
+
+<!-- §3 الاستعلام -->
+<div class="sec" id="query">
+  <div class="sec-num" style="background:var(--accent3);color:#000">3</div>الاستعلام عن نطاق
+</div>
+
+<div class="card">
+  <div class="card-head">🔍 كيف تعمل دالة query؟</div>
+  <p>الدالة <code style="font-family:monospace;color:var(--accent)">query(id, l, r, ql, qr)</code> تعمل بشكل تعاودي (Recursive) بثلاث حالات:</p>
+  <ol class="steps">
+    <li>
+      <div><strong>لا تقاطع (No Overlap):</strong> إذا كان نطاق الاستعلام [ql, qr] لا يتقاطع مع نطاق العقدة [l, r] تماماً (<code style="font-family:monospace;color:var(--accent)">ql &gt; r || l &gt; qr</code>)، نُرجع القيمة المحايدة (0 للمجموع، INT_MAX للحد الأدنى، INT_MIN للحد الأقصى) ونتوقف.</div>
+    </li>
+    <li>
+      <div><strong>تغطية كاملة (Full Cover):</strong> إذا كان نطاق الاستعلام يغطي نطاق العقدة بالكامل (<code style="font-family:monospace;color:var(--accent)">ql &lt;= l && r &lt;= qr</code>)، نُرجع قيمة العقدة مباشرةً دون نزول إضافي.</div>
+    </li>
+    <li>
+      <div><strong>تقاطع جزئي (Partial):</strong> نقسم على المنتصف <code style="font-family:monospace;color:var(--accent)">m = (l + r) / 2</code> ونستدعي الدالة على الطفلين ثم ندمج النتيجتين.</div>
+    </li>
+  </ol>
+  <div style="display:flex;align-items:center;gap:1rem;margin-top:1rem">
+    <span style="color:var(--muted)">التعقيد الزمني:</span>
+    <span class="cx">O(log n)</span>
+    <span style="color:var(--dim);font-size:.82rem">على الأكثر 4 × log(N) عقدة تُزار</span>
+  </div>
+</div>
+
+<div class="code-block">
+  <div class="code-top"><span class="code-lang">C++ — دالة query</span><button class="copy-btn" onclick="copyCode(this)">نسخ</button></div>
+  <pre><span class="ty">int</span> <span class="fn">query</span>(<span class="ty">int</span> id<span class="op">,</span> <span class="ty">int</span> l<span class="op">,</span> <span class="ty">int</span> r<span class="op">,</span> <span class="ty">int</span> ql<span class="op">,</span> <span class="ty">int</span> qr) {
+    <span class="cm">// حالة 1: لا تقاطع — يُرجع القيمة المحايدة</span>
+    <span class="kw">if</span> (ql <span class="op">&gt;</span> r <span class="op">||</span> l <span class="op">&gt;</span> qr) {
+        <span class="kw">return</span> <span class="nu">0</span><span class="op">;</span>  <span class="cm">// 0 للمجموع | INT_MAX للحد الأدنى | INT_MIN للحد الأقصى</span>
+    }
+    <span class="cm">// حالة 2: تغطية كاملة — يُرجع قيمة العقدة مباشرةً</span>
+    <span class="kw">if</span> (ql <span class="op">&lt;=</span> l <span class="op">&amp;&amp;</span> r <span class="op">&lt;=</span> qr) {
+        <span class="kw">return</span> seg[id]<span class="op">;</span>
+    }
+    <span class="cm">// حالة 3: تقاطع جزئي — تقسيم واستدعاء ذاتي</span>
+    <span class="ty">int</span> m <span class="op">=</span> (l <span class="op">+</span> r) <span class="op">/</span> <span class="nu">2</span><span class="op">;</span>
+    <span class="kw">return</span> <span class="fn">query</span>(id <span class="op">*</span> <span class="nu">2</span><span class="op">,</span> l<span class="op">,</span> m<span class="op">,</span> ql<span class="op">,</span> qr) <span class="op">+</span> <span class="fn">query</span>(id <span class="op">*</span> <span class="nu">2</span> <span class="op">+</span> <span class="nu">1</span><span class="op">,</span> m <span class="op">+</span> <span class="nu">1</span><span class="op">,</span> r<span class="op">,</span> ql<span class="op">,</span> qr)<span class="op">;</span>
+}
+<span class="cm">// استدعاء الاستعلام عن النطاق [ql, qr]:</span>
+<span class="cm">// query(1, 1, N, ql, qr)</span></pre>
+</div>
+
+<div class="card">
+  <div class="card-head">🔍 شرح الكود سطراً بسطر</div>
+  <ol class="steps">
+    <li><strong>المعاملات id, l, r:</strong> id هو رقم العقدة الحالية في مصفوفة seg. l و r هما حدا النطاق الذي تغطيه هذه العقدة.</li>
+    <li><strong>المعاملات ql, qr:</strong> هما حدا نطاق الاستعلام الذي يُريده المستخدم. تبقى ثابتةً في كل الاستدعاءات التعاودية.</li>
+    <li><strong>شرط اللاتقاطع:</strong> إذا كان nod range لا يتداخل مع query range، لا فائدة من النزول أعمق. نُرجع القيمة المحايدة (0 لا تُؤثر على المجموع).</li>
+    <li><strong>شرط التغطية الكاملة:</strong> إذا كان نطاق الاستعلام يحتوي نطاق العقدة بالكامل، نُرجع seg[id] مباشرةً. هذا هو <em>سرّ كفاءة الشجرة</em> — نتجنب إعادة حساب ما حُسب مسبقاً.</li>
+    <li><strong>الاستدعاء التعاودي:</strong> نقسم على المنتصف ونستدعي الطفلين، ثم ندمج النتيجتين بعملية الدمج المناسبة (+ أو min أو max).</li>
+  </ol>
+</div>
+
+<!-- LAB 2 — Query -->
+<div class="lab" id="lab-query">
+  <div class="lab-title">⚗️ مختبر الاستعلام</div>
+  <p class="lab-sub">بعد بناء الشجرة، أدخل نطاقاً [ql, qr] وشاهد أي العقد تُزار وكيف تُدمج النتائج.</p>
+  <div class="ctrl">
+    <label>ql =</label><input class="lab-inp" id="q-l" value="2">
+    <label>qr =</label><input class="lab-inp" id="q-r" value="3">
+    <button class="lab-btn blue" onclick="runQuery()">🔍 استعلام</button>
+  </div>
+  <div id="tree-svg-query" style="overflow-x:auto;min-height:80px"></div>
+  <div class="log" id="query-log"><span class="ll-dim">ابنِ الشجرة أولاً…</span></div>
+</div>
+
+<!-- §4 التحديث -->
+<div class="sec" id="update">
+  <div class="sec-num" style="background:var(--purple)">4</div>تحديث نقطة
+</div>
+
+<div class="card">
+  <div class="card-head">✏️ كيف نُحدّث عنصراً؟</div>
+  <p>لتحديث العنصر في الموضع j إلى القيمة v، نتبع خطوتين:</p>
+  <ol class="steps">
+    <li><strong>تحديث الورقة:</strong> الورقة التي تمثّل j تقع في الموضع <code style="font-family:monospace;color:var(--accent)">j + N - 1</code> في مصفوفة seg. نضبط قيمتها على v.</li>
+    <li><strong>إعادة حساب الآباء:</strong> نصعد من الورقة إلى الجذر بقسمة الرقم على 2، ونُعيد حساب كل أب بدمج طفليه. عدد الآباء هو log(N) وهو أيضاً عمق الشجرة.</li>
+  </ol>
+  <div class="info teal">
+    <div class="tag">لماذا نصعد إلى الجذر؟</div>
+    <p>لأن كل أب يحمل قيمةً محسوبةً من أبنائه. بتغيير ورقة، تتغير قيمة كل أب على المسار من الورقة إلى الجذر، لذا يجب إعادة حسابها جميعاً.</p>
+  </div>
+  <div style="display:flex;align-items:center;gap:1rem;margin-top:1rem">
+    <span style="color:var(--muted)">التعقيد الزمني:</span>
+    <span class="cx">O(log n)</span>
+  </div>
+</div>
+
+<div class="code-block">
+  <div class="code-top"><span class="code-lang">C++ — pointUpdate</span><button class="copy-btn" onclick="copyCode(this)">نسخ</button></div>
+  <pre><span class="ty">void</span> <span class="fn">pointUpdate</span>(<span class="ty">int</span> j<span class="op">,</span> <span class="ty">int</span> v) {
+    a[j] <span class="op">=</span> v<span class="op">;</span>          <span class="cm">// تحديث المصفوفة الأصلية</span>
+
+    <span class="ty">int</span> idx <span class="op">=</span> j <span class="op">+</span> N <span class="op">-</span> <span class="nu">1</span><span class="op">;</span>  <span class="cm">// موضع الورقة في مصفوفة seg</span>
+    seg[idx] <span class="op">=</span> v<span class="op">;</span>
+
+    <span class="cm">// الصعود من الورقة إلى الجذر وإعادة حساب كل أب</span>
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> idx <span class="op">/</span> <span class="nu">2</span><span class="op">;</span> i <span class="op">&gt;</span> <span class="nu">0</span><span class="op">;</span> i <span class="op">/=</span> <span class="nu">2</span>) {
+        seg[i] <span class="op">=</span> seg[i <span class="op">*</span> <span class="nu">2</span>] <span class="op">+</span> seg[i <span class="op">*</span> <span class="nu">2</span> <span class="op">+</span> <span class="nu">1</span>]<span class="op">;</span>  <span class="cm">// دمج الطفلين</span>
+    }
+}</pre>
+</div>
+
+<div class="card">
+  <div class="card-head">🔍 شرح كود التحديث</div>
+  <ol class="steps">
+    <li><strong>a[j] = v:</strong> نُحدّث المصفوفة الأصلية للإبقاء عليها متزامنةً مع الشجرة.</li>
+    <li><strong>idx = j + N - 1:</strong> نحوّل فهرس المصفوفة الأصلية (مرقّم من 1) إلى موضع الورقة في مصفوفة seg. مثلاً إذا j=2 و N=4، فالورقة في الموضع 5.</li>
+    <li><strong>seg[idx] = v:</strong> نُحدّث الورقة مباشرةً.</li>
+    <li><strong>حلقة الصعود (i /= 2):</strong> نبدأ من والد الورقة (idx/2) ونصعد إلى الجذر. في كل خطوة نُعيد حساب قيمة العقدة i بدمج طفليها (i*2) و(i*2+1). نتوقف عند i=0 (تجاوزنا الجذر).</li>
+  </ol>
+</div>
+
+<!-- LAB 3 — Update -->
+<div class="lab" id="lab-update">
+  <div class="lab-title">⚗️ مختبر التحديث</div>
+  <p class="lab-sub">أدخل موضع العنصر j (يبدأ من 1) والقيمة الجديدة v لمشاهدة مسار التحديث في الشجرة.</p>
+  <div class="ctrl">
+    <label>j =</label><input class="lab-inp" id="u-j" value="2">
+    <label>v =</label><input class="lab-inp" id="u-v" value="10">
+    <button class="lab-btn amber" onclick="runUpdate()">✏️ حدّث</button>
+  </div>
+  <div id="tree-svg-update" style="overflow-x:auto;min-height:80px"></div>
+  <div class="log" id="update-log"><span class="ll-dim">ابنِ الشجرة أولاً…</span></div>
+</div>
+
+<!-- §5 كود البناء -->
+<div class="sec" id="code">
+  <div class="sec-num" style="background:#ff5f7e">5</div>كود البناء الكامل
+</div>
+
+<div class="card">
+  <div class="card-head">⚙️ بناء شجرة القطاعات — الخطوات</div>
+  <ol class="steps">
+    <li><strong>حساب N:</strong> أقرب قوة للعدد 2 لا تقل عن n.</li>
+    <li><strong>ملء الأوراق من المصفوفة الأصلية:</strong> <code style="font-family:monospace;color:var(--accent)">seg[i + N] = a[i]</code> لكل عنصر.</li>
+    <li><strong>ملء الأوراق الإضافية بالقيمة المحايدة:</strong> 0 للمجموع، INT_MAX للحد الأدنى.</li>
+    <li><strong>بناء العقد الداخلية بترتيب عكسي:</strong> من N−1 حتى 1، كل عقدة = دمج طفليها.</li>
+  </ol>
+</div>
+
+<div class="code-block">
+  <div class="code-top"><span class="code-lang">C++ — بناء الشجرة</span><button class="copy-btn" onclick="copyCode(this)">نسخ</button></div>
+  <pre><span class="cm">// ملء الأوراق من المصفوفة الأصلية (مرقّمة من 0)</span>
+<span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> <span class="nu">0</span><span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) {
+    seg[i <span class="op">+</span> N] <span class="op">=</span> a[i]<span class="op">;</span>
+}
+
+<span class="cm">// ملء الأوراق المُضافة (الحشو) بالقيمة المحايدة</span>
+<span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> n <span class="op">+</span> N<span class="op">;</span> i <span class="op">&lt;</span> <span class="nu">2</span> <span class="op">*</span> N<span class="op">;</span> i<span class="op">++</span>) {
+    seg[i] <span class="op">=</span> <span class="nu">0</span><span class="op">;</span>  <span class="cm">// 0 للمجموع | INT_MAX للحد الأدنى | INT_MIN للحد الأقصى</span>
+}
+
+<span class="cm">// بناء العقد الداخلية من الأسفل إلى الأعلى</span>
+<span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> N <span class="op">-</span> <span class="nu">1</span><span class="op">;</span> i <span class="op">&gt;</span> <span class="nu">0</span><span class="op">;</span> i<span class="op">--</span>) {
+    seg[i] <span class="op">=</span> seg[i <span class="op">*</span> <span class="nu">2</span>] <span class="op">+</span> seg[i <span class="op">*</span> <span class="nu">2</span> <span class="op">+</span> <span class="nu">1</span>]<span class="op">;</span>  <span class="cm">// دمج الطفلين</span>
+}</pre>
+</div>
+
+<div class="card">
+  <div class="card-head">🔍 شرح كود البناء</div>
+  <ol class="steps">
+    <li><strong>الحلقة الأولى (ملء الأوراق):</strong> العنصر a[0] يذهب إلى seg[N]، وa[1] إلى seg[N+1]، وهكذا. لاحظ أننا نُرقّم المصفوفة من 0 ولكن الشجرة تبدأ من 1.</li>
+    <li><strong>الحلقة الثانية (الحشو):</strong> نملأ الأوراق الإضافية بالقيمة المحايدة حتى لا تُؤثر على النتائج.</li>
+    <li><strong>الحلقة الثالثة (البناء التصاعدي):</strong> نبدأ من N−1 (الأب المباشر للأوراق) وننتهي عند 1 (الجذر). كل عقدة داخلية i تأخذ قيمتها من دمج طفليها 2i و 2i+1. السبب في الترتيب العكسي هو ضمان أن الأبناء مبنيون قبل الأباء.</li>
+  </ol>
+</div>
+
+<!-- Summary table -->
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>العملية</th><th>التعقيد الزمني</th><th>ملاحظة</th></tr></thead>
+    <tbody>
+      <tr><td>بناء الشجرة</td><td><span class="cx">O(n)</span></td><td>مرور واحد على جميع العقد</td></tr>
+      <tr><td>استعلام النطاق</td><td><span class="cx">O(log n)</span></td><td>على الأكثر 4 × log(N) عقدة</td></tr>
+      <tr><td>تحديث نقطة</td><td><span class="cx">O(log n)</span></td><td>log(N) أب على مسار الورقة للجذر</td></tr>
+      <tr><td>الذاكرة</td><td><span class="cx">O(n)</span></td><td>مصفوفة seg بحجم 2N</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- §6 المسألة -->
+<div class="sec" id="problem">
+  <div class="sec-num" style="background:var(--accent3);color:#000">6</div>المسألة التطبيقية — Dynamic Range Minimum Queries
+</div>
+
+<div class="card">
+  <div class="card-head">📋 نص المسألة (CSES)</div>
+  <p>لديك مصفوفة a من n عنصر وتريد معالجة q استعلام من نوعين:</p>
+  <div class="info blue"><div class="tag">النوع الأول</div><p><strong>1 k u</strong> — حدّث القيمة في الموضع k إلى u.</p></div>
+  <div class="info teal"><div class="tag">النوع الثاني</div><p><strong>2 l r</strong> — ما أصغر قيمة في النطاق [l, r]؟</p></div>
+</div>
+
+<div class="card">
+  <div class="card-head">💡 ملاحظات مهمة على الكود</div>
+  <ol class="steps">
+    <li><strong>التعريف في النطاق العام مع MAXN ثابت:</strong> نستخدم MAXN كحد أقصى ثابت لحساب N في وقت الترجمة. هذا يُتيح تعريف seg كمصفوفة ذات حجم ثابت.</li>
+    <li><strong>قيمة الحشو INT_MAX:</strong> لأننا نحسب الحد الأدنى، الأوراق الإضافية تُملأ بـ INT_MAX حتى لا تُؤثر على النتيجة.</li>
+    <li><strong>في الاستعلام نُرجع INT_MAX لا 0 عند اللاتقاطع:</strong> لأن دمج min(a, INT_MAX) = a وهو ما نريده.</li>
+    <li><strong>pointUpdate تستخدم j (من 1) لا j-1:</strong> الدالة تستقبل الفهرس المرقّم من 1 وتُحوّله داخلياً إلى موضع الورقة بـ j + N - 1.</li>
+  </ol>
+</div>
+
+<div class="code-block">
+  <div class="code-top"><span class="code-lang">C++ — الكود الكامل للمسألة</span><button class="copy-btn" onclick="copyCode(this)">نسخ</button></div>
+  <pre><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;climits&gt;</span>
+<span class="kw">using namespace</span> std<span class="op">;</span>
+
+<span class="kw">const</span> <span class="ty">int</span> MAXN <span class="op">=</span> <span class="nu">200000</span><span class="op">;</span>
+<span class="kw">const</span> <span class="ty">int</span> N <span class="op">=</span> (<span class="nu">1</span> <span class="op">&lt;&lt;</span> (<span class="nu">32</span> <span class="op">-</span> <span class="fn">__builtin_clz</span>(MAXN <span class="op">-</span> <span class="nu">1</span>)))<span class="op">;</span>  <span class="cm">// = 262144</span>
+
+<span class="ty">int</span> seg[N <span class="op">*</span> <span class="nu">2</span>]<span class="op">;</span>
+<span class="ty">int</span> a[MAXN]<span class="op">;</span>
+
+<span class="ty">int</span> <span class="fn">query</span>(<span class="ty">int</span> id<span class="op">,</span> <span class="ty">int</span> l<span class="op">,</span> <span class="ty">int</span> r<span class="op">,</span> <span class="ty">int</span> ql<span class="op">,</span> <span class="ty">int</span> qr) {
+    <span class="kw">if</span> (ql <span class="op">&gt;</span> r <span class="op">||</span> l <span class="op">&gt;</span> qr) <span class="kw">return</span> INT_MAX<span class="op">;</span>  <span class="cm">// لا تقاطع</span>
+    <span class="kw">if</span> (ql <span class="op">&lt;=</span> l <span class="op">&amp;&amp;</span> r <span class="op">&lt;=</span> qr) <span class="kw">return</span> seg[id]<span class="op">;</span>   <span class="cm">// تغطية كاملة</span>
+    <span class="ty">int</span> m <span class="op">=</span> (l <span class="op">+</span> r) <span class="op">/</span> <span class="nu">2</span><span class="op">;</span>
+    <span class="kw">return</span> <span class="fn">min</span>(<span class="fn">query</span>(id<span class="op">*</span><span class="nu">2</span><span class="op">,</span> l<span class="op">,</span> m<span class="op">,</span> ql<span class="op">,</span> qr)<span class="op">,</span> <span class="fn">query</span>(id<span class="op">*</span><span class="nu">2</span><span class="op">+</span><span class="nu">1</span><span class="op">,</span> m<span class="op">+</span><span class="nu">1</span><span class="op">,</span> r<span class="op">,</span> ql<span class="op">,</span> qr))<span class="op">;</span>
+}
+
+<span class="ty">void</span> <span class="fn">pointUpdate</span>(<span class="ty">int</span> j<span class="op">,</span> <span class="ty">int</span> v) {
+    a[j <span class="op">-</span> <span class="nu">1</span>] <span class="op">=</span> v<span class="op">;</span>
+    <span class="ty">int</span> idx <span class="op">=</span> j <span class="op">+</span> N <span class="op">-</span> <span class="nu">1</span><span class="op">;</span>
+    seg[idx] <span class="op">=</span> v<span class="op">;</span>
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> idx <span class="op">/</span> <span class="nu">2</span><span class="op">;</span> i <span class="op">&gt;</span> <span class="nu">0</span><span class="op">;</span> i <span class="op">/=</span> <span class="nu">2</span>)
+        seg[i] <span class="op">=</span> <span class="fn">min</span>(seg[i <span class="op">*</span> <span class="nu">2</span>]<span class="op">,</span> seg[i <span class="op">*</span> <span class="nu">2</span> <span class="op">+</span> <span class="nu">1</span>])<span class="op">;</span>
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">int</span> n<span class="op">,</span> q<span class="op">;</span>
+    cin <span class="op">&gt;&gt;</span> n <span class="op">&gt;&gt;</span> q<span class="op">;</span>
+
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> <span class="nu">0</span><span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) cin <span class="op">&gt;&gt;</span> a[i]<span class="op">;</span>
+
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> <span class="nu">0</span><span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>)   seg[i <span class="op">+</span> N] <span class="op">=</span> a[i]<span class="op">;</span>
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> n <span class="op">+</span> N<span class="op">;</span> i <span class="op">&lt;</span> <span class="nu">2</span><span class="op">*</span>N<span class="op">;</span> i<span class="op">++</span>) seg[i] <span class="op">=</span> INT_MAX<span class="op">;</span>
+    <span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> N<span class="op">-</span><span class="nu">1</span><span class="op">;</span> i <span class="op">&gt;</span> <span class="nu">0</span><span class="op">;</span> i<span class="op">--</span>)   seg[i] <span class="op">=</span> <span class="fn">min</span>(seg[i<span class="op">*</span><span class="nu">2</span>]<span class="op">,</span> seg[i<span class="op">*</span><span class="nu">2</span><span class="op">+</span><span class="nu">1</span>])<span class="op">;</span>
+
+    <span class="kw">while</span> (q<span class="op">--</span>) {
+        <span class="ty">int</span> type<span class="op">;</span> cin <span class="op">&gt;&gt;</span> type<span class="op">;</span>
+        <span class="kw">if</span> (type <span class="op">==</span> <span class="nu">1</span>) {
+            <span class="ty">int</span> k<span class="op">,</span> u<span class="op">;</span> cin <span class="op">&gt;&gt;</span> k <span class="op">&gt;&gt;</span> u<span class="op">;</span>
+            <span class="fn">pointUpdate</span>(k<span class="op">,</span> u)<span class="op">;</span>
+        } <span class="kw">else</span> {
+            <span class="ty">int</span> ql<span class="op">,</span> qr<span class="op">;</span> cin <span class="op">&gt;&gt;</span> ql <span class="op">&gt;&gt;</span> qr<span class="op">;</span>
+            cout <span class="op">&lt;&lt;</span> <span class="fn">query</span>(<span class="nu">1</span><span class="op">,</span> <span class="nu">1</span><span class="op">,</span> N<span class="op">,</span> ql<span class="op">,</span> qr) <span class="op">&lt;&lt;</span> <span class="st">"\n"</span><span class="op">;</span>
+        }
+    }
+    <span class="kw">return</span> <span class="nu">0</span><span class="op">;</span>
+}</pre>
+</div>
+
+<!-- §7 Questions -->
+<div class="sec" id="questions">
+  <div class="sec-num" style="background:var(--purple)">?</div>أسئلة تدريبية
+</div>
+
+<div class="diff-row">
+  <div class="diff-it"><div class="diff-dot" style="background:var(--easy)"></div>سهل (5 أسئلة)</div>
+  <div class="diff-it"><div class="diff-dot" style="background:var(--mid)"></div>متوسط (5 أسئلة)</div>
+  <div class="diff-it"><div class="diff-dot" style="background:var(--hard)"></div>صعب (5 أسئلة)</div>
+</div>
+
+<div class="q-list" id="q-list"></div>
+</div><!-- /page -->
+
+<script>
+// ══════════════════════════════════
+// COPY
+// ══════════════════════════════════
+function copyCode(btn){
+  navigator.clipboard.writeText(btn.closest('.code-block').querySelector('pre').innerText)
+    .then(()=>{ btn.textContent='✓ تم'; setTimeout(()=>btn.textContent='نسخ',2000); });
+}
+
+// ══════════════════════════════════
+// TREE STATE
+// ══════════════════════════════════
+let ARR=[], SEG=[], N_=0, OP='sum';
+
+function merge(a,b){
+  if(OP==='sum') return a+b;
+  if(OP==='min') return Math.min(a,b);
+  return Math.max(a,b);
+}
+function neutral(){ return OP==='min'?Infinity:OP==='max'?-Infinity:0; }
+
+function buildState(){
+  OP = document.getElementById('op-sel').value;
+  const n = ARR.length;
+  N_ = 1; while(N_<n) N_*=2;
+  SEG = new Array(2*N_).fill(neutral());
+  for(let i=0;i<n;i++) SEG[i+N_] = ARR[i];
+  for(let i=N_-1;i>0;i--) SEG[i]=merge(SEG[i*2],SEG[i*2+1]);
+}
+
+// ══════════════════════════════════
+// SVG TREE RENDERER
+// ══════════════════════════════════
+const COLORS={
+  normal:{fill:'rgba(78,140,255,.1)',stroke:'#4e8cff',text:'#4e8cff'},
+  leaf:  {fill:'rgba(192,132,252,.1)',stroke:'#c084fc',text:'#c084fc'},
+  active:{fill:'rgba(0,212,170,.18)',stroke:'#00d4aa',text:'#00d4aa'},
+  skip:  {fill:'rgba(255,95,126,.08)',stroke:'#333f58',text:'#4a5870'},
+  upd:   {fill:'rgba(255,179,71,.18)',stroke:'#ffb347',text:'#ffb347'},
+};
+
+function getNodePos(id, n_){
+  // compute depth and horizontal position
+  const depth = Math.floor(Math.log2(id));
+  const levelNodes = Math.pow(2, depth);
+  const posInLevel = id - levelNodes;
+  const totalLevels = Math.floor(Math.log2(n_)) + 1;
+  const W = 700, topMargin = 50, rowH = 72;
+  const x = (W / levelNodes) * (posInLevel + 0.5);
+  const y = topMargin + depth * rowH;
+  return {x, y};
+}
+
+function renderTreeSVG(containerId, hlMap={}){
+  const c = document.getElementById(containerId); if(!c||!N_) return;
+  const levels = Math.floor(Math.log2(N_))+1;
+  const H = 50 + levels*72 + 30;
+  let svg = `<svg viewBox="0 0 700 ${H}" style="width:100%;min-width:500px;height:auto" xmlns="http://www.w3.org/2000/svg">`;
+  // edges
+  for(let id=1;id<N_;id++){
+    const p=getNodePos(id,N_), lc=getNodePos(id*2,N_), rc=getNodePos(id*2+1,N_);
+    svg+=`<line x1="${p.x}" y1="${p.y}" x2="${lc.x}" y2="${lc.y}" stroke="#1f2840" stroke-width="1.5"/>`;
+    svg+=`<line x1="${p.x}" y1="${p.y}" x2="${rc.x}" y2="${rc.y}" stroke="#1f2840" stroke-width="1.5"/>`;
+  }
+  // nodes
+  for(let id=1;id<2*N_;id++){
+    if(SEG[id]===undefined) continue;
+    const {x,y}=getNodePos(id,N_);
+    const isLeaf = id>=N_;
+    const hl=hlMap[id]||'';
+    let col = isLeaf ? COLORS.leaf : COLORS.normal;
+    if(hl==='active') col=COLORS.active;
+    else if(hl==='skip') col=COLORS.skip;
+    else if(hl==='upd') col=COLORS.upd;
+    const r=22;
+    const val = SEG[id]===Infinity?'∞':SEG[id]===-Infinity?'-∞':SEG[id];
+    // range
+    const nodeN = N_;
+    let lo=id,hi=id;
+    // compute range by going down
+    let tmp=id;
+    while(tmp<nodeN){tmp*=2;}
+    lo=tmp-nodeN+1;
+    tmp=id;
+    while(tmp<nodeN){tmp=tmp*2+1;}
+    hi=tmp-nodeN+1;
+    svg+=`<circle cx="${x}" cy="${y}" r="${r}" fill="${col.fill}" stroke="${col.stroke}" stroke-width="2"/>`;
+    svg+=`<text x="${x}" y="${y-2}" text-anchor="middle" dominant-baseline="middle" fill="${col.text}" font-family="JetBrains Mono,monospace" font-size="12" font-weight="600">${val}</text>`;
+    svg+=`<text x="${x}" y="${y+10}" text-anchor="middle" fill="#333f58" font-family="Tajawal,sans-serif" font-size="8">[${lo}-${hi}]</text>`;
+  }
+  svg+='</svg>';
+  c.innerHTML=svg;
+}
+
+// ══════════════════════════════════
+// BUILD
+// ══════════════════════════════════
+function buildTree(){
+  const raw=document.getElementById('arr-inp').value.trim().split(/\s+/).map(Number).filter(x=>!isNaN(x));
+  if(raw.length<1||raw.length>8){alert('أدخل من 1 إلى 8 أعداد للعرض الأمثل');return;}
+  ARR=[...raw];
+  buildState();
+  renderTreeSVG('tree-svg-container');
+  renderTreeSVG('tree-svg-query');
+  renderTreeSVG('tree-svg-update');
+  const n=ARR.length;
+  document.getElementById('build-log').innerHTML=
+    `<div class="log-line ll-info">▸ المصفوفة: [${ARR.join(', ')}] | n=${n}, N=${N_}, عدد العقد=${2*N_-1}</div>`
+    +`<div class="log-line ll-ok">▸ الأوراق (${N_} ورقة): `+Array.from({length:N_},(_,i)=>i<n?`seg[${i+N_}]=${ARR[i]}`:`seg[${i+N_}]=${neutral()}`).join(' | ')+'</div>'
+    +`<div class="log-line ll-ok">▸ الجذر: seg[1] = ${SEG[1]}</div>`
+    +`<div class="log-line ll-ok">✓ الشجرة جاهزة (عملية: ${document.getElementById('op-sel').options[document.getElementById('op-sel').selectedIndex].text})</div>`;
+}
+
+function randomTree(){
+  const len=3+Math.floor(Math.random()*5);
+  document.getElementById('arr-inp').value=Array.from({length:len},()=>Math.floor(Math.random()*20)+1).join(' ');
+  buildTree();
+}
+
+// ══════════════════════════════════
+// QUERY
+// ══════════════════════════════════
+let queryHL={};
+let qlog=[];
+
+function doQuery(id,l,r,ql,qr){
+  const p=getNodePos(id,N_);
+  if(ql>r||l>qr){
+    queryHL[id]='skip';
+    qlog.push(`<div class="log-line ll-dim">◻ تجاهل العقدة ${id} [${l}-${r}] — لا تقاطع</div>`);
+    return neutral();
+  }
+  if(ql<=l&&r<=qr){
+    queryHL[id]='active';
+    qlog.push(`<div class="log-line ll-ok">✓ العقدة ${id} [${l}-${r}] — تغطية كاملة → ${SEG[id]}</div>`);
+    return SEG[id];
+  }
+  queryHL[id]='active';
+  qlog.push(`<div class="log-line ll-warn">↓ تقسيم العقدة ${id} [${l}-${r}] عند المنتصف ${Math.floor((l+r)/2)}</div>`);
+  const m=Math.floor((l+r)/2);
+  const lv=doQuery(id*2,l,m,ql,qr);
+  const rv=doQuery(id*2+1,m+1,r,ql,qr);
+  return merge(lv,rv);
+}
+
+function runQuery(){
+  if(!N_){document.getElementById('query-log').innerHTML='<span class="ll-dim">ابنِ الشجرة أولاً!</span>';return;}
+  const ql=parseInt(document.getElementById('q-l').value);
+  const qr=parseInt(document.getElementById('q-r').value);
+  if(isNaN(ql)||isNaN(qr)||ql<1||qr>ARR.length||ql>qr){
+    document.getElementById('query-log').innerHTML=`<span class="ll-ans">⚠ نطاق غير صالح (1 ≤ ql ≤ qr ≤ ${ARR.length})</span>`;return;}
+  queryHL={}; qlog=[];
+  const ans=doQuery(1,1,N_,ql,qr);
+  qlog.push(`<div class="log-line ll-ans">✓ الجواب = ${ans}</div>`);
+  document.getElementById('query-log').innerHTML=qlog.join('');
+  renderTreeSVG('tree-svg-query',queryHL);
+}
+
+// ══════════════════════════════════
+// UPDATE
+// ══════════════════════════════════
+function runUpdate(){
+  if(!N_){document.getElementById('update-log').innerHTML='<span class="ll-dim">ابنِ الشجرة أولاً!</span>';return;}
+  const j=parseInt(document.getElementById('u-j').value);
+  const v=parseInt(document.getElementById('u-v').value);
+  if(isNaN(j)||j<1||j>ARR.length||isNaN(v)){
+    document.getElementById('update-log').innerHTML=`<span class="ll-ans">⚠ قيم غير صالحة (1 ≤ j ≤ ${ARR.length})</span>`;return;}
+  const old=ARR[j-1];
+  ARR[j-1]=v;
+  const idx=j+N_-1;
+  SEG[idx]=v;
+  const upHL={[idx]:'upd'};
+  const path=[];
+  for(let i=Math.floor(idx/2);i>0;i=Math.floor(i/2)){
+    const oldV=SEG[i];
+    SEG[i]=merge(SEG[i*2],SEG[i*2+1]);
+    upHL[i]='upd';
+    path.push(`<div class="log-line ll-warn">↑ إعادة حساب العقدة ${i}: merge(${SEG[i*2]}, ${SEG[i*2+1]}) = ${SEG[i]}</div>`);
+  }
+  document.getElementById('update-log').innerHTML=
+    `<div class="log-line ll-info">▸ تحديث a[${j}]: ${old} → ${v} | الورقة في seg[${idx}]</div>`
+    +path.join('')
+    +`<div class="log-line ll-ans">✓ التحديث اكتمل في O(log N)</div>`;
+  renderTreeSVG('tree-svg-update',upHL);
+  renderTreeSVG('tree-svg-container',upHL);
+  renderTreeSVG('tree-svg-query',queryHL);
+}
+
+// ══════════════════════════════════
+// QUESTIONS
+// ══════════════════════════════════
+const QS=[
+  {d:'easy',b:'سهل',n:'Q01',
+   q:'ما هو موضع الورقة التي تُمثّل العنصر a[3] (مرقّم من 1) في مصفوفة seg إذا كانت N = 8؟',
+   a:'موضع الورقة = j + N - 1 = 3 + 8 - 1 = 10. إذن العنصر a[3] يقع في seg[10].',c:null},
+  {d:'easy',b:'سهل',n:'Q02',
+   q:'إذا كانت n = 5، ما هي N (عدد الأوراق) وما هو الحجم الكلي لمصفوفة seg؟',
+   a:'N هي أقرب قوة للعدد 2 لا تقل عن 5، وهي N = 8. حجم مصفوفة seg = 2 × 8 = 16. عدد العقد الفعلية = 2×8 - 1 = 15 (الموضع 0 لا يُستخدم).',c:null},
+  {d:'easy',b:'سهل',n:'Q03',
+   q:'في دالة الاستعلام، ما هي القيمة التي يجب إرجاعها عند اللاتقاطع إذا كانت عملية الدمج هي min؟ ولماذا؟',
+   a:'يجب إرجاع INT_MAX. السبب: عند دمج النتيجتين بـ min، يكون min(x, INT_MAX) = x لأي قيمة x، إذن اللاتقاطع لا يُؤثر على النتيجة النهائية.',c:null},
+  {d:'easy',b:'سهل',n:'Q04',
+   q:'لماذا نبني العقد الداخلية بترتيب عكسي (من N-1 إلى 1) وليس بترتيب أمامي (من 1 إلى N-1)؟',
+   a:'لأن كل عقدة داخلية i تعتمد على طفليها (i*2) و(i*2+1). بالترتيب العكسي، عند معالجة العقدة i تكون طفلاها مبنيّتان بالفعل (لأن رقمهما أكبر). أما بالترتيب الأمامي فقد نعالج عقدة قبل أن تُبنى أبناؤها.',c:null},
+  {d:'easy',b:'سهل',n:'Q05',
+   q:'ما الفرق الجوهري بين Segment Tree وتحليل الجذر التربيعي من حيث التعقيد الزمني للاستعلام والتحديث؟',
+   a:`Segment Tree: استعلام O(log n)، تحديث O(log n).
+تحليل الجذر التربيعي: استعلام O(√n)، تحديث O(√n).
+لـ n = 10⁶: log₂(10⁶) ≈ 20 مقارنةً بـ √10⁶ = 1000.
+Segment Tree أسرع بكثير لكنها أصعب تنفيذاً وأقل مرونة.`,c:null},
+  {d:'mid',b:'متوسط',n:'Q06',
+   q:'عدّل دالة query لتحسب الحد الأقصى بدلاً من المجموع. ما الذي يتغير بالضبط؟',
+   a:'يتغير شيئان: (1) نُرجع INT_MIN عند اللاتقاطع بدلاً من 0. (2) نستبدل عملية الجمع بـ max. كود البناء أيضاً يستبدل الجمع بـ max والقيمة المحايدة بـ INT_MIN.',
+   c:`int query(int id, int l, int r, int ql, int qr) {
+    if (ql > r || l > qr) return INT_MIN; // تغيّر
+    if (ql <= l && r <= qr) return seg[id];
+    int m = (l + r) / 2;
+    return max(query(id*2, l, m, ql, qr),
+               query(id*2+1, m+1, r, ql, qr)); // تغيّر
+}
+// وفي البناء:
+for (int i = n + N; i < 2*N; i++) seg[i] = INT_MIN; // تغيّر
+for (int i = N-1; i > 0; i--) seg[i] = max(seg[i*2], seg[i*2+1]); // تغيّر`},
+  {d:'mid',b:'متوسط',n:'Q07',
+   q:'ما العقد التي ستُزار عند الاستعلام عن النطاق [2, 3] في مصفوفة [2, 4, 6, 8] مع N = 4؟',
+   a:`نبدأ من الجذر (id=1، [1-4]):
+• id=1 [1-4]: تقاطع جزئي → تقسيم
+• id=2 [1-2]: تقاطع جزئي → تقسيم
+  • id=4 [1-1]: لا تقاطع → INT_MIN (أو 0)
+  • id=5 [2-2]: تغطية كاملة → 4 ✓
+• id=3 [3-4]: تقاطع جزئي → تقسيم
+  • id=6 [3-3]: تغطية كاملة → 6 ✓
+  • id=7 [4-4]: لا تقاطع → 0
+
+الجواب = max(0, 4, 6, 0) = 6 (أو sum = 10).`,c:null},
+  {d:'mid',b:'متوسط',n:'Q08',
+   q:'كيف تُعدّل شجرة القطاعات لدعم استعلام عدد الأصفار في نطاق [l, r]؟',
+   a:'نُخزّن في كل عقدة عدد الأصفار في النطاق الذي تغطيه. الأوراق: 1 إذا كان العنصر = 0، وإلا 0. العقد الداخلية: مجموع الطفلين. القيمة المحايدة = 0. دالة الدمج = الجمع. بهذا يصبح الاستعلام O(log n).',
+   c:`// البناء
+for (int i = 0; i < n; i++) seg[i + N] = (a[i] == 0) ? 1 : 0;
+for (int i = n + N; i < 2*N; i++) seg[i] = 0;
+for (int i = N-1; i > 0; i--) seg[i] = seg[i*2] + seg[i*2+1];
+
+// الاستعلام — نفس دالة المجموع
+int queryZeros(int id, int l, int r, int ql, int qr) {
+    if (ql > r || l > qr) return 0;
+    if (ql <= l && r <= qr) return seg[id];
+    int m = (l+r)/2;
+    return queryZeros(id*2,l,m,ql,qr) + queryZeros(id*2+1,m+1,r,ql,qr);
+}`},
+  {d:'mid',b:'متوسط',n:'Q09',
+   q:'كيف تُعدّل pointUpdate لتتعامل مع المصفوفة المُرقّمة ابتداءً من 0 بدلاً من 1؟',
+   a:`إذا كانت المصفوفة مُرقّمة من 0، يكون موضع الورقة للعنصر a[j] هو j + N (بدلاً من j + N - 1). يجب الانتباه إلى التناسق: عند بناء الشجرة نضع seg[i + N] = a[i] (من 0 إلى n-1)، وعند التحديث idx = j + N.`,
+   c:`void pointUpdate(int j, int v) { // j من 0
+    a[j] = v;
+    int idx = j + N; // لا نطرح 1 هنا لأن j يبدأ من 0
+    seg[idx] = v;
+    for (int i = idx/2; i > 0; i /= 2)
+        seg[i] = seg[i*2] + seg[i*2+1];
+}`},
+  {d:'mid',b:'متوسط',n:'Q10',
+   q:'ما هو الفرق في طريقة التعامل مع الاستعلام عند ترقيم العناصر من 1 مقارنةً بالترقيم من 0؟',
+   a:`عند الترقيم من 1: الاستعلام يُستدعى بـ query(1, 1, N, ql, qr).
+عند الترقيم من 0: الاستعلام يُستدعى بـ query(1, 0, N-1, ql, qr).
+الفرق في الحدود l و r للجذر: تبدأ من 1 أو 0 بحسب الاصطلاح المُتبَع. الكود الداخلي للدالة لا يتغير.`,c:null},
+  {d:'hard',b:'صعب',n:'Q11',
+   q:'نفّذ Lazy Propagation لدعم تحديث نطاق (أضف v لجميع عناصر [l, r]) مع استعلام مجموع النطاق.',
+   a:`Lazy Propagation تُؤجّل التحديثات: بدلاً من تحديث كل عنصر في النطاق، نُخزّن التحديث في مصفوفة lazy. عند الاستعلام أو التحديث العميق، ندفع (push down) التحديث للأبناء قبل النزول.`,
+   c:`int seg[4*MAXN], lazy[4*MAXN]; // 4*n كافٍ للشجرة التقليدية
+
+void pushDown(int id, int l, int r) {
+    if (lazy[id] != 0) {
+        int m = (l+r)/2;
+        seg[id*2]   += lazy[id] * (m - l + 1);
+        seg[id*2+1] += lazy[id] * (r - m);
+        lazy[id*2]   += lazy[id];
+        lazy[id*2+1] += lazy[id];
+        lazy[id] = 0;
+    }
+}
+
+void rangeAdd(int id, int l, int r, int ql, int qr, int v) {
+    if (ql > r || l > qr) return;
+    if (ql <= l && r <= qr) {
+        seg[id]  += v * (r - l + 1);
+        lazy[id] += v;
+        return;
+    }
+    pushDown(id, l, r);
+    int m = (l+r)/2;
+    rangeAdd(id*2,   l, m,   ql, qr, v);
+    rangeAdd(id*2+1, m+1, r, ql, qr, v);
+    seg[id] = seg[id*2] + seg[id*2+1];
+}`},
+  {d:'hard',b:'صعب',n:'Q12',
+   q:'كيف تبني Segment Tree للـ GCD (القاسم المشترك الأكبر) للنطاقات؟ وما خاصية الدمج التي تجعل ذلك ممكناً؟',
+   a:`الخاصية المهمة: GCD تمتلك خاصية الترابطية (associativity): gcd(a, gcd(b, c)) = gcd(gcd(a, b), c). إذن يمكن تعريف دالة الدمج بـ gcd. القيمة المحايدة = 0 (لأن gcd(x, 0) = x). بناء الشجرة وعمليات الاستعلام والتحديث مطابقة للمجموع مع استبدال + بـ gcd.`,
+   c:`#include <algorithm>
+using namespace std;
+
+// نفس كود Segment Tree مع استبدال عملية الدمج
+for (int i = N-1; i > 0; i--)
+    seg[i] = __gcd(seg[i*2], seg[i*2+1]);
+
+int query(int id, int l, int r, int ql, int qr) {
+    if (ql > r || l > qr) return 0; // gcd(x,0) = x — القيمة المحايدة
+    if (ql <= l && r <= qr) return seg[id];
+    int m = (l+r)/2;
+    return __gcd(query(id*2,l,m,ql,qr), query(id*2+1,m+1,r,ql,qr));
+}`},
+  {d:'hard',b:'صعب',n:'Q13',
+   q:'اشرح كيف تُنفّذ Segment Tree تدعم استعلام "عدد العناصر الموجبة في [l, r]" مع تحديث نطاق "اضرب جميع عناصر [l, r] في -1".',
+   a:`لكل عقدة نخزّن عدد الموجبات (pos) والسالبات (neg) في نطاقها. عند الضرب في -1: تتبادل pos و neg في العقدة. مع Lazy Propagation: نُخزّن في lazy علامةً تُعبّر عن عدد مرات الضرب في -1 (mod 2). عند push down: إذا lazy = 1، نُبدّل pos و neg في الأبناء.`,
+   c:`struct Node { int pos, neg; };
+Node seg[4*MAXN];
+bool lazy[4*MAXN]; // هل نُطبّق flip؟
+
+void flip(int id) { swap(seg[id].pos, seg[id].neg); lazy[id] ^= 1; }
+
+void pushDown(int id) {
+    if (lazy[id]) { flip(id*2); flip(id*2+1); lazy[id] = 0; }
+}
+
+void rangeFlip(int id,int l,int r,int ql,int qr) {
+    if (ql>r||l>qr) return;
+    if (ql<=l&&r<=qr) { flip(id); return; }
+    pushDown(id);
+    int m=(l+r)/2;
+    rangeFlip(id*2,l,m,ql,qr);
+    rangeFlip(id*2+1,m+1,r,ql,qr);
+    seg[id]={seg[id*2].pos+seg[id*2+1].pos, seg[id*2].neg+seg[id*2+1].neg};
+}`},
+  {d:'hard',b:'صعب',n:'Q14',
+   q:'ما هو Merge Sort Tree؟ وكيف يُجيب عن استعلام "كم عنصراً في [l, r] أصغر من x؟" بكفاءة؟',
+   a:`Merge Sort Tree هي شجرة قطاعات حيث كل عقدة تُخزّن عناصر نطاقها في مصفوفة مرتّبة. بناؤها O(n log n) ذاكرةً وزمناً. للاستعلام "عدد العناصر < x في [l, r]": نزور O(log n) عقدة وفي كل عقدة نُطبّق Binary Search O(log n)، فالتعقيد الكلي O(log² n). لا تدعم التحديث بكفاءة — هي هيكل static.`,
+   c:`vector<int> seg_msort[4*MAXN];
+
+void build(int id, int l, int r) {
+    if (l == r) { seg_msort[id] = {a[l]}; return; }
+    int m = (l+r)/2;
+    build(id*2, l, m);
+    build(id*2+1, m+1, r);
+    merge(seg_msort[id*2].begin(), seg_msort[id*2].end(),
+          seg_msort[id*2+1].begin(), seg_msort[id*2+1].end(),
+          back_inserter(seg_msort[id]));
+}
+
+int countLess(int id, int l, int r, int ql, int qr, int x) {
+    if (ql > r || l > qr) return 0;
+    if (ql <= l && r <= qr)
+        return (int)(lower_bound(seg_msort[id].begin(), seg_msort[id].end(), x)
+                   - seg_msort[id].begin());
+    int m = (l+r)/2;
+    return countLess(id*2,l,m,ql,qr,x) + countLess(id*2+1,m+1,r,ql,qr,x);
+}`},
+  {d:'hard',b:'صعب',n:'Q15',
+   q:'كيف تُنفّذ استعلام "أوجد أكبر مجموع مصفوفة جزئية متجاورة في النطاق [l, r]" باستخدام Segment Tree؟ (مسألة Maximum Subarray)',
+   a:`كل عقدة تُخزّن 4 قيم: (1) total: مجموع النطاق كاملاً. (2) prefix: أكبر مجموع بادئة. (3) suffix: أكبر مجموع لاحقة. (4) best: أفضل مجموع جزئي. عند دمج عقدتين (L, R): best = max(L.best, R.best, L.suffix + R.prefix). هذا يُتيح الاستعلام عن أي نطاق في O(log n).`,
+   c:`struct Node {
+    long long total, prefix, suffix, best;
+};
+
+Node combine(Node L, Node R) {
+    Node res;
+    res.total  = L.total + R.total;
+    res.prefix = max(L.prefix, L.total + R.prefix);
+    res.suffix = max(R.suffix, R.total + L.suffix);
+    res.best   = max({L.best, R.best, L.suffix + R.prefix});
+    return res;
+}
+
+// بناء الأوراق:
+// seg[id] = {a[i], a[i], a[i], a[i]}
+// إذا كان a[i] سالباً:
+// seg[id] = {a[i], a[i], a[i], a[i]} أيضاً — المصفوفة الجزئية تحتوي عنصراً واحداً`}
+];
+
+function buildQ(){
+  const c=document.getElementById('q-list');
+  QS.forEach(q=>{
+    const card=document.createElement('div'); card.className=`q-card ${q.d}`;
+    card.innerHTML=`<div class="q-head" onclick="this.closest('.q-card').classList.toggle('open')">
+      <span class="q-num">${q.n}</span><span class="q-txt">${q.q}</span>
+      <span class="q-badge">${q.b}</span><span class="q-arrow">▼</span></div>
+    <div class="q-body"><div class="q-inner">
+      <p><strong style="color:var(--accent)">الإجابة:</strong></p>
+      <p>${q.a.replace(/\n/g,'<br>')}</p>
+      ${q.c?`<div class="code-block"><div class="code-top"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)">نسخ</button></div><pre dir="ltr" style="text-align:left">${q.c.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre></div>`:''}
+    </div></div>`;
+    c.appendChild(card);
+  });
+}
+
+document.addEventListener('DOMContentLoaded',()=>{ buildQ(); buildTree(); });
+</script>
+</body>
+</html>
