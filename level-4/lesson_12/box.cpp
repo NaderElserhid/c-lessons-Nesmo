@@ -1,0 +1,33 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int findSmallestMultiplier(int n){
+    int multiplier = 1;
+
+    int count= 0 ;
+    while(n % 2 == 0) {
+        count ++;
+        n/=2;
+    }
+    if(count % 2 !=0)
+      multiplier*= 2;
+
+      for(int i = 3; i * i <= n; i += 2){
+        count = 0;
+        while (n % i == 0) { count++; n /= i; }
+        if (count % 2 != 0) multiplier *= i;
+
+      }
+       if (n > 2) multiplier *= n;
+
+       return multiplier;
+}
+
+int main() {
+    int  n ;
+    cin >> n;
+
+     cout << findSmallestMultiplier(n) << "\n";
+
+    return 0;
+}
