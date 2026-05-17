@@ -10,6 +10,7 @@ void dfs(int v, int p) {
     for(int to : g[v]) {
         if(to == p) continue;
         depth[to] = depth[v] + 1;
+        cout << to << " = "  << depth[to] <<"\n";
         dfs(to, v);
     }
 }
@@ -41,6 +42,7 @@ int main() {
         dfs(0, -1);
         dfs_sub(0, -1);
     }
+
 
     for(int node : sub) {
         cout << node << " ";

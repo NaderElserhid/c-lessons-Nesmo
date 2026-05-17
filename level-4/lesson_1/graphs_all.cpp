@@ -5,7 +5,7 @@ using namespace std;
 const int maxN = 1'000;   // صغير بسبب O(N²) للذاكرة
 const int maxM = 200'000; // +1 لأن الـ Vertices غالبًا تبدأ من 1
 
-int  G[maxN + 1][maxN + 1];
+bool  G[maxN + 1][maxN + 1];
 
 int main() {
     // تسريع عمليات الإدخال والإخراج
@@ -16,11 +16,11 @@ int main() {
     cin >> n >> m;
 
     for (int i = 0; i < m; i++) {
-        int u, v , w;
-        cin >> u >> v , w;
+        int u, v ;
+        cin >> u >> v ;
 
-        G[u][v] = w;
-        G[v][u] = w; // إذا undirected
+        G[u][v] = true;
+        G[v][u] = true; // إذا undirected
     }
 
     return 0;

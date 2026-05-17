@@ -68,5 +68,6 @@ int main() {
     int result = queryMax(l, r);
     cout << result << endl;
 
+
     return 0;
 }
