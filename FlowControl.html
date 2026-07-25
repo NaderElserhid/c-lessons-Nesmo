@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | العبارات والتحكم في المسار</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15);
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .title-section { text-align: center; margin-bottom: 50px; }
+        .title-section h1 { font-size: 2.4rem; font-weight: 800; margin-bottom: 5px; }
+        .attribution { color: var(--primary-blue); font-size: 1.2rem; font-weight: 600; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        /* Code blocks */
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 20px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        .copy-btn { color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+        pre { padding: 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.95rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        /* interactive line */
+        .code-line { cursor: pointer; display: block; border-radius: 6px; padding: 2px 6px; margin: 0 -6px; transition: 0.2s; position: relative; }
+        .code-line:hover { background: rgba(0, 173, 239, 0.15); }
+        .code-line.active { background: rgba(247, 148, 30, 0.25); outline: 1px dashed var(--primary-yellow); }
+        .step-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: var(--primary-yellow); color: white; width: 20px; height: 20px;
+            border-radius: 50%; font-size: 0.7rem; font-weight: 800; margin-left: 10px;
+        }
+
+        .explain-box {
+            margin-top: 18px; background: var(--bg-main); border: 2px dashed #cbd5e1;
+            border-radius: 16px; padding: 18px 22px; font-weight: 600; color: var(--dark-navy);
+            min-height: 30px; transition: 0.2s;
+        }
+        .explain-box .hint { color: #94a3b8; font-weight: 500; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 16px 22px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        /* Step items */
+        .step-item {
+            display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px;
+            padding: 20px; background: #fff; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .step-number {
+            background: var(--yellow-gradient); color: white; width: 32px; height: 32px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 800; flex-shrink: 0;
+        }
+        .step-item h4 { margin: 0 0 6px 0; font-size: 1.02rem; color: var(--dark-navy); }
+        .step-item p { margin: 0; font-size: 0.92rem; }
+        .soon-badge { background: #e0f2fe; color: var(--primary-blue); font-size: 0.7rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; margin-right: 8px; }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        /* compound statement visualizer */
+        .visualizer { background: var(--bg-main); border: 3px dashed #cbd5e1; border-radius: 20px; padding: 35px; text-align: center; margin-top: 15px; transition: 0.4s; }
+        .visualizer.grouped { border-color: var(--primary-blue); background: rgba(0,173,239,0.05); }
+        .stmt-box {
+            display: inline-block; background: white; border: 2px solid #e2e8f0; border-radius: 12px;
+            padding: 12px 20px; margin: 8px; font-family: 'Consolas', monospace; font-size: 0.9rem;
+            direction: ltr; color: var(--dark-navy); transition: 0.4s; box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+        }
+        .stmt-wrap { transition: 0.4s; padding: 10px; border-radius: 16px; }
+        .stmt-wrap.grouped { border: 3px solid var(--primary-blue); background: white; padding: 20px 10px 10px 10px; position: relative; }
+        .block-label {
+            display: none; background: var(--blue-gradient); color: white; font-size: 0.75rem; font-weight: 800;
+            padding: 4px 14px; border-radius: 20px; position: absolute; top: -14px; right: 50%; transform: translateX(50%);
+        }
+        .stmt-wrap.grouped .block-label { display: inline-block; }
+        .viz-btn { background: var(--yellow-gradient); color: white; border: none; padding: 12px 28px; border-radius: 16px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.9rem; margin-top: 20px; }
+        .viz-btn.alt { background: var(--blue-gradient); }
+        .viz-note { margin-top: 16px; font-size: 0.85rem; color: var(--text-body); min-height: 20px; font-weight: 600; }
+
+        /* glossary */
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        /* quiz */
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الأول — C++</span>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="title-section">
+            <h1>العبارات والتحكم في المسار</h1>
+            <p class="attribution">هذا الشرح مقدم من منصة تويت كود</p>
+        </div>
+
+        <!-- Simple statement -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-grip-lines"></i>
+                <h3>التعليمة البسيطة (Simple Statement)</h3>
+            </div>
+            <p>التعليمة (statement) البسيطة في C++ هي واحدة من الأوامر الفردية في البرنامج — مثل تعريف متغير أو تعبير حسابي (expression). كل تعليمة بسيطة تنتهي بفاصلة منقوطة <code class="inline">;</code>، وتُنفَّذ بالترتيب الذي تظهر به في الكود، من الأعلى إلى الأسفل.</p>
+
+            <div class="code-box">
+                <div class="code-head">
+                    <span>simple_statements.cpp</span>
+                    <button class="copy-btn" onclick="copyCode('mainCode')">نسخ الكود</button>
+                </div>
+                <pre id="mainCode"><span class="code-line" data-explain="0">int x = 5;</span>
+<span class="code-line" data-explain="1">x = x + 2;</span>
+<span class="code-line" data-explain="2">cout &lt;&lt; x;</span></pre>
+            </div>
+            <p style="margin-top: -5px; font-size: 0.9rem;"><i class="fas fa-hand-pointer" style="color: var(--primary-blue);"></i> اضغط على كل سطر لترى ترتيب تنفيذه:</p>
+            <div class="explain-box" id="explainBox"><span class="hint">اضغط على سطر من الكود لعرض شرحه هنا...</span></div>
+            <p style="margin-top: 20px;">الناتج:</p>
+            <div class="output-box">7</div>
+
+            <p style="margin-top: 20px; font-size: 0.9rem;"><strong>مثال إضافي</strong> — نفس الفكرة بسياق مختلف (تسجيل نقاط لاعب):</p>
+            <div class="code-box">
+                <div class="code-head"><span>score_example.cpp</span></div>
+                <pre>int score = 0;
+score = score + 10;
+cout &lt;&lt; "Score: " &lt;&lt; score;</pre>
+            </div>
+            <p style="font-size: 0.9rem;">الناتج:</p>
+            <div class="output-box">Score: 10</div>
+            <p style="font-size: 0.88rem;">في كلا المثالين، كل سطر هو تعليمة بسيطة تنتهي بـ <code class="inline">;</code> ويتم تنفيذها بالتسلسل من الأعلى إلى الأسفل دون أي تفرّع أو تكرار.</p>
+        </div>
+
+        <!-- Beyond linear execution -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-route"></i>
+                <h3>ما بعد التنفيذ الخطي</h3>
+            </div>
+            <p>البرامج لا تقتصر على تسلسل خطي من التعليمات فقط. في الواقع، قد يقوم البرنامج بـ:</p>
+            <div class="step-item">
+                <div class="step-number">1</div>
+                <div><h4>تكرار جزء معيّن من الكود</h4><p>باستخدام حلقات التكرار (loops) لتنفيذ نفس التعليمات عدة مرات دون إعادة كتابتها.</p></div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">2</div>
+                <div><h4>اتخاذ قرارات لتنفيذ مسار مختلف</h4><p>باستخدام الشروط (conditionals) لتنفيذ جزء معيّن من الكود فقط عند تحقق شرط ما.</p></div>
+            </div>
+            <p>لتحقيق ذلك، توفّر C++ <strong>عبارات التحكم في المسار (flow control)</strong> — أدوات تخبر البرنامج: ماذا يفعل، ومتى يفعله، وتحت أي شروط. سنتعرّف على كل أداة منها بالتفصيل في الدروس القادمة:</p>
+
+            <div class="step-item"><div class="step-number"><i class="fas fa-code-branch" style="font-size:0.9rem;"></i></div><div><h4><span class="soon-badge">قريباً</span>if / else</h4><p>تفرّع شرطي — تنفيذ جزء من الكود فقط إذا تحقق شرط معيّن.</p></div></div>
+            <div class="step-item"><div class="step-number"><i class="fas fa-list" style="font-size:0.9rem;"></i></div><div><h4><span class="soon-badge">قريباً</span>switch</h4><p>اختيار مسار من بين عدّة حالات محتملة بشكل أوضح من سلسلة طويلة من if.</p></div></div>
+            <div class="step-item"><div class="step-number"><i class="fas fa-rotate" style="font-size:0.9rem;"></i></div><div><h4><span class="soon-badge">قريباً</span>while، for، وdo-while</h4><p>حلقات تكرار — تنفيذ نفس مجموعة التعليمات عدة مرات طالما تحقق شرط معيّن.</p></div></div>
+        </div>
+
+        <!-- Compound statements -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-layer-group"></i>
+                <h3>العبارات المركّبة (Compound Statements)</h3>
+            </div>
+            <p>العبارة المركّبة هي مجموعة من التعليمات محصورة بين أقواس معقوفة <code class="inline">{ }</code>، وتُعامَل هذه المجموعة كأنها <strong>كتلة واحدة (block)</strong>. تبدو العبارة المركّبة بهذا الشكل:</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>compound_syntax.cpp</span></div>
+                <pre>{
+    statement1;
+    statement2;
+    statement3;
+}</pre>
+            </div>
+            <p>كل تعليمة داخل الكتلة تنتهي بفاصلة منقوطة خاصة بها، بينما تُعتبر الكتلة كاملة بمثابة <strong>تعليمة واحدة</strong> في سياق التحكم في المسار — وهذا بالضبط ما يسمح لاحقاً بوضع عدة تعليمات داخل جسم if أو while واحد.</p>
+
+            <p style="margin-top: 20px; font-size: 0.9rem;"><strong>مثال إضافي واقعي:</strong></p>
+            <div class="code-box">
+                <div class="code-head"><span>compound_example.cpp</span></div>
+                <pre>{
+    int temp = 5;
+    temp = temp * 2;
+    cout &lt;&lt; temp;
+}</pre>
+            </div>
+            <p style="font-size: 0.88rem;">هذه الكتلة الكاملة (بتعليماتها الثلاث) ستكون لاحقاً — مثلاً — جسم عبارة <code class="inline">if</code> واحدة، تُنفَّذ بأكملها معاً أو لا تُنفَّذ إطلاقاً حسب تحقق الشرط.</p>
+
+            <p style="margin-top: 25px; font-size: 0.9rem;"><i class="fas fa-flask" style="color: var(--primary-yellow);"></i> جرّب بنفسك الفكرة بصرياً — شاهد كيف تتحول 3 تعليمات منفصلة إلى كتلة واحدة:</p>
+            <div class="visualizer" id="viz">
+                <div class="stmt-wrap" id="stmtWrap">
+                    <span class="block-label">{ كتلة واحدة (Block) }</span>
+                    <div class="stmt-box">int temp = 5;</div>
+                    <div class="stmt-box">temp = temp * 2;</div>
+                    <div class="stmt-box">cout &lt;&lt; temp;</div>
+                </div>
+                <div>
+                    <button class="viz-btn" onclick="groupStatements()"><i class="fas fa-object-group"></i> اجمعهم داخل { }</button>
+                    <button class="viz-btn alt" onclick="ungroupStatements()"><i class="fas fa-object-ungroup"></i> فكّ التجميع</button>
+                </div>
+                <div class="viz-note" id="vizNote">حالياً: 3 تعليمات منفصلة، كل واحدة تُحسب بمفردها.</div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>تحقق من فهمك</h3>
+            </div>
+
+            <div class="quiz-q" id="q1">
+                <h4>١. بماذا تنتهي كل تعليمة بسيطة في C++؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, true)">فاصلة منقوطة ;</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">قوس معقوف }</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">نقطتان رأسيتان :</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q2">
+                <h4>٢. بأي ترتيب تُنفَّذ التعليمات البسيطة المتتالية افتراضياً؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, true)">بالترتيب الذي تظهر به، من الأعلى إلى الأسفل</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">بترتيب عشوائي في كل مرة يُشغَّل فيها البرنامج</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">من الأسفل إلى الأعلى دائماً</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q3">
+                <h4>٣. ما المقصود بالعبارة المركّبة (Compound Statement)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, true)">مجموعة تعليمات محصورة بين { } تُعامَل ككتلة واحدة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">تعليمة واحدة تحتوي على أكثر من فاصلة منقوطة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">نوع خاص من أنواع المتغيرات</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q4">
+                <h4>٤. أي مما يلي ليس أداة من أدوات التحكم في المسار (Flow control)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">if</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, true)">cout</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">while</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>قاموس المصطلحات</h3>
+            </div>
+            <p>أهم المصطلحات الإنجليزية في هذا الدرس مع مرادفها العربي:</p>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Statement</span><span class="term-ar">تعليمة</span><p class="term-desc">أمر مفرد في البرنامج، مثل تعريف متغير أو طباعة قيمة.</p></div>
+                <div class="term-card"><span class="term-en">Expression</span><span class="term-ar">تعبير</span><p class="term-desc">مزيج من القيم والعوامل ينتج قيمة واحدة، مثل x + 2.</p></div>
+                <div class="term-card"><span class="term-en">Sequential execution</span><span class="term-ar">تنفيذ تسلسلي (خطي)</span><p class="term-desc">تنفيذ التعليمات بالترتيب الذي كُتبت به، من الأعلى إلى الأسفل.</p></div>
+                <div class="term-card"><span class="term-en">Flow control</span><span class="term-ar">التحكم في المسار</span><p class="term-desc">أدوات تُغيّر مسار تنفيذ البرنامج عبر التكرار أو الشروط بدل التسلسل الخطي فقط.</p></div>
+                <div class="term-card"><span class="term-en">Conditional</span><span class="term-ar">شرطي</span><p class="term-desc">تعليمة تُنفَّذ فقط إذا تحقق شرط معيّن، مثل if.</p></div>
+                <div class="term-card"><span class="term-en">Loop</span><span class="term-ar">حلقة تكرارية</span><p class="term-desc">أداة تُكرر تنفيذ مجموعة تعليمات عدة مرات، مثل while وfor.</p></div>
+                <div class="term-card"><span class="term-en">Compound statement</span><span class="term-ar">عبارة مركّبة</span><p class="term-desc">مجموعة تعليمات محصورة بين { } تُعامَل ككتلة واحدة.</p></div>
+                <div class="term-card"><span class="term-en">Block</span><span class="term-ar">كتلة</span><p class="term-desc">اسم آخر للعبارة المركّبة؛ وحدة تجميع للتعليمات بين قوسين معقوفين.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الأول: لغة C++ للأولمبياد</footer>
+
+    <script>
+        const explanations = {
+            0: '<strong>int x = 5;</strong> — التعليمة الأولى: تعريف متغير x وإعطاؤه القيمة 5. <span class="step-badge">1</span>',
+            1: '<strong>x = x + 2;</strong> — التعليمة الثانية: تُنفَّذ بعد الأولى مباشرة، فتصبح قيمة x تساوي 7. <span class="step-badge">2</span>',
+            2: '<strong>cout &lt;&lt; x;</strong> — التعليمة الثالثة والأخيرة: تُنفَّذ بعد الاثنتين السابقتين، فتطبع القيمة الحالية لـ x وهي 7. <span class="step-badge">3</span>'
+        };
+
+        document.querySelectorAll('.code-line').forEach(line => {
+            line.addEventListener('click', function () {
+                document.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+                const key = this.getAttribute('data-explain');
+                document.getElementById('explainBox').innerHTML = explanations[key];
+            });
+        });
+
+        function copyCode(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(() => alert('تم نسخ الكود!'));
+        }
+
+        function groupStatements() {
+            document.getElementById('stmtWrap').classList.add('grouped');
+            document.getElementById('viz').classList.add('grouped');
+            document.getElementById('vizNote').innerHTML = 'الآن: التعليمات الثلاث أصبحت <strong>كتلة واحدة { }</strong> — أي أداة تحكم بالمسار (كـ if لاحقاً) ستعاملها كوحدة واحدة، تُنفَّذ كلها معاً أو لا تُنفَّذ إطلاقاً.';
+        }
+        function ungroupStatements() {
+            document.getElementById('stmtWrap').classList.remove('grouped');
+            document.getElementById('viz').classList.remove('grouped');
+            document.getElementById('vizNote').innerHTML = 'حالياً: 3 تعليمات منفصلة، كل واحدة تُحسب بمفردها.';
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة! أحسنت.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة غير صحيحة، حاول مرة أخرى في المرة القادمة.</span>';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,50 +1,59 @@
-#include <iostream>
-#include <vector>
-
+#include <bits/stdc++.h>
 using namespace std;
 
-// تعريف الثوابت للحدود القصوى (القيود)
-const int maxN = 100'000;
-const int maxM = 200'000;
+const int MAX = 10005;
 
-// استخدام +1 لأن الـ Vertices في المسائل غالبًا تبدأ من 1 (1-based indexing)
-vector<int> adj[maxN + 1];
+int n, m;
+vector<int> r[MAX];
+bool vis[MAX];
 
-int main() {
-    // تسريع عمليات الإدخال والإخراج (مهم جداً في المسابقات)
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
+void dfs(int u)
+{
+    vis[u] = true;
 
-    int n, m;
+    for (int v : r[u])
+    {
+        if (!vis[v])
+            dfs(v);
+    }
+}
+
+int main()
+{
     cin >> n >> m;
 
-    // قراءة الحواف (Edges)
-    for (int i = 0; i < m; i++) {
+    for (int i = 0; i < m; i++)
+    {
         int u, v;
         cin >> u >> v;
 
-        adj[u].push_back(v); // أضف v إلى قائمة جيران u
-
-        // إذا كان الرسم البياني غير موجه (Undirected)، نلغي التعليق عن السطر التالي:
-        adj[v].push_back(u); // أضف u إلى قائمة جيران v
+        r[u].push_back(v);
     }
+
+    cout << "Adjacency List:\n";
+
+    for (int i = 0; i < n; i++)
+    {
+        cout << i << " : ";
+
+        for (int x : r[i])
+            cout << x << " ";
+
+        cout << '\n';
+    }
+
+    // مثال: زيارة جميع العقد التي يمكن الوصول إليها من العقدة 0
+    dfs(0);
+
+    cout << "\nVisited Nodes:\n";
+
+    for (int i = 0; i < n; i++)
+    {
+        if (vis[i])
+            cout << i << " ";
+    }
+
+    cout << endl;
 
     return 0;
 }
-
-/*
-======================================================
-💡 ملحق: كيفية التعديل للـ Weighted Graphs (الرسوم ذات الأوزان)
-======================================================
-نستخدم std::pair لتخزين (الجار، الوزن) معاً في الـ vector:
-
-#include <utility>
-vector<pair<int, int>> adj_weighted[maxN + 1];
-
-// طريقة الإدخال داخل حلقة for:
-// int u, v, w;
-// cin >> u >> v >> w;
-// adj_weighted[u].push_back({v, w});
-// adj_weighted[v].push_back({u, w}); // للرسم غير الموجه
-======================================================
-*/

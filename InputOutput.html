@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | الإدخال والإخراج</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15);
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .title-section { text-align: center; margin-bottom: 50px; }
+        .title-section h1 { font-size: 2.6rem; font-weight: 800; margin-bottom: 5px; }
+        .attribution { color: var(--primary-blue); font-size: 1.2rem; font-weight: 600; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        /* Code blocks */
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 20px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        .copy-btn { color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+        pre { padding: 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.95rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .note-inline { font-size: 0.88rem; margin-top: -6px; }
+
+        /* interactive line */
+        .code-line { cursor: pointer; display: block; border-radius: 6px; padding: 2px 6px; margin: 0 -6px; transition: 0.2s; }
+        .code-line:hover { background: rgba(0, 173, 239, 0.15); }
+        .code-line.active { background: rgba(247, 148, 30, 0.25); outline: 1px dashed var(--primary-yellow); }
+
+        .explain-box {
+            margin-top: 18px; background: var(--bg-main); border: 2px dashed #cbd5e1;
+            border-radius: 16px; padding: 18px 22px; font-weight: 600; color: var(--dark-navy);
+            min-height: 30px; transition: 0.2s;
+        }
+        .explain-box .hint { color: #94a3b8; font-weight: 500; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 16px 22px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+        .output-box.wrong { color: #f87171; }
+
+        /* Step items */
+        .step-item {
+            display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px;
+            padding: 20px; background: #fff; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .step-number {
+            background: var(--yellow-gradient); color: white; width: 32px; height: 32px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 800; flex-shrink: 0;
+        }
+        .step-item h4 { margin: 0 0 6px 0; font-size: 1.02rem; color: var(--dark-navy); }
+        .step-item p { margin: 0; font-size: 0.92rem; }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.07); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #dc2626; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .important-box {
+            background: rgba(0, 173, 239, 0.07); border: 2px dashed var(--primary-blue);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .important-box i { color: var(--primary-blue); font-size: 1.4rem; margin-top: 2px; }
+        .important-box p { margin: 0; font-size: 0.9rem; }
+
+        /* Exercise box */
+        .exercise-box {
+            background: white; border: 3px dashed var(--primary-yellow); border-radius: 22px; padding: 32px;
+        }
+        .exercise-box h4 { margin: 0 0 14px 0; color: var(--dark-navy); font-size: 1.1rem; }
+        .exercise-box ol { padding-right: 20px; margin: 0; }
+        .exercise-box li { margin-bottom: 8px; font-size: 0.94rem; color: var(--text-body); }
+        .expected-output {
+            background: #0f172a; color: #facc15; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 12px; margin-top: 14px; direction: ltr; text-align: left; font-size: 0.9rem;
+        }
+        .reveal-btn {
+            background: var(--blue-gradient); color: white; border: none; padding: 13px 30px;
+            border-radius: 16px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.9rem; margin-top: 20px;
+        }
+        .solution-panel { display: none; margin-top: 20px; }
+        .solution-panel.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* glossary */
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        /* quiz */
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الأول — C++</span>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="title-section">
+            <h1>الإدخال والإخراج</h1>
+            <p class="attribution">هذا الشرح مقدم من منصة تويت كود</p>
+        </div>
+
+        <!-- Intro -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-terminal"></i>
+                <h3>الطرفية (Terminal)</h3>
+            </div>
+            <p>عند تشغيل المستخدم لبرنامج ما، تظهر له شاشة تُسمّى <strong>الطرفية (terminal)</strong>. من خلال هذه الشاشة يمكن للبرنامج عرض المعلومات أو استقبالها من المستخدم. نُطلق على عملية عرض المعلومات اسم <strong>الإخراج (output)</strong>، وعلى عملية استقبال المعلومات من المستخدم اسم <strong>الإدخال (input)</strong>.</p>
+        </div>
+
+        <!-- Streams -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-water"></i>
+                <h3>التيارات (Streams)</h3>
+            </div>
+            <p>يُنفَّذ الإدخال والإخراج في لغة C++ من خلال ما يُسمّى <strong>التيارات (streams)</strong>. التيار هو نوع بيانات (datatype) يمكنه استقبال البيانات أو إرسالها (أو كليهما). التياران الرئيسيان المستخدمان في C++ هما <code class="inline">cin</code> للإدخال و<code class="inline">cout</code> للإخراج.</p>
+            <p>للتعامل مع التيارات، نستخدم العاملين <code class="inline">&lt;&lt;</code> و<code class="inline">&gt;&gt;</code>:</p>
+            <div class="code-box">
+                <div class="code-head"><span>streams_syntax.cpp</span></div>
+                <pre>stream &lt;&lt; variable; <span class="cmt">// تُغذي قيمة المتغير إلى التيار</span>
+stream &gt;&gt; variable; <span class="cmt">// تأخذ البيانات من التيار وتخزنها في المتغير</span></pre>
+            </div>
+            <p style="font-size: 0.9rem;">في الحالة الأولى، لا يتغير المتغير؛ أما في الحالة الثانية فإن المتغير يحصل على قيمة جديدة.</p>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p><strong>ملحوظة:</strong> يشير مصطلح "Stream" هنا إلى نوع (type)، بينما <code class="inline">cin</code> و<code class="inline">cout</code> هما متغيران من هذا النوع. ولكي نتمكن من استخدامهما، يجب إضافة السطر <code class="inline">#include &lt;iostream&gt;</code> في بداية البرنامج.</p>
+            </div>
+        </div>
+
+        <!-- cout -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-up-right-from-square"></i>
+                <h3>cout</h3>
+            </div>
+            <p>افترض أنك كتبت البرنامج التالي:</p>
+            <div class="code-box">
+                <div class="code-head"><span>hidden_value.cpp</span></div>
+                <pre>int x = 5;
+<span class="cmt">// add 1 if x is divisible by 3 and add 2 otherwise</span>
+int y = x + (x % 3 == 0 ? 1 : 2);</pre>
+            </div>
+            <p>المتغير <code class="inline">y</code> مخزَّن في الذاكرة، ولا توجد طريقة للمستخدم لمعرفة قيمته. إذا أردت أن تُظهر هذه القيمة له، فعليك إخراجها إلى الطرفية:</p>
+            <div class="code-box">
+                <div class="code-head"><span>show_y.cpp</span></div>
+                <pre>cout &lt;&lt; y;</pre>
+            </div>
+            <p style="font-size: 0.9rem;">هذا السطر يطبع قيمة المتغير <code class="inline">y</code> على الطرفية مباشرة. لطباعة نص عادي، نستخدم علامتي تنصيص <code class="inline">"..."</code>:</p>
+            <div class="code-box">
+                <div class="code-head"><span>spacing_bug.cpp</span></div>
+                <pre>cout &lt;&lt; "The value of y is";
+cout &lt;&lt; y;</pre>
+            </div>
+            <p style="font-size: 0.9rem;">النتيجة ستكون:</p>
+            <div class="output-box wrong">The value of y is7</div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>هذا لا يبدو صحيحاً تماماً، والسبب أن C++ لا تفهم ما يبدو مناسباً بصرياً، فهي تنفّذ التعليمات كما هي فقط. وبما أننا لم نحدد وجود مسافة بعد كلمة "is"، لم يُضف البرنامج واحدة تلقائياً.</p>
+            </div>
+            <p style="font-size: 0.9rem;">لذا يجب أن نكتب المسافة صراحة داخل النص:</p>
+            <div class="code-box">
+                <div class="code-head"><span>spacing_fixed.cpp</span></div>
+                <pre>cout &lt;&lt; "The value of y is ";
+cout &lt;&lt; y;</pre>
+            </div>
+            <p style="font-size: 0.9rem;">ويمكننا طباعة تعبيرات متعددة في السطر نفسه:</p>
+            <div class="code-box">
+                <div class="code-head"><span>chained_cout.cpp</span></div>
+                <pre>cout &lt;&lt; "The value of y is " &lt;&lt; y;</pre>
+            </div>
+            <p style="font-size: 0.9rem;">كما يمكننا طباعة رمز السطر الجديد <code class="inline">'\n'</code> للانتقال إلى سطر جديد:</p>
+            <div class="code-box">
+                <div class="code-head"><span>newline.cpp</span></div>
+                <pre>cout &lt;&lt; "Hello" &lt;&lt; '\n' &lt;&lt; "World";</pre>
+            </div>
+            <p style="font-size: 0.9rem;">الناتج:</p>
+            <div class="output-box">Hello<br>World</div>
+        </div>
+
+        <!-- cin -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-keyboard"></i>
+                <h3>cin</h3>
+            </div>
+            <p>نعرف الآن كيفية كتابة برنامج يُعرّف البيانات ويتعامل معها ويطبعها، لكن المشكلة أن البرنامج يقوم بالعمليات نفسها في كل مرة يُشغَّل فيها. قد نرغب أحياناً في كتابة برنامج يسمح للمستخدم بإدخال القيم في كل مرة — لهذا نستخدم <code class="inline">cin</code>:</p>
+            <div class="code-box">
+                <div class="code-head"><span>cin_example.cpp</span></div>
+                <pre>int x;
+cin &gt;&gt; x;
+cout &lt;&lt; "You entered: " &lt;&lt; x;</pre>
+            </div>
+            <p style="font-size: 0.9rem;">يتوقف تنفيذ البرنامج عند التعليمة <code class="inline">cin &gt;&gt; x</code> حتى يُدخل المستخدم قيمة في الطرفية ثم يضغط Enter. بعد ذلك تُخزَّن القيمة في المتغير <code class="inline">x</code>.</p>
+            <p style="font-size: 0.9rem;">مثال على الإدخال:</p>
+            <div class="output-box">5</div>
+            <p style="font-size: 0.9rem;">الناتج المتوقع:</p>
+            <div class="output-box">You entered: 5</div>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p><strong>ملحوظة:</strong> لاحظ أن العاملين المستخدمين مختلفان: <code class="inline">&gt;&gt;</code> مع <code class="inline">cin</code>، و<code class="inline">&lt;&lt;</code> مع <code class="inline">cout</code>.</p>
+            </div>
+        </div>
+
+        <!-- getline -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-align-left"></i>
+                <h3>الدالة getline</h3>
+            </div>
+            <p>عند استخدام <code class="inline">cin</code>، يقرأ التيار حتى يجد فراغاً أبيض (مسافة) أو نهاية الإدخال. أحياناً قد نرغب في قراءة السطر كاملاً حتى لو احتوى على مسافات — لهذا نستخدم الدالة <code class="inline">getline</code>:</p>
+            <div class="code-box">
+                <div class="code-head"><span>getline_example.cpp</span></div>
+                <pre>string s;
+getline(cin, s);
+
+cout &lt;&lt; "The line is: " &lt;&lt; s;</pre>
+            </div>
+            <p style="font-size: 0.9rem;">لاستخدام <code class="inline">getline</code> يجب تمرير معاملين: التيار الذي نريد القراءة منه (<code class="inline">cin</code>)، والمتغير الذي سنخزّن فيه النتيجة (<code class="inline">s</code>).</p>
+            <div class="warn-box">
+                <i class="fas fa-circle-exclamation"></i>
+                <p><strong>تحذير:</strong> لا يُنصح باستخدام <code class="inline">cin</code> و<code class="inline">getline</code> معاً في البرنامج نفسه؛ فقد يترك <code class="inline">cin</code> رمز سطر جديد متبقياً في التيار، فيقرأه <code class="inline">getline</code> التالي كسطر فارغ خطأً.</p>
+            </div>
+        </div>
+
+        <!-- Solved practice problem -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-diagram-project"></i>
+                <h3>مسألة تدريبية محلولة</h3>
+            </div>
+            <p><strong>المسألة:</strong> اكتب برنامجاً يقرأ عددين صحيحين ويطبع أولاً الأصغر منهما ثم الأكبر، كل واحد في سطر منفصل.</p>
+
+            <p style="font-size: 0.92rem; margin-top: 15px;"><strong>خطوات الحل:</strong></p>
+            <div class="step-item"><div class="step-number">1</div><div><p>تعريف متغيرين من نوع عدد صحيح لتخزين المدخلات.</p></div></div>
+            <div class="step-item"><div class="step-number">2</div><div><p>استخدام cin لقراءة القيم.</p></div></div>
+            <div class="step-item"><div class="step-number">3</div><div><p>تعريف متغيرين إضافيين لتخزين الإجابات.</p></div></div>
+            <div class="step-item"><div class="step-number">4</div><div><p>استخدام العامل الثلاثي (ternary operator) لتحديد الأصغر والأكبر.</p></div></div>
+            <div class="step-item"><div class="step-number">5</div><div><p>استخدام cout لطباعة النتيجة.</p></div></div>
+
+            <div class="code-box" style="margin-top: 15px;">
+                <div class="code-head">
+                    <span>min_max.cpp</span>
+                    <button class="copy-btn" onclick="copyCode('minMaxCode')">نسخ الكود</button>
+                </div>
+                <pre id="minMaxCode"><span class="code-line" data-explain="0">int a, b;</span>
+<span class="code-line" data-explain="1">cin &gt;&gt; a &gt;&gt; b;</span> <span class="cmt">// يمكن قراءة عدة متغيرات في السطر نفسه</span>
+
+<span class="code-line" data-explain="2">int small = (a &lt; b ? a : b);</span>
+<span class="code-line" data-explain="3">int large = (a &gt; b ? a : b);</span>
+
+<span class="code-line" data-explain="4">cout &lt;&lt; small &lt;&lt; '\n' &lt;&lt; large;</span></pre>
+            </div>
+            <p style="margin-top: -5px; font-size: 0.9rem;"><i class="fas fa-hand-pointer" style="color: var(--primary-blue);"></i> اضغط على أي سطر لمعرفة دوره بالتفصيل:</p>
+            <div class="explain-box" id="explainBox1"><span class="hint">اضغط على سطر من الكود لعرض شرحه هنا...</span></div>
+        </div>
+
+        <!-- Fast I/O -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-gauge-high"></i>
+                <h3>الإدخال والإخراج السريع (Fast I/O)</h3>
+            </div>
+            <p>عند استخدام <code class="inline">cout</code>، قد لا تُعرَض البيانات مباشرة على الشاشة، إذ تُخزَّن أحياناً مؤقتاً في ذاكرة مؤقتة (buffer) لتسريع التنفيذ. بشكل افتراضي، كلما استُخدم <code class="inline">cin</code>، تُفرَّغ هذه الذاكرة، وهو ما قد يُبطئ الأداء أحياناً.</p>
+            <p>يمكننا فصل ارتباط <code class="inline">cin</code> بـ <code class="inline">cout</code> وجعل <code class="inline">cout</code> يفرّغ البيانات مرة واحدة فقط في نهاية التنفيذ بإضافة السطرين التاليين في بداية <code class="inline">main()</code>:</p>
+            <div class="code-box">
+                <div class="code-head"><span>fast_io.cpp</span></div>
+                <pre><span class="code-line" data-explain="5">cin.tie(0);</span> <span class="cmt">// tie the cin stream to stream (0) i.e no stream</span>
+<span class="code-line" data-explain="6">cin.sync_with_stdio(0);</span></pre>
+            </div>
+            <p style="margin-top: -5px; font-size: 0.9rem;"><i class="fas fa-hand-pointer" style="color: var(--primary-blue);"></i> اضغط على كل سطر لفهم وظيفته:</p>
+            <div class="explain-box" id="explainBox2"><span class="hint">اضغط على سطر من الكود لعرض شرحه هنا...</span></div>
+
+            <div class="important-box" style="margin-top: 20px;">
+                <i class="fas fa-star"></i>
+                <p><strong>مهم:</strong> في المسابقات البرمجية، تُختبَر البرامج تلقائياً، ولا يُدخل المستخدم القيم يدوياً، بل تُقرأ من ملف قد يحتوي مدخلات ضخمة جداً (مئات الآلاف من الأرقام مثلاً). لذا عندما تحتوي المسألة على كمية ضخمة من الإدخال، من المهم وضع السطرين السابقين في بداية الكود لتجنّب بطء التنفيذ.</p>
+            </div>
+        </div>
+
+        <!-- Quick hands-on exercise -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-pen"></i>
+                <h3>تمرين سريع — اكتبه يدوياً الآن</h3>
+            </div>
+            <p style="font-size: 0.9rem;">هذا التمرين مختلف عن سابقيه: لا تكتبه على الحاسوب، بل اكتب الكود يدوياً على ورقة أو دفترك خلال الحصة، ثم قارن إجابتك بالحل النموذجي بعد المحاولة.</p>
+
+            <div class="exercise-box">
+                <h4><i class="fas fa-flag" style="color: var(--primary-yellow);"></i> المطلوب:</h4>
+                <ol>
+                    <li>اكتب برنامج C++ كاملاً (يبدأ بـ <code class="inline">#include</code> وينتهي بـ <code class="inline">return 0;</code>).</li>
+                    <li>يقرأ البرنامج اسم طالب (كنص بدون مسافات) ثم عمره (كعدد صحيح)، باستخدام <code class="inline">cin</code> فقط.</li>
+                    <li>يطبع البرنامج جملة ترحيبية واحدة بالضبط كما في المثال أدناه — انتبه جيداً للمسافات!</li>
+                </ol>
+                <p style="font-size: 0.88rem; margin-top: 14px;">مثال على الإدخال:</p>
+                <div class="expected-output">Ali 15</div>
+                <p style="font-size: 0.88rem; margin-top: 14px;">الناتج المتوقع بالضبط:</p>
+                <div class="expected-output">Hello Ali, you are 15 years old.</div>
+
+                <div class="tip-box" style="margin-top: 20px;">
+                    <i class="fas fa-lightbulb"></i>
+                    <p><strong>تلميح:</strong> ستحتاج إلى متغير من نوع <code class="inline">string</code> للاسم، ومتغير من نوع <code class="inline">int</code> للعمر، ويمكنك قراءتهما معاً بسطر واحد كما فعلنا في المسألة السابقة: <code class="inline">cin &gt;&gt; name &gt;&gt; age;</code></p>
+                </div>
+
+                <button class="reveal-btn" id="revealBtn" onclick="toggleSolution()"><i class="fas fa-eye"></i> إظهار الحل النموذجي (بعد المحاولة)</button>
+
+                <div class="solution-panel" id="solutionPanel">
+                    <div class="code-box" style="margin-top: 0;">
+                        <div class="code-head"><span>welcome_student.cpp</span></div>
+                        <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    string name;
+    int age;
+    cin &gt;&gt; name &gt;&gt; age;
+
+    cout &lt;&lt; "Hello " &lt;&lt; name &lt;&lt; ", you are " &lt;&lt; age &lt;&lt; " years old.";
+
+    return 0;
+}</pre>
+                    </div>
+                    <p style="font-size: 0.85rem;">لاحظ المسافات المتعمّدة داخل النصوص: بعد "Hello "، وبعد "you are "، وقبل " years old." — هذا بالضبط ما تعلمناه في مشكلة المسافات أعلاه.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Self-check quiz -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>تحقق من فهمك</h3>
+            </div>
+
+            <div class="quiz-q" id="q1">
+                <h4>١. أي عامل نستخدمه مع cin لقراءة قيمة من المستخدم؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">&lt;&lt;</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, true)">&gt;&gt;</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">==</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q2">
+                <h4>٢. ماذا يحدث للتنفيذ عند الوصول إلى تعليمة cin &gt;&gt; x؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, true)">يتوقف البرنامج حتى يُدخل المستخدم قيمة ويضغط Enter</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">يتجاهل البرنامج السطر تلقائياً</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">يطبع رسالة خطأ فوراً</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q3">
+                <h4>٣. متى نستخدم getline بدل cin؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, true)">عندما نريد قراءة سطر كامل يحتوي على مسافات</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">عندما نريد قراءة رقم واحد فقط</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">لا فرق بينهما إطلاقاً</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q4">
+                <h4>٤. ما فائدة إضافة cin.tie(0); وcin.sync_with_stdio(0); في بداية البرنامج؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, true)">تسريع عمليات الإدخال والإخراج خصوصاً مع كميات بيانات كبيرة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">منع المستخدم من إدخال قيم خاطئة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">تصغير حجم الملف التنفيذي النهائي</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>قاموس المصطلحات</h3>
+            </div>
+            <p>أهم المصطلحات الإنجليزية في هذا الدرس مع مرادفها العربي:</p>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Terminal</span><span class="term-ar">الطرفية</span><p class="term-desc">النافذة النصية التي يتفاعل من خلالها المستخدم مع البرنامج أثناء تشغيله.</p></div>
+                <div class="term-card"><span class="term-en">Stream</span><span class="term-ar">تيار</span><p class="term-desc">نوع بيانات مسؤول عن نقل المعلومات من البرنامج أو إليه، مثل cin وcout.</p></div>
+                <div class="term-card"><span class="term-en">Output</span><span class="term-ar">إخراج</span><p class="term-desc">عرض معلومات من البرنامج إلى المستخدم عبر الطرفية.</p></div>
+                <div class="term-card"><span class="term-en">Input</span><span class="term-ar">إدخال</span><p class="term-desc">استقبال بيانات من المستخدم عبر الطرفية إلى داخل البرنامج.</p></div>
+                <div class="term-card"><span class="term-en">Buffer</span><span class="term-ar">ذاكرة مؤقتة</span><p class="term-desc">مساحة تُخزَّن فيها البيانات مؤقتاً قبل عرضها فعلياً، لتحسين الأداء.</p></div>
+                <div class="term-card"><span class="term-en">Whitespace</span><span class="term-ar">فراغ أبيض</span><p class="term-desc">أي مسافة أو سطر جديد أو تبويب يفصل بين القيم عند القراءة بـ cin.</p></div>
+                <div class="term-card"><span class="term-en">Standard input/output</span><span class="term-ar">الإدخال/الإخراج القياسي</span><p class="term-desc">القنوات الافتراضية التي يتواصل بها البرنامج مع المستخدم عبر الطرفية.</p></div>
+                <div class="term-card"><span class="term-en">Synchronization</span><span class="term-ar">مزامنة</span><p class="term-desc">ربط عمل أكثر من تيار معاً بحيث ينتظر أحدهما الآخر، مثل ربط cin بـ cout افتراضياً.</p></div>
+                <div class="term-card"><span class="term-en">getline</span><span class="term-ar">قراءة سطر كامل</span><p class="term-desc">دالة تقرأ سطراً كاملاً من الإدخال حتى لو احتوى على مسافات، بعكس cin العادي.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الأول: لغة C++ للأولمبياد</footer>
+
+    <script>
+        const explanations = {
+            0: '<strong>int a, b;</strong> — نُعرّف متغيرين من النوع int لتخزين العددين اللذين سيُدخلهما المستخدم.',
+            1: "<strong>cin &gt;&gt; a &gt;&gt; b;</strong> — نقرأ قيمتين متتاليتين من المستخدم دفعة واحدة؛ القيمة الأولى تُخزَّن في a والثانية في b مباشرة.",
+            2: '<strong>int small = (a &lt; b ? a : b);</strong> — نستخدم العامل الثلاثي: إذا كان a أصغر من b تكون small = a، وإلا فـ small = b.',
+            3: '<strong>int large = (a &gt; b ? a : b);</strong> — بالمنطق نفسه بالضبط، نحدد القيمة الأكبر بين a وb ونخزنها في large.',
+            4: "<strong>cout &lt;&lt; small &lt;&lt; '\\n' &lt;&lt; large;</strong> — نطبع القيمة الأصغر أولاً، ثم ننتقل إلى سطر جديد بواسطة '\\n'، ثم نطبع القيمة الأكبر في السطر التالي.",
+            5: "<strong>cin.tie(0);</strong> — يفصل ارتباط cin بـ cout، بحيث لا يضطر cout لتفريغ ذاكرته المؤقتة (buffer) في كل مرة يُستخدم فيها cin، ما يسرّع التنفيذ.",
+            6: '<strong>cin.sync_with_stdio(0);</strong> — يوقف مزامنة تيارات C++ (cin/cout) مع دوال الإدخال والإخراج القديمة بلغة C (مثل scanf وprintf)، ما يسرّع القراءة والطباعة بشكل ملحوظ خصوصاً مع كميات بيانات كبيرة.'
+        };
+
+        document.querySelectorAll('.code-line').forEach(line => {
+            line.addEventListener('click', function () {
+                document.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+                const key = this.getAttribute('data-explain');
+                const target = (key === '5' || key === '6') ? 'explainBox2' : 'explainBox1';
+                document.getElementById(target).innerHTML = explanations[key];
+            });
+        });
+
+        function copyCode(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(() => alert('تم نسخ الكود!'));
+        }
+
+        function toggleSolution() {
+            const panel = document.getElementById('solutionPanel');
+            const btn = document.getElementById('revealBtn');
+            panel.classList.toggle('show');
+            if (panel.classList.contains('show')) {
+                btn.innerHTML = '<i class="fas fa-eye-slash"></i> إخفاء الحل النموذجي';
+            } else {
+                btn.innerHTML = '<i class="fas fa-eye"></i> إظهار الحل النموذجي (بعد المحاولة)';
+            }
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة! أحسنت.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة غير صحيحة، حاول مرة أخرى في المرة القادمة.</span>';
+            }
+        }
+    </script>
+</body>
+</html>

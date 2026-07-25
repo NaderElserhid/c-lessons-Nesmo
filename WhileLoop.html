@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | حلقة while</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15);
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .title-section { text-align: center; margin-bottom: 50px; }
+        .title-section h1 { font-size: 2.4rem; font-weight: 800; margin-bottom: 5px; }
+        .attribution { color: var(--primary-blue); font-size: 1.2rem; font-weight: 600; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .danger-card { border-right-color: #ef4444; }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .danger-card .card-header { color: #ef4444; }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        /* Code blocks */
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 20px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        .copy-btn { color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+        pre { padding: 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.95rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        /* interactive line */
+        .code-line { cursor: pointer; display: block; border-radius: 6px; padding: 2px 6px; margin: 0 -6px; transition: 0.2s; position: relative; }
+        .code-line:hover { background: rgba(0, 173, 239, 0.15); }
+        .code-line.active { background: rgba(247, 148, 30, 0.25); outline: 1px dashed var(--primary-yellow); }
+        .code-line.hit { background: rgba(74, 222, 128, 0.25); outline: 1px dashed #4ade80; }
+        .step-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: var(--primary-yellow); color: white; width: 20px; height: 20px;
+            border-radius: 50%; font-size: 0.7rem; font-weight: 800; margin-left: 10px;
+        }
+
+        .explain-box {
+            margin-top: 18px; background: var(--bg-main); border: 2px dashed #cbd5e1;
+            border-radius: 16px; padding: 18px 22px; font-weight: 600; color: var(--dark-navy);
+            min-height: 30px; transition: 0.2s;
+        }
+        .explain-box .hint { color: #94a3b8; font-weight: 500; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 16px 22px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        /* step items (how the loop works) */
+        .step-item {
+            display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px;
+            padding: 20px; background: #fff; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .step-number {
+            background: var(--yellow-gradient); color: white; width: 32px; height: 32px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 800; flex-shrink: 0;
+        }
+        .step-item h4 { margin: 0 0 6px 0; font-size: 1.02rem; color: var(--dark-navy); }
+        .step-item p { margin: 0; font-size: 0.92rem; }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.08); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        /* simulators */
+        .sim-box { background: var(--bg-main); border: 3px dashed #cbd5e1; border-radius: 20px; padding: 28px; margin-top: 18px; }
+        .sim-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .sim-label { font-weight: 700; font-size: 0.9rem; color: var(--dark-navy); }
+        .sim-input {
+            border: 2px solid #cbd5e1; border-radius: 10px; padding: 10px 14px; font-family: 'Consolas', monospace;
+            font-size: 0.95rem; width: 110px; direction: ltr; text-align: center;
+        }
+        .sim-input:focus { outline: none; border-color: var(--primary-blue); }
+        .sim-btn { background: var(--yellow-gradient); color: white; border: none; padding: 10px 24px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.9rem; }
+        .sim-btn.alt { background: var(--blue-gradient); }
+        .sim-btn.danger { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+        .sim-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .sim-result { margin-top: 16px; font-size: 0.85rem; color: var(--text-body); min-height: 20px; font-weight: 600; }
+        .sim-console { background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace; padding: 14px 20px; border-radius: 12px; margin-top: 12px; direction: ltr; text-align: left; min-height: 24px; word-break: break-word; }
+        .state-row { display: flex; gap: 30px; margin-top: 14px; flex-wrap: wrap; font-family: 'Consolas', monospace; font-size: 0.9rem; direction: ltr; text-align: left; }
+        .state-chip { background: white; border: 2px solid #e2e8f0; border-radius: 10px; padding: 8px 16px; }
+        .state-chip b { color: var(--primary-blue); }
+        .state-chip.cond-true { border-color: #22c55e; color: #15803d; }
+        .state-chip.cond-false { border-color: #ef4444; color: #b91c1c; }
+
+        .counter-display { font-family: 'Consolas', monospace; font-size: 2.2rem; font-weight: 800; color: #ef4444; text-align: center; margin: 10px 0; direction: ltr; }
+
+        /* example subsection */
+        .example-block { margin-top: 30px; padding-top: 30px; border-top: 2px dashed #e2e8f0; }
+        .example-num {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: var(--blue-gradient); color: white; width: 30px; height: 30px;
+            border-radius: 10px; font-weight: 800; margin-left: 10px; font-size: 0.95rem;
+        }
+        .example-title { display: flex; align-items: center; gap: 4px; margin-bottom: 10px; font-size: 1.1rem; font-weight: 800; color: var(--dark-navy); }
+
+        /* glossary */
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        /* quiz */
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الأول — C++</span>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="title-section">
+            <h1>حلقة while</h1>
+            <p class="attribution">هذا الشرح مقدم من منصة تويت كود</p>
+        </div>
+
+        <!-- Intro -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-rotate"></i>
+                <h3>حلقة while — أبسط حلقات التكرار</h3>
+            </div>
+            <p>تُعدّ حلقة <code class="inline">while</code> أبسط حلقات التكرار في لغة C++. فهي تنفّذ أمراً أو كتلة أوامر مراراً ما دام الشرط صحيحاً.</p>
+
+            <p style="margin-top: 20px; font-weight: 700; color: var(--dark-navy);">الصياغة (Syntax):</p>
+            <div class="code-box">
+                <div class="code-group" id="grpSyntax">
+                <div class="code-head"><span>while_syntax.cpp</span></div>
+                <pre><span class="code-line" onclick="explainLine(this,'syn',0)">while (expression)</span>
+<span class="code-line" onclick="explainLine(this,'syn',1)">    statement;</span></pre>
+                <div class="explain-box"><span class="hint">اضغط على أي سطر لعرض شرحه هنا...</span></div>
+                </div>
+            </div>
+
+            <ul style="color: var(--text-body); font-size: 0.92rem; padding-right: 20px;">
+                <li>يتم تقييم التعبير <code class="inline">expression</code> قبل كل دورة (iteration).</li>
+                <li>إذا كانت قيمة التعبير <code class="inline">true</code>، يُنفَّذ الأمر داخل الحلقة.</li>
+                <li>إذا كانت <code class="inline">false</code>، تتوقّف الحلقة، ويستمر تنفيذ البرنامج بعدها.</li>
+            </ul>
+        </div>
+
+        <!-- Main example: countdown -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-hourglass-half"></i>
+                <h3>مثال: العدّ التنازلي</h3>
+            </div>
+
+            <div class="code-box">
+                <div class="code-group" id="grpMain">
+                <div class="code-head">
+                    <span>countdown.cpp</span>
+                    <button class="copy-btn" onclick="copyCode('mainCode')">نسخ الكود</button>
+                </div>
+                <pre id="mainCode"><span class="code-line cmt" onclick="explainLine(this,'main',0)">// custom countdown using while</span>
+<span class="code-line" onclick="explainLine(this,'main',1)">#include &lt;iostream&gt;</span>
+<span class="code-line" onclick="explainLine(this,'main',2)">using namespace std;</span>
+
+<span class="code-line" onclick="explainLine(this,'main',3)">int main() {</span>
+<span class="code-line" onclick="explainLine(this,'main',4)">    int n = 10;</span>
+
+<span class="code-line" onclick="explainLine(this,'main',5)">    while (n &gt; 0) {</span>
+<span class="code-line" onclick="explainLine(this,'main',6)">        cout &lt;&lt; n &lt;&lt; ", ";</span>
+<span class="code-line" onclick="explainLine(this,'main',7)">        --n;</span>
+<span class="code-line" onclick="explainLine(this,'main',8)">    }</span>
+
+<span class="code-line" onclick="explainLine(this,'main',9)">    cout &lt;&lt; "liftoff!\n";</span>
+<span class="code-line" onclick="explainLine(this,'main',10)">}</span></pre>
+                <div class="explain-box"><span class="hint">اضغط على أي سطر لعرض شرحه هنا...</span></div>
+                </div>
+            </div>
+
+            <p style="margin-top: 20px;">الناتج:</p>
+            <div class="output-box">10, 9, 8, 7, 6, 5, 4, 3, 2, 1, liftoff!</div>
+
+            <p style="margin-top: 25px; font-weight: 700; color: var(--dark-navy);">كيف تعمل الحلقة؟</p>
+            <div class="step-item">
+                <div class="step-number">1</div>
+                <div><h4>البداية</h4><p>تبدأ قيمة n بـ 10.</p></div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">2</div>
+                <div><h4>فحص الشرط</h4><p>يتم فحص الشرط n &gt; 0.</p></div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">3</div>
+                <div><h4>التنفيذ</h4><p>إذا كان الشرط صحيحاً → تُطبع قيمة n، ثم تُنقص بمقدار واحد.</p></div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">4</div>
+                <div><h4>التوقف</h4><p>عندما تصل n إلى 0 → يصبح الشرط خاطئاً → تتوقّف الحلقة.</p></div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">5</div>
+                <div><h4>المتابعة</h4><p>يواصل البرنامج التنفيذ بعد نهاية الحلقة.</p></div>
+            </div>
+
+            <p style="margin-top: 25px; font-size: 0.9rem;"><i class="fas fa-flask" style="color: var(--primary-yellow);"></i> جرّب بنفسك خطوة بخطوة — اضغط "الخطوة التالية" لترى كيف تتغيّر n وتُبنى المخرجات تدريجياً:</p>
+            <div class="sim-box" id="simWhile">
+                <div class="state-row">
+                    <div class="state-chip" id="stateN">n = <b>10</b></div>
+                    <div class="state-chip cond-true" id="stateCond">n &gt; 0 → <b>true</b></div>
+                </div>
+                <div class="sim-console" id="whileConsole">في انتظار التشغيل...</div>
+                <div class="sim-row" style="margin-top: 16px;">
+                    <button class="sim-btn" onclick="stepWhile()" id="stepBtn"><i class="fas fa-forward-step"></i> الخطوة التالية</button>
+                    <button class="sim-btn alt" onclick="resetWhile()"><i class="fas fa-rotate-left"></i> إعادة</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Infinite loop warning -->
+        <div class="card danger-card">
+            <div class="card-header">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>تحذير: الحلقة اللانهائية (Infinite Loop)</h3>
+            </div>
+            <div class="warn-box">
+                <i class="fas fa-circle-exclamation"></i>
+                <p>تحدث حلقة لا نهائية عندما يبقى شرط الحلقة دائماً صحيحاً. على سبيل المثال، إذا نسينا تحديث قيمة n داخل الحلقة (حذف <code class="inline">--n</code>)، أو كتبنا شرطاً مثل <code class="inline">while (true)</code> بدون كسر للحلقة، فلن تنتهي أبداً. لذلك يجب التأكّد من أنّ الشرط سيصبح في النهاية خاطئاً.</p>
+            </div>
+
+            <p style="margin-top: 20px; font-size: 0.9rem;"><strong>مثال على خطأ شائع</strong> — كود يبدو صحيحاً لكنه لا نهائي لأن n لا تتغيّر أبداً:</p>
+            <div class="code-box">
+                <div class="code-head"><span>infinite_bug.cpp — لا تُشغّل هذا الكود فعلياً!</span></div>
+                <pre>int n = 10;
+while (n &gt; 0) {
+    cout &lt;&lt; n &lt;&lt; ", ";
+    <span class="cmt">// نسينا --n هنا! فتبقى n = 10 إلى الأبد</span>
+}</pre>
+            </div>
+
+            <p style="margin-top: 25px; font-size: 0.9rem;"><i class="fas fa-flask" style="color: #ef4444;"></i> شاهد بأمان كيف "لا يتوقف" العدّاد من تلقاء نفسه (محاكاة آمنة داخل المتصفح فقط، وليست كوداً حقيقياً بلا حدود):</p>
+            <div class="sim-box" id="simInfinite">
+                <div class="counter-display" id="infCounter">0</div>
+                <div class="sim-row" style="justify-content: center;">
+                    <button class="sim-btn danger" onclick="startInfinite()" id="infStartBtn"><i class="fas fa-play"></i> شغّل الحلقة</button>
+                    <button class="sim-btn alt" onclick="stopInfinite()" id="infStopBtn" disabled><i class="fas fa-stop"></i> إيقاف يدوي</button>
+                </div>
+                <div class="sim-result" id="infResult" style="text-align: center;">لاحظ: الحلقة لن تتوقف من نفسها أبداً — يجب إيقافها يدوياً، تماماً كما يحدث في برنامج حقيقي به حلقة لا نهائية (سيتجمّد أو يُغلَق قسراً).</div>
+            </div>
+        </div>
+
+        <!-- Extra examples -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>أمثلة إضافية على while</h3>
+            </div>
+            <p>مثالان إضافيان يوضّحان استخدامات أخرى شائعة لحلقة while:</p>
+
+            <!-- Example 1: sum -->
+            <div class="example-block">
+                <div class="example-title"><span class="example-num">1</span> مجموع الأعداد من 1 إلى n</div>
+                <p style="font-size: 0.9rem;">برنامج يحسب مجموع كل الأعداد الصحيحة من 1 حتى n باستخدام while:</p>
+                <div class="code-box">
+                    <div class="code-head"><span>sum_to_n.cpp</span></div>
+                    <pre>int n = 5;
+int i = 1;
+int sum = 0;
+
+while (i &lt;= n) {
+    sum = sum + i;
+    ++i;
+}
+
+cout &lt;&lt; "Sum: " &lt;&lt; sum;</pre>
+                </div>
+                <div class="sim-box" id="simSum">
+                    <div class="sim-row">
+                        <span class="sim-label">n =</span>
+                        <input type="number" class="sim-input" id="sumInput" value="5" min="1" max="30">
+                        <button class="sim-btn" onclick="runSum()"><i class="fas fa-play"></i> شغّل</button>
+                    </div>
+                    <div class="sim-console" id="sumConsole">في انتظار التشغيل...</div>
+                </div>
+            </div>
+
+            <!-- Example 2: multiplication table -->
+            <div class="example-block">
+                <div class="example-title"><span class="example-num">2</span> جدول الضرب لعدد معيّن</div>
+                <p style="font-size: 0.9rem;">برنامج يطبع جدول ضرب عدد x من 1 إلى 10 باستخدام while:</p>
+                <div class="code-box">
+                    <div class="code-head"><span>times_table.cpp</span></div>
+                    <pre>int x = 4;
+int i = 1;
+
+while (i &lt;= 10) {
+    cout &lt;&lt; x &lt;&lt; " x " &lt;&lt; i &lt;&lt; " = " &lt;&lt; (x * i) &lt;&lt; "\n";
+    ++i;
+}</pre>
+                </div>
+                <div class="sim-box" id="simTable">
+                    <div class="sim-row">
+                        <span class="sim-label">x =</span>
+                        <input type="number" class="sim-input" id="tableInput" value="4" min="1" max="20">
+                        <button class="sim-btn" onclick="runTable()"><i class="fas fa-play"></i> شغّل</button>
+                    </div>
+                    <div class="sim-console" id="tableConsole" style="white-space: pre-line;">في انتظار التشغيل...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>تحقق من فهمك</h3>
+            </div>
+
+            <div class="quiz-q" id="q1">
+                <h4>١. متى يُنفَّذ الأمر داخل حلقة while؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, true)">ما دام التعبير (expression) قيمته true</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">مرة واحدة فقط بغض النظر عن الشرط</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">فقط عندما يكون التعبير false</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q2">
+                <h4>٢. متى يتم تقييم شرط while؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, true)">قبل كل دورة (iteration) من الحلقة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">مرة واحدة فقط في بداية البرنامج</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">بعد انتهاء الحلقة فقط</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q3">
+                <h4>٣. في مثال العدّ التنازلي، ماذا يحدث عندما تصبح n تساوي 0؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, true)">يصبح الشرط n &gt; 0 خاطئاً، فتتوقّف الحلقة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">تستمر الحلقة إلى الأبد</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">يتوقف البرنامج بالكامل عن العمل</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q4">
+                <h4>٤. متى تحدث الحلقة اللانهائية (Infinite Loop)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, true)">عندما يبقى شرط الحلقة صحيحاً دائماً</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">عندما تُطبع رسالة "liftoff" في النهاية</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">عندما تبدأ قيمة المتغيّر من صفر</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q5">
+                <h4>٥. في كود العدّ التنازلي، ما سبب حدوث حلقة لا نهائية لو حذفنا --n؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, true)">لأن قيمة n لن تتغيّر أبداً، فيبقى الشرط n &gt; 0 صحيحاً للأبد</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, false)">لأن cout سيتوقف عن الطباعة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, false)">لأن البرنامج لن يبدأ التنفيذ من الأساس</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>قاموس المصطلحات</h3>
+            </div>
+            <p>أهم المصطلحات الإنجليزية في هذا الدرس مع مرادفها العربي:</p>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">while</span><span class="term-ar">بينما (حلقة تكرار)</span><p class="term-desc">تنفّذ أمراً أو كتلة أوامر مراراً ما دام الشرط صحيحاً.</p></div>
+                <div class="term-card"><span class="term-en">Iteration</span><span class="term-ar">دورة (تكرارة واحدة)</span><p class="term-desc">مرة واحدة من تنفيذ جسم الحلقة.</p></div>
+                <div class="term-card"><span class="term-en">Loop body</span><span class="term-ar">جسم الحلقة</span><p class="term-desc">الأمر أو الكتلة التي تُنفَّذ في كل دورة من الحلقة.</p></div>
+                <div class="term-card"><span class="term-en">Infinite loop</span><span class="term-ar">حلقة لا نهائية</span><p class="term-desc">حلقة لا يصبح شرطها خاطئاً أبداً، فتستمر إلى الأبد.</p></div>
+                <div class="term-card"><span class="term-en">Decrement</span><span class="term-ar">إنقاص (تناقص)</span><p class="term-desc">تقليل قيمة متغيّر بمقدار واحد، مثل --n.</p></div>
+                <div class="term-card"><span class="term-en">Increment</span><span class="term-ar">زيادة</span><p class="term-desc">زيادة قيمة متغيّر بمقدار واحد، مثل ++i.</p></div>
+                <div class="term-card"><span class="term-en">Counter variable</span><span class="term-ar">متغيّر عدّاد</span><p class="term-desc">متغيّر يُستخدم لتتبّع عدد الدورات أو قيمة تتغيّر مع كل تكرار.</p></div>
+                <div class="term-card"><span class="term-en">Expression</span><span class="term-ar">تعبير</span><p class="term-desc">الشرط الذي يُقيَّم إلى true أو false قبل كل دورة.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الأول: لغة C++ للأولمبياد</footer>
+
+    <script>
+        const EXPLANATIONS = {
+            syn: {
+                0: '<strong>while (expression)</strong> — بداية الحلقة، يليها بين قوسين الشرط الذي يُفحص قبل كل دورة. <span class="step-badge">1</span>',
+                1: '<strong>statement;</strong> — الأمر الذي يتكرر تنفيذه ما دام الشرط true. <span class="step-badge">2</span>'
+            },
+            main: {
+                0: 'تعليق (comment) يوضّح الغرض من الكود، ولا يُنفَّذ فعلياً.',
+                1: '<strong>#include &lt;iostream&gt;</strong> — تضمين مكتبة الإدخال والإخراج لاستخدام cout.',
+                2: '<strong>using namespace std;</strong> — يسمح باستخدام cout مباشرة دون كتابة std:: قبلها.',
+                3: '<strong>int main() {</strong> — بداية الدالة الرئيسية التي يبدأ منها تنفيذ البرنامج. <span class="step-badge">1</span>',
+                4: '<strong>int n = 10;</strong> — تعريف متغيّر n وإعطاؤه القيمة الابتدائية 10. <span class="step-badge">2</span>',
+                5: '<strong>while (n &gt; 0) {</strong> — فحص الشرط قبل كل دورة؛ طالما n أكبر من صفر تستمر الحلقة. <span class="step-badge">3</span>',
+                6: '<strong>cout &lt;&lt; n &lt;&lt; ", ";</strong> — طباعة القيمة الحالية لـ n متبوعة بفاصلة ومسافة. <span class="step-badge">4</span>',
+                7: '<strong>--n;</strong> — إنقاص قيمة n بمقدار واحد؛ هذا السطر ضروري حتى يصبح الشرط خاطئاً في النهاية. <span class="step-badge">5</span>',
+                8: '<strong>}</strong> — نهاية جسم الحلقة؛ يعود التنفيذ لفحص الشرط من جديد. <span class="step-badge">6</span>',
+                9: '<strong>cout &lt;&lt; "liftoff!\\n";</strong> — يُنفَّذ مرة واحدة فقط، بعد أن تتوقّف الحلقة تماماً. <span class="step-badge">7</span>',
+                10: '<strong>}</strong> — نهاية الدالة main ونهاية البرنامج.'
+            }
+        };
+
+        function explainLine(el, setName, key) {
+            const group = el.closest('.code-group');
+            group.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+            el.classList.add('active');
+            group.querySelector('.explain-box').innerHTML = EXPLANATIONS[setName][key];
+        }
+
+        function copyCode(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(() => alert('تم نسخ الكود!'));
+        }
+
+        /* step-by-step countdown simulator */
+        let simN = 10;
+        let simConsoleText = '';
+        let simFinished = false;
+
+        function highlightMain(idx) {
+            const group = document.getElementById('grpMain');
+            group.querySelectorAll('.code-line').forEach(l => l.classList.remove('hit'));
+            const lines = group.querySelectorAll('.code-line');
+            if (lines[idx]) lines[idx].classList.add('hit');
+        }
+
+        function updateWhileDisplay() {
+            document.getElementById('stateN').innerHTML = 'n = <b>' + simN + '</b>';
+            const condEl = document.getElementById('stateCond');
+            const condTrue = simN > 0;
+            condEl.innerHTML = 'n &gt; 0 → <b>' + (condTrue ? 'true' : 'false') + '</b>';
+            condEl.classList.toggle('cond-true', condTrue);
+            condEl.classList.toggle('cond-false', !condTrue);
+            document.getElementById('whileConsole').textContent = simConsoleText || 'في انتظار التشغيل...';
+        }
+
+        function stepWhile() {
+            if (simFinished) return;
+            if (simN > 0) {
+                highlightMain(5); // while condition line
+                simConsoleText += simN + ', ';
+                highlightMain(6); // cout line
+                simN--;
+                highlightMain(7); // --n line
+            } else {
+                simConsoleText += 'liftoff!';
+                highlightMain(9); // final cout line
+                simFinished = true;
+                document.getElementById('stepBtn').disabled = true;
+            }
+            updateWhileDisplay();
+        }
+
+        function resetWhile() {
+            simN = 10;
+            simConsoleText = '';
+            simFinished = false;
+            document.getElementById('stepBtn').disabled = false;
+            document.getElementById('grpMain').querySelectorAll('.code-line').forEach(l => l.classList.remove('hit'));
+            updateWhileDisplay();
+        }
+
+        /* infinite loop safe demo */
+        let infCount = 0;
+        let infTimer = null;
+
+        function startInfinite() {
+            if (infTimer) return;
+            document.getElementById('infStartBtn').disabled = true;
+            document.getElementById('infStopBtn').disabled = false;
+            document.getElementById('infResult').textContent = 'الحلقة تعمل الآن... لاحظ أنها لن تتوقف من نفسها.';
+            infTimer = setInterval(() => {
+                infCount++;
+                document.getElementById('infCounter').textContent = infCount;
+            }, 40);
+        }
+
+        function stopInfinite() {
+            if (infTimer) {
+                clearInterval(infTimer);
+                infTimer = null;
+            }
+            document.getElementById('infStartBtn').disabled = false;
+            document.getElementById('infStopBtn').disabled = true;
+            document.getElementById('infResult').textContent = 'تم إيقافها يدوياً بعد ' + infCount + ' دورة. هذا بالضبط ما يجب فعله لبرنامج حقيقي علق في حلقة لا نهائية: إيقافه، ثم إصلاح الشرط في الكود.';
+            infCount = 0;
+        }
+
+        /* extra example 1: sum */
+        function runSum() {
+            const n = Number(document.getElementById('sumInput').value);
+            let i = 1, sum = 0, lines = [];
+            while (i <= n) {
+                sum = sum + i;
+                lines.push('i=' + i + ' → sum=' + sum);
+                i++;
+            }
+            lines.push('Sum: ' + sum);
+            document.getElementById('sumConsole').textContent = lines.join('  |  ');
+        }
+
+        /* extra example 2: multiplication table */
+        function runTable() {
+            const x = Number(document.getElementById('tableInput').value);
+            let i = 1, lines = [];
+            while (i <= 10) {
+                lines.push(x + ' x ' + i + ' = ' + (x * i));
+                i++;
+            }
+            document.getElementById('tableConsole').textContent = lines.join('\n');
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة! أحسنت.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة غير صحيحة، حاول مرة أخرى في المرة القادمة.</span>';
+            }
+        }
+
+        updateWhileDisplay();
+    </script>
+</body>
+</html>

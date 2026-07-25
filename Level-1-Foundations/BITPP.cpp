@@ -1,26 +1,23 @@
 #include <iostream>
-#include <string>
+#include <set>
+
 using namespace std;
 
-int main() {
-    int n;
-    cin >> n;
-
-    int x = 0;
-    while (n--) {
-        string s;
-        cin >> s;
+int main()
+{
+set<int>numbers={ 20, 50, 70, 30 , 90};
 
 
-        if (s[1] == '+') {
-            x++;
-        }else if(s[1] == '-') {
-            x--;
-        }else{
-        cout << "pleas enter + or - only ";
-        }
-    }
+for(int i : numbers){
+    cout<<i<<endl;
+}
 
-    cout << x << endl;
+ numbers.insert(80);
+ cout << numbers.erase(30);
+ cout<<"after we add"<<endl;
+
+for(int i : numbers){
+    cout<<" " << i<<endl;
+}
     return 0;
 }

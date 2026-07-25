@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | بنية البرنامج</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15);
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .title-section { text-align: center; margin-bottom: 50px; }
+        .title-section h1 { font-size: 2.6rem; font-weight: 800; margin-bottom: 5px; }
+        .attribution { color: var(--primary-blue); font-size: 1.2rem; font-weight: 600; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+
+        p { color: var(--text-body); }
+
+        /* Code blocks */
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 20px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        .copy-btn { color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+        pre { padding: 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.95rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+        .kw { color: #c792ea; }
+        .str { color: #ecc48d; }
+        .fn { color: #82aaff; }
+
+        /* interactive line */
+        .code-line { cursor: pointer; display: block; border-radius: 6px; padding: 2px 6px; margin: 0 -6px; transition: 0.2s; }
+        .code-line:hover { background: rgba(0, 173, 239, 0.15); }
+        .code-line.active { background: rgba(247, 148, 30, 0.25); outline: 1px dashed var(--primary-yellow); }
+
+        .explain-box {
+            margin-top: 18px; background: var(--bg-main); border: 2px dashed #cbd5e1;
+            border-radius: 16px; padding: 18px 22px; font-weight: 600; color: var(--dark-navy);
+            min-height: 30px; transition: 0.2s;
+        }
+        .explain-box .hint { color: #94a3b8; font-weight: 500; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 16px 22px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        /* Step items */
+        .step-item {
+            display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px;
+            padding: 20px; background: #fff; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .step-number {
+            background: var(--yellow-gradient); color: white; width: 32px; height: 32px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 800; flex-shrink: 0;
+        }
+        .step-item h4 { margin: 0 0 6px 0; font-size: 1.02rem; color: var(--dark-navy); }
+        .step-item p { margin: 0; font-size: 0.92rem; }
+        .step-item code { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; }
+
+        /* comparison */
+        .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+        @media (max-width: 700px) { .compare-grid { grid-template-columns: 1fr; } }
+        .compare-card { border-radius: 16px; overflow: hidden; }
+        .compare-title { padding: 10px 18px; font-weight: 800; font-size: 0.9rem; }
+        .good .compare-title { background: #dcfce7; color: #15803d; }
+        .bad .compare-title { background: #fee2e2; color: #b91c1c; }
+        .compare-card pre { padding: 20px; font-size: 0.85rem; }
+
+        /* tabs */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn {
+            background: var(--bg-main); border: 2px solid #e2e8f0; color: var(--text-body);
+            padding: 10px 22px; border-radius: 50px; font-weight: 700; cursor: pointer; font-family: 'Tajawal'; font-size: 0.9rem;
+        }
+        .tab-btn.active { background: var(--blue-gradient); color: white; border-color: transparent; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+        .install-step { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start; }
+        .install-step .num { background: var(--primary-blue); color: white; min-width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem; flex-shrink: 0; }
+        .install-step p { margin: 0; }
+        .install-step code { background: #eef2f7; padding: 3px 10px; border-radius: 6px; direction: ltr; display: inline-block; color: #007bb5; font-weight: 700; }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        /* glossary */
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        /* quiz */
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الأول — C++</span>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="title-section">
+            <h1>بنية البرنامج</h1>
+            <p class="attribution">هذا الشرح مقدم من منصة تويت كود</p>
+        </div>
+
+        <!-- Intro -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-microchip"></i>
+                <h3>ممَّ يتكوَّن أي برنامج بلغة C++؟</h3>
+            </div>
+            <p>قبل أن نكتب برامج معقدة، لا بد أن نفهم أولاً الهيكل العام الذي يتكرر في كل برنامج بلغة C++. لنلقِ نظرة على أبسط برنامج ممكن، ثم نفكك مكوناته سطراً سطراً.</p>
+
+            <div class="code-box">
+                <div class="code-head">
+                    <span>main.cpp</span>
+                    <button class="copy-btn" onclick="copyCode('mainCode')">نسخ الكود</button>
+                </div>
+                <pre id="mainCode"><span class="code-line" data-explain="0">#include &lt;iostream&gt;</span>
+
+<span class="code-line" data-explain="1">using namespace std;</span>
+
+<span class="cmt">// Your first program!</span>
+
+<span class="code-line" data-explain="2">int main() {</span>
+    <span class="code-line" data-explain="3">cout &lt;&lt; "Hello, World!";</span>
+    <span class="code-line" data-explain="4">return 0;</span>
+<span class="code-line" data-explain="5">}</span></pre>
+            </div>
+
+            <p style="margin-top: -5px; font-size: 0.9rem;"><i class="fas fa-hand-pointer" style="color: var(--primary-blue);"></i> اضغط على أي سطر في الكود أعلاه لتظهر لك شرحاً مبسطاً له:</p>
+            <div class="explain-box" id="explainBox"><span class="hint">اضغط على سطر من الكود لعرض شرحه هنا...</span></div>
+
+            <p style="margin-top: 20px;">وعند تشغيل هذا البرنامج، ستظهر لك النتيجة التالية على الشاشة:</p>
+            <div class="output-box">Hello, World!</div>
+        </div>
+
+        <!-- Core components -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-list-ol"></i>
+                <h3>المكوّنات الأساسية</h3>
+            </div>
+
+            <div class="step-item">
+                <div class="step-number">1</div>
+                <div>
+                    <h4>أوامر المترجم القبلي (Preprocessor commands)</h4>
+                    <p>تبدأ بالرمز <code>#</code> مثل <code>#include &lt;iostream&gt;</code>، وتُخبر المترجم بإضافة ملفات أو أدوات إضافية قبل ترجمة البرنامج.</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">2</div>
+                <div>
+                    <h4>مساحات الأسماء (Namespaces)</h4>
+                    <p>غالباً نكتب <code>using namespace std;</code>. لست بحاجة الآن لفهم مساحات الأسماء بعمق؛ فقط أضِف هذه العبارة في برامجك المبدئية لتتمكن من استخدام <code>cout</code> و<code>cin</code> بسهولة.</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">3</div>
+                <div>
+                    <h4>الدالة الرئيسية main()</h4>
+                    <p>هي النقطة التي يبدأ عندها تنفيذ البرنامج. ينفّذ الحاسوب الأوامر داخل الأقواس <code>{ ... }</code> من الأعلى إلى الأسفل.</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">4</div>
+                <div>
+                    <h4>الأقواس المعقوفة { }</h4>
+                    <p>تُستخدم لتجميع مجموعة من التعليمات في كتلة واحدة. ستراها لاحقاً في الدوال، والحلقات التكرارية، وعبارات الشرط.</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">5</div>
+                <div>
+                    <h4>الفاصلة المنقوطة ;</h4>
+                    <p>كل أمر (instruction) ينتهي بفاصلة منقوطة. نسيانها يؤدي إلى ظهور خطأ عند الترجمة، وهو من أكثر الأخطاء شيوعاً عند المبتدئين.</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">6</div>
+                <div>
+                    <h4>أمر الإرجاع return</h4>
+                    <p>السطر <code>return 0;</code> ينهي تنفيذ البرنامج، ويُشير إلى أنه انتهى بنجاح دون أي أخطاء.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comments -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-comment-dots"></i>
+                <h3>التعليقات (Comments)</h3>
+            </div>
+            <p>التعليقات هي ملاحظات يكتبها المبرمج، ويتجاهلها الحاسوب تماماً عند التنفيذ. الغرض منها توضيح وظيفة أجزاء من البرنامج، وستستخدمها كثيراً لشرح ما يفعله الكود وتذكير نفسك أو غيرك بوظيفته لاحقاً.</p>
+            <div class="code-box">
+                <div class="code-head"><span>comments.cpp</span></div>
+                <pre><span class="cmt">// هذا تعليق من سطر واحد</span>
+
+<span class="cmt">/*
+هذا تعليق
+من عدة أسطر متتالية
+*/</span></pre>
+            </div>
+        </div>
+
+        <!-- Extra example -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-plus-circle"></i>
+                <h3>مثال إضافي: طباعة أكثر من سطر</h3>
+            </div>
+            <p>لنطبّق ما تعلمناه في مثال جديد يستخدم <code>cout</code> عدة مرات، بالإضافة إلى الكلمة <code>endl</code> التي تعني الانتقال إلى سطر جديد بعد الطباعة:</p>
+            <div class="code-box">
+                <div class="code-head">
+                    <span>welcome.cpp</span>
+                    <button class="copy-btn" onclick="copyCode('extraCode')">نسخ الكود</button>
+                </div>
+                <pre id="extraCode">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    <span class="cmt">// طباعة رسالة ترحيبية على سطرين</span>
+    cout &lt;&lt; "Welcome to C++!" &lt;&lt; endl;
+    cout &lt;&lt; "This is my second line." &lt;&lt; endl;
+    return 0;
+}</pre>
+            </div>
+            <p>الناتج على الشاشة سيكون:</p>
+            <div class="output-box">Welcome to C++!<br>This is my second line.</div>
+            <p style="font-size: 0.88rem;">لاحظ الفرق: بدون <code>endl</code>، كانت كل جملة <code>cout</code> ستُطبع مباشرة بجانب سابقتها في نفس السطر.</p>
+        </div>
+
+        <!-- Indentation -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-align-right"></i>
+                <h3>المسافات البادئة وتحسين القراءة (Indentation)</h3>
+            </div>
+            <p>يُفضَّل دائماً الإزاحة (Indent) داخل الأقواس <code>{ }</code> باستخدام Tab أو 4 مسافات، لأن ذلك يجعل الكود أوضح وأسهل قراءة. تنظيم البرنامج لا يغيّر من طريقة تنفيذه، لكنه مهم جداً لقراءته وصيانته لاحقاً.</p>
+            <div class="compare-grid">
+                <div class="compare-card good">
+                    <div class="compare-title"><i class="fas fa-check-circle"></i> أسلوب جيد</div>
+                    <pre>int main() {
+    cout &lt;&lt; "Good style matters!";
+}</pre>
+                </div>
+                <div class="compare-card bad">
+                    <div class="compare-title"><i class="fas fa-times-circle"></i> أسلوب غير جيد</div>
+                    <pre>int main(){
+cout&lt;&lt;"Hard to read";
+}</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- IDE install -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-download"></i>
+                <h3>تثبيت بيئة التطوير Code::Blocks</h3>
+            </div>
+            <p>لتشغيل أول برنامج لك، تحتاج إلى بيئة تطوير متكاملة (IDE) — برنامج يُستخدم لكتابة الشيفرة المصدرية وتشغيلها وإدارتها. سنشرح هنا Code::Blocks، ويمكنك لاحقاً تجربة أي بيئة أخرى تناسبك.</p>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="showTab('win')"><i class="fab fa-windows"></i> Windows</button>
+                <button class="tab-btn" onclick="showTab('mac')"><i class="fab fa-apple"></i> macOS</button>
+            </div>
+
+            <div class="tab-panel active" id="win-panel">
+                <div class="install-step"><div class="num">1</div><p>توجّه إلى <a href="https://www.codeblocks.org/downloads/binaries/" target="_blank">صفحة تحميل Code::Blocks</a> وحمّل ملف التثبيت <code>codeblocks-25.03mingw-setup.exe</code> (اختر الإصدار الذي يحتوي على MinGW؛ قد يكون رقم الإصدار لديك مختلفاً).</p></div>
+                <div class="install-step"><div class="num">2</div><p>هذا الإصدار يتضمّن مترجم MinGW، لذلك لا حاجة لتثبيت مترجم منفصل.</p></div>
+                <div class="install-step"><div class="num">3</div><p>شغّل ملف التثبيت واترك الخيارات الافتراضية كما هي.</p></div>
+            </div>
+
+            <div class="tab-panel" id="mac-panel">
+                <div class="install-step"><div class="num">1</div><p>ثبّت أدوات سطر الأوامر من Apple لتحصل على مترجم clang: <code>xcode-select --install</code></p></div>
+                <div class="install-step"><div class="num">2</div><p>حمّل ملف <code>CodeBlocks-25.03_macOS-11.7_x64-wx3.2.6.dmg</code> من صفحة التحميل وثبّته (قد يختلف رقم الإصدار).</p></div>
+                <div class="install-step"><div class="num">3</div><p>إذا لم يجد Code::Blocks المترجم عند أول تشغيل: اذهب إلى <code>Settings → Compiler</code> واختر <code>Clang</code> إن كان متاحاً.</p></div>
+            </div>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>إذا بدا لك Code::Blocks غير مريح (خصوصاً على macOS)، يمكنك استخدام <strong>CLion</strong> أو <strong>VS Code</strong> بدلاً منه. على Windows وmacOS ستحتاج لتثبيت مترجم (MinGW أو Clang)، بينما في Linux يكون مترجم GCC متوفراً مسبقاً غالباً. إذا استخدمت VS Code، تأكد من تثبيت إضافة C/C++.</p>
+            </div>
+        </div>
+
+        <!-- Create project + build -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-play-circle"></i>
+                <h3>إنشاء المشروع وتشغيل أول برنامج</h3>
+            </div>
+            <div class="step-item"><div class="step-number">1</div><div><h4>مشروع جديد</h4><p>من القائمة الرئيسية: <code>File → New → Project → Console application</code>، ثم اختر <code>C++</code> واضغط Next.</p></div></div>
+            <div class="step-item"><div class="step-number">2</div><div><h4>تسمية المشروع</h4><p>أدخل اسماً مثل <code>HelloWorld</code>، اختر مجلد الحفظ، ثم اضغط Finish. سينشئ Code::Blocks ملفاً باسم <code>main.cpp</code>.</p></div></div>
+            <div class="step-item"><div class="step-number">3</div><div><h4>كتابة البرنامج</h4><p>افتح <code>main.cpp</code> واستبدل محتواه بالكامل ببرنامج Hello World الموضح أعلاه.</p></div></div>
+            <div class="step-item"><div class="step-number">4</div><div><h4>البناء والتشغيل</h4><p>اضغط زر <code>Build and run</code> (المثلث الأخضر) أو <code>F9</code>. يجب أن تظهر النتيجة <code>Hello, World!</code>.</p></div></div>
+
+            <div class="tip-box">
+                <i class="fas fa-gears"></i>
+                <p><strong>ماذا يحدث فعلياً؟</strong> عند الضغط على Build، يستدعي Code::Blocks المترجم (MinGW على Windows أو Clang على macOS)، الذي يحوّل الشيفرة المصدرية إلى ملف تنفيذي (Binary) يمكن لنظام التشغيل تشغيله مباشرة — بامتداد <code>.exe</code> غالباً على Windows. لاحقاً ستتعرّف بتفصيل أكبر على المترجم (Compiler) والرابط (Linker) وإعدادات البناء (Build Settings)؛ يكفي الآن فهم الفكرة العامة.</p>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>تحقق من فهمك</h3>
+            </div>
+
+            <div class="quiz-q" id="q1">
+                <h4>١. ما وظيفة السطر <code style="direction:ltr; display:inline-block;">return 0;</code>؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">يطبع الرقم صفر على الشاشة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, true)">ينهي البرنامج ويشير إلى أنه انتهى بنجاح</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">يبدأ تنفيذ البرنامج من جديد</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q2">
+                <h4>٢. ماذا يحدث إذا نسيت الفاصلة المنقوطة <code style="direction:ltr; display:inline-block;">;</code> بعد أحد الأوامر؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">لا شيء، البرنامج يعمل بشكل طبيعي</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, true)">يظهر خطأ عند الترجمة (Compile Error)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">يتم تجاهل السطر تلقائياً فقط</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>قاموس المصطلحات</h3>
+            </div>
+            <p>هذه أهم المصطلحات الإنجليزية التي ظهرت في هذا الدرس مع مرادفها العربي، لتعتاد على استخدامها بثقة:</p>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Preprocessor</span><span class="term-ar">المعالج القبلي / المترجم القبلي</span><p class="term-desc">مرحلة تسبق الترجمة، تُنفَّذ فيها أوامر تبدأ بـ #.</p></div>
+                <div class="term-card"><span class="term-en">Namespace</span><span class="term-ar">مساحة الاسم</span><p class="term-desc">مجموعة أسماء (دوال، متغيرات) مُجمَّعة تحت نطاق واحد لتفادي التعارض بينها.</p></div>
+                <div class="term-card"><span class="term-en">Function</span><span class="term-ar">دالة</span><p class="term-desc">مجموعة أوامر مجمّعة تحت اسم واحد لتنفيذ مهمة محددة.</p></div>
+                <div class="term-card"><span class="term-en">main()</span><span class="term-ar">الدالة الرئيسية</span><p class="term-desc">نقطة البداية التي ينفذ عندها الحاسوب أول أمر في البرنامج.</p></div>
+                <div class="term-card"><span class="term-en">Compiler</span><span class="term-ar">المترجم (المصرّف)</span><p class="term-desc">برنامج يحوّل الشيفرة المصدرية إلى ملف تنفيذي يفهمه الحاسوب.</p></div>
+                <div class="term-card"><span class="term-en">Comment</span><span class="term-ar">تعليق</span><p class="term-desc">ملاحظة نصية يكتبها المبرمج ويتجاهلها الحاسوب عند التنفيذ.</p></div>
+                <div class="term-card"><span class="term-en">Indentation</span><span class="term-ar">الإزاحة / المسافة البادئة</span><p class="term-desc">تنسيق الكود بمسافات ثابتة لتحسين وضوحه وقراءته.</p></div>
+                <div class="term-card"><span class="term-en">IDE</span><span class="term-ar">بيئة تطوير متكاملة</span><p class="term-desc">برنامج يجمع محرر الكود والمترجم وأدوات التشغيل في مكان واحد.</p></div>
+                <div class="term-card"><span class="term-en">Compile</span><span class="term-ar">ترجمة / تصريف</span><p class="term-desc">عملية تحويل الشيفرة المصدرية إلى ملف تنفيذي.</p></div>
+                <div class="term-card"><span class="term-en">Linker</span><span class="term-ar">الرابط</span><p class="term-desc">أداة تربط أجزاء البرنامج المترجمة معاً لإنتاج الملف التنفيذي النهائي.</p></div>
+                <div class="term-card"><span class="term-en">Build</span><span class="term-ar">بناء</span><p class="term-desc">العملية الكاملة من الترجمة إلى الربط لإنتاج برنامج قابل للتشغيل.</p></div>
+                <div class="term-card"><span class="term-en">Executable / Binary</span><span class="term-ar">ملف تنفيذي / ثنائي</span><p class="term-desc">الملف الجاهز الذي يستطيع نظام التشغيل تشغيله مباشرة.</p></div>
+                <div class="term-card"><span class="term-en">endl</span><span class="term-ar">نهاية السطر</span><p class="term-desc">اختصار لكلمة end line، يُستخدم مع cout للانتقال إلى سطر جديد.</p></div>
+                <div class="term-card"><span class="term-en">Console application</span><span class="term-ar">تطبيق طرفي</span><p class="term-desc">برنامج يعمل عبر نافذة نصية بسيطة (Terminal) بدون واجهة رسومية.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الأول: لغة C++ للأولمبياد</footer>
+
+    <script>
+        // Line explanations
+        const explanations = {
+            0: '<strong>#include &lt;iostream&gt;</strong> — يُخبر المترجم بأننا نريد استخدام أوامر الإدخال/الإخراج (مثل cout وcin).',
+            1: '<strong>using namespace std;</strong> — يتيح لنا كتابة cout بدل std::cout، أي بشكل أقصر وأسهل.',
+            2: '<strong>int main() {</strong> — الدالة الرئيسية؛ يبدأ تنفيذ البرنامج منها، وكل ما بداخل الأقواس هو جسم الدالة الذي يُنفَّذ.',
+            3: '<strong>cout &lt;&lt; "Hello, World!";</strong> — تطبع النص الموجود بين علامتي التنصيص مباشرة على الشاشة.',
+            4: '<strong>return 0;</strong> — تُنهي البرنامج وتُعلم نظام التشغيل بأن التنفيذ تم بنجاح.',
+            5: '<strong>}</strong> — القوس الختامي الذي يغلق جسم الدالة main، ويُنهي تعريفها.'
+        };
+
+        document.querySelectorAll('.code-line').forEach(line => {
+            line.addEventListener('click', function () {
+                document.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+                const key = this.getAttribute('data-explain');
+                document.getElementById('explainBox').innerHTML = explanations[key];
+            });
+        });
+
+        function copyCode(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(() => alert('تم نسخ الكود!'));
+        }
+
+        function showTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            document.getElementById(tab + '-panel').classList.add('active');
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة! أحسنت.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة غير صحيحة، حاول مرة أخرى في المرة القادمة.</span>';
+            }
+        }
+    </script>
+</body>
+</html>
