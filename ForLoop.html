@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | حلقة for</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15);
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .title-section { text-align: center; margin-bottom: 50px; }
+        .title-section h1 { font-size: 2.4rem; font-weight: 800; margin-bottom: 5px; }
+        .attribution { color: var(--primary-blue); font-size: 1.2rem; font-weight: 600; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .danger-card { border-right-color: #ef4444; }
+        .homework-card { border-right-color: #a855f7; }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .danger-card .card-header { color: #ef4444; }
+        .homework-card .card-header { color: #a855f7; }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        /* Code blocks */
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 20px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        .copy-btn { color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+        pre { padding: 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.95rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        /* interactive line */
+        .code-line { cursor: pointer; display: block; border-radius: 6px; padding: 2px 6px; margin: 0 -6px; transition: 0.2s; position: relative; }
+        .code-line:hover { background: rgba(0, 173, 239, 0.15); }
+        .code-line.active { background: rgba(247, 148, 30, 0.25); outline: 1px dashed var(--primary-yellow); }
+        .code-line.hit { background: rgba(74, 222, 128, 0.25); outline: 1px dashed #4ade80; }
+        .step-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: var(--primary-yellow); color: white; width: 20px; height: 20px;
+            border-radius: 50%; font-size: 0.7rem; font-weight: 800; margin-left: 10px;
+        }
+
+        /* annotated syntax parts */
+        .part-chip { cursor: pointer; padding: 2px 8px; border-radius: 6px; transition: 0.2s; font-weight: 700; }
+        .part-chip.p-init { background: rgba(0, 173, 239, 0.15); color: #38bdf8; }
+        .part-chip.p-cond { background: rgba(247, 148, 30, 0.2); color: #fbbf24; }
+        .part-chip.p-update { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+        .part-chip.active { outline: 2px dashed white; }
+        .part-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 14px; font-size: 0.85rem; }
+        .part-legend span { display: flex; align-items: center; gap: 6px; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+        .legend-dot.p-init { background: var(--primary-blue); }
+        .legend-dot.p-cond { background: var(--primary-yellow); }
+        .legend-dot.p-update { background: #22c55e; }
+
+        .explain-box {
+            margin-top: 18px; background: var(--bg-main); border: 2px dashed #cbd5e1;
+            border-radius: 16px; padding: 18px 22px; font-weight: 600; color: var(--dark-navy);
+            min-height: 30px; transition: 0.2s;
+        }
+        .explain-box .hint { color: #94a3b8; font-weight: 500; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 16px 22px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        /* step items */
+        .step-item {
+            display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px;
+            padding: 20px; background: #fff; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .step-number {
+            background: var(--yellow-gradient); color: white; width: 32px; height: 32px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 800; flex-shrink: 0;
+        }
+        .step-item h4 { margin: 0 0 6px 0; font-size: 1.02rem; color: var(--dark-navy); }
+        .step-item p { margin: 0; font-size: 0.92rem; }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.08); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        /* simulators */
+        .sim-box { background: var(--bg-main); border: 3px dashed #cbd5e1; border-radius: 20px; padding: 28px; margin-top: 18px; }
+        .sim-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .sim-label { font-weight: 700; font-size: 0.9rem; color: var(--dark-navy); }
+        .sim-input {
+            border: 2px solid #cbd5e1; border-radius: 10px; padding: 10px 14px; font-family: 'Consolas', monospace;
+            font-size: 0.95rem; width: 140px; direction: ltr; text-align: center;
+        }
+        .sim-input:focus { outline: none; border-color: var(--primary-blue); }
+        .sim-btn { background: var(--yellow-gradient); color: white; border: none; padding: 10px 24px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.9rem; }
+        .sim-btn.alt { background: var(--blue-gradient); }
+        .sim-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .sim-console { background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace; padding: 14px 20px; border-radius: 12px; margin-top: 12px; direction: ltr; text-align: left; min-height: 24px; word-break: break-word; white-space: pre-line; }
+        .state-row { display: flex; gap: 20px; margin-top: 14px; flex-wrap: wrap; font-family: 'Consolas', monospace; font-size: 0.88rem; direction: ltr; text-align: left; }
+        .state-chip { background: white; border: 2px solid #e2e8f0; border-radius: 10px; padding: 8px 14px; }
+        .state-chip b { color: var(--primary-blue); }
+        .state-chip.cond-true { border-color: #22c55e; color: #15803d; }
+        .state-chip.cond-false { border-color: #ef4444; color: #b91c1c; }
+        .state-chip.phase { border-color: var(--primary-yellow); color: #b45309; }
+
+        /* example subsection */
+        .example-block { margin-top: 30px; padding-top: 30px; border-top: 2px dashed #e2e8f0; }
+        .example-num {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: var(--blue-gradient); color: white; width: 30px; height: 30px;
+            border-radius: 10px; font-weight: 800; margin-left: 10px; font-size: 0.95rem;
+        }
+        .example-title { display: flex; align-items: center; gap: 4px; margin-bottom: 10px; font-size: 1.1rem; font-weight: 800; color: var(--dark-navy); }
+
+        /* homework */
+        .exercise-box { background: var(--bg-main); border: 3px dashed #a855f7; border-radius: 20px; padding: 28px; margin-top: 18px; }
+        .reveal-btn { background: linear-gradient(135deg, #a855f7, #7e22ce); color: white; border: none; padding: 12px 28px; border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.9rem; }
+        .solution-panel { display: none; margin-top: 20px; padding-top: 20px; border-top: 2px dashed #cbd5e1; }
+        .solution-panel.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* glossary */
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        /* quiz */
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الأول — C++</span>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="title-section">
+            <h1>حلقة for</h1>
+            <p class="attribution">هذا الشرح مقدم من منصة تويت كود</p>
+        </div>
+
+        <!-- Intro -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-rotate"></i>
+                <h3>متى نستخدم حلقة for؟</h3>
+            </div>
+            <p>تُستخدم حلقة <code class="inline">for</code> غالباً في الحالات التي يكون فيها عدد التكرارات معلوماً مسبقاً — مثل تكرار عملية عدداً محدداً من المرات، أو المرور على كل عنصر في مجموعة. ميزتها الأساسية أنها تسمح بكتابة ثلاثة أجزاء أساسية معاً في سطر واحد: <strong>التهيئة (initialization)</strong>، و<strong>الشرط (condition)</strong>، و<strong>التحديث (update)</strong> — بعكس حلقة <code class="inline">while</code> التي تتطلب كتابة كل جزء في مكان منفصل من الكود.</p>
+
+            <p style="margin-top: 20px; font-weight: 700; color: var(--dark-navy);">الصياغة (Syntax):</p>
+            <div class="code-box">
+                <div class="code-head"><span>for_syntax.cpp</span></div>
+                <pre>for (initialization; condition; update)
+    statement;</pre>
+            </div>
+
+            <p style="margin-top: 20px; font-size: 0.9rem;"><i class="fas fa-hand-pointer" style="color: var(--primary-blue);"></i> اضغط على كل جزء ملوّن من رأس الحلقة أدناه لمعرفة دوره بالتحديد:</p>
+            <div class="code-box">
+                <div class="code-group" id="grpParts">
+                <div class="code-head"><span>for_annotated.cpp</span></div>
+                <pre>for (<span class="part-chip p-init" onclick="explainPart(this,'init')">int n = 10</span>; <span class="part-chip p-cond" onclick="explainPart(this,'cond')">n &gt; 0</span>; <span class="part-chip p-update" onclick="explainPart(this,'update')">n--</span>)
+    cout &lt;&lt; n &lt;&lt; ", ";</pre>
+                <div class="explain-box"><span class="hint">اضغط على أحد الأجزاء الملوّنة أعلاه لعرض شرحه هنا...</span></div>
+                </div>
+            </div>
+            <div class="part-legend">
+                <span><span class="legend-dot p-init"></span> التهيئة (مرة واحدة فقط)</span>
+                <span><span class="legend-dot p-cond"></span> الشرط (يُفحص قبل كل تكرار)</span>
+                <span><span class="legend-dot p-update"></span> التحديث (بعد كل تكرار)</span>
+            </div>
+        </div>
+
+        <!-- Main example: countdown -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-hourglass-half"></i>
+                <h3>مثال: العدّ التنازلي</h3>
+            </div>
+
+            <div class="code-box">
+                <div class="code-group" id="grpMain">
+                <div class="code-head">
+                    <span>countdown_for.cpp</span>
+                    <button class="copy-btn" onclick="copyCode('mainCode')">نسخ الكود</button>
+                </div>
+                <pre id="mainCode"><span class="code-line cmt" onclick="explainLine(this,'main',0)">// countdown using a for loop</span>
+<span class="code-line" onclick="explainLine(this,'main',1)">#include &lt;iostream&gt;</span>
+<span class="code-line" onclick="explainLine(this,'main',2)">using namespace std;</span>
+
+<span class="code-line" onclick="explainLine(this,'main',3)">int main() {</span>
+<span class="code-line" onclick="explainLine(this,'main',4)">    for (int n = 10; n &gt; 0; n--) {</span>
+<span class="code-line" onclick="explainLine(this,'main',5)">        cout &lt;&lt; n &lt;&lt; ", ";</span>
+<span class="code-line" onclick="explainLine(this,'main',6)">    }</span>
+<span class="code-line" onclick="explainLine(this,'main',7)">    cout &lt;&lt; "liftoff!\n";</span>
+<span class="code-line" onclick="explainLine(this,'main',8)">}</span></pre>
+                <div class="explain-box"><span class="hint">اضغط على أي سطر لعرض شرحه هنا...</span></div>
+                </div>
+            </div>
+
+            <p style="margin-top: 20px;">الناتج:</p>
+            <div class="output-box">10, 9, 8, 7, 6, 5, 4, 3, 2, 1, liftoff!</div>
+
+            <p style="margin-top: 25px; font-weight: 700; color: var(--dark-navy);">كيف تعمل حلقة for؟ — خطوة بخطوة:</p>
+            <div class="step-item">
+                <div class="step-number">1</div>
+                <div><h4>التهيئة (Initialization)</h4><p>تُنفَّذ مرة واحدة فقط، قبل بداية الحلقة تماماً — مثل: <code class="inline">int n = 10;</code>.</p></div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">2</div>
+                <div><h4>الشرط (Condition)</h4><p>يُفحص قبل كل تكرار — مثل: <code class="inline">n &gt; 0</code>. إذا كان صحيحاً يُنفَّذ الأمر، وإذا كان خاطئاً تتوقّف الحلقة فوراً.</p></div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">3</div>
+                <div><h4>الأمر (Statement)</h4><p>يُنفَّذ فقط إذا كان الشرط صحيحاً — مثل: <code class="inline">cout &lt;&lt; n &lt;&lt; ", ";</code>.</p></div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">4</div>
+                <div><h4>التحديث (Update)</h4><p>يُنفَّذ بعد كل تكرار، ثم يعود التنفيذ لفحص الشرط من جديد — مثل: <code class="inline">n--</code>.</p></div>
+            </div>
+
+            <p style="margin-top: 25px; font-size: 0.9rem;"><i class="fas fa-flask" style="color: var(--primary-yellow);"></i> جرّب بنفسك خطوة بخطوة — اضغط "الخطوة التالية" لترى كل مرحلة من مراحل تنفيذ الحلقة (تهيئة، شرط، تنفيذ، تحديث):</p>
+            <div class="sim-box" id="simFor">
+                <div class="state-row">
+                    <div class="state-chip" id="stateN">n = <b>—</b></div>
+                    <div class="state-chip" id="stateCond">الشرط: —</div>
+                    <div class="state-chip phase" id="statePhase">المرحلة: لم تبدأ بعد</div>
+                </div>
+                <div class="sim-console" id="forConsole">في انتظار التشغيل...</div>
+                <div class="sim-row" style="margin-top: 16px;">
+                    <button class="sim-btn" onclick="stepFor()" id="stepForBtn"><i class="fas fa-forward-step"></i> الخطوة التالية</button>
+                    <button class="sim-btn alt" onclick="resetFor()"><i class="fas fa-rotate-left"></i> إعادة</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Optional parts -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-puzzle-piece"></i>
+                <h3>الأجزاء الاختيارية في رأس الحلقة</h3>
+            </div>
+            <p>الأجزاء الثلاثة في رأس حلقة for (التهيئة، الشرط، التحديث) <strong>اختيارية</strong> بشكل منفرد — يمكن حذف أي منها أو أكثر من واحد — لكن الفواصل المنقوطة <code class="inline">;</code> التي تفصل بينها تبقى <strong>إلزامية دائماً</strong>:</p>
+            <div class="code-box">
+                <div class="code-head"><span>optional_parts.cpp</span></div>
+                <pre>for (; n &lt; 10; )    <span class="cmt">// بدون تهيئة أو تحديث</span>
+for (; n &lt; 10; ++n) <span class="cmt">// مع تحديث فقط، بدون تهيئة</span></pre>
+            </div>
+            <p style="font-size: 0.9rem;">هذا مفيد مثلاً عندما يكون المتغيّر معرّفاً مسبقاً قبل الحلقة، فلا حاجة لتهيئته مرة أخرى داخل رأس for.</p>
+        </div>
+
+        <!-- Infinite loop warning -->
+        <div class="card danger-card">
+            <div class="card-header">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>تحذير: إهمال الشرط يعني حلقة لا نهائية</h3>
+            </div>
+            <div class="warn-box">
+                <i class="fas fa-circle-exclamation"></i>
+                <p>بما أن الشرط اختياري، فإن إهماله تماماً (تركه فارغاً) يجعل الحلقة تعتبره دائماً <code class="inline">true</code> — أي أنها <strong>لن تتوقف أبداً</strong> ما لم يوجد أمر خاص داخلها لكسرها.</p>
+            </div>
+            <div class="code-box" style="margin-top: 15px;">
+                <div class="code-head"><span>infinite_for.cpp — لا تُشغّل هذا الكود فعلياً!</span></div>
+                <pre>for (int i = 0; ; i++) {
+    cout &lt;&lt; i &lt;&lt; " ";
+    <span class="cmt">// لا يوجد شرط توقّف هنا — حلقة لا نهائية!</span>
+}</pre>
+            </div>
+        </div>
+
+        <!-- Range-based for -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-ol"></i>
+                <h3>حلقة for المبنية على المجال (Range-Based for)</h3>
+            </div>
+            <p>نوع خاص من حلقة for يُستخدم للتكرار تلقائياً على <strong>كل عنصر</strong> في مجال (range) — مثل المصفوفات أو السلاسل النصية (strings) — دون الحاجة لكتابة تهيئة أو شرط أو تحديث يدوياً:</p>
+
+            <div class="code-box">
+                <div class="code-group" id="grpRange">
+                <div class="code-head"><span>range_based.cpp</span></div>
+                <pre><span class="code-line" onclick="explainLine(this,'range',0)">#include &lt;iostream&gt;</span>
+<span class="code-line" onclick="explainLine(this,'range',1)">#include &lt;string&gt;</span>
+<span class="code-line" onclick="explainLine(this,'range',2)">using namespace std;</span>
+
+<span class="code-line" onclick="explainLine(this,'range',3)">int main() {</span>
+<span class="code-line" onclick="explainLine(this,'range',4)">    string str {"Hello!"};</span>
+<span class="code-line" onclick="explainLine(this,'range',5)">    for (char c : str)</span>
+<span class="code-line" onclick="explainLine(this,'range',6)">        cout &lt;&lt; "[" &lt;&lt; c &lt;&lt; "]";</span>
+<span class="code-line" onclick="explainLine(this,'range',7)">    cout &lt;&lt; '\n';</span>
+<span class="code-line" onclick="explainLine(this,'range',8)">}</span></pre>
+                <div class="explain-box"><span class="hint">اضغط على أي سطر لعرض شرحه هنا...</span></div>
+                </div>
+            </div>
+            <p style="margin-top: 20px;">الناتج:</p>
+            <div class="output-box">[H][e][l][l][o][!]</div>
+
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>يمكن استخدام الكلمة <code class="inline">auto</code> بدلاً من تحديد النوع يدوياً (مثل <code class="inline">char</code>)، لجعل المترجم يحدّد نوع العنصر تلقائياً، وتكون النتيجة نفسها تماماً: <code class="inline">for (auto c : str) cout &lt;&lt; "[" &lt;&lt; c &lt;&lt; "]";</code></p>
+            </div>
+
+            <p style="margin-top: 25px; font-size: 0.9rem;"><i class="fas fa-flask" style="color: var(--primary-yellow);"></i> جرّب بنفسك: أدخل أي كلمة أو جملة قصيرة وشاهد الحلقة تمر على كل حرف فيها:</p>
+            <div class="sim-box" id="simRange">
+                <div class="sim-row">
+                    <span class="sim-label">str =</span>
+                    <input type="text" class="sim-input" id="rangeInput" value="Hello!" style="width: 180px;">
+                    <button class="sim-btn" onclick="runRange()"><i class="fas fa-play"></i> شغّل</button>
+                </div>
+                <div class="sim-console" id="rangeConsole">في انتظار التشغيل...</div>
+            </div>
+        </div>
+
+        <!-- Extra examples -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>أمثلة إضافية على for</h3>
+            </div>
+            <p>ثلاثة أمثلة عملية إضافية، تجمع بين حلقة for الكلاسيكية وحلقة for المبنية على المجال:</p>
+
+            <!-- Example 1: times table -->
+            <div class="example-block">
+                <div class="example-title"><span class="example-num">1</span> جدول الضرب باستخدام for</div>
+                <p style="font-size: 0.9rem;">نفس فكرة جدول الضرب، لكن مكتوبة بحلقة for في سطر واحد بدل ثلاثة أسطر منفصلة:</p>
+                <div class="code-box">
+                    <div class="code-head"><span>times_table_for.cpp</span></div>
+                    <pre>int x = 4;
+for (int i = 1; i &lt;= 10; i++)
+    cout &lt;&lt; x &lt;&lt; " x " &lt;&lt; i &lt;&lt; " = " &lt;&lt; (x * i) &lt;&lt; "\n";</pre>
+                </div>
+                <div class="sim-box" id="simTable">
+                    <div class="sim-row">
+                        <span class="sim-label">x =</span>
+                        <input type="number" class="sim-input" id="tableInput" value="4" min="1" max="20">
+                        <button class="sim-btn" onclick="runTable()"><i class="fas fa-play"></i> شغّل</button>
+                    </div>
+                    <div class="sim-console" id="tableConsole">في انتظار التشغيل...</div>
+                </div>
+            </div>
+
+            <!-- Example 2: sum of digits -->
+            <div class="example-block">
+                <div class="example-title"><span class="example-num">2</span> مجموع أرقام عدد باستخدام Range-Based for</div>
+                <p style="font-size: 0.9rem;">برنامج يحسب مجموع أرقام عدد (مكتوب كسلسلة نصية) بالمرور على كل حرف فيه:</p>
+                <div class="code-box">
+                    <div class="code-head"><span>digit_sum.cpp</span></div>
+                    <pre>string numStr = "12345";
+int sum = 0;
+
+for (char c : numStr)
+    sum += (c - '0');
+
+cout &lt;&lt; "Sum of digits: " &lt;&lt; sum;</pre>
+                </div>
+                <div class="sim-box" id="simDigit">
+                    <div class="sim-row">
+                        <span class="sim-label">numStr =</span>
+                        <input type="text" class="sim-input" id="digitInput" value="12345">
+                        <button class="sim-btn" onclick="runDigitSum()"><i class="fas fa-play"></i> شغّل</button>
+                    </div>
+                    <div class="sim-console" id="digitConsole">في انتظار التشغيل...</div>
+                </div>
+            </div>
+
+            <!-- Example 3: vowel count -->
+            <div class="example-block">
+                <div class="example-title"><span class="example-num">3</span> عدّ الأحرف المتحركة في كلمة</div>
+                <p style="font-size: 0.9rem;">برنامج يعدّ عدد الأحرف المتحركة (a, e, i, o, u) في كلمة معيّنة باستخدام Range-Based for:</p>
+                <div class="code-box">
+                    <div class="code-head"><span>vowel_count.cpp</span></div>
+                    <pre>string word = "Olympiad";
+int count = 0;
+string vowels = "aeiouAEIOU";
+
+for (char c : word) {
+    if (vowels.find(c) != string::npos)
+        count++;
+}
+
+cout &lt;&lt; "Vowels: " &lt;&lt; count;</pre>
+                </div>
+                <div class="sim-box" id="simVowel">
+                    <div class="sim-row">
+                        <span class="sim-label">word =</span>
+                        <input type="text" class="sim-input" id="vowelInput" value="Olympiad" style="width: 180px;">
+                        <button class="sim-btn" onclick="runVowelCount()"><i class="fas fa-play"></i> شغّل</button>
+                    </div>
+                    <div class="sim-console" id="vowelConsole">في انتظار التشغيل...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Homework -->
+        <div class="card homework-card">
+            <div class="card-header">
+                <i class="fas fa-pen-ruler"></i>
+                <h3>واجب منزلي</h3>
+            </div>
+            <div class="exercise-box">
+                <p style="font-weight: 700; color: var(--dark-navy); margin: 0 0 10px 0;">التمرين:</p>
+                <p style="margin: 0;">اكتب برنامج C++ باستخدام حلقة <code class="inline">for</code> يطبع كل الأعداد <strong>الزوجية</strong> من 2 إلى 20 (أي: 2, 4, 6, ..., 20)، ثم يطبع رسالة <code class="inline">"تم!"</code> في سطر جديد بعد انتهاء الحلقة.</p>
+                <p style="margin-top: 10px; font-size: 0.85rem;"><i class="fas fa-lightbulb" style="color: var(--primary-yellow);"></i> تلميح: يمكنك جعل التحديث في رأس الحلقة يزيد المتغيّر بمقدار 2 في كل مرة بدلاً من 1.</p>
+                <button class="reveal-btn" onclick="toggleHwSolution()" id="hwBtn" style="margin-top: 18px;"><i class="fas fa-eye"></i> عرض الحل المقترح</button>
+                <div class="solution-panel" id="hwSolution">
+                    <div class="code-box">
+                        <div class="code-head"><span>homework_solution.cpp</span></div>
+                        <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    for (int i = 2; i &lt;= 20; i += 2) {
+        cout &lt;&lt; i &lt;&lt; " ";
+    }
+    cout &lt;&lt; "\nتم!";
+}</pre>
+                    </div>
+                    <div class="output-box">2 4 6 8 10 12 14 16 18 20<br>تم!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>تحقق من فهمك</h3>
+            </div>
+
+            <div class="quiz-q" id="q1">
+                <h4>١. ما الأجزاء الثلاثة الأساسية في رأس حلقة for؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, true)">التهيئة، الشرط، التحديث</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">المدخل، المعالجة، المخرج</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">الاسم، النوع، القيمة</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q2">
+                <h4>٢. متى تُنفَّذ التهيئة (Initialization) في حلقة for؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, true)">مرة واحدة فقط، قبل بداية الحلقة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">بعد كل تكرار</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">قبل كل تكرار</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q3">
+                <h4>٣. هل يمكن حذف أحد الأجزاء الثلاثة في رأس for (مثل الشرط) وترك الفاصلة المنقوطة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, true)">نعم، كل جزء اختياري لكن الفواصل المنقوطة إلزامية</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">لا، يجب كتابة الأجزاء الثلاثة دائماً بدون استثناء</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">لا، وحذف أي جزء يسبب خطأ في الترجمة فوراً</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q4">
+                <h4>٤. ماذا يحدث إذا تُرك شرط حلقة for فارغاً تماماً؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, true)">يُعامَل كأنه true دائماً، فتصبح الحلقة لا نهائية</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">يُعامَل كأنه false دائماً، فلا تُنفَّذ الحلقة إطلاقاً</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">يظهر خطأ ترجمة فوراً</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q5">
+                <h4>٥. ما وظيفة حلقة for المبنية على المجال (Range-Based for)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, true)">المرور تلقائياً على كل عنصر في مجال، مثل سلسلة نصية أو مصفوفة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, false)">تنفيذ الحلقة عدداً غير محدود من المرات</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, false)">تعريف متغيّرات ثابتة فقط</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q6">
+                <h4>٦. ما دور الكلمة auto في for (auto c : str)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, true)">تجعل المترجم يحدّد نوع العنصر تلقائياً</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, false)">تحوّل str إلى عدد صحيح</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, false)">تُنهي الحلقة بعد أول عنصر فقط</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>قاموس المصطلحات</h3>
+            </div>
+            <p>أهم المصطلحات الإنجليزية في هذا الدرس مع مرادفها العربي:</p>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">for</span><span class="term-ar">حلقة for</span><p class="term-desc">حلقة تكرار تجمع التهيئة والشرط والتحديث في رأس واحد.</p></div>
+                <div class="term-card"><span class="term-en">Initialization</span><span class="term-ar">تهيئة</span><p class="term-desc">الجزء الذي يُنفَّذ مرة واحدة فقط قبل بداية الحلقة.</p></div>
+                <div class="term-card"><span class="term-en">Update</span><span class="term-ar">تحديث</span><p class="term-desc">الجزء الذي يُنفَّذ بعد كل تكرار، مثل زيادة أو إنقاص متغيّر.</p></div>
+                <div class="term-card"><span class="term-en">Loop header</span><span class="term-ar">رأس الحلقة</span><p class="term-desc">السطر الذي يحتوي على for والأقواس بالتهيئة والشرط والتحديث.</p></div>
+                <div class="term-card"><span class="term-en">Range-based for</span><span class="term-ar">for مبنية على المجال</span><p class="term-desc">نوع من for يمر تلقائياً على كل عنصر في مجموعة، دون تهيئة أو شرط يدوي.</p></div>
+                <div class="term-card"><span class="term-en">auto</span><span class="term-ar">تلقائي (استنتاج النوع)</span><p class="term-desc">كلمة مفتاحية تجعل المترجم يحدّد نوع المتغيّر تلقائياً من سياق الكود.</p></div>
+                <div class="term-card"><span class="term-en">Iterate / Iteration</span><span class="term-ar">تكرار / دورة</span><p class="term-desc">المرور على عنصر أو تنفيذ جسم الحلقة مرة واحدة.</p></div>
+                <div class="term-card"><span class="term-en">Infinite loop</span><span class="term-ar">حلقة لا نهائية</span><p class="term-desc">حلقة لا يصبح شرطها خاطئاً أبداً، فتستمر إلى الأبد.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الأول: لغة C++ للأولمبياد</footer>
+
+    <script>
+        const PART_EXPLANATIONS = {
+            init: '<strong>int n = 10</strong> — التهيئة (Initialization): تُنفَّذ مرة واحدة فقط، قبل بداية الحلقة تماماً، لتعريف متغيّر العدّاد وقيمته الابتدائية.',
+            cond: '<strong>n &gt; 0</strong> — الشرط (Condition): يُفحص قبل كل تكرار. إذا كان true يستمر تنفيذ الحلقة، وإذا كان false تتوقّف فوراً.',
+            update: '<strong>n--</strong> — التحديث (Update): يُنفَّذ بعد كل تكرار، ثم يعود التنفيذ لفحص الشرط من جديد.'
+        };
+
+        function explainPart(el, key) {
+            const group = el.closest('.code-group');
+            group.querySelectorAll('.part-chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            group.querySelector('.explain-box').innerHTML = PART_EXPLANATIONS[key];
+        }
+
+        const EXPLANATIONS = {
+            main: {
+                0: 'تعليق (comment) يوضّح الغرض من الكود، ولا يُنفَّذ فعلياً.',
+                1: '<strong>#include &lt;iostream&gt;</strong> — تضمين مكتبة الإدخال والإخراج لاستخدام cout.',
+                2: '<strong>using namespace std;</strong> — يسمح باستخدام cout مباشرة دون كتابة std:: قبلها.',
+                3: '<strong>int main() {</strong> — بداية الدالة الرئيسية التي يبدأ منها تنفيذ البرنامج.',
+                4: '<strong>for (int n = 10; n &gt; 0; n--) {</strong> — رأس الحلقة الكامل: تهيئة n بـ 10، شرط الاستمرار n &gt; 0، وتحديث ينقص n بواحد بعد كل تكرار.',
+                5: '<strong>cout &lt;&lt; n &lt;&lt; ", ";</strong> — الأمر الذي يُنفَّذ في كل تكرار طالما الشرط صحيح: طباعة القيمة الحالية لـ n.',
+                6: '<strong>}</strong> — نهاية جسم الحلقة؛ يعود التنفيذ لتحديث n ثم فحص الشرط من جديد.',
+                7: '<strong>cout &lt;&lt; "liftoff!\\n";</strong> — يُنفَّذ مرة واحدة فقط، بعد أن تتوقّف الحلقة تماماً.',
+                8: '<strong>}</strong> — نهاية الدالة main ونهاية البرنامج.'
+            },
+            range: {
+                0: '<strong>#include &lt;iostream&gt;</strong> — تضمين مكتبة الإدخال والإخراج لاستخدام cout.',
+                1: '<strong>#include &lt;string&gt;</strong> — تضمين مكتبة السلاسل النصية لاستخدام النوع string.',
+                2: '<strong>using namespace std;</strong> — يسمح باستخدام cout وstring مباشرة دون كتابة std:: قبلها.',
+                3: '<strong>int main() {</strong> — بداية الدالة الرئيسية.',
+                4: '<strong>string str {"Hello!"};</strong> — تعريف متغيّر نصي str يحتوي على الكلمة "Hello!".',
+                5: '<strong>for (char c : str)</strong> — حلقة تمر على كل حرف c داخل str، واحداً تلو الآخر، تلقائياً.',
+                6: '<strong>cout &lt;&lt; "[" &lt;&lt; c &lt;&lt; "]";</strong> — يُنفَّذ لكل حرف على حدة، فيطبعه محاطاً بقوسين مربعين.',
+                7: '<strong>cout &lt;&lt; \'\\n\';</strong> — طباعة سطر جديد بعد انتهاء الحلقة.',
+                8: '<strong>}</strong> — نهاية الدالة main.'
+            }
+        };
+
+        function explainLine(el, setName, key) {
+            const group = el.closest('.code-group');
+            group.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+            el.classList.add('active');
+            group.querySelector('.explain-box').innerHTML = EXPLANATIONS[setName][key];
+        }
+
+        function copyCode(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(() => alert('تم نسخ الكود!'));
+        }
+
+        /* step-by-step for-loop simulator */
+        let forN = null;
+        let forConsoleText = '';
+        let forPhase = 'start'; // start -> init -> cond -> body -> update -> done
+        let forStarted = false;
+
+        function highlightMain(idx) {
+            const group = document.getElementById('grpMain');
+            group.querySelectorAll('.code-line').forEach(l => l.classList.remove('hit'));
+            const lines = group.querySelectorAll('.code-line');
+            if (idx !== null && lines[idx]) lines[idx].classList.add('hit');
+        }
+
+        function updateForDisplay() {
+            document.getElementById('stateN').innerHTML = 'n = <b>' + (forN === null ? '—' : forN) + '</b>';
+            const condEl = document.getElementById('stateCond');
+            if (forN === null) {
+                condEl.textContent = 'الشرط: —';
+                condEl.classList.remove('cond-true', 'cond-false');
+            } else {
+                const condTrue = forN > 0;
+                condEl.innerHTML = 'n &gt; 0 → <b>' + (condTrue ? 'true' : 'false') + '</b>';
+                condEl.classList.toggle('cond-true', condTrue);
+                condEl.classList.toggle('cond-false', !condTrue);
+            }
+            const phaseNames = { start: 'لم تبدأ بعد', init: 'تهيئة', cond: 'فحص الشرط', body: 'تنفيذ الأمر', update: 'تحديث', done: 'انتهت الحلقة' };
+            document.getElementById('statePhase').textContent = 'المرحلة: ' + phaseNames[forPhase];
+            document.getElementById('forConsole').textContent = forConsoleText || 'في انتظار التشغيل...';
+        }
+
+        function stepFor() {
+            if (forPhase === 'done') return;
+            if (!forStarted) {
+                forN = 10;
+                forStarted = true;
+                forPhase = 'init';
+                highlightMain(4);
+            } else if (forPhase === 'init' || forPhase === 'update') {
+                forPhase = 'cond';
+                highlightMain(4);
+            } else if (forPhase === 'cond') {
+                if (forN > 0) {
+                    forPhase = 'body';
+                    forConsoleText += forN + ', ';
+                    highlightMain(5);
+                } else {
+                    forConsoleText += 'liftoff!';
+                    forPhase = 'done';
+                    highlightMain(7);
+                    document.getElementById('stepForBtn').disabled = true;
+                }
+            } else if (forPhase === 'body') {
+                forN--;
+                forPhase = 'update';
+                highlightMain(4);
+            }
+            updateForDisplay();
+        }
+
+        function resetFor() {
+            forN = null;
+            forConsoleText = '';
+            forPhase = 'start';
+            forStarted = false;
+            document.getElementById('stepForBtn').disabled = false;
+            document.getElementById('grpMain').querySelectorAll('.code-line').forEach(l => l.classList.remove('hit'));
+            updateForDisplay();
+        }
+
+        /* range-based for simulator */
+        function runRange() {
+            const str = document.getElementById('rangeInput').value;
+            let out = '';
+            for (const c of str) out += '[' + c + ']';
+            document.getElementById('rangeConsole').textContent = out || '(نص فارغ)';
+        }
+
+        /* extra example 1: times table */
+        function runTable() {
+            const x = Number(document.getElementById('tableInput').value);
+            let lines = [];
+            for (let i = 1; i <= 10; i++) lines.push(x + ' x ' + i + ' = ' + (x * i));
+            document.getElementById('tableConsole').textContent = lines.join('\n');
+        }
+
+        /* extra example 2: digit sum */
+        function runDigitSum() {
+            const numStr = document.getElementById('digitInput').value;
+            let sum = 0, trace = [];
+            for (const c of numStr) {
+                if (c >= '0' && c <= '9') {
+                    sum += (c.charCodeAt(0) - '0'.charCodeAt(0));
+                    trace.push(c);
+                }
+            }
+            document.getElementById('digitConsole').textContent = 'الأرقام: ' + trace.join(' + ') + '  →  Sum of digits: ' + sum;
+        }
+
+        /* extra example 3: vowel count */
+        function runVowelCount() {
+            const word = document.getElementById('vowelInput').value;
+            const vowels = 'aeiouAEIOU';
+            let count = 0, marked = '';
+            for (const c of word) {
+                if (vowels.indexOf(c) !== -1) { count++; marked += '[' + c + ']'; }
+                else marked += c;
+            }
+            document.getElementById('vowelConsole').textContent = marked + '   →   Vowels: ' + count;
+        }
+
+        /* homework reveal */
+        function toggleHwSolution() {
+            const panel = document.getElementById('hwSolution');
+            const btn = document.getElementById('hwBtn');
+            panel.classList.toggle('show');
+            btn.innerHTML = panel.classList.contains('show')
+                ? '<i class="fas fa-eye-slash"></i> إخفاء الحل'
+                : '<i class="fas fa-eye"></i> عرض الحل المقترح';
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة! أحسنت.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة غير صحيحة، حاول مرة أخرى في المرة القادمة.</span>';
+            }
+        }
+
+        updateForDisplay();
+    </script>
+</body>
+</html>

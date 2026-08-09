@@ -34,6 +34,8 @@ int main() {
 
     if(n > 0) {
         dfs(0, -1);
+        cout << "dp0[0] "<< dp0[0]<<endl;
+        cout << "dp0[1] "<< dp0[1]<<endl;
         int ans = max(dp0[0], dp1[0]);
         cout << ans;
     }

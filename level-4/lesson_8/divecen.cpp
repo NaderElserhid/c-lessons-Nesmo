@@ -9,7 +9,7 @@ int main (){
 
     for(long long i = 1; i * i <= n; i++){
         if (n % i == 0){
-                cout << i;
+                cout << i << endl;
 
             divisors.push_back(i);
 

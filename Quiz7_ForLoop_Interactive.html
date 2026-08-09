@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | كويز الفصل السابع — حلقة for</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        /* ===== Header (same brand identity as lesson files) ===== */
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15);
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        /* ===== Sticky progress bar ===== */
+        .progress-wrap {
+            position: sticky; top: 86px; z-index: 900; background: rgba(255,255,255,0.97);
+            backdrop-filter: blur(10px); padding: 12px 6%; display: flex; align-items: center;
+            gap: 18px; flex-wrap: wrap; border-bottom: 1px solid #e2e8f0; font-size: 0.85rem; font-weight: 700;
+        }
+        .progress-track { flex: 1; min-width: 140px; height: 10px; background: #e2e8f0; border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--blue-gradient); width: 0%; transition: width 0.35s ease; border-radius: 10px; }
+        .progress-count { color: var(--text-body); white-space: nowrap; }
+        .progress-score { color: var(--primary-blue); white-space: nowrap; }
+
+        .container { max-width: 880px; margin: 40px auto; padding: 0 25px; }
+
+        .title-section { text-align: center; margin-bottom: 40px; }
+        .title-section h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 5px; }
+        .attribution { color: var(--primary-blue); font-size: 1.1rem; font-weight: 600; }
+        .attribution p { margin: 4px 0 0 0; font-size: 0.95rem; color: var(--text-body); font-weight: 500; }
+
+        /* ===== Question card ===== */
+        .q-card {
+            background: white; border-radius: 22px; padding: 32px;
+            margin-bottom: 26px; box-shadow: var(--soft-shadow);
+            border-right: 7px solid var(--primary-blue);
+        }
+        .q-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+        .q-badge {
+            background: var(--yellow-gradient); color: white; width: 38px; height: 38px; flex-shrink: 0;
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 1rem;
+        }
+        .q-difficulty { font-size: 0.72rem; font-weight: 800; padding: 5px 12px; border-radius: 20px; }
+        .q-difficulty.easy { background: rgba(34,197,94,0.12); color: #15803d; }
+        .q-difficulty.medium { background: rgba(247,148,30,0.15); color: #b45309; }
+        .q-difficulty.hard { background: rgba(239,68,68,0.12); color: #b91c1c; }
+
+        /* ===== Arabic text container (isolated RTL) ===== */
+        .q-text {
+            direction: rtl;
+            text-align: right;
+            unicode-bidi: plaintext;
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: var(--dark-navy);
+            margin: 0 0 16px 0;
+        }
+
+        /* Inline isolated code/keyword inside an Arabic sentence */
+        code.inline-kw {
+            direction: ltr;
+            unicode-bidi: isolate;
+            display: inline-block;
+            background: #eef2f7;
+            color: #d6336c;
+            font-family: 'Consolas', 'Cascadia Code', monospace;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.92rem;
+        }
+
+        /* ===== Code block container (isolated LTR) ===== */
+        .code-block-wrap { margin: 16px 0; border-radius: 16px; overflow: hidden; box-shadow: 0 15px 30px -12px rgba(0,0,0,0.3); }
+        .code-block-head {
+            background: #0f172a; padding: 10px 20px; color: #94a3b8; font-family: monospace;
+            font-size: 0.78rem; direction: ltr; text-align: left; unicode-bidi: isolate;
+        }
+        pre.code-block {
+            direction: ltr;
+            text-align: left;
+            unicode-bidi: isolate;
+            font-family: 'Cascadia Code', 'Consolas', monospace;
+            background: #1e293b;
+            color: #e2e8f0;
+            margin: 0;
+            padding: 20px 24px;
+            font-size: 0.92rem;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        pre.code-block .cmt { color: #79c36a; font-style: italic; }
+
+        /* ===== Options label ===== */
+        .q-options-label {
+            direction: rtl; text-align: right; font-size: 0.88rem; font-weight: 700;
+            color: var(--text-body); margin: 18px 0 10px 0;
+        }
+
+        .q-options { display: flex; flex-direction: column; gap: 10px; }
+
+        .q-opt {
+            border: 2px solid #e2e8f0; border-radius: 14px; padding: 13px 18px;
+            cursor: pointer; font-weight: 700; transition: 0.2s; background: white;
+        }
+        .q-opt:hover { border-color: var(--primary-blue); }
+        .q-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .q-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .q-opt.disabled { cursor: default; }
+
+        /* option variant: pure code / numeric / program output -> isolated LTR */
+        .q-opt.opt-code {
+            direction: ltr; text-align: left; unicode-bidi: isolate;
+            font-family: 'Cascadia Code', 'Consolas', monospace; font-size: 0.95rem;
+            background: #f4f8fb;
+        }
+        .q-opt.opt-code:hover { background: #eaf6fd; }
+
+        /* option variant: Arabic conceptual answer -> RTL */
+        .q-opt.opt-text {
+            direction: rtl; text-align: right; unicode-bidi: plaintext; font-family: 'Tajawal', sans-serif;
+        }
+
+        .q-feedback { margin-top: 12px; font-weight: 800; font-size: 0.92rem; min-height: 20px; direction: rtl; text-align: right; }
+
+        /* ===== Summary card ===== */
+        .summary-card {
+            background: var(--dark-navy); border-radius: 24px; padding: 40px; text-align: center;
+            color: white; margin-top: 10px; box-shadow: var(--soft-shadow);
+        }
+        .summary-score { font-size: 3rem; font-weight: 800; color: var(--primary-blue); direction: ltr; }
+        .summary-total { font-size: 1.1rem; color: #94a3b8; margin-top: -6px; }
+        .summary-msg { font-size: 1.15rem; font-weight: 700; margin-top: 14px; }
+        .summary-bar-track { height: 14px; background: rgba(255,255,255,0.12); border-radius: 10px; overflow: hidden; margin: 20px auto; max-width: 420px; }
+        .summary-bar-fill { height: 100%; background: var(--yellow-gradient); width: 0%; transition: width 0.6s ease; border-radius: 10px; }
+        .reset-btn {
+            background: var(--yellow-gradient); color: white; border: none; padding: 13px 34px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.95rem;
+            margin-top: 10px;
+        }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+
+        @media (max-width: 640px) {
+            .container { padding: 0 14px; }
+            .q-card { padding: 22px 18px; }
+            .q-text { font-size: 1rem; }
+            pre.code-block { padding: 16px 16px; font-size: 0.85rem; }
+            .progress-wrap { top: 78px; padding: 10px 4%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الأول — C++</span>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="progress-wrap">
+        <span class="progress-count" id="progressCount">تمت الإجابة: 0 / 15</span>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <span class="progress-score" id="progressScore">الإجابات الصحيحة: 0</span>
+    </div>
+
+    <div class="container">
+        <div class="title-section">
+            <h1>كويز الفصل السابع</h1>
+            <div class="attribution">حلقة for
+                <p>15 سؤالاً لاختبار فهمك الحقيقي لحلقة for — وليس حفظ الصياغة فقط</p>
+            </div>
+        </div>
+
+        <div id="quizRoot"></div>
+
+        <div class="summary-card" id="summaryCard">
+            <div class="summary-score" id="summaryScore">0 / 15</div>
+            <div class="summary-total">النتيجة النهائية</div>
+            <div class="summary-bar-track"><div class="summary-bar-fill" id="summaryBarFill"></div></div>
+            <div class="summary-msg" id="summaryMsg">أجب عن كل الأسئلة أعلاه لترى نتيجتك النهائية هنا</div>
+            <button class="reset-btn" onclick="resetQuiz()"><i class="fas fa-rotate-left"></i> إعادة المحاولة</button>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الأول: لغة C++ للأولمبياد</footer>
+
+    <script>
+        /* ===================================================================
+           Question data — fully separated from rendering logic.
+           type: 'code'  -> options rendered LTR / monospace (answers are code,
+                             numbers, or program output)
+           type: 'text'  -> options rendered RTL / Arabic (conceptual answers)
+        =================================================================== */
+        const QUESTIONS = [
+            {
+                difficulty: 'easy',
+                text: 'ما الناتج الذي سيظهر عند تشغيل البرنامج التالي؟',
+                code: 'for (int i = 1; i <= 5; i++) {\n    cout << i << " ";\n}',
+                optionsType: 'code',
+                options: ['1 2 3 4 5', '0 1 2 3 4', '1 2 3 4', '5 4 3 2 1'],
+                correct: 0
+            },
+            {
+                difficulty: 'easy',
+                text: 'أي حلقة for من الآتية تطبع الأعداد من 1 إلى 10 (شاملة العدد 10)؟',
+                code: null,
+                optionsType: 'code',
+                options: [
+                    'for (int i = 1; i <= 10; i++)\n    cout << i << " ";',
+                    'for (int i = 0; i < 10; i++)\n    cout << i << " ";',
+                    'for (int i = 1; i < 10; i++)\n    cout << i << " ";',
+                    'for (int i = 10; i >= 1; i--)\n    cout << i << " ";'
+                ],
+                correct: 0
+            },
+            {
+                difficulty: 'easy',
+                text: 'كم مرة تُنفَّذ هذه الحلقة؟',
+                code: 'for (int i = 0; i < 7; i++) {\n    // ...\n}',
+                optionsType: 'code',
+                options: ['7 مرات', '6 مرات', '8 مرات', 'مرة واحدة فقط'],
+                correct: 0
+            },
+            {
+                difficulty: 'medium',
+                text: 'ما قيمة المتغيّر sum بعد انتهاء تنفيذ هذه الحلقة؟',
+                code: 'int sum = 0;\nfor (int i = 1; i <= 4; i++) {\n    sum += i;\n}',
+                optionsType: 'code',
+                options: ['10', '4', '6', '24'],
+                correct: 0
+            },
+            {
+                difficulty: 'hard',
+                text: 'إذا كان الهدف من هذه الحلقة طباعة الأعداد من 1 إلى 5 (شاملة)، فما الخطأ فيها؟',
+                code: 'for (int i = 1; i < 5; i++) {\n    cout << i << " ";\n}',
+                optionsType: 'text',
+                options: [
+                    'الشرط يجب أن يكون `i <= 5` بدلاً من `i < 5`',
+                    'التهيئة يجب أن تكون `i = 0` بدلاً من `i = 1`',
+                    'التحديث يجب أن يكون `i--` بدلاً من `i++`',
+                    'لا يوجد أي خطأ في هذه الحلقة'
+                ],
+                correct: 0
+            },
+            {
+                difficulty: 'medium',
+                text: 'أي شرط يجعل هذه الحلقة تُنفَّذ 5 مرات بالضبط؟',
+                code: 'for (int i = 0; ___ ; i++) {\n    // ...\n}',
+                optionsType: 'code',
+                options: ['i < 5', 'i <= 5', 'i < 4', 'i > 5'],
+                correct: 0
+            },
+            {
+                difficulty: 'easy',
+                text: 'ما الفرق بين `i++` و`i--`؟',
+                code: null,
+                optionsType: 'text',
+                options: [
+                    'i++ تزيد قيمة i بمقدار واحد، وi-- تُنقص قيمتها بمقدار واحد',
+                    'كلاهما يزيد قيمة i بمقدار واحد',
+                    'كلاهما يُنقص قيمة i بمقدار واحد',
+                    'i++ تضاعف قيمة i، وi-- تُنصّفها'
+                ],
+                correct: 0
+            },
+            {
+                difficulty: 'medium',
+                text: 'ما الناتج الذي سيظهر عند تشغيل هذا البرنامج؟',
+                code: 'for (int i = 5; i >= 1; i--) {\n    cout << i << " ";\n}',
+                optionsType: 'code',
+                options: ['5 4 3 2 1', '1 2 3 4 5', '5 4 3 2 1 0', '1 3 5'],
+                correct: 0
+            },
+            {
+                difficulty: 'medium',
+                text: 'ما الناتج الذي سيظهر عند تشغيل هذا البرنامج؟',
+                code: 'for (int i = 1; i <= 10; i++) {\n    if (i % 2 == 0) {\n        cout << i << " ";\n    }\n}',
+                optionsType: 'code',
+                options: ['2 4 6 8 10', '1 3 5 7 9', '1 2 3 4 5 6 7 8 9 10', '10 8 6 4 2'],
+                correct: 0
+            },
+            {
+                difficulty: 'hard',
+                text: 'ما قيمة المتغيّر result بعد انتهاء تنفيذ هذه الحلقة؟',
+                code: 'int result = 1;\nfor (int i = 1; i <= 4; i++) {\n    result = result * i;\n}',
+                optionsType: 'code',
+                options: ['24', '10', '4', '1'],
+                correct: 0
+            },
+            {
+                difficulty: 'easy',
+                text: 'ما الناتج الذي سيظهر عند تشغيل هذا البرنامج؟',
+                code: 'for (int i = 3; i <= 6; i++) {\n    cout << i << " ";\n}',
+                optionsType: 'code',
+                options: ['3 4 5 6', '1 2 3 4 5 6', '3 4 5', '6 5 4 3'],
+                correct: 0
+            },
+            {
+                difficulty: 'medium',
+                text: 'كم مرة تُنفَّذ هذه الحلقة؟',
+                code: 'for (int i = 1; i < 10; i++) {\n    // ...\n}',
+                optionsType: 'code',
+                options: ['9 مرات', '10 مرات', '8 مرات', '11 مرة'],
+                correct: 0
+            },
+            {
+                difficulty: 'hard',
+                text: 'إذا كان الهدف من هذه الحلقة طباعة الأعداد من 1 إلى 10 (شاملة)، فما الخطأ فيها؟',
+                code: 'for (int i = 2; i <= 10; i++) {\n    cout << i << " ";\n}',
+                optionsType: 'text',
+                options: [
+                    'التهيئة يجب أن تبدأ من `i = 1` وليس `i = 2`',
+                    'الشرط يجب أن يكون `i < 10` بدلاً من `i <= 10`',
+                    'التحديث يجب أن يكون `i += 2`',
+                    'لا يوجد أي خطأ في هذه الحلقة'
+                ],
+                correct: 0
+            },
+            {
+                difficulty: 'medium',
+                text: 'إذا أدخل المستخدم الرقم 4 عند تشغيل هذا البرنامج، فماذا سيطبع؟',
+                code: 'int n;\ncin >> n;\nfor (int i = 1; i <= n; i++) {\n    cout << "*";\n}',
+                optionsType: 'code',
+                options: ['****', '***', '*****', 'لا يطبع شيئاً'],
+                correct: 0
+            },
+            {
+                difficulty: 'easy',
+                text: 'ما اسم الجزء `i < 10` في رأس حلقة for التالية؟',
+                code: 'for (int i = 0; i < 10; i++)',
+                optionsType: 'text',
+                options: ['الشرط (Condition)', 'التهيئة (Initialization)', 'التحديث (Update)', 'جسم الحلقة (Body)'],
+                correct: 0
+            }
+        ];
+
+        const DIFF_LABELS = { easy: 'سهل', medium: 'متوسط', hard: 'تحدٍّ' };
+        let answered = new Array(QUESTIONS.length).fill(false);
+        let correctCount = 0;
+
+        function escapeForCode(text) {
+            return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        /* Converts `code fragments` inside a plain-text string (Arabic or
+           otherwise) into properly escaped, bidi-isolated <code> spans, and
+           escapes everything else normally. This is the ONLY place where
+           Arabic sentences are allowed to reference a code/operator snippet
+           inline — the snippet itself is always isolated (dir=ltr,
+           unicode-bidi:isolate) so RTL rendering can never reorder it. */
+        function formatMixed(str) {
+            const parts = str.split('`');
+            let out = '';
+            parts.forEach((part, idx) => {
+                if (idx % 2 === 1) {
+                    out += '<code class="inline-kw">' + escapeForCode(part) + '</code>';
+                } else {
+                    out += escapeForCode(part);
+                }
+            });
+            return out;
+        }
+
+        function renderQuiz() {
+            const root = document.getElementById('quizRoot');
+            root.innerHTML = '';
+            QUESTIONS.forEach((q, qi) => {
+                const card = document.createElement('div');
+                card.className = 'q-card';
+                card.id = 'qcard' + qi;
+
+                let html = '';
+                html += '<div class="q-head">';
+                html += '<div class="q-badge">' + (qi + 1) + '</div>';
+                html += '<span class="q-difficulty ' + q.difficulty + '">' + DIFF_LABELS[q.difficulty] + '</span>';
+                html += '</div>';
+                html += '<p class="q-text">' + formatMixed(q.text) + '</p>';
+
+                if (q.code) {
+                    html += '<div class="code-block-wrap">';
+                    html += '<div class="code-block-head">code.cpp</div>';
+                    html += '<pre class="code-block">' + escapeForCode(q.code) + '</pre>';
+                    html += '</div>';
+                }
+
+                html += '<div class="q-options-label">اختر الإجابة الصحيحة:</div>';
+                html += '<div class="q-options">';
+                q.options.forEach((opt, oi) => {
+                    const optClass = q.optionsType === 'code' ? 'opt-code' : 'opt-text';
+                    const content = formatMixed(opt);
+                    html += '<div class="q-opt ' + optClass + '" onclick="selectAnswer(' + qi + ',' + oi + ',this)">' + content + '</div>';
+                });
+                html += '</div>';
+                html += '<div class="q-feedback" id="feedback' + qi + '"></div>';
+
+                card.innerHTML = html;
+                root.appendChild(card);
+            });
+            updateProgress();
+        }
+
+        function selectAnswer(qi, oi, el) {
+            if (answered[qi]) return;
+            answered[qi] = true;
+            const q = QUESTIONS[qi];
+            const card = document.getElementById('qcard' + qi);
+            const opts = card.querySelectorAll('.q-opt');
+            opts.forEach(o => o.classList.add('disabled'));
+
+            const isCorrect = (oi === q.correct);
+            if (isCorrect) {
+                el.classList.add('correct');
+                correctCount++;
+            } else {
+                el.classList.add('wrong');
+                opts[q.correct].classList.add('correct');
+            }
+
+            const feedback = document.getElementById('feedback' + qi);
+            feedback.innerHTML = isCorrect
+                ? '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة!</span>'
+                : '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة غير صحيحة — الإجابة الصحيحة مُميّزة باللون الأخضر.</span>';
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const answeredCount = answered.filter(Boolean).length;
+            document.getElementById('progressCount').textContent = 'تمت الإجابة: ' + answeredCount + ' / ' + QUESTIONS.length;
+            document.getElementById('progressScore').textContent = 'الإجابات الصحيحة: ' + correctCount;
+            document.getElementById('progressFill').style.width = (answeredCount / QUESTIONS.length * 100) + '%';
+
+            const summaryScore = document.getElementById('summaryScore');
+            const summaryMsg = document.getElementById('summaryMsg');
+            const summaryBarFill = document.getElementById('summaryBarFill');
+            summaryScore.textContent = correctCount + ' / ' + QUESTIONS.length;
+            summaryBarFill.style.width = (correctCount / QUESTIONS.length * 100) + '%';
+
+            if (answeredCount < QUESTIONS.length) {
+                summaryMsg.textContent = 'أجب عن كل الأسئلة أعلاه لترى نتيجتك النهائية هنا';
+            } else {
+                const pct = correctCount / QUESTIONS.length;
+                if (pct >= 0.85) summaryMsg.textContent = '🎉 ممتاز! لقد أتقنت حلقة for بشكل كامل.';
+                else if (pct >= 0.6) summaryMsg.textContent = '👍 جيد جداً! راجع الأسئلة التي أخطأت فيها لتثبيت الفهم.';
+                else summaryMsg.textContent = '📘 يُنصح بمراجعة درس حلقة for مرة أخرى قبل المتابعة.';
+            }
+        }
+
+        function resetQuiz() {
+            answered = new Array(QUESTIONS.length).fill(false);
+            correctCount = 0;
+            renderQuiz();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        renderQuiz();
+    </script>
+</body>
+</html>
