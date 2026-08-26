@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | المصفوفات (Arrays)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15);
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+        .title-section { text-align: center; margin-bottom: 50px; }
+        .title-section h1 { font-size: 2.4rem; font-weight: 800; margin-bottom: 5px; }
+        .attribution { color: var(--primary-blue); font-size: 1.2rem; font-weight: 600; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .danger-card { border-right-color: #ef4444; }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 20px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        .copy-btn { color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+        pre { padding: 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.92rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .code-line { cursor: pointer; display: block; border-radius: 6px; padding: 2px 6px; margin: 0 -6px; transition: 0.2s; }
+        .code-line:hover { background: rgba(0, 173, 239, 0.15); }
+        .code-line.active { background: rgba(247, 148, 30, 0.25); outline: 1px dashed var(--primary-yellow); }
+
+        .explain-box {
+            margin-top: 18px; background: var(--bg-main); border: 2px dashed #cbd5e1;
+            border-radius: 16px; padding: 18px 22px; font-weight: 600; color: var(--dark-navy);
+            min-height: 30px; transition: 0.2s;
+        }
+        .explain-box .hint { color: #94a3b8; font-weight: 500; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 16px 22px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        .table-wrap { overflow-x: auto; margin: 15px 0; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
+        table.data-table { width: 100%; border-collapse: collapse; background: white; }
+        table.data-table th { background: var(--blue-gradient); color: white; padding: 12px 18px; font-size: 0.85rem; text-align: right; white-space: nowrap; }
+        table.data-table td { padding: 12px 18px; font-size: 0.88rem; border-bottom: 1px solid #eef2f7; color: var(--text-body); }
+        table.data-table tr:last-child td { border-bottom: none; }
+        table.data-table td code, table.data-table th code { direction: ltr; display: inline-block; }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.08); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        /* array box diagram */
+        .array-diagram { display: flex; direction: ltr; gap: 0; margin: 20px 0; overflow-x: auto; padding-bottom: 10px; }
+        .array-cell-wrap { display: flex; flex-direction: column; align-items: center; }
+        .array-cell {
+            width: 60px; height: 60px; border: 2px solid var(--primary-blue); background: white;
+            display: flex; align-items: center; justify-content: center; font-family: 'Consolas', monospace;
+            font-weight: 800; font-size: 1.1rem; color: var(--dark-navy); transition: 0.2s; cursor: pointer;
+        }
+        .array-cell-wrap:not(:last-child) .array-cell { border-left: none; }
+        .array-cell:first-child, .array-cell-wrap:first-child .array-cell { border-radius: 10px 0 0 10px; }
+        .array-cell-wrap:last-child .array-cell { border-radius: 0 10px 10px 0; }
+        .array-index { margin-top: 6px; font-size: 0.78rem; color: #94a3b8; font-family: 'Consolas', monospace; }
+        .array-cell.active { background: var(--yellow-gradient); color: white; border-color: transparent; transform: scale(1.08); }
+
+        /* 2D grid diagram */
+        .grid-diagram { display: inline-block; direction: ltr; margin: 20px 0; }
+        .grid-row { display: flex; direction: ltr; }
+        .grid-cell {
+            width: 55px; height: 55px; border: 2px solid var(--primary-blue); background: white;
+            display: flex; align-items: center; justify-content: center; font-family: 'Consolas', monospace;
+            font-weight: 800; font-size: 1rem; color: var(--dark-navy); cursor: pointer; transition: 0.2s;
+        }
+        .grid-row:not(:first-child) .grid-cell { border-top: none; }
+        .grid-cell:not(:first-child) { border-left: none; }
+        .grid-cell.active { background: var(--yellow-gradient); color: white; border-color: transparent; }
+        .grid-row-label { width: 40px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #94a3b8; font-family: 'Consolas', monospace; }
+
+        /* sim box */
+        .sim-box { background: var(--bg-main); border-radius: 18px; padding: 22px; margin-top: 18px; border: 1px solid #e2e8f0; }
+        .sim-inputs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+        .sim-inputs input {
+            flex: 1; min-width: 160px; padding: 10px 14px; border-radius: 12px; border: 2px solid #e2e8f0;
+            font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-size: 0.9rem;
+        }
+        .sim-btn {
+            background: var(--blue-gradient); color: white; border: none; padding: 10px 26px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.9rem;
+        }
+        .sim-output { margin-top: 14px; }
+
+        .hw-card { border-right-color: #8b5cf6; }
+        .hw-card .card-header { color: #8b5cf6; }
+        .hw-item { background: var(--bg-main); border-radius: 16px; padding: 20px; margin-top: 16px; border: 1px solid #e2e8f0; }
+        .hw-item h4 { margin: 0 0 8px 0; color: var(--dark-navy); }
+        .hw-toggle-btn {
+            background: #8b5cf6; color: white; border: none; padding: 10px 22px; border-radius: 12px;
+            cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; margin-top: 12px;
+        }
+        .hw-solution { display: none; margin-top: 14px; }
+        .hw-solution.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الأول — C++</span>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="title-section">
+            <h1>المصفوفات (Arrays)</h1>
+            <p class="attribution">هذا الشرح مقدم من منصة تويت كود</p>
+        </div>
+
+        <!-- Intro -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-table-cells"></i>
+                <h3>لماذا نحتاج المصفوفات؟</h3>
+            </div>
+            <p>عندما يحتاج البرنامج إلى عدد كبير من المتغيّرات المتشابهة، فإن تعريف كل متغيّر على حدة (مثل <code class="inline">int grade1, grade2, grade3, ...;</code>) يجعل الكود طويلاً وغير منظّم. لحل هذه المشكلة نستخدم <strong>المصفوفات (Arrays)</strong>، التي تسمح لنا بتجميع بيانات مرتبطة معاً بطريقة مرتّبة تحت اسم واحد.</p>
+
+            <p style="margin-top: 15px; font-weight: 700; color: var(--dark-navy);">ما هي المصفوفة؟</p>
+            <p>المصفوفة هي عدد ثابت من المتغيّرات التي تكون من نفس النوع، تُخزَّن في الذاكرة بشكل متتابع، وتشترك في اسم واحد. تُسمّى المتغيّرات داخل المصفوفة <strong>عناصر (Elements)</strong>.</p>
+            <p style="margin-top: 10px;">للتفريق بين العناصر داخل المصفوفة، يُعطى كل عنصر رقماً مميّزاً يُعرف باسم <strong>الموقع (Index)</strong>. عندما تحتوي المصفوفة على <code class="inline">n</code> عنصراً، تُرقَّم هذه العناصر بشكل متتابع من <code class="inline">0</code> إلى <code class="inline">n - 1</code>.</p>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>الترقيم في المصفوفات يبدأ دائماً من <code class="inline">0</code> وليس من <code class="inline">1</code>. هذه من أهم القواعد التي يجب تذكّرها جيداً عند التعامل مع المصفوفات في C++.</p>
+            </div>
+        </div>
+
+        <!-- Declaration -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-pen-ruler"></i>
+                <h3>تعريف المصفوفات</h3>
+            </div>
+            <p>لتعريف مصفوفة في لغة C++ نستخدم الصيغة التالية:</p>
+            <div class="code-box">
+                <div class="code-head"><span>syntax</span></div>
+                <pre>type name[size];</pre>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <tr><th>العنصر</th><th>الشرح</th></tr>
+                    <tr><td><code class="inline">type</code></td><td>نوع جميع العناصر داخل المصفوفة (مثل <code class="inline">int</code> أو <code class="inline">double</code>).</td></tr>
+                    <tr><td><code class="inline">name</code></td><td>الاسم الذي سنستخدمه للوصول إلى المصفوفة.</td></tr>
+                    <tr><td><code class="inline">size</code></td><td>عدد العناصر التي تحتويها المصفوفة.</td></tr>
+                </table>
+            </div>
+
+            <p style="margin-top: 15px;">على سبيل المثال:</p>
+            <div class="code-box">
+                <div class="code-head"><span>declare.cpp</span></div>
+                <pre>int a[4];</pre>
+            </div>
+            <p style="font-size: 0.9rem;">هذا التعريف يُنشئ مصفوفة اسمها <code class="inline">a</code> تتكوّن من 4 عناصر، كل عنصر منها من نوع <code class="inline">int</code>.</p>
+
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>حجم المصفوفة <strong>ثابت</strong> ولا يمكن تغييره بعد إنشائها.</p>
+            </div>
+
+            <p style="margin-top: 20px;">من الممكن ألا يكون حجم المصفوفة رقماً صريحاً، بل يمكن أن يكون تعبيراً يُحسب أثناء تنفيذ البرنامج، مما يمكّننا من تحديد حجم المصفوفة بناءً على حالة البرنامج أثناء التنفيذ:</p>
+            <div class="code-box">
+                <div class="code-head"><span>dynamic_size.cpp</span></div>
+                <pre>int n;
+cin &gt;&gt; n;
+int a[n + 1]; <span class="cmt">// n + 1 تُنشئ مصفوفة بحجم</span></pre>
+            </div>
+        </div>
+
+        <!-- Initialization -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-ol"></i>
+                <h3>تحديد قيم المصفوفة</h3>
+            </div>
+            <p>عند تعريف مصفوفة محلياً، فإن جميع عناصرها لا تحتوي على قيم محدَّدة، أي أن قيمها غير معروفة. لتحديد قيم المصفوفة نعطيها قيماً ابتدائية، على سبيل المثال:</p>
+            <div class="code-box">
+                <div class="code-head"><span>init.cpp</span></div>
+                <pre>int a[4] = {2, 4, 5, 0};</pre>
+            </div>
+            <p style="font-size: 0.9rem;">هذا الأمر ينشئ مصفوفة تحتوي على القيم 2، 4، 5، و0. يمكننا تمثيلها كما يلي، حيث تمثّل الخلايا عناصر المصفوفة، والأرقام الموجودة تحتها هي المواقع:</p>
+
+            <div class="array-diagram">
+                <div class="array-cell-wrap"><div class="array-cell">2</div><div class="array-index">0</div></div>
+                <div class="array-cell-wrap"><div class="array-cell">4</div><div class="array-index">1</div></div>
+                <div class="array-cell-wrap"><div class="array-cell">5</div><div class="array-index">2</div></div>
+                <div class="array-cell-wrap"><div class="array-cell">0</div><div class="array-index">3</div></div>
+            </div>
+
+            <p>إذا أردنا تعريف مصفوفة محلياً وجعل جميع عناصرها تبدأ بالقيمة 0، يمكننا كتابة:</p>
+            <div class="code-box">
+                <div class="code-head"><span>zero_init.cpp</span></div>
+                <pre>int a[2000] = {};</pre>
+            </div>
+            <p style="font-size: 0.9rem;">هذا السطر ينشئ مصفوفة تحتوي على 2000 عنصر، كل عنصر فيها يساوي 0.</p>
+        </div>
+
+        <!-- Access -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-crosshairs"></i>
+                <h3>الوصول إلى العناصر</h3>
+            </div>
+            <p>يمكن الوصول إلى أي عنصر داخل المصفوفة باستخدام موقعه، عبر الصيغة التالية:</p>
+            <div class="code-box">
+                <div class="code-head"><span>syntax</span></div>
+                <pre>name[index];</pre>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <tr><th>العنصر</th><th>الشرح</th></tr>
+                    <tr><td><code class="inline">name</code></td><td>اسم المصفوفة.</td></tr>
+                    <tr><td><code class="inline">index</code></td><td>الموقع الخاص بالعنصر المراد الوصول إليه.</td></tr>
+                </table>
+            </div>
+
+            <p style="margin-top: 15px;">عناصر المصفوفة تتصرّف مثل أي متغيّر عادي. اضغط على كل سطر لمعرفة شرحه:</p>
+            <div class="code-box">
+                <div class="code-group" id="grpAccess">
+                <div class="code-head">
+                    <span>access.cpp</span>
+                    <button class="copy-btn" onclick="copyCode('accessCode')">نسخ الكود</button>
+                </div>
+                <pre id="accessCode"><span class="cmt">#include &lt;iostream&gt;</span>
+using namespace std;
+int main () {
+    <span class="code-line" onclick="explainLine(this,'access',0)">int a[5] = {1, 2, 3, 4, 5};</span>
+    <span class="code-line" onclick="explainLine(this,'access',1)">int x = a[0];</span>
+    <span class="code-line" onclick="explainLine(this,'access',2)">a[0]++;</span>
+    <span class="code-line" onclick="explainLine(this,'access',3)">cout << x << endl;</span>
+    <span class="code-line" onclick="explainLine(this,'access',4)">cout << a[0] << endl;</span>
+}</pre>
+                <div class="explain-box"><span class="hint">اضغط على أي سطر لعرض شرحه هنا...</span></div>
+                </div>
+            </div>
+            <p style="margin-top: 15px;">الناتج:</p>
+            <div class="output-box">1<br>2</div>
+
+            <p style="margin-top: 25px; font-size: 0.9rem;"><i class="fas fa-hand-pointer" style="color: var(--primary-blue);"></i> جرّب بنفسك: اضغط على أي خلية من المصفوفة <code class="inline">a[5] = {1,2,3,4,5}</code> لرؤية قيمتها وموقعها:</p>
+            <div class="array-diagram" id="accessDiagram">
+                <div class="array-cell-wrap"><div class="array-cell" onclick="showCell(this,0,1)">1</div><div class="array-index">0</div></div>
+                <div class="array-cell-wrap"><div class="array-cell" onclick="showCell(this,1,2)">2</div><div class="array-index">1</div></div>
+                <div class="array-cell-wrap"><div class="array-cell" onclick="showCell(this,2,3)">3</div><div class="array-index">2</div></div>
+                <div class="array-cell-wrap"><div class="array-cell" onclick="showCell(this,3,4)">4</div><div class="array-index">3</div></div>
+                <div class="array-cell-wrap"><div class="array-cell" onclick="showCell(this,4,5)">5</div><div class="array-index">4</div></div>
+            </div>
+            <div class="explain-box" id="accessCellExplain"><span class="hint">اضغط على خلية من المصفوفة أعلاه...</span></div>
+        </div>
+
+        <!-- Iterating -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-rotate"></i>
+                <h3>التكرار عبر المصفوفة</h3>
+            </div>
+            <p>يمكننا استخدام الحلقات للتكرار عبر جميع عناصر المصفوفة، من خلال التكرار عبر مواقعها (من 0 إلى حجم المصفوفة - 1). على سبيل المثال، لحساب مجموع جميع عناصر مصفوفة، نكتب:</p>
+
+            <div class="code-box">
+                <div class="code-group" id="grpSum">
+                <div class="code-head">
+                    <span>sum.cpp</span>
+                    <button class="copy-btn" onclick="copyCode('sumCode')">نسخ الكود</button>
+                </div>
+                <pre id="sumCode"><span class="cmt">#include &lt;iostream&gt;</span>
+using namespace std;
+int main () {
+    <span class="code-line" onclick="explainLine(this,'sum',0)">int n;</span>
+    <span class="code-line" onclick="explainLine(this,'sum',1)">cin >> n;</span> <span class="cmt">// يُدخل حجم المصفوفة</span>
+
+    <span class="code-line" onclick="explainLine(this,'sum',2)">int a[n];</span> <span class="cmt">// n تعريف مصفوفة بحجم</span>
+    <span class="code-line" onclick="explainLine(this,'sum',3)">for(int i = 0; i < n; i++) {</span>
+        <span class="code-line" onclick="explainLine(this,'sum',4)">cin >> a[i];</span> <span class="cmt">// a[i] سندخل قيمة كل موقع في</span>
+    }
+    <span class="code-line" onclick="explainLine(this,'sum',5)">int sum = 0;</span>
+    for (int i = 0 ; i < n ; i++) {
+        <span class="code-line" onclick="explainLine(this,'sum',6)">sum += a[i];</span> <span class="cmt">// sum إلى a[i] نضيف قيمة كل موقع</span>
+    }
+    cout << sum << endl;
+}</pre>
+                <div class="explain-box"><span class="hint">اضغط على أي سطر لعرض شرحه هنا...</span></div>
+                </div>
+            </div>
+
+            <p style="font-size: 0.9rem;">في هذا المثال: نُدخل عدد العناصر <code class="inline">n</code> من المستخدم، ثم ننشئ مصفوفة <code class="inline">a</code> بحجم <code class="inline">n</code>، ونستخدم حلقة لإدخال قيم المصفوفة، ثم نستخدم حلقة أخرى لحساب المجموع الكلي للعناصر وطباعة النتيجة.</p>
+
+            <div class="sim-box">
+                <p style="margin: 0 0 10px 0; font-weight: 700;">🎮 جرّب بنفسك: أدخل أرقاماً مفصولة بفاصلة، وشاهد مجموعها يُحسب تماماً كما في البرنامج:</p>
+                <div class="sim-inputs">
+                    <input type="text" id="sumInput" value="3,5,2,9" placeholder="مثال: 3,5,2,9">
+                    <button class="sim-btn" onclick="runSum()">شغّل</button>
+                </div>
+                <div class="sim-output output-box" id="sumOutput">النتيجة ستظهر هنا...</div>
+            </div>
+        </div>
+
+        <!-- Extra examples -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-star"></i>
+                <h3>أمثلة إضافية على استخدام المصفوفات</h3>
+            </div>
+            <p style="font-size: 0.9rem;">فيما يلي خمسة أمثلة متدرّجة توضح استخدامات مختلفة للمصفوفات، وتنتهي بأمثلة تجمع بين حلقة <code class="inline">for</code> وعبارة <code class="inline">if</code> معاً:</p>
+
+            <!-- Example 1 -->
+            <p style="margin-top: 25px; font-weight: 800; color: var(--dark-navy);">مثال 1 — طباعة درجات الطلاب</p>
+            <p style="font-size: 0.9rem;">نُخزّن درجات 5 طلاب في مصفوفة، ثم نطبعها واحدة تلو الأخرى باستخدام حلقة <code class="inline">for</code>:</p>
+            <div class="code-box">
+                <div class="code-head"><span>ex1_grades.cpp</span></div>
+                <pre>int grades[5] = {85, 92, 78, 90, 88};
+for(int i = 0; i < 5; i++) {
+    cout << "الطالب " << i+1 << ": " << grades[i] << endl;
+}</pre>
+            </div>
+            <p style="font-size: 0.88rem;">هنا <code class="inline">i</code> يمرّ على كل موقع من 0 إلى 4، وفي كل تكرار نطبع رقم الطالب (<code class="inline">i+1</code> لأن الترقيم للطلاب يبدأ من 1) بجانب درجته <code class="inline">grades[i]</code>.</p>
+            <div class="sim-box">
+                <div class="sim-inputs">
+                    <input type="text" id="gradesInput" value="85,92,78,90,88" placeholder="مثال: 85,92,78,90,88">
+                    <button class="sim-btn" onclick="runGrades()">شغّل</button>
+                </div>
+                <div class="sim-output output-box" id="gradesOutput">النتيجة ستظهر هنا...</div>
+            </div>
+
+            <!-- Example 2 -->
+            <p style="margin-top: 30px; font-weight: 800; color: var(--dark-navy);">مثال 2 — حساب المتوسط الحسابي</p>
+            <p style="font-size: 0.9rem;">نستخدم حلقة لجمع كل العناصر أولاً، ثم نقسم المجموع على عدد العناصر لإيجاد المتوسط:</p>
+            <div class="code-box">
+                <div class="code-head"><span>ex2_average.cpp</span></div>
+                <pre>int scores[4] = {70, 80, 90, 100};
+int sum = 0;
+for(int i = 0; i < 4; i++) {
+    sum += scores[i];
+}
+double average = sum / 4.0;
+cout << "المجموع: " << sum << endl;
+cout << "المتوسط: " << average << endl;</pre>
+            </div>
+            <p style="font-size: 0.88rem;">لاحظ أننا نقسم على <code class="inline">4.0</code> وليس <code class="inline">4</code> فقط، لضمان أن تكون القسمة عشرية (Floating-point) بدلاً من قسمة أعداد صحيحة تُهمِل الكسور.</p>
+            <div class="sim-box">
+                <div class="sim-inputs">
+                    <input type="text" id="avgInput" value="70,80,90,100" placeholder="مثال: 70,80,90,100">
+                    <button class="sim-btn" onclick="runAverage()">شغّل</button>
+                </div>
+                <div class="sim-output output-box" id="avgOutput">النتيجة ستظهر هنا...</div>
+            </div>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>الأمثلة التالية تجمع بين حلقة <code class="inline">for</code> وعبارة <code class="inline">if</code> معاً، وهي من أكثر الأنماط استخداماً عند التعامل مع المصفوفات.</p>
+            </div>
+
+            <!-- Example 3 -->
+            <p style="margin-top: 30px; font-weight: 800; color: var(--dark-navy);">مثال 3 — إيجاد أكبر قيمة (for + if)</p>
+            <p style="font-size: 0.9rem;">نبدأ بافتراض أن العنصر الأول هو الأكبر، ثم نمرّ على بقية العناصر، وفي كل مرة نستخدم <code class="inline">if</code> للمقارنة وتحديث القيمة الأكبر إن وجدنا ما هو أكبر منها:</p>
+            <div class="code-box">
+                <div class="code-head"><span>ex3_max.cpp</span></div>
+                <pre>int nums[6] = {4, 17, 9, 25, 3, 12};
+int maxVal = nums[0];
+for(int i = 1; i < 6; i++) {
+    if(nums[i] > maxVal) {
+        maxVal = nums[i];
+    }
+}
+cout << "أكبر قيمة: " << maxVal << endl;</pre>
+            </div>
+            <p style="font-size: 0.88rem;">نبدأ الحلقة من <code class="inline">i = 1</code> وليس <code class="inline">0</code> لأننا استخدمنا <code class="inline">nums[0]</code> بالفعل كقيمة ابتدائية لـ <code class="inline">maxVal</code>.</p>
+            <div class="sim-box">
+                <div class="sim-inputs">
+                    <input type="text" id="maxInput" value="4,17,9,25,3,12" placeholder="مثال: 4,17,9,25,3,12">
+                    <button class="sim-btn" onclick="runMax()">شغّل</button>
+                </div>
+                <div class="sim-output output-box" id="maxOutput">النتيجة ستظهر هنا...</div>
+            </div>
+
+            <!-- Example 4 -->
+            <p style="margin-top: 30px; font-weight: 800; color: var(--dark-navy);">مثال 4 — عدّ الأعداد الزوجية (for + if)</p>
+            <p style="font-size: 0.9rem;">نمرّ على كل عنصر، ونستخدم عبارة <code class="inline">if</code> مع الباقي <code class="inline">%</code> لمعرفة إن كان العدد زوجياً، وإن كان كذلك نزيد عدّاداً:</p>
+            <div class="code-box">
+                <div class="code-head"><span>ex4_count_even.cpp</span></div>
+                <pre>int nums[7] = {3, 8, 12, 5, 6, 11, 20};
+int count = 0;
+for(int i = 0; i < 7; i++) {
+    if(nums[i] % 2 == 0) {
+        count++;
+    }
+}
+cout << "عدد الأعداد الزوجية: " << count << endl;</pre>
+            </div>
+            <p style="font-size: 0.88rem;">الشرط <code class="inline">nums[i] % 2 == 0</code> يكون صحيحاً فقط عندما يكون العنصر قابلاً للقسمة على 2 دون باقٍ، أي عندما يكون زوجياً.</p>
+            <div class="sim-box">
+                <div class="sim-inputs">
+                    <input type="text" id="countInput" value="3,8,12,5,6,11,20" placeholder="مثال: 3,8,12,5,6,11,20">
+                    <button class="sim-btn" onclick="runCountEven()">شغّل</button>
+                </div>
+                <div class="sim-output output-box" id="countOutput">النتيجة ستظهر هنا...</div>
+            </div>
+
+            <!-- Example 5 -->
+            <p style="margin-top: 30px; font-weight: 800; color: var(--dark-navy);">مثال 5 — البحث عن قيمة معيّنة (for + if)</p>
+            <p style="font-size: 0.9rem;">نمرّ على كل عنصر ونقارنه بالقيمة المطلوبة باستخدام <code class="inline">if</code>؛ إن تطابقا، نطبع موقع العنصر. هذا يُسمّى <strong>البحث الخطي (Linear Search)</strong>:</p>
+            <div class="code-box">
+                <div class="code-head"><span>ex5_search.cpp</span></div>
+                <pre>int nums[5] = {10, 25, 30, 45, 60};
+int target = 30;
+bool found = false;
+for(int i = 0; i < 5; i++) {
+    if(nums[i] == target) {
+        cout << "العنصر " << target << " موجود في الموقع " << i << endl;
+        found = true;
+    }
+}
+if(!found) {
+    cout << "العنصر غير موجود" << endl;
+}</pre>
+            </div>
+            <p style="font-size: 0.88rem;">المتغيّر <code class="inline">found</code> من نوع <code class="inline">bool</code> يساعدنا على معرفة ما إذا وجدنا العنصر أم لا، حتى نطبع رسالة مناسبة في كلتا الحالتين.</p>
+            <div class="sim-box">
+                <div class="sim-inputs">
+                    <input type="text" id="searchArrInput" value="10,25,30,45,60" placeholder="مثال: 10,25,30,45,60">
+                    <input type="text" id="searchTargetInput" value="30" placeholder="القيمة المطلوبة">
+                    <button class="sim-btn" onclick="runSearch()">شغّل</button>
+                </div>
+                <div class="sim-output output-box" id="searchOutput">النتيجة ستظهر هنا...</div>
+            </div>
+        </div>
+
+        <!-- Multi-dimensional arrays -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-border-all"></i>
+                <h3>المصفوفات متعددة الأبعاد</h3>
+            </div>
+            <p>المصفوفات متعددة الأبعاد هي مصفوفات تحتوي على مصفوفات أخرى داخلها، أي أن كل عنصر يمكن أن يكون بدوره مصفوفة. يُطلق على كل مستوى من هذه المستويات اسم <strong>بُعد (Dimension)</strong>. انظر إلى المثال التالي:</p>
+            <div class="code-box">
+                <div class="code-head"><span>multi_dim.cpp</span></div>
+                <pre>int a[5];
+int b[5][4];</pre>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <tr><th>العنصر</th><th>الشرح</th></tr>
+                    <tr><td><code class="inline">a</code></td><td>مصفوفة أحادية الأبعاد تحتوي على 5 أعداد صحيحة.</td></tr>
+                    <tr><td><code class="inline">b</code></td><td>مصفوفة ثنائية الأبعاد، تتكوّن من 5 مصفوفات، تحتوي كل مصفوفة على 4 أعداد صحيحة.</td></tr>
+                </table>
+            </div>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p><code class="inline">a[0]</code> تمثّل عدداً صحيحاً، بينما <code class="inline">b[0]</code> تمثّل مصفوفة كاملة من أربعة أعداد صحيحة.</p>
+            </div>
+
+            <p style="margin-top: 20px;">للوصول إلى عنصر داخل مصفوفة متعددة الأبعاد، يجب تحديد الموقع في كل بُعد: للوصول إلى عنصر في <code class="inline">a</code> نكتب <code class="inline">a[i]</code>، أما للوصول إلى عنصر في <code class="inline">b</code> فنكتب <code class="inline">b[i][j]</code>.</p>
+
+            <p style="margin-top: 15px; font-size: 0.9rem;"><i class="fas fa-hand-pointer" style="color: var(--primary-blue);"></i> جرّب بنفسك: اضغط على أي خلية من المصفوفة <code class="inline">b[5][4]</code> لمعرفة قيمتها وموقعها بالضبط (مثل <code class="inline">b[2][1]</code> التي تحمل القيمة 14):</p>
+
+            <div class="grid-diagram" id="gridDiagram"></div>
+            <div class="explain-box" id="gridExplain"><span class="hint">اضغط على خلية من الشبكة أعلاه...</span></div>
+
+            <p style="margin-top: 20px; font-size: 0.9rem;">عدد الخلايا الكلي في المصفوفة متعددة الأبعاد يساوي حاصل ضرب أطوال جميع الأبعاد. في مثالنا، تحتوي <code class="inline">b</code> على <code class="inline">5 × 4 = 20</code> عنصراً.</p>
+
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>يمكن أن تحتوي المصفوفة على أكثر من بُعدين، بل ويمكن أن تكون ذات سبعة أبعاد أو أكثر (مثل <code class="inline">int c[2][3][4][5][2][3][2];</code>)، رغم أن الاستخدام الشائع في المسابقات البرمجية يقتصر غالباً على بُعد أو بُعدين.</p>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>تحقق من فهمك</h3>
+            </div>
+
+            <div class="quiz-q" id="q1">
+                <h4>١. ما هي المصفوفة (Array)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, true)">عدد ثابت من المتغيّرات من نفس النوع، تُخزَّن بشكل متتابع وتشترك باسم واحد</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">دالة تُستخدم لطباعة النصوص</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">نوع من أنواع الحلقات التكرارية</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q2">
+                <h4>٢. من أي رقم يبدأ ترقيم عناصر المصفوفة (index)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, true)">من 0</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">من 1</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">من آخر عنصر إلى الأول</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q3">
+                <h4>٣. هل يمكن تغيير حجم المصفوفة بعد إنشائها؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, true)">لا، حجم المصفوفة ثابت بعد إنشائها</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">نعم، يمكن تغييره في أي وقت بسهولة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">فقط إذا كانت المصفوفة من نوع double</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q4">
+                <h4>٤. ما ناتج تنفيذ الكود التالي؟</h4>
+                <div class="code-box" style="margin: 10px 0;">
+                    <pre style="padding: 18px;">int a[5] = {1, 2, 3, 4, 5};
+int x = a[0];
+a[0]++;
+cout << x << endl;
+cout << a[0] << endl;</pre>
+                </div>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, true)">1 ثم 2</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">2 ثم 2</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">1 ثم 1</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q5">
+                <h4>٥. ماذا يمثّل b[0] في التعريف التالي؟</h4>
+                <div class="code-box" style="margin: 10px 0;">
+                    <pre style="padding: 18px;">int b[5][4];</pre>
+                </div>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, true)">مصفوفة كاملة من 4 أعداد صحيحة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, false)">عدداً صحيحاً واحداً فقط</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, false)">نصاً (string)</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q6">
+                <h4>٦. كم عدد الخلايا الكلي في المصفوفة int b[5][4]؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, true)">20</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, false)">9</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, false)">5</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q7">
+                <h4>٧. لإيجاد أكبر قيمة داخل مصفوفة باستخدام حلقة for، أي عبارة نستخدم داخل الحلقة للمقارنة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q7', this, true)">عبارة if</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q7', this, false)">عبارة return فقط</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q7', this, false)">لا نحتاج أي عبارة مقارنة</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Homework -->
+        <div class="card hw-card">
+            <div class="card-header">
+                <i class="fas fa-house-laptop"></i>
+                <h3>واجب منزلي</h3>
+            </div>
+            <p style="font-size: 0.9rem;">حاول حل التمارين التالية بنفسك أولاً قبل الاطلاع على الحل. هذه التمارين تجمع بين كل ما درسته سابقاً: المتغيّرات، عبارة <code class="inline">if</code>، حلقة <code class="inline">for</code>، والمصفوفات معاً.</p>
+
+            <div class="hw-item">
+                <h4>الواجب الأول</h4>
+                <p style="font-size: 0.9rem;">أنشئ مصفوفة من 6 أعداد صحيحة تمثّل درجات الحرارة لستة أيام، ثم اطبع كل درجة مع تصنيفها إلى (حار / معتدل / بارد) باستخدام حلقة <code class="inline">for</code> وسلسلة <code class="inline">if / else if / else</code>. اعتبر أن: 30 فأكثر = حار، بين 15 و29 = معتدل، أقل من 15 = بارد.</p>
+                <button class="hw-toggle-btn" onclick="toggleHw('hw1')">إظهار / إخفاء الحل</button>
+                <div class="hw-solution" id="hw1">
+                    <div class="code-box">
+                        <div class="code-head"><span>hw1_solution.cpp</span></div>
+                        <pre>int temps[6] = {32, 18, 5, 27, 14, 38};
+for(int i = 0; i < 6; i++) {
+    cout << "اليوم " << i+1 << ": " << temps[i] << " درجة - ";
+    if(temps[i] >= 30) {
+        cout << "حار" << endl;
+    } else if(temps[i] >= 15) {
+        cout << "معتدل" << endl;
+    } else {
+        cout << "بارد" << endl;
+    }
+}</pre>
+                    </div>
+                    <div class="output-box">اليوم 1: 32 درجة - حار<br>اليوم 2: 18 درجة - معتدل<br>اليوم 3: 5 درجة - بارد<br>اليوم 4: 27 درجة - معتدل<br>اليوم 5: 14 درجة - بارد<br>اليوم 6: 38 درجة - حار</div>
+                </div>
+            </div>
+
+            <div class="hw-item">
+                <h4>الواجب الثاني</h4>
+                <p style="font-size: 0.9rem;">اكتب برنامجاً يقرأ حجم مصفوفة <code class="inline">n</code> من المستخدم، ثم يقرأ <code class="inline">n</code> من الأعداد الصحيحة، ثم يطبع عدد الأعداد الزوجية وعدد الأعداد الفردية بينها، باستخدام حلقة <code class="inline">for</code> وعبارة <code class="inline">if</code>.</p>
+                <button class="hw-toggle-btn" onclick="toggleHw('hw2')">إظهار / إخفاء الحل</button>
+                <div class="hw-solution" id="hw2">
+                    <div class="code-box">
+                        <div class="code-head"><span>hw2_solution.cpp</span></div>
+                        <pre>int n;
+cin >> n;
+int a[n];
+for(int i = 0; i < n; i++) {
+    cin >> a[i];
+}
+int evenCount = 0, oddCount = 0;
+for(int i = 0; i < n; i++) {
+    if(a[i] % 2 == 0) {
+        evenCount++;
+    } else {
+        oddCount++;
+    }
+}
+cout << "الأعداد الزوجية: " << evenCount << endl;
+cout << "الأعداد الفردية: " << oddCount << endl;</pre>
+                    </div>
+                    <p style="font-size: 0.85rem;">مثال: إذا أدخل المستخدم <code class="inline">n = 5</code> ثم القيم <code class="inline">1 2 3 4 5</code>:</p>
+                    <div class="output-box">الأعداد الزوجية: 2<br>الأعداد الفردية: 3</div>
+                </div>
+            </div>
+
+            <div class="hw-item">
+                <h4>الواجب الثالث</h4>
+                <p style="font-size: 0.9rem;">أنشئ مصفوفة ثنائية الأبعاد بحجم 3×3 تمثّل جدولاً، املأها بالقيم من 1 إلى 9، ثم اطبعها بالكامل باستخدام حلقتين <code class="inline">for</code> متداخلتين (Nested for).</p>
+                <button class="hw-toggle-btn" onclick="toggleHw('hw3')">إظهار / إخفاء الحل</button>
+                <div class="hw-solution" id="hw3">
+                    <div class="code-box">
+                        <div class="code-head"><span>hw3_solution.cpp</span></div>
+                        <pre>int table[3][3] = {
+    {1, 2, 3},
+    {4, 5, 6},
+    {7, 8, 9}
+};
+for(int i = 0; i < 3; i++) {
+    for(int j = 0; j < 3; j++) {
+        cout << table[i][j] << " ";
+    }
+    cout << endl;
+}</pre>
+                    </div>
+                    <div class="output-box">1 2 3 <br>4 5 6 <br>7 8 9</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>قاموس المصطلحات</h3>
+            </div>
+            <p>أهم المصطلحات الإنجليزية في هذا الدرس مع مرادفها العربي:</p>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Array</span><span class="term-ar">مصفوفة</span><p class="term-desc">عدد ثابت من المتغيّرات من نفس النوع، تُخزَّن بشكل متتابع وتشترك في اسم واحد.</p></div>
+                <div class="term-card"><span class="term-en">Element</span><span class="term-ar">عنصر</span><p class="term-desc">كل متغيّر مفرد داخل المصفوفة.</p></div>
+                <div class="term-card"><span class="term-en">Index</span><span class="term-ar">موقع / فهرس</span><p class="term-desc">الرقم المميّز لكل عنصر داخل المصفوفة، يبدأ من 0.</p></div>
+                <div class="term-card"><span class="term-en">Size</span><span class="term-ar">حجم</span><p class="term-desc">عدد العناصر التي تحتويها المصفوفة، وهو ثابت بعد الإنشاء.</p></div>
+                <div class="term-card"><span class="term-en">Initialization</span><span class="term-ar">تهيئة / تحديد قيم ابتدائية</span><p class="term-desc">إعطاء عناصر المصفوفة قيماً ابتدائية عند تعريفها.</p></div>
+                <div class="term-card"><span class="term-en">Iterate</span><span class="term-ar">التكرار / المرور على العناصر</span><p class="term-desc">المرور على كل عنصر من عناصر المصفوفة، غالباً باستخدام حلقة.</p></div>
+                <div class="term-card"><span class="term-en">Multi-dimensional array</span><span class="term-ar">مصفوفة متعددة الأبعاد</span><p class="term-desc">مصفوفة تحتوي على مصفوفات أخرى داخلها.</p></div>
+                <div class="term-card"><span class="term-en">Dimension</span><span class="term-ar">بُعد</span><p class="term-desc">كل مستوى من مستويات المصفوفة متعددة الأبعاد.</p></div>
+                <div class="term-card"><span class="term-en">Linear search</span><span class="term-ar">بحث خطي</span><p class="term-desc">المرور على عناصر المصفوفة واحداً تلو الآخر بحثاً عن قيمة معيّنة.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الأول: لغة C++ للأولمبياد</footer>
+
+    <script>
+        const EXPLANATIONS = {
+            access: {
+                0: '<strong>int a[5] = {1, 2, 3, 4, 5};</strong> — إنشاء مصفوفة من 5 عناصر، وإعطاؤها القيم الابتدائية 1، 2، 3، 4، 5 بالترتيب (المواقع 0 إلى 4).',
+                1: '<strong>int x = a[0];</strong> — نقرأ قيمة العنصر في الموقع 0 (وهي 1) ونضعها في المتغيّر x. الآن x تساوي 1.',
+                2: '<strong>a[0]++;</strong> — نزيد قيمة العنصر في الموقع 0 بمقدار 1. كانت 1 فأصبحت 2. لاحظ أن x لم تتأثر لأنها نسخة منفصلة أُخذت سابقاً.',
+                3: '<strong>cout << x << endl;</strong> — نطبع قيمة x، وهي لا تزال 1 (القيمة التي أُخذت قبل الزيادة).',
+                4: '<strong>cout << a[0] << endl;</strong> — نطبع القيمة الحالية للعنصر a[0]، وهي الآن 2 بعد عملية الزيادة.'
+            },
+            sum: {
+                0: '<strong>int n;</strong> — تعريف متغيّر لتخزين حجم المصفوفة الذي سيدخله المستخدم.',
+                1: '<strong>cin >> n;</strong> — قراءة حجم المصفوفة من المستخدم.',
+                2: '<strong>int a[n];</strong> — إنشاء مصفوفة بحجم n (حجم يُحدَّد أثناء التنفيذ وليس رقماً ثابتاً).',
+                3: '<strong>for(int i = 0; i < n; i++) {</strong> — حلقة تمرّ على كل المواقع من 0 إلى n-1 لقراءة قيم المصفوفة.',
+                4: '<strong>cin >> a[i];</strong> — قراءة قيمة من المستخدم وتخزينها في الموقع i من المصفوفة.',
+                5: '<strong>int sum = 0;</strong> — متغيّر لتجميع المجموع، يبدأ من صفر.',
+                6: '<strong>sum += a[i];</strong> — في كل تكرار، نضيف قيمة العنصر الحالي a[i] إلى المجموع الكلي sum.'
+            }
+        };
+
+        function explainLine(el, setName, key) {
+            const group = el.closest('.code-group') || el.closest('.code-box');
+            group.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+            el.classList.add('active');
+            group.querySelector('.explain-box').innerHTML = EXPLANATIONS[setName][key];
+        }
+
+        function copyCode(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(() => alert('تم نسخ الكود!'));
+        }
+
+        function showCell(el, index, value) {
+            document.querySelectorAll('#accessDiagram .array-cell').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById('accessCellExplain').innerHTML =
+                '<strong>a[' + index + ']</strong> تساوي <strong>' + value + '</strong> — أي أن العنصر الموجود في الموقع ' + index + ' من المصفوفة قيمته ' + value + '.';
+        }
+
+        function parseNums(str) {
+            return str.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
+        }
+
+        function runSum() {
+            const nums = parseNums(document.getElementById('sumInput').value);
+            const sum = nums.reduce((a, b) => a + b, 0);
+            document.getElementById('sumOutput').innerText = String(sum);
+        }
+
+        function runGrades() {
+            const nums = parseNums(document.getElementById('gradesInput').value);
+            let lines = [];
+            for (let i = 0; i < nums.length; i++) {
+                lines.push('الطالب ' + (i + 1) + ': ' + nums[i]);
+            }
+            document.getElementById('gradesOutput').innerHTML = lines.join('<br>');
+        }
+
+        function runAverage() {
+            const nums = parseNums(document.getElementById('avgInput').value);
+            const sum = nums.reduce((a, b) => a + b, 0);
+            const avg = nums.length ? (sum / nums.length) : 0;
+            document.getElementById('avgOutput').innerHTML = 'المجموع: ' + sum + '<br>المتوسط: ' + avg;
+        }
+
+        function runMax() {
+            const nums = parseNums(document.getElementById('maxInput').value);
+            if (!nums.length) { document.getElementById('maxOutput').innerText = 'أدخل أرقاماً صحيحة'; return; }
+            let maxVal = nums[0];
+            for (let i = 1; i < nums.length; i++) {
+                if (nums[i] > maxVal) maxVal = nums[i];
+            }
+            document.getElementById('maxOutput').innerText = 'أكبر قيمة: ' + maxVal;
+        }
+
+        function runCountEven() {
+            const nums = parseNums(document.getElementById('countInput').value);
+            let count = 0;
+            for (let i = 0; i < nums.length; i++) {
+                if (nums[i] % 2 === 0) count++;
+            }
+            document.getElementById('countOutput').innerText = 'عدد الأعداد الزوجية: ' + count;
+        }
+
+        function runSearch() {
+            const nums = parseNums(document.getElementById('searchArrInput').value);
+            const target = parseFloat(document.getElementById('searchTargetInput').value);
+            let lines = [];
+            let found = false;
+            for (let i = 0; i < nums.length; i++) {
+                if (nums[i] === target) {
+                    lines.push('العنصر ' + target + ' موجود في الموقع ' + i);
+                    found = true;
+                }
+            }
+            if (!found) lines.push('العنصر غير موجود');
+            document.getElementById('searchOutput').innerHTML = lines.join('<br>');
+        }
+
+        function toggleHw(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        // Build the 2D grid diagram for b[5][4]
+        const GRID_DATA = [
+            [3, 7, 1, 9],
+            [2, 6, 5, 8],
+            [4, 14, 0, 3],
+            [9, 1, 7, 6],
+            [5, 2, 8, 4]
+        ];
+        function buildGrid() {
+            const wrap = document.getElementById('gridDiagram');
+            let html = '';
+            for (let i = 0; i < GRID_DATA.length; i++) {
+                html += '<div class="grid-row"><div class="grid-row-label">i=' + i + '</div>';
+                for (let j = 0; j < GRID_DATA[i].length; j++) {
+                    html += '<div class="grid-cell" onclick="showGridCell(this,' + i + ',' + j + ',' + GRID_DATA[i][j] + ')">' + GRID_DATA[i][j] + '</div>';
+                }
+                html += '</div>';
+            }
+            wrap.innerHTML = html;
+        }
+        function showGridCell(el, i, j, value) {
+            document.querySelectorAll('#gridDiagram .grid-cell').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById('gridExplain').innerHTML =
+                '<strong>b[' + i + '][' + j + ']</strong> تساوي <strong>' + value + '</strong>.';
+        }
+        buildGrid();
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة! أحسنت.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة غير صحيحة، حاول مرة أخرى في المرة القادمة.</span>';
+            }
+        }
+    </script>
+</body>
+</html>
