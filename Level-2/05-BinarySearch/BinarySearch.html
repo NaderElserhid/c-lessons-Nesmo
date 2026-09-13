@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | البحث الثنائي — Binary Search</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        /* hero banner */
+        .hero-banner { background: var(--blue-gradient); padding: 70px 6% 60px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 720px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula { direction: ltr; display: inline-block; font-family: 'Consolas', monospace; font-weight: 800; background: #eef2f7; padding: 3px 10px; border-radius: 8px; color: var(--dark-navy); }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td code.inline, .data-table th code.inline { white-space: nowrap; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+
+        /* numbered steps */
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        /* interactive lab (visualizers) */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-slots { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; direction: ltr; margin-bottom: 10px; }
+        .lab-slot-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .lab-slot {
+            width: 56px; height: 56px; border-radius: 12px; border: 3px solid #cbd5e1; background: var(--bg-main);
+            display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.15rem;
+            color: var(--dark-navy); transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+        }
+        .lab-slot.highlight { border-color: var(--primary-yellow); box-shadow: 0 0 0 4px rgba(247, 148, 30, 0.18); animation: slotPop 0.3s ease; }
+        .lab-slot.settled { border-color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+        .lab-slot.min-tracker { border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.18); }
+        .lab-slot.eliminated { opacity: 0.3; }
+        @keyframes slotPop { 0% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        .lab-slot-label { font-size: 0.72rem; color: #94a3b8; text-align: center; }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 10px 0; }
+        .lab-legend { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; font-size: 0.78rem; color: var(--text-body); margin-bottom: 12px; }
+        .lab-legend span { display: inline-flex; align-items: center; gap: 6px; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+        .legend-dot.dot-min { background: #3b82f6; }
+        .legend-dot.dot-cmp { background: var(--primary-yellow); }
+        .legend-dot.dot-done { background: #22c55e; }
+        .legend-dot.dot-elim { background: #94a3b8; opacity: 0.6; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+
+        /* true/false quick-review activity */
+        .activity-box { background: white; border-radius: 22px; padding: 32px; margin: 28px 0; box-shadow: var(--soft-shadow); border: 1px solid #e2e8f0; }
+        .activity-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .activity-header i { color: var(--primary-blue); font-size: 1.2rem; }
+        .activity-header h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); }
+        .activity-intro { margin-bottom: 20px; font-size: 0.92rem; }
+        .tf-item {
+            background: var(--bg-main); border-radius: 16px; padding: 18px 22px; margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+            border: 1px solid #e2e8f0;
+        }
+        .tf-statement { margin: 0; font-weight: 700; color: var(--dark-navy); font-size: 0.95rem; flex: 1 1 260px; direction: ltr; text-align: right; unicode-bidi: plaintext; }
+        .tf-buttons { display: flex; gap: 10px; flex-shrink: 0; }
+        .tf-btn {
+            border: 2px solid #e2e8f0; background: white; padding: 9px 26px; border-radius: 50px;
+            font-weight: 800; font-family: 'Tajawal'; font-size: 0.88rem; cursor: pointer; color: var(--dark-navy); transition: 0.2s;
+        }
+        .tf-btn:hover { border-color: var(--primary-blue); }
+        .tf-btn.tf-selected-correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .tf-btn.tf-selected-wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .tf-feedback { flex-basis: 100%; margin-top: 2px; font-weight: 700; font-size: 0.85rem; min-height: 18px; }
+
+        /* homework toggles */
+        .homework-item { background: var(--bg-main); border-radius: 18px; padding: 24px; margin-top: 20px; border: 1px solid #e2e8f0; }
+        .homework-item h4 { margin: 0 0 10px; color: var(--dark-navy); font-size: 1.02rem; font-weight: 800; }
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            margin-top: 14px;
+        }
+        .collapsible { display: none; margin-top: 14px; }
+        .collapsible.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge">الفصل 5: البحث الثنائي</span>
+            <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الثاني</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-magnifying-glass-chart"></i>
+        <h1>الفصل الخامس: البحث الثنائي (Binary Search)</h1>
+        <p class="hero-desc">في الفصل الماضي تعلّمت كيف ترتّب البيانات باستخدام دالة sort بتعقيد O(n log n). الآن سنستثمر تلك البيانات المرتّبة لصالحنا: بدلًا من فحص كل عنصر واحدًا تلو الآخر، سنتعلّم كيف "نخمّن بذكاء" لنصل إلى الإجابة في خطوات قليلة جدًا — حتى لو كانت البيانات مليون عنصر. هذه هي فكرة البحث الثنائي، وهي واحدة من أهم الأدوات في البرمجة التنافسية.</p>
+    </div>
+
+    <div class="container">
+
+        <!-- Linear search -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-arrow-right-long"></i>
+                <h3>البحث الخطي (Linear Search)</h3>
+            </div>
+            <p>تخيّل أنّ لديك قائمة من الأرقام وتريد التحقق مما إذا كان رقم معيّن موجودًا فيها. أبسط طريقة هي المرور عبر القائمة عنصرًا عنصرًا:</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>linear_search.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    vector&lt;int&gt; arr = {4, 8, 15, 16, 23, 42};
+    int target = 15;
+
+    for (int i = 0; i &lt; arr.size(); i++) {
+        if (arr[i] == target) {
+            cout &lt;&lt; "Found at index " &lt;&lt; i;
+            return 0;
+        }
+    }
+    cout &lt;&lt; "Not found";
+}</pre>
+            </div>
+            <div class="output-box">Found at index 2</div>
+            <p>يُسمّى هذا <strong>البحث الخطي</strong> لأنّك تنتقل خطيًا عبر القائمة، عنصرًا بعد عنصر. يعمل دائمًا وبشكل صحيح، لكنه قد يكون بطيئًا إذا كانت القائمة طويلة — قد تحتاج للتحقق من كل عنصر.</p>
+
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>إذا كان هناك مليون رقم، فهذا يعني حتى مليون عملية تحقق في أسوأ الحالات. تذكّر من الفصل الثالث أنّ هذا يعني تعقيدًا زمنيًا <span class="formula">O(n)</span>.</p>
+            </div>
+
+            <p>تخيّل الآن أنّك تبحث عن اسم في دليل هاتف مطبوع. لن تبدأ من الصفحة الأولى وتقرأ اسمًا اسمًا. بل ستفتح الدليل في المنتصف، وتتحقق إن كنت في الجزء الصحيح أبجديًا، ثم تتجاهل نصف الصفحات دفعة واحدة. هذا بالضبط هو <strong>البحث الثنائي</strong>.</p>
+        </div>
+
+        <!-- The idea -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-lightbulb"></i>
+                <h3>فكرة البحث الثنائي</h3>
+            </div>
+            <p>البحث الثنائي يشبه لعبة "خمّن الرقم". في كل مرة تختار القيمة الوسطى وتسأل:</p>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p>هل هذه القيمة صغيرة جدًا؟</p></li>
+                <li class="step-item"><span class="step-num"></span><p>هل هي كبيرة جدًا؟</p></li>
+                <li class="step-item"><span class="step-num"></span><p>أم هي صحيحة بالضبط؟</p></li>
+            </ul>
+            <p>بناءً على الإجابة، تُقطع مساحة البحث إلى النصف في كل مرة. هذا يجعل البحث أسرع بكثير من البحث الخطي — لكنه <strong>يعمل فقط إذا كانت البيانات مرتّبة</strong> مسبقًا (ولهذا درسنا الترتيب في الفصل الماضي أولًا!).</p>
+        </div>
+
+        <!-- Classic binary search -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-bullseye"></i>
+                <h3>البحث الثنائي الكلاسيكي</h3>
+            </div>
+            <p><strong>مثال:</strong> لدينا مصفوفة مرتّبة <code class="inline">[1, 3, 5, 6, 7, 9, 11]</code>. ابحث عن الرقم <code class="inline">7</code> واطبع موقعه إن وُجد.</p>
+
+            <h4 class="sub-title">الحل خطوة بخطوة</h4>
+            <p>نبدأ بالنطاق الكامل، ثم نضيّق البحث تدريجيًا.</p>
+            <p>أولًا، نجد العنصر في المنتصف، وهو <code class="inline">6</code>. نسأل: هل <code class="inline">7</code> أصغر أم أكبر من <code class="inline">6</code>؟ هو أكبر، وبما أنّ المصفوفة مرتّبة، فهذا يعني أنّ <code class="inline">7</code> سيكون بعد <code class="inline">6</code>. يمكننا تجاهل النصف الأول بالكامل.</p>
+            <p>المصفوفة المتبقية منطقيًا هي <code class="inline">[7, 9, 11]</code>. العنصر في المنتصف هو <code class="inline">9</code>. الرقم <code class="inline">7</code> أصغر من <code class="inline">9</code>، أي أنه يقع قبله. نتجاهل <code class="inline">9</code> وكل ما بعده.</p>
+            <p>أخيرًا، يتبقى <code class="inline">[7]</code> فقط. العنصر الأوسط هو <code class="inline">7</code> بالضبط — وهذا ما نبحث عنه!</p>
+            <p>قمنا بثلاث مقارنات فقط: قارنّا <code class="inline">6</code> مع <code class="inline">7</code>، ثم <code class="inline">9</code> مع <code class="inline">7</code>، ثم <code class="inline">7</code> مع <code class="inline">7</code>.</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>binary_search.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    vector&lt;int&gt; arr = {1, 3, 5, 6, 7, 9, 11};
+    int target = 7;
+    int left = 0, right = arr.size() - 1;
+
+    while (left &lt;= right) {
+        int mid = (left + right) / 2;
+        if (arr[mid] == target) {
+            cout &lt;&lt; "Found at index " &lt;&lt; mid;
+            return 0;
+        } else if (arr[mid] &lt; target)
+            left = mid + 1;
+        else
+            right = mid - 1;
+    }
+
+    cout &lt;&lt; "Not found";
+}</pre>
+            </div>
+            <div class="output-box">Found at index 4</div>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> المختبر التفاعلي: شاهد البحث الثنائي خطوة بخطوة</p>
+                <div class="lab-legend">
+                    <span><span class="legend-dot dot-cmp"></span> قيد المقارنة (mid)</span>
+                    <span><span class="legend-dot dot-elim"></span> مستبعد من نطاق البحث</span>
+                    <span><span class="legend-dot dot-done"></span> تم العثور عليه</span>
+                </div>
+                <div class="lab-slots">
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="bsSlot0">1</div><div class="lab-slot-label">0</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="bsSlot1">3</div><div class="lab-slot-label">1</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="bsSlot2">5</div><div class="lab-slot-label">2</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="bsSlot3">6</div><div class="lab-slot-label">3</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="bsSlot4">7</div><div class="lab-slot-label">4</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="bsSlot5">9</div><div class="lab-slot-label">5</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="bsSlot6">11</div><div class="lab-slot-label">6</div></div>
+                </div>
+                <div class="lab-step-hint" id="bsStepLabel">اضغط "شغّل المصوّر" للبدء بالبحث عن الرقم 7.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runBinarySearchLab()">شغّل المصوّر</button>
+                </div>
+            </div>
+
+            <h4 class="sub-title">التعقيد الزمني</h4>
+            <p>كل خطوة تقطع النطاق إلى النصف. إذا كان هناك <code class="inline">n</code> عنصر، فإنّ البحث الثنائي يحتاج تقريبًا <span class="formula">log&#8322;(n)</span> خطوة فقط — أي تعقيد <span class="formula">O(log n)</span>. حتى لو كان هناك <strong>مليون</strong> رقم، فهذا يعني حوالي <span class="formula">20</span> عملية تحقق فقط بدلًا من مليون عملية في البحث الخطي!</p>
+        </div>
+
+        <!-- Activity A -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>نشاط: مراجعة سريعة للبحث الثنائي</h4>
+            </div>
+            <p class="activity-intro">حدّد إن كانت كل عبارة صحيحة أم خاطئة.</p>
+
+            <div class="tf-item" id="tfBs1">
+                <p class="tf-statement">البحث الثنائي يعمل بشكل صحيح على أي مصفوفة، سواء كانت مرتّبة أم لا.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBs1', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBs1', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBs2">
+                <p class="tf-statement">في كل خطوة، يقارن البحث الثنائي الهدف مع العنصر في منتصف النطاق الحالي.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBs2', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBs2', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBs3">
+                <p class="tf-statement">تعقيد البحث الثنائي هو O(log n)، بينما تعقيد البحث الخطي هو O(n).</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBs3', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBs3', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- First >= X -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-crosshairs"></i>
+                <h3>إيجاد أول عنصر أكبر من أو يساوي X</h3>
+            </div>
+            <p>البحث الثنائي يمكنه فعل أكثر من مجرد إيجاد رقم محدد — يمكن استخدامه أيضًا لإيجاد <strong>مواضع أو حدود (boundaries)</strong> في مصفوفة مرتّبة.</p>
+            <p><strong>مثال:</strong> لديك المصفوفة <code class="inline">[2, 4, 6, 8, 10]</code>. اعثر على أول عنصر أكبر من أو يساوي <code class="inline">7</code>.</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>first_geq.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    vector&lt;int&gt; arr = {2, 4, 6, 8, 10};
+    int x = 7;
+
+    int left = 0, right = arr.size() - 1;
+    int ans = -1;
+
+    while (left &lt;= right) {
+        int mid = (left + right) / 2;
+        if (arr[mid] &gt;= x) {
+            ans = mid;
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+    if (ans == -1) cout &lt;&lt; "No element found";
+    else cout &lt;&lt; "First element &gt;= " &lt;&lt; x &lt;&lt; " is at index " &lt;&lt; ans;
+}</pre>
+            </div>
+            <div class="output-box">First element >= 7 is at index 3</div>
+            <p>أي أنّ <code class="inline">arr[3] = 8</code> هو أول عنصر أكبر من أو يساوي <code class="inline">7</code>. لاحظ الفرق عن البحث الكلاسيكي: بدلًا من التوقف فور العثور على قيمة صالحة، نحفظها في <code class="inline">ans</code> ثم <strong>نستمر بالبحث يسارًا</strong> (<code class="inline">right = mid - 1</code>) علّنا نجد مرشحًا أفضل (فهرسًا أصغر).</p>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> المختبر التفاعلي: أول عنصر أكبر من أو يساوي 7</p>
+                <div class="lab-legend">
+                    <span><span class="legend-dot dot-cmp"></span> قيد المقارنة (mid)</span>
+                    <span><span class="legend-dot dot-min"></span> أفضل مرشح محفوظ حاليًا</span>
+                    <span><span class="legend-dot dot-elim"></span> مستبعد من نطاق البحث</span>
+                    <span><span class="legend-dot dot-done"></span> الإجابة النهائية</span>
+                </div>
+                <div class="lab-slots">
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="geqSlot0">2</div><div class="lab-slot-label">0</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="geqSlot1">4</div><div class="lab-slot-label">1</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="geqSlot2">6</div><div class="lab-slot-label">2</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="geqSlot3">8</div><div class="lab-slot-label">3</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="geqSlot4">10</div><div class="lab-slot-label">4</div></div>
+                </div>
+                <div class="lab-step-hint" id="geqStepLabel">اضغط "شغّل المصوّر" للبدء بالبحث عن أول عنصر ≥ 7.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runFirstGeqLab()">شغّل المصوّر</button>
+                </div>
+            </div>
+
+            <h4 class="sub-title">الخوارزمية العامة</h4>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p>ابدأ بمؤشرين <code class="inline">left</code> و<code class="inline">right</code>.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>احسب منتصف النطاق <code class="inline">mid</code>.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>إذا كانت القيمة الوسطى هي الإجابة (أو مرشحًا لها)، سجّلها.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>إذا كانت صغيرة جدًا، حرّك <code class="inline">left</code> إلى <code class="inline">mid + 1</code>.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>إذا كانت كبيرة جدًا (أو مرشحًا يمكن تحسينه)، حرّك <code class="inline">right</code> إلى <code class="inline">mid - 1</code>.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>كرّر حتى يصبح <code class="inline">left &gt; right</code>.</p></li>
+            </ul>
+        </div>
+
+        <!-- Activity B -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>نشاط: مراجعة سريعة لإيجاد المواضع والحدود</h4>
+            </div>
+            <p class="activity-intro">حدّد إن كانت كل عبارة صحيحة أم خاطئة.</p>
+
+            <div class="tf-item" id="tfBs4">
+                <p class="tf-statement">في مسألة "أول عنصر ≥ X"، عندما يكون arr[mid] ≥ X، نحفظ mid كمرشح ونستمر بالبحث في النصف الأيسر (يسارًا) بحثًا عن فهرس أصغر.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBs4', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBs4', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBs5">
+                <p class="tf-statement">البحث الثنائي يمكن استخدامه فقط لإيجاد قيمة مطابقة تمامًا، ولا يمكن استخدامه لإيجاد مواضع أو حدود.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBs5', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBs5', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Complexity comparison -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-gauge-high"></i>
+                <h3>البحث الخطي مقابل البحث الثنائي</h3>
+            </div>
+            <p>لنقارن عدد العمليات التي يحتاجها كل بحث للوصول إلى الإجابة، مع زيادة حجم المصفوفة <code class="inline">n</code>:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>n</th><th class="center">البحث الخطي O(n)</th><th class="center">البحث الثنائي O(log n)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="center">10</td><td class="center">≤ 10</td><td class="center">≤ 4</td></tr>
+                        <tr><td class="center">1,000</td><td class="center">≤ 1,000</td><td class="center">≤ 10</td></tr>
+                        <tr><td class="center">1,000,000</td><td class="center">≤ 1,000,000</td><td class="center">≤ 20</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>مع مليون عنصر، البحث الثنائي يحتاج حوالي 20 عملية تحقق فقط مقابل مليون عملية للبحث الخطي — وهذا فرق هائل بفضل قطع النطاق إلى النصف في كل خطوة، لكنه يتطلّب دائمًا أن تكون البيانات مرتّبة أولًا (ولهذا درسنا الترتيب قبل هذا الفصل مباشرة).</p>
+            </div>
+        </div>
+
+        <!-- Homework -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-pen-ruler"></i>
+                <h3>تمارين منزلية</h3>
+            </div>
+
+            <div class="homework-item" id="hwB1">
+                <h4>1) تتبّع البحث الثنائي</h4>
+                <p>لديك المصفوفة المرتّبة <code class="inline">[2, 5, 8, 12, 16, 23, 38, 45, 56, 72, 91]</code> (11 عنصرًا، الفهارس من 0 إلى 10). طبّق البحث الثنائي الكلاسيكي بحثًا عن الهدف <code class="inline">72</code>. حدّد الفهرس النهائي وعدد المقارنات.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwB1sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwB1sol">
+                    <p><strong>المقارنة الأولى:</strong> left=0, right=10 → mid=5 → arr[5]=23. بما أنّ 23 &lt; 72، نتحرك يمينًا: left = 6.</p>
+                    <p><strong>المقارنة الثانية:</strong> left=6, right=10 → mid=8 → arr[8]=56. بما أنّ 56 &lt; 72، نتحرك يمينًا: left = 9.</p>
+                    <p><strong>المقارنة الثالثة:</strong> left=9, right=10 → mid=9 → arr[9]=72. تطابق! توقفنا.</p>
+                    <div class="output-box">Found at index 9 after 3 comparisons</div>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwB2">
+                <h4>2) أول عنصر أكبر تمامًا من X</h4>
+                <p>عدّل خوارزمية "أول عنصر ≥ X" لتصبح "أول عنصر أكبر تمامًا (&gt;) من X". طبّقها على المصفوفة <code class="inline">[2, 4, 6, 8, 10]</code> بحثًا عن أول عنصر أكبر من <code class="inline">6</code>.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwB2sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwB2sol">
+                    <div class="code-box">
+                        <div class="code-head"><span>hw2.cpp</span></div>
+                        <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    vector&lt;int&gt; arr = {2, 4, 6, 8, 10};
+    int x = 6;
+
+    int left = 0, right = arr.size() - 1;
+    int ans = -1;
+
+    while (left &lt;= right) {
+        int mid = (left + right) / 2;
+        if (arr[mid] &gt; x) {
+            ans = mid;
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+    if (ans == -1) cout &lt;&lt; "No element found";
+    else cout &lt;&lt; "First element &gt; " &lt;&lt; x &lt;&lt; " is at index " &lt;&lt; ans;
+}</pre>
+                    </div>
+                    <div class="output-box">First element > 6 is at index 3</div>
+                    <p>الفرق الوحيد عن "أول عنصر ≥ X" هو استخدام <code class="inline">&gt;</code> بدلًا من <code class="inline">&gt;=</code> في الشرط.</p>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwB3">
+                <h4>3) عدّ العناصر الأصغر من X</h4>
+                <p>لديك المصفوفة المرتّبة <code class="inline">[1, 3, 5, 7, 9, 11]</code>. استخدم البحث الثنائي لحساب <strong>عدد العناصر الأصغر من</strong> <code class="inline">6</code> (بدون المرور على كل العناصر).</p>
+                <button class="toggle-btn" onclick="toggleSection('hwB3sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwB3sol">
+                    <div class="code-box">
+                        <div class="code-head"><span>hw3.cpp</span></div>
+                        <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    vector&lt;int&gt; arr = {1, 3, 5, 7, 9, 11};
+    int x = 6;
+    int n = arr.size();
+
+    int left = 0, right = n - 1;
+    int ans = n; <span class="cmt">// إذا لم نجد أي عنصر &gt;= x، فكل العناصر أصغر من x</span>
+
+    while (left &lt;= right) {
+        int mid = (left + right) / 2;
+        if (arr[mid] &gt;= x) {
+            ans = mid;
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+    cout &lt;&lt; "Count of elements less than " &lt;&lt; x &lt;&lt; " = " &lt;&lt; ans;
+}</pre>
+                    </div>
+                    <div class="output-box">Count of elements less than 6 = 3</div>
+                    <p>الفكرة الذكية: فهرس أول عنصر ≥ <code class="inline">x</code> يساوي بالضبط <strong>عدد العناصر الأصغر من</strong> <code class="inline">x</code> (لأنّ كل ما قبله في مصفوفة مرتّبة أصغر منه). العناصر <code class="inline">1, 3, 5</code> هي الأصغر من 6، وعددها 3 — بالضبط ما أعطتنا إياه الخوارزمية!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>تحقق من فهمك</h3>
+            </div>
+
+            <div class="quiz-q" id="qb1">
+                <h4>١. ما الشرط الأساسي لكي يعمل البحث الثنائي بشكل صحيح؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb1', this, false)">يجب أن تكون المصفوفة قصيرة (أقل من 10 عناصر)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb1', this, true)">يجب أن تكون البيانات مرتّبة مسبقًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb1', this, false)">يجب ألّا تحتوي المصفوفة على أرقام سالبة</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb2">
+                <h4>٢. ما تعقيد البحث الخطي الزمني؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb2', this, false)">O(log n)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb2', this, true)">O(n)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb2', this, false)">O(n²)</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb3">
+                <h4>٣. ما تعقيد البحث الثنائي الزمني؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb3', this, false)">O(n)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb3', this, true)">O(log n)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb3', this, false)">O(n log n)</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb4">
+                <h4>٤. في البحث الثنائي، إذا كان arr[mid] &lt; target، ماذا نفعل؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb4', this, false)">نحرّك right إلى mid - 1</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb4', this, true)">نحرّك left إلى mid + 1</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb4', this, false)">نتوقف فورًا لأنّ العنصر غير موجود</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb5">
+                <h4>٥. كم مقارنة تقريبًا يحتاجها البحث الثنائي للبحث بين مليون عنصر؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb5', this, false)">حوالي 1,000,000</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb5', this, false)">حوالي 1,000</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb5', this, true)">حوالي 20</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb6">
+                <h4>٦. في مسألة "أول عنصر ≥ X"، ماذا نفعل عندما نجد arr[mid] ≥ X؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb6', this, true)">نحفظه كمرشح (ans = mid) ثم نبحث يسارًا (right = mid - 1) عن مرشح أفضل</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb6', this, false)">نتوقف فورًا لأنه بالضرورة الإجابة النهائية</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb6', this, false)">نتجاهله ونبحث يمينًا فقط</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb7">
+                <h4>٧. لماذا لا يمكن تطبيق البحث الثنائي مباشرة على مصفوفة غير مرتّبة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb7', this, true)">لأنّ تجاهل نصف المصفوفة يعتمد على معرفة أنّ كل ما بعد mid أكبر (أو أصغر) منه، وهذا لا يصحّ إلا في بيانات مرتّبة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb7', this, false)">لأنّ المصفوفات غير المرتّبة لا تدعم عملية القسمة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb7', this, false)">فعليًا يمكن تطبيقه مباشرة بنفس الكفاءة دون أي مشكلة</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb8">
+                <h4>٨. متى تتوقف حلقة البحث الثنائي (while) في الكود الكلاسيكي؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb8', this, false)">بعد 10 تكرارات دائمًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb8', this, true)">عندما يصبح left &gt; right</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb8', this, false)">عندما يصبح mid = 0</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb9">
+                <h4>٩. كيف نحسب فهرس أول عنصر يساوي أو يتجاوز قيمة معيّنة بمعرفة نتيجة "أول عنصر ≥ X"؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb9', this, false)">لا علاقة بين الاثنين</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb9', this, true)">هذا الفهرس نفسه يساوي عدد العناصر الأصغر من X في مصفوفة مرتّبة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb9', this, false)">يجب دائمًا طرح واحد من الفهرس</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb10">
+                <h4>١٠. أيّ من التالي وصف صحيح للعلاقة بين الترتيب والبحث الثنائي؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb10', this, true)">الترتيب خطوة تمهيدية ضرورية غالبًا قبل استخدام البحث الثنائي بفعالية</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb10', this, false)">البحث الثنائي يرتّب المصفوفة تلقائيًا أثناء عمله</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb10', this, false)">لا توجد أي علاقة بين الترتيب والبحث الثنائي</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>قاموس المصطلحات</h3>
+            </div>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Linear Search</span><span class="term-ar">البحث الخطي</span><p class="term-desc">فحص عناصر المصفوفة واحدًا تلو الآخر، بتعقيد O(n).</p></div>
+                <div class="term-card"><span class="term-en">Binary Search</span><span class="term-ar">البحث الثنائي</span><p class="term-desc">خوارزمية تقطع نطاق البحث إلى النصف في كل خطوة على بيانات مرتّبة، بتعقيد O(log n).</p></div>
+                <div class="term-card"><span class="term-en">Sorted Array</span><span class="term-ar">مصفوفة مرتّبة</span><p class="term-desc">شرط أساسي لعمل البحث الثنائي بشكل صحيح.</p></div>
+                <div class="term-card"><span class="term-en">left / right / mid</span><span class="term-ar">مؤشرات النطاق والمنتصف</span><p class="term-desc">المتغيرات التي تحدّد نطاق البحث الحالي ونقطة المقارنة.</p></div>
+                <div class="term-card"><span class="term-en">Search Space</span><span class="term-ar">نطاق البحث</span><p class="term-desc">الجزء المتبقّي من المصفوفة الذي قد يحتوي على الإجابة.</p></div>
+                <div class="term-card"><span class="term-en">Lower Bound (First &ge; X)</span><span class="term-ar">أول عنصر ≥ X</span><p class="term-desc">استخدام متقدّم للبحث الثنائي لإيجاد أول موضع تتحقق فيه شرط معيّن.</p></div>
+                <div class="term-card"><span class="term-en">Time Complexity O(log n)</span><span class="term-ar">التعقيد اللوغاريتمي</span><p class="term-desc">النمو البطيء جدًا في عدد الخطوات، الناتج عن تقسيم المشكلة إلى النصف في كل مرة.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الثاني: البحث الثنائي (Binary Search)</footer>
+
+    <script>
+        // ===== Classic binary search visualizer =====
+        const bsArray = [1, 3, 5, 6, 7, 9, 11];
+        const bsSlotIds = ['bsSlot0', 'bsSlot1', 'bsSlot2', 'bsSlot3', 'bsSlot4', 'bsSlot5', 'bsSlot6'];
+
+        function buildBinarySearchFrames(arr, target) {
+            let left = 0, right = arr.length - 1;
+            const frames = [];
+            frames.push({ left, right, mid: -1, found: -1, label: 'نبدأ بالنطاق الكامل: من الفهرس ' + left + ' إلى ' + right + '.' });
+            while (left <= right) {
+                const mid = Math.floor((left + right) / 2);
+                frames.push({ left, right, mid, found: -1, label: 'نتحقق من arr[' + mid + ']=' + arr[mid] + '. نقارنه بالهدف ' + target + '.' });
+                if (arr[mid] === target) {
+                    frames.push({ left, right, mid, found: mid, label: 'تطابق! وجدنا الهدف عند الفهرس ' + mid + '.' });
+                    return frames;
+                } else if (arr[mid] < target) {
+                    left = mid + 1;
+                    frames.push({ left, right, mid: -1, found: -1, label: arr[mid] + ' أصغر من ' + target + '، نتجاهل النصف الأول ونستمر يمينًا.' });
+                } else {
+                    right = mid - 1;
+                    frames.push({ left, right, mid: -1, found: -1, label: arr[mid] + ' أكبر من ' + target + '، نتجاهل النصف الثاني ونستمر يسارًا.' });
+                }
+            }
+            frames.push({ left, right, mid: -1, found: -1, label: 'لم يتم العثور على الهدف.' });
+            return frames;
+        }
+
+        function renderBinarySearchFrame(frame) {
+            bsSlotIds.forEach((id, idx) => {
+                const el = document.getElementById(id);
+                el.classList.remove('highlight', 'settled', 'eliminated', 'min-tracker');
+                if (idx === frame.found) {
+                    el.classList.add('settled');
+                } else if (idx === frame.mid) {
+                    el.classList.add('highlight');
+                } else if (idx < frame.left || idx > frame.right) {
+                    el.classList.add('eliminated');
+                }
+            });
+            document.getElementById('bsStepLabel').innerText = frame.label;
+        }
+
+        function runBinarySearchLab() {
+            const frames = buildBinarySearchFrames(bsArray, 7);
+            let f = 0;
+            function playNext() {
+                if (f >= frames.length) return;
+                renderBinarySearchFrame(frames[f]);
+                f++;
+                setTimeout(playNext, 750);
+            }
+            playNext();
+        }
+
+        // ===== First >= X visualizer =====
+        const geqArray = [2, 4, 6, 8, 10];
+        const geqSlotIds = ['geqSlot0', 'geqSlot1', 'geqSlot2', 'geqSlot3', 'geqSlot4'];
+
+        function buildFirstGeqFrames(arr, x) {
+            let left = 0, right = arr.length - 1;
+            let ans = -1;
+            const frames = [];
+            frames.push({ left, right, mid: -1, ans, done: false, label: 'نبدأ بالنطاق الكامل: من الفهرس ' + left + ' إلى ' + right + '.' });
+            while (left <= right) {
+                const mid = Math.floor((left + right) / 2);
+                frames.push({ left, right, mid, ans, done: false, label: 'نتحقق من arr[' + mid + ']=' + arr[mid] + '. هل هو ≥ ' + x + '؟' });
+                if (arr[mid] >= x) {
+                    ans = mid;
+                    right = mid - 1;
+                    frames.push({ left, right, mid: -1, ans, done: false, label: 'arr[' + mid + ']=' + arr[mid] + ' ≥ ' + x + ': مرشح جديد! نحفظه ونبحث يسارًا عن فهرس أصغر.' });
+                } else {
+                    left = mid + 1;
+                    frames.push({ left, right, mid: -1, ans, done: false, label: 'arr[' + mid + ']=' + arr[mid] + ' < ' + x + ': ليس مرشحًا. نبحث يمينًا.' });
+                }
+            }
+            frames.push({
+                left, right, mid: -1, ans, done: true,
+                label: ans === -1 ? 'لا يوجد عنصر مناسب.' : 'انتهينا! الإجابة النهائية عند الفهرس ' + ans + ' بقيمة ' + arr[ans] + '.'
+            });
+            return frames;
+        }
+
+        function renderFirstGeqFrame(frame) {
+            geqSlotIds.forEach((id, idx) => {
+                const el = document.getElementById(id);
+                el.classList.remove('highlight', 'settled', 'eliminated', 'min-tracker');
+                if (frame.done && idx === frame.ans) {
+                    el.classList.add('settled');
+                } else if (idx === frame.mid) {
+                    el.classList.add('highlight');
+                } else if (idx === frame.ans) {
+                    el.classList.add('min-tracker');
+                } else if (idx < frame.left || idx > frame.right) {
+                    el.classList.add('eliminated');
+                }
+            });
+            document.getElementById('geqStepLabel').innerText = frame.label;
+        }
+
+        function runFirstGeqLab() {
+            const frames = buildFirstGeqFrames(geqArray, 7);
+            let f = 0;
+            function playNext() {
+                if (f >= frames.length) return;
+                renderFirstGeqFrame(frames[f]);
+                f++;
+                setTimeout(playNext, 750);
+            }
+            playNext();
+        }
+
+        // ===== Shared helpers (toggle, TF activity, quiz) =====
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        function checkTF(el, itemId, chosenValue, correctValue) {
+            const item = document.getElementById(itemId);
+            const buttons = item.querySelectorAll('.tf-btn');
+            buttons.forEach(b => { b.classList.remove('tf-selected-correct', 'tf-selected-wrong'); b.onclick = null; b.style.cursor = 'default'; });
+            const feedback = item.querySelector('.tf-feedback');
+            if (chosenValue === correctValue) {
+                el.classList.add('tf-selected-correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة!</span>';
+            } else {
+                el.classList.add('tf-selected-wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة خاطئة — العبارة في الواقع "' + (correctValue ? 'صحيح' : 'خطأ') + '".</span>';
+            }
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة! أحسنت.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة غير صحيحة، حاول مرة أخرى في المرة القادمة.</span>';
+            }
+        }
+    </script>
+</body>
+</html>

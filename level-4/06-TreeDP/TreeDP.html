@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | البرمجة الديناميكية على الأشجار (Tree DP)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+        .adv-badge {
+            background: var(--dark-navy); color: #facc15; border: none;
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .hero-banner { background: var(--blue-gradient); padding: 60px 6% 40px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 14px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 10px; }
+        .hero-sub { font-size: 0.9rem; color: rgba(255,255,255,0.85); font-weight: 700; margin: 0 0 16px; }
+        .hero-desc { max-width: 760px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        /* tab navigation */
+        .tab-nav {
+            display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+            background: white; padding: 14px 6%; position: sticky; top: 87px; z-index: 900;
+            border-bottom: 1px solid #e2e8f0; box-shadow: 0 4px 14px -8px rgba(0,0,0,0.08);
+        }
+        .tab-btn {
+            border: 2px solid #e2e8f0; background: white; color: var(--text-body);
+            padding: 10px 18px; border-radius: 50px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.82rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .tab-btn:hover { border-color: var(--primary-blue); }
+        .tab-btn.active { background: var(--blue-gradient); border-color: transparent; color: white; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeIn 0.35s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .container { max-width: 960px; margin: 40px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula-box {
+            background: #0f172a; color: #facc15; font-family: 'Consolas', monospace;
+            padding: 16px 20px; border-radius: 14px; margin: 14px 0; direction: ltr; text-align: center;
+            font-size: 1rem; font-weight: 700; line-height: 1.6;
+        }
+        .formula-box .flabel { display: block; color: #94a3b8; font-size: 0.75rem; font-weight: 700; margin-bottom: 6px; font-family: 'Tajawal'; }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.84rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+            white-space: pre-line;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        /* two-column parent/children box */
+        .pc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+        @media (max-width: 640px) { .pc-grid { grid-template-columns: 1fr; } }
+        .pc-col { background: var(--bg-main); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid #e2e8f0; }
+        .pc-col .pc-icon { font-size: 1.6rem; display: block; margin-bottom: 8px; }
+        .pc-col h5 { margin: 0 0 6px; font-weight: 800; color: var(--dark-navy); }
+        .pc-col p { margin: 0; font-size: 0.85rem; }
+
+        /* dp state chips */
+        .dp-state-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+        @media (max-width: 640px) { .dp-state-grid { grid-template-columns: 1fr; } }
+        .dp-state-chip { border-radius: 18px; padding: 22px; text-align: center; }
+        .dp-state-chip.state-yes { background: rgba(247,148,30,0.08); border: 2px dashed var(--primary-yellow); }
+        .dp-state-chip.state-no { background: rgba(0,173,239,0.08); border: 2px dashed var(--primary-blue); }
+        .dp-state-chip .dp-label { font-family: 'Consolas', monospace; font-weight: 800; font-size: 1.3rem; direction: ltr; display: block; margin-bottom: 8px; }
+        .dp-state-chip.state-yes .dp-label { color: var(--primary-yellow); }
+        .dp-state-chip.state-no .dp-label { color: var(--primary-blue); }
+        .dp-state-chip p { margin: 0; font-size: 0.85rem; }
+
+        /* tree svg canvases (shared visual language with the Trees chapter) */
+        .tree-lab-dark { background: #0b1220; border-radius: 20px; padding: 24px; margin: 16px 0; border: 1px solid #1e293b; }
+        .tree-canvas-wrap { background: #0f172a; border-radius: 16px; padding: 8px; border: 1px solid #1e293b; }
+        .tree-svg { width: 100%; height: auto; display: block; }
+        .tree-edge { stroke: #475569; stroke-width: 2; transition: all 0.25s ease; }
+        .tree-node-circle { stroke: #0b1220; stroke-width: 3; transition: fill 0.25s ease, stroke 0.2s ease; }
+        .tree-node-circle.state-unvisited { fill: #334155; }
+        .tree-node-circle.state-current { fill: #f7941e; }
+        .tree-node-circle.state-done { fill: #22c55e; }
+        .tree-node-circle.state-root { stroke: #facc15; stroke-width: 5; }
+        .tree-node-index { fill: #e2e8f0; font-weight: 800; font-size: 14px; font-family: 'Consolas', monospace; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+        .tree-root-tag { fill: #facc15; font-weight: 800; font-size: 11px; font-family: 'Tajawal', sans-serif; text-anchor: middle; pointer-events: none; }
+
+        .tree-legend-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+        .tree-legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #cbd5e1; font-weight: 700; }
+        .tree-legend-dot { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; }
+
+        .tree-controls-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px; align-items: center; }
+        .tree-btn {
+            border-radius: 14px; padding: 11px 20px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 2px solid transparent; transition: all 0.2s ease;
+        }
+        .tree-btn-primary { background: var(--blue-gradient); color: white; }
+        .tree-btn-outline { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+        .tree-btn-outline:hover { border-color: #64748b; }
+        .tree-btn-danger { background: #0f172a; border-color: #3f1d2b; color: #f87171; }
+        .tree-btn-danger:hover { border-color: #f87171; }
+        .tree-status-line { text-align: center; font-size: 0.85rem; font-weight: 700; color: #94a3b8; margin-top: 14px; min-height: 20px; }
+
+        .tree-console {
+            background: #0f172a; border-radius: 14px; padding: 16px 20px; margin: 14px 0; min-height: 40px;
+            font-family: 'Consolas', monospace; color: #4ade80; direction: ltr; text-align: left; font-size: 0.82rem; line-height: 1.8;
+            max-height: 190px; overflow-y: auto; border: 1px solid #1e293b;
+        }
+        .tree-console .highlight-line { color: #facc15; font-weight: 700; }
+
+        .results-table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 0.85rem; direction: ltr; }
+        .results-table th, .results-table td { border: 1px solid #1e293b; padding: 8px 12px; text-align: center; color: #e2e8f0; font-family: 'Consolas', monospace; }
+        .results-table th { background: #1e293b; color: #94a3b8; }
+        .results-table td.empty-cell { color: #475569; }
+
+        .final-answer-box {
+            background: #0f172a; color: #facc15; font-family: 'Consolas', monospace; text-align: center;
+            border-radius: 14px; padding: 16px; margin-top: 14px; font-weight: 800; font-size: 1.05rem; direction: ltr;
+            border: 1px solid #1e293b; display: none;
+        }
+        .final-answer-box.show { display: block; }
+
+        /* quiz bank */
+        .quizbank-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 10px; }
+        .quizbank-score-row { display: flex; gap: 16px; flex-wrap: wrap; }
+        .qb-score-chip { background: var(--bg-main); border-radius: 14px; padding: 10px 20px; text-align: center; border: 1px solid #e2e8f0; min-width: 90px; }
+        .qb-score-num { display: block; font-size: 1.3rem; font-weight: 800; color: var(--dark-navy); }
+        .qb-score-label { display: block; font-size: 0.75rem; color: var(--text-body); font-weight: 700; margin-top: 2px; }
+        .qb-score-chip.qb-correct .qb-score-num { color: #16a34a; }
+        .qb-score-chip.qb-wrong .qb-score-num { color: #dc2626; }
+        .qb-reset-btn {
+            background: white; border: 2px solid #cbd5e1; color: var(--text-body);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+        }
+        .qb-category-header { display: flex; align-items: center; gap: 10px; margin: 28px 0 14px; }
+        .qb-category-header h4 { margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--dark-navy); }
+        .qb-diff-badge { display: inline-block; padding: 4px 14px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; }
+        .qb-diff-easy { background: #dcfce7; color: #15803d; }
+        .qb-diff-medium { background: #fef3c7; color: #b45309; }
+        .qb-diff-hard { background: #fee2e2; color: #b91c1c; }
+        .qb-question-block { background: var(--bg-main); border-radius: 16px; padding: 20px; margin-bottom: 14px; border: 1px solid #e2e8f0; }
+        .qb-question-block h5 { margin: 0 0 12px; font-size: 0.98rem; font-weight: 800; color: var(--dark-navy); }
+        .qb-code-snippet {
+            background: #0f172a; color: #e2e8f0; font-family: 'Consolas', monospace; font-size: 0.78rem;
+            border-radius: 12px; padding: 12px 16px; margin: 8px 0 14px; direction: ltr; text-align: left; line-height: 1.7; overflow-x: auto;
+        }
+        .qb-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 16px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.9rem; transition: 0.2s;
+            margin-bottom: 8px;
+        }
+        .qb-opt:hover { border-color: var(--primary-blue); }
+        .qb-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .qb-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge">الدرس 06: البرمجة الديناميكية على الأشجار</span>
+            <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الرابع</span>
+            <span class="adv-badge"><i class="fas fa-star"></i> متقدم · 15-20 سنة</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-diagram-project"></i>
+        <h1>الدرس السادس: البرمجة الديناميكية على الأشجار (Tree DP)</h1>
+        <p class="hero-sub">من الأساس حتى المسألة الكلاسيكية: أكبر مجموعة مستقلة · للمتسابقين 15-20 سنة</p>
+        <p class="hero-desc">بعد أن أتقنّا الجذر والأب والعمق وحجم الشجرة الفرعية، نستخدمها الآن لبناء أول خوارزمية DP حقيقية على الأشجار. الفكرة بسيطة وقوية: احسب إجابة كل عقدة من إجابات أبنائها، ثم اصعد نحو الجذر.</p>
+    </div>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="showTab('tabConcept', this)"><i class="fas fa-lightbulb"></i> المفهوم</button>
+        <button class="tab-btn" onclick="showTab('tabWhy', this)"><i class="fas fa-magnifying-glass"></i> لماذا يعمل؟</button>
+        <button class="tab-btn" onclick="showTab('tabMIS', this)"><i class="fas fa-circle-nodes"></i> المجموعة المستقلة</button>
+        <button class="tab-btn" onclick="showTab('tabStates', this)"><i class="fas fa-chart-simple"></i> حالات DP</button>
+        <button class="tab-btn" onclick="showTab('tabCode', this)"><i class="fas fa-code"></i> الكود</button>
+        <button class="tab-btn" onclick="showTab('tabSim', this)"><i class="fas fa-gamepad"></i> المحاكاة</button>
+        <button class="tab-btn" onclick="showTab('tabExample', this)"><i class="fas fa-flask"></i> مثال مفصّل</button>
+        <button class="tab-btn" onclick="showTab('tabQuiz', this)"><i class="fas fa-brain"></i> الأسئلة</button>
+    </div>
+
+    <div class="container">
+
+        <!-- ============ TAB 1: CONCEPT ============ -->
+        <div class="tab-panel active" id="tabConcept">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-lightbulb"></i>
+                    <h3>💡 ما هي Tree DP؟</h3>
+                </div>
+                <p>البرمجة الديناميكية على الأشجار (Tree DP) هي تقنية تحسب جواب كل عقدة بالاعتماد على أجوبة أبنائها، بعد تجذير الشجرة واختيار جذر.</p>
+
+                <div class="tip-box">
+                    <i class="fas fa-bullseye"></i>
+                    <p><strong>🎯 الفكرة الجوهرية:</strong> بعد تجذير الشجرة، الأشجار الفرعية (Subtrees) لا تتداخل أبداً. لذلك يمكننا حل كل شجرة فرعية مرة واحدة، ثم دمج النتائج صعوداً نحو الجذر.</p>
+                </div>
+            </div>
+
+            <div class="card steps-card">
+                <div class="card-header">
+                    <i class="fas fa-stairs"></i>
+                    <h3>🪜 خطوات الحل العامة</h3>
+                </div>
+                <ol class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p><strong>جذّر الشجرة:</strong> اختر أي عقدة (عادةً 0 أو 1) لتكون الجذر. هذا يعطي الشجرة اتجاهاً من الأعلى للأسفل.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong>عرّف حالات DP لكل عقدة:</strong> فكّر: ما المعلومة التي تحتاجها كل عقدة لاتخاذ قرارها؟ هذه هي حالات DP.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong>نفّذ DFS واحسب الأبناء أولاً:</strong> في DFS، عند الرجوع (post-order) تكون قيم DP للأبناء جاهزة قبل الأب.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong>ادمج نتائج الأبناء:</strong> استخدم صيغة رياضية بسيطة تجمع قيم الأبناء لتحسب قيمة الأب.</p></li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- ============ TAB 2: WHY IT WORKS ============ -->
+        <div class="tab-panel" id="tabWhy">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-magnifying-glass"></i>
+                    <h3>🔍 لماذا يعمل هذا؟</h3>
+                </div>
+                <h4 class="sub-title" style="margin-top:0;">خاصية عدم التداخل في الأشجار</h4>
+                <p>في الرسوم البيانية العامة، قد تتداخل المسارات وتجعل البرمجة الديناميكية صعبة. لكن في الشجرة:</p>
+
+                <div class="tip-box">
+                    <i class="fas fa-thumbtack"></i>
+                    <p><strong>📌</strong> بعد التجذير، كل ابن يُعطى جزءاً مستقلاً تماماً من الشجرة (subtree). هذه الأجزاء لا تتقاسم أي عقد أو أحرف. لذلك يمكن حساب كل واحدة بشكل مستقل ودمجها بأمان.</p>
+                </div>
+
+                <h4 class="sub-title">الفرق بين Tree DP والـ DP العادي</h4>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>الـ DP العادي (مصفوفة)</th><th>Tree DP</th></tr></thead>
+                        <tbody>
+                            <tr><td>الحالات مرتّبة خطياً (i قبل i+1)</td><td>الحالات على شكل شجرة (أبناء قبل آبائهم)</td></tr>
+                            <tr><td>الانتقال: من الحالة السابقة</td><td>الانتقال: من الأبناء للأب</td></tr>
+                            <tr><td>نستخدم حلقة for</td><td>نستخدم DFS</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 3: MAXIMUM INDEPENDENT SET ============ -->
+        <div class="tab-panel" id="tabMIS">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-circle-nodes"></i>
+                    <h3>🟠 المسألة الكلاسيكية: أكبر مجموعة مستقلة</h3>
+                </div>
+                <h4 class="sub-title" style="margin-top:0;">تعريف المسألة</h4>
+                <p>اختر أكبر عدد ممكن من عقد الشجرة، بشرط أن لا تختار عقدتين متجاورتين (مرتبطتان بحرف مباشر).</p>
+
+                <div class="tip-box">
+                    <i class="fas fa-seedling"></i>
+                    <p><strong>🌿 مثال:</strong> في شجرة <code class="inline">0→1→2→3</code> (خطية)، يمكن اختيار {0,2} أو {1,3} أو {0,3} — كل هذه مستقلة. أفضلها هو {0,2,4...} بالتبادل.</p>
+                </div>
+
+                <h4 class="sub-title">تبسيط المسألة في الشجرة</h4>
+                <p>في الشجرة المجذّرة، الجيران المهمون لكل عقدة <code class="inline">v</code> هم:</p>
+
+                <div class="pc-grid">
+                    <div class="pc-col">
+                        <span class="pc-icon">☝️</span>
+                        <h5>الأب</h5>
+                        <p>نعرف قراره من الأعلى</p>
+                    </div>
+                    <div class="pc-col">
+                        <span class="pc-icon">👇</span>
+                        <h5>الأبناء</h5>
+                        <p>نتحكم فيهم من الأسفل</p>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <i class="fas fa-lightbulb"></i>
+                    <p><strong>💡</strong> عند اختيار عقدة v، نُجبر على تجاوز جميع أبنائها. عند تركها، كل ابن حر في الاختيار.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 4: DP STATES ============ -->
+        <div class="tab-panel" id="tabStates">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-chart-simple"></i>
+                    <h3>📊 حالات DP والانتقالات</h3>
+                </div>
+                <h4 class="sub-title" style="margin-top:0;">تعريف الحالتين</h4>
+                <p>لكل عقدة v، نحسب رقمين:</p>
+
+                <div class="dp-state-grid">
+                    <div class="dp-state-chip state-yes">
+                        <span class="dp-label">dp1[v]</span>
+                        <p>أفضل نتيجة إذا اخترنا v داخل subtree(v) كاملة</p>
+                    </div>
+                    <div class="dp-state-chip state-no">
+                        <span class="dp-label">dp0[v]</span>
+                        <p>أفضل نتيجة إذا تركنا v داخل subtree(v) كاملة</p>
+                    </div>
+                </div>
+
+                <h4 class="sub-title">معادلات الانتقال</h4>
+                <div class="formula-box">
+                    <span class="flabel">🟠 اخترنا v → dp1[v]</span>
+                    dp1[v] = 1 + Σ dp0[c]  <span style="color:#94a3b8;">(لكل ابن c)</span>
+                </div>
+                <div class="formula-box">
+                    <span class="flabel">🔵 تركنا v → dp0[v]</span>
+                    dp0[v] = Σ max(dp0[c], dp1[c])  <span style="color:#94a3b8;">(لكل ابن c)</span>
+                </div>
+
+                <p>🟠 <code class="inline">dp1[v]</code>: نعدّ v نفسها (الـ 1)، ثم كل ابن مجبر على أن يكون غير مختار → نأخذ <code class="inline">dp0[c]</code>.</p>
+                <p>🔵 <code class="inline">dp0[v]</code>: لا نعدّ v، وكل ابن حر في اختياره أو تركه → نأخذ <code class="inline">max(dp0[c], dp1[c])</code> لكل ابن بشكل مستقل.</p>
+
+                <div class="good-box">
+                    <i class="fas fa-circle-check"></i>
+                    <p><strong>✅ الجواب النهائي:</strong> <code class="inline">max(dp0[root], dp1[root])</code></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 5: CODE ============ -->
+        <div class="tab-panel" id="tabCode">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-code"></i>
+                    <h3>💻 الكود الكامل (C++)</h3>
+                </div>
+
+                <h4 class="sub-title" style="margin-top:0;">الهيكل العام</h4>
+                <div class="code-box">
+                    <div class="code-head"><span>tree_dp_setup.cpp</span></div>
+                    <pre>int n;
+vector&lt;vector&lt;int&gt;&gt; g(n);   <span class="cmt">// قائمة الجوار</span>
+vector&lt;int&gt; dp0(n, 0), dp1(n, 0);</pre>
+                </div>
+
+                <h4 class="sub-title">دالة DFS الرئيسية</h4>
+                <div class="code-box">
+                    <div class="code-head"><span>tree_dp_mis.cpp</span></div>
+                    <pre>void dfs(int v, int p) {
+    dp1[v] = 1;   <span class="cmt">// نختار v → نبدأ بعدّها</span>
+    dp0[v] = 0;   <span class="cmt">// لا نختار v → لا نعدّها</span>
+
+    for (int to : g[v]) {
+        if (to == p) continue;   <span class="cmt">// تجاهل الأب</span>
+        dfs(to, v);              <span class="cmt">// احسب الابن أولاً</span>
+
+        <span class="cmt">// اخترنا v → مجبورون على ترك الابن</span>
+        dp1[v] += dp0[to];
+
+        <span class="cmt">// تركنا v → الابن حر، خذ الأفضل</span>
+        dp0[v] += max(dp0[to], dp1[to]);
+    }
+}
+
+<span class="cmt">// الاستخدام:</span>
+dfs(0, -1);
+int ans = max(dp0[0], dp1[0]);</pre>
+                </div>
+
+                <div class="tip-box">
+                    <i class="fas fa-key"></i>
+                    <p><strong>🔑 نصيحة الأولمبياد:</strong> دائماً ابدأ بـ <code class="inline">dp1[v] = 1</code> (لتعدّ العقدة v نفسها)، و<code class="inline">dp0[v] = 0</code>. ثم الحلقة على الأبناء تبني الباقي. البنية دائماً نفسها في أغلب مسائل Tree DP.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 6: INTERACTIVE SIMULATION ============ -->
+        <div class="tab-panel" id="tabSim">
+            <div class="card steps-card">
+                <div class="card-header">
+                    <i class="fas fa-gamepad"></i>
+                    <h3>🎮 محاكاة Tree DP التفاعلية</h3>
+                </div>
+                <p>شجرة من 6 عقد — اضغط "تشغيل" لرؤية DP خطوة بخطوة. الشجرة: 0 هو الجذر، أبناؤه {1,2}، أبناء 1 هم {3,4}، ابن 2 هو {5}.</p>
+
+                <div class="tree-lab-dark">
+                    <div class="tree-canvas-wrap">
+                        <svg id="dpSvg" viewBox="0 0 700 360" class="tree-svg"></svg>
+                    </div>
+                    <div class="tree-legend-row">
+                        <span class="tree-legend-item"><span class="tree-legend-dot" style="background:#334155;"></span> لم تُحسب بعد</span>
+                        <span class="tree-legend-item"><span class="tree-legend-dot" style="background:#f7941e;"></span> قيد المعالجة</span>
+                        <span class="tree-legend-item"><span class="tree-legend-dot" style="background:#22c55e;"></span> dp0/dp1 محسوبتان</span>
+                        <span class="tree-legend-item"><span class="tree-legend-dot" style="background:#334155; border:3px solid #facc15;"></span> الجذر (0)</span>
+                    </div>
+                    <div class="tree-status-line" id="dpHint">اضغط "تشغيل كامل" أو "خطوة واحدة"</div>
+
+                    <div class="tree-console" id="dpConsole"></div>
+
+                    <div class="table-wrap">
+                        <table class="results-table" id="dpResults">
+                            <thead><tr><th>node</th><th>dp0[v]</th><th>dp1[v]</th></tr></thead>
+                            <tbody id="dpResultsBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="final-answer-box" id="dpFinalBox"></div>
+
+                    <div class="tree-controls-row">
+                        <button class="tree-btn tree-btn-primary" id="dpPlayBtn" onclick="dpTogglePlay()"><i class="fas fa-play"></i> تشغيل كامل</button>
+                        <button class="tree-btn tree-btn-outline" onclick="dpStep()">⏭ خطوة واحدة</button>
+                        <button class="tree-btn tree-btn-danger" onclick="dpReset()"><i class="fas fa-rotate-right"></i> إعادة</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 7: DETAILED EXAMPLE ============ -->
+        <div class="tab-panel" id="tabExample">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-flask"></i>
+                    <h3>🔬 مثال مفصّل: ابنان a وb</h3>
+                </div>
+                <h4 class="sub-title" style="margin-top:0;">البيانات المعطاة</h4>
+                <div class="dp-state-grid">
+                    <div class="dp-state-chip state-yes">
+                        <span class="dp-label">قيم الابن a</span>
+                        <p>dp0[a] = 3<br>dp1[a] = 4</p>
+                    </div>
+                    <div class="dp-state-chip state-no">
+                        <span class="dp-label">قيم الابن b</span>
+                        <p>dp0[b] = 2<br>dp1[b] = 2</p>
+                    </div>
+                </div>
+
+                <h4 class="sub-title">حساب dp1[v] — نختار v</h4>
+                <p>إذا اخترنا v، يجب ترك كلا الابنين:</p>
+                <div class="output-box">dp1[v] = 1 + dp0[a] + dp0[b]
+       = 1 +   3   +   2
+       = 6</div>
+
+                <h4 class="sub-title">حساب dp0[v] — نترك v</h4>
+                <p>إذا تركنا v، كل ابن حر، نأخذ الأفضل منهما:</p>
+                <div class="output-box">dp0[v] = max(dp0[a], dp1[a]) + max(dp0[b], dp1[b])
+       = max(3, 4)           + max(2, 2)
+       =    4                +    2
+       = 6</div>
+
+                <div class="good-box">
+                    <i class="fas fa-circle-check"></i>
+                    <p><strong>✅</strong> في هذا المثال، الحالتان تعطيان 6. الجواب النهائي: <code class="inline">max(6, 6) = 6</code></p>
+                </div>
+
+                <h4 class="sub-title">📋 ملخص نمط Tree DP</h4>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>الخطوة</th><th>ماذا تفعل</th></tr></thead>
+                        <tbody>
+                            <tr><td>اختر جذراً</td><td>أي عقدة، عادةً 0</td></tr>
+                            <tr><td>عرّف الحالات</td><td>dp[v][حالة] مثل اختيار/ترك</td></tr>
+                            <tr><td>DFS post-order</td><td>الأبناء تُحسب قبل الأب</td></tr>
+                            <tr><td>ادمج الأبناء</td><td>صيغة بسيطة: جمع أو max</td></tr>
+                            <tr><td>الجواب</td><td>max(dp[root][0], dp[root][1])</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 8: QUIZ ============ -->
+        <div class="tab-panel" id="tabQuiz">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-brain"></i>
+                    <h3>🏆 بنك الأسئلة — 15 سؤالاً</h3>
+                </div>
+
+                <div class="quizbank-header">
+                    <div class="quizbank-score-row">
+                        <div class="qb-score-chip"><span class="qb-score-num" id="qbTotalNum">0 / 0</span><span class="qb-score-label">نتيجتك الحالية</span></div>
+                        <div class="qb-score-chip qb-correct"><span class="qb-score-num" id="qbCorrectNum">0</span><span class="qb-score-label">صحيح</span></div>
+                        <div class="qb-score-chip qb-wrong"><span class="qb-score-num" id="qbWrongNum">0</span><span class="qb-score-label">خطأ</span></div>
+                    </div>
+                    <button class="qb-reset-btn" onclick="qbResetAll()"><i class="fas fa-rotate-right"></i> إعادة</button>
+                </div>
+
+                <div id="qbContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الرابع: البرمجة الديناميكية على الأشجار (Tree DP)</footer>
+
+    <script>
+        // ===================================================================
+        // Tab navigation
+        // ===================================================================
+        function showTab(tabId, btn) {
+            document.querySelectorAll('.tab-panel').forEach(function (el) { el.classList.remove('active'); });
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+        }
+
+        // ===================================================================
+        // Shared SVG drawing helpers (same visual language as the Trees chapter)
+        // ===================================================================
+        function drawTree(svgId, pos, edges, rootId) {
+            const svg = document.getElementById(svgId);
+            svg.innerHTML = '';
+            edges.forEach(function (e) {
+                const a = pos[e[0]], b = pos[e[1]];
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
+                line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
+                line.setAttribute('class', 'tree-edge');
+                line.setAttribute('id', svgId + '_edge_' + e[0] + '_' + e[1]);
+                svg.appendChild(line);
+            });
+            Object.keys(pos).forEach(function (key) {
+                const id = parseInt(key, 10);
+                const p = pos[id];
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', p.x); circle.setAttribute('cy', p.y); circle.setAttribute('r', 20);
+                circle.setAttribute('class', 'tree-node-circle state-unvisited' + (id === rootId ? ' state-root' : ''));
+                circle.setAttribute('id', svgId + '_node_' + id);
+                svg.appendChild(circle);
+
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', p.x); label.setAttribute('y', p.y);
+                label.setAttribute('class', 'tree-node-index');
+                label.setAttribute('id', svgId + '_label_' + id);
+                label.textContent = id;
+                svg.appendChild(label);
+
+                if (id === rootId) {
+                    const tag = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    tag.setAttribute('x', p.x); tag.setAttribute('y', p.y - 32);
+                    tag.setAttribute('class', 'tree-root-tag');
+                    tag.textContent = 'root';
+                    svg.appendChild(tag);
+                }
+            });
+        }
+
+        function setNodeStateTree(svgId, id, state, rootId) {
+            const circle = document.getElementById(svgId + '_node_' + id);
+            if (!circle) return;
+            circle.setAttribute('class', 'tree-node-circle state-' + state + (id === rootId ? ' state-root' : ''));
+        }
+
+        // ===================================================================
+        // TAB 6: Tree DP simulator (Maximum Independent Set), 6 nodes, fixed root = 0
+        // adjacency confirmed: 0 root, children{1,2}; 1's children{3,4}; 2's child{5}
+        // ===================================================================
+        const DP_ADJ = { 0: [1, 2], 1: [0, 3, 4], 2: [0, 5], 3: [1], 4: [1], 5: [2] };
+        const DP_POS = {
+            0: { x: 350, y: 50 }, 1: { x: 220, y: 170 }, 2: { x: 480, y: 170 },
+            3: { x: 140, y: 290 }, 4: { x: 300, y: 290 }, 5: { x: 480, y: 290 }
+        };
+        const DP_EDGES = [[0, 1], [0, 2], [1, 3], [1, 4], [2, 5]];
+        const DP_ROOT = 0;
+
+        let dpEvents = [];
+        let dpIndex = 0;
+        let dpCurrent = null;
+        let dpPlaying = false;
+        let dpTimer = null;
+        let dpResultRows = {};
+
+        // Self-computing: runs the real dp0/dp1 recurrence, mirrors the C++ dfs() exactly.
+        function generateDpEvents(root) {
+            const events = [];
+            const dp0 = {}, dp1 = {};
+            (function dfs(v, p) {
+                events.push({ type: 'enter', node: v });
+                DP_ADJ[v].forEach(function (to) {
+                    if (to === p) return;
+                    dfs(to, v);
+                });
+                let d1 = 1, d0 = 0;
+                DP_ADJ[v].forEach(function (to) {
+                    if (to === p) return;
+                    d1 += dp0[to];
+                    d0 += Math.max(dp0[to], dp1[to]);
+                });
+                dp0[v] = d0; dp1[v] = d1;
+                events.push({ type: 'return', node: v, dp0: d0, dp1: d1 });
+            })(root, -1);
+            return events;
+        }
+
+        function dpLog(text, highlight) {
+            const box = document.getElementById('dpConsole');
+            const line = document.createElement('div');
+            if (highlight) line.className = 'highlight-line';
+            line.innerText = text;
+            box.appendChild(line);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function dpRenderResultsTable() {
+            const body = document.getElementById('dpResultsBody');
+            body.innerHTML = '';
+            Object.keys(DP_ADJ).map(Number).sort(function (a, b) { return a - b; }).forEach(function (id) {
+                const row = dpResultRows[id] || {};
+                const tr = document.createElement('tr');
+                tr.innerHTML =
+                    '<td>' + id + '</td>' +
+                    '<td class="' + (row.dp0 === undefined ? 'empty-cell' : '') + '">' + (row.dp0 === undefined ? '—' : row.dp0) + '</td>' +
+                    '<td class="' + (row.dp1 === undefined ? 'empty-cell' : '') + '">' + (row.dp1 === undefined ? '—' : row.dp1) + '</td>';
+                body.appendChild(tr);
+            });
+        }
+
+        function dpReset() {
+            dpEvents = [];
+            dpIndex = 0;
+            dpCurrent = null;
+            dpResultRows = {};
+            dpPlaying = false;
+            if (dpTimer) { clearInterval(dpTimer); dpTimer = null; }
+            drawTree('dpSvg', DP_POS, DP_EDGES, DP_ROOT);
+            document.getElementById('dpConsole').innerHTML = '';
+            document.getElementById('dpHint').innerText = 'اضغط "تشغيل كامل" أو "خطوة واحدة"';
+            document.getElementById('dpPlayBtn').innerHTML = '<i class="fas fa-play"></i> تشغيل كامل';
+            document.getElementById('dpFinalBox').classList.remove('show');
+            document.getElementById('dpFinalBox').innerText = '';
+            dpRenderResultsTable();
+        }
+
+        function dpStopPlaying() {
+            dpPlaying = false;
+            if (dpTimer) { clearInterval(dpTimer); dpTimer = null; }
+            document.getElementById('dpPlayBtn').innerHTML = '<i class="fas fa-play"></i> تشغيل كامل';
+        }
+
+        function dpFinish() {
+            if (dpCurrent !== null) setNodeStateTree('dpSvg', dpCurrent, 'done', DP_ROOT);
+            const rootRow = dpResultRows[DP_ROOT];
+            const ans = Math.max(rootRow.dp0, rootRow.dp1);
+            dpLog('انتهت المحاكاة! الجواب النهائي = max(dp0[' + DP_ROOT + '], dp1[' + DP_ROOT + ']) = max(' + rootRow.dp0 + ', ' + rootRow.dp1 + ') = ' + ans, true);
+            document.getElementById('dpHint').innerText = 'انتهت المحاكاة — راجع الجدول والجواب النهائي أدناه.';
+            const box = document.getElementById('dpFinalBox');
+            box.innerText = 'أكبر مجموعة مستقلة = ' + ans;
+            box.classList.add('show');
+            dpStopPlaying();
+        }
+
+        function dpStep() {
+            if (dpIndex === 0 && dpEvents.length === 0) {
+                dpEvents = generateDpEvents(DP_ROOT);
+                dpLog('بدء DFS من الجذر ' + DP_ROOT + '...', true);
+            }
+            if (dpIndex >= dpEvents.length) {
+                dpFinish();
+                return;
+            }
+            const ev = dpEvents[dpIndex];
+            dpIndex++;
+
+            if (ev.type === 'enter') {
+                if (dpCurrent !== null) setNodeStateTree('dpSvg', dpCurrent, 'current', DP_ROOT);
+                setNodeStateTree('dpSvg', ev.node, 'current', DP_ROOT);
+                dpCurrent = ev.node;
+                dpLog('دخول العقدة ' + ev.node + '...');
+            } else if (ev.type === 'return') {
+                setNodeStateTree('dpSvg', ev.node, 'done', DP_ROOT);
+                dpResultRows[ev.node] = { dp0: ev.dp0, dp1: ev.dp1 };
+                dpLog('  احتساب العقدة ' + ev.node + ': dp1[' + ev.node + ']=' + ev.dp1 + ', dp0[' + ev.node + ']=' + ev.dp0, true);
+            }
+
+            dpRenderResultsTable();
+
+            if (dpIndex >= dpEvents.length) {
+                dpFinish();
+            }
+        }
+
+        function dpTogglePlay() {
+            if (dpPlaying) {
+                dpStopPlaying();
+                return;
+            }
+            if (dpIndex >= dpEvents.length && dpEvents.length > 0) {
+                dpReset();
+            }
+            dpPlaying = true;
+            document.getElementById('dpPlayBtn').innerHTML = '<i class="fas fa-pause"></i> إيقاف';
+            dpTimer = setInterval(function () {
+                if (dpIndex >= dpEvents.length && dpEvents.length > 0) {
+                    dpStopPlaying();
+                    return;
+                }
+                dpStep();
+            }, 900);
+        }
+
+        // ===================================================================
+        // TAB 8: quiz bank (15 questions, 3 categories, live score)
+        // ===================================================================
+        const QUIZ_BANK = [
+            { diff: 'easy', q: 'ما قيمة dp1[v] للعقد الورقية (التي لا أبناء لها)؟', opts: ['0', '1', '2', 'غير محدد'], correct: 1 },
+            { diff: 'easy', q: 'ما قيمة dp0[v] للعقد الورقية (التي لا أبناء لها)؟', opts: ['0', '1', '-1', '1 دائماً'], correct: 0 },
+            { diff: 'easy', q: 'في Tree DP، متى نحسب قيمة DP للأب؟', opts: ['قبل زيارة الأبناء', 'بعد حساب جميع الأبناء', 'في نفس وقت الأبناء', 'لا يهم الترتيب'], correct: 1 },
+            { diff: 'easy', q: 'ما الجواب النهائي لمسألة المجموعة المستقلة بعد تنفيذ DFS؟', opts: ['dp0[root]', 'dp1[root]', 'max(dp0[root], dp1[root])', 'dp0[root] + dp1[root]'], correct: 2 },
+            { diff: 'easy', q: 'في دالة DFS للـ Tree DP، لماذا نكتب if (to == p) continue؟', opts: ['لتجنب العقد المكررة', 'لتجنب زيارة الأب مرة ثانية', 'لتسريع الكود', 'لحساب العمق'], correct: 1 },
+            { diff: 'medium', q: 'ما التعقيد الزمني الكلي لحل مسألة أكبر مجموعة مستقلة على شجرة بها n عقدة باستخدام Tree DP؟', opts: ['O(n²)', 'O(n log n)', 'O(n)', 'O(2ⁿ)'], correct: 2 },
+            { diff: 'medium', q: 'إذا اخترنا عقدة v ضمن الحل، ما الذي يُجبر عليه كل ابن مباشر لها؟', opts: ['يجب اختياره أيضاً', 'يجب عدم اختياره', 'لا قيد عليه', 'يعتمد على عدد أبنائه'], correct: 1 },
+            { diff: 'medium', q: 'لماذا نحسب dp0[v] بأخذ max(dp0[child], dp1[child]) لكل ابن على حدة بدلاً من طريقة أخرى؟', code: 'dp0[v] += max(dp0[to], dp1[to]);', opts: ['لأن كل ابن مستقل تماماً عن الآخر بعد ترك v، فنختار الأفضل لكل ابن على حدة ثم نجمع النتائج', 'لأن الجمع دائماً يعطي نفس القيمة بغض النظر عن max', 'خطأ مطبعي، يجب أن تكون min', 'لأننا نحتاج فقط قيمة واحدة عشوائية'], correct: 0 },
+            { diff: 'medium', q: 'ماذا لو كانت الشجرة عبارة عن مسار خطي بسيط (Path) من n عقدة، ما حجم أكبر مجموعة مستقلة تقريباً؟', opts: ['n', 'n/2 تقريباً (بالتبادل)', '1', 'n − 1'], correct: 1 },
+            { diff: 'medium', q: 'كيف تُعدّل الخوارزمية إذا أردنا حساب أكبر مجموعة مستقلة "موزونة" (لكل عقدة وزن w[v])؟', opts: ['لا يمكن تعديلها إطلاقاً', 'نستبدل "+1" في dp1[v] بـ "+w[v]" وبقية المنطق كما هو', 'نضرب كل شيء في w[v]', 'نستخدم BFS بدلاً من DFS'], correct: 1 },
+            { diff: 'hard', q: 'ما العلاقة بين "أكبر مجموعة مستقلة" (MIS) و"أصغر تغطية رؤوس" (Minimum Vertex Cover) في نفس الشجرة؟', opts: ['لا علاقة بينهما', 'حجم أصغر تغطية رؤوس = n − حجم أكبر مجموعة مستقلة', 'هما متساويان دائماً', 'أكبر مجموعة مستقلة دائماً أكبر بمقدار الضعف'], correct: 1 },
+            { diff: 'hard', q: 'كيف تستخرج المجموعة المستقلة الفعلية (وليس فقط حجمها) بعد انتهاء DFS؟', opts: ['مستحيل استخراجها، فقط الحجم متاح', 'نعيد المرور على الشجرة من الجذر، ونقرر لكل عقدة "اخترها" إذا كانت القيمة الأفضل تأتي من dp1[v] (مع الالتزام بقرار الأب)، ثم نطبّق نفس المنطق على الأبناء', 'نختار عشوائياً من بين العقد', 'نستخدم BFS فقط دون أي DP'], correct: 1 },
+            { diff: 'hard', q: 'ماذا يحدث لتعقيد أو أمان الخوارزمية إذا استخدمنا DFS تكرارياً (recursive) على شجرة على شكل مسار خطي بـ n=200,000؟', code: 'void dfs(int v, int p) {\n    ...\n    for (int to : g[v])\n        if (to != p) dfs(to, v); // <- خطر؟\n}', opts: ['لا مشكلة إطلاقاً مهما كان العمق', 'خطر Stack Overflow بسبب عمق الاستدعاءات المتداخل؛ يُفضّل DFS تكراري بمكدس يدوي (iterative) في هذه الحالة', 'يصبح التعقيد O(n²)', 'يتوقف البرنامج فوراً بخطأ ترجمة (compile error)'], correct: 1 },
+            { diff: 'hard', q: 'كيف تُعمَّم فكرة Tree DP لحل مسألة "قطر الشجرة" (Tree Diameter) بدلاً من المجموعة المستقلة؟', opts: ['لا علاقة بين الاثنين إطلاقاً', 'لكل عقدة نحسب "أعمق مسافة نزولاً في شجرتها الفرعية" (down[v])، والقطر المحتمل عبر v هو مجموع أكبر قيمتين down لأبناء مختلفين، ثم نأخذ الحد الأقصى عبر كل العقد', 'نستخدم dp0 وdp1 نفسيهما دون أي تعديل', 'نحسب فقط عدد الأوراق في الشجرة'], correct: 1 },
+            { diff: 'hard', q: 'إذا أردنا حل مسألة أعقد بقيد إضافي مثل "لا توجد ثلاث عقد متتالية غير مختارة"، ماذا يحدث لعدد حالات DP؟', opts: ['نفس الحالتين (0/1) تكفيان دائماً لأي قيد إضافي', 'قد نحتاج حالات إضافية تُخزّن معلومة زائدة (مثل عدد العقد غير المختارة المتتالية حتى الآن)، مما يزيد عدد الحالات لكل عقدة', 'يصبح الحل مستحيلاً بالكامل ولا يمكن حله بـ DP', 'نحتاج فقط dp1 بدون dp0'], correct: 1 }
+        ];
+        let qbAnswers = new Array(QUIZ_BANK.length).fill(null);
+        const QB_DIFF_LABELS = { easy: 'سهل', medium: 'متوسط', hard: 'صعب' };
+        const QB_DIFF_CLASS = { easy: 'qb-diff-easy', medium: 'qb-diff-medium', hard: 'qb-diff-hard' };
+        const QB_DIFF_ICON = { easy: '🟢', medium: '🟡', hard: '🔴' };
+
+        function escapeHtml(s) {
+            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function qbRenderAll() {
+            const container = document.getElementById('qbContainer');
+            let html = '';
+            ['easy', 'medium', 'hard'].forEach(function (diff) {
+                const items = QUIZ_BANK.map(function (item, idx) { return { item: item, idx: idx }; }).filter(function (x) { return x.item.diff === diff; });
+                html += '<div class="qb-category-header"><span style="font-size:1.2rem;">' + QB_DIFF_ICON[diff] + '</span><h4>' + QB_DIFF_LABELS[diff] + ' (' + items.length + ')</h4></div>';
+                items.forEach(function (entry, i) {
+                    const item = entry.item, idx = entry.idx;
+                    const chosen = qbAnswers[idx];
+                    html += '<div class="qb-question-block">';
+                    html += '<span class="qb-diff-badge ' + QB_DIFF_CLASS[diff] + '">' + QB_DIFF_LABELS[diff] + '</span>';
+                    html += '<h5 style="margin-top:10px;">' + (i + 1) + '. ' + escapeHtml(item.q) + '</h5>';
+                    if (item.code) {
+                        html += '<div class="qb-code-snippet">' + escapeHtml(item.code) + '</div>';
+                    }
+                    item.opts.forEach(function (opt, oi) {
+                        let cls = 'qb-opt';
+                        if (chosen !== null) {
+                            if (oi === item.correct) cls += ' correct';
+                            else if (oi === chosen) cls += ' wrong';
+                        }
+                        html += '<div class="' + cls + '" onclick="qbSelect(' + idx + ',' + oi + ')">' + escapeHtml(opt) + '</div>';
+                    });
+                    html += '</div>';
+                });
+            });
+            container.innerHTML = html;
+            qbUpdateScore();
+        }
+
+        function qbSelect(idx, oi) {
+            if (qbAnswers[idx] !== null) return;
+            qbAnswers[idx] = oi;
+            qbRenderAll();
+        }
+
+        function qbUpdateScore() {
+            let answered = 0, correct = 0;
+            qbAnswers.forEach(function (a, idx) {
+                if (a !== null) {
+                    answered++;
+                    if (a === QUIZ_BANK[idx].correct) correct++;
+                }
+            });
+            document.getElementById('qbTotalNum').innerText = correct + ' / ' + answered;
+            document.getElementById('qbCorrectNum').innerText = correct;
+            document.getElementById('qbWrongNum').innerText = answered - correct;
+        }
+
+        function qbResetAll() {
+            qbAnswers = new Array(QUIZ_BANK.length).fill(null);
+            qbRenderAll();
+        }
+
+        // ===================================================================
+        // Init
+        // ===================================================================
+        dpReset();
+        qbRenderAll();
+    </script>
+</body>
+</html>

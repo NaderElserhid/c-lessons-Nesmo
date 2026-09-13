@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | العمليات على مستوى البِت — Bitwise Operations</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        /* hero banner */
+        .hero-banner { background: var(--blue-gradient); padding: 70px 6% 60px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 720px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula { direction: ltr; display: inline-block; font-family: 'Consolas', monospace; font-weight: 800; background: #eef2f7; padding: 3px 10px; border-radius: 8px; color: var(--dark-navy); }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+            white-space: pre-line;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td code.inline, .data-table th code.inline { white-space: nowrap; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+
+        /* numbered steps */
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        /* bullet list (non-numbered, for tips) */
+        .bullet-list { list-style: none; padding: 0; margin: 16px 0; }
+        .bullet-list li { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; color: var(--text-body); }
+        .bullet-list li i { color: var(--primary-blue); margin-top: 4px; flex-shrink: 0; }
+
+        /* interactive lab */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 14px 0 6px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+        .lab-btn.secondary { background: var(--yellow-gradient); }
+        .lab-btn.ghost { background: white; border: 2px solid #cbd5e1; color: var(--text-body); }
+
+        /* Lab A: binary digit builder */
+        .bit-toggle-row { display: flex; gap: 8px; justify-content: center; direction: ltr; margin: 16px 0 6px; flex-wrap: wrap; }
+        .bit-toggle-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .bit-toggle-cell {
+            width: 44px; height: 44px; border-radius: 10px; border: 2px solid #cbd5e1; background: var(--bg-main);
+            display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: 'Consolas', monospace;
+            font-size: 1.1rem; color: var(--dark-navy); cursor: pointer; transition: all 0.2s ease; user-select: none;
+        }
+        .bit-toggle-cell.on { background: rgba(0,173,239,0.15); border-color: var(--primary-blue); color: var(--primary-blue); }
+        .bit-place-value { font-size: 0.68rem; color: #94a3b8; font-weight: 700; }
+        .bit-position-num { font-size: 0.68rem; color: #cbd5e1; font-weight: 700; }
+        .binary-builder-value { text-align: center; margin: 16px 0 6px; }
+        .binary-builder-value .big-num {
+            font-family: 'Consolas', monospace; font-weight: 800; font-size: 2rem; color: var(--dark-navy);
+            background: var(--bg-main); border: 3px solid #cbd5e1; border-radius: 16px; padding: 10px 26px;
+            display: inline-block; min-width: 110px; transition: all 0.2s ease;
+        }
+        .binary-builder-value .big-num.match { border-color: #22c55e; background: rgba(34,197,94,0.1); color: #15803d; }
+        .binary-builder-target { text-align: center; font-size: 0.85rem; color: var(--text-body); margin-top: 4px; }
+        .binary-builder-feedback { text-align: center; font-weight: 700; font-size: 0.88rem; min-height: 22px; margin-top: 10px; }
+
+        /* Lab B: two's complement */
+        .twoscomp-stage { margin-bottom: 18px; opacity: 0.3; transition: opacity 0.35s ease; }
+        .twoscomp-stage.active { opacity: 1; }
+        .twoscomp-label { text-align: center; font-size: 0.78rem; font-weight: 800; color: #94a3b8; margin-bottom: 6px; }
+        .twoscomp-row { display: flex; gap: 6px; justify-content: center; direction: ltr; }
+        .twoscomp-cell {
+            width: 38px; height: 42px; border-radius: 8px; border: 2px solid #cbd5e1; background: var(--bg-main);
+            display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: 'Consolas', monospace;
+            font-size: 1rem; color: var(--dark-navy); transition: all 0.2s ease;
+        }
+        .twoscomp-cell.flipped { border-color: var(--primary-yellow); background: rgba(247,148,30,0.12); color: var(--primary-yellow); }
+        .twoscomp-cell.final { border-color: #22c55e; background: rgba(34,197,94,0.12); color: #15803d; }
+
+        /* Lab C: bit-by-bit operator visualizer */
+        .bitop-grid-row { display: flex; align-items: center; gap: 10px; justify-content: center; direction: ltr; margin: 6px 0; }
+        .bitop-row-label { font-size: 0.78rem; color: #94a3b8; font-weight: 800; width: 26px; text-align: center; flex-shrink: 0; }
+        .bitop-cell {
+            width: 36px; height: 38px; border-radius: 8px; border: 2px solid #cbd5e1; background: var(--bg-main);
+            display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: 'Consolas', monospace;
+            font-size: 0.92rem; color: var(--dark-navy); transition: all 0.2s ease;
+        }
+        .bitop-cell.active-col { border-color: var(--primary-yellow); box-shadow: 0 0 0 3px rgba(247,148,30,0.2); }
+        .bitop-cell.result-set { border-color: #22c55e; background: rgba(34,197,94,0.12); color: #15803d; }
+        .bitop-result-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 14px; text-align: center; direction: ltr;
+            display: none;
+        }
+        .bitop-result-box.show { display: block; }
+
+        /* true/false quick-review activity */
+        .activity-box { background: white; border-radius: 22px; padding: 32px; margin: 28px 0; box-shadow: var(--soft-shadow); border: 1px solid #e2e8f0; }
+        .activity-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .activity-header i { color: var(--primary-blue); font-size: 1.2rem; }
+        .activity-header h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); }
+        .activity-intro { margin-bottom: 20px; font-size: 0.92rem; }
+        .tf-item {
+            background: var(--bg-main); border-radius: 16px; padding: 18px 22px; margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+            border: 1px solid #e2e8f0;
+        }
+        .tf-statement { margin: 0; font-weight: 700; color: var(--dark-navy); font-size: 0.95rem; flex: 1 1 260px; direction: ltr; text-align: right; unicode-bidi: plaintext; }
+        .tf-buttons { display: flex; gap: 10px; flex-shrink: 0; }
+        .tf-btn {
+            border: 2px solid #e2e8f0; background: white; padding: 9px 26px; border-radius: 50px;
+            font-weight: 800; font-family: 'Tajawal'; font-size: 0.88rem; cursor: pointer; color: var(--dark-navy); transition: 0.2s;
+        }
+        .tf-btn:hover { border-color: var(--primary-blue); }
+        .tf-btn.tf-selected-correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .tf-btn.tf-selected-wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .tf-feedback { flex-basis: 100%; margin-top: 2px; font-weight: 700; font-size: 0.85rem; min-height: 18px; }
+
+        /* homework toggles */
+        .homework-item { background: var(--bg-main); border-radius: 18px; padding: 24px; margin-top: 20px; border: 1px solid #e2e8f0; }
+        .homework-item h4 { margin: 0 0 10px; color: var(--dark-navy); font-size: 1.02rem; font-weight: 800; }
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            margin-top: 14px;
+        }
+        .collapsible { display: none; margin-top: 14px; }
+        .collapsible.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge">الفصل 1: العمليات على مستوى البِت</span>
+            <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الثالث</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-microchip"></i>
+        <h1>الفصل الأول: العمليات على مستوى البِت (Bitwise Operations)</h1>
+        <p class="hero-desc">في هذا الفصل ستنزل إلى أعمق طبقة من الأعداد التي تتعامل معها البرامج: البِتّات الفردية. ستتعلّم كيف تُخزَّن الأعداد الموجبة والسالبة فعليًا داخل الحاسوب، وكيف تعمل عوامل مثل AND وOR وXOR والإزاحة على مستوى كل بِت على حدة. هذه الأدوات أساسية في حيل التحسين (optimization) وستكون حجر الأساس لفصل قادم عن توليد كل المجموعات الجزئية (Subsets) باستخدام تمثيل ثنائي يُسمّى Bitmask.</p>
+    </div>
+
+    <div class="container">
+
+        <!-- Intro -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-info"></i>
+                <h3>لماذا نتعلّم العمليات على مستوى البِت؟</h3>
+            </div>
+            <p>تسمح لك العمليات على مستوى البِت بالعمل مع البِتّات الفردية داخل العدد الصحيح مباشرة، بدلًا من التعامل مع العدد ككتلة واحدة. هذه العمليات قوية جدًّا في التعامل مع البِتّات، وحيل التحسين (optimization)، وأشياء مثل توليد جميع المجموعات الجزئية لمجموعة معيّنة — وهو ما ستراه بالتفصيل في فصل قادم.</p>
+        </div>
+
+        <!-- Binary numbers -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-hashtag"></i>
+                <h3>الأعداد الثنائية (Binary Numbers)</h3>
+            </div>
+            <p>تقوم الحواسيب بتخزين الأعداد الصحيحة في صورة ثنائية — باستخدام <code class="inline">0</code> و<code class="inline">1</code> فقط. نقول إنّ البِت <strong>مُعيَّن (set)</strong> إذا كانت قيمته <code class="inline">1</code>. كل موضع (بِت) يمثّل قوة من قوى العدد <code class="inline">2</code>:</p>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th class="center">Bit position</th><th class="ltr">7</th><th class="ltr">6</th><th class="ltr">5</th><th class="ltr">4</th><th class="ltr">3</th><th class="ltr">2</th><th class="ltr">1</th><th class="ltr">0</th></tr></thead>
+                    <tbody>
+                        <tr><td class="center">Value</td><td class="ltr">128</td><td class="ltr">64</td><td class="ltr">32</td><td class="ltr">16</td><td class="ltr">8</td><td class="ltr">4</td><td class="ltr">2</td><td class="ltr">1</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>للحصول على قيمة عدد ثنائي، نقوم بجمع قوى العدد <code class="inline">2</code> في الأماكن التي يكون فيها البِت مساويًا لـ<code class="inline">1</code>. مثلًا:</p>
+            <div class="output-box">00000110  =  4 + 2       = 6
+00001010  =  8 + 2       = 10
+00001100  =  8 + 4       = 12
+00000001  =  1           = 1
+00000000  =  0           = 0</div>
+            <p>إذًا عندما نجري عمليات على مستوى البِت (<code class="inline">&amp;</code>, <code class="inline">|</code>, <code class="inline">^</code>، إلخ)، فنحن في الواقع ندمج أو نعدّل هذه البِتّات الفردية.</p>
+
+            <!-- Interactive lab A -->
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> مختبر تفاعلي: ابنِ عددًا ثنائيًا بنفسك</p>
+                <p style="text-align:center; font-size:0.85rem; color:var(--text-body); margin-bottom: 4px;">اضغط على أي بِت لتشغيله (1) أو إطفائه (0)، وشاهد القيمة العشرية تتحدّث مباشرة. حاول تكوين العدد <strong>180</strong>.</p>
+
+                <div class="bit-toggle-row">
+                    <div class="bit-toggle-col"><div class="bit-toggle-cell" id="bitCell_0" onclick="toggleBit(0)">0</div><div class="bit-place-value">128</div><div class="bit-position-num">bit7</div></div>
+                    <div class="bit-toggle-col"><div class="bit-toggle-cell" id="bitCell_1" onclick="toggleBit(1)">0</div><div class="bit-place-value">64</div><div class="bit-position-num">bit6</div></div>
+                    <div class="bit-toggle-col"><div class="bit-toggle-cell" id="bitCell_2" onclick="toggleBit(2)">0</div><div class="bit-place-value">32</div><div class="bit-position-num">bit5</div></div>
+                    <div class="bit-toggle-col"><div class="bit-toggle-cell" id="bitCell_3" onclick="toggleBit(3)">0</div><div class="bit-place-value">16</div><div class="bit-position-num">bit4</div></div>
+                    <div class="bit-toggle-col"><div class="bit-toggle-cell" id="bitCell_4" onclick="toggleBit(4)">0</div><div class="bit-place-value">8</div><div class="bit-position-num">bit3</div></div>
+                    <div class="bit-toggle-col"><div class="bit-toggle-cell" id="bitCell_5" onclick="toggleBit(5)">0</div><div class="bit-place-value">4</div><div class="bit-position-num">bit2</div></div>
+                    <div class="bit-toggle-col"><div class="bit-toggle-cell" id="bitCell_6" onclick="toggleBit(6)">0</div><div class="bit-place-value">2</div><div class="bit-position-num">bit1</div></div>
+                    <div class="bit-toggle-col"><div class="bit-toggle-cell" id="bitCell_7" onclick="toggleBit(7)">0</div><div class="bit-place-value">1</div><div class="bit-position-num">bit0</div></div>
+                </div>
+
+                <div class="binary-builder-value"><div class="big-num" id="binaryBuilderValue">0</div></div>
+                <div class="binary-builder-target">الهدف: كوّن العدد <strong>180</strong> بالضغط على البِتّات الصحيحة، ثم اضغط "تحقّق".</div>
+                <div class="binary-builder-feedback" id="binaryBuilderFeedback"></div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="checkBinaryBuilderTarget()">تحقّق من إجابتك</button>
+                    <button class="lab-btn ghost" onclick="resetBinaryBuilder()">إعادة تصفير</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Two's complement -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-arrows-left-right"></i>
+                <h3>المتمّم الثنائي (Two's Complement) والأعداد السالبة</h3>
+            </div>
+            <p>حتى الآن تحدّثنا فقط عن الأعداد غير السالبة. لكن في C++ (وفي معظم المعالجات الحديثة)، تُخزَّن الأعداد الصحيحة ذات الإشارة في صيغة تُسمّى <strong>المتمّم الثنائي (two's complement)</strong>.</p>
+            <p><strong>الفكرة:</strong> استخدام البِت الأعلى (أكثر بِت أهمية) كبِت إشارة. لنفرض أن لدينا أعدادًا صحيحة موقّعة مكوّنة من 8 بِتّات:</p>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th class="center">Bit position</th><th class="ltr">7</th><th class="ltr">6</th><th class="ltr">5</th><th class="ltr">4</th><th class="ltr">3</th><th class="ltr">2</th><th class="ltr">1</th><th class="ltr">0</th></tr></thead>
+                    <tbody>
+                        <tr><td class="center">Value</td><td class="ltr">-128</td><td class="ltr">64</td><td class="ltr">32</td><td class="ltr">16</td><td class="ltr">8</td><td class="ltr">4</td><td class="ltr">2</td><td class="ltr">1</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>مدى الأعداد ذات الإشارة على 8 بِتّات هو: <span class="formula">-128 ... +127</span></p>
+
+            <h4 class="sub-title">شكل الأعداد الموجبة</h4>
+            <p>الأعداد الموجبة (والصفر) تكون كما هي في النظام الثنائي العادي:</p>
+            <div class="output-box">00000101 = 5
+00000000 = 0
+00001010 = 10</div>
+
+            <h4 class="sub-title">كيف تُخزَّن الأعداد السالبة (متمّم ثنائي)</h4>
+            <p>للحصول على <code class="inline">-x</code> في نظام المتمّم الثنائي:</p>
+            <ol class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p>نكتب <code class="inline">x</code> بالثنائي.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>نقلب كل البِتّات (<code class="inline">0 -&gt; 1</code>، <code class="inline">1 -&gt; 0</code>).</p></li>
+                <li class="step-item"><span class="step-num"></span><p>نضيف <code class="inline">1</code>.</p></li>
+            </ol>
+            <p>مثال: تمثيل <code class="inline">-5</code> على 8 بِتّات:</p>
+            <div class="output-box">+5        = 00000101
+flip      = 11111010
++ 1       = 11111011  = -5</div>
+            <p>فحص <code class="inline">-1</code>:</p>
+            <div class="output-box">+1        = 00000001
+flip      = 11111110
++ 1       = 11111111  = -1</div>
+            <p>إذًا: <code class="inline">11111111 = -1</code>، <code class="inline">11111011 = -5</code>، <code class="inline">10000000 = -128</code>.</p>
+
+            <!-- Interactive lab B -->
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> مختبر تفاعلي: شاهد المتمّم الثنائي يُبنى خطوة بخطوة</p>
+                <p style="text-align:center; font-size:0.85rem; color:var(--text-body); margin-bottom: 4px;">شغّل المحاكاة لمشاهدة كيف نحصل على تمثيل <code class="inline">-5</code>: نبدأ بـ +5، نقلب كل بِت، ثم نضيف 1.</p>
+
+                <div class="twoscomp-stage active" id="twoscompStage1">
+                    <div class="twoscomp-label">الخطوة 1: +5 بالثنائي</div>
+                    <div class="twoscomp-row" id="tcRow1">
+                        <div class="twoscomp-cell">0</div><div class="twoscomp-cell">0</div><div class="twoscomp-cell">0</div><div class="twoscomp-cell">0</div>
+                        <div class="twoscomp-cell">0</div><div class="twoscomp-cell">1</div><div class="twoscomp-cell">0</div><div class="twoscomp-cell">1</div>
+                    </div>
+                </div>
+
+                <div class="twoscomp-stage" id="twoscompStage2">
+                    <div class="twoscomp-label">الخطوة 2: نقلب كل بِت</div>
+                    <div class="twoscomp-row" id="tcRow2">
+                        <div class="twoscomp-cell">-</div><div class="twoscomp-cell">-</div><div class="twoscomp-cell">-</div><div class="twoscomp-cell">-</div>
+                        <div class="twoscomp-cell">-</div><div class="twoscomp-cell">-</div><div class="twoscomp-cell">-</div><div class="twoscomp-cell">-</div>
+                    </div>
+                </div>
+
+                <div class="twoscomp-stage" id="twoscompStage3">
+                    <div class="twoscomp-label">الخطوة 3: نضيف 1 → هذا تمثيل -5</div>
+                    <div class="twoscomp-row" id="tcRow3">
+                        <div class="twoscomp-cell">-</div><div class="twoscomp-cell">-</div><div class="twoscomp-cell">-</div><div class="twoscomp-cell">-</div>
+                        <div class="twoscomp-cell">-</div><div class="twoscomp-cell">-</div><div class="twoscomp-cell">-</div><div class="twoscomp-cell">-</div>
+                    </div>
+                </div>
+
+                <div class="lab-step-hint" id="twoscompHint">اضغط "شغّل المحاكاة" للبدء.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runTwosCompLab()">شغّل المحاكاة</button>
+                </div>
+            </div>
+
+            <h4 class="sub-title">لماذا هذه الطريقة مفيدة؟</h4>
+            <p>باستخدام المتمّم الثنائي:</p>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>جمع الأعداد الثنائية العادي يعمل أيضًا مع الأعداد السالبة دون تغيير.</p></li>
+                <li><i class="fas fa-check"></i><p>لا يوجد سوى تمثيل واحد للصفر.</p></li>
+                <li><i class="fas fa-check"></i><p>عملية الطرح يمكن تنفيذها كـ <code class="inline">a + (-b)</code> فقط.</p></li>
+            </ul>
+        </div>
+
+        <!-- Activity A -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>نشاط: مراجعة سريعة للأعداد الثنائية والمتمّم الثنائي</h4>
+            </div>
+            <p class="activity-intro">حدّد إن كانت كل عبارة صحيحة أم خاطئة.</p>
+
+            <div class="tf-item" id="tfBit1">
+                <p class="tf-statement">البِت يكون مُعيَّن (set) إذا كانت قيمته تساوي 1.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBit1', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBit1', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBit2">
+                <p class="tf-statement">في نظام المتمّم الثنائي، يوجد أكثر من تمثيل واحد للصفر.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBit2', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBit2', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBit3">
+                <p class="tf-statement">لتمثيل -5 على 8 بِتّات، نقلب بِتّات 5 ثم نطرح 1.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBit3', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBit3', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBit4">
+                <p class="tf-statement">أعلى بِت (bit 7) في عدد صحيح موقّع مكوّن من 8 بِتّات يمثّل القيمة -128.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBit4', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBit4', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Right shift with negative numbers -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-angles-right"></i>
+                <h3>الإزاحة لليمين مع الأعداد السالبة</h3>
+            </div>
+            <p>بالنسبة للأنواع غير الموقّعة (unsigned)، فإن <code class="inline">&gt;&gt;</code> يقوم دائمًا بإزاحة البِتّات لليمين مع إدخال بِتّات <code class="inline">0</code> من اليسار.</p>
+            <p>أما للأنواع الموقّعة، فمعظم المترجمات تقوم بإزاحة حسابية لليمين (arithmetic right shift): حيث يتم نسخ بِت الإشارة (أعلى بِت)، وبالتالي تظل الأعداد السالبة سالبة أثناء الإزاحة.</p>
+            <p>مثال (مع افتراض الإزاحة الحسابية):</p>
+            <div class="output-box">x  = -4   -> 11111100 (8-bit view)
+x >> 1    -> 11111110 (still negative: -2)</div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>لهذا السبب، عندما نهتم بالبِتّات الخام فقط، يكون من الأكثر أمانًا غالبًا استخدام الأنواع غير الموقّعة مثل <code class="inline">uint32_t</code> و<code class="inline">unsigned long long</code>، إلخ — لتفادي مفاجآت الإزاحة الحسابية مع الأعداد السالبة.</p>
+            </div>
+        </div>
+
+        <!-- Operators table -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-table-list"></i>
+                <h3>أهم العوامل (operators) على مستوى البِت</h3>
+            </div>
+            <p>كل هذه العوامل تعمل على الأنواع الصحيحة (<code class="inline">int</code>, <code class="inline">long long</code>، إلخ):</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th class="ltr">العامل</th><th>الاسم</th><th>ما يفعله على مستوى البِتّات</th></tr></thead>
+                    <tbody>
+                        <tr><td class="ltr">&amp;</td><td>AND</td><td>يساوي 1 إذا كان كلا البِتّين 1، وإلا 0</td></tr>
+                        <tr><td class="ltr">|</td><td>OR</td><td>يساوي 1 إذا كان على الأقل أحد البِتّين 1، وإلا 0</td></tr>
+                        <tr><td class="ltr">^</td><td>XOR</td><td>يساوي 1 إذا كان البِتّان مختلفين، وإلا 0</td></tr>
+                        <tr><td class="ltr">~</td><td>NOT / complement</td><td>يقلب كل البِتّات (1 &rarr; 0، 0 &rarr; 1)</td></tr>
+                        <tr><td class="ltr">&lt;&lt;</td><td>إزاحة لليسار</td><td>يزيح البِتّات لليسار (يشبه الضرب بقوى العدد 2)</td></tr>
+                        <tr><td class="ltr">&gt;&gt;</td><td>إزاحة لليمين</td><td>يزيح البِتّات لليمين (يشبه القسمة على قوى العدد 2)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Visual bitwise examples -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-eye"></i>
+                <h3>رؤية العمليات على مستوى البِت في صورة ثنائية</h3>
+            </div>
+            <p>لنستخدم أعدادًا صغيرة ونفترض أنها مكوّنة من 8 بِتّات لزيادة الوضوح:</p>
+            <div class="output-box">a = 6   -> 00000110
+b = 10  -> 00001010</div>
+
+            <h4 class="sub-title">عامل AND &amp;</h4>
+            <div class="output-box">a &amp; b   -> 00000110
+           00001010
+           --------
+           00000010  = 2</div>
+
+            <h4 class="sub-title">عامل OR |</h4>
+            <div class="output-box">a | b   -> 00000110
+           00001010
+           --------
+           00001110  = 14</div>
+
+            <h4 class="sub-title">عامل XOR ^</h4>
+            <div class="output-box">a ^ b   -> 00000110
+           00001010
+           --------
+           00001100  = 12   (bits that are different become 1)</div>
+
+            <h4 class="sub-title">عامل NOT ~</h4>
+            <div class="output-box">~a      -> 11111001 (على 8 بِتّات، لكن في C++ الحقيقية تُطبَّق العملية على عرض النوع الكامل للعدد)</div>
+
+            <h4 class="sub-title">الإزاحات (Shifts)</h4>
+            <div class="output-box">a &lt;&lt; 1  -> 00001100  = 12   (6 * 2)
+a &lt;&lt; 2  -> 00011000  = 24   (6 * 4)
+b &gt;&gt; 1  -> 00000101  = 5    (10 / 2)
+b &gt;&gt; 2  -> 00000010  = 2    (10 / 4, integer division)</div>
+
+            <!-- Interactive lab C -->
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> مختبر تفاعلي: احسب AND / OR / XOR بِتًّا بِتًّا</p>
+                <p style="text-align:center; font-size:0.85rem; color:var(--text-body); margin-bottom: 4px;">اختر عاملًا، وشاهد الحساب يمرّ على كل موضع بِت من 7 إلى 0 تمامًا كما تفعل دالة <code class="inline">printBits</code> في المثال التالي.</p>
+
+                <div class="bitop-grid-row">
+                    <div class="bitop-row-label">a</div>
+                    <div class="bitop-cell" id="bitopA_0">0</div><div class="bitop-cell" id="bitopA_1">0</div><div class="bitop-cell" id="bitopA_2">0</div><div class="bitop-cell" id="bitopA_3">0</div>
+                    <div class="bitop-cell" id="bitopA_4">0</div><div class="bitop-cell" id="bitopA_5">1</div><div class="bitop-cell" id="bitopA_6">1</div><div class="bitop-cell" id="bitopA_7">0</div>
+                </div>
+                <div class="bitop-grid-row">
+                    <div class="bitop-row-label">b</div>
+                    <div class="bitop-cell" id="bitopB_0">0</div><div class="bitop-cell" id="bitopB_1">0</div><div class="bitop-cell" id="bitopB_2">0</div><div class="bitop-cell" id="bitopB_3">0</div>
+                    <div class="bitop-cell" id="bitopB_4">1</div><div class="bitop-cell" id="bitopB_5">0</div><div class="bitop-cell" id="bitopB_6">1</div><div class="bitop-cell" id="bitopB_7">0</div>
+                </div>
+                <div class="bitop-grid-row">
+                    <div class="bitop-row-label">=</div>
+                    <div class="bitop-cell" id="bitopResult_0">-</div><div class="bitop-cell" id="bitopResult_1">-</div><div class="bitop-cell" id="bitopResult_2">-</div><div class="bitop-cell" id="bitopResult_3">-</div>
+                    <div class="bitop-cell" id="bitopResult_4">-</div><div class="bitop-cell" id="bitopResult_5">-</div><div class="bitop-cell" id="bitopResult_6">-</div><div class="bitop-cell" id="bitopResult_7">-</div>
+                </div>
+
+                <div class="lab-step-hint" id="bitopHint">اختر عاملًا لبدء المحاكاة.</div>
+                <div class="bitop-result-box" id="bitopResultBox"></div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runBitOpLab('and')">AND &amp;</button>
+                    <button class="lab-btn secondary" onclick="runBitOpLab('or')">OR |</button>
+                    <button class="lab-btn ghost" onclick="runBitOpLab('xor')">XOR ^</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full C++ example -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-code"></i>
+                <h3>مثال كامل في ++C</h3>
+            </div>
+            <div class="code-box">
+                <div class="code-head"><span>bitwise_demo.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+void printBits(int x) {
+    for (int i = 7; i &gt;= 0; i--) {
+        cout &lt;&lt; ((x &gt;&gt; i) &amp; 1);
+    }
+}
+
+int main() {
+    int a = 6;   <span class="cmt">// 00000110</span>
+    int b = 10;  <span class="cmt">// 00001010</span>
+
+    cout &lt;&lt; "a = "; printBits(a); cout &lt;&lt; " (" &lt;&lt; a &lt;&lt; ")\n";
+    cout &lt;&lt; "b = "; printBits(b); cout &lt;&lt; " (" &lt;&lt; b &lt;&lt; ")\n\n";
+
+    cout &lt;&lt; "a &amp; b = "; printBits(a &amp; b); cout &lt;&lt; " (" &lt;&lt; (a &amp; b) &lt;&lt; ")\n";
+    cout &lt;&lt; "a | b = "; printBits(a | b); cout &lt;&lt; " (" &lt;&lt; (a | b) &lt;&lt; ")\n";
+    cout &lt;&lt; "a ^ b = "; printBits(a ^ b); cout &lt;&lt; " (" &lt;&lt; (a ^ b) &lt;&lt; ")\n";
+    cout &lt;&lt; "~a    = "; printBits((unsigned char)~a); cout &lt;&lt; " (only low 8 bits)\n";
+    cout &lt;&lt; "a &lt;&lt; 1 = "; printBits(a &lt;&lt; 1); cout &lt;&lt; " (" &lt;&lt; (a &lt;&lt; 1) &lt;&lt; ")\n";
+    cout &lt;&lt; "b &gt;&gt; 1 = "; printBits(b &gt;&gt; 1); cout &lt;&lt; " (" &lt;&lt; (b &gt;&gt; 1) &lt;&lt; ")\n";
+}</pre>
+            </div>
+            <p>تقوم الدالة <code class="inline">printBits</code> بالمرور على جميع مواضع البِتّات <code class="inline">i</code> (من 7 إلى 0)، وتنفّذ <code class="inline">x &gt;&gt; i</code>، أي تُزيح قيمة <code class="inline">x</code> بمقدار <code class="inline">i</code> خانة إلى اليمين. هذا يجعل البِت الموجود في الموضع <code class="inline">i</code> ينتقل إلى أقصى اليمين. بعدها نأخذ <code class="inline">&amp; 1</code>، أي نُجري عملية AND مع <code class="inline">00000001</code>، والتي تؤدي إلى الإبقاء على البِت الأيمن فقط وإلغاء باقي البِتّات. إذًا مجموع العمليتين <code class="inline">(x &gt;&gt; i) &amp; 1</code> هو استخراج البِت الموجود في الموضع <code class="inline">i</code> وعرضه على الشاشة.</p>
+            <div class="output-box">a = 00000110 (6)
+b = 00001010 (10)
+
+a &amp; b = 00000010 (2)
+a | b = 00001110 (14)
+a ^ b = 00001100 (12)
+~a    = 11111001 (only low 8 bits)
+a &lt;&lt; 1 = 00001100 (12)
+b &gt;&gt; 1 = 00000101 (5)</div>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>هذا الناتج تم التحقّق منه فعليًا بتصريف (compile) وتشغيل الكود أعلاه — وهو يطابق تمامًا كل الحسابات اليدوية التي رأيناها في هذا الفصل.</p>
+            </div>
+        </div>
+
+        <!-- Activity B -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>نشاط: مراجعة سريعة للعوامل والإزاحات</h4>
+            </div>
+            <p class="activity-intro">حدّد إن كانت كل عبارة صحيحة أم خاطئة.</p>
+
+            <div class="tf-item" id="tfBit5">
+                <p class="tf-statement">بالنسبة للأنواع unsigned، فإن &gt;&gt; يُدخل دائمًا أصفارًا من اليسار.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBit5', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBit5', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBit6">
+                <p class="tf-statement">الإزاحة الحسابية لليمين تنسخ بِت الإشارة للحفاظ على سالبية العدد.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBit6', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBit6', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBit7">
+                <p class="tf-statement">لعملية XOR، الناتج 1 إذا كان كلا البِتّين متشابهين.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBit7', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBit7', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBit8">
+                <p class="tf-statement"><code style="direction:ltr; display:inline-block;">a &lt;&lt; 1</code> يعادل ضرب <code style="direction:ltr; display:inline-block;">a</code> في 2.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBit8', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBit8', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Common pitfalls -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>أخطاء شائعة ونصائح</h3>
+            </div>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>لا تخلط بين <code class="inline">&amp;</code> (AND على مستوى البِت) و<code class="inline">&amp;&amp;</code> (AND المنطقي)، ولا بين <code class="inline">|</code> و<code class="inline">||</code> — هذا من أكثر الأخطاء شيوعًا عند المبتدئين.</p></li>
+                <li><i class="fas fa-check"></i><p>تذكّر أنّ الإزاحة اليمنى للأعداد الموقّعة السالبة قد تختلف عن القسمة العادية عند التعامل مع البِتّات الخام — استخدم أنواعًا غير موقّعة إذا كنت تحتاج سلوكًا متوقّعًا دائمًا.</p></li>
+                <li><i class="fas fa-check"></i><p>عملية <code class="inline">~x</code> تعمل على كامل عرض النوع (32 بِت لـ <code class="inline">int</code> عادةً)، وليس فقط على 8 بِتّات — لهذا استخدمنا <code class="inline">(unsigned char)~a</code> في المثال لعرض آخر 8 بِتّات فقط.</p></li>
+                <li><i class="fas fa-check"></i><p>الإزاحة بمقدار سالب أو بمقدار أكبر من أو يساوي عدد بِتّات النوع هي سلوك غير معرّف (undefined behavior) في ++C — تجنّبها دائمًا.</p></li>
+            </ul>
+        </div>
+
+        <!-- Quick summary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>خلاصة سريعة</h3>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>
+                    كل عدد صحيح مخزّن كسلسلة من البِتّات، وكل بِت يمثّل قوة من قوى 2.<br>
+                    الأعداد السالبة تُخزَّن بنظام المتمّم الثنائي: اقلب البِتّات ثم أضف 1.<br>
+                    عوامل AND وOR وXOR وNOT تعمل بِتًّا بِتًّا، والإزاحات تشبه الضرب أو القسمة على قوى 2.<br>
+                    الإزاحة اليمنى للأعداد الموقّعة السالبة عادة تحافظ على الإشارة (إزاحة حسابية) — استخدم unsigned لتفادي المفاجآت.
+                </p>
+            </div>
+        </div>
+
+        <!-- Homework -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-pen-ruler"></i>
+                <h3>تمارين منزلية</h3>
+            </div>
+
+            <div class="homework-item" id="hwB1">
+                <h4>1) التحويل بين الثنائي والعشري</h4>
+                <p>حوّل العدد <code class="inline">27</code> إلى الصورة الثنائية على 8 بِتّات، ثم حوّل <code class="inline">10110100</code> إلى العدد العشري المقابل له.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwB1sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwB1sol">
+                    <p><code class="inline">27 = 16 + 8 + 2 + 1</code> → <span class="formula">00011011</span>.</p>
+                    <p><code class="inline">10110100</code>: البِتّات المُعيَّنة عند القيم <code class="inline">128, 32, 16, 4</code> → <span class="formula">128 + 32 + 16 + 4 = 180</span>.</p>
+                    <div class="output-box">27  = 00011011
+10110100 = 180</div>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwB2">
+                <h4>2) المتمّم الثنائي لعدد جديد</h4>
+                <p>مثّل العدد <code class="inline">-12</code> بنظام المتمّم الثنائي على 8 بِتّات، مبيّنًا خطوات القلب والإضافة.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwB2sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwB2sol">
+                    <div class="output-box">+12       = 00001100
+flip      = 11110011
++ 1       = 11110100  = -12</div>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwB3">
+                <h4>3) عوامل بِتّية على عددين جديدين</h4>
+                <p>لعددين <code class="inline">a = 13</code> و<code class="inline">b = 21</code>، احسب <code class="inline">a &amp; b</code> و<code class="inline">a | b</code> و<code class="inline">a ^ b</code> و<code class="inline">~a</code> (على 8 بِتّات). ثم احسب قيمة <code class="inline">(-10) &gt;&gt; 2</code> بافتراض إزاحة حسابية على 8 بِتّات.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwB3sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwB3sol">
+                    <div class="output-box">a = 13: 00001101
+b = 21: 00010101
+
+a &amp; b = 00000101 = 5
+a | b = 00011101 = 29
+a ^ b = 00011000 = 24
+~a (8-bit) = 11110010
+
+-10 (8-bit) = 11110110
+(-10) &gt;&gt; 2 = 11111101 = -3</div>
+                    <p>لاحظ أنّ الإزاحة الحسابية نسخت بِت الإشارة (1) ثلاث مرات من اليسار، فحافظت على سالبية الناتج.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>تحقق من فهمك</h3>
+            </div>
+
+            <div class="quiz-q" id="qb1">
+                <h4>١. متى نقول إنّ البِت "مُعيَّن" (set)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb1', this, false)">عندما تكون قيمته 0</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb1', this, true)">عندما تكون قيمته 1</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb1', this, false)">عندما يكون في الموضع الأخير فقط</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb2">
+                <h4>٢. ما القيمة العشرية للعدد الثنائي <span style="direction:ltr; display:inline-block;">00001010</span>؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb2', this, false)">8</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb2', this, true)">10</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb2', this, false)">12</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb3">
+                <h4>٣. لـ a=6 وb=10، ما ناتج <span style="direction:ltr; display:inline-block;">a &amp; b</span>؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb3', this, false)">14</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb3', this, false)">12</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb3', this, true)">2</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb4">
+                <h4>٤. عملية XOR تعطي 1 عندما يكون البِتّان...</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb4', this, false)">متشابهين فقط</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb4', this, true)">مختلفين</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb4', this, false)">كلاهما يساوي 0</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb5">
+                <h4>٥. للحصول على تمثيل -5 بنظام المتمّم الثنائي، ماذا نفعل بعد قلب بِتّات 5؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb5', this, false)">نطرح 1</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb5', this, true)">نضيف 1</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb5', this, false)">نضاعف القيمة</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb6">
+                <h4>٦. ما القيمة العشرية لـ <span style="direction:ltr; display:inline-block;">11111111</span> كعدد موقّع على 8 بِتّات (متمّم ثنائي)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb6', this, false)">255</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb6', this, true)">-1</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb6', this, false)">-128</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb7">
+                <h4>٧. ما وظيفة "بِت الإشارة" في عدد صحيح موقّع؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb7', this, false)">يحدّد عدد الخانات المستخدمة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb7', this, true)">يحدّد إن كان العدد موجبًا أم سالبًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb7', this, false)">يُستخدم فقط في عملية الجمع</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb8">
+                <h4>٨. ماذا تفعل الإزاحة الحسابية لليمين مع عدد سالب؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb8', this, false)">تُدخل دائمًا أصفارًا من اليسار مثل الأنواع unsigned</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb8', this, true)">تنسخ بِت الإشارة من اليسار، فيبقى العدد سالبًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb8', this, false)">تحوّل العدد السالب إلى موجب فورًا</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb9">
+                <h4>٩. لـ a=6، ما ناتج <span style="direction:ltr; display:inline-block;">a &lt;&lt; 1</span>؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb9', this, false)">3</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb9', this, true)">12</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb9', this, false)">6</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb10">
+                <h4>١٠. لماذا نفضّل استخدام أنواع unsigned عند العمل مع البِتّات الخام؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb10', this, false)">لأنها أسرع دائمًا في التنفيذ</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb10', this, true)">لتفادي سلوك الإزاحة الحسابية غير المتوقّع مع الأعداد السالبة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb10', this, false)">لأنّ عوامل AND وOR وXOR لا تعمل على الأنواع الموقّعة</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>قاموس المصطلحات</h3>
+            </div>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Bit</span><span class="term-ar">بِت</span><p class="term-desc">أصغر وحدة تخزين في الحاسوب، تحمل قيمة 0 أو 1.</p></div>
+                <div class="term-card"><span class="term-en">Set bit</span><span class="term-ar">بِت مُعيَّن</span><p class="term-desc">بِت قيمته تساوي 1.</p></div>
+                <div class="term-card"><span class="term-en">Two's Complement</span><span class="term-ar">المتمّم الثنائي</span><p class="term-desc">طريقة تخزين الأعداد السالبة: قلب كل البِتّات ثم إضافة 1.</p></div>
+                <div class="term-card"><span class="term-en">Sign bit</span><span class="term-ar">بِت الإشارة</span><p class="term-desc">أعلى بِت في عدد موقّع، يحدّد إن كان العدد موجبًا أم سالبًا.</p></div>
+                <div class="term-card"><span class="term-en">Bitwise AND / OR / XOR</span><span class="term-ar">AND / OR / XOR على مستوى البِت</span><p class="term-desc">عوامل تُجرى بين بِتّين مقابلين من عددين، وتُنتج بِتًّا واحدًا لكل موضع.</p></div>
+                <div class="term-card"><span class="term-en">NOT / Complement (~)</span><span class="term-ar">النفي / التتميم</span><p class="term-desc">عامل يقلب كل بِت في العدد (0 يصبح 1 والعكس).</p></div>
+                <div class="term-card"><span class="term-en">Arithmetic Shift</span><span class="term-ar">الإزاحة الحسابية</span><p class="term-desc">إزاحة لليمين تنسخ بِت الإشارة، فتحافظ على سالبية الأعداد السالبة.</p></div>
+                <div class="term-card"><span class="term-en">Logical Shift</span><span class="term-ar">الإزاحة المنطقية</span><p class="term-desc">إزاحة لليمين تُدخل دائمًا أصفارًا من اليسار، وتُستخدم مع الأنواع unsigned.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الثالث: العمليات على مستوى البِت (Bitwise Operations)</footer>
+
+    <script>
+        // ===== Lab A: binary digit builder =====
+        const BIT_VALUES = [128, 64, 32, 16, 8, 4, 2, 1];
+        const BINARY_BUILDER_TARGET = 180;
+        let bitState = [0, 0, 0, 0, 0, 0, 0, 0];
+
+        function toggleBit(idx) {
+            bitState[idx] = bitState[idx] ? 0 : 1;
+            document.getElementById('bitCell_' + idx).classList.toggle('on');
+            document.getElementById('bitCell_' + idx).innerText = String(bitState[idx]);
+            updateBinaryBuilderValue();
+        }
+
+        function computeBinaryBuilderTotal() {
+            let total = 0;
+            for (let i = 0; i < 8; i++) total += bitState[i] * BIT_VALUES[i];
+            return total;
+        }
+
+        function updateBinaryBuilderValue() {
+            const total = computeBinaryBuilderTotal();
+            const el = document.getElementById('binaryBuilderValue');
+            el.innerText = String(total);
+            if (total === BINARY_BUILDER_TARGET) {
+                el.classList.add('match');
+            } else {
+                el.classList.remove('match');
+            }
+        }
+
+        function checkBinaryBuilderTarget() {
+            const feedback = document.getElementById('binaryBuilderFeedback');
+            const total = computeBinaryBuilderTotal();
+            if (total === BINARY_BUILDER_TARGET) {
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> صحيح! ' + BINARY_BUILDER_TARGET + ' = ' + bitState.join('') + '</span>';
+            } else {
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> ليس بعد — قيمتك الحالية ' + total + '، والهدف ' + BINARY_BUILDER_TARGET + '.</span>';
+            }
+        }
+
+        function resetBinaryBuilder() {
+            bitState = [0, 0, 0, 0, 0, 0, 0, 0];
+            for (let i = 0; i < 8; i++) {
+                const cell = document.getElementById('bitCell_' + i);
+                cell.classList.remove('on');
+                cell.innerText = '0';
+            }
+            updateBinaryBuilderValue();
+            document.getElementById('binaryBuilderFeedback').innerHTML = '';
+        }
+
+        // ===== Lab B: two's complement builder =====
+        function buildTwosCompFrames() {
+            const original = [0, 0, 0, 0, 0, 1, 0, 1]; // 5 = 00000101
+            const flipped = original.map(function (b) { return b === 1 ? 0 : 1; });
+            const added = flipped.slice();
+            let carry = 1;
+            for (let i = 7; i >= 0 && carry; i--) {
+                const sum = added[i] + carry;
+                added[i] = sum % 2;
+                carry = Math.floor(sum / 2);
+            }
+            return { original: original, flipped: flipped, result: added };
+        }
+
+        function fillRow(rowId, bits, cellClass) {
+            const row = document.getElementById(rowId);
+            const cells = row.children;
+            for (let i = 0; i < bits.length; i++) {
+                cells[i].innerText = String(bits[i]);
+                cells[i].classList.remove('flipped', 'final');
+                if (cellClass) cells[i].classList.add(cellClass);
+            }
+        }
+
+        function runTwosCompLab() {
+            const built = buildTwosCompFrames();
+            const stage1 = document.getElementById('twoscompStage1');
+            const stage2 = document.getElementById('twoscompStage2');
+            const stage3 = document.getElementById('twoscompStage3');
+            const hint = document.getElementById('twoscompHint');
+
+            stage1.classList.remove('active');
+            stage2.classList.remove('active');
+            stage3.classList.remove('active');
+            fillRow('tcRow2', [0, 0, 0, 0, 0, 0, 0, 0].map(function () { return '-'; }));
+            fillRow('tcRow3', [0, 0, 0, 0, 0, 0, 0, 0].map(function () { return '-'; }));
+
+            const steps = [
+                function () {
+                    stage1.classList.add('active');
+                    hint.innerText = 'الخطوة 1: اكتب +5 بالثنائي على 8 بِتّات → 00000101.';
+                },
+                function () {
+                    stage2.classList.add('active');
+                    fillRow('tcRow2', built.flipped, 'flipped');
+                    hint.innerText = 'الخطوة 2: اقلب كل بِت (0 يصبح 1 والعكس) → ' + built.flipped.join('') + '.';
+                },
+                function () {
+                    stage3.classList.add('active');
+                    fillRow('tcRow3', built.result, 'final');
+                    hint.innerText = 'الخطوة 3: أضف 1 → ' + built.result.join('') + ' = -5.';
+                }
+            ];
+
+            let s = 0;
+            function playNext() {
+                if (s >= steps.length) return;
+                steps[s]();
+                s++;
+                setTimeout(playNext, 1100);
+            }
+            playNext();
+        }
+
+        // ===== Lab C: bit-by-bit AND/OR/XOR visualizer =====
+        const BITOP_A = [0, 0, 0, 0, 0, 1, 1, 0]; // 6
+        const BITOP_B = [0, 0, 0, 0, 1, 0, 1, 0]; // 10
+
+        function computeOpBit(op, x, y) {
+            if (op === 'and') return (x && y) ? 1 : 0;
+            if (op === 'or') return (x || y) ? 1 : 0;
+            return (x !== y) ? 1 : 0;
+        }
+
+        function runBitOpLab(op) {
+            const hint = document.getElementById('bitopHint');
+            const resultBox = document.getElementById('bitopResultBox');
+            resultBox.classList.remove('show');
+
+            for (let i = 0; i < 8; i++) {
+                document.getElementById('bitopA_' + i).classList.remove('active-col');
+                document.getElementById('bitopB_' + i).classList.remove('active-col');
+                const rc = document.getElementById('bitopResult_' + i);
+                rc.innerText = '-';
+                rc.classList.remove('active-col', 'result-set');
+            }
+
+            const opSymbols = { and: '&', or: '|', xor: '^' };
+            const opNames = { and: 'AND', or: 'OR', xor: 'XOR' };
+
+            let i = 0;
+            const resultBits = [];
+
+            function playNext() {
+                if (i > 0) {
+                    document.getElementById('bitopA_' + (i - 1)).classList.remove('active-col');
+                    document.getElementById('bitopB_' + (i - 1)).classList.remove('active-col');
+                }
+
+                if (i >= 8) {
+                    const decimal = parseInt(resultBits.join(''), 2);
+                    hint.innerText = 'انتهينا! الناتج بالثنائي: ' + resultBits.join('') + '، وبالعشري: ' + decimal;
+                    resultBox.innerText = 'a ' + opSymbols[op] + ' b = ' + decimal;
+                    resultBox.classList.add('show');
+                    return;
+                }
+
+                const bitPos = 7 - i;
+                const av = BITOP_A[i];
+                const bv = BITOP_B[i];
+                const rv = computeOpBit(op, av, bv);
+                resultBits.push(rv);
+
+                document.getElementById('bitopA_' + i).classList.add('active-col');
+                document.getElementById('bitopB_' + i).classList.add('active-col');
+                const rc = document.getElementById('bitopResult_' + i);
+                rc.innerText = String(rv);
+                if (rv === 1) rc.classList.add('result-set');
+
+                hint.innerText = 'الموضع ' + bitPos + ': a=' + av + '، b=' + bv + ' → ' + opNames[op] + ' = ' + rv;
+
+                i++;
+                setTimeout(playNext, 550);
+            }
+
+            playNext();
+        }
+
+        // ===== Shared helpers (toggle, TF activity, quiz) =====
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        function checkTF(el, itemId, chosenValue, correctValue) {
+            const item = document.getElementById(itemId);
+            const buttons = item.querySelectorAll('.tf-btn');
+            buttons.forEach(function (b) { b.classList.remove('tf-selected-correct', 'tf-selected-wrong'); b.onclick = null; b.style.cursor = 'default'; });
+            const feedback = item.querySelector('.tf-feedback');
+            if (chosenValue === correctValue) {
+                el.classList.add('tf-selected-correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة!</span>';
+            } else {
+                el.classList.add('tf-selected-wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة خاطئة — العبارة في الواقع "' + (correctValue ? 'صحيح' : 'خطأ') + '".</span>';
+            }
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(function (o) { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة! أحسنت.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة غير صحيحة، حاول مرة أخرى في المرة القادمة.</span>';
+            }
+        }
+    </script>
+</body>
+</html>

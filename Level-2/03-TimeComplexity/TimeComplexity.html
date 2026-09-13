@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | التعقيد الزمني — Time Complexity</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        /* hero banner */
+        .hero-banner { background: var(--blue-gradient); padding: 70px 6% 60px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 720px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula { direction: ltr; display: inline-block; font-family: 'Consolas', monospace; font-weight: 800; background: #eef2f7; padding: 3px 10px; border-radius: 8px; color: var(--dark-navy); }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td code.inline, .data-table th code.inline { white-space: nowrap; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+
+        /* growth chart */
+        .growth-chart-wrap { text-align: center; margin: 20px 0; }
+        .growth-chart-wrap svg { max-width: 100%; height: auto; }
+
+        /* notation badges */
+        .notation-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 16px; border-radius: 10px; font-weight: 800; font-family: 'Consolas', monospace; font-size: 0.95rem; }
+        .notation-best { background: #dcfce7; color: #15803d; }
+        .notation-avg { background: #fef3c7; color: #b45309; }
+        .notation-worst { background: #fee2e2; color: #b91c1c; }
+
+        /* interactive lab (search visualizer) */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-slots { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; direction: ltr; margin-bottom: 10px; }
+        .lab-slot-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .lab-slot {
+            width: 56px; height: 56px; border-radius: 12px; border: 3px solid #cbd5e1; background: var(--bg-main);
+            display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.15rem;
+            color: var(--dark-navy); transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .lab-slot.highlight { border-color: var(--primary-yellow); box-shadow: 0 0 0 4px rgba(247, 148, 30, 0.18); animation: slotPop 0.3s ease; }
+        .lab-slot.settled { border-color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+        .lab-slot.eliminated { opacity: 0.35; }
+        @keyframes slotPop { 0% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        .lab-slot-label { font-size: 0.72rem; color: #94a3b8; text-align: center; }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 10px 0; }
+        .lab-formula-result { text-align: center; margin-top: 10px; font-weight: 700; font-size: 0.92rem; min-height: 24px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+        }
+        .lab-btn.best-btn { background: linear-gradient(135deg, #22c55e, #15803d); }
+        .lab-btn.avg-btn { background: var(--yellow-gradient); }
+        .lab-btn.worst-btn { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+
+        /* true/false quick-review activity */
+        .activity-box { background: white; border-radius: 22px; padding: 32px; margin: 28px 0; box-shadow: var(--soft-shadow); border: 1px solid #e2e8f0; }
+        .activity-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .activity-header i { color: var(--primary-blue); font-size: 1.2rem; }
+        .activity-header h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); }
+        .activity-intro { margin-bottom: 20px; font-size: 0.92rem; }
+        .tf-item {
+            background: var(--bg-main); border-radius: 16px; padding: 18px 22px; margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+            border: 1px solid #e2e8f0;
+        }
+        .tf-statement { margin: 0; font-weight: 700; color: var(--dark-navy); font-size: 0.95rem; flex: 1 1 260px; direction: ltr; text-align: right; unicode-bidi: plaintext; }
+        .tf-buttons { display: flex; gap: 10px; flex-shrink: 0; }
+        .tf-btn {
+            border: 2px solid #e2e8f0; background: white; padding: 9px 26px; border-radius: 50px;
+            font-weight: 800; font-family: 'Tajawal'; font-size: 0.88rem; cursor: pointer; color: var(--dark-navy); transition: 0.2s;
+        }
+        .tf-btn:hover { border-color: var(--primary-blue); }
+        .tf-btn.tf-selected-correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .tf-btn.tf-selected-wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .tf-feedback { flex-basis: 100%; margin-top: 2px; font-weight: 700; font-size: 0.85rem; min-height: 18px; }
+
+        /* homework toggles */
+        .homework-item { background: var(--bg-main); border-radius: 18px; padding: 24px; margin-top: 20px; border: 1px solid #e2e8f0; }
+        .homework-item h4 { margin: 0 0 10px; color: var(--dark-navy); font-size: 1.02rem; font-weight: 800; }
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            margin-top: 14px;
+        }
+        .collapsible { display: none; margin-top: 14px; }
+        .collapsible.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge">الفصل 3: التعقيد الزمني</span>
+            <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الثاني</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-gauge-high"></i>
+        <h1>الفصل الثالث: التعقيد الزمني (Time Complexity)</h1>
+        <p class="hero-desc">تعلّمت حتى الآن حاويتين قويتين من STL: الـ set والـ map. لكن كيف تعرف أنّ الحل الذي كتبته سيكون سريعًا بما يكفي؟ في هذا الفصل ستتعلّم كيف "تقيس" سرعة أي خوارزمية دون تشغيلها فعليًا، وكيف تتوقّع مسبقًا هل سيحصل حلّك على Accepted أم Time Limit Exceeded عند إرساله على Codeforces — وهي بالضبط المهارة التي ستحتاجها لبقية رحلتك في البرمجة التنافسية.</p>
+    </div>
+
+    <div class="container">
+
+        <!-- What is time complexity -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-stopwatch"></i>
+                <h3>ما هو التعقيد الزمني؟</h3>
+            </div>
+            <p>عندما نكتب برامج، بعض الحلول تعمل أسرع من غيرها. <strong>التعقيد الزمني (Time Complexity)</strong> هو طريقة لقياس مدى سرعة نمو عدد خطوات الخوارزمية كلما كبر حجم المدخلات.</p>
+            <p>لا نقيسه بالثواني (لأنّ ذلك يعتمد على سرعة الجهاز)، بل نقيسه <strong>بعدد الخطوات</strong> التي تزداد عند زيادة حجم المدخلات. هذا يسمح لنا بمقارنة الخوارزميات مع بعضها دون الحاجة لتشغيلها فعليًا.</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>basic_loop.cpp</span></div>
+                <pre>for (int i = 0; i &lt; n; i++)
+    cout &lt;&lt; i &lt;&lt; " ";</pre>
+            </div>
+            <p>إذا كان <code class="inline">n = 10</code>، يطبع الكود 10 أرقام. إذا كان <code class="inline">n = 1000</code>، يطبع 1000 رقم. إذا تضاعف <code class="inline">n</code>، فإنّ عدد الخطوات يتضاعف أيضًا.</p>
+            <p>نقول إنّ هذا الكود يعمل في زمن <span class="formula">O(n)</span>، لأنه يحتوي على <code class="inline">n</code> خطوة تقريبًا. هذا يعني أنّ الوقت ينمو <strong>خطيًا</strong> مع حجم المدخلات.</p>
+        </div>
+
+        <!-- What Big O means + operations table + chart -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-chart-line"></i>
+                <h3>ما معنى الرمز الكبير O (Big O)؟</h3>
+            </div>
+            <p>يوضّح رمز <span class="formula">O</span> (Big O) كيف ينمو عدد خطوات الخوارزمية مع زيادة <code class="inline">n</code>. نهتم فقط <strong>بالنمو الرئيسي (المسيطر)</strong>، وليس بالثوابت أو التفاصيل الصغيرة — فمثلًا <span class="formula">2n + 5</span> و<span class="formula">n</span> كلاهما يُكتبان <span class="formula">O(n)</span>.</p>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>المثال</th><th>التعقيد</th><th>الوصف</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code class="inline">x = a + b;</code> أو <code class="inline">if/else</code></td><td><span class="formula">O(1)</span></td><td>وقت ثابت — يعمل فورًا بغض النظر عن حجم n</td></tr>
+                        <tr><td><code class="inline">set::insert</code></td><td><span class="formula">O(log n)</span></td><td>كل خطوة تقلّل حجم المشكلة إلى النصف تقريبًا</td></tr>
+                        <tr><td>حلقة واحدة على مصفوفة</td><td><span class="formula">O(n)</span></td><td>الوقت ينمو خطيًا</td></tr>
+                        <tr><td>الترتيب (Sorting)</td><td><span class="formula">O(n log n)</span></td><td>أبطأ قليلًا من O(n)، لكن أسرع بكثير من O(n²)</td></tr>
+                        <tr><td>حلقتان متداخلتان</td><td><span class="formula">O(n²)</span></td><td>الوقت ينمو بسرعة كبيرة عند زيادة n</td></tr>
+                        <tr><td>تجربة جميع التوافيق الممكنة</td><td><span class="formula">O(2ⁿ)</span></td><td>نمو أسي — يزداد بشكل هائل بسرعة</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p style="text-align: center;">كلما كان التعقيد أكبر (بالانتقال من اليسار إلى اليمين في الرسم أدناه)، كلما نما وقت التنفيذ بسرعة أكبر مع زيادة <code class="inline">n</code>:</p>
+
+            <div class="growth-chart-wrap">
+                <svg viewBox="0 0 520 360" width="520" height="360">
+                    <line x1="60" y1="20" x2="60" y2="330" stroke="#0f172a" stroke-width="2"></line>
+                    <line x1="60" y1="330" x2="490" y2="330" stroke="#0f172a" stroke-width="2"></line>
+                    <text x="30" y="30" font-size="13" font-weight="800" fill="#0f172a">Time</text>
+                    <text x="440" y="352" font-size="13" font-weight="800" fill="#0f172a">Input (n)</text>
+
+                    <path d="M 60 325 C 200 325, 350 325, 480 325" stroke="#00adef" stroke-width="3" fill="none"></path>
+                    <text x="485" y="329" font-size="13" font-weight="800" fill="#00adef">O(1)</text>
+
+                    <path d="M 60 325 C 200 300, 350 280, 480 260" stroke="#22c55e" stroke-width="3" fill="none"></path>
+                    <text x="485" y="264" font-size="13" font-weight="800" fill="#22c55e">O(log n)</text>
+
+                    <path d="M 60 325 L 480 110" stroke="#f7941e" stroke-width="3" fill="none"></path>
+                    <text x="483" y="112" font-size="13" font-weight="800" fill="#f7941e">O(n)</text>
+
+                    <path d="M 60 325 C 250 250, 380 120, 470 55" stroke="#d6336c" stroke-width="3" fill="none"></path>
+                    <text x="472" y="55" font-size="13" font-weight="800" fill="#d6336c">O(n log n)</text>
+
+                    <path d="M 60 325 C 180 260, 260 60, 300 25" stroke="#7c3aed" stroke-width="3" fill="none"></path>
+                    <text x="303" y="28" font-size="13" font-weight="800" fill="#7c3aed">O(n&sup2;)</text>
+
+                    <path d="M 60 325 C 110 240, 150 60, 175 25" stroke="#ef4444" stroke-width="3" fill="none"></path>
+                    <text x="178" y="28" font-size="13" font-weight="800" fill="#ef4444">O(2&#8319;)</text>
+
+                    <path d="M 60 325 C 75 220, 95 60, 108 25" stroke="#991b1b" stroke-width="3" fill="none"></path>
+                    <text x="108" y="20" font-size="13" font-weight="800" fill="#991b1b">O(n!)</text>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Activity 1 -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>نشاط: مراجعة سريعة لمفهوم Big O</h4>
+            </div>
+            <p class="activity-intro">لنراجع بسرعة ما تعلّمناه للتو عن التعقيد الزمني ورمز Big O. حدّد إن كانت كل عبارة صحيحة أم خاطئة.</p>
+
+            <div class="tf-item" id="tfTC1">
+                <p class="tf-statement">نقيس التعقيد الزمني بالثواني الفعلية التي يستغرقها البرنامج.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfTC1', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfTC1', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfTC2">
+                <p class="tf-statement">2n + 5 و n كلاهما يُكتبان بنفس التعقيد O(n).</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfTC2', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfTC2', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfTC3">
+                <p class="tf-statement">الحلقتان المتداخلتان (Nested Loops) عادة تكونان بتعقيد O(n).</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfTC3', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfTC3', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfTC4">
+                <p class="tf-statement">O(n log n) أسرع من O(n²) لمعظم قيم n الكبيرة.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfTC4', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfTC4', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Counting steps examples -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-calculator"></i>
+                <h3>حساب عدد الخطوات: أمثلة عملية</h3>
+            </div>
+            <p>أفضل طريقة لفهم Big O هي عدّ الخطوات فعليًا داخل الكود. لاحظ أنّ العمليات الحسابية البسيطة (<code class="inline">+ - * / % ^</code>)، والزيادة/النقصان (<code class="inline">++ --</code>)، والاختصارات (<code class="inline">+= -= *= /=</code>)، وعبارات <code class="inline">if/else</code> كلها تُحسب كخطوة واحدة بزمن ثابت <span class="formula">O(1)</span>.</p>
+
+            <h4 class="sub-title">1) حلقة واحدة → O(n)</h4>
+            <div class="code-box">
+                <div class="code-head"><span>one_loop.cpp</span></div>
+                <pre>long long sum = 0;                    <span class="cmt">// 1 خطوة</span>
+for (int i = 1; i &lt;= n; i++)          <span class="cmt">// n مرة</span>
+    sum = sum + i;                    <span class="cmt">// خطوة ثابتة في كل مرة</span></pre>
+            </div>
+            <p>عدد الخطوات ≈ <span class="formula">1 + n</span> → نتجاهل الثابت 1 → <span class="formula">O(n)</span>. للتحقق: <span class="formula">n·(n+1)/2</span> تعطي نفس نتيجة الحلقة (لـ n=5: 5·6/2 = 15 = 1+2+3+4+5)، لكن هذه الصيغة المباشرة تُحسب في خطوة واحدة فقط <span class="formula">O(1)</span> — وهذا مثال آخر على "تحسين الحلول" الذي سنراه لاحقًا.</p>
+
+            <h4 class="sub-title">2) حلقتان متداخلتان → O(n²)</h4>
+            <div class="code-box">
+                <div class="code-head"><span>two_loops.cpp</span></div>
+                <pre>for (int i = 0; i &lt; n; i++)           <span class="cmt">// n مرة</span>
+    cout &lt;&lt; i;
+for (int j = 0; j &lt; n; j++)           <span class="cmt">// n مرة</span>
+    for (int k = 0; k &lt; n; k++)       <span class="cmt">// n مرة لكل j → n&sup2; إجمالًا</span>
+        cout &lt;&lt; j + k;</pre>
+            </div>
+            <p>عدد الخطوات ≈ <span class="formula">n + n&sup2;</span> → الحد المسيطر هو <span class="formula">n&sup2;</span> → <span class="formula">O(n&sup2;)</span>.</p>
+
+            <h4 class="sub-title">3) إضافة حلقة ثالثة متداخلة → O(n³)</h4>
+            <div class="code-box">
+                <div class="code-head"><span>three_loops.cpp</span></div>
+                <pre>for (int j = 0; j &lt; n; j++)
+    for (int k = 0; k &lt; n; k++)
+        for (int l = 0; l &lt; n; l++)   <span class="cmt">// n &times; n &times; n = n&sup3;</span>
+            cout &lt;&lt; j + k + l;</pre>
+            </div>
+            <p>بإضافة حلقة ثالثة متداخلة، أصبح عدد الخطوات <span class="formula">n&sup3;</span>، فالتعقيد يصبح <span class="formula">O(n&sup3;)</span> — أبطأ بكثير من O(n&sup2;).</p>
+
+            <h4 class="sub-title">4) حلقة مضاعفة → O(log n)</h4>
+            <div class="code-box">
+                <div class="code-head"><span>doubling_loop.cpp</span></div>
+                <pre>for (int i = 1; i &lt; n; i = i * 2)      <span class="cmt">// يتضاعف i في كل مرة</span>
+    cout &lt;&lt; i;</pre>
+            </div>
+            <p>بما أنّ <code class="inline">i</code> يتضاعف في كل مرة (1, 2, 4, 8, ...)، فإنّ عدد التكرارات اللازمة للوصول إلى <code class="inline">n</code> هو تقريبًا <span class="formula">log&#8322;(n)</span>، فالتعقيد <span class="formula">O(log n)</span>.</p>
+
+            <h4 class="sub-title">5) حلقات متداخلة مع مضاعفة → O(n log²n)</h4>
+            <div class="code-box">
+                <div class="code-head"><span>nested_log.cpp</span></div>
+                <pre>for (int i = n / 2; i &lt; n; i++)         <span class="cmt">// ≈ n مرة</span>
+    for (int k = 1; k &lt; n; k = k * 2)    <span class="cmt">// log n مرة</span>
+        for (int j = 1; j &lt; n; j = j * 2) <span class="cmt">// log n مرة</span>
+            cout &lt;&lt; i + k + j;</pre>
+            </div>
+            <p>الحاصل: <span class="formula">n &middot; log n &middot; log n = O(n log&sup2;n)</span>.</p>
+
+            <h4 class="sub-title">6) حلقتان عاديتان وحلقة مضاعفة → O(n² log n)</h4>
+            <div class="code-box">
+                <div class="code-head"><span>two_plus_log.cpp</span></div>
+                <pre>for (int i = 0; i &lt; n; i++)             <span class="cmt">// n مرة</span>
+    for (int j = 0; j &lt; n; j++)         <span class="cmt">// n مرة</span>
+        for (int k = 1; k &lt; n; k = k * 2) <span class="cmt">// log n مرة</span>
+            cout &lt;&lt; i + j + k;</pre>
+            </div>
+            <p>الحاصل: <span class="formula">n &middot; n &middot; log n = O(n&sup2; log n)</span>.</p>
+
+            <h4 class="sub-title">7) حلقة عادية وحلقة قسمة → O(n log n)</h4>
+            <div class="code-box">
+                <div class="code-head"><span>divide_loop.cpp</span></div>
+                <pre>for (int i = 0; i &lt; n; i++)             <span class="cmt">// n مرة</span>
+    for (int j = n; j &gt; 1; j = j / 3)   <span class="cmt">// log&#8323;n مرة ≈ O(log n)</span>
+        cout &lt;&lt; i + j;</pre>
+            </div>
+            <p>القسمة على أي عدد ثابت (2 أو 3 أو غيره) تعطي نفس رتبة النمو <span class="formula">O(log n)</span> (فقط الأساس يتغيّر، وهو تفصيل نتجاهله). الحاصل: <span class="formula">n &middot; log n = O(n log n)</span>.</p>
+        </div>
+
+        <!-- Best/Average/Worst case -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-magnifying-glass"></i>
+                <h3>أفضل، متوسط، وأسوأ الحالات</h3>
+            </div>
+            <p>قد تختلف سرعة نفس الخوارزمية باختلاف شكل المدخلات. لذلك نميّز بين ثلاث حالات، ولكل منها رمز رياضي خاص:</p>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>الحالة</th><th>الرمز</th><th>المعنى</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>أفضل حالة (Best Case)</td><td><span class="notation-badge notation-best">Ω (Omega)</span></td><td>أقل عدد ممكن من الخطوات على أفضل مدخلات ممكنة</td></tr>
+                        <tr><td>حالة متوسطة (Average Case)</td><td><span class="notation-badge notation-avg">Θ (Theta)</span></td><td>العدد المتوقّع للخطوات على مدخلات عشوائية نموذجية</td></tr>
+                        <tr><td>أسوأ حالة (Worst Case)</td><td><span class="notation-badge notation-worst">O (Big O)</span></td><td>أكبر عدد ممكن من الخطوات على أسوأ مدخلات ممكنة</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>لنطبّق هذا على <strong>البحث الخطي (Linear Search)</strong>: نمرّ على عناصر المصفوفة واحدًا تلو الآخر بحثًا عن قيمة معيّنة، ونتوقف بمجرد إيجادها.</p>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> المختبر التفاعلي: جرّب البحث الخطي في الحالات الثلاث</p>
+                <div class="lab-slots">
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="searchSlot0">10</div><div class="lab-slot-label">0</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="searchSlot1">5</div><div class="lab-slot-label">1</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="searchSlot2">15</div><div class="lab-slot-label">2</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="searchSlot3">2</div><div class="lab-slot-label">3</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="searchSlot4">25</div><div class="lab-slot-label">4</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="searchSlot5">55</div><div class="lab-slot-label">5</div></div>
+                </div>
+                <div class="lab-step-hint" id="searchStep"></div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn best-btn" onclick="runSearchCase(10, 'أفضل حالة', 'notation-best', 'Ω (Omega)')">ابحث عن 10</button>
+                    <button class="lab-btn avg-btn" onclick="runSearchCase(15, 'حالة متوسطة', 'notation-avg', 'Θ (Theta)')">ابحث عن 15</button>
+                    <button class="lab-btn worst-btn" onclick="runSearchCase(55, 'أسوأ حالة', 'notation-worst', 'O (Big O)')">ابحث عن 55</button>
+                </div>
+                <div class="lab-formula-result" id="searchResult"></div>
+            </div>
+        </div>
+
+        <!-- Activity 2 -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>نشاط: مراجعة سريعة لأفضل/متوسط/أسوأ الحالات</h4>
+            </div>
+            <p class="activity-intro">حدّد إن كانت كل عبارة صحيحة أم خاطئة.</p>
+
+            <div class="tf-item" id="tfTC5">
+                <p class="tf-statement">في البحث الخطي، أفضل حالة تحدث عندما يكون العنصر المطلوب في أول المصفوفة.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfTC5', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfTC5', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfTC6">
+                <p class="tf-statement">رمز Ω (Omega) يُستخدم عادة للتعبير عن أسوأ حالة.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfTC6', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfTC6', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfTC7">
+                <p class="tf-statement">عند تحليل خوارزمية للمسابقات البرمجية، نهتم عادة بأسوأ حالة لضمان عدم تجاوز الحد الزمني.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfTC7', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfTC7', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Worked examples -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-star"></i>
+                <h3>أمثلة محلولة</h3>
+            </div>
+
+            <h4 class="sub-title">مثال 1: زيادة الرقم — وقت ثابت O(1)</h4>
+            <p>معطى لك رقم <code class="inline">x</code>. قم بزيادة <code class="inline">x</code> بمقدار 1، ثم اطبعه.</p>
+            <div class="code-box">
+                <div class="code-head"><span>increment.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int x;
+    cin &gt;&gt; x;
+    x += 1;
+    cout &lt;&lt; x &lt;&lt; '\n';
+}</pre>
+            </div>
+            <div class="output-box">Input: 7  →  Output: 8</div>
+            <p>قمنا بثلاث عمليات بسيطة: قراءة، زيادة، وطباعة. جميعها عمليات ثابتة الزمن — لا نقول إنّ هذا <span class="formula">O(3)</span> لأننا لا نهتم بالثوابت؛ نهتم فقط بالنمو الرئيسي. إذن هذا <span class="formula">O(1)</span>.</p>
+
+            <h4 class="sub-title">مثال 2: مجموع المال — وقت خطي O(n)</h4>
+            <p>معطى لك <code class="inline">n</code> ورقة نقدية قيمتها <code class="inline">arr[0]</code> ريال، <code class="inline">arr[1]</code> ريال، ...، <code class="inline">arr[n-1]</code> ريال. كم مجموع الريالات لديك؟</p>
+            <div class="code-box">
+                <div class="code-head"><span>money_sum.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    int arr[n];
+    for (int i = 0; i &lt; n; i++)
+        cin &gt;&gt; arr[i];
+
+    long long sum = 0;
+    for (int i = 0; i &lt; n; i++)
+        sum += arr[i];
+
+    cout &lt;&lt; sum &lt;&lt; '\n';
+}</pre>
+            </div>
+            <div class="output-box">Input: 4 / 10 20 30 40  →  Output: 100</div>
+            <p>الحلقة الأولى (القراءة) تعمل <code class="inline">n</code> مرة، والثانية (الجمع) تعمل <code class="inline">n</code> مرة أيضًا. بالمجموع: <span class="formula">n + n = 2n</span>، لكننا نتجاهل الثوابت، إذن التعقيد <span class="formula">O(n)</span> — إذا تضاعفت المصفوفة، يتضاعف الوقت أيضًا.</p>
+
+            <h4 class="sub-title">مثال 3: النسخ — وقت تربيعي O(n²)</h4>
+            <p>معطى لك <code class="inline">n</code> ورقة نقدية. لكل من <code class="inline">n</code> أيام، قم بزيادة قيمة كل ورقة بمقدار واحد، واطبع قيم كل الأوراق لكل يوم.</p>
+            <div class="code-box">
+                <div class="code-head"><span>copies.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    int arr[n];
+    for (int i = 0; i &lt; n; i++)
+        cin &gt;&gt; arr[i];
+
+    for (int days = 1; days &lt;= n; days++) {
+        for (int i = 0; i &lt; n; i++) {
+            cout &lt;&lt; arr[i] + days &lt;&lt; ' ';
+        }
+        cout &lt;&lt; '\n';
+    }
+}</pre>
+            </div>
+            <div class="output-box">Input: 3 / 1 2 3
+Output:
+2 3 4
+3 4 5
+4 5 6</div>
+            <p>هناك <code class="inline">n</code> يوم، وفي كل يوم نمرّ على <code class="inline">n</code> ورقة، فيكون المجموع <span class="formula">n &middot; n = n&sup2;</span> عملية. إذا كان <code class="inline">n = 100</code>، فإنّ عدد الخطوات = 10,000. إذا كان <code class="inline">n = 1000</code>، فإنّ عدد الخطوات = 1,000,000. لهذا يمكن أن تصبح خوارزميات <span class="formula">O(n&sup2;)</span> بطيئة جدًا وبسرعة كبيرة.</p>
+        </div>
+
+        <!-- Growth rate comparison -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-table-cells"></i>
+                <h3>مقارنة معدلات النمو</h3>
+            </div>
+            <p>لنرَ كيف تنمو القيم الفعلية لكل تعقيد مع زيادة <code class="inline">n</code>:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr><th class="center">n</th><th class="center">O(1)</th><th class="center">O(log n)</th><th class="center">O(n)</th><th class="center">O(n&sup2;)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="center">10</td><td class="center">1</td><td class="center">3</td><td class="center">10</td><td class="center">100</td></tr>
+                        <tr><td class="center">100</td><td class="center">1</td><td class="center">7</td><td class="center">100</td><td class="center">10,000</td></tr>
+                        <tr><td class="center">1000</td><td class="center">1</td><td class="center">10</td><td class="center">1,000</td><td class="center">1,000,000</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>حتى لو بدت الفروقات صغيرة عند <code class="inline">n</code> صغير، فإنّها تتضخّم بشكل كبير جدًا عند <code class="inline">n</code> كبير — لاحظ الفرق الهائل بين 1,000 و1,000,000 في العمودين الأخيرين عند n=1000 فقط!</p>
+        </div>
+
+        <!-- Quick rule -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-bolt"></i>
+                <h3>قاعدة سريعة</h3>
+            </div>
+            <p>تتذكّر من فصل <strong>"المسابقات والمنصّات"</strong> أنّ لكل مسألة حدًّا زمنيًا (عادة ثانية أو ثانيتان)، وأنّ المعالج يستطيع تنفيذ نحو <span class="formula">10&#8312;</span> عملية في الثانية تقريبًا. هذا يعطينا قاعدة عملية سريعة لتخمين نوع الحل المناسب اعتمادًا على حجم <code class="inline">n</code> في المسألة:</p>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>التعقيد الأقصى المقبول</th><th class="center">n</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><span class="formula">O(n!)</span></td><td class="center">≤ 10</td></tr>
+                        <tr><td><span class="formula">O(2ⁿ)</span> عادة مقبول</td><td class="center">≤ 20</td></tr>
+                        <tr><td><span class="formula">O(n&sup2;)</span> عادة مقبول</td><td class="center">≤ 1000</td></tr>
+                        <tr><td><span class="formula">O(n log n)</span> أو أفضل</td><td class="center">≤ 10&#8309;</td></tr>
+                        <tr><td><span class="formula">O(n)</span> أو أفضل</td><td class="center">≤ 10&#8311;</td></tr>
+                        <tr><td>فقط <span class="formula">O(log n)</span> أو <span class="formula">O(1)</span></td><td class="center">≥ 10&#8313;</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>هذا يساعدك على تخمين نوع الحل المناسب لحجم مدخلات معيّن <strong>قبل حتى أن تبدأ بكتابة الكود</strong>. مثلًا، إذا رأيت <code class="inline">N &le; 3000</code> في مسألة (كما في مسألة Iso-celestial)، فأنت تعرف مسبقًا أنّ حلًّا بتعقيد O(N&sup2;) سيكون مقبولًا، بينما O(N&sup3;) سيكون بطيئًا جدًا.</p>
+            </div>
+        </div>
+
+        <!-- Improving solutions -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-wand-magic-sparkles"></i>
+                <h3>تحسين الحلول</h3>
+            </div>
+            <p>أحيانًا ليس الأمر واضحًا، لكن يمكنك جعل البرنامج أسرع بالتفكير في حلول أذكى.</p>
+
+            <h4 class="sub-title">المجموع البسيط</h4>
+            <p>معطى لك رقم <code class="inline">n</code>. أوجد مجموع: <span class="formula">-n + (-n+1) + (-n+2) + ... + -1 + 0 + 1 + ... + (n-2) + (n-1) + n</span>.</p>
+
+            <p><strong>حل بسيط (خطي O(n)):</strong></p>
+            <div class="code-box">
+                <div class="code-head"><span>simple_sum_naive.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    long long sum = 0;
+    for (int i = -n; i &lt;= n; i++)
+        sum += i;
+    cout &lt;&lt; sum &lt;&lt; '\n';
+}</pre>
+            </div>
+            <div class="output-box">Input: 5  →  Output: 0</div>
+            <p>هذا الحل يعمل في زمن <span class="formula">O(n)</span>.</p>
+
+            <p><strong>حل أذكى (ثابت O(1)):</strong></p>
+            <p>يمكننا عمل أفضل من ذلك. كل عدد يظهر مرة موجبة ومرة سالبة — <code class="inline">i</code> و<code class="inline">-i</code> — فيلغي كل زوج منهما الآخر، ويبقى فقط الصفر (0) في المنتصف. الحل الأبسط:</p>
+            <div class="code-box">
+                <div class="code-head"><span>simple_sum_smart.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    cout &lt;&lt; 0 &lt;&lt; '\n';
+}</pre>
+            </div>
+            <div class="output-box">Input: 5  →  Output: 0</div>
+            <p>هذا الحل <span class="formula">O(1)</span>، وقت ثابت وأسرع بكثير من الحل البسيط. عمليًا، عند اختبار الحلّين بقيمة ضخمة مثل <code class="inline">n = 300{,}000{,}000</code>، استغرق الحل الخطي نحو <span class="formula">0.19</span> ثانية، بينما استغرق الحل الثابت أقل من <span class="formula">0.002</span> ثانية — فرق شاسع رغم أنّ كليهما يعطي نفس الإجابة الصحيحة! دائمًا حاول التفكير في أسرع حل ممكن.</p>
+        </div>
+
+        <!-- Space complexity -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-memory"></i>
+                <h3>التعقيد المكاني (Space Complexity)</h3>
+            </div>
+            <p>أحيانًا نهتم أيضًا بـ <strong>كمية الذاكرة</strong> التي يستخدمها البرنامج. هذا ما يُسمى <strong>التعقيد المكاني</strong>. الفكرة نفسها بالضبط: كيف ينمو استخدام الذاكرة مع زيادة حجم المدخلات؟</p>
+            <div class="code-box">
+                <div class="code-head"><span>space_example.cpp</span></div>
+                <pre>int arr[n];  <span class="cmt">// مساحة O(n) — تنمو مع حجم المدخلات</span>
+int x;       <span class="cmt">// مساحة O(1) — ثابتة بغض النظر عن n</span></pre>
+            </div>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>غالبًا يوجد توازن بين الزمن والذاكرة: أحيانًا يمكنك جعل الحل أسرع باستخدام ذاكرة إضافية (كما فعلنا مع set لإزالة المكررات)، وأحيانًا العكس صحيح.</p>
+            </div>
+        </div>
+
+        <!-- Homework -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-pen-ruler"></i>
+                <h3>تمارين منزلية</h3>
+            </div>
+
+            <div class="homework-item" id="hw1">
+                <h4>1) حدّد التعقيد الزمني للكود التالي</h4>
+                <div class="code-box">
+                    <div class="code-head"><span>hw1.cpp</span></div>
+                    <pre>for (int i = 0; i &lt; n; i++)
+    for (int j = i; j &lt; n; j++)
+        cout &lt;&lt; i + j;</pre>
+                </div>
+                <p>لاحظ أنّ الحلقة الداخلية لا تبدأ من الصفر، بل من <code class="inline">i</code>. ما تعقيد هذا الكود؟</p>
+                <button class="toggle-btn" onclick="toggleSection('hw1sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hw1sol">
+                    <p>عدد مرات تنفيذ الحلقة الداخلية يتناقص مع كل قيمة لـ <code class="inline">i</code>: عندما <code class="inline">i=0</code> تُنفَّذ <code class="inline">n</code> مرة، وعندما <code class="inline">i=1</code> تُنفَّذ <code class="inline">n-1</code> مرة، وهكذا حتى مرة واحدة. المجموع الكلي هو <span class="formula">n + (n-1) + ... + 1 = n(n+1)/2</span>.</p>
+                    <p>رغم أنّ الصيغة الدقيقة هي <code class="inline">n(n+1)/2</code>، فإنّ الحد المسيطر فيها هو <code class="inline">n&sup2;</code>، لذا يبقى التعقيد <span class="formula">O(n&sup2;)</span> — لا يزال تربيعيًا رغم أنّ عدد العمليات الفعلي أقل من الحلقتين الكاملتين بمقدار النصف تقريبًا.</p>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hw2">
+                <h4>2) حدّد التعقيد الزمني للكود التالي</h4>
+                <div class="code-box">
+                    <div class="code-head"><span>hw2.cpp</span></div>
+                    <pre>int lo = 0, hi = n;
+while (lo &lt; hi) {
+    int mid = (lo + hi) / 2;
+    if (arr[mid] &lt; target) lo = mid + 1;
+    else hi = mid;
+}</pre>
+                </div>
+                <p>هذا هو البحث الثنائي (Binary Search) الذي درسناه سابقًا. ما تعقيده الزمني؟</p>
+                <button class="toggle-btn" onclick="toggleSection('hw2sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hw2sol">
+                    <p>في كل تكرار، يُقسَّم النطاق <code class="inline">[lo, hi)</code> إلى النصف تقريبًا. هذا يشبه تمامًا حلقة المضاعفة التي درسناها، لكن بالاتجاه المعاكس (تقليل بدلًا من تكبير). عدد مرات التقسيم اللازمة للوصول من <code class="inline">n</code> إلى عنصر واحد هو <span class="formula">log&#8322;(n)</span>، فالتعقيد <span class="formula">O(log n)</span> — ولهذا يُعتبر البحث الثنائي أسرع بكثير من البحث الخطي على مصفوفة كبيرة ومرتّبة.</p>
+                    <div class="output-box">Input: array [1,3,5,7,9,11], target=7  →  Found at index 3</div>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hw3">
+                <h4>3) حسّن الحل من O(n²) إلى O(n)</h4>
+                <p>لديك مصفوفة، والمطلوب التحقق إن كانت تحتوي على عنصرين مجموعهما يساوي قيمة <code class="inline">target</code> معيّنة. الحل الساذج التالي يستخدم حلقتين متداخلتين بتعقيد O(n&sup2;). أعد كتابته باستخدام <code class="inline">set</code> ليصبح التعقيد O(n) تقريبًا (استفد مما تعلّمته في الفصل الأول من هذا المستوى!).</p>
+                <div class="code-box">
+                    <div class="code-head"><span>two_sum_naive.cpp — O(n&sup2;)</span></div>
+                    <pre>bool found = false;
+for (int i = 0; i &lt; n &amp;&amp; !found; i++)
+    for (int j = i + 1; j &lt; n &amp;&amp; !found; j++)
+        if (arr[i] + arr[j] == target) found = true;</pre>
+                </div>
+                <button class="toggle-btn" onclick="toggleSection('hw3sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hw3sol">
+                    <div class="code-box">
+                        <div class="code-head"><span>two_sum_smart.cpp — O(n) تقريبًا</span></div>
+                        <pre>#include &lt;iostream&gt;
+#include &lt;set&gt;
+using namespace std;
+
+int main() {
+    int n, target;
+    cin &gt;&gt; n &gt;&gt; target;
+    int arr[n];
+    for (int i = 0; i &lt; n; i++) cin &gt;&gt; arr[i];
+
+    set&lt;int&gt; seen;
+    bool found = false;
+    for (int i = 0; i &lt; n; i++) {
+        if (seen.count(target - arr[i])) { found = true; break; }
+        seen.insert(arr[i]);
+    }
+
+    cout &lt;&lt; (found ? "Yes" : "No");
+}</pre>
+                    </div>
+                    <div class="output-box">Input: 4 9 / 2 7 11 15  →  Yes  (2 + 7 = 9)
+Input: 4 100 / 1 2 3 4  →  No</div>
+                    <p>لكل عنصر، نتحقق في <span class="formula">O(log n)</span> إن كان "المكمّل" (<code class="inline">target - arr[i]</code>) قد ظهر سابقًا في <code class="inline">set</code>. بما أنّ الحلقة تعمل <code class="inline">n</code> مرة وكل عملية set تكلّف O(log n)، فالتعقيد الكلي <span class="formula">O(n log n)</span> — أسرع بكثير من O(n&sup2;) الأصلي عندما يكون n كبيرًا.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>تحقق من فهمك</h3>
+            </div>
+
+            <div class="quiz-q" id="q1">
+                <h4>١. كيف نقيس التعقيد الزمني؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">بعدد الثواني التي يستغرقها البرنامج على جهاز معيّن</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, true)">بعدد الخطوات التي تزداد عند زيادة حجم المدخلات</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">بعدد الأسطر في الكود المصدري</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q2">
+                <h4>٢. لماذا نكتب O(n) بدلًا من O(2n + 5)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, true)">لأننا نهتم فقط بالنمو الرئيسي المسيطر، ونتجاهل الثوابت</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">لأن 2n+5 غير صحيحة رياضيًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">لا فرق، والكتابتان تعنيان تعقيدًا مختلفًا تمامًا</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q3">
+                <h4>٣. حلقتان متداخلتان تمران كل منهما على n عنصر — ما تعقيدهما الزمني؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">O(n)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, true)">O(n&sup2;)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">O(log n)</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q4">
+                <h4>٤. حلقة تُضاعف قيمة متغيّرها في كل تكرار (i = i * 2) — ما تعقيدها؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">O(n)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, true)">O(log n)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">O(n&sup2;)</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q5">
+                <h4>٥. في البحث الخطي، متى تحدث "أسوأ حالة" (Worst Case)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, false)">عندما يكون العنصر المطلوب في أول المصفوفة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, true)">عندما يكون العنصر في آخر المصفوفة أو غير موجود إطلاقًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, false)">لا تختلف الحالات أبدًا في البحث الخطي</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q6">
+                <h4>٦. أي رمز يُستخدم عادة للتعبير عن أفضل حالة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, false)">O (Big O)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, false)">Θ (Theta)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, true)">Ω (Omega)</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q7">
+                <h4>٧. إذا كانت مسألة تحتوي على N ≤ 3000، أي تعقيد يكون على الأرجح مقبولًا حسب القاعدة السريعة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q7', this, false)">O(2ⁿ) فقط</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q7', this, true)">O(n&sup2;)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q7', this, false)">O(n!) فقط</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q8">
+                <h4>٨. لماذا كان الحل الذكي لمسألة "المجموع البسيط" أسرع بكثير من الحل الخطي؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q8', this, true)">لأنه لاحظ أنّ الأعداد الموجبة والسالبة تُلغي بعضها دائمًا، فالنتيجة صفر مباشرة دون أي حلقة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q8', this, false)">لأنه يستخدم متغيرات أقل فقط</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q8', this, false)">لأنه يطبع نتيجة تقريبية بدلًا من الدقيقة</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q9">
+                <h4>٩. ما الفرق بين التعقيد الزمني والتعقيد المكاني؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q9', this, true)">الزمني يقيس نمو عدد الخطوات، والمكاني يقيس نمو استخدام الذاكرة، كلاهما بدلالة حجم المدخلات</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q9', this, false)">لا فرق، وهما نفس المفهوم بالضبط</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q9', this, false)">التعقيد المكاني يقيس عدد الأسطر البرمجية فقط</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q10">
+                <h4>١٠. لماذا نعيد كتابة حل O(n²) باستخدام set ليصبح O(n log n)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q10', this, false)">فقط لتقصير عدد أسطر الكود</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q10', this, true)">ليعمل الحل بسرعة كافية ضمن الحد الزمني عندما يكون n كبيرًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q10', this, false)">لأنّ set لا يمكنه العمل مع حلقات from</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>قاموس المصطلحات</h3>
+            </div>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Time Complexity</span><span class="term-ar">التعقيد الزمني</span><p class="term-desc">مقياس لنمو عدد خطوات الخوارزمية مع زيادة حجم المدخلات.</p></div>
+                <div class="term-card"><span class="term-en">Big O</span><span class="term-ar">الرمز الكبير O</span><p class="term-desc">الترميز المستخدم للتعبير عن أسوأ حالة أو الحد الأعلى لنمو الخوارزمية.</p></div>
+                <div class="term-card"><span class="term-en">Big Omega</span><span class="term-ar">أوميغا الكبيرة</span><p class="term-desc">الترميز المستخدم للتعبير عن أفضل حالة أو الحد الأدنى لنمو الخوارزمية.</p></div>
+                <div class="term-card"><span class="term-en">Big Theta</span><span class="term-ar">ثيتا الكبيرة</span><p class="term-desc">الترميز المستخدم للتعبير عن الحالة المتوسطة أو الحد الدقيق للنمو.</p></div>
+                <div class="term-card"><span class="term-en">Constant Time</span><span class="term-ar">وقت ثابت — O(1)</span><p class="term-desc">لا يتغيّر عدد الخطوات بتغيّر حجم المدخلات.</p></div>
+                <div class="term-card"><span class="term-en">Linear Time</span><span class="term-ar">وقت خطي — O(n)</span><p class="term-desc">عدد الخطوات ينمو بشكل متناسب طرديًا مع حجم المدخلات.</p></div>
+                <div class="term-card"><span class="term-en">Quadratic Time</span><span class="term-ar">وقت تربيعي — O(n&sup2;)</span><p class="term-desc">عدد الخطوات ينمو بمربّع حجم المدخلات، غالبًا بسبب حلقتين متداخلتين.</p></div>
+                <div class="term-card"><span class="term-en">Logarithmic Time</span><span class="term-ar">وقت لوغاريتمي — O(log n)</span><p class="term-desc">عدد الخطوات ينمو ببطء شديد، غالبًا بسبب تقسيم المشكلة إلى النصف في كل خطوة.</p></div>
+                <div class="term-card"><span class="term-en">Exponential Time</span><span class="term-ar">وقت أسي — O(2ⁿ)</span><p class="term-desc">عدد الخطوات يتضاعف مع كل زيادة في حجم المدخلات، غالبًا بسبب تجربة كل الاحتمالات.</p></div>
+                <div class="term-card"><span class="term-en">Space Complexity</span><span class="term-ar">التعقيد المكاني</span><p class="term-desc">مقياس لنمو استخدام الذاكرة مع زيادة حجم المدخلات.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الثاني: التعقيد الزمني (Time Complexity)</footer>
+
+    <script>
+        const searchArray = [10, 5, 15, 2, 25, 55];
+        const slotIds = ['searchSlot0', 'searchSlot1', 'searchSlot2', 'searchSlot3', 'searchSlot4', 'searchSlot5'];
+
+        function resetSearchSlots() {
+            slotIds.forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('highlight', 'settled');
+            });
+        }
+
+        function runSearchCase(targetValue, caseLabel, notationClass, notationText) {
+            resetSearchSlots();
+            document.getElementById('searchStep').innerText = '';
+            document.getElementById('searchResult').innerText = '';
+
+            const targetIndex = searchArray.indexOf(targetValue);
+            let i = 0;
+
+            function step() {
+                if (i > targetIndex) {
+                    document.getElementById('searchStep').innerHTML = 'تم العثور على القيمة ' + targetValue + ' عند الفهرس ' + targetIndex + '.';
+                    document.getElementById('searchResult').innerHTML =
+                        caseLabel + ' — عدد المقارنات: <span class="formula">' + (targetIndex + 1) + '</span> — يُرمز لها بـ <span class="notation-badge ' + notationClass + '">' + notationText + '</span>';
+                    return;
+                }
+                document.getElementById(slotIds[i]).classList.add('highlight');
+                document.getElementById('searchStep').innerHTML = 'المقارنة رقم ' + (i + 1) + ': هل arr[' + i + '] = ' + searchArray[i] + ' يساوي ' + targetValue + '؟';
+                if (searchArray[i] === targetValue) {
+                    document.getElementById(slotIds[i]).classList.remove('highlight');
+                    document.getElementById(slotIds[i]).classList.add('settled');
+                }
+                i++;
+                setTimeout(step, 550);
+            }
+            step();
+        }
+
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        function checkTF(el, itemId, chosenValue, correctValue) {
+            const item = document.getElementById(itemId);
+            const buttons = item.querySelectorAll('.tf-btn');
+            buttons.forEach(b => { b.classList.remove('tf-selected-correct', 'tf-selected-wrong'); b.onclick = null; b.style.cursor = 'default'; });
+            const feedback = item.querySelector('.tf-feedback');
+            if (chosenValue === correctValue) {
+                el.classList.add('tf-selected-correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة!</span>';
+            } else {
+                el.classList.add('tf-selected-wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة خاطئة — العبارة في الواقع "' + (correctValue ? 'صحيح' : 'خطأ') + '".</span>';
+            }
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة! أحسنت.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة غير صحيحة، حاول مرة أخرى في المرة القادمة.</span>';
+            }
+        }
+    </script>
+</body>
+</html>

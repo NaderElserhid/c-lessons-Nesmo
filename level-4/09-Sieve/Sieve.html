@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | غربال إراتوستينس — Sieve of Eratosthenes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+        .adv-badge {
+            background: var(--dark-navy); color: #4ade80; border: none;
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .hero-banner { background: var(--blue-gradient); padding: 60px 6% 40px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 14px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 10px; }
+        .hero-sub { font-size: 0.9rem; color: rgba(255,255,255,0.85); font-weight: 700; margin: 0 0 16px; direction: ltr; }
+        .hero-desc { max-width: 780px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        /* quick section nav */
+        .quick-nav {
+            display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+            background: white; padding: 14px 6%; position: sticky; top: 87px; z-index: 900;
+            border-bottom: 1px solid #e2e8f0; box-shadow: 0 4px 14px -8px rgba(0,0,0,0.08);
+        }
+        .quick-nav a {
+            border: 2px solid #e2e8f0; background: white; color: var(--text-body); text-decoration: none;
+            padding: 9px 16px; border-radius: 50px; font-weight: 800; font-size: 0.76rem;
+            display: inline-flex; align-items: center; gap: 6px; transition: 0.2s;
+        }
+        .quick-nav a:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+
+        .container { max-width: 960px; margin: 40px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue); scroll-margin-top: 150px;
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.84rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+        .data-table tr.highlight-row td { background: rgba(247,148,30,0.1); font-weight: 800; color: var(--dark-navy); }
+
+        /* definition chips */
+        .def-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+        @media (max-width: 640px) { .def-grid { grid-template-columns: 1fr; } }
+        .def-chip { border-radius: 18px; padding: 22px; background: var(--bg-main); border: 1px solid #e2e8f0; }
+        .def-chip .def-label { font-weight: 800; font-size: 1rem; display: block; margin-bottom: 8px; color: var(--primary-blue); }
+        .def-chip p { margin: 0; font-size: 0.85rem; }
+
+        /* steps list (reused pattern) */
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+        .step-item.blue .step-num { background: var(--blue-gradient); }
+
+        /* interactive sieve grid */
+        .sieve-lab { background: #0b1220; border-radius: 20px; padding: 26px; margin: 16px 0; border: 1px solid #1e293b; }
+        .sieve-controls-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+        .sieve-btn {
+            border-radius: 14px; padding: 11px 22px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 2px solid transparent; transition: all 0.2s ease;
+        }
+        .sieve-btn-primary { background: var(--blue-gradient); color: white; }
+        .sieve-btn-outline { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+        .sieve-btn-outline:hover { border-color: #64748b; }
+        .sieve-status { text-align: center; color: #facc15; font-weight: 700; font-size: 0.88rem; margin-bottom: 16px; min-height: 20px; }
+        .sieve-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 6px; margin-bottom: 16px; }
+        .sieve-cell {
+            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+            border-radius: 8px; font-family: 'Consolas', monospace; font-weight: 800; font-size: 0.8rem;
+            color: #cbd5e1; background: #1e293b; border: 1px solid #334155; transition: all 0.3s ease;
+        }
+        .sieve-cell.state-prime { background: #16532b; color: #4ade80; border-color: #22c55e; }
+        .sieve-cell.state-crossed { background: #3f1d2b; color: #64748b; border-color: #7f1d3a; text-decoration: line-through; }
+        .sieve-legend-row { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; font-size: 0.8rem; color: #94a3b8; font-weight: 700; }
+        .sieve-legend-row .dot { width: 14px; height: 14px; border-radius: 4px; display: inline-block; margin-left: 6px; vertical-align: middle; }
+        .sieve-console { background: #0f172a; border-radius: 14px; padding: 14px 18px; margin-top: 16px; min-height: 30px; font-family: 'Consolas', monospace; color: #cbd5e1; direction: ltr; text-align: left; font-size: 0.8rem; line-height: 1.8; max-height: 140px; overflow-y: auto; border: 1px solid #1e293b; }
+
+        /* generic dark interactive lab (Noldbach solver) */
+        .nt-lab-dark { background: #0b1220; border-radius: 20px; padding: 26px; margin: 16px 0; border: 1px solid #1e293b; }
+        .nt-input-row { display: flex; gap: 14px; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+        .nt-input-group { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+        .nt-input-group label { color: #94a3b8; font-size: 0.78rem; font-weight: 700; }
+        .nt-input-group input {
+            width: 120px; text-align: center; background: #1e293b; border: 2px solid #334155; color: #e2e8f0;
+            border-radius: 12px; padding: 10px; font-family: 'Consolas', monospace; font-size: 1.05rem; font-weight: 700;
+        }
+        .nt-input-group input:focus { outline: none; border-color: var(--primary-blue); }
+        .nt-btn {
+            border-radius: 14px; padding: 11px 24px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.88rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 2px solid transparent; transition: all 0.2s ease;
+            align-self: flex-end; margin-top: 18px;
+        }
+        .nt-btn-primary { background: var(--blue-gradient); color: white; }
+        .nt-console { background: #0f172a; border-radius: 14px; padding: 16px 20px; margin: 14px 0; min-height: 44px; font-family: 'Consolas', monospace; color: #cbd5e1; direction: ltr; text-align: left; font-size: 0.85rem; line-height: 1.9; max-height: 220px; overflow-y: auto; border: 1px solid #1e293b; }
+        .nt-console .step-line { display: block; }
+        .nt-console .final-line { color: #facc15; font-weight: 800; margin-top: 8px; display: block; }
+        .nt-console .error-line { color: #f87171; font-weight: 700; }
+        .nt-console .yes-line { color: #4ade80; font-weight: 800; }
+        .nt-console .no-line { color: #f87171; font-weight: 800; }
+
+        /* complexity stat boxes */
+        .complexity-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin: 16px 0; }
+        @media (max-width: 700px) { .complexity-grid { grid-template-columns: 1fr; } }
+        .complexity-box { border-radius: 18px; padding: 22px; text-align: center; background: var(--bg-main); border: 1px solid #e2e8f0; }
+        .complexity-box .cx-value { font-family: 'Consolas', monospace; font-weight: 800; font-size: 1.3rem; color: var(--primary-blue); display: block; margin-bottom: 6px; }
+        .complexity-box.cx-bad .cx-value { color: #dc2626; }
+        .complexity-box .cx-label { font-size: 0.8rem; color: var(--text-body); font-weight: 700; }
+
+        /* quick summary chips */
+        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+        @media (max-width: 640px) { .summary-grid { grid-template-columns: 1fr; } }
+        .summary-chip { background: var(--bg-main); border-radius: 16px; padding: 18px 20px; border: 1px solid #e2e8f0; display: flex; gap: 14px; align-items: flex-start; }
+        .summary-chip .sc-icon { font-size: 1.4rem; }
+        .summary-chip h5 { margin: 0 0 4px; font-size: 0.92rem; font-weight: 800; color: var(--dark-navy); }
+        .summary-chip p { margin: 0; font-size: 0.82rem; }
+
+        /* problem statement */
+        .problem-statement { background: var(--bg-main); border-radius: 16px; padding: 20px 24px; border: 1px solid #e2e8f0; margin-bottom: 16px; }
+
+        /* toggle-reveal quiz (open-ended questions) */
+        .quiz-diff-section { margin-top: 30px; }
+        .quiz-diff-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+        .quiz-diff-header h4 { margin: 0; font-size: 1.1rem; font-weight: 800; color: var(--dark-navy); }
+        .quiz-diff-header .diff-sub { font-size: 0.8rem; color: var(--text-body); font-weight: 700; margin-bottom: 16px; }
+        .homework-item {
+            background: var(--bg-main); border: 1px solid #e2e8f0; border-radius: 16px;
+            padding: 18px 22px; margin-bottom: 14px;
+        }
+        .homework-item .hw-top-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+        .homework-item .hw-num { font-weight: 800; color: var(--primary-blue); font-size: 0.85rem; }
+        .homework-item .hw-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+        .q-tag { background: white; border: 1px solid #cbd5e1; color: var(--text-body); font-size: 0.7rem; font-weight: 700; padding: 3px 12px; border-radius: 50px; }
+        .homework-item .hw-question { font-weight: 700; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 12px; }
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-weight: 800; font-size: 1.1rem;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0;
+        }
+        .toggle-btn:hover { background: var(--primary-blue); color: white; }
+        .toggle-btn.open { transform: rotate(45deg); }
+        .collapsible { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+        .collapsible.open { max-height: 2000px; }
+        .answer-box { background: white; border-radius: 14px; padding: 18px 20px; margin-top: 6px; border: 1px dashed #cbd5e1; font-size: 0.88rem; color: var(--text-body); }
+        .answer-box strong { color: var(--dark-navy); }
+        .answer-box .mini-code { background: #1e293b; color: #e2e8f0; font-family: 'Consolas', monospace; font-size: 0.78rem; border-radius: 10px; padding: 12px 16px; margin: 10px 0; direction: ltr; text-align: left; overflow-x: auto; line-height: 1.7; white-space: pre; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge">الدرس 09: غربال إراتوستينس</span>
+            <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الرابع</span>
+            <span class="adv-badge"><i class="fas fa-seedling"></i> مبتدئ – متوسط</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-filter"></i>
+        <h1>غربال إراتوستينس</h1>
+        <p class="hero-sub">Sieve of Eratosthenes · البرمجة التنافسية · نظرية الأعداد</p>
+        <p class="hero-desc">أسرع خوارزمية لإيجاد جميع الأعداد الأولية حتى حدٍّ معين — من اختراع عالم الرياضيات اليوناني إراتوستينس قبل أكثر من ألفي عام، وما زالت حاضرة في كل مسابقة برمجة حتى اليوم.</p>
+    </div>
+
+    <div class="quick-nav">
+        <a href="#secDefs"><i class="fas fa-book"></i> التعريفات</a>
+        <a href="#secConcept"><i class="fas fa-lightbulb"></i> المفهوم</a>
+        <a href="#secSteps"><i class="fas fa-list-ol"></i> الخطوات</a>
+        <a href="#secCode"><i class="fas fa-code"></i> الكود</a>
+        <a href="#secWhySq"><i class="fas fa-magnifying-glass"></i> لماذا i²</a>
+        <a href="#secComplexity"><i class="fas fa-gauge-high"></i> التعقيد</a>
+        <a href="#secNoldbach"><i class="fas fa-trophy"></i> Noldbach</a>
+        <a href="#secSummary"><i class="fas fa-check-double"></i> الملخص</a>
+        <a href="#secQuiz"><i class="fas fa-pen"></i> الأسئلة</a>
+    </div>
+
+    <div class="container">
+
+        <!-- ============ DEFINITIONS ============ -->
+        <div class="card" id="secDefs">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>📚 التعريفات الأساسية</h3>
+            </div>
+            <div class="def-grid">
+                <div class="def-chip">
+                    <span class="def-label">تعريف — العدد الأولي (Prime Number)</span>
+                    <p>عدد صحيح أكبر من 1 لا يقبل القسمة إلا على 1 وعلى نفسه. أمثلة: 2، 3، 5، 7، 11، 13، 17... العدد 2 هو الوحيد بين الأعداد الأولية الزوجية.</p>
+                </div>
+                <div class="def-chip">
+                    <span class="def-label">تعريف — الغربال (Sieve)</span>
+                    <p>خوارزمية تصفية جماعية تبدأ بافتراض أن كل الأعداد أولية، ثم تشطب المضاعفات تدريجياً حتى تبقى الأعداد الأولية فقط. أشبه بغربال حقيقي يُرسَب منه ما ليس بأولي.</p>
+                </div>
+                <div class="def-chip">
+                    <span class="def-label">تعريف — المضاعفات (Multiples)</span>
+                    <p>مضاعفات العدد i هي الأعداد 2i, 3i, 4i, ... — وهي بطبيعة الحال مقسومة على i فلا يمكن أن تكون أولية (طالما i > 1).</p>
+                </div>
+                <div class="def-chip">
+                    <span class="def-label">تعريف — مصفوفة is_prime[]</span>
+                    <p>مصفوفة منطقية (Boolean) نستخدمها في الغربال. is_prime[i] = true تعني "نفترض أن i أولي حتى الآن"، وتُصبح false عند شطبه كمضاعف.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ CONCEPT + SIMULATION ============ -->
+        <div class="card steps-card" id="secConcept">
+            <div class="card-header">
+                <i class="fas fa-lightbulb"></i>
+                <h3>💡 المفهوم — كيف يعمل الغربال؟</h3>
+            </div>
+            <div class="tip-box">
+                <i class="fas fa-quote-right"></i>
+                <p>"بدلاً من فحص كل عدد على حدة، نشطب المضاعفات بالجملة!" تخيّل الأعداد من 1 إلى 20 مكتوبة أمامك. الفكرة أن كل مضاعف لعدد أولي ليس أولياً — فنشطبه فوراً. ما يبقى بعد انتهاء العملية هو الأعداد الأولية فقط.</p>
+            </div>
+
+            <h4 class="sub-title">محاكاة تفاعلية — الأعداد من 1 إلى 50</h4>
+            <div class="sieve-lab">
+                <div class="sieve-controls-row">
+                    <button class="sieve-btn sieve-btn-primary" onclick="sieveStepForward()"><i class="fas fa-play"></i> خطوة للأمام</button>
+                    <button class="sieve-btn sieve-btn-outline" onclick="sieveResetLab()"><i class="fas fa-rotate-right"></i> إعادة تعيين</button>
+                </div>
+                <div class="sieve-status" id="sieveStatus">جاهز — اضغط "خطوة للأمام" للبدء</div>
+                <div class="sieve-grid" id="sieveGrid"></div>
+                <div class="sieve-legend-row">
+                    <span><span class="dot" style="background:#22c55e;"></span>عدد أولي ✓</span>
+                    <span><span class="dot" style="background:#7f1d3a;"></span>مشطوب (مضاعف)</span>
+                    <span><span class="dot" style="background:#334155;"></span>لم يُحدد بعد</span>
+                </div>
+                <div class="sieve-console" id="sieveConsole"></div>
+            </div>
+        </div>
+
+        <!-- ============ ALGORITHM STEPS ============ -->
+        <div class="card" id="secSteps">
+            <div class="card-header">
+                <i class="fas fa-list-ol"></i>
+                <h3>⚙️ خطوات الخوارزمية</h3>
+            </div>
+            <ol class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p><strong>إنشاء المصفوفة وتهيئتها:</strong> أنشئ مصفوفة منطقية is_prime[] بحجم MAX_N + 1 وأدخل القيمة true في جميع خاناتها — أي "نفترض أن الجميع أولي في البداية".</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>الحالات الحافة: 0 و1:</strong> اضبط is_prime[0] = is_prime[1] = false لأن 0 و1 ليسا أوليين بالتعريف.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>الحلقة الرئيسية: من 2 إلى √N:</strong> ابدأ من i = 2 وارفع حتى i * i &lt;= MAX_N. إذا كان is_prime[i] = true فاشطب جميع مضاعفاته.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>شطب المضاعفات من i² فصاعداً:</strong> الحلقة الداخلية تبدأ من j = i * i (تحسين مهم!) وتزيد بمقدار i في كل خطوة: j += i</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>ما يبقى هو الأعداد الأولية:</strong> بعد انتهاء الحلقة، كل i حيث is_prime[i] = true هو عدد أولي. أجمعها في متجه إن أردت.</p></li>
+            </ol>
+        </div>
+
+        <!-- ============ CODE ============ -->
+        <div class="card" id="secCode">
+            <div class="card-header">
+                <i class="fas fa-code"></i>
+                <h3>💻 الكود الأساسي — Sieve of Eratosthenes</h3>
+            </div>
+            <div class="code-box">
+                <div class="code-head"><span>sieve.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+<span class="cmt">// الحد الأقصى للأعداد التي نريد فحصها</span>
+const int MAX_N = 1000000;
+vector&lt;bool&gt; is_prime(MAX_N + 1, true); <span class="cmt">// افترض الجميع أولي</span>
+
+void sieve() {
+    is_prime[0] = is_prime[1] = false; <span class="cmt">// الحالات الحافة</span>
+
+    for (int i = 2; i * i &lt;= MAX_N; i++) {
+        <span class="cmt">// إذا لم يُشطب i بعد، فهو أولي</span>
+        if (is_prime[i]) {
+            <span class="cmt">// اشطب مضاعفاته — ابدأ من i² (تحسين!)</span>
+            for (int j = i * i; j &lt;= MAX_N; j += i) {
+                is_prime[j] = false;
+            }
+        }
+    }
+}</pre>
+            </div>
+
+            <h4 class="sub-title">شرح تفاعلي سطر بسطر</h4>
+            <ol class="steps-list">
+                <li class="step-item blue"><span class="step-num"></span><p><strong>تهيئة المصفوفة:</strong> <code class="inline">vector&lt;bool&gt; is_prime(MAX_N+1, true)</code> — ننشئ مصفوفة منطقية بطول MAX_N+1 ونملؤها بـ true. نستخدم <code class="inline">vector&lt;bool&gt;</code> لأنها تُحسّن استهلاك الذاكرة (بت واحد لكل عنصر بدلاً من بايت).</p></li>
+                <li class="step-item blue"><span class="step-num"></span><p><strong>الحالات الحافة:</strong> <code class="inline">is_prime[0] = is_prime[1] = false</code> — 0 و1 بالتعريف ليسا أوليين، لذا نشطبهما قبل بدء الحلقة.</p></li>
+                <li class="step-item blue"><span class="step-num"></span><p><strong>شرط التوقف:</strong> <code class="inline">i * i &lt;= MAX_N</code> — لماذا √N وليس N؟ لأنه إذا كان للعدد n قاسم أكبر من √n، فلا بد أن يكون له قاسم أصغر من √n أيضاً، وهذا الأصغر قد شطب n بالفعل. لذا لا حاجة للاستمرار بعد √N.</p></li>
+                <li class="step-item blue"><span class="step-num"></span><p><strong>فحص إذا كان أولياً:</strong> <code class="inline">if (is_prime[i])</code> — إذا لم يُشطب i من قِبَل عدد أولي سابق، فهو بالتأكيد أولي. ليس علينا إثبات ذلك — الغربال يضمنه.</p></li>
+                <li class="step-item blue"><span class="step-num"></span><p><strong>البدء من i²:</strong> <code class="inline">j = i * i</code> — هذا التحسين الجوهري! المضاعفات 2i, 3i, 4i, ..., (i-1)·i قد شُطبت بالفعل حين معالجة الأعداد الأولية الأصغر من i. أول مضاعف لم يُلمس هو i².</p></li>
+                <li class="step-item blue"><span class="step-num"></span><p><strong>الشطب:</strong> <code class="inline">j += i</code> — ننتقل من مضاعف لآخر بإضافة i في كل مرة (أي نشطب i², i²+i, i²+2i, ...)، ونضع is_prime[j] = false لكل منها.</p></li>
+            </ol>
+        </div>
+
+        <!-- ============ WHY i^2 ============ -->
+        <div class="card" id="secWhySq">
+            <div class="card-header">
+                <i class="fas fa-magnifying-glass"></i>
+                <h3>🔍 لماذا نبدأ الشطب من i² وليس من 2i؟</h3>
+            </div>
+            <p>هذا التحسين الحاسم يُقلل عدد العمليات بشكل ملحوظ. دعنا نفهم السبب بمثال:</p>
+
+            <h4 class="sub-title">مثال — عندما i = 5</h4>
+            <p>لماذا لا نشطب 10 = 5×2 أو 15 = 5×3 أو 20 = 5×4؟</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th class="ltr">المضاعف</th><th>ما شطبه مسبقاً</th><th>النتيجة</th></tr></thead>
+                    <tbody>
+                        <tr><td class="ltr">5 × 2 = 10</td><td>العدد الأولي 2</td><td>مشطوب بالفعل ✓</td></tr>
+                        <tr><td class="ltr">5 × 3 = 15</td><td>العدد الأولي 3</td><td>مشطوب بالفعل ✓</td></tr>
+                        <tr><td class="ltr">5 × 4 = 20</td><td>العدد الأولي 2</td><td>مشطوب بالفعل ✓</td></tr>
+                        <tr class="highlight-row"><td class="ltr">5 × 5 = 25</td><td>لا أحد</td><td>← أول مضاعف غير مشطوب!</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-key"></i>
+                <p><strong>القاعدة:</strong> كل مضاعف i × k حيث k &lt; i يحتوي على عامل أولي أصغر من i، وقد شطبته حلقة سابقة. إذن أول مضاعف يحتاج معالجة هو i × i = i².</p>
+            </div>
+        </div>
+
+        <!-- ============ COMPLEXITY ============ -->
+        <div class="card steps-card" id="secComplexity">
+            <div class="card-header">
+                <i class="fas fa-gauge-high"></i>
+                <h3>📊 التعقيد الزمني والمكاني</h3>
+            </div>
+            <div class="complexity-grid">
+                <div class="complexity-box">
+                    <span class="cx-value">O(N log log N)</span>
+                    <span class="cx-label">التعقيد الزمني — شبه خطي، ممتاز</span>
+                </div>
+                <div class="complexity-box">
+                    <span class="cx-value">O(N)</span>
+                    <span class="cx-label">التعقيد المكاني — مصفوفة بحجم N</span>
+                </div>
+                <div class="complexity-box cx-bad">
+                    <span class="cx-value">O(N√N)</span>
+                    <span class="cx-label">مقارنة بديهية — فحص كل عدد منفرداً</span>
+                </div>
+            </div>
+            <h4 class="sub-title">لماذا O(N log log N) وليس O(N²)؟</h4>
+            <p>رغم وجود حلقتين متداخلتين، العمليات الفعلية هي مجموع N/2 + N/3 + N/5 + N/7 + ... (على الأعداد الأولية فقط). هذا المجموع رياضياً يساوي N · log(log N)، وهو قريب جداً من الخطي في الممارسة. لـ N = 10,000,000 تعمل في أجزاء من الثانية.</p>
+        </div>
+
+        <!-- ============ NOLDBACH PROBLEM ============ -->
+        <div class="card" id="secNoldbach">
+            <div class="card-header">
+                <i class="fas fa-trophy"></i>
+                <h3>🏆 مسألة تطبيقية — Noldbach</h3>
+            </div>
+
+            <h4 class="sub-title" style="margin-top:0;">📖 نص المسألة</h4>
+            <div class="problem-statement">
+                <p style="margin:0;">يدّعي Noldbach أن على الأقل k عدد أولي في النطاق من 2 إلى n يمكن التعبير عنها كـ (عدد أولي + عدد أولي متجاور + 1).</p>
+                <p>مثلاً: 5 = 2 + 2 + 1 أو 7 = 3 + 3 + 1 أو 11 = 5 + 5 + 1.</p>
+                <p>يُطلق على عددين أوليين اسم متجاورين إذا لم يكن بينهما عدد أولي آخر (مثل 3 و5، أو 11 و13).</p>
+                <p style="margin-top:10px;"><strong>المطلوب:</strong> هل Noldbach على حق أم على خطأ؟ اطبع YES أو NO.</p>
+            </div>
+
+            <h4 class="sub-title">📐 تحليل الحل</h4>
+            <ol class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p><strong>شغّل الغربال حتى n:</strong> نولّد جميع الأعداد الأولية من 2 إلى n باستخدام غربال إراتوستينس ونخزنها في متجه primes[].</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>فحص كل زوج من الأعداد الأولية المتجاورة:</strong> لكل زوج متجاور primes[i-1] و primes[i]، احسب المجموع primes[i-1] + primes[i] + 1.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>تحقق هل المجموع أولي:</strong> استخدم is_prime[] مباشرةً (فحص O(1)) لمعرفة هل هذا المجموع أولي.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>قارن العداد بـ k:</strong> إذا كان عدد الأعداد الأولية المقبولة ≥ k اطبع YES، وإلا NO.</p></li>
+            </ol>
+
+            <div class="code-box">
+                <div class="code-head"><span>noldbach.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+const int MAX_N = 1000000;
+vector&lt;bool&gt; is_prime(MAX_N + 1, true);
+vector&lt;int&gt; primes;
+
+int findPrime(int n) {
+    is_prime[0] = is_prime[1] = false;
+
+    <span class="cmt">// الغربال</span>
+    for (int i = 2; i * i &lt;= MAX_N; i++)
+        if (is_prime[i])
+            for (int j = i * i; j &lt;= MAX_N; j += i)
+                is_prime[j] = false;
+
+    <span class="cmt">// جمع الأعداد الأولية حتى n</span>
+    for (int i = 2; i &lt;= n; ++i)
+        if (is_prime[i])
+            primes.push_back(i);
+
+    int count = 0;
+    <span class="cmt">// فحص كل زوج متجاور</span>
+    for (int i = 1; i &lt; (int)primes.size(); ++i) {
+        int sum = primes[i] + primes[i - 1] + 1;
+        if (sum &lt;= MAX_N &amp;&amp; is_prime[sum])
+            count++;
+    }
+
+    return count;
+}
+
+int main() {
+    int n, k;
+    cin &gt;&gt; n &gt;&gt; k;
+
+    if (findPrime(n) &gt;= k)
+        cout &lt;&lt; "YES\n";
+    else
+        cout &lt;&lt; "NO\n";
+
+    return 0;
+}</pre>
+            </div>
+
+            <h4 class="sub-title">شرح تفاعلي للكود</h4>
+            <ol class="steps-list">
+                <li class="step-item blue"><span class="step-num"></span><p><strong>الغربال أولاً:</strong> نشغّل الغربال على كامل MAX_N (وليس فقط n) لأن مجموع الأعداد الأولية قد يتجاوز n. مثلاً إذا n=100 فمجموع أوليين قريبين منه قد يصل لـ 200.</p></li>
+                <li class="step-item blue"><span class="step-num"></span><p><strong>جمع الأعداد الأولية:</strong> <code class="inline">primes.push_back(i)</code> — نبني قائمة مرتبة بالأعداد الأولية حتى n. بما أن الغربال يمر بالترتيب التصاعدي، القائمة مرتبة تلقائياً — كل عنصران متجاوران في القائمة هما أعداد أولية متجاورة.</p></li>
+                <li class="step-item blue"><span class="step-num"></span><p><strong>فحص الشرط:</strong> <code class="inline">primes[i] + primes[i-1] + 1</code> — نجمع كل زوج متتالي ونضيف 1. ثم is_prime[sum] يجيبنا فوراً (O(1)) هل المجموع أولي — هذا هو جمال الغربال: الفحص فوري بعد بنائه!</p></li>
+                <li class="step-item blue"><span class="step-num"></span><p><strong>الشرط الإضافي:</strong> <code class="inline">sum &lt;= MAX_N</code> — نتحقق أن المجموع لا يتجاوز حجم المصفوفة قبل الوصول إليها، حمايةً من خطأ تجاوز الحدود.</p></li>
+            </ol>
+
+            <h4 class="sub-title">⚙️ جرّب المسألة تفاعلياً</h4>
+            <div class="nt-lab-dark">
+                <div class="nt-input-row">
+                    <div class="nt-input-group">
+                        <label>n =</label>
+                        <input type="number" id="noldbachN" value="100" min="2">
+                    </div>
+                    <div class="nt-input-group">
+                        <label>k =</label>
+                        <input type="number" id="noldbachK" value="5" min="0">
+                    </div>
+                    <button class="nt-btn nt-btn-primary" onclick="runNoldbachLab()"><i class="fas fa-flask"></i> تحقق</button>
+                </div>
+                <div class="nt-console" id="noldbachConsole">أدخل n و k واضغط "تحقق"...</div>
+            </div>
+        </div>
+
+        <!-- ============ SUMMARY ============ -->
+        <div class="card" id="secSummary">
+            <div class="card-header">
+                <i class="fas fa-check-double"></i>
+                <h3>✅ ملخص سريع</h3>
+            </div>
+            <div class="summary-grid">
+                <div class="summary-chip"><span class="sc-icon">🏗️</span><div><h5>الهيكل الأساسي</h5><p>مصفوفة منطقية is_prime[] + حلقتان متداخلتان</p></div></div>
+                <div class="summary-chip"><span class="sc-icon">⚡</span><div><h5>التعقيد الزمني</h5><p>O(N log log N) ≈ خطي</p></div></div>
+                <div class="summary-chip"><span class="sc-icon">🎯</span><div><h5>أفضل استخدام</h5><p>إيجاد جميع الأعداد الأولية حتى N دفعة واحدة</p></div></div>
+                <div class="summary-chip"><span class="sc-icon">✂️</span><div><h5>التحسين الجوهري</h5><p>البدء من i² لا من 2i</p></div></div>
+                <div class="summary-chip"><span class="sc-icon">🔍</span><div><h5>فحص عدد بعد البناء</h5><p>is_prime[x] → O(1) فوري</p></div></div>
+                <div class="summary-chip"><span class="sc-icon">📦</span><div><h5>التعقيد المكاني</h5><p>O(N) — مصفوفة واحدة</p></div></div>
+            </div>
+        </div>
+
+        <!-- ============ QUIZ (open-ended toggle-reveal) ============ -->
+        <div class="card" id="secQuiz">
+            <div class="card-header">
+                <i class="fas fa-pen"></i>
+                <h3>أسئلة تدريبية — 15 سؤالاً</h3>
+            </div>
+            <p style="margin-top:-10px;">خمسة أسئلة سهلة · خمسة متوسطة · خمسة صعبة — اضغط على + لرؤية الإجابة النموذجية.</p>
+
+            <div id="hwContainer"></div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الرابع: غربال إراتوستينس (Sieve of Eratosthenes)</footer>
+
+    <script>
+        // ===================================================================
+        // Interactive Sieve simulation (real self-computing algorithm)
+        // ===================================================================
+        const SIEVE_MAX = 50;
+        let sieveEvents = [];
+        let sieveIndex = 0;
+
+        function generateSieveEvents(maxN) {
+            const events = [];
+            const isPrime = new Array(maxN + 1).fill(true);
+            isPrime[0] = false; isPrime[1] = false;
+            events.push({ type: 'edge' });
+
+            for (let i = 2; i * i <= maxN; i++) {
+                if (isPrime[i]) {
+                    events.push({ type: 'confirm', i: i });
+                    const crossed = [];
+                    for (let j = i * i; j <= maxN; j += i) {
+                        if (isPrime[j]) { isPrime[j] = false; crossed.push(j); }
+                    }
+                    if (crossed.length > 0) {
+                        events.push({ type: 'cross', i: i, nums: crossed });
+                    }
+                }
+            }
+            const remaining = [];
+            for (let i = 2; i <= maxN; i++) if (isPrime[i]) remaining.push(i);
+            events.push({ type: 'finalize', nums: remaining });
+            return events;
+        }
+
+        function buildSieveGrid() {
+            const grid = document.getElementById('sieveGrid');
+            grid.innerHTML = '';
+            for (let i = 0; i <= SIEVE_MAX; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'sieve-cell';
+                cell.id = 'sieveCell_' + i;
+                cell.innerText = i;
+                grid.appendChild(cell);
+            }
+        }
+
+        function sieveLog(text) {
+            const box = document.getElementById('sieveConsole');
+            const line = document.createElement('div');
+            line.innerText = text;
+            box.appendChild(line);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function sieveResetLab() {
+            sieveEvents = [];
+            sieveIndex = 0;
+            buildSieveGrid();
+            document.getElementById('sieveConsole').innerHTML = '';
+            document.getElementById('sieveStatus').innerText = 'جاهز — اضغط "خطوة للأمام" للبدء';
+        }
+
+        function sieveStepForward() {
+            if (sieveEvents.length === 0) {
+                sieveEvents = generateSieveEvents(SIEVE_MAX);
+            }
+            if (sieveIndex >= sieveEvents.length) {
+                document.getElementById('sieveStatus').innerText = '✓ انتهت المحاكاة — كل الأعداد الأولية حتى 50 محدّدة الآن (باللون الأخضر).';
+                return;
+            }
+            const ev = sieveEvents[sieveIndex];
+            sieveIndex++;
+
+            if (ev.type === 'edge') {
+                document.getElementById('sieveCell_0').classList.add('state-crossed');
+                document.getElementById('sieveCell_1').classList.add('state-crossed');
+                document.getElementById('sieveStatus').innerText = 'الخطوة 1: 0 و1 ليسا أوليين بالتعريف — نشطبهما فوراً.';
+                sieveLog('is_prime[0] = is_prime[1] = false');
+            } else if (ev.type === 'confirm') {
+                document.getElementById('sieveCell_' + ev.i).classList.add('state-prime');
+                document.getElementById('sieveStatus').innerText = 'i = ' + ev.i + ' لم يُشطب بعد → إذن هو عدد أولي مؤكد ✓';
+                sieveLog('i = ' + ev.i + ' → is_prime[' + ev.i + '] لا يزال true → عدد أولي!');
+            } else if (ev.type === 'cross') {
+                ev.nums.forEach(function (n) {
+                    const cell = document.getElementById('sieveCell_' + n);
+                    if (cell) cell.classList.add('state-crossed');
+                });
+                document.getElementById('sieveStatus').innerText = 'شطب مضاعفات ' + ev.i + ' بدءاً من ' + ev.i + '² = ' + (ev.i * ev.i);
+                sieveLog('شطب مضاعفات ' + ev.i + ': ' + ev.nums.join(', '));
+            } else if (ev.type === 'finalize') {
+                ev.nums.forEach(function (n) {
+                    const cell = document.getElementById('sieveCell_' + n);
+                    if (cell) cell.classList.add('state-prime');
+                });
+                document.getElementById('sieveStatus').innerText = '✓ انتهت الحلقة الرئيسية (i حتى √50) — كل ما تبقى صحيحاً هو أولي!';
+                sieveLog('انتهت الحلقة — الأعداد الأولية حتى 50 هي: 2,3,5,7,11,13,17,19,23,29,31,37,41,43,47 (15 عدداً)');
+            }
+        }
+
+        // ===================================================================
+        // Noldbach interactive solver (self-computing, real sieve + check)
+        // ===================================================================
+        function runNoldbachLab() {
+            const n = parseInt(document.getElementById('noldbachN').value, 10);
+            const k = parseInt(document.getElementById('noldbachK').value, 10);
+            const box = document.getElementById('noldbachConsole');
+            box.innerHTML = '';
+            if (isNaN(n) || isNaN(k) || n < 2 || k < 0) {
+                box.innerHTML = '<span class="error-line">الرجاء إدخال n ≥ 2 و k ≥ 0.</span>';
+                return;
+            }
+            const MAX_N = Math.max(n + 5, 100);
+            const isPrime = new Array(MAX_N + 1).fill(true);
+            isPrime[0] = false; isPrime[1] = false;
+            for (let i = 2; i * i <= MAX_N; i++) {
+                if (isPrime[i]) {
+                    for (let j = i * i; j <= MAX_N; j += i) isPrime[j] = false;
+                }
+            }
+            const primes = [];
+            for (let i = 2; i <= n; i++) if (isPrime[i]) primes.push(i);
+
+            let count = 0;
+            const lines = [];
+            for (let i = 1; i < primes.length; i++) {
+                const sum = primes[i] + primes[i - 1] + 1;
+                const ok = sum <= MAX_N && isPrime[sum];
+                if (ok) {
+                    count++;
+                    lines.push(primes[i - 1] + ' + ' + primes[i] + ' + 1 = ' + sum + '  → أولي ✓');
+                }
+            }
+            lines.forEach(function (l) {
+                const s = document.createElement('span');
+                s.className = 'yes-line';
+                s.innerText = l;
+                box.appendChild(s);
+            });
+            const final = document.createElement('span');
+            final.className = 'final-line';
+            final.innerText = '✓ العدد الإجمالي = ' + count + '  |  المطلوب k = ' + k + '  →  ' + (count >= k ? 'YES (Noldbach على حق)' : 'NO (Noldbach مخطئ)');
+            box.appendChild(final);
+        }
+
+        // ===================================================================
+        // Open-ended toggle-reveal quiz bank (15 questions, model answers authored)
+        // ===================================================================
+        const HW_BANK = {
+            easy: [
+                {
+                    q: 'ما الفرق بين فحص عدد واحد للتأكد من كونه أولياً وبين غربال إراتوستينس؟ متى تستخدم كلاً منهما؟',
+                    tags: ['تعريف', 'مقارنة'],
+                    a: 'اختبار الأولية المباشر (isPrime عبر القسمة التجريبية حتى √n) يفحص <strong>عدداً واحداً فقط</strong> في زمن O(√n) — وهو الخيار الأمثل عندما يكون العدد كبيراً جداً (حتى 10¹⁸) أو عندما تحتاج فحص عدد قليل من الاستعلامات، لأن بناء مصفوفة غربال كاملة بهذا الحجم مستحيل. أما الغربال فيحسب أولية <strong>كل الأعداد حتى N دفعة واحدة</strong> في O(N log log N) إجمالاً — ثم كل استعلام لاحق يصبح O(1) فوري. لذا نستخدم isPrime() لعدد كبير مفرد أو استعلامات قليلة، ونستخدم الغربال عندما يكون N محدوداً (حتى 10⁷-10⁸ تقريباً) ولدينا استعلامات كثيرة أو نحتاج القائمة الكاملة للأعداد الأولية.'
+                },
+                {
+                    q: 'لماذا نضبط is_prime[0] = is_prime[1] = false في بداية الغربال؟',
+                    tags: ['حالات حافة', 'تعريف'],
+                    a: 'بالتعريف، العدد الأولي يجب أن يكون أكبر من 1 وله بالضبط قاسمان (1 ونفسه). العدد 0 له عدد لا نهائي من القواسم (كل عدد صحيح يقسم 0)، والعدد 1 له قاسم واحد فقط (نفسه)، فكلاهما لا يحقق شرط "قاسمان بالضبط". بما أن المصفوفة تبدأ مهيّأة بالكامل على true، فإن 0 و1 لن يُشطبا أبداً تلقائياً بواسطة حلقة "شطب المضاعفات" (لا أحد يعتبرهما مضاعفاً لعدد آخر بهذا المعنى)، لذلك يجب تصحيح هذين الاستثناءين يدوياً قبل بدء الحلقة الرئيسية، وإلا سيُبلّغ الغربال خطأً أن 0 و1 عددان أوليان.'
+                },
+                {
+                    q: 'ما مخرجات الكود التالي؟ sieve(); cout << is_prime[17];',
+                    tags: ['تتبع كود', 'أعداد أولية'],
+                    a: 'العدد 17 عدد أولي (لا يقبل القسمة إلا على 1 و17)، لذا بعد تنفيذ sieve() ستكون is_prime[17] = true. لكن لاحظ نقطة C++ مهمة: نوع is_prime هو vector&lt;bool&gt;، وطباعة قيمة bool مباشرة عبر cout بدون استخدام std::boolalpha تطبع <strong>1 أو 0</strong> وليس "true"/"false". إذن المخرج الفعلي هو: <span class="mini-code">1</span>'
+                },
+                {
+                    q: 'ما الفرق بين vector<bool> وvector<int> في سياق الغربال؟ أيهما أفضل ولماذا؟',
+                    tags: ['ذاكرة', 'تحسين'],
+                    a: '<code class="inline">vector&lt;bool&gt;</code> في C++ هو تخصيص قالب خاص (specialization) يضغط القيم بمعدل بت واحد لكل عنصر بدلاً من بايت كامل، فمثلاً لـ MAX_N = 10⁷ يستهلك ~1.25 ميجابايت فقط مقابل ~40 ميجابايت لو استخدمنا <code class="inline">vector&lt;int&gt;</code> (4 بايت لكل عنصر). هذا فرق ضخم عندما يكون N كبيراً وذاكرة المسابقة محدودة. العيب الوحيد أن <code class="inline">vector&lt;bool&gt;</code> يستخدم "كائنات وسيطة" (proxy objects) بدلاً من مراجع حقيقية للبتات، مما قد يجعله أبطأ قليلاً في بعض العمليات مقارنة بـ vector&lt;char&gt; العادي. القاعدة العملية: استخدم vector&lt;bool&gt; أو bitset عندما تكون الذاكرة هي القيد الأهم (وهذا الغالب في الغربال)، واستخدم vector&lt;int&gt;/vector&lt;char&gt; فقط إذا كانت السرعة الخام أهم وكانت الذاكرة متوفرة بسخاء.'
+                },
+                {
+                    q: 'كم عدد الأعداد الأولية بين 1 و20؟ عدّدها وبيّن كيف يجدها الغربال.',
+                    tags: ['تطبيق يدوي', 'تتبع'],
+                    a: 'الأعداد الأولية بين 1 و20 هي: <strong>2, 3, 5, 7, 11, 13, 17, 19</strong> — أي 8 أعداد. يجدها الغربال كالتالي: يبدأ بافتراض الجميع أولياً، يشطب 0 و1، ثم عند i=2 (لا يزال أولياً) يشطب 4,6,8,10,12,14,16,18,20، عند i=3 (لا يزال أولياً) يشطب من 9: أي 9,12,15,18 (لكن 12،18 مشطوبان مسبقاً فلا ضرر)، عند i=4 (مشطوب مسبقاً بواسطة 2، فيتجاهله تماماً). تتوقف الحلقة الرئيسية عند i=4 لأن الشرط i*i&lt;=20 يفشل عند i=5 (25&gt;20). ما تبقى صحيحاً (true) في النهاية هو بالضبط: 2,3,5,7,11,13,17,19 — الثمانية أعداد أعلاه.'
+                }
+            ],
+            medium: [
+                {
+                    q: 'اكتب كوداً يستخدم الغربال لطباعة جميع الأعداد الأولية التوأم (Twin Primes) حتى N. الأعداد الأولية التوأم هي الأزواج التي تفصلها مسافة 2 مثل (3,5) و(11,13).',
+                    tags: ['Twin Primes', 'تطبيق'],
+                    a: 'بعد بناء is_prime[] عبر الغربال حتى N، امسح الأعداد من 2 إلى N-2 وتحقق مباشرة إن كان كل من i وi+2 أولياً (فحص O(1) لكل منهما):<div class="mini-code">// افترض أن sieve() قد نُفّذ مسبقاً حتى N\nvoid printTwinPrimes(int n) {\n    for (int i = 2; i + 2 <= n; i++) {\n        if (is_prime[i] && is_prime[i + 2]) {\n            cout << "(" << i << ", " << i + 2 << ")\\n";\n        }\n    }\n}</div>الفائدة الجوهرية هنا أن الغربال حوّل مسألة "هل هذا العدد أولي؟" إلى استعلام O(1)، فالحلقة كاملة تعمل في O(N) بعد بناء الغربال.'
+                },
+                {
+                    q: 'كيف تُنشئ غربالاً يغطي نطاقاً معيناً [L, R] حيث L وR يمكن أن يكونا كبيرين جداً (مثل 10¹²) لكن R-L لا يتجاوز 10⁶؟',
+                    tags: ['Segmented Sieve', 'متقدم'],
+                    a: 'هذا يسمى "الغربال المجزّأ" (Segmented Sieve). بما أن R قد يصل إلى 10¹² (لا يمكن تخصيص مصفوفة بهذا الحجم)، لكن عرض النطاق R-L+1 محدود (≤10⁶)، نتبع خطوتين: <br>(1) نبني غربالاً عادياً صغيراً لإيجاد كل الأعداد الأولية حتى √R (بما أن √10¹²=10⁶ فهذا قابل للتنفيذ بسهولة). <br>(2) ننشئ مصفوفة منطقية جديدة بحجم R-L+1 فقط تمثّل النطاق [L,R]، مهيّأة بالكامل على true. لكل عدد أولي p من الغربال الصغير، نجد أول مضاعف له داخل النطاق ≥ L (عبر <code class="inline">max(p*p, ((L+p-1)/p)*p)</code>) ثم نشطب كل مضاعف لاحق بخطوة p داخل هذه المصفوفة الصغيرة (مع تحويل الرقم الحقيقي x إلى الفهرس x-L). بعد الانتهاء، أي فهرس ما زال true (وقيمته الحقيقية &gt; 1) هو عدد أولي في [L,R]. هذا يستخدم ذاكرة O(√R + (R-L)) فقط بدلاً من O(R) المستحيلة.'
+                },
+                {
+                    q: 'استخدم الغربال لحساب مجموع جميع الأعداد الأولية حتى N. ما أقصى قيمة N يمكن التعامل معها دون تجاوز نوع البيانات long long؟',
+                    tags: ['مجموع', 'overflow'],
+                    a: 'الكود مباشر: بعد بناء is_prime[]، اجمع كل i أولي في متغير من نوع long long:<div class="mini-code">long long sumPrimes = 0;\nfor (int i = 2; i <= N; i++)\n    if (is_prime[i]) sumPrimes += i;</div>أما سؤال الحد الأقصى: مجموع الأعداد الأولية حتى N يقترب تقريبياً من N²/(2·ln N) (نتيجة مرتبطة بمبرهنة الأعداد الأولية). حد long long الأقصى ≈ 9.2×10¹⁸. بحل تقريبي نجد أن N يمكن أن يصل إلى مرتبة 2×10¹⁰ تقريباً قبل أن يقترب المجموع من هذا الحد. لكن عملياً، هذا رقم أكاديمي فقط — فذاكرة ووقت بناء غربال بهذا الحجم (N=2×10¹⁰) مستحيلان أصلاً بالطرق العادية، فالقيد العملي الحقيقي هو حجم الذاكرة المتاحة لبناء الغربال (عادة N حتى 10⁸-10⁹ كحد أقصى عملي)، وعندها المجموع لا يتجاوز ~2.4×10¹⁵ وهو أبعد ما يكون عن حد الفيض.'
+                },
+                {
+                    q: 'اشرح كيف يمكن تعديل الغربال لحساب أصغر عامل أولي (Smallest Prime Factor) لكل عدد. ما الفائدة من ذلك؟',
+                    tags: ['SPF', 'تحليل إلى عوامل'],
+                    a: 'نُنشئ مصفوفة spf[] بحجم N+1 مهيّأة بالكامل على 0. نمر بحلقة i من 2 إلى N: إذا كان spf[i]==0 فهذا يعني أن لا أحد شطبه بعد، إذن i عدد أولي، فنضع spf[i]=i، ثم نمر على مضاعفاته بدءاً من i² (أو 2i، الفكرة تعمل بالحالتين) ونضع spf[j]=i <strong>فقط إذا كان spf[j] لا يزال 0</strong> (لضمان تسجيل أصغر عامل أولي فقط، لأننا نعالج الأعداد الأولية بترتيب تصاعدي):<div class="mini-code">vector<int> spf(N + 1, 0);\nfor (int i = 2; i <= N; i++) {\n    if (spf[i] == 0) {\n        for (long long j = i; j <= N; j += i) {\n            if (spf[j] == 0) spf[j] = i;\n        }\n    }\n}</div>الفائدة: بعد بناء spf[]، يمكن تحليل أي عدد ≤ N إلى عوامله الأولية في O(log N) فقط بتقسيمه المتكرر على spf[n] حتى يصبح 1 — أسرع بكثير من القسمة التجريبية لكل استعلام، وهذا مفيد جداً عند الحاجة لتحليل آلاف الأعداد بسرعة.'
+                },
+                {
+                    q: 'في مسألة Noldbach، ماذا لو طُلب منك حساب المجموع بدلاً من العدد؟ عدّل الكود وفسّر التغييرات.',
+                    tags: ['Noldbach', 'تعديل كود'],
+                    a: 'التعديل بسيط: بدلاً من زيادة عدّاد count عند كل شرط محقّق، نجمع قيمة sum نفسها في متغير تراكمي، ويجب تغيير نوع البيانات من int إلى long long لأن مجموع أعداد أولية متكررة قد يتجاوز مدى int:<div class="mini-code">long long totalSum = 0; // long long وليس int لتفادي الفيض\nfor (int i = 1; i < (int)primes.size(); ++i) {\n    int sum = primes[i] + primes[i - 1] + 1;\n    if (sum <= MAX_N && is_prime[sum]) {\n        totalSum += sum; // بدلاً من count++\n    }\n}\nreturn totalSum;</div>التغييرات الجوهرية: (1) استبدال count++ بـ totalSum += sum، (2) تغيير نوع المتغير والقيمة المُعادة من int إلى long long لأن التراكم قد يكبر بسرعة.'
+                }
+            ],
+            hard: [
+                {
+                    q: 'اشرح غربال أويلر (Linear Sieve) وكيف يحقق تعقيداً حقيقياً O(N) مقارنةً بـ O(N log log N) للغربال التقليدي.',
+                    tags: ['Linear Sieve', 'نظري متقدم'],
+                    a: 'في الغربال التقليدي، عدد مركّب له عدة عوامل أولية صغيرة قد يُشطب أكثر من مرة (مثلاً 12 يُشطب عند i=2 وأيضاً عند i=3)، وهذا التكرار الصغير هو مصدر عامل log log N الإضافي. الغربال الخطي (المعروف أيضاً بغربال أويلر) يضمن أن <strong>كل عدد مركّب يُشطب مرة واحدة بالضبط</strong>، بواسطة أصغر عامل أولي له فقط. الفكرة: نحتفظ بقائمة primes[] للأعداد الأولية المكتشفة حتى الآن، ولكل i من 2 إلى N نمر على primes[] بالترتيب، نشطب p×i، لكن <strong>نتوقف فوراً</strong> إذا كان i % p == 0 (أي أن p هو أصغر عامل أولي لـ i):<div class="mini-code">vector<int> primes;\nvector<bool> is_composite(N + 1, false);\nfor (int i = 2; i <= N; i++) {\n    if (!is_composite[i]) primes.push_back(i);\n    for (int p : primes) {\n        if ((long long)p * i > N) break;\n        is_composite[p * i] = true;\n        if (i % p == 0) break; // المفتاح: نتوقف عند أول عامل أولي لـ i\n    }\n}</div>شرط التوقف <code class="inline">i % p == 0</code> يضمن أن كل عدد مركّب m يُبنى مرة واحدة فقط، عبر m = p×i حيث p هو بالضبط أصغر عامل أولي لِـ m — فلا تكرار إطلاقاً، ما يمنح تعقيداً خطياً حقيقياً O(N).'
+                },
+                {
+                    q: 'احسب عدد الأعداد الأولية في النطاق [L, R] حيث L وR قد يصلان لـ 10¹² و R-L ≤ 10⁶. اكتب الكود الكامل.',
+                    tags: ['Segmented Sieve', 'كود كامل'],
+                    a: 'نطبّق الغربال المجزّأ الموضّح سابقاً بكود كامل:<div class="mini-code">vector<long long> basePrimes(long long limit) {\n    vector<bool> is_p(limit + 1, true);\n    is_p[0] = is_p[1] = false;\n    for (long long i = 2; i * i <= limit; i++)\n        if (is_p[i])\n            for (long long j = i * i; j <= limit; j += i)\n                is_p[j] = false;\n    vector<long long> primes;\n    for (long long i = 2; i <= limit; i++)\n        if (is_p[i]) primes.push_back(i);\n    return primes;\n}\n\nlong long countPrimesInRange(long long L, long long R) {\n    long long sq = (long long)sqrt((double)R) + 1;\n    vector<long long> base = basePrimes(sq);\n\n    int size = R - L + 1;\n    vector<bool> inRange(size, true);\n    if (L == 1) inRange[0] = false; // 1 ليس أولياً\n\n    for (long long p : base) {\n        long long start = max(p * p, ((L + p - 1) / p) * p);\n        for (long long j = start; j <= R; j += p)\n            inRange[j - L] = false;\n    }\n\n    long long count = 0;\n    for (int i = 0; i < size; i++)\n        if (inRange[i]) count++;\n    return count;\n}</div>التعقيد: O(√R log log √R) لبناء الغربال الأساسي + O((R-L) log log R) لمعالجة النطاق — قابل للتنفيذ بسهولة ضمن حدود المسابقات.'
+                },
+                {
+                    q: 'كيف تُعدّل الغربال لحساب دالة أويلر φ(n) (Euler\'s Totient) لجميع الأعداد حتى N في O(N log log N)؟',
+                    tags: ['Euler Totient', 'نظرية الأعداد'],
+                    a: 'نستخدم صيغة أويلر للدالة φ(n) = n × Π(1 - 1/p) لكل عامل أولي مميز p لـ n، ونطبّقها تراكمياً بنمط شبيه بالغربال. نهيّئ phi[i]=i للجميع، ثم لكل i من 2 إلى N: إذا كان phi[i] لا يزال يساوي i (أي لم يُلمس بعد، فهو أولي)، نمر على كل مضاعفاته ونطبّق الصيغة:<div class="mini-code">vector<int> phi(N + 1);\nfor (int i = 0; i <= N; i++) phi[i] = i;\n\nfor (int i = 2; i <= N; i++) {\n    if (phi[i] == i) { // i عدد أولي\n        for (int j = i; j <= N; j += i) {\n            phi[j] -= phi[j] / i;\n        }\n    }\n}</div>الحلقة الداخلية تُنفَّذ فقط عند الأعداد الأولية (تماماً كالغربال العادي)، لذا مجموع العمليات هو نفس مجموع N/p على الأعداد الأولية p، ما يعطي نفس التعقيد O(N log log N).'
+                },
+                {
+                    q: 'مسألة: أوجد عدد الأزواج (a,b) حيث a+b عدد أولي، a وb أوليان، و1 ≤ a ≤ b ≤ N. اكتب حلاً بالغربال.',
+                    tags: ['Goldbach', 'عد الأزواج'],
+                    a: 'الملاحظة الرياضية الحاسمة أولاً: إذا كان a وb كلاهما فرديين (كل الأعداد الأولية فردية باستثناء 2)، فإن a+b عدد <strong>زوجي</strong> أكبر من 2، وبالتالي لا يمكن أن يكون أولياً. إذن الحالة الوحيدة الممكنة هي أن يكون أحدهما = 2 (العدد الأولي الزوجي الوحيد)، وبما أن a ≤ b فإن a = 2 دائماً (باستثناء الحالة a=b=2 التي تعطي مجموع 4 غير أولي، فتُستبعد تلقائياً). إذن المسألة تختزل إلى: عدّ كل عدد أولي b في [2,N] بحيث b+2 عدد أولي أيضاً (بعد بناء غربال حتى N+2):<div class="mini-code">// افترض is_prime[] مبني حتى N + 2\nlong long countGoldbachPairs(int n) {\n    long long cnt = 0;\n    for (int b = 2; b <= n; b++) {\n        if (is_prime[b] && is_prime[b + 2]) {\n            cnt++;\n        }\n    }\n    return cnt;\n}</div>هذا يحوّل حلاً ساذجاً O(N²) (تجربة كل زوج a,b) إلى حل O(N) بفضل الملاحظة الرياضية + الغربال.'
+                },
+                {
+                    q: 'كيف تُطبّق الغربال لحساب عدد مقسمات (Number of Divisors) لكل عدد من 1 إلى N بكفاءة؟ استخدمه للعثور على العدد الذي له أكبر عدد مقسمات.',
+                    tags: ['عدد المقسمات', 'Divisor Sieve'],
+                    a: 'بدلاً من شطب المضاعفات، نستخدم بنية شبيهة بالغربال لكن نزيد عدّاداً بدل الشطب: لكل i من 1 إلى N، نمر على كل مضاعف j له (i, 2i, 3i, ...) ونزيد divCount[j]. هذا يعمل لأن i يُعتبر قاسماً لـ j بالضبط عندما i تقسم j:<div class="mini-code">vector<int> divCount(N + 1, 0);\nfor (int i = 1; i <= N; i++) {\n    for (int j = i; j <= N; j += i) {\n        divCount[j]++;\n    }\n}\n\nint bestNum = 1, bestCount = 0;\nfor (int i = 1; i <= N; i++) {\n    if (divCount[i] > bestCount) {\n        bestCount = divCount[i];\n        bestNum = i;\n    }\n}</div>التعقيد: مجموع N/1 + N/2 + N/3 + ... + N/N ≈ N·ln(N) (متسلسلة توافقية)، أي O(N log N) — أبطأ قليلاً من غربال الأعداد الأولية O(N log log N) لكنه لا يزال عملياً جداً حتى N≈10⁷. بعد بناء divCount[]، مسحة واحدة تجد bestNum صاحب أكبر عدد مقسمات (أول عدد "شديد التركيب" Highly Composite Number ضمن النطاق).'
+                }
+            ]
+        };
+
+        function hwRenderAll() {
+            const container = document.getElementById('hwContainer');
+            const sections = [
+                { key: 'easy', label: 'سهل — المستوى الأول', icon: '🟢' },
+                { key: 'medium', label: 'متوسط — المستوى الثاني', icon: '🟡' },
+                { key: 'hard', label: 'صعب — المستوى الثالث', icon: '🔴' }
+            ];
+            let html = '';
+            let qNum = 0;
+            sections.forEach(function (sec) {
+                html += '<div class="quiz-diff-section"><div class="quiz-diff-header"><span style="font-size:1.2rem;">' + sec.icon + '</span><h4>' + sec.label + '</h4></div>';
+                HW_BANK[sec.key].forEach(function (item, idx) {
+                    qNum++;
+                    const uid = sec.key + '_' + idx;
+                    const tagsHtml = item.tags.map(function (t) { return '<span class="q-tag">' + t + '</span>'; }).join('');
+                    html += '<div class="homework-item">';
+                    html += '<div class="hw-top-row"><span class="hw-num">س' + qNum + '</span><div class="hw-tags">' + tagsHtml + '</div></div>';
+                    html += '<p class="hw-question">' + item.q + '</p>';
+                    html += '<button class="toggle-btn" id="toggleBtn_' + uid + '" onclick="hwToggle(\'' + uid + '\')">+</button>';
+                    html += '<div class="collapsible" id="collapsible_' + uid + '"><div class="answer-box">' + item.a + '</div></div>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            });
+            container.innerHTML = html;
+        }
+
+        function hwToggle(uid) {
+            const box = document.getElementById('collapsible_' + uid);
+            const btn = document.getElementById('toggleBtn_' + uid);
+            const isOpen = box.classList.toggle('open');
+            btn.classList.toggle('open', isOpen);
+            btn.innerText = isOpen ? '×' : '+';
+        }
+
+        // ===================================================================
+        // Init
+        // ===================================================================
+        buildSieveGrid();
+        hwRenderAll();
+    </script>
+</body>
+</html>

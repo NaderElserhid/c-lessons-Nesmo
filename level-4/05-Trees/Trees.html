@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | الأشجار في علوم الحاسوب (Trees)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+        .adv-badge {
+            background: var(--dark-navy); color: #facc15; border: none;
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .hero-banner { background: var(--blue-gradient); padding: 60px 6% 40px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 14px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 10px; }
+        .hero-sub { font-size: 0.9rem; color: rgba(255,255,255,0.85); font-weight: 700; margin: 0 0 16px; }
+        .hero-desc { max-width: 760px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        /* tab navigation */
+        .tab-nav {
+            display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+            background: white; padding: 14px 6%; position: sticky; top: 87px; z-index: 900;
+            border-bottom: 1px solid #e2e8f0; box-shadow: 0 4px 14px -8px rgba(0,0,0,0.08);
+        }
+        .tab-btn {
+            border: 2px solid #e2e8f0; background: white; color: var(--text-body);
+            padding: 10px 20px; border-radius: 50px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .tab-btn:hover { border-color: var(--primary-blue); }
+        .tab-btn.active { background: var(--blue-gradient); border-color: transparent; color: white; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeIn 0.35s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .container { max-width: 960px; margin: 40px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.84rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+            white-space: pre-line;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .research-box {
+            background: rgba(0,173,239,0.06); border: 2px solid rgba(0,173,239,0.35);
+            border-radius: 18px; padding: 22px; margin-top: 20px;
+        }
+        .research-box h4 { margin: 0 0 12px; color: var(--dark-navy); font-size: 1rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .research-item { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; padding: 10px 0; border-bottom: 1px dashed #cbd5e1; flex-wrap: wrap; }
+        .research-item:last-child { border-bottom: none; }
+        .research-item a { color: var(--primary-blue); font-weight: 800; text-decoration: none; direction: ltr; }
+        .research-item a:hover { text-decoration: underline; }
+        .research-item span.rdesc { color: var(--text-body); font-size: 0.85rem; flex: 1 1 260px; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        /* stat chips */
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; margin: 20px 0; }
+        .stat-chip { background: var(--bg-main); border-radius: 16px; padding: 18px; text-align: center; border: 1px solid #e2e8f0; }
+        .stat-chip .stat-big { font-size: 1.6rem; font-weight: 800; color: var(--primary-blue); font-family: 'Consolas', monospace; display: block; }
+        .stat-chip .stat-lbl { font-size: 0.78rem; color: var(--text-body); font-weight: 700; display: block; margin-top: 4px; }
+
+        /* tree svg canvases */
+        .tree-lab-dark { background: #0b1220; border-radius: 20px; padding: 24px; margin: 16px 0; border: 1px solid #1e293b; }
+        .tree-canvas-wrap { background: #0f172a; border-radius: 16px; padding: 8px; border: 1px solid #1e293b; }
+        .tree-svg { width: 100%; height: auto; display: block; }
+        .tree-edge { stroke: #475569; stroke-width: 2; transition: all 0.25s ease; }
+        .tree-node-circle { stroke: #0b1220; stroke-width: 3; cursor: pointer; transition: fill 0.25s ease, stroke 0.2s ease; }
+        .tree-node-circle.state-unvisited { fill: #334155; }
+        .tree-node-circle.state-current { fill: #f7941e; }
+        .tree-node-circle.state-done { fill: #22c55e; }
+        .tree-node-circle.state-root { stroke: #facc15; stroke-width: 5; }
+        .tree-node-index { fill: #e2e8f0; font-weight: 800; font-size: 14px; font-family: 'Consolas', monospace; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+        .tree-root-tag { fill: #facc15; font-weight: 800; font-size: 11px; font-family: 'Tajawal', sans-serif; text-anchor: middle; pointer-events: none; }
+
+        .tree-legend-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+        .tree-legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #cbd5e1; font-weight: 700; }
+        .tree-legend-dot { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; }
+
+        .info-panel { background: #0f172a; border-radius: 14px; padding: 18px 20px; margin-top: 16px; border: 1px solid #1e293b; color: #e2e8f0; font-size: 0.9rem; }
+        .info-panel .info-row { display: flex; gap: 10px; margin-bottom: 8px; }
+        .info-panel .info-row b { color: #00adef; min-width: 130px; display: inline-block; }
+        .info-panel .info-row span.val { direction: ltr; font-family: 'Consolas', monospace; color: #4ade80; }
+
+        .tree-controls-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px; align-items: center; }
+        .tree-btn {
+            border-radius: 14px; padding: 11px 20px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 2px solid transparent; transition: all 0.2s ease;
+        }
+        .tree-btn-primary { background: var(--blue-gradient); color: white; }
+        .tree-btn-outline { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+        .tree-btn-outline:hover { border-color: #64748b; }
+        .tree-btn-danger { background: #0f172a; border-color: #3f1d2b; color: #f87171; }
+        .tree-btn-danger:hover { border-color: #f87171; }
+        .tree-status-line { text-align: center; font-size: 0.85rem; font-weight: 700; color: #94a3b8; margin-top: 14px; min-height: 20px; }
+
+        .tree-console {
+            background: #0f172a; border-radius: 14px; padding: 16px 20px; margin: 14px 0; min-height: 40px;
+            font-family: 'Consolas', monospace; color: #4ade80; direction: ltr; text-align: left; font-size: 0.82rem; line-height: 1.8;
+            max-height: 190px; overflow-y: auto; border: 1px solid #1e293b;
+        }
+        .tree-console .highlight-line { color: #facc15; font-weight: 700; }
+
+        .results-table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 0.85rem; direction: ltr; }
+        .results-table th, .results-table td { border: 1px solid #1e293b; padding: 8px 12px; text-align: center; color: #e2e8f0; font-family: 'Consolas', monospace; }
+        .results-table th { background: #1e293b; color: #94a3b8; }
+        .results-table td.empty-cell { color: #475569; }
+
+        /* quiz bank */
+        .quizbank-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 10px; }
+        .quizbank-score-row { display: flex; gap: 16px; flex-wrap: wrap; }
+        .qb-score-chip { background: var(--bg-main); border-radius: 14px; padding: 10px 20px; text-align: center; border: 1px solid #e2e8f0; min-width: 90px; }
+        .qb-score-num { display: block; font-size: 1.3rem; font-weight: 800; color: var(--dark-navy); }
+        .qb-score-label { display: block; font-size: 0.75rem; color: var(--text-body); font-weight: 700; margin-top: 2px; }
+        .qb-score-chip.qb-correct .qb-score-num { color: #16a34a; }
+        .qb-score-chip.qb-wrong .qb-score-num { color: #dc2626; }
+        .qb-reset-btn {
+            background: white; border: 2px solid #cbd5e1; color: var(--text-body);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+        }
+        .qb-category-header { display: flex; align-items: center; gap: 10px; margin: 28px 0 14px; }
+        .qb-category-header h4 { margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--dark-navy); }
+        .qb-diff-badge { display: inline-block; padding: 4px 14px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; }
+        .qb-diff-easy { background: #dcfce7; color: #15803d; }
+        .qb-diff-medium { background: #fef3c7; color: #b45309; }
+        .qb-diff-hard { background: #fee2e2; color: #b91c1c; }
+        .qb-question-block { background: var(--bg-main); border-radius: 16px; padding: 20px; margin-bottom: 14px; border: 1px solid #e2e8f0; }
+        .qb-question-block h5 { margin: 0 0 12px; font-size: 0.98rem; font-weight: 800; color: var(--dark-navy); }
+        .qb-code-snippet {
+            background: #0f172a; color: #e2e8f0; font-family: 'Consolas', monospace; font-size: 0.78rem;
+            border-radius: 12px; padding: 12px 16px; margin: 8px 0 14px; direction: ltr; text-align: left; line-height: 1.7; overflow-x: auto;
+        }
+        .qb-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 16px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.9rem; transition: 0.2s;
+            margin-bottom: 8px;
+        }
+        .qb-opt:hover { border-color: var(--primary-blue); }
+        .qb-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .qb-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge">الدرس 05: الأشجار (Trees)</span>
+            <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الرابع</span>
+            <span class="adv-badge"><i class="fas fa-star"></i> متقدم · 15-20 سنة</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-sitemap"></i>
+        <h1>الدرس الخامس: الأشجار في علوم الحاسوب (Trees)</h1>
+        <p class="hero-sub">منهج تفاعلي للمتسابقين · المستوى المتقدم</p>
+        <p class="hero-desc">الشجرة هي الهيكل الذي يظهر في أكثر مسائل الأولمبياد تنوّعًا: من عدّ العقد وحساب الأعماق، وصولًا إلى قطر الشجرة، السلف المشترك الأدنى (LCA)، وتقنية إعادة التجذير (Rerooting). كل ما ستراه هنا هو الأساس الذي تُبنى عليه هذه التقنيات المتقدمة.</p>
+    </div>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="showTab('tabConcept', this)"><i class="fas fa-tree"></i> المفهوم</button>
+        <button class="tab-btn" onclick="showTab('tabSim', this)"><i class="fas fa-diagram-project"></i> المحاكاة</button>
+        <button class="tab-btn" onclick="showTab('tabProps', this)"><i class="fas fa-ruler-combined"></i> الخصائص</button>
+        <button class="tab-btn" onclick="showTab('tabCode', this)"><i class="fas fa-code"></i> الكود</button>
+        <button class="tab-btn" onclick="showTab('tabDfs', this)"><i class="fas fa-magnifying-glass"></i> DFS تفاعلي</button>
+        <button class="tab-btn" onclick="showTab('tabQuiz', this)"><i class="fas fa-brain"></i> الأسئلة</button>
+    </div>
+
+    <div class="container">
+
+        <!-- ============ TAB 1: CONCEPT ============ -->
+        <div class="tab-panel active" id="tabConcept">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-tree"></i>
+                    <h3>🌳 ما هي الشجرة؟</h3>
+                </div>
+                <p>الشجرة هي رسم بياني غير موجّه ومتصل ولا يحتوي على دورات. تُستخدم في حل طيف واسع من مسائل الأولمبياد لأنها تضمن وجود مسار وحيد بين أي عقدتين.</p>
+
+                <div class="tip-box">
+                    <i class="fas fa-thumbtack"></i>
+                    <p><strong>📌 التعريف الرسمي:</strong> الرسم البياني <code class="inline">G = (V, E)</code> يكون شجرةً إذا وفقط إذا كان:<br>
+                    ① متصلاً (Connected)<br>
+                    ② خالياً من الدورات (Acyclic)</p>
+                </div>
+
+                <div class="good-box">
+                    <i class="fas fa-circle-check"></i>
+                    <p><strong>✅ الخاصية الذهبية:</strong> بين أي عقدتين <code class="inline">u</code> و<code class="inline">v</code>، يوجد بالضبط مسار بسيط واحد. هذه الخاصية هي سر كثرة ظهور الأشجار في مسائل الأولمبياد.</p>
+                </div>
+
+                <div class="stat-grid">
+                    <div class="stat-chip"><span class="stat-big">n</span><span class="stat-lbl">عدد العقد (Nodes)</span></div>
+                    <div class="stat-chip"><span class="stat-big">n−1</span><span class="stat-lbl">عدد الأحرف (Edges)</span></div>
+                    <div class="stat-chip"><span class="stat-big">1</span><span class="stat-lbl">مسار بين كل عقدتين</span></div>
+                    <div class="stat-chip"><span class="stat-big">∞</span><span class="stat-lbl">تطبيقات في الأولمبياد</span></div>
+                </div>
+
+                <div class="warn-box">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    <p><strong>تمييز مهم:</strong> كل شجرة هي رسم بياني، لكن ليس كل رسم بياني متصل هو شجرة — يجب أن يكون خاليًا من الدورات أيضًا. رسم بياني متصل بـ n عقدة وأكثر من n−1 حافة يحتوي بالضرورة على دورة واحدة على الأقل، وبالتالي ليس شجرة.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 2: SIMULATION (static inspectable tree) ============ -->
+        <div class="tab-panel" id="tabSim">
+            <div class="card steps-card">
+                <div class="card-header">
+                    <i class="fas fa-diagram-project"></i>
+                    <h3>🔵 تصور الشجرة</h3>
+                </div>
+                <p>شجرة مجذّرة بـ 7 عقد — اضغط على أي عقدة لرؤية معلوماتها الكاملة (الأب، العمق، الأبناء، الشجرة الفرعية).</p>
+
+                <div class="tree-lab-dark">
+                    <div class="tree-canvas-wrap">
+                        <svg id="visSvg" viewBox="0 0 700 380" class="tree-svg"></svg>
+                    </div>
+                    <div class="tree-legend-row">
+                        <span class="tree-legend-item"><span class="tree-legend-dot" style="background:#334155; border:3px solid #facc15;"></span> الجذر (root)</span>
+                        <span class="tree-legend-item"><span class="tree-legend-dot" style="background:#334155;"></span> عقدة داخلية</span>
+                        <span class="tree-legend-item"><span class="tree-legend-dot" style="background:#00adef;"></span> العقدة المختارة</span>
+                    </div>
+                    <div class="info-panel" id="visInfoPanel">
+                        <p style="color:#94a3b8; margin:0;">اضغط على أي عقدة أعلاه لرؤية معلوماتها هنا...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 3: PROPERTIES ============ -->
+        <div class="tab-panel" id="tabProps">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-ruler-combined"></i>
+                    <h3>📐 خصائص رياضية مهمة</h3>
+                </div>
+
+                <h4 class="sub-title" style="margin-top:0;">① إضافة حرف → دورة</h4>
+                <p>في الشجرة يوجد مسار وحيد بين أي <code class="inline">u</code> و<code class="inline">v</code>. لو أضفت حرفاً جديداً <code class="inline">(u,v)</code> تحصل على دورة: المسار القديم + الحرف الجديد.</p>
+                <div class="warn-box">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    <p><strong>الشجرة هي الرسم البياني المتصل الأدنى:</strong> لا يمكن حذف أي حرف مع الحفاظ على الاتصال، ولا يمكن إضافة أي حرف دون إنشاء دورة.</p>
+                </div>
+
+                <h4 class="sub-title">② حذف حرف → انفصال</h4>
+                <p>كل حرف في الشجرة هو <strong>جسر (Bridge)</strong>. حذف أي حرف يُنتج مكوّنين منفصلين تماماً.</p>
+
+                <h4 class="sub-title">③ التجذير يُعطي هيكلاً عائلياً</h4>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>المصطلح</th><th>التعريف</th><th>مثال (جذر = 0)</th></tr></thead>
+                        <tbody>
+                            <tr><td>الجذر (Root)</td><td>العقدة المختارة كبداية</td><td class="ltr">العقدة 0</td></tr>
+                            <tr><td>الأب (Parent)</td><td>الجار الأقرب للجذر</td><td class="ltr">أب(1) = 0</td></tr>
+                            <tr><td>الأبناء (Children)</td><td>الجيران الأبعد عن الجذر</td><td class="ltr">أبناء(0) = {1,2}</td></tr>
+                            <tr><td>العمق (Depth)</td><td>عدد الأحرف من الجذر</td><td class="ltr">depth(3) = 2</td></tr>
+                            <tr><td>الشجرة الفرعية (Subtree)</td><td>العقدة + كل نسلها</td><td class="ltr">subtree(1) = {1,3,4}</td></tr>
+                            <tr><td>الورقة (Leaf)</td><td>عقدة بلا أبناء</td><td class="ltr">3, 4, 5, 6</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="research-box">
+                    <h4><i class="fas fa-magnifying-glass"></i> أين تُستخدم هذه المفاهيم فعليًا في الأولمبياد؟</h4>
+                    <p style="margin-top:0;">بمجرد إتقان الجذر/الأب/العمق/حجم الشجرة الفرعية، تصبح هذه المسائل الكلاسيكية (من CSES Tree Algorithms) في متناولك مباشرة:</p>
+                    <div class="research-item">
+                        <span class="rdesc"><strong>Subordinates</strong> — حساب حجم الشجرة الفرعية (sub[v]) بالضبط كما رأينا في تبويب "الكود".</span>
+                        <a href="https://cses.fi/problemset/task/1674" target="_blank" rel="noopener">CSES 1674 ↗</a>
+                    </div>
+                    <div class="research-item">
+                        <span class="rdesc"><strong>Tree Diameter</strong> — أطول مسار في الشجرة؛ يُحل بتشغيل DFS/BFS مرتين: من أي عقدة نصل لأبعد عقدة a، ثم من a نصل لأبعد عقدة b، فيكون a→b هو القطر.</span>
+                        <a href="https://cses.fi/problemset/task/1131" target="_blank" rel="noopener">CSES 1131 ↗</a>
+                    </div>
+                    <div class="research-item">
+                        <span class="rdesc"><strong>Tree Distances I / II</strong> — حساب أبعد مسافة من كل عقدة إلى بقية الشجرة، باستخدام تقنية <strong>إعادة التجذير (Rerooting)</strong> بدلاً من تشغيل DFS منفصل لكل عقدة.</span>
+                        <a href="https://cses.fi/problemset/task/1132" target="_blank" rel="noopener">CSES 1132/1133 ↗</a>
+                    </div>
+                    <div class="research-item">
+                        <span class="rdesc"><strong>Company Queries II</strong> — إيجاد السلف المشترك الأدنى (LCA) لعقدتين بكفاءة O(log n) باستخدام تقنية <strong>Binary Lifting</strong> (تحضير أسلاف كل عقدة على مسافات 2^0, 2^1, 2^2...).</span>
+                        <a href="https://cses.fi/problemset/task/1688" target="_blank" rel="noopener">CSES 1688 ↗</a>
+                    </div>
+                    <p style="margin-bottom:0; font-size:0.82rem;">هذه التقنيات الأربع (DP على الأشجار، القطر، Rerooting، Binary Lifting/LCA) ستُشكّل صلب الفصول القادمة في المستوى المتقدم.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 4: CODE ============ -->
+        <div class="tab-panel" id="tabCode">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-code"></i>
+                    <h3>💻 التمثيل البرمجي</h3>
+                </div>
+
+                <h4 class="sub-title" style="margin-top:0;">قائمة الجوار (Adjacency List)</h4>
+                <div class="code-box">
+                    <div class="code-head"><span>tree_input.cpp</span></div>
+                    <pre>int n;                           <span class="cmt">// عدد العقد (0..n-1)</span>
+vector&lt;int&gt; g[n];              <span class="cmt">// g[v] = قائمة جيران v</span>
+
+<span class="cmt">// قراءة الأحرف من المدخلات</span>
+for (int i = 0; i &lt; n-1; i++) {
+    int u, v;
+    cin &gt;&gt; u &gt;&gt; v;
+    g[u].push_back(v);
+    g[v].push_back(u);   <span class="cmt">// غير موجّه</span>
+}</pre>
+                </div>
+
+                <h4 class="sub-title">DFS لحساب الأب والعمق</h4>
+                <div class="code-box">
+                    <div class="code-head"><span>tree_parent_depth.cpp</span></div>
+                    <pre>vector&lt;int&gt; parent(n, -1), depth(n, 0);
+
+void dfs(int v, int p) {
+    parent[v] = p;
+    for (int to : g[v]) {
+        if (to == p) continue;  <span class="cmt">// تجنب الرجوع للأب</span>
+        depth[to] = depth[v] + 1;
+        dfs(to, v);
+    }
+}
+<span class="cmt">// استدعاء: dfs(root, -1);</span></pre>
+                </div>
+
+                <h4 class="sub-title">DFS لحساب حجم الشجرة الفرعية (sub)</h4>
+                <div class="code-box">
+                    <div class="code-head"><span>tree_subtree_size.cpp</span></div>
+                    <pre>vector&lt;int&gt; sub(n, 1);
+
+void dfs_sub(int v, int p) {
+    for (int to : g[v]) {
+        if (to == p) continue;
+        dfs_sub(to, v);
+        sub[v] += sub[to];   <span class="cmt">// اجمع أحجام الأبناء</span>
+    }
+}
+<span class="cmt">/* sub[v] = عدد عقد الشجرة الفرعية لـ v */</span></pre>
+                </div>
+
+                <div class="tip-box">
+                    <i class="fas fa-lightbulb"></i>
+                    <p><strong>💡 نصيحة الأولمبياد:</strong> دائماً مرّر الأب <code class="inline">p</code> في DFS على الأشجار غير الموجّهة لتتجنب العودة للأب الذي يُفسد المنطق.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 5: INTERACTIVE DFS ============ -->
+        <div class="tab-panel" id="tabDfs">
+            <div class="card steps-card">
+                <div class="card-header">
+                    <i class="fas fa-magnifying-glass"></i>
+                    <h3>🔍 محاكاة DFS التفاعلية</h3>
+                </div>
+                <p>جرّب DFS خطوة بخطوة على شجرة مخصصة. اختر الجذر وابدأ المحاكاة لترى ترتيب زيارة العقد وقيم <code class="inline">depth</code> و<code class="inline">parent</code> و<code class="inline">sub</code>.</p>
+
+                <div class="tree-lab-dark">
+                    <div class="tree-canvas-wrap">
+                        <svg id="treeDfsSvg" viewBox="0 0 700 360" class="tree-svg"></svg>
+                    </div>
+                    <div class="tree-legend-row">
+                        <span class="tree-legend-item"><span class="tree-legend-dot" style="background:#334155;"></span> لم تُزَر</span>
+                        <span class="tree-legend-item"><span class="tree-legend-dot" style="background:#f7941e;"></span> قيد المعالجة الآن</span>
+                        <span class="tree-legend-item"><span class="tree-legend-dot" style="background:#22c55e;"></span> اكتملت (sub محسوبة)</span>
+                        <span class="tree-legend-item"><span class="tree-legend-dot" style="background:#334155; border:3px solid #facc15;"></span> الجذر المختار</span>
+                    </div>
+                    <div class="tree-status-line" id="treeDfsHint">اضغط على عقدة لاختيارها جذراً، ثم اضغط "تشغيل DFS"</div>
+
+                    <div class="tree-console" id="treeDfsConsole"></div>
+
+                    <div class="table-wrap">
+                        <table class="results-table" id="treeDfsResults">
+                            <thead><tr><th>node</th><th>parent</th><th>depth</th><th>sub</th></tr></thead>
+                            <tbody id="treeDfsResultsBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="tree-controls-row">
+                        <button class="tree-btn tree-btn-primary" id="treeDfsPlayBtn" onclick="treeDfsTogglePlay()"><i class="fas fa-play"></i> تشغيل DFS</button>
+                        <button class="tree-btn tree-btn-outline" onclick="treeDfsStep()">⏭ خطوة واحدة</button>
+                        <button class="tree-btn tree-btn-danger" onclick="treeDfsReset()"><i class="fas fa-rotate-right"></i> إعادة تعيين</button>
+                    </div>
+                </div>
+
+                <div class="good-box">
+                    <i class="fas fa-circle-check"></i>
+                    <p><strong>جرّب هذا:</strong> شغّل DFS بجذر 0، ثم أعد التعيين واختر جذرًا مختلفًا (مثل 2). ستلاحظ أن قيم <code class="inline">parent</code> و<code class="inline">depth</code> تتغيّر بالكامل رغم أن حواف الشجرة نفسها لم تتغيّر — هذه هي الملاحظة الجوهرية التي تُبنى عليها تقنية <strong>Rerooting</strong> المتقدمة.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 6: QUIZ ============ -->
+        <div class="tab-panel" id="tabQuiz">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-brain"></i>
+                    <h3>🏆 بنك الأسئلة</h3>
+                </div>
+
+                <div class="quizbank-header">
+                    <div class="quizbank-score-row">
+                        <div class="qb-score-chip"><span class="qb-score-num" id="qbTotalNum">0 / 0</span><span class="qb-score-label">نتيجتك الحالية</span></div>
+                        <div class="qb-score-chip qb-correct"><span class="qb-score-num" id="qbCorrectNum">0</span><span class="qb-score-label">صحيح</span></div>
+                        <div class="qb-score-chip qb-wrong"><span class="qb-score-num" id="qbWrongNum">0</span><span class="qb-score-label">خطأ</span></div>
+                    </div>
+                    <button class="qb-reset-btn" onclick="qbResetAll()"><i class="fas fa-rotate-right"></i> إعادة تعيين</button>
+                </div>
+
+                <div id="qbContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الرابع: الأشجار في علوم الحاسوب (Trees)</footer>
+
+    <script>
+        // ===================================================================
+        // Tab navigation
+        // ===================================================================
+        function showTab(tabId, btn) {
+            document.querySelectorAll('.tab-panel').forEach(function (el) { el.classList.remove('active'); });
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+        }
+
+        // ===================================================================
+        // Generic tree-info computation (self-computing, reused for both trees)
+        // ===================================================================
+        function computeTreeInfo(adj, root) {
+            const parent = {}, depth = {}, children = {}, subtree = {};
+            Object.keys(adj).forEach(function (k) { children[k] = []; subtree[k] = []; });
+            (function dfs(v, p) {
+                parent[v] = p;
+                depth[v] = (p === -1) ? 0 : depth[p] + 1;
+                adj[v].forEach(function (to) {
+                    if (to === p) return;
+                    children[v].push(to);
+                    dfs(to, v);
+                });
+            })(root, -1);
+            // subtree via post-order collection
+            (function collect(v) {
+                subtree[v] = [v];
+                children[v].forEach(function (c) {
+                    collect(c);
+                    subtree[v] = subtree[v].concat(subtree[c]);
+                });
+            })(root);
+            return { parent: parent, depth: depth, children: children, subtree: subtree };
+        }
+
+        // ===================================================================
+        // TAB 2: static inspectable visualization tree (7 nodes, fixed root = 0)
+        // ===================================================================
+        const VIS_ADJ = { 0: [1, 2], 1: [0, 3, 4], 2: [0, 5, 6], 3: [1], 4: [1], 5: [2], 6: [2] };
+        const VIS_POS = {
+            0: { x: 350, y: 50 }, 1: { x: 200, y: 170 }, 2: { x: 500, y: 170 },
+            3: { x: 120, y: 290 }, 4: { x: 280, y: 290 }, 5: { x: 420, y: 290 }, 6: { x: 580, y: 290 }
+        };
+        const VIS_EDGES = [[0, 1], [0, 2], [1, 3], [1, 4], [2, 5], [2, 6]];
+        const VIS_INFO = computeTreeInfo(VIS_ADJ, 0);
+        let visSelected = null;
+
+        function drawTree(svgId, pos, edges, rootId) {
+            const svg = document.getElementById(svgId);
+            svg.innerHTML = '';
+            edges.forEach(function (e) {
+                const a = pos[e[0]], b = pos[e[1]];
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
+                line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
+                line.setAttribute('class', 'tree-edge');
+                line.setAttribute('id', svgId + '_edge_' + e[0] + '_' + e[1]);
+                svg.appendChild(line);
+            });
+            Object.keys(pos).forEach(function (key) {
+                const id = parseInt(key, 10);
+                const p = pos[id];
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', p.x); circle.setAttribute('cy', p.y); circle.setAttribute('r', 20);
+                circle.setAttribute('class', 'tree-node-circle state-unvisited' + (id === rootId ? ' state-root' : ''));
+                circle.setAttribute('id', svgId + '_node_' + id);
+                svg.appendChild(circle);
+
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', p.x); label.setAttribute('y', p.y);
+                label.setAttribute('class', 'tree-node-index');
+                label.setAttribute('id', svgId + '_label_' + id);
+                label.textContent = id;
+                svg.appendChild(label);
+
+                if (id === rootId) {
+                    const tag = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    tag.setAttribute('x', p.x); tag.setAttribute('y', p.y - 32);
+                    tag.setAttribute('class', 'tree-root-tag');
+                    tag.textContent = 'root';
+                    svg.appendChild(tag);
+                }
+            });
+        }
+
+        function visNodeClicked(id) {
+            if (visSelected !== null) {
+                const prevEl = document.getElementById('visSvg_node_' + visSelected);
+                if (prevEl) prevEl.setAttribute('class', 'tree-node-circle state-unvisited' + (visSelected === 0 ? ' state-root' : ''));
+            }
+            visSelected = id;
+            const el = document.getElementById('visSvg_node_' + id);
+            if (el) el.setAttribute('class', 'tree-node-circle state-current' + (id === 0 ? ' state-root' : ''));
+
+            const info = VIS_INFO;
+            const isLeaf = info.children[id].length === 0;
+            const panel = document.getElementById('visInfoPanel');
+            panel.innerHTML =
+                '<div class="info-row"><b>العقدة:</b> <span class="val">' + id + '</span></div>' +
+                '<div class="info-row"><b>الأب (parent):</b> <span class="val">' + (info.parent[id] === -1 ? 'لا يوجد (هذه هي الجذر)' : info.parent[id]) + '</span></div>' +
+                '<div class="info-row"><b>العمق (depth):</b> <span class="val">' + info.depth[id] + '</span></div>' +
+                '<div class="info-row"><b>الأبناء (children):</b> <span class="val">' + (info.children[id].length ? '{' + info.children[id].join(', ') + '}' : '∅') + '</span></div>' +
+                '<div class="info-row"><b>الشجرة الفرعية (subtree):</b> <span class="val">{' + info.subtree[id].slice().sort(function (a, b) { return a - b; }).join(', ') + '}</span></div>' +
+                '<div class="info-row"><b>ورقة (leaf)؟</b> <span class="val">' + (isLeaf ? 'نعم' : 'لا') + '</span></div>';
+        }
+
+        function initVisTab() {
+            drawTree('visSvg', VIS_POS, VIS_EDGES, 0);
+            Object.keys(VIS_POS).forEach(function (key) {
+                const id = parseInt(key, 10);
+                const el = document.getElementById('visSvg_node_' + id);
+                el.onclick = (function (nodeId) { return function () { visNodeClicked(nodeId); }; })(id);
+            });
+        }
+
+        // ===================================================================
+        // TAB 5: interactive DFS simulator with selectable root (6 nodes)
+        // ===================================================================
+        const TREE_DFS_ADJ = { 0: [1, 2], 1: [0, 3], 2: [0, 4, 5], 3: [1], 4: [2], 5: [2] };
+        const TREE_DFS_POS = {
+            0: { x: 350, y: 50 }, 1: { x: 220, y: 170 }, 2: { x: 480, y: 170 },
+            3: { x: 220, y: 290 }, 4: { x: 400, y: 290 }, 5: { x: 560, y: 290 }
+        };
+        const TREE_DFS_EDGES = [[0, 1], [0, 2], [1, 3], [2, 4], [2, 5]];
+
+        let treeDfsRoot = 0;
+        let treeDfsEvents = [];
+        let treeDfsIndex = 0;
+        let treeDfsCurrent = null;
+        let treeDfsPlaying = false;
+        let treeDfsTimer = null;
+        let treeDfsResultRows = {};
+
+        function generateTreeDfsEvents(root) {
+            const events = [];
+            const parent = {}, depth = {}, sub = {};
+            Object.keys(TREE_DFS_ADJ).forEach(function (k) { sub[k] = 1; });
+            (function dfs(v, p) {
+                parent[v] = p;
+                depth[v] = (p === -1) ? 0 : depth[p] + 1;
+                events.push({ type: 'enter', node: v, parent: p, depth: depth[v] });
+                TREE_DFS_ADJ[v].forEach(function (to) {
+                    if (to === p) return;
+                    dfs(to, v);
+                    sub[v] += sub[to];
+                });
+                events.push({ type: 'return', node: v, sub: sub[v] });
+            })(root, -1);
+            return events;
+        }
+
+        function treeDfsLog(text, highlight) {
+            const box = document.getElementById('treeDfsConsole');
+            const line = document.createElement('div');
+            if (highlight) line.className = 'highlight-line';
+            line.innerText = text;
+            box.appendChild(line);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function treeDfsRenderResultsTable() {
+            const body = document.getElementById('treeDfsResultsBody');
+            body.innerHTML = '';
+            Object.keys(TREE_DFS_ADJ).map(Number).sort(function (a, b) { return a - b; }).forEach(function (id) {
+                const row = treeDfsResultRows[id] || {};
+                const tr = document.createElement('tr');
+                tr.innerHTML =
+                    '<td>' + id + '</td>' +
+                    '<td class="' + (row.parent === undefined ? 'empty-cell' : '') + '">' + (row.parent === undefined ? '—' : (row.parent === -1 ? 'root' : row.parent)) + '</td>' +
+                    '<td class="' + (row.depth === undefined ? 'empty-cell' : '') + '">' + (row.depth === undefined ? '—' : row.depth) + '</td>' +
+                    '<td class="' + (row.sub === undefined ? 'empty-cell' : '') + '">' + (row.sub === undefined ? '—' : row.sub) + '</td>';
+                body.appendChild(tr);
+            });
+        }
+
+        function treeDfsNodeClicked(id) {
+            if (treeDfsPlaying || treeDfsIndex > 0) return; // lock root choice once simulation has started
+            treeDfsRoot = id;
+            drawTree('treeDfsSvg', TREE_DFS_POS, TREE_DFS_EDGES, treeDfsRoot);
+            attachTreeDfsClicks();
+            document.getElementById('treeDfsHint').innerText = 'الجذر المختار: ' + id + '. اضغط "تشغيل DFS" أو "خطوة واحدة" للبدء.';
+        }
+
+        function attachTreeDfsClicks() {
+            Object.keys(TREE_DFS_POS).forEach(function (key) {
+                const id = parseInt(key, 10);
+                const el = document.getElementById('treeDfsSvg_node_' + id);
+                el.onclick = (function (nodeId) { return function () { treeDfsNodeClicked(nodeId); }; })(id);
+            });
+        }
+
+        function treeDfsReset() {
+            treeDfsEvents = [];
+            treeDfsIndex = 0;
+            treeDfsCurrent = null;
+            treeDfsResultRows = {};
+            treeDfsPlaying = false;
+            if (treeDfsTimer) { clearInterval(treeDfsTimer); treeDfsTimer = null; }
+            drawTree('treeDfsSvg', TREE_DFS_POS, TREE_DFS_EDGES, treeDfsRoot);
+            attachTreeDfsClicks();
+            document.getElementById('treeDfsConsole').innerHTML = '';
+            document.getElementById('treeDfsHint').innerText = 'اضغط على عقدة لاختيارها جذراً، ثم اضغط "تشغيل DFS"';
+            document.getElementById('treeDfsPlayBtn').innerHTML = '<i class="fas fa-play"></i> تشغيل DFS';
+            treeDfsRenderResultsTable();
+        }
+
+        function treeDfsFinish() {
+            if (treeDfsCurrent !== null) setNodeStateTree('treeDfsSvg', treeDfsCurrent, 'done', treeDfsRoot);
+            treeDfsLog('انتهت المحاكاة! كل القيم محسوبة.', true);
+            document.getElementById('treeDfsHint').innerText = 'انتهت المحاكاة — راجع الجدول أعلاه لكل القيم.';
+            treeDfsStopPlaying();
+        }
+
+        function treeDfsStopPlaying() {
+            treeDfsPlaying = false;
+            if (treeDfsTimer) { clearInterval(treeDfsTimer); treeDfsTimer = null; }
+            document.getElementById('treeDfsPlayBtn').innerHTML = '<i class="fas fa-play"></i> تشغيل DFS';
+        }
+
+        function setNodeStateTree(svgId, id, state, rootId) {
+            const circle = document.getElementById(svgId + '_node_' + id);
+            if (!circle) return;
+            circle.setAttribute('class', 'tree-node-circle state-' + state + (id === rootId ? ' state-root' : ''));
+        }
+
+        function treeDfsStep() {
+            if (treeDfsIndex === 0 && treeDfsEvents.length === 0) {
+                treeDfsEvents = generateTreeDfsEvents(treeDfsRoot);
+                treeDfsLog('بدء DFS من الجذر ' + treeDfsRoot + ' (parent = -1)...', true);
+            }
+            if (treeDfsIndex >= treeDfsEvents.length) {
+                treeDfsFinish();
+                return;
+            }
+            const ev = treeDfsEvents[treeDfsIndex];
+            treeDfsIndex++;
+
+            if (ev.type === 'enter') {
+                if (treeDfsCurrent !== null) setNodeStateTree('treeDfsSvg', treeDfsCurrent, 'current', treeDfsRoot);
+                setNodeStateTree('treeDfsSvg', ev.node, 'current', treeDfsRoot);
+                treeDfsCurrent = ev.node;
+                treeDfsResultRows[ev.node] = treeDfsResultRows[ev.node] || {};
+                treeDfsResultRows[ev.node].parent = ev.parent;
+                treeDfsResultRows[ev.node].depth = ev.depth;
+                treeDfsLog('دخول العقدة ' + ev.node + ': parent=' + (ev.parent === -1 ? '-1 (root)' : ev.parent) + ', depth=' + ev.depth, true);
+            } else if (ev.type === 'return') {
+                setNodeStateTree('treeDfsSvg', ev.node, 'done', treeDfsRoot);
+                treeDfsResultRows[ev.node] = treeDfsResultRows[ev.node] || {};
+                treeDfsResultRows[ev.node].sub = ev.sub;
+                treeDfsLog('  خروج/عودة من العقدة ' + ev.node + ': sub[' + ev.node + '] = ' + ev.sub);
+            }
+
+            treeDfsRenderResultsTable();
+
+            if (treeDfsIndex >= treeDfsEvents.length) {
+                treeDfsFinish();
+            }
+        }
+
+        function treeDfsTogglePlay() {
+            if (treeDfsPlaying) {
+                treeDfsStopPlaying();
+                return;
+            }
+            if (treeDfsIndex >= treeDfsEvents.length && treeDfsEvents.length > 0) {
+                treeDfsReset();
+            }
+            treeDfsPlaying = true;
+            document.getElementById('treeDfsPlayBtn').innerHTML = '<i class="fas fa-pause"></i> إيقاف';
+            treeDfsTimer = setInterval(function () {
+                if (treeDfsIndex >= treeDfsEvents.length && treeDfsEvents.length > 0) {
+                    treeDfsStopPlaying();
+                    return;
+                }
+                treeDfsStep();
+            }, 850);
+        }
+
+        // ===================================================================
+        // TAB 6: quiz bank (15 questions, 3 categories, live score)
+        // ===================================================================
+        const QUIZ_BANK = [
+            { diff: 'easy', q: 'كم عدد الأحرف في شجرة تحتوي على 10 عقد؟', opts: ['8', '9', '10', '11'], correct: 1 },
+            { diff: 'easy', q: 'ما الذي يحدث عند إزالة حرف واحد من الشجرة؟', opts: ['تنشأ دورة', 'تبقى شجرة', 'تنقسم إلى مكوّنين', 'لا شيء يتغير'], correct: 2 },
+            { diff: 'easy', q: 'كم مساراً بسيطاً يوجد بين أي عقدتين في الشجرة؟', opts: ['صفر', 'واحد فقط', 'اثنان', 'غير محدود'], correct: 1 },
+            { diff: 'easy', q: 'ما اسم العقدة التي لا أبناء لها في الشجرة المجذّرة؟', opts: ['الجذر', 'الأب', 'الورقة', 'الجسر'], correct: 2 },
+            { diff: 'easy', q: 'في الشجرة المجذّرة، ما depth الجذر؟', opts: ['1', '-1', '0', 'يعتمد على الشجرة'], correct: 2 },
+            { diff: 'medium', q: 'في دالة dfs(v, p) لحساب depth وparent، ما الغرض من الشرط if (to == p) continue؟', code: 'void dfs(int v, int p) {\n    parent[v] = p;\n    for (int to : g[v]) {\n        if (to == p) continue; // <- هنا\n        depth[to] = depth[v] + 1;\n        dfs(to, v);\n    }\n}', opts: ['لتحسين الأداء فقط', 'لمنع العودة إلى الأب، وبالتالي تفادي حلقة تكرارية لا نهائية', 'لحساب العمق بدقة أكبر', 'لا فائدة له، يمكن حذفه بأمان'], correct: 1 },
+            { diff: 'medium', q: 'ما قيمة sub[v] الابتدائية لعقدة ورقة (leaf) في دالة حساب حجم الشجرة الفرعية؟', opts: ['0', '1', 'يساوي عدد إخوتها', 'غير معرّفة'], correct: 1 },
+            { diff: 'medium', q: 'ما ناتج مجموع |children(v)| على كل عقدات شجرة فيها n عقدة؟', opts: ['n', 'n − 1', 'n + 1', '2(n − 1)'], correct: 1 },
+            { diff: 'medium', q: 'لو غيّرنا جذر الشجرة من 0 إلى عقدة أخرى بعيدة، ماذا يتغير؟', opts: ['لا شيء يتغير إطلاقاً', 'تتغير قيم depth فقط', 'تتغير قيم parent وdepth (وربما subtree) لعقد كثيرة، لكن مجموعة حواف الشجرة نفسها لا تتغير', 'تصبح الشجرة رسمًا بيانيًا مختلفًا تمامًا'], correct: 2 },
+            { diff: 'medium', q: 'أي تعريف صحيح لـ"الجسر" (Bridge) في سياق الأشجار؟', opts: ['عقدة بلا أبناء', 'أي حافة في الشجرة، لأن حذفها يفصلها دائماً إلى مكوّنين', 'حافة تربط الجذر بأبنائه المباشرين فقط', 'لا يوجد مفهوم "جسر" في الأشجار'], correct: 1 },
+            { diff: 'hard', q: 'ما هو "قطر الشجرة" (Tree Diameter)؟', opts: ['أطول مسار بسيط بين أي عقدتين في الشجرة', 'عدد عقد الشجرة الكلي', 'أقصر مسار من الجذر إلى أبعد ورقة', 'عدد الأوراق في الشجرة'], correct: 0 },
+            { diff: 'hard', q: 'ما الخوارزمية القياسية لإيجاد قطر الشجرة في زمن O(n)؟', opts: ['تجربة كل الأزواج الممكنة من العقد', 'DFS أو BFS مرتين: من أي عقدة نصل لأبعد عقدة a، ثم من a نصل لأبعد عقدة b، فيكون a→b هو القطر', 'فرز العقد حسب العمق واختيار أبعد اثنتين', 'لا توجد خوارزمية خطية معروفة لهذه المسألة'], correct: 1 },
+            { diff: 'hard', q: 'ما هو "السلف المشترك الأدنى" (LCA) لعقدتين u وv في شجرة مجذّرة؟', opts: ['أعمق عقدة تكون سلفًا لكل من u وv معًا', 'أي عقدة تربط u بـv مباشرة بحافة', 'جذر الشجرة دائمًا مهما كانت u وv', 'متوسط قيمتي depth(u) وdepth(v)'], correct: 0 },
+            { diff: 'hard', q: 'ما فكرة "Binary Lifting" لحساب LCA بكفاءة؟', opts: ['حساب الأب المباشر لكل عقدة فقط (خطوة واحدة للأعلى)', 'تحضير أسلاف كل عقدة على مسافات 2^0, 2^1, 2^2, ... مسبقًا، لنستطيع القفز إلى أي سلف بعدد خطوات O(log n)', 'ترتيب العقد أبجديًا حسب اسمها', 'استخدام DFS فقط دون أي تحضير مسبق'], correct: 1 },
+            { diff: 'hard', q: 'ما هي فكرة تقنية "Rerooting" ولماذا نحتاجها؟', opts: ['حذف الشجرة بالكامل وإعادة بنائها من جديد عند كل جذر مختلف', 'حساب نتيجة (مثل أبعد مسافة) لكل عقدة كما لو كانت هي الجذر، باستخدام مرورين فقط على الشجرة بدلاً من تشغيل DFS منفصل O(n) لكل عقدة (فيصبح O(n) بدلاً من O(n²))', 'تبديل مصفوفتي parent وchildren فقط دون أي حساب إضافي', 'تقنية نظرية غير مستخدمة عمليًا في مسائل الأولمبياد'], correct: 1 }
+        ];
+        let qbAnswers = new Array(QUIZ_BANK.length).fill(null);
+        const QB_DIFF_LABELS = { easy: 'سهل', medium: 'متوسط', hard: 'صعب' };
+        const QB_DIFF_CLASS = { easy: 'qb-diff-easy', medium: 'qb-diff-medium', hard: 'qb-diff-hard' };
+        const QB_DIFF_ICON = { easy: '🟢', medium: '🟡', hard: '🔴' };
+
+        function escapeHtml(s) {
+            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function qbRenderAll() {
+            const container = document.getElementById('qbContainer');
+            let html = '';
+            ['easy', 'medium', 'hard'].forEach(function (diff) {
+                const items = QUIZ_BANK.map(function (item, idx) { return { item: item, idx: idx }; }).filter(function (x) { return x.item.diff === diff; });
+                html += '<div class="qb-category-header"><span style="font-size:1.2rem;">' + QB_DIFF_ICON[diff] + '</span><h4>' + QB_DIFF_LABELS[diff] + ' (' + items.length + ' أسئلة)</h4></div>';
+                items.forEach(function (entry, i) {
+                    const item = entry.item, idx = entry.idx;
+                    const chosen = qbAnswers[idx];
+                    html += '<div class="qb-question-block">';
+                    html += '<span class="qb-diff-badge ' + QB_DIFF_CLASS[diff] + '">' + QB_DIFF_LABELS[diff] + '</span>';
+                    html += '<h5 style="margin-top:10px;">' + (i + 1) + '. ' + escapeHtml(item.q) + '</h5>';
+                    if (item.code) {
+                        html += '<div class="qb-code-snippet">' + escapeHtml(item.code) + '</div>';
+                    }
+                    item.opts.forEach(function (opt, oi) {
+                        let cls = 'qb-opt';
+                        if (chosen !== null) {
+                            if (oi === item.correct) cls += ' correct';
+                            else if (oi === chosen) cls += ' wrong';
+                        }
+                        html += '<div class="' + cls + '" onclick="qbSelect(' + idx + ',' + oi + ')">' + escapeHtml(opt) + '</div>';
+                    });
+                    html += '</div>';
+                });
+            });
+            container.innerHTML = html;
+            qbUpdateScore();
+        }
+
+        function qbSelect(idx, oi) {
+            if (qbAnswers[idx] !== null) return;
+            qbAnswers[idx] = oi;
+            qbRenderAll();
+        }
+
+        function qbUpdateScore() {
+            let answered = 0, correct = 0;
+            qbAnswers.forEach(function (a, idx) {
+                if (a !== null) {
+                    answered++;
+                    if (a === QUIZ_BANK[idx].correct) correct++;
+                }
+            });
+            document.getElementById('qbTotalNum').innerText = correct + ' / ' + answered;
+            document.getElementById('qbCorrectNum').innerText = correct;
+            document.getElementById('qbWrongNum').innerText = answered - correct;
+        }
+
+        function qbResetAll() {
+            qbAnswers = new Array(QUIZ_BANK.length).fill(null);
+            qbRenderAll();
+        }
+
+        // ===================================================================
+        // Init
+        // ===================================================================
+        initVisTab();
+        treeDfsReset();
+        qbRenderAll();
+    </script>
+</body>
+</html>

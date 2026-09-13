@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | البرمجة الديناميكية (Dynamic Programming)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+        .exam-badge {
+            background: rgba(239, 68, 68, 0.1); border: 2px solid #ef4444; color: #b91c1c;
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .hero-banner { background: var(--blue-gradient); padding: 70px 6% 60px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 760px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        .container { max-width: 920px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+            white-space: pre-line;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        .bullet-list { list-style: none; padding: 0; margin: 16px 0; }
+        .bullet-list li { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; color: var(--text-body); }
+        .bullet-list li i { color: var(--primary-blue); margin-top: 4px; flex-shrink: 0; }
+
+        /* interactive lab */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 6px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-sub { text-align: center; font-size: 0.85rem; color: var(--text-body); margin-bottom: 14px; }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 14px 0 6px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+        .lab-btn.ghost { background: white; border: 2px solid #cbd5e1; color: var(--text-body); }
+        .lab-btn.yellow { background: var(--yellow-gradient); }
+        .lab-btn.purple { background: linear-gradient(135deg, #a855f7, #7e22ce); }
+        .lab-mode-toggle { display: flex; gap: 8px; justify-content: center; margin-bottom: 14px; }
+        .lab-mode-btn {
+            border: 2px solid #cbd5e1; background: white; padding: 8px 20px; border-radius: 50px;
+            font-weight: 800; font-family: 'Tajawal'; font-size: 0.82rem; cursor: pointer; color: var(--text-body);
+        }
+        .lab-mode-btn.active { border-color: var(--primary-blue); background: rgba(0,173,239,0.1); color: var(--primary-blue); }
+
+        /* fibonacci recursion tree (indented rows) */
+        .fib-tree-box { background: #0f172a; border-radius: 14px; padding: 16px 20px; direction: ltr; overflow-x: auto; }
+        .fib-row { font-family: 'Consolas', monospace; font-size: 0.82rem; padding: 4px 0; white-space: nowrap; color: #475569; opacity: 0.35; transition: all 0.3s ease; }
+        .fib-row .fib-branch { color: #334155; }
+        .fib-row.state-active { color: #38bdf8; opacity: 1; font-weight: 700; }
+        .fib-row.state-base { color: #4ade80; opacity: 1; font-weight: 700; }
+        .fib-row.state-computed { color: #facc15; opacity: 1; font-weight: 700; }
+        .fib-row.state-cache { color: #c084fc; opacity: 1; font-weight: 700; }
+        .fib-summary-box { text-align: center; margin-top: 12px; font-weight: 800; color: var(--dark-navy); }
+
+        /* dp table cells (fibonacci table + min-cost table) */
+        .dp-row-label { text-align: center; font-family: 'Consolas', monospace; font-size: 0.8rem; color: var(--text-body); margin-bottom: 4px; direction: ltr; }
+        .dp-cells-row { display: flex; gap: 8px; justify-content: center; direction: ltr; margin: 0 0 16px; flex-wrap: wrap; }
+        .dp-cell {
+            min-width: 48px; padding: 8px 6px; border-radius: 10px; background: var(--bg-main);
+            border: 2px solid #cbd5e1; text-align: center; transition: all 0.3s ease;
+        }
+        .dp-cell-index { font-size: 0.65rem; color: #94a3b8; font-family: 'Consolas', monospace; }
+        .dp-cell-value { font-family: 'Consolas', monospace; font-weight: 800; font-size: 0.95rem; color: var(--dark-navy); margin-top: 2px; min-height: 1.1em; }
+        .dp-cell.active { border-color: var(--primary-blue); background: rgba(0,173,239,0.14); }
+        .dp-cell.source { border-color: var(--primary-yellow); background: rgba(247,148,30,0.14); }
+        .dp-cell.done { border-color: #22c55e; }
+        .dp-cell.path { border-color: #a855f7; background: rgba(168,85,247,0.16); }
+        .dp-cell.boundary { border-style: dashed; opacity: 0.7; }
+
+        .subset-console {
+            background: #0f172a; border-radius: 14px; padding: 16px 20px; margin: 14px 0; min-height: 40px;
+            font-family: 'Consolas', monospace; color: #4ade80; direction: ltr; text-align: left; font-size: 0.85rem; line-height: 1.8;
+            max-height: 220px; overflow-y: auto;
+        }
+        .subset-console .highlight-line { color: #facc15; font-weight: 700; }
+
+        /* true/false activity */
+        .activity-box { background: white; border-radius: 22px; padding: 32px; margin: 28px 0; box-shadow: var(--soft-shadow); border: 1px solid #e2e8f0; }
+        .activity-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .activity-header i { color: var(--primary-blue); font-size: 1.2rem; }
+        .activity-header h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); }
+        .activity-intro { margin-bottom: 20px; font-size: 0.92rem; }
+        .tf-item {
+            background: var(--bg-main); border-radius: 16px; padding: 18px 22px; margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+            border: 1px solid #e2e8f0;
+        }
+        .tf-statement { margin: 0; font-weight: 700; color: var(--dark-navy); font-size: 0.95rem; flex: 1 1 260px; direction: ltr; text-align: right; unicode-bidi: plaintext; }
+        .tf-buttons { display: flex; gap: 10px; flex-shrink: 0; }
+        .tf-btn {
+            border: 2px solid #e2e8f0; background: white; padding: 9px 26px; border-radius: 50px;
+            font-weight: 800; font-family: 'Tajawal'; font-size: 0.88rem; cursor: pointer; color: var(--dark-navy); transition: 0.2s;
+        }
+        .tf-btn:hover { border-color: var(--primary-blue); }
+        .tf-btn.tf-selected-correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .tf-btn.tf-selected-wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .tf-feedback { flex-basis: 100%; margin-top: 2px; font-weight: 700; font-size: 0.85rem; min-height: 18px; }
+
+        .homework-item { background: var(--bg-main); border-radius: 18px; padding: 24px; margin-top: 20px; border: 1px solid #e2e8f0; }
+        .homework-item h4 { margin: 0 0 10px; color: var(--dark-navy); font-size: 1.02rem; font-weight: 800; }
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            margin-top: 14px;
+        }
+        .collapsible { display: none; margin-top: 14px; }
+        .collapsible.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge">الفصل 6: البرمجة الديناميكية</span>
+            <span class="exam-badge"><i class="fas fa-star"></i> أساسي للاختبار</span>
+            <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الثالث</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-layer-group"></i>
+        <h1>الفصل السادس: البرمجة الديناميكية (Dynamic Programming - DP)</h1>
+        <p class="hero-desc">هذا أحد أهم الفصول في كامل المنهج. تقريبًا كل مسألة صعبة ستقابلها في الاختبار ستكون إما برمجة ديناميكية مباشرة، أو مبنية على نفس طريقة التفكير. خذ وقتك في هذا الفصل، جرّب كل مختبر تفاعلي أكثر من مرة، وتأكد أنك تفهم <strong>لماذا</strong> يعمل كل حل قبل الانتقال للتالي.</p>
+    </div>
+
+    <div class="container">
+
+        <!-- What is DP -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-info"></i>
+                <h3>ما هي البرمجة الديناميكية؟</h3>
+            </div>
+            <p>البرمجة الديناميكية (DP) هي طريقة لحل المسائل التي:</p>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>تتكرر فيها نفس المسائل الفرعية عدة مرات (يُسمى هذا رسميًا <strong>المسائل الفرعية المتراكبة — Overlapping Subproblems</strong>)، و</p></li>
+                <li><i class="fas fa-check"></i><p>يمكن بناء حل المسألة الكبيرة من حلول مسائل أصغر (يُسمى هذا <strong>البنية المثلى الفرعية — Optimal Substructure</strong>).</p></li>
+            </ul>
+            <p><strong>الفكرة الأساسية:</strong> لا تُعِد حساب نفس الشيء مرارًا وتكرارًا. بدلًا من ذلك، خزّن (memoize) النتائج في مصفوفة أو خريطة (array أو map) وأعد استخدامها.</p>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>احفظ هذين المصطلحين جيدًا (Overlapping Subproblems و Optimal Substructure) — أي سؤال نظري في الاختبار عن "متى نستخدم DP؟" سيتوقع منك ذكرهما تحديدًا.</p>
+            </div>
+        </div>
+
+        <!-- Fibonacci intro -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-code-branch"></i>
+                <h3>مثال تمهيدي: أعداد فيبوناتشي</h3>
+            </div>
+            <p>نعرّف متتالية فيبوناتشي كالتالي:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>التعريف</th><th class="ltr">الصيغة</th></tr></thead>
+                    <tbody>
+                        <tr><td>الحالة الأساسية الأولى</td><td class="ltr">F(0) = 0</td></tr>
+                        <tr><td>الحالة الأساسية الثانية</td><td class="ltr">F(1) = 1</td></tr>
+                        <tr><td>العلاقة العودية</td><td class="ltr">F(n) = F(n-1) + F(n-2), n ≥ 2</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 class="sub-title">الحل العودي الساذج (البطيء)</h4>
+            <div class="code-box">
+                <div class="code-head"><span>fib_naive.cpp</span></div>
+                <pre>int fib(int n) {
+    if (n == 0) return 0;
+    if (n == 1) return 1;
+    return fib(n - 1) + fib(n - 2);
+}</pre>
+            </div>
+            <div class="output-box">F(0)=0 F(1)=1 F(2)=1 F(3)=2 F(4)=3 F(5)=5 F(6)=8 F(7)=13 F(8)=21 F(9)=34 F(10)=55</div>
+        </div>
+
+        <!-- Why slow -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>ما المشكلة هنا؟</h3>
+            </div>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p><code class="inline">fib(5)</code> تستدعي <code class="inline">fib(4)</code> و <code class="inline">fib(3)</code>.</p></li>
+                <li><i class="fas fa-check"></i><p><code class="inline">fib(4)</code> تستدعي <code class="inline">fib(3)</code> و <code class="inline">fib(2)</code>.</p></li>
+                <li><i class="fas fa-check"></i><p>الدالة <code class="inline">fib(3)</code> مثلًا تُستدعى مرات كثيرة مكررة — وهذا بالضبط تعريف "المسائل الفرعية المتراكبة".</p></li>
+            </ul>
+            <p>عدد الاستدعاءات يصبح أُسّيًا تقريبًا (كل استدعاء يتفرّع إلى استدعاءين، بعمق يقارب <code class="inline">n</code>)، فالزمن ≈ <code class="inline">O(2ⁿ)</code>. الأرقام الفعلية توضّح حجم المشكلة:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th class="ltr">n</th><th class="ltr">عدد الاستدعاءات الفعلي (مُقاس فعليًا)</th></tr></thead>
+                    <tbody>
+                        <tr><td class="ltr">5</td><td class="ltr">15</td></tr>
+                        <tr><td class="ltr">10</td><td class="ltr">177</td></tr>
+                        <tr><td class="ltr">30</td><td class="ltr">2,692,537</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>لاحظ القفزة: من n=10 إلى n=30 فقط (أي 3 أضعاف تقريبًا)، قفز عدد الاستدعاءات من 177 إلى أكثر من 2.6 مليون! هذا هو التزايد الأُسّي فعليًا، وهو ما يجعل الحل الساذج غير عملي إطلاقًا لقيم n الكبيرة (تخيّل n=50 أو أكثر).</p>
+            </div>
+        </div>
+
+        <!-- Lab 1: recursion tree -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>مختبر تفاعلي: شاهد شجرة الاستدعاءات المتكررة لـ fib(5)</h3>
+            </div>
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-sitemap"></i> بدون تذكار مقابل مع تذكار</p>
+                <p class="lab-sub">اختر الوضع، ثم شغّل المحاكاة لمشاهدة كل استدعاء يظهر بترتيبه الفعلي. لاحظ كيف تختفي فروع كاملة من الشجرة عند تفعيل التذكار.</p>
+
+                <div class="lab-mode-toggle">
+                    <button class="lab-mode-btn active" id="fibModeNaiveBtn" onclick="setFibMode(false)">بدون تذكار</button>
+                    <button class="lab-mode-btn" id="fibModeMemoBtn" onclick="setFibMode(true)">مع تذكار</button>
+                </div>
+
+                <div class="fib-tree-box">
+                    <div id="fibTreeRows"></div>
+                </div>
+
+                <div class="fib-summary-box" id="fibTreeSummary">عدد الاستدعاءات الفعلية حتى الآن: 0</div>
+                <div class="lab-step-hint" id="fibTreeHint">اضغط "تشغيل تلقائي" للبدء.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="fibTreeStep()">الخطوة التالية</button>
+                    <button class="lab-btn yellow" onclick="fibTreeAutoPlay()">تشغيل تلقائي</button>
+                    <button class="lab-btn ghost" onclick="fibTreeReset()">إعادة ضبط</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top-down memoization -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-database"></i>
+                <h3>إصلاحها بالتذكار (Memoization) — أسلوب من أعلى لأسفل (Top-Down DP)</h3>
+            </div>
+            <p>ننشئ مصفوفة <code class="inline">dp[]</code> بحيث <code class="inline">dp[n]</code> تخزن قيمة <code class="inline">fib(n)</code> بعد حسابها مرة واحدة. قبل حساب <code class="inline">fib(n)</code> نتحقق أولًا: هل <code class="inline">dp[n]</code> محسوبة مسبقًا أم لا.</p>
+            <div class="code-box">
+                <div class="code-head"><span>fib_memo.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+vector&lt;long long&gt; dp;
+
+long long fib(int n) {
+    if (n == 0) return 0;
+    if (n == 1) return 1;
+
+    if (dp[n] != -1) return dp[n]; <span class="cmt">// محسوبة مسبقًا</span>
+
+    dp[n] = fib(n - 1) + fib(n - 2);
+    return dp[n];
+}
+
+int main() {
+    int n = 50;
+    dp.assign(n + 1, -1);
+
+    cout << "F(" << n << ") = " << fib(n) << "\n";
+}</pre>
+            </div>
+            <div class="output-box">F(50) = 12586269025</div>
+            <p>بهذا الشكل، كل <code class="inline">fib(k)</code> تُحسب مرة واحدة فقط، وأي استدعاء لاحق لنفس <code class="inline">k</code> يعيد القيمة المخزنة بدلًا من إعادة الحساب، فيصبح الزمن <code class="inline">O(n)</code> بدلًا من <code class="inline">O(2ⁿ)</code>. الفرق مذهل عمليًا:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>الأسلوب</th><th class="ltr">n</th><th class="ltr">عدد الاستدعاءات</th></tr></thead>
+                    <tbody>
+                        <tr><td>عودي ساذج</td><td class="ltr">30</td><td class="ltr">2,692,537</td></tr>
+                        <tr><td>مع تذكار (Top-Down)</td><td class="ltr">50</td><td class="ltr">99</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p><strong>لماذا القيمة -1 تحديدًا؟</strong> نستخدمها كـ"إشارة" (sentinel) تعني "لم تُحسب بعد"، لأن قيم فيبوناتشي الحقيقية لا يمكن أن تكون سالبة أبدًا. هذا النمط (اختيار قيمة مستحيلة الحدوث كإشارة "لم يُحسب") شائع جدًا في مسائل DP.</p>
+            </div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p><strong>احذر:</strong> هذه الحيلة تعمل فقط لأن إجابات فيبوناتشي الصحيحة لا تكون -1 أبدًا. في مسائل أخرى قد تكون الإجابة الصحيحة نفسها -1 أو سالبة (مثل مسائل "أقصى ربح" التي قد يكون أفضل حل فيها خسارة). في هذه الحالة، لا يصح استخدام -1 كإشارة؛ بدلًا من ذلك نستخدم مصفوفة منفصلة من نوع <code class="inline">bool</code> تُسمّى غالبًا <code class="inline">visited[]</code> لتتبّع ما إذا كانت الحالة محسوبة أم لا.</p>
+            </div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p><strong>احذر أيضًا من الفيضان:</strong> لاحظ أن نوع <code class="inline">dp</code> هنا هو <code class="inline">long long</code> وليس <code class="inline">int</code>. قيم فيبوناتشي تكبر بسرعة كبيرة: <code class="inline">F(47) = 2,971,215,073</code> بالفعل تتجاوز أكبر قيمة يمكن أن يخزنها <code class="inline">int</code> (حوالي 2.147 مليار). لو استخدمت <code class="inline">int</code> بدلًا من <code class="inline">long long</code>، فستحصل على <code class="inline">F(50) = -298632863</code> — رقم سالب خاطئ تمامًا، بصمت ودون أي تحذير من المترجم!</p>
+            </div>
+        </div>
+
+        <!-- SRTBOT for fibonacci -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-diagram-project"></i>
+                <h3>إطار SRTBOT لفيبوناتشي</h3>
+            </div>
+            <p>نستخدم إطار <strong>SRTBOT</strong> لتنظيم التفكير في أي مسألة برمجة ديناميكية: <code class="inline">State → Recurrence → Transitions → Base cases → Order of computation → Time/space complexity</code>.</p>
+
+            <h4 class="sub-title">S — State (الحالة)</h4>
+            <p>ماذا تمثّل <code class="inline">dp[i]</code>؟ &nbsp; <code class="inline">dp[i] = F(i)</code>، أي عدد فيبوناتشي رقم <code class="inline">i</code>. تعريف الحالة بدقة هو أهم خطوة في أي مسألة DP — كل شيء آخر يُبنى عليها.</p>
+
+            <h4 class="sub-title">R — Recurrence (العلاقة العودية)</h4>
+            <p>كيف نبني الحالة الكبيرة من حالات أصغر؟ &nbsp; <code class="inline">dp[i] = dp[i-1] + dp[i-2]</code> عندما <code class="inline">i ≥ 2</code>.</p>
+
+            <h4 class="sub-title">T — Transitions (الانتقالات)</h4>
+            <p>للوصول إلى <code class="inline">dp[i]</code> ننتقل من الحالتين <code class="inline">dp[i-1]</code> و<code class="inline">dp[i-2]</code>. أي أن <code class="inline">dp[i]</code> يعتمد على هاتين الحالتين فقط، ولا شيء غيرهما.</p>
+
+            <h4 class="sub-title">B — Base Cases (الحالات الأساسية)</h4>
+            <p>نحدد أول قيمتين: <code class="inline">dp[0] = 0</code> و <code class="inline">dp[1] = 1</code>. بدون هذه القيم لا يمكننا بدء الحساب أبدًا — فكل علاقة عودية تحتاج نقطة انطلاق معروفة.</p>
+
+            <h4 class="sub-title">O — Order of Computation (ترتيب الحساب)</h4>
+            <p>في الأسلوب من أسفل لأعلى (Bottom-Up)، نحسب القيم من الأصغر إلى الأكبر:</p>
+            <div class="code-box">
+                <div class="code-head"><span>fib_bottomup.cpp</span></div>
+                <pre>for (int i = 2; i <= n; i++) {
+    dp[i] = dp[i - 1] + dp[i - 2];
+}</pre>
+            </div>
+            <p>أي بالترتيب: <code class="inline">0 ← 1 ← 2 ← ... ← n</code>. هذا الترتيب ليس اختياريًا: يجب أن تكون <code class="inline">dp[i-1]</code> و<code class="inline">dp[i-2]</code> جاهزتين قبل حساب <code class="inline">dp[i]</code>.</p>
+
+            <h4 class="sub-title">T — Time & Space Complexity (التعقيد الزمني والذاكري)</h4>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>الزمن: نحسب كل <code class="inline">dp[i]</code> مرة واحدة → <code class="inline">O(n)</code>.</p></li>
+                <li><i class="fas fa-check"></i><p>الذاكرة: نخزّن <code class="inline">dp[0..n]</code> → <code class="inline">O(n)</code>، ويمكن تقليلها إلى <code class="inline">O(1)</code> إذا احتفظنا بآخر قيمتين فقط بدل المصفوفة كاملة.</p></li>
+            </ul>
+        </div>
+
+        <!-- Lab 2: fibonacci bottom-up table fill -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>مختبر تفاعلي: شاهد جدول Bottom-Up يُملأ خطوة بخطوة</h3>
+            </div>
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-table-cells"></i> ملء dp[0..10] لفيبوناتشي</p>
+                <p class="lab-sub">في كل خطوة، سيتم تظليل الحالتين dp[i-1] و dp[i-2] (المصدر) قبل حساب وتعبئة dp[i].</p>
+
+                <div class="dp-row-label">dp[i]</div>
+                <div class="dp-cells-row" id="fibDpRow"></div>
+
+                <div class="lab-step-hint" id="fibDpHint">اضغط "الخطوة التالية" أو "تشغيل تلقائي" للبدء.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="fibDpStep()">الخطوة التالية</button>
+                    <button class="lab-btn yellow" onclick="fibDpAutoPlay()">تشغيل تلقائي</button>
+                    <button class="lab-btn ghost" onclick="fibDpReset()">إعادة ضبط</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity A -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>نشاط: مراجعة سريعة لأساسيات DP وفيبوناتشي</h4>
+            </div>
+            <p class="activity-intro">حدّد إن كانت كل عبارة صحيحة أم خاطئة.</p>
+
+            <div class="tf-item" id="tfDp1">
+                <p class="tf-statement">DP مفيدة عندما توجد مسائل فرعية متكررة (overlapping subproblems).</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp1', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp1', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfDp2">
+                <p class="tf-statement">الحل العودي الساذج لفيبوناتشي يعيد حساب نفس القيم مرات كثيرة.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp2', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp2', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfDp3">
+                <p class="tf-statement">استخدام -1 كإشارة "لم يُحسب بعد" يصلح في كل مسائل DP دون استثناء.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp3', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp3', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfDp4">
+                <p class="tf-statement">في Bottom-Up لفيبوناتشي، يجب حساب dp[i-1] و dp[i-2] قبل dp[i].</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp4', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp4', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Second problem: min cost to reach the end -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-road"></i>
+                <h3>المسألة الثانية: أقل كلفة للوصول إلى نهاية المصفوفة</h3>
+            </div>
+            <p>معطاة مصفوفة <code class="inline">cost[0..n-1]</code> حيث <code class="inline">cost[i]</code> هي الكلفة التي تدفعها عند الوقوف على الموقع <code class="inline">i</code>. أنت تبدأ قبل المصفوفة وتريد الوصول إلى بعد آخر عنصر (الموقع <code class="inline">n</code>). من الموقع <code class="inline">i</code> يمكنك الانتقال إلى <code class="inline">i+1</code> أو <code class="inline">i+2</code>، ويمكنك أن تبدأ من <code class="inline">0</code> أو من <code class="inline">1</code>.</p>
+            <p><strong>الهدف:</strong> إيجاد أقل كلفة كلية للوصول إلى الموقع <code class="inline">n</code>.</p>
+
+            <h4 class="sub-title">مثال</h4>
+            <div class="code-box">
+                <div class="code-head"><span>example</span></div>
+                <pre>cost = [1, 100, 1, 1]
+
+Start at 0:
+  0 -> 2 -> n
+  cost = cost[0] + cost[2] = 1 + 1 = 2
+
+Start at 1:
+  1 -> 3 -> n
+  cost = 100 + 1 = 101
+
+Answer = 2</pre>
+            </div>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>لاحظ كيف أن البدء من الموقع 1 يجبرك على دفع الكلفة الباهظة <code class="inline">cost[1] = 100</code>، بينما البدء من 0 والقفز مباشرة إلى 2 (متجاوزًا الموقع 1 بالكامل) يتفاداها تمامًا. هذا بالضبط سبب وجود خيار "القفز خطوتين" في المسألة.</p>
+            </div>
+        </div>
+
+        <!-- Naive recursive -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>الحل العودي الساذج</h3>
+            </div>
+            <p>نعرّف دالة <code class="inline">solve(i)</code> = أقل كلفة للوصول من الموقع <code class="inline">i</code> إلى النهاية (الموقع <code class="inline">n</code>). من <code class="inline">i</code>: ندفع <code class="inline">cost[i]</code>، ثم نختار الذهاب إلى <code class="inline">i+1</code> أو <code class="inline">i+2</code> (أيهما أرخص).</p>
+            <div class="code-box">
+                <div class="code-head"><span>mincost_naive.cpp</span></div>
+                <pre>int n;
+vector&lt;int&gt; cost;
+
+int solve(int i) {
+    if (i >= n) return 0;
+
+    int take1 = solve(i + 1);
+    int take2 = solve(i + 2);
+    return cost[i] + min(take1, take2);
+}
+
+int main() {
+    cost = {1, 100, 1, 1};
+    n = cost.size();
+
+    int ans = min(solve(0), solve(1)); <span class="cmt">// يمكن البدء من 0 أو 1</span>
+    cout << ans << "\n";
+}</pre>
+            </div>
+            <div class="output-box">2</div>
+            <p><strong>لماذا هذا الحل بطيء؟</strong> <code class="inline">solve(i)</code> تستدعي <code class="inline">solve(i+1)</code> و <code class="inline">solve(i+2)</code>، ونفس القيمة لـ <code class="inline">i</code> تُحسب مرات عديدة (بالضبط نفس مشكلة فيبوناتشي: مسائل فرعية متداخلة ومتكررة). الزمن يصبح تقريبًا <code class="inline">O(2ⁿ)</code>.</p>
+        </div>
+
+        <!-- Top-down memo -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-database"></i>
+                <h3>إضافة التذكار (Memoization) — Top-Down DP</h3>
+            </div>
+            <p>نستخدم مصفوفة <code class="inline">dp[i]</code> لتخزين أقل كلفة من الموقع <code class="inline">i</code> إلى النهاية:</p>
+            <div class="code-box">
+                <div class="code-head"><span>mincost_memo.cpp</span></div>
+                <pre>int n;
+vector&lt;int&gt; cost;
+vector&lt;int&gt; dp;
+
+int solve(int i) {
+    if (i >= n) return 0;
+
+    if (dp[i] != -1) return dp[i]; <span class="cmt">// محسوبة مسبقًا</span>
+
+    int take1 = solve(i + 1);
+    int take2 = solve(i + 2);
+    dp[i] = cost[i] + min(take1, take2);
+    return dp[i];
+}
+
+int main() {
+    cost = {1, 100, 1, 1};
+    n = cost.size();
+    dp.assign(n, -1);
+
+    int ans = min(solve(0), solve(1));
+    cout << "Minimum cost = " << ans << "\n";
+}</pre>
+            </div>
+            <div class="output-box">Minimum cost = 2</div>
+            <p>الآن كل <code class="inline">solve(i)</code> تُحسب مرة واحدة فقط، والزمن الكلي يصبح <code class="inline">O(n)</code> بدلًا من زمن أُسّي — تمامًا كما حدث مع فيبوناتشي.</p>
+        </div>
+
+        <!-- Bottom-up -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-table-cells"></i>
+                <h3>نسخة من أسفل لأعلى (Bottom-Up DP)</h3>
+            </div>
+            <p>يمكننا أيضًا حل نفس المسألة بشكل تكراري من النهاية إلى البداية. نعرّف <code class="inline">dp[i]</code> = أقل كلفة للانتقال من الموقع <code class="inline">i</code> إلى النهاية. القواعد:</p>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>إذا كان <code class="inline">i >= n</code> → الكلفة <code class="inline">0</code>.</p></li>
+                <li><i class="fas fa-check"></i><p>إذا كان <code class="inline">i < n</code> → <code class="inline">dp[i] = cost[i] + min(dp[i+1], dp[i+2])</code>.</p></li>
+            </ul>
+            <p>غالبًا نستخدم مصفوفة بحجم <code class="inline">n+2</code> لتفادي مشاكل الخروج عن الحدود.</p>
+            <div class="code-box">
+                <div class="code-head"><span>mincost_bottomup.cpp</span></div>
+                <pre>vector&lt;int&gt; cost = {1, 100, 1, 1};
+int n = cost.size();
+
+vector&lt;int&gt; dp(n + 2, 0); <span class="cmt">// dp[n] و dp[n+1] = 0 افتراضيًا</span>
+
+for (int i = n - 1; i >= 0; i--) {
+    dp[i] = cost[i] + min(dp[i + 1], dp[i + 2]);
+}
+
+int ans = min(dp[0], dp[1]); <span class="cmt">// يمكن البدء من الموقع 0 أو 1</span>
+cout << "Minimum cost = " << ans << "\n";</pre>
+            </div>
+            <div class="output-box">Minimum cost = 2
+dp = [2, 101, 1, 1, 0, 0]   (dp[4]=dp[n] و dp[5]=dp[n+1] هما القيمتان الحدّيتان)</div>
+        </div>
+
+        <!-- Lab 3: flagship dp table + traceback -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>مختبر تفاعلي: املأ الجدول ثم أعِد بناء المسار الأمثل</h3>
+            </div>
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-table-cells-large"></i> cost = [1, 100, 1, 1]</p>
+                <p class="lab-sub">المرحلة الأولى: نملأ dp من اليمين لليسار (من n-1 نزولًا إلى 0). المرحلة الثانية: نعيد بناء المسار الفعلي الذي يعطي أقل كلفة.</p>
+
+                <div class="dp-row-label">cost[i]</div>
+                <div class="dp-cells-row" id="mcCostRow"></div>
+
+                <div class="dp-row-label">dp[i]</div>
+                <div class="dp-cells-row" id="mcDpRow"></div>
+
+                <div class="subset-console" id="mcConsole"></div>
+                <div class="lab-step-hint" id="mcHint">اضغط "الخطوة التالية" أو "تشغيل تلقائي" لبدء ملء الجدول.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="mcStep()">الخطوة التالية</button>
+                    <button class="lab-btn yellow" onclick="mcAutoPlay()">تشغيل تلقائي</button>
+                    <button class="lab-btn purple" onclick="mcAutoPlayAll()">تعبئة + إعادة بناء المسار تلقائيًا</button>
+                    <button class="lab-btn ghost" onclick="mcReset()">إعادة ضبط</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SRTBOT for min cost -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-diagram-project"></i>
+                <h3>إطار SRTBOT لمسألة أقل كلفة للوصول للنهاية</h3>
+            </div>
+
+            <h4 class="sub-title">S — State (الحالة)</h4>
+            <p><code class="inline">dp[i]</code> = أقل كلفة إجمالية للانتقال من الموقع <code class="inline">i</code> حتى الموقع <code class="inline">n</code> (أي الوصول أو تجاوز نهاية المصفوفة).</p>
+
+            <h4 class="sub-title">R — Recurrence (العلاقة العودية)</h4>
+            <p>من <code class="inline">i</code>: ندفع <code class="inline">cost[i]</code> ثم نقفز إلى <code class="inline">i+1</code> أو <code class="inline">i+2</code>. إذًا: <code class="inline">dp[i] = cost[i] + min(dp[i+1], dp[i+2])</code>.</p>
+
+            <h4 class="sub-title">T — Transitions (الانتقالات)</h4>
+            <p>من الحالة <code class="inline">i</code> الانتقالات الممكنة هي <code class="inline">i → i+1</code> و <code class="inline">i → i+2</code>. هذه هي جميع الحواف في مخطط الـ DP لهذه المسألة.</p>
+
+            <h4 class="sub-title">B — Base Cases (الحالات الأساسية)</h4>
+            <p>نضع <code class="inline">dp[n] = 0</code> (وصلنا/تجاوزنا النهاية، لا كلفة إضافية) و <code class="inline">dp[n+1] = 0</code> (حماية عند استخدام <code class="inline">dp[i+2]</code> عندما <code class="inline">i = n-1</code>). وفي النسخة العودية: إذا كان <code class="inline">i >= n</code> نرجع <code class="inline">0</code>.</p>
+
+            <h4 class="sub-title">O — Order of Computation (ترتيب الحساب)</h4>
+            <p>في Bottom-Up، نعالج <code class="inline">i</code> من <code class="inline">n-1</code> نزولًا إلى <code class="inline">0</code>، بحيث تكون <code class="inline">dp[i+1]</code> و <code class="inline">dp[i+2]</code> محسوبتين مسبقًا عند حساب <code class="inline">dp[i]</code>.</p>
+            <div class="code-box">
+                <div class="code-head"><span>order.cpp</span></div>
+                <pre>for (int i = n - 1; i >= 0; i--) {
+    dp[i] = cost[i] + min(dp[i + 1], dp[i + 2]);
+}</pre>
+            </div>
+
+            <h4 class="sub-title">T — Time & Space Complexity (التعقيد الزمني والذاكري)</h4>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>الزمن: نحسب <code class="inline">dp[i]</code> مرة واحدة لكل <code class="inline">i</code> في <code class="inline">[0..n-1]</code>، وكل خطوة في <code class="inline">O(1)</code> → المجموع <code class="inline">O(n)</code>.</p></li>
+                <li><i class="fas fa-check"></i><p>الذاكرة: نستخدم مصفوفة <code class="inline">dp</code> بحجم <code class="inline">n+2</code> → <code class="inline">O(n)</code> (ويمكن تقليلها إلى <code class="inline">O(1)</code> بالاكتفاء بآخر قيمتين فقط).</p></li>
+            </ul>
+        </div>
+
+        <!-- Alternate common formulation -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-shuffle"></i>
+                <h3>صيغة بديلة شائعة لنفس المسألة (تحضيرًا للاختبار)</h3>
+            </div>
+            <p>ستقابل أحيانًا نفس فكرة هذه المسألة معرَّفة بالاتجاه المعاكس: بدلًا من "أقل كلفة من الموقع i إلى النهاية"، تُعرَّف الحالة كـ"أقل كلفة للوصول إلى الموقع i من البداية". كلا الصيغتين صحيحتان تمامًا وتعطيان نفس الإجابة — فقط انتبه لأي صيغة تتعامل معها في كل سؤال.</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>الصيغة</th><th>تعريف dp[i]</th><th class="ltr">العلاقة العودية</th><th>الإجابة النهائية</th></tr></thead>
+                    <tbody>
+                        <tr><td>صيغة الكتاب (لاحقة/suffix)</td><td>أقل كلفة من i إلى النهاية</td><td class="ltr">dp[i] = cost[i] + min(dp[i+1], dp[i+2])</td><td>min(dp[0], dp[1])</td></tr>
+                        <tr><td>الصيغة البديلة (سابقة/prefix)</td><td>أقل كلفة للوصول إلى i</td><td class="ltr">dp[i] = cost[i] + min(dp[i-1], dp[i-2])</td><td>min(dp[n-1], dp[n-2])</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="code-box">
+                <div class="code-head"><span>mincost_prefix.cpp</span></div>
+                <pre>vector&lt;int&gt; cost = {1, 100, 1, 1};
+int n = cost.size();
+vector&lt;int&gt; dp(n);
+
+dp[0] = cost[0]; <span class="cmt">// يمكن البدء مباشرة من 0</span>
+dp[1] = cost[1]; <span class="cmt">// يمكن البدء مباشرة من 1</span>
+
+for (int i = 2; i < n; i++) {
+    dp[i] = cost[i] + min(dp[i - 1], dp[i - 2]);
+}
+
+int ans = min(dp[n - 1], dp[n - 2]); <span class="cmt">// يمكن إنهاء القفز من آخر موقعين</span>
+cout << "Minimum cost = " << ans << "\n";</pre>
+            </div>
+            <div class="output-box">Minimum cost = 2
+dp = [1, 100, 2, 3]</div>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>تحققنا برمجيًا من أن الصيغتين تعطيان نفس الإجابة على آلاف الحالات العشوائية المختلفة — إذا واجهت المسألة بأي من الاتجاهين في الاختبار، الفكرة الجوهرية (اختيار i+1 أو i+2 بأقل كلفة) واحدة تمامًا.</p>
+            </div>
+        </div>
+
+        <!-- Common pitfalls -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>أخطاء شائعة في DP (اقرأها جيدًا قبل الاختبار)</h3>
+            </div>
+
+            <h4 class="sub-title" style="margin-top:0;">1) ترتيب الحساب الخاطئ في Bottom-Up</h4>
+            <p>إذا مَلَأت الجدول بالاتجاه الخاطئ، ستعتمد على قيم لم تُحسب بعد (تبقى صفرًا افتراضيًا)، فتحصل على إجابة خاطئة <strong>بصمت</strong> دون أي خطأ ترجمة:</p>
+            <div class="code-box">
+                <div class="code-head"><span>wrong_direction.cpp</span></div>
+                <pre>vector&lt;int&gt; dp(n + 2, 0);
+<span class="cmt">// خطأ: نملأ من اليسار لليمين بدلًا من اليمين لليسار</span>
+for (int i = 0; i < n; i++) {
+    dp[i] = cost[i] + min(dp[i + 1], dp[i + 2]); <span class="cmt">// dp[i+1], dp[i+2] لم تُحسب بعد!</span>
+}</pre>
+            </div>
+            <div class="output-box">Minimum cost (بالاتجاه الخاطئ) = 1   (الصحيح: 2)</div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>هذا هو الخطأ الأكثر شيوعًا في Bottom-Up DP. القاعدة الذهبية: <strong>قبل حساب dp[i]، تأكد أن كل الحالات التي تعتمد عليها dp[i] محسوبة بالفعل</strong> — وهذا بالضبط ما تحدده خطوة "O" (Order of Computation) في إطار SRTBOT.</p>
+            </div>
+
+            <h4 class="sub-title">2) نسيان تهيئة مصفوفة التذكار</h4>
+            <p>في Top-Down، إذا نسيت <code class="inline">dp.assign(n+1, -1)</code> واستخدمت القيمة الافتراضية (0) بدلًا من -1، فسيظن الكود خطأً أن كل حالة محسوبة بالفعل (لأن 0 ≠ -1 دائمًا صحيح)، فيُعيد 0 لكل شيء فورًا:</p>
+            <div class="output-box">F(0)=0 F(1)=1 F(2)=0 F(3)=0 F(4)=0 F(5)=0 ...   (خطأ! الصحيح: 0 1 1 2 3 5 8 13 21 34 55)</div>
+
+            <h4 class="sub-title">3) اختيار قيمة "الإشارة" (-1) بشكل غير آمن</h4>
+            <p>كما ذكرنا سابقًا: -1 تصلح فقط إذا كانت الإجابات الحقيقية لا يمكن أن تساوي -1. تحقق دائمًا من نطاق القيم الممكنة قبل اختيار قيمة الإشارة.</p>
+
+            <h4 class="sub-title">4) فيضان النوع العددي (Overflow)</h4>
+            <p>استخدم <code class="inline">long long</code> بدلًا من <code class="inline">int</code> إذا كانت القيم قد تكبر بسرعة (كما في فيبوناتشي) أو إذا كانت الجمع التراكمي قد يتجاوز حدّ <code class="inline">int</code> (حوالي 2.1 مليار).</p>
+
+            <h4 class="sub-title">5) عدم تعريف الحالة (State) بوضوح كافٍ قبل البدء بالكود</h4>
+            <p>أكثر خطأ "مفاهيمي" شيوعًا: البدء بكتابة كود DP قبل تحديد معنى <code class="inline">dp[i]</code> بجملة واحدة واضحة. إذا لم تستطع أن تقول بجملة واحدة "dp[i] يمثّل...، بدّل تفكيرك أولًا قبل كتابة أي سطر كود.</p>
+        </div>
+
+        <!-- Activity B -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>نشاط: مراجعة سريعة لمسألة أقل كلفة والأخطاء الشائعة</h4>
+            </div>
+            <p class="activity-intro">حدّد إن كانت كل عبارة صحيحة أم خاطئة.</p>
+
+            <div class="tf-item" id="tfDp5">
+                <p class="tf-statement">في الصيغة اللاحقة (suffix)، يجب ملء الجدول من i=n-1 نزولًا إلى i=0.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp5', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp5', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfDp6">
+                <p class="tf-statement">ملء الجدول بالاتجاه الخاطئ يسبب دائمًا خطأ ترجمة (compile error) يسهل اكتشافه.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp6', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp6', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfDp7">
+                <p class="tf-statement">الصيغتان (اللاحقة والسابقة) لهذه المسألة تعطيان دائمًا نفس الإجابة النهائية.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp7', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp7', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfDp8">
+                <p class="tf-statement">دائمًا يمكن استخدام -1 كإشارة "لم يُحسب" بغض النظر عن نوع المسألة.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp8', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp8', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Quick summary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>خلاصة سريعة</h3>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>
+                    استخدم DP عندما توجد مسائل فرعية متكررة (overlapping subproblems) وبنية مثلى فرعية (optimal substructure).<br>
+                    Top-Down = عودي + تذكار (خزّن نتيجة كل حالة بعد أول حساب لها).<br>
+                    Bottom-Up = جدول تُملأ خلاياه بترتيب يضمن أن كل ما تعتمد عليه الحالة الحالية محسوب مسبقًا.<br>
+                    استخدم إطار SRTBOT دائمًا: State → Recurrence → Transitions → Base cases → Order → Time/space.<br>
+                    قبل كتابة أي كود، تأكد أنك تستطيع تعريف dp[i] بجملة واحدة واضحة.
+                </p>
+            </div>
+        </div>
+
+        <!-- Homework -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-pen-ruler"></i>
+                <h3>تمارين منزلية</h3>
+            </div>
+
+            <div class="homework-item" id="hwDp1">
+                <h4>1) تتبّع جدول فيبوناتشي يدويًا</h4>
+                <p>املأ يدويًا قيم <code class="inline">dp[0]</code> إلى <code class="inline">dp[7]</code> لمتتالية فيبوناتشي باستخدام Bottom-Up.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwDp1sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwDp1sol">
+                    <div class="output-box">dp[0]=0  dp[1]=1  dp[2]=1  dp[3]=2  dp[4]=3  dp[5]=5  dp[6]=8  dp[7]=13</div>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwDp2">
+                <h4>2) طبّق Bottom-Up على مصفوفة كلفة جديدة</h4>
+                <p>لديك <code class="inline">cost = {10, 15, 20}</code>. باستخدام نفس الصيغة اللاحقة (<code class="inline">dp[i] = cost[i] + min(dp[i+1], dp[i+2])</code>)، احسب <code class="inline">dp[]</code> كاملة وأوجد الإجابة النهائية.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwDp2sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwDp2sol">
+                    <p><code class="inline">n = 3</code>، لذا <code class="inline">dp[3] = dp[4] = 0</code> (حدّية).</p>
+                    <div class="output-box">dp[2] = cost[2] + min(dp[3], dp[4]) = 20 + min(0, 0) = 20
+dp[1] = cost[1] + min(dp[2], dp[3]) = 15 + min(20, 0) = 15
+dp[0] = cost[0] + min(dp[1], dp[2]) = 10 + min(15, 20) = 25
+
+الإجابة = min(dp[0], dp[1]) = min(25, 15) = 15</div>
+                    <p>ملاحظة: أفضل مسار هنا هو البدء مباشرة من الموقع 1 والقفز خطوتين إلى النهاية (تجاوز الموقع 2 بالكامل)، بكلفة 15 فقط.</p>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwDp3">
+                <h4>3) اكتشف الخطأ</h4>
+                <p>زميلك كتب حل Bottom-Up لمسألة أقل كلفة، لكن النتيجة كانت خاطئة (1 بدلًا من 2 لنفس مثال الكتاب):</p>
+                <div class="code-box">
+                    <div class="code-head"><span>find_error5.cpp</span></div>
+                    <pre>vector&lt;int&gt; dp(n + 2, 0);
+for (int i = 0; i < n; i++) {
+    dp[i] = cost[i] + min(dp[i + 1], dp[i + 2]);
+}</pre>
+                </div>
+                <p>ما الخطأ بالضبط؟</p>
+                <button class="toggle-btn" onclick="toggleSection('hwDp3sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwDp3sol">
+                    <p>الحلقة تسير من <code class="inline">i=0</code> صعودًا، لكن <code class="inline">dp[i]</code> يعتمد على <code class="inline">dp[i+1]</code> و <code class="inline">dp[i+2]</code> — وهما قيم لم تُحسب بعد عند هذا الاتجاه (تبقى 0 الافتراضية طوال الوقت تقريبًا). النتيجة تُحسب بأرقام خاطئة دون أي خطأ ترجمة.</p>
+                    <p>الإصلاح: اعكس اتجاه الحلقة لتسير من <code class="inline">i = n-1</code> نزولًا إلى <code class="inline">0</code>، بحيث تكون <code class="inline">dp[i+1]</code> و <code class="inline">dp[i+2]</code> جاهزتين دائمًا قبل الحاجة إليهما.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>تحقق من فهمك</h3>
+            </div>
+
+            <div class="quiz-q" id="qdp1">
+                <h4>١. متى نستخدم DP عادة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdp1', this, true)">عندما توجد مسائل فرعية متكررة (overlapping subproblems) وبنية مثلى فرعية (optimal substructure)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp1', this, false)">فقط عند التعامل مع النصوص (strings)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp1', this, false)">فقط عند الحاجة لفرز مصفوفة</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdp2">
+                <h4>٢. ما الفرق الجوهري بين Top-Down و Bottom-Up؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdp2', this, true)">Top-Down = عودي + تذكار، Bottom-Up = ملء جدول تكراريًا بترتيب معيّن</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp2', this, false)">Top-Down أسرع دائمًا من Bottom-Up</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp2', this, false)">لا يوجد فرق حقيقي بينهما إطلاقًا</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdp3">
+                <h4>٣. لماذا الحل العودي الساذج لفيبوناتشي بطيء؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdp3', this, false)">لأن C++ بطيئة في تنفيذ الجمع</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp3', this, true)">لأنه يعيد حساب نفس القيم (مثل fib(3)) مرات كثيرة متكررة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp3', this, false)">لأنه يستخدم vector بدلًا من array عادية</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdp4">
+                <h4>٤. في كود التذكار لفيبوناتشي، ماذا يعني الشرط dp[n] != -1؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdp4', this, true)">هذه الحالة محسوبة مسبقًا، فأعد القيمة المخزنة مباشرة دون إعادة الحساب</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp4', this, false)">هذه الحالة تحتوي على خطأ يجب إصلاحه</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp4', this, false)">يجب حذف هذه القيمة من الذاكرة</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdp5">
+                <h4>٥. لماذا نستخدم long long بدلًا من int في fib_memo.cpp؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdp5', this, false)">long long تُترجم أسرع من int</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp5', this, true)">لأن F(47) وما بعدها يتجاوز أكبر قيمة يمكن أن يخزنها int</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp5', this, false)">لأن vector لا يقبل النوع int إطلاقًا</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdp6">
+                <h4>٦. في مسألة أقل كلفة للوصول للنهاية، ما هي dp[i] (بالصيغة اللاحقة)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdp6', this, false)">عدد الخطوات من i إلى النهاية</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp6', this, true)">أقل كلفة إجمالية للانتقال من الموقع i حتى الموقع n</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp6', this, false)">قيمة cost[i] فقط</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdp7">
+                <h4>٧. ما الترتيب الصحيح لملء dp[] في Bottom-Up لمسألة أقل كلفة (الصيغة اللاحقة)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdp7', this, false)">من i=0 صعودًا إلى n-1</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp7', this, true)">من i=n-1 نزولًا إلى 0</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp7', this, false)">لا يهم الترتيب إطلاقًا</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdp8">
+                <h4>٨. لمثال cost = [1, 100, 1, 1]، ما المسار الذي يعطي أقل كلفة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdp8', this, false)">1 → 3 → النهاية (كلفة 101)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp8', this, true)">0 → 2 → النهاية (كلفة 2)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp8', this, false)">0 → 1 → 2 → 3 → النهاية (كلفة 103)</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdp9">
+                <h4>٩. ما نتيجة تعبئة الجدول بالاتجاه الخاطئ (من اليسار لليمين) في مسألة أقل كلفة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdp9', this, false)">خطأ ترجمة (compile error) فوري</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp9', this, true)">إجابة خاطئة بصمت، لأن dp[i+1] و dp[i+2] لم تُحسب بعد</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp9', this, false)">نفس الإجابة الصحيحة تمامًا</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdp10">
+                <h4>١٠. ما أول خطوة يجب أن تفعلها قبل كتابة أي كود DP؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdp10', this, true)">تعريف الحالة (State) بوضوح: ماذا يمثّل dp[i] بالضبط؟</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp10', this, false)">اختيار اسم المتغير dp مباشرة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp10', this, false)">تحديد حجم الذاكرة العشوائي بدون تفكير</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>قاموس المصطلحات</h3>
+            </div>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Dynamic Programming (DP)</span><span class="term-ar">البرمجة الديناميكية</span><p class="term-desc">أسلوب لحل المسائل ذات المسائل الفرعية المتكررة عبر تخزين النتائج بدلًا من إعادة حسابها.</p></div>
+                <div class="term-card"><span class="term-en">Overlapping Subproblems</span><span class="term-ar">المسائل الفرعية المتراكبة</span><p class="term-desc">ظاهرة تكرار نفس المسألة الفرعية عدة مرات أثناء الحل العودي.</p></div>
+                <div class="term-card"><span class="term-en">Optimal Substructure</span><span class="term-ar">البنية المثلى الفرعية</span><p class="term-desc">خاصية تسمح ببناء الحل الأمثل للمسألة الكبيرة من الحلول المثلى لمسائل أصغر.</p></div>
+                <div class="term-card"><span class="term-en">Memoization</span><span class="term-ar">التذكار</span><p class="term-desc">تخزين نتيجة كل استدعاء بعد حسابها لأول مرة، لإعادة استخدامها دون إعادة الحساب.</p></div>
+                <div class="term-card"><span class="term-en">Top-Down DP</span><span class="term-ar">من أعلى لأسفل</span><p class="term-desc">حل عودي مع تذكار: نبدأ من المسألة الكبيرة وننزل تدريجيًا للمسائل الأصغر.</p></div>
+                <div class="term-card"><span class="term-en">Bottom-Up DP</span><span class="term-ar">من أسفل لأعلى</span><p class="term-desc">ملء جدول تكراريًا بدءًا من أصغر الحالات وصولًا للحالة الكبيرة المطلوبة.</p></div>
+                <div class="term-card"><span class="term-en">State</span><span class="term-ar">الحالة</span><p class="term-desc">ما يمثّله dp[...]: وصف دقيق للمسألة الفرعية التي نحلّها.</p></div>
+                <div class="term-card"><span class="term-en">Recurrence Relation</span><span class="term-ar">العلاقة العودية</span><p class="term-desc">الصيغة التي تربط الحالة الحالية بحالات أصغر سبق حلّها.</p></div>
+                <div class="term-card"><span class="term-en">Base Case</span><span class="term-ar">الحالة الأساسية</span><p class="term-desc">القيم المعروفة مسبقًا التي تبدأ منها كل الحسابات الأخرى.</p></div>
+                <div class="term-card"><span class="term-en">SRTBOT</span><span class="term-ar">إطار SRTBOT</span><p class="term-desc">اختصار لخطوات تنظيم التفكير في DP: State, Recurrence, Transitions, Base cases, Order, Time/space.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الثالث: البرمجة الديناميكية</footer>
+
+    <script>
+        // ===== Lab 1: Fibonacci recursion tree (naive vs memoized) =====
+        function simulateFibTree(useMemo) {
+            const frames = [];
+            const instanceCounters = {};
+            const memo = {};
+
+            function nextId(n) {
+                instanceCounters[n] = (instanceCounters[n] || 0) + 1;
+                return n + '_' + instanceCounters[n];
+            }
+
+            function rec(n, depth) {
+                const id = nextId(n);
+                frames.push({ type: 'enter', n: n, id: id, depth: depth });
+
+                if (n === 0) { frames.push({ type: 'base', id: id, value: 0 }); return 0; }
+                if (n === 1) { frames.push({ type: 'base', id: id, value: 1 }); return 1; }
+
+                if (useMemo && memo.hasOwnProperty(n)) {
+                    frames.push({ type: 'cacheHit', id: id, value: memo[n] });
+                    return memo[n];
+                }
+
+                const a = rec(n - 1, depth + 1);
+                const b = rec(n - 2, depth + 1);
+                const val = a + b;
+                frames.push({ type: 'computed', id: id, value: val });
+                if (useMemo) memo[n] = val;
+                return val;
+            }
+
+            rec(5, 0);
+            return frames;
+        }
+
+        // Fixed tree structure (depth for indentation), derived from the DFS order above.
+        const FIB_TREE_NODES = [
+            { id: '5_1', n: 5, depth: 0 },
+            { id: '4_1', n: 4, depth: 1 },
+            { id: '3_1', n: 3, depth: 2 },
+            { id: '2_1', n: 2, depth: 3 },
+            { id: '1_1', n: 1, depth: 4 },
+            { id: '0_1', n: 0, depth: 4 },
+            { id: '1_2', n: 1, depth: 3 },
+            { id: '2_2', n: 2, depth: 2 },
+            { id: '1_3', n: 1, depth: 3 },
+            { id: '0_2', n: 0, depth: 3 },
+            { id: '3_2', n: 3, depth: 1 },
+            { id: '2_3', n: 2, depth: 2 },
+            { id: '1_4', n: 1, depth: 3 },
+            { id: '0_3', n: 0, depth: 3 },
+            { id: '1_5', n: 1, depth: 2 }
+        ];
+
+        let fibUseMemo = false;
+        let fibFrames = [];
+        let fibIndex = 0;
+        let fibAutoTimer = false;
+        let fibCallCount = 0;
+
+        function setFibMode(useMemo) {
+            fibUseMemo = useMemo;
+            document.getElementById('fibModeNaiveBtn').classList.toggle('active', !useMemo);
+            document.getElementById('fibModeMemoBtn').classList.toggle('active', useMemo);
+            fibTreeReset();
+        }
+
+        function fibTreeInitRows() {
+            const container = document.getElementById('fibTreeRows');
+            container.innerHTML = '';
+            FIB_TREE_NODES.forEach(function (node) {
+                const row = document.createElement('div');
+                row.className = 'fib-row';
+                row.id = 'fibRow_' + node.id;
+                const indent = '&nbsp;&nbsp;'.repeat ? '' : '';
+                row.innerHTML = '<span class="fib-branch">' + '&nbsp;'.repeat(node.depth * 4) + (node.depth > 0 ? '&#8627; ' : '') + '</span>' + 'fib(' + node.n + ')';
+                container.appendChild(row);
+            });
+        }
+
+        function fibTreeApplyFrame(frame) {
+            const hint = document.getElementById('fibTreeHint');
+            const row = document.getElementById('fibRow_' + frame.id);
+            const node = FIB_TREE_NODES.filter(function (x) { return x.id === frame.id; })[0];
+
+            if (frame.type === 'enter') {
+                row.className = 'fib-row state-active';
+                row.innerHTML = '<span class="fib-branch">' + '&nbsp;'.repeat(node.depth * 4) + (node.depth > 0 ? '&#8627; ' : '') + '</span>' + 'fib(' + frame.n + ') ...';
+                hint.innerText = 'دخلنا استدعاء fib(' + frame.n + ')';
+                fibCallCount++;
+            } else if (frame.type === 'base') {
+                row.className = 'fib-row state-base';
+                row.innerHTML = '<span class="fib-branch">' + '&nbsp;'.repeat(node.depth * 4) + (node.depth > 0 ? '&#8627; ' : '') + '</span>' + 'fib(' + node.n + ') = ' + frame.value + '  (حالة أساسية)';
+                hint.innerText = 'fib(' + node.n + ') حالة أساسية، تُرجع ' + frame.value + ' مباشرة.';
+            } else if (frame.type === 'cacheHit') {
+                row.className = 'fib-row state-cache';
+                row.innerHTML = '<span class="fib-branch">' + '&nbsp;'.repeat(node.depth * 4) + (node.depth > 0 ? '&#8627; ' : '') + '</span>' + 'fib(' + node.n + ') = ' + frame.value + '  (من الذاكرة! لا إعادة حساب)';
+                hint.innerText = 'fib(' + node.n + ') محسوبة مسبقًا، أعدنا القيمة من dp[] مباشرة دون الدخول في فروع جديدة.';
+            } else if (frame.type === 'computed') {
+                row.className = 'fib-row state-computed';
+                row.innerHTML = '<span class="fib-branch">' + '&nbsp;'.repeat(node.depth * 4) + (node.depth > 0 ? '&#8627; ' : '') + '</span>' + 'fib(' + node.n + ') = ' + frame.value + '  (تم حسابها الآن)';
+                hint.innerText = 'اكتمل حساب fib(' + node.n + ') = ' + frame.value + '.';
+            }
+
+            document.getElementById('fibTreeSummary').innerText = 'عدد الاستدعاءات الفعلية حتى الآن: ' + fibCallCount;
+        }
+
+        function fibTreeStep() {
+            if (fibIndex >= fibFrames.length) {
+                document.getElementById('fibTreeHint').innerText = 'اكتملت المحاكاة! fib(5) = 5. إجمالي الاستدعاءات: ' + fibCallCount + (fibUseMemo ? ' (بدلًا من 15 بدون تذكار)' : '.');
+                return;
+            }
+            fibTreeApplyFrame(fibFrames[fibIndex]);
+            fibIndex++;
+        }
+
+        function fibTreeAutoPlay() {
+            if (fibAutoTimer) return;
+            fibAutoTimer = true;
+            function tick() {
+                if (fibIndex >= fibFrames.length) {
+                    fibAutoTimer = false;
+                    document.getElementById('fibTreeHint').innerText = 'اكتملت المحاكاة! fib(5) = 5. إجمالي الاستدعاءات: ' + fibCallCount + (fibUseMemo ? ' (بدلًا من 15 بدون تذكار)' : '.');
+                    return;
+                }
+                fibTreeApplyFrame(fibFrames[fibIndex]);
+                fibIndex++;
+                setTimeout(tick, 380);
+            }
+            tick();
+        }
+
+        function fibTreeReset() {
+            fibFrames = simulateFibTree(fibUseMemo);
+            fibIndex = 0;
+            fibAutoTimer = false;
+            fibCallCount = 0;
+            fibTreeInitRows();
+            document.getElementById('fibTreeSummary').innerText = 'عدد الاستدعاءات الفعلية حتى الآن: 0';
+            document.getElementById('fibTreeHint').innerText = 'اضغط "الخطوة التالية" أو "تشغيل تلقائي" للبدء.';
+        }
+
+        // ===== Lab 2: Fibonacci bottom-up table fill =====
+        const FIB_N = 10;
+
+        function fibDpInit() {
+            const row = document.getElementById('fibDpRow');
+            row.innerHTML = '';
+            for (let i = 0; i <= FIB_N; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'dp-cell';
+                cell.id = 'fibDpCell_' + i;
+                const idx = document.createElement('div');
+                idx.className = 'dp-cell-index';
+                idx.innerText = 'dp[' + i + ']';
+                const val = document.createElement('div');
+                val.className = 'dp-cell-value';
+                val.id = 'fibDpVal_' + i;
+                val.innerText = (i <= 1) ? String(i) : '?';
+                cell.appendChild(idx);
+                cell.appendChild(val);
+                if (i <= 1) cell.classList.add('done');
+                row.appendChild(cell);
+            }
+        }
+
+        let fibDpIndex = 2;
+        let fibDpAutoTimer = false;
+        let fibDpValues = [0, 1];
+
+        function fibDpClearHighlights() {
+            for (let i = 0; i <= FIB_N; i++) {
+                const cell = document.getElementById('fibDpCell_' + i);
+                cell.classList.remove('active', 'source');
+            }
+        }
+
+        function fibDpStep() {
+            const hint = document.getElementById('fibDpHint');
+            if (fibDpIndex > FIB_N) {
+                hint.innerText = 'اكتمل الجدول بالكامل! dp[10] = ' + fibDpValues[10] + '.';
+                return;
+            }
+            fibDpClearHighlights();
+            const i = fibDpIndex;
+            document.getElementById('fibDpCell_' + (i - 1)).classList.add('source');
+            document.getElementById('fibDpCell_' + (i - 2)).classList.add('source');
+            document.getElementById('fibDpCell_' + i).classList.add('active');
+            const value = fibDpValues[i - 1] + fibDpValues[i - 2];
+            fibDpValues[i] = value;
+            document.getElementById('fibDpVal_' + i).innerText = value;
+            document.getElementById('fibDpCell_' + i).classList.add('done');
+            hint.innerText = 'dp[' + i + '] = dp[' + (i - 1) + '] + dp[' + (i - 2) + '] = ' + fibDpValues[i-1] + ' + ' + fibDpValues[i-2] + ' = ' + value;
+            fibDpIndex++;
+        }
+
+        function fibDpAutoPlay() {
+            if (fibDpAutoTimer) return;
+            fibDpAutoTimer = true;
+            function tick() {
+                if (fibDpIndex > FIB_N) {
+                    fibDpAutoTimer = false;
+                    document.getElementById('fibDpHint').innerText = 'اكتمل الجدول بالكامل! dp[10] = ' + fibDpValues[10] + '.';
+                    return;
+                }
+                fibDpStep();
+                setTimeout(tick, 550);
+            }
+            tick();
+        }
+
+        function fibDpReset() {
+            fibDpIndex = 2;
+            fibDpAutoTimer = false;
+            fibDpValues = [0, 1];
+            fibDpInit();
+            document.getElementById('fibDpHint').innerText = 'اضغط "الخطوة التالية" أو "تشغيل تلقائي" للبدء.';
+        }
+
+        // ===== Lab 3: Min-cost DP table + path reconstruction =====
+        const MC_COST = [1, 100, 1, 1];
+        const MC_N = MC_COST.length;
+
+        function mcInit() {
+            const costRow = document.getElementById('mcCostRow');
+            costRow.innerHTML = '';
+            for (let i = 0; i < MC_N; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'dp-cell';
+                cell.id = 'mcCostCell_' + i;
+                const idx = document.createElement('div');
+                idx.className = 'dp-cell-index';
+                idx.innerText = 'i=' + i;
+                const val = document.createElement('div');
+                val.className = 'dp-cell-value';
+                val.innerText = MC_COST[i];
+                cell.appendChild(idx);
+                cell.appendChild(val);
+                costRow.appendChild(cell);
+            }
+
+            const dpRow = document.getElementById('mcDpRow');
+            dpRow.innerHTML = '';
+            for (let i = 0; i <= MC_N + 1; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'dp-cell';
+                cell.id = 'mcDpCell_' + i;
+                if (i >= MC_N) cell.classList.add('boundary', 'done');
+                const idx = document.createElement('div');
+                idx.className = 'dp-cell-index';
+                idx.innerText = (i === MC_N) ? 'dp[n]' : (i === MC_N + 1 ? 'dp[n+1]' : 'dp[' + i + ']');
+                const val = document.createElement('div');
+                val.className = 'dp-cell-value';
+                val.id = 'mcDpVal_' + i;
+                val.innerText = (i >= MC_N) ? '0' : '?';
+                cell.appendChild(idx);
+                cell.appendChild(val);
+                dpRow.appendChild(cell);
+            }
+        }
+
+        let mcDpValues = [];
+        let mcFillIndex = MC_N - 1;
+        let mcPhase = 'fill'; // 'fill' | 'chooseStart' | 'trace' | 'done'
+        let mcTraceCur = 0;
+        let mcTracePath = [];
+        let mcTraceTotal = 0;
+        let mcAutoTimer = false;
+
+        function mcClearHighlights() {
+            for (let i = 0; i <= MC_N + 1; i++) {
+                document.getElementById('mcDpCell_' + i).classList.remove('active', 'source', 'path');
+            }
+            for (let i = 0; i < MC_N; i++) {
+                document.getElementById('mcCostCell_' + i).classList.remove('active', 'path');
+            }
+        }
+
+        function mcLog(text, highlight) {
+            const box = document.getElementById('mcConsole');
+            const line = document.createElement('div');
+            if (highlight) line.className = 'highlight-line';
+            line.innerText = text;
+            box.appendChild(line);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function mcStep() {
+            const hint = document.getElementById('mcHint');
+            mcClearHighlights();
+
+            if (mcPhase === 'fill') {
+                if (mcFillIndex < 0) {
+                    mcPhase = 'chooseStart';
+                    hint.innerText = 'اكتمل ملء الجدول! الآن نختار: أفضل نقطة بداية هي min(dp[0], dp[1]).';
+                    return;
+                }
+                const i = mcFillIndex;
+                document.getElementById('mcDpCell_' + (i + 1)).classList.add('source');
+                document.getElementById('mcDpCell_' + (i + 2)).classList.add('source');
+                document.getElementById('mcDpCell_' + i).classList.add('active');
+                document.getElementById('mcCostCell_' + i).classList.add('active');
+                const value = MC_COST[i] + Math.min(mcDpValues[i + 1], mcDpValues[i + 2]);
+                mcDpValues[i] = value;
+                document.getElementById('mcDpVal_' + i).innerText = value;
+                document.getElementById('mcDpCell_' + i).classList.add('done');
+                hint.innerText = 'dp[' + i + '] = cost[' + i + '] + min(dp[' + (i+1) + '], dp[' + (i+2) + ']) = ' + MC_COST[i] + ' + min(' + mcDpValues[i+1] + ', ' + mcDpValues[i+2] + ') = ' + value;
+                mcLog('dp[' + i + '] = ' + value);
+                mcFillIndex--;
+                return;
+            }
+
+            if (mcPhase === 'chooseStart') {
+                document.getElementById('mcDpCell_0').classList.add('source');
+                document.getElementById('mcDpCell_1').classList.add('source');
+                mcTraceCur = (mcDpValues[0] <= mcDpValues[1]) ? 0 : 1;
+                document.getElementById('mcDpCell_' + mcTraceCur).classList.add('path');
+                hint.innerText = 'dp[0]=' + mcDpValues[0] + ' مقابل dp[1]=' + mcDpValues[1] + ' → أفضل بداية: الموقع ' + mcTraceCur + ' (الإجابة النهائية = ' + Math.min(mcDpValues[0], mcDpValues[1]) + ')';
+                mcLog('أفضل إجابة كلية = ' + Math.min(mcDpValues[0], mcDpValues[1]), true);
+                mcPhase = 'trace';
+                mcTracePath = [];
+                mcTraceTotal = 0;
+                return;
+            }
+
+            if (mcPhase === 'trace') {
+                if (mcTraceCur >= MC_N) {
+                    mcPhase = 'done';
+                    hint.innerText = 'اكتمل إعادة بناء المسار! المسار: ' + mcTracePath.join(' → ') + ' → النهاية، بكلفة إجمالية = ' + mcTraceTotal + '.';
+                    mcLog('المسار الأمثل: ' + mcTracePath.join(' → ') + ' → end  |  الكلفة = ' + mcTraceTotal, true);
+                    return;
+                }
+                const i = mcTraceCur;
+                document.getElementById('mcCostCell_' + i).classList.add('path');
+                mcTracePath.push(i);
+                mcTraceTotal += MC_COST[i];
+                const nextI = (mcDpValues[i + 1] <= mcDpValues[i + 2]) ? i + 1 : i + 2;
+                hint.innerText = 'عند الموقع ' + i + ': ندفع cost[' + i + ']=' + MC_COST[i] + '. dp[' + (i+1) + ']=' + mcDpValues[i+1] + ' مقابل dp[' + (i+2) + ']=' + mcDpValues[i+2] + ' → ننتقل إلى ' + nextI + '.';
+                mcTraceCur = nextI;
+                return;
+            }
+
+            hint.innerText = 'اكتملت المحاكاة بالكامل! المسار الأمثل: ' + mcTracePath.join(' → ') + ' → النهاية، بكلفة = ' + mcTraceTotal + '.';
+        }
+
+        function mcAutoPlay() {
+            if (mcAutoTimer) return;
+            mcAutoTimer = true;
+            function tick() {
+                if (mcPhase === 'done') { mcAutoTimer = false; return; }
+                mcStep();
+                setTimeout(tick, 550);
+            }
+            tick();
+        }
+
+        function mcAutoPlayAll() {
+            mcReset();
+            mcAutoPlay();
+        }
+
+        function mcReset() {
+            mcDpValues = new Array(MC_N + 2).fill(0);
+            mcFillIndex = MC_N - 1;
+            mcPhase = 'fill';
+            mcTraceCur = 0;
+            mcTracePath = [];
+            mcTraceTotal = 0;
+            mcAutoTimer = false;
+            mcInit();
+            document.getElementById('mcConsole').innerHTML = '';
+            document.getElementById('mcHint').innerText = 'اضغط "الخطوة التالية" أو "تشغيل تلقائي" لبدء ملء الجدول.';
+        }
+
+        // ===== Shared helpers (toggle, TF activity, quiz) =====
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        function checkTF(el, itemId, chosenValue, correctValue) {
+            const item = document.getElementById(itemId);
+            const buttons = item.querySelectorAll('.tf-btn');
+            buttons.forEach(function (b) { b.classList.remove('tf-selected-correct', 'tf-selected-wrong'); b.onclick = null; b.style.cursor = 'default'; });
+            const feedback = item.querySelector('.tf-feedback');
+            if (chosenValue === correctValue) {
+                el.classList.add('tf-selected-correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة!</span>';
+            } else {
+                el.classList.add('tf-selected-wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة خاطئة — العبارة في الواقع "' + (correctValue ? 'صحيح' : 'خطأ') + '".</span>';
+            }
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(function (o) { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة! أحسنت.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة غير صحيحة، حاول مرة أخرى في المرة القادمة.</span>';
+            }
+        }
+
+        fibTreeReset();
+        fibDpReset();
+        mcReset();
+    </script>
+</body>
+</html>

@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | الخوارزميات الجشعة — Greedy Algorithms</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        /* hero banner */
+        .hero-banner { background: var(--blue-gradient); padding: 70px 6% 60px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 720px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula { direction: ltr; display: inline-block; font-family: 'Consolas', monospace; font-weight: 800; background: #eef2f7; padding: 3px 10px; border-radius: 8px; color: var(--dark-navy); }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td code.inline, .data-table th code.inline { white-space: nowrap; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+
+        /* numbered steps */
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        /* bullet list (non-numbered, for tips) */
+        .bullet-list { list-style: none; padding: 0; margin: 16px 0; }
+        .bullet-list li { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; color: var(--text-body); }
+        .bullet-list li i { color: var(--primary-blue); margin-top: 4px; flex-shrink: 0; }
+
+        /* interactive lab */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 14px 0 6px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+
+        /* coin change lab */
+        .coin-amount-display { text-align: center; margin: 6px 0 16px; }
+        .coin-amount-value {
+            font-family: 'Consolas', monospace; font-weight: 800; font-size: 2.2rem; color: var(--dark-navy);
+            background: var(--bg-main); border: 3px solid #cbd5e1; border-radius: 20px; padding: 14px 28px;
+            display: inline-block; min-width: 120px; transition: border-color 0.2s, background 0.2s;
+        }
+        .coin-amount-value.final { border-color: #22c55e; background: rgba(34, 197, 94, 0.1); color: #15803d; }
+        .coin-amount-label { text-align: center; font-size: 0.75rem; color: #94a3b8; margin-top: 6px; }
+        .coin-slots { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; direction: ltr; margin: 10px 0; }
+        .coin-slot { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .coin-circle {
+            width: 62px; height: 62px; border-radius: 50%; border: 3px solid #cbd5e1; background: var(--bg-main);
+            display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: 'Consolas', monospace;
+            font-size: 1rem; color: var(--dark-navy); transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .coin-circle.active { border-color: var(--primary-yellow); box-shadow: 0 0 0 4px rgba(247, 148, 30, 0.18); }
+        .coin-count { font-size: 0.8rem; font-weight: 800; color: var(--primary-blue); font-family: 'Consolas', monospace; }
+
+        /* activity selection timeline */
+        .timeline-svg-wrap { text-align: center; margin: 10px 0; }
+        .timeline-svg-wrap svg { max-width: 100%; height: auto; }
+        .activity-bar { fill: var(--bg-main); stroke: #cbd5e1; stroke-width: 2; rx: 6; transition: fill 0.2s, stroke 0.2s, opacity 0.2s; }
+        .activity-bar.checking { fill: rgba(247, 148, 30, 0.25); stroke: var(--primary-yellow); }
+        .activity-bar.selected { fill: rgba(34, 197, 94, 0.2); stroke: #22c55e; }
+        .activity-bar.skipped { fill: rgba(239, 68, 68, 0.08); stroke: #ef4444; opacity: 0.55; }
+        .activity-label { font-family: 'Consolas', monospace; font-size: 12px; fill: var(--dark-navy); }
+        .timeline-legend { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; font-size: 0.78rem; color: var(--text-body); margin-bottom: 10px; }
+        .timeline-legend span { display: inline-flex; align-items: center; gap: 6px; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+        .legend-dot.dot-check { background: var(--primary-yellow); }
+        .legend-dot.dot-sel { background: #22c55e; }
+        .legend-dot.dot-skip { background: #ef4444; opacity: 0.55; }
+
+        /* true/false quick-review activity */
+        .activity-box { background: white; border-radius: 22px; padding: 32px; margin: 28px 0; box-shadow: var(--soft-shadow); border: 1px solid #e2e8f0; }
+        .activity-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .activity-header i { color: var(--primary-blue); font-size: 1.2rem; }
+        .activity-header h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); }
+        .activity-intro { margin-bottom: 20px; font-size: 0.92rem; }
+        .tf-item {
+            background: var(--bg-main); border-radius: 16px; padding: 18px 22px; margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+            border: 1px solid #e2e8f0;
+        }
+        .tf-statement { margin: 0; font-weight: 700; color: var(--dark-navy); font-size: 0.95rem; flex: 1 1 260px; direction: ltr; text-align: right; unicode-bidi: plaintext; }
+        .tf-buttons { display: flex; gap: 10px; flex-shrink: 0; }
+        .tf-btn {
+            border: 2px solid #e2e8f0; background: white; padding: 9px 26px; border-radius: 50px;
+            font-weight: 800; font-family: 'Tajawal'; font-size: 0.88rem; cursor: pointer; color: var(--dark-navy); transition: 0.2s;
+        }
+        .tf-btn:hover { border-color: var(--primary-blue); }
+        .tf-btn.tf-selected-correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .tf-btn.tf-selected-wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .tf-feedback { flex-basis: 100%; margin-top: 2px; font-weight: 700; font-size: 0.85rem; min-height: 18px; }
+
+        /* homework toggles */
+        .homework-item { background: var(--bg-main); border-radius: 18px; padding: 24px; margin-top: 20px; border: 1px solid #e2e8f0; }
+        .homework-item h4 { margin: 0 0 10px; color: var(--dark-navy); font-size: 1.02rem; font-weight: 800; }
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            margin-top: 14px;
+        }
+        .collapsible { display: none; margin-top: 14px; }
+        .collapsible.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge">الفصل 9: الخوارزميات الجشعة</span>
+            <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الثاني</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-coins"></i>
+        <h1>الفصل التاسع: الخوارزميات الجشعة (Greedy Algorithms)</h1>
+        <p class="hero-desc">في فصل العمل على الحالات تعلّمت تقسيم مسألة إلى مواقف مختلفة. الآن سنتعلّم استراتيجية حلّ مختلفة تمامًا: بدلًا من تجربة كل الاحتمالات، تختار في كل خطوة الخيار الذي يبدو الأفضل الآن، دون التراجع أبدًا. هذا الأسلوب — الخوارزميات الجشعة — سريع وبسيط، لكنه سلاح ذو حدّين: أحيانًا يعطيك الحل الأمثل تمامًا، وأحيانًا يقودك إلى فخ. الجزء الأهم في هذا الفصل هو تعلّم كيف تفرّق بين الحالتين.</p>
+    </div>
+
+    <div class="container">
+
+        <!-- What does greedy mean -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-hand-point-up"></i>
+                <h3>ماذا يعني Greedy؟</h3>
+            </div>
+            <p>الخوارزمية الجشعة تبني الحل خطوة بخطوة، وفي كل خطوة تختار <strong>أفضل خيار متاح الآن</strong> بدون التفكير في العواقب المستقبلية.</p>
+            <p>تخيّل أنك دائمًا تأخذ أكبر بسكوتة أولًا — على أمل أن يقودك ذلك لأفضل نتيجة ممكنة في النهاية.</p>
+            <p>كلمة "Greedy" تعني <strong>محليًا أمثل</strong> — أي أنك في كل خطوة تختار القرار الذي يبدو الأفضل في اللحظة الحالية. أحيانًا هذا يصل إلى الحل الأمثل (أفضل حل ممكن)، وأحيانًا يفشل. السرّ هو معرفة متى تعمل الاستراتيجية الجشعة ومتى لا تعمل — وهذا بالضبط موضوع هذا الفصل.</p>
+        </div>
+
+        <!-- General idea -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-lightbulb"></i>
+                <h3>الفكرة العامة</h3>
+            </div>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p>لديك هدف (مثل تقليل التكلفة أو زيادة القيمة).</p></li>
+                <li class="step-item"><span class="step-num"></span><p>في كل خطوة تأخذ الخيار الذي يبدو الأفضل الآن.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>تستمر حتى تُكمل الحل.</p></li>
+            </ul>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>القاعدة الذهبية: <strong>لا تعود لتعديل قراراتك السابقة أبدًا</strong> في الخوارزمية الجشعة.</p>
+            </div>
+            <p>النمط العام:</p>
+            <div class="code-box">
+                <div class="code-head"><span>pattern.txt</span></div>
+                <pre>while (المشكلة لم تُحل) {
+    اختر أفضل خيار في الوقت الحالي;
+    حدّث حالة المشكلة;
+}</pre>
+            </div>
+        </div>
+
+        <!-- Coin change -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-coins"></i>
+                <h3>مثال: تبديل العملات (Coin Change)</h3>
+            </div>
+            <p>معك عملات: <code class="inline">1، 5، 10، 25</code>. أوجد أقل عدد عملات لصنع المبلغ <code class="inline">63</code>.</p>
+            <p><strong>الفكرة الجشعة:</strong> خذ أكبر عملة ممكنة دائمًا.</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>coin_change.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    int amount = 63;
+    vector&lt;int&gt; coins = {25, 10, 5, 1};
+    int count = 0;
+
+    for (int c : coins) {
+        count += amount / c;
+        amount %= c;
+    }
+    cout &lt;&lt; count; <span class="cmt">// 6 coins</span>
+}</pre>
+            </div>
+            <p>الاختيارات: <span class="formula">25 + 25 + 10 + 1 + 1 + 1 = 63</span>. النتيجة = 6 عملات.</p>
+            <div class="output-box">6</div>
+            <p>هذه الطريقة تعمل في أغلب أنظمة العملات الحقيقية.</p>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> المختبر التفاعلي: شاهد الخوارزمية الجشعة تختار العملات</p>
+                <div class="coin-amount-display">
+                    <div class="coin-amount-value" id="coinAmountDisplay">63</div>
+                </div>
+                <div class="coin-amount-label">المبلغ المتبقي</div>
+                <div class="coin-slots">
+                    <div class="coin-slot"><div class="coin-circle" id="coinCircle25">25</div><div class="coin-count" id="coinCount25">×0</div></div>
+                    <div class="coin-slot"><div class="coin-circle" id="coinCircle10">10</div><div class="coin-count" id="coinCount10">×0</div></div>
+                    <div class="coin-slot"><div class="coin-circle" id="coinCircle5">5</div><div class="coin-count" id="coinCount5">×0</div></div>
+                    <div class="coin-slot"><div class="coin-circle" id="coinCircle1">1</div><div class="coin-count" id="coinCount1">×0</div></div>
+                </div>
+                <div class="lab-step-hint" id="coinStepLabel">اضغط "شغّل المصوّر" للبدء.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runCoinLab()">شغّل المصوّر</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity A -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>نشاط: مراجعة سريعة لتبديل العملات</h4>
+            </div>
+            <p class="activity-intro">حدّد إن كانت كل عبارة صحيحة أم خاطئة.</p>
+
+            <div class="tf-item" id="tfGr1">
+                <p class="tf-statement">الخوارزمية الجشعة تعود لتعديل قراراتها السابقة إذا اكتشفت أنها لم تكن الأفضل.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr1', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr1', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfGr2">
+                <p class="tf-statement">في مثال تبديل العملات بعملات 1، 5، 10، 25 والمبلغ 63، الحل الجشع يستخدم 6 عملات.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr2', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr2', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfGr3">
+                <p class="tf-statement">الخوارزمية الجشعة تفحص كل الحلول الممكنة قبل اختيار الأفضل بينها.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr3', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr3', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfGr4">
+                <p class="tf-statement">الاستراتيجية الجشعة لعملات 1، 5، 10، 25 تعطي دائمًا الحل الأمثل (أقل عدد عملات ممكن).</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr4', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr4', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Activity selection -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-calendar-check"></i>
+                <h3>مثال: اختيار الأنشطة (Activity Selection)</h3>
+            </div>
+            <p>معك مجموعة نشاطات، كل نشاط له وقت بداية ونهاية، ولا يمكنك القيام إلا بنشاط واحد في نفس الوقت. ما هو أكبر عدد نشاطات يمكنك إنهاؤها؟</p>
+            <p><strong>الفكرة الجشعة:</strong> اختر النشاط الذي ينتهي أولًا.</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>activity_selection.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main() {
+    vector&lt;pair&lt;int, int&gt;&gt; act = {{1, 3}, {2, 5}, {4, 6}, {6, 8}, {5, 7}};
+    sort(act.begin(), act.end(), [](auto &amp;a, auto &amp;b){ return a.second &lt; b.second; });
+
+    int count = 0, end = 0;
+    for (auto &amp;p : act) {
+        if (p.first &gt;= end) {
+            count++;
+            end = p.second;
+        }
+    }
+    cout &lt;&lt; count; <span class="cmt">// 3</span>
+}</pre>
+            </div>
+            <p>نختار دائمًا النشاط الذي ينتهي مبكرًا — لأنه يترك أكبر مساحة ممكنة للأنشطة الأخرى.</p>
+            <div class="output-box">3</div>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> المختبر التفاعلي: خط زمني لاختيار الأنشطة</p>
+                <div class="timeline-legend">
+                    <span><span class="legend-dot dot-check"></span> قيد الفحص</span>
+                    <span><span class="legend-dot dot-sel"></span> مقبول</span>
+                    <span><span class="legend-dot dot-skip"></span> مرفوض (تعارض)</span>
+                </div>
+                <div class="timeline-svg-wrap">
+                    <svg viewBox="0 0 360 220">
+                        <rect class="activity-bar" id="actBar0" x="60" y="20" width="80" height="24" rx="6"></rect>
+                        <text class="activity-label" x="70" y="36">(1,3)</text>
+                        <rect class="activity-bar" id="actBar1" x="100" y="58" width="120" height="24" rx="6"></rect>
+                        <text class="activity-label" x="110" y="74">(2,5)</text>
+                        <rect class="activity-bar" id="actBar2" x="180" y="96" width="80" height="24" rx="6"></rect>
+                        <text class="activity-label" x="190" y="112">(4,6)</text>
+                        <rect class="activity-bar" id="actBar3" x="220" y="134" width="80" height="24" rx="6"></rect>
+                        <text class="activity-label" x="230" y="150">(5,7)</text>
+                        <rect class="activity-bar" id="actBar4" x="260" y="172" width="80" height="24" rx="6"></rect>
+                        <text class="activity-label" x="270" y="188">(6,8)</text>
+                    </svg>
+                </div>
+                <div class="lab-step-hint" id="activityStepLabel">اضغط "شغّل المصوّر" لبدء فرز واختيار الأنشطة.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runActivityLab()">شغّل المصوّر</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- When greedy works -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-check"></i>
+                <h3>متى تنجح الخوارزميات الجشعة؟</h3>
+            </div>
+            <p>تنجح عندما يكون الاختيار المحلي الأفضل يقود دائمًا إلى الحل الأفضل عالميًا. يحدث هذا عندما تمتلك المسألة:</p>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p><strong>خاصية الاختيار الجشع (Greedy Choice Property).</strong></p></li>
+                <li><i class="fas fa-check"></i><p><strong>خاصية البنية المثلى (Optimal Substructure).</strong></p></li>
+            </ul>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>لا تحتاج لحفظ هذه المصطلحات بدقة — فقط اختبر عمليًا إذا كانت الاستراتيجية الجشعة تعمل في كل الحالات قبل الاعتماد عليها.</p>
+            </div>
+            <p>أمثلة تعمل فيها الجشع:</p>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>نظام العملات (1، 2، 5) → الأكبر أولًا يعطي دائمًا العدد الأدنى.</p></li>
+                <li><i class="fas fa-check"></i><p>جدولة المهام القصيرة أولًا — يسمح بإنهاء أكبر عدد منها.</p></li>
+                <li><i class="fas fa-check"></i><p>اختيار أكبر القيم عندما توجد حدود معيّنة.</p></li>
+            </ul>
+        </div>
+
+        <!-- When greedy fails -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>أمثلة تفشل فيها الجشع</h3>
+            </div>
+            <p>العملات <code class="inline">{1، 3، 4}</code> والمبلغ <code class="inline">6</code>:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>الاستراتيجية</th><th>الاختيار</th><th class="center">عدد العملات</th></tr></thead>
+                    <tbody>
+                        <tr><td>الجشع (الأكبر أولًا)</td><td><code class="inline">4 + 1 + 1</code></td><td class="center">3</td></tr>
+                        <tr><td>الأفضل فعليًا</td><td><code class="inline">3 + 3</code></td><td class="center">2</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>الجشع يفشل هنا! لأنّ أخذ العملة الأكبر (4) أولًا يمنعنا من الوصول إلى الحل الأفضل (3+3). هذا مثال كلاسيكي يوضّح أنّ الجشع <strong>ليس ضمانة</strong> — يعتمد نجاحه على طبيعة نظام العملات المحدد.</p>
+            </div>
+            <p>مثال آخر: ترتيب العناصر الكبيرة أولًا عند محاولة تعبئة حقيبة (مسألة الحقيبة / Knapsack) — قد يمنع حلولًا أفضل، لأنّ عنصرًا كبيرًا قد يشغل مساحة كان يمكن ملؤها بعناصر أصغر بقيمة إجمالية أعلى.</p>
+        </div>
+
+        <!-- Activity B -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>نشاط: مراجعة سريعة لنجاح وفشل الجشع</h4>
+            </div>
+            <p class="activity-intro">حدّد إن كانت كل عبارة صحيحة أم خاطئة.</p>
+
+            <div class="tf-item" id="tfGr5">
+                <p class="tf-statement">الخوارزمية الجشعة تنجح دائمًا بغض النظر عن نوع المسألة.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr5', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr5', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfGr6">
+                <p class="tf-statement">لعملات {1، 3، 4} والمبلغ 6، الحل الجشع يعطي 3 عملات بينما الأفضل هو عملتان فقط.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr6', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr6', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfGr7">
+                <p class="tf-statement">في مثال اختيار الأنشطة، نختار دائمًا النشاط الذي يبدأ أولًا.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr7', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr7', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfGr8">
+                <p class="tf-statement">خاصيتا "الاختيار الجشع" و"البنية المثلى" هما ما يحدّد نظريًا نجاح الاستراتيجية الجشعة.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr8', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr8', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Design steps -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-list-ol"></i>
+                <h3>خطوات تصميم خوارزمية جشعة</h3>
+            </div>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p>قم بترتيب شيء (حسب القيمة، الوقت، النسبة، ...).</p></li>
+                <li class="step-item"><span class="step-num"></span><p>مرّ على العناصر بالترتيب.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>اختر أفضل اختيار صالح في كل مرة.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>حدّث الحالة (الوقت المتبقي، السعة المتبقية، ...).</p></li>
+            </ul>
+            <p>نمط شائع:</p>
+            <div class="code-box">
+                <div class="code-head"><span>greedy_pattern.cpp</span></div>
+                <pre>sort(items.begin(), items.end(), rule);
+for (auto &amp;item : items) {
+    if (can_take(item)) take(item);
+}</pre>
+            </div>
+        </div>
+
+        <!-- Pros and cons -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-scale-balanced"></i>
+                <h3>المميزات والعيوب</h3>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p><strong>المميزات:</strong> سريعة جدًا وبسيطة. غالبًا سهلة الفهم والتنفيذ. مناسبة لمشاكل الجدولة والاختيار.</p>
+            </div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p><strong>العيوب:</strong> لا تعطي دائمًا الحل الأمثل. القرارات المبكرة قد تدمّر الحل لاحقًا. يجب اختبارها أو إثباتها بعناية قبل الاعتماد عليها.</p>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>نصائح</h3>
+            </div>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>دائمًا اسأل: هل هذا الاختيار قد يمنع حلولًا أفضل لاحقًا؟</p></li>
+                <li><i class="fas fa-check"></i><p>جرّب بناء أمثلة مضادة (Counterexamples) لاختبار الاستراتيجية.</p></li>
+                <li><i class="fas fa-check"></i><p>كثير من مسائل الجشع تعتمد على نمط "فرز + اختيار".</p></li>
+            </ul>
+        </div>
+
+        <!-- Quick summary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>خلاصة سريعة</h3>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>
+                    الجشع = اختيار أفضل قرار محلي في كل خطوة.<br>
+                    يعمل فقط عندما تضمن هذه القرارات الحل الأمثل عالميًا.<br>
+                    شائع في الجدولة، الرسوم البيانية، وتوزيع الموارد.<br>
+                    بسيط وسريع في التنفيذ والبرمجة.
+                </p>
+            </div>
+        </div>
+
+        <!-- Homework -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-pen-ruler"></i>
+                <h3>تمارين منزلية</h3>
+            </div>
+
+            <div class="homework-item" id="hwG1">
+                <h4>1) تبديل عملات بمبلغ مختلف</h4>
+                <p>بنفس عملات <code class="inline">{25, 10, 5, 1}</code>، أوجد أقل عدد عملات لصنع المبلغ <code class="inline">87</code> باستخدام الاستراتيجية الجشعة.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwG1sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwG1sol">
+                    <p><span class="formula">87 &divide; 25 = 3</span> (الباقي 12) → <span class="formula">12 &divide; 10 = 1</span> (الباقي 2) → <span class="formula">2 &divide; 5 = 0</span> (الباقي 2) → <span class="formula">2 &divide; 1 = 2</span>.</p>
+                    <div class="output-box">3 + 1 + 0 + 2 = 6 عملات</div>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwG2">
+                <h4>2) اختيار أنشطة بمجموعة مختلفة</h4>
+                <p>لديك الأنشطة التالية (بداية، نهاية): <code class="inline">{(1,2), (3,4), (0,6), (5,7), (8,9), (5,9)}</code>. طبّق استراتيجية "الأقرب انتهاءً أولًا" لإيجاد أقصى عدد أنشطة ممكن اختيارها.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwG2sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwG2sol">
+                    <p>بعد الفرز حسب وقت النهاية: <code class="inline">(1,2), (3,4), (5,7), (0,6), (8,9), (5,9)</code> — بترتيب النهايات: 2, 4, 6, 7, 9, 9.</p>
+                    <p>المرور: نختار (1,2) [end=2]. نختار (3,4) [end=4]. نتحقق من (0,6): بدايته 0 &lt; 4 → مرفوض. نختار (5,7) [end=7] لأنّ 5 &ge; 4. نختار (8,9) [end=9] لأنّ 8 &ge; 7. نتحقق من (5,9): بدايته 5 &lt; 9 → مرفوض.</p>
+                    <div class="output-box">الأنشطة المختارة: (1,2), (3,4), (5,7), (8,9)
+العدد الكلي = 4</div>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwG3">
+                <h4>3) اكتشاف حالات فشل الجشع في عملات {1، 3، 4}</h4>
+                <p>باستخدام عملات <code class="inline">{1، 3، 4}</code>، جرّب المبالغ من 1 إلى 30 وقارن نتيجة الاستراتيجية الجشعة مع الحل الأمثل الحقيقي (يمكن حسابه ببرمجة ديناميكية بسيطة). كم مبلغًا يفشل فيه الجشع؟</p>
+                <button class="toggle-btn" onclick="toggleSection('hwG3sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwG3sol">
+                    <div class="code-box">
+                        <div class="code-head"><span>hw3_stress.cpp</span></div>
+                        <pre>int greedyCoins(int amount, vector&lt;int&gt; coins) {
+    int count = 0;
+    for (int c : coins) {
+        count += amount / c;
+        amount %= c;
+    }
+    return count;
+}
+
+int optimalCoins(int amount, vector&lt;int&gt;&amp; coins) {
+    vector&lt;int&gt; dp(amount+1, INT_MAX);
+    dp[0] = 0;
+    for (int i = 1; i &lt;= amount; i++)
+        for (int c : coins)
+            if (c &lt;= i &amp;&amp; dp[i-c] != INT_MAX)
+                dp[i] = min(dp[i], dp[i-c]+1);
+    return dp[amount];
+}</pre>
+                    </div>
+                    <div class="output-box">فشل الجشع عند المبالغ: 6, 10, 14, 18, 22, 26, 30
+(7 حالات فشل من أصل 30 مبلغًا مختبرًا)</div>
+                    <p>لاحظ النمط: كل حالات الفشل هي أعداد تتزايد بمقدار 4 بدءًا من 6 (أي المبالغ التي تكافئ 2 mod 4). في كل هذه الحالات، الجشع يستخدم عملة 4 واحدة زائدة عن اللازم بدلًا من استبدالها بعملتَي 3 — وهذا بالضبط نوع "الاختبار بالأمثلة المضادة" الذي أوصت به نصائح هذا الفصل.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>تحقق من فهمك</h3>
+            </div>
+
+            <div class="quiz-q" id="qg1">
+                <h4>١. ما معنى أن تكون خوارزمية "Greedy" (جشعة)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qg1', this, true)">تختار في كل خطوة الخيار الذي يبدو الأفضل حاليًا، دون النظر إلى المستقبل</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg1', this, false)">تجرّب كل الحلول الممكنة وتقارنها في النهاية</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg1', this, false)">تعتمد فقط على الترتيب العشوائي للعناصر</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qg2">
+                <h4>٢. في مثال تبديل العملات (1، 5، 10، 25) والمبلغ 63، كم عملة يستخدمها الحل الجشع؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qg2', this, false)">4</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg2', this, true)">6</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg2', this, false)">63</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qg3">
+                <h4>٣. في مثال اختيار الأنشطة، ما معيار الاختيار الجشع؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qg3', this, false)">اختيار النشاط الذي يبدأ أولًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg3', this, true)">اختيار النشاط الذي ينتهي أولًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg3', this, false)">اختيار أطول نشاط مدةً</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qg4">
+                <h4>٤. للأنشطة {(1,3), (2,5), (4,6), (6,8), (5,7)}، ما أقصى عدد أنشطة يمكن اختيارها؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qg4', this, false)">2</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg4', this, true)">3</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg4', this, false)">5</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qg5">
+                <h4>٥. لعملات {1، 3، 4} والمبلغ 6، ماذا يحدث؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qg5', this, true)">الحل الجشع (3 عملات) أسوأ من الحل الأفضل (عملتان: 3+3)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg5', this, false)">الحل الجشع يعطي دائمًا نفس عدد العملات مثل الحل الأمثل</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg5', this, false)">لا يمكن تكوين المبلغ 6 بهذه العملات إطلاقًا</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qg6">
+                <h4>٦. متى تضمن الخوارزمية الجشعة الوصول للحل الأمثل نظريًا؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qg6', this, false)">عندما تكون المدخلات صغيرة فقط</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg6', this, true)">عندما تمتلك المسألة خاصية الاختيار الجشع وخاصية البنية المثلى معًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg6', this, false)">عندما تُستخدم مع بنية بيانات map فقط</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qg7">
+                <h4>٧. ما النمط الشائع في تصميم خوارزمية جشعة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qg7', this, true)">فرز العناصر أولًا حسب قاعدة معيّنة، ثم المرور عليها واختيار الصالح منها</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg7', this, false)">تجربة عشوائية للعناصر دون أي ترتيب</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg7', this, false)">استدعاء الدالة نفسها بشكل تكراري دائمًا</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qg8">
+                <h4>٨. ما أكبر عيب محتمل للخوارزميات الجشعة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qg8', this, false)">أنها بطيئة جدًا مقارنة بالحلول الأخرى</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg8', this, true)">لا تعطي دائمًا الحل الأمثل، والقرارات المبكرة قد تفسد الحل لاحقًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg8', this, false)">لا يمكن كتابتها إلا بلغات برمجة معيّنة</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qg9">
+                <h4>٩. ما الطريقة العملية للتحقق من صحة استراتيجية جشعة على مسألة جديدة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qg9', this, false)">افتراض أنها صحيحة دائمًا لأنها بسيطة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg9', this, true)">محاولة بناء مثال مضاد (Counterexample) يُظهر أنها قد تفشل</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg9', this, false)">تشغيلها على مدخل واحد فقط والاكتفاء بذلك</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qg10">
+                <h4>١٠. ما الميزة الأساسية للخوارزميات الجشعة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qg10', this, true)">سريعة وبسيطة في التنفيذ والفهم</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg10', this, false)">تضمن الحل الأمثل في كل مسألة دون استثناء</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg10', this, false)">لا تحتاج إلى فرز البيانات أبدًا</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>قاموس المصطلحات</h3>
+            </div>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Greedy Algorithm</span><span class="term-ar">الخوارزمية الجشعة</span><p class="term-desc">استراتيجية تبني الحل خطوة بخطوة باختيار الأفضل محليًا في كل مرة دون تراجع.</p></div>
+                <div class="term-card"><span class="term-en">Local Optimum</span><span class="term-ar">الأمثل المحلي</span><p class="term-desc">أفضل خيار متاح في اللحظة الحالية، وقد لا يكون الأفضل على مستوى المسألة كاملة.</p></div>
+                <div class="term-card"><span class="term-en">Global Optimum</span><span class="term-ar">الأمثل العالمي (الشامل)</span><p class="term-desc">أفضل حل ممكن للمسألة بأكملها، وهو ما نسعى للوصول إليه فعليًا.</p></div>
+                <div class="term-card"><span class="term-en">Greedy Choice Property</span><span class="term-ar">خاصية الاختيار الجشع</span><p class="term-desc">خاصية تضمن أنّ الاختيار الأفضل محليًا يقود دائمًا إلى الحل الأمثل عالميًا.</p></div>
+                <div class="term-card"><span class="term-en">Optimal Substructure</span><span class="term-ar">خاصية البنية المثلى</span><p class="term-desc">خاصية تعني أنّ الحل الأمثل للمسألة الكبيرة يتكوّن من حلول مثلى لمسائل فرعية أصغر.</p></div>
+                <div class="term-card"><span class="term-en">Counterexample</span><span class="term-ar">المثال المضاد</span><p class="term-desc">حالة اختبار محدّدة تُظهر أنّ استراتيجية جشعة معيّنة تفشل ولا تعطي الحل الأمثل.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الثاني: الخوارزميات الجشعة (Greedy Algorithms)</footer>
+
+    <script>
+        // ===== Coin change visualizer =====
+        function buildCoinFrames(amount, coins) {
+            const frames = [];
+            let remaining = amount;
+            let totalCount = 0;
+            for (const c of coins) {
+                const take = Math.floor(remaining / c);
+                remaining = remaining % c;
+                totalCount += take;
+                frames.push({ c, take, remaining, label: 'نأخذ عملة ' + c + ' بمقدار ' + take + ' مرة → الباقي الآن: ' + remaining });
+            }
+            frames.push({ c: -1, take: -1, remaining, totalCount, label: 'انتهينا! أقل عدد عملات = ' + totalCount, isFinal: true });
+            return frames;
+        }
+
+        function runCoinLab() {
+            const coins = [25, 10, 5, 1];
+            const amount = 63;
+            const frames = buildCoinFrames(amount, coins);
+            let totalCount = 0;
+            let f = 0;
+            const display = document.getElementById('coinAmountDisplay');
+            const label = document.getElementById('coinStepLabel');
+            display.classList.remove('final');
+            document.getElementById('coinCircle25').classList.remove('active');
+            document.getElementById('coinCircle10').classList.remove('active');
+            document.getElementById('coinCircle5').classList.remove('active');
+            document.getElementById('coinCircle1').classList.remove('active');
+            function playNext() {
+                if (f >= frames.length) return;
+                const frame = frames[f];
+                if (!frame.isFinal) {
+                    totalCount += frame.take;
+                    document.getElementById('coinCircle25').classList.remove('active');
+                    document.getElementById('coinCircle10').classList.remove('active');
+                    document.getElementById('coinCircle5').classList.remove('active');
+                    document.getElementById('coinCircle1').classList.remove('active');
+                    document.getElementById('coinCircle' + frame.c).classList.add('active');
+                    document.getElementById('coinCount' + frame.c).innerText = '×' + frame.take;
+                    display.innerText = frame.remaining;
+                    label.innerText = frame.label;
+                } else {
+                    display.classList.add('final');
+                    label.innerText = 'انتهينا! أقل عدد عملات = ' + totalCount;
+                }
+                f++;
+                setTimeout(playNext, 800);
+            }
+            playNext();
+        }
+
+        // ===== Activity selection visualizer =====
+        function buildActivityFrames() {
+            const acts = [{ s: 1, e: 3, row: 0 }, { s: 2, e: 5, row: 1 }, { s: 4, e: 6, row: 2 }, { s: 5, e: 7, row: 3 }, { s: 6, e: 8, row: 4 }];
+            const frames = [];
+            const decisions = { 0: 'pending', 1: 'pending', 2: 'pending', 3: 'pending', 4: 'pending' };
+            let end = 0, count = 0;
+            for (const act of acts) {
+                frames.push({ decisions: Object.assign({}, decisions), checkingRow: act.row, label: 'نتحقق من النشاط (' + act.s + ',' + act.e + '): هل ' + act.s + ' >= ' + end + '؟' });
+                if (act.s >= end) {
+                    decisions[act.row] = 'selected';
+                    count++;
+                    end = act.e;
+                    frames.push({ decisions: Object.assign({}, decisions), checkingRow: -1, label: 'مقبول! العدد الآن: ' + count + '. نهاية آخر نشاط مختار = ' + end + '.' });
+                } else {
+                    decisions[act.row] = 'skipped';
+                    frames.push({ decisions: Object.assign({}, decisions), checkingRow: -1, label: 'مرفوض — يتعارض مع نشاط مختار سابقًا.' });
+                }
+            }
+            frames.push({ decisions: Object.assign({}, decisions), checkingRow: -1, label: 'انتهينا! أقصى عدد أنشطة ممكن إنجازها = ' + count + '.', isFinal: true });
+            return frames;
+        }
+
+        function renderActivityFrame(frame) {
+            for (let r = 0; r < 5; r++) {
+                const bar = document.getElementById('actBar' + r);
+                bar.classList.remove('checking', 'selected', 'skipped');
+                if (r === frame.checkingRow) {
+                    bar.classList.add('checking');
+                } else if (frame.decisions[r] === 'selected') {
+                    bar.classList.add('selected');
+                } else if (frame.decisions[r] === 'skipped') {
+                    bar.classList.add('skipped');
+                }
+            }
+            document.getElementById('activityStepLabel').innerText = frame.label;
+        }
+
+        function runActivityLab() {
+            const frames = buildActivityFrames();
+            let f = 0;
+            function playNext() {
+                if (f >= frames.length) return;
+                renderActivityFrame(frames[f]);
+                f++;
+                setTimeout(playNext, 700);
+            }
+            playNext();
+        }
+
+        // ===== Shared helpers (toggle, TF activity, quiz) =====
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        function checkTF(el, itemId, chosenValue, correctValue) {
+            const item = document.getElementById(itemId);
+            const buttons = item.querySelectorAll('.tf-btn');
+            buttons.forEach(b => { b.classList.remove('tf-selected-correct', 'tf-selected-wrong'); b.onclick = null; b.style.cursor = 'default'; });
+            const feedback = item.querySelector('.tf-feedback');
+            if (chosenValue === correctValue) {
+                el.classList.add('tf-selected-correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة!</span>';
+            } else {
+                el.classList.add('tf-selected-wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة خاطئة — العبارة في الواقع "' + (correctValue ? 'صحيح' : 'خطأ') + '".</span>';
+            }
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة! أحسنت.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة غير صحيحة، حاول مرة أخرى في المرة القادمة.</span>';
+            }
+        }
+    </script>
+</body>
+</html>

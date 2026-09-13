@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | البحث في العمق (DFS)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .hero-banner { background: var(--blue-gradient); padding: 70px 6% 60px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 760px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        .container { max-width: 960px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula-box {
+            background: #0f172a; color: #facc15; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin: 14px 0; direction: ltr; text-align: center;
+            font-size: 1rem; font-weight: 700;
+        }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.84rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+            white-space: pre-line;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        .bullet-list { list-style: none; padding: 0; margin: 16px 0; }
+        .bullet-list li { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; color: var(--text-body); }
+        .bullet-list li i { color: var(--primary-blue); margin-top: 4px; flex-shrink: 0; }
+
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 6px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-sub { text-align: center; font-size: 0.85rem; color: var(--text-body); margin-bottom: 14px; }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 14px 0 6px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+        .lab-btn.ghost { background: white; border: 2px solid #cbd5e1; color: var(--text-body); }
+        .lab-btn.yellow { background: var(--yellow-gradient); }
+
+        /* dark DFS simulator canvas */
+        .dfs-lab-dark { background: #0b1220; border-radius: 20px; padding: 24px; margin: 16px 0; border: 1px solid #1e293b; }
+        .dfs-lab-title { color: var(--primary-blue); font-weight: 800; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; justify-content: flex-end; margin-bottom: 14px; }
+        .dfs-canvas-wrap { background: #0f172a; border-radius: 16px; padding: 8px; border: 1px solid #1e293b; }
+        .dfs-svg { width: 100%; height: auto; display: block; }
+
+        .dfs-edge { stroke: #7c3aed; stroke-width: 2; transition: all 0.25s ease; }
+        .dfs-edge.tree-edge { stroke: #facc15; stroke-width: 3.5; }
+        .dfs-edge.path-edge { stroke: #22c55e; stroke-width: 4; }
+
+        .dfs-node-circle { stroke: #0b1220; stroke-width: 3; transition: fill 0.25s ease; }
+        .dfs-node-circle.state-unvisited { fill: #334155; }
+        .dfs-node-circle.state-current { fill: #f7941e; }
+        .dfs-node-circle.state-onstack { fill: #00adef; }
+        .dfs-node-circle.state-finished { fill: #22c55e; }
+
+        .dfs-node-index { fill: #0b1220; font-weight: 800; font-size: 14px; font-family: 'Consolas', monospace; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+        .dfs-node-circle.state-unvisited + .dfs-node-index { fill: #e2e8f0; }
+
+        .dfs-legend-row { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+        .dfs-legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #cbd5e1; font-weight: 700; }
+        .dfs-legend-dot { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; }
+        .dfs-legend-dot.legend-unvisited { background: #334155; }
+        .dfs-legend-dot.legend-current { background: #f7941e; }
+        .dfs-legend-dot.legend-onstack { background: #00adef; }
+        .dfs-legend-dot.legend-finished { background: #22c55e; }
+
+        .dfs-stack-panel { margin-top: 16px; background: #0f172a; border-radius: 14px; padding: 14px 16px; border: 1px solid #1e293b; }
+        .dfs-stack-title { font-weight: 800; font-size: 0.8rem; color: #94a3b8; margin-bottom: 10px; text-align: center; }
+        .dfs-stack-list { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; min-height: 40px; align-items: center; direction: ltr; }
+        .dfs-stack-frame { background: #1e293b; border: 2px solid var(--primary-blue); border-radius: 10px; padding: 6px 14px; font-family: 'Consolas', monospace; font-weight: 800; font-size: 0.85rem; color: #e2e8f0; }
+
+        .dfs-console {
+            background: #0f172a; border-radius: 14px; padding: 16px 20px; margin: 14px 0; min-height: 40px;
+            font-family: 'Consolas', monospace; color: #4ade80; direction: ltr; text-align: left; font-size: 0.83rem; line-height: 1.8;
+            max-height: 180px; overflow-y: auto; border: 1px solid #1e293b;
+        }
+        .dfs-console .highlight-line { color: #facc15; font-weight: 700; }
+
+        .dfs-controls-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px; align-items: center; }
+        .dfs-btn {
+            border-radius: 14px; padding: 11px 20px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 2px solid transparent; transition: all 0.2s ease;
+        }
+        .dfs-btn-primary { background: var(--blue-gradient); color: white; }
+        .dfs-btn-outline { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+        .dfs-btn-outline:hover { border-color: #64748b; }
+        .dfs-btn-danger { background: #0f172a; border-color: #3f1d2b; color: #f87171; }
+        .dfs-btn-danger:hover { border-color: #f87171; }
+        .dfs-speed-select {
+            background: #0f172a; border: 2px solid #334155; color: #e2e8f0; border-radius: 12px;
+            padding: 9px 14px; font-family: 'Tajawal'; font-weight: 700; font-size: 0.85rem; cursor: pointer;
+        }
+        .dfs-status-line { text-align: center; font-size: 0.85rem; font-weight: 700; color: #94a3b8; margin-top: 14px; min-height: 20px; }
+
+        .dfs-target-row { display: flex; gap: 10px; justify-content: center; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+        .dfs-target-select {
+            background: #0f172a; border: 2px solid #334155; color: #e2e8f0; border-radius: 12px;
+            padding: 9px 14px; font-family: 'Consolas', monospace; font-weight: 700; font-size: 0.9rem; cursor: pointer;
+        }
+
+        .activity-box { background: white; border-radius: 22px; padding: 32px; margin: 28px 0; box-shadow: var(--soft-shadow); border: 1px solid #e2e8f0; }
+        .activity-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .activity-header i { color: var(--primary-blue); font-size: 1.2rem; }
+        .activity-header h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); }
+        .activity-intro { margin-bottom: 20px; font-size: 0.92rem; }
+        .tf-item {
+            background: var(--bg-main); border-radius: 16px; padding: 18px 22px; margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+            border: 1px solid #e2e8f0;
+        }
+        .tf-statement { margin: 0; font-weight: 700; color: var(--dark-navy); font-size: 0.95rem; flex: 1 1 260px; direction: ltr; text-align: right; unicode-bidi: plaintext; }
+        .tf-buttons { display: flex; gap: 10px; flex-shrink: 0; }
+        .tf-btn {
+            border: 2px solid #e2e8f0; background: white; padding: 9px 26px; border-radius: 50px;
+            font-weight: 800; font-family: 'Tajawal'; font-size: 0.88rem; cursor: pointer; color: var(--dark-navy); transition: 0.2s;
+        }
+        .tf-btn:hover { border-color: var(--primary-blue); }
+        .tf-btn.tf-selected-correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .tf-btn.tf-selected-wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .tf-feedback { flex-basis: 100%; margin-top: 2px; font-weight: 700; font-size: 0.85rem; min-height: 18px; }
+
+        .homework-item { background: var(--bg-main); border-radius: 18px; padding: 24px; margin-top: 20px; border: 1px solid #e2e8f0; }
+        .homework-item h4 { margin: 0 0 10px; color: var(--dark-navy); font-size: 1.02rem; font-weight: 800; }
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            margin-top: 14px;
+        }
+        .collapsible { display: none; margin-top: 14px; }
+        .collapsible.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge">الدرس 02: البحث في العمق (DFS)</span>
+            <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الرابع</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-magnifying-glass"></i>
+        <h1>الدرس الثاني: البحث في العمق (Depth-First Search)</h1>
+        <p class="hero-desc">في الفصل السابق تعلّمنا كيف نخزّن الرسم البياني في الذاكرة. الآن حان وقت التحرك عليه فعليًا! DFS هي أول خوارزمية اجتياز (Traversal) نتعلّمها، وتُستخدم كأساس لحل عشرات المسائل التنافسية: من إيجاد المسارات إلى اكتشاف الدورات والتلوين الثنائي.</p>
+    </div>
+
+    <div class="container">
+
+        <!-- 1. Definition -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-magnifying-glass"></i>
+                <h3>ما هو البحث في العمق؟</h3>
+            </div>
+            <p>البحث في العمق (<strong>DFS</strong>) هو خوارزمية اجتياز على الرسوم البيانية (Graphs). تعمل بأسلوب المتاهة: تسير للأمام بأقصى عمق ممكن، فإذا وصلت إلى طريق مسدود (كل الجيران زُوروا) عادت خطوة للخلف (backtrack) وجرّبت مسارًا آخر لم تستكشفه بعد.</p>
+            <p>يُستخدم DFS في العديد من المسائل، مثل: إيجاد المسارات، اكتشاف الدورات (Cycle Detection)، التلوين الثنائي للرسوم البيانية (Bipartite Coloring)، وغيرها الكثير — وسنتعرّض لبعضها في الفصول القادمة.</p>
+            <div class="formula-box">التعقيد الزمني: O(V + E)</div>
+            <p style="text-align:center; font-size:0.85rem;">حيث <code class="inline">V</code> = عدد الرؤوس (Vertices)، و<code class="inline">E</code> = عدد الحواف (Edges).</p>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p><strong>نصيحة المدرب:</strong> فكّر في DFS كشخص يستكشف متاهة: يضع يده دائمًا على الجدار الأيمن ويمشي بدون توقف، فإذا اصطدم بطريق مسدود يرجع خطوة للوراء ويجرّب اتجاهًا آخر، حتى يزور كل ركن ممكن في المتاهة.</p>
+            </div>
+        </div>
+
+        <!-- 2. Steps -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-gears"></i>
+                <h3>كيف يعمل DFS خطوة بخطوة؟</h3>
+            </div>
+            <ol class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p>ابدأ عند الرأس المصدر (Source) وضع عليه علامة "مُزار" (visited).</p></li>
+                <li class="step-item"><span class="step-num"></span><p>انظر إلى جميع جيران الرأس الحالي. إذا وجدت جارًا لم يُزَر بعد، انتقل إليه (dfs بشكل تكراري) وكرّر العملية من جديد على هذا الجار.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>إذا تمت زيارة جميع جيران الرأس الحالي، ارجع (backtrack) إلى الرأس الذي جئت منه (الأب) واستمر في فحص بقية جيرانه.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>تنتهي الخوارزمية عندما تُزار جميع الرؤوس المتصلة بالمصدر (أي بعد أن يعود الاستدعاء الأول dfs(المصدر) بالكامل).</p></li>
+            </ol>
+        </div>
+
+        <!-- Interactive lab A: DFS simulator -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>محاكي DFS التفاعلي</h3>
+            </div>
+            <p>اضغط "تشغيل" لرؤية كيف يتحرك DFS على الرسم البياني خطوة بخطوة، أو اضغط "خطوة →" للتقدّم يدويًا حركة واحدة في كل مرة. لاحظ الرأس رقم 9 المنعزل — لن يُزار أبدًا لأنه غير متصل بالرأس 1، وهذا يوضّح أن DFS لا يزور إلا الرؤوس المتصلة بمصدره.</p>
+
+            <div class="dfs-lab-dark">
+                <div class="dfs-lab-title"><i class="fas fa-diagram-project"></i> رسم بياني تجريبي (9 رؤوس)</div>
+                <div class="dfs-canvas-wrap">
+                    <svg id="dfsSvg" viewBox="0 0 700 420" class="dfs-svg"></svg>
+                </div>
+
+                <div class="dfs-legend-row">
+                    <span class="dfs-legend-item"><span class="dfs-legend-dot legend-unvisited"></span> لم يُزَر</span>
+                    <span class="dfs-legend-item"><span class="dfs-legend-dot legend-current"></span> قيد الزيارة (Stack)</span>
+                    <span class="dfs-legend-item"><span class="dfs-legend-dot legend-onstack"></span> مُزار</span>
+                    <span class="dfs-legend-item"><span class="dfs-legend-dot legend-finished"></span> اكتملت زيارته</span>
+                </div>
+
+                <div class="dfs-stack-panel">
+                    <div class="dfs-stack-title">مكدس الاستدعاءات الحالي (Call Stack)</div>
+                    <div class="dfs-stack-list" id="dfsStackList"></div>
+                </div>
+
+                <div class="dfs-console" id="dfsConsole"></div>
+                <div class="dfs-status-line" id="dfsStatus">اضغط "تشغيل" لبدء المحاكاة...</div>
+
+                <div class="dfs-controls-row">
+                    <button class="dfs-btn dfs-btn-primary" id="dfsPlayBtn" onclick="dfsTogglePlay()"><i class="fas fa-play"></i> تشغيل</button>
+                    <button class="dfs-btn dfs-btn-outline" onclick="dfsStep()">خطوة →</button>
+                    <button class="dfs-btn dfs-btn-danger" onclick="dfsResetSim()"><i class="fas fa-rotate-right"></i> إعادة</button>
+                    <select class="dfs-speed-select" id="dfsSpeedSelect" onchange="dfsSpeedChanged()">
+                        <option value="0.5">السرعة: 0.5x</option>
+                        <option value="1" selected>السرعة: 1x</option>
+                        <option value="2">السرعة: 2x</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Basic code -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-code"></i>
+                <h3>الكود الأساسي لـ DFS</h3>
+            </div>
+            <p>الكود التالي يُنفّذ DFS باستخدام التعاود (Recursion)، وهو الأسلوب الأكثر وضوحًا:</p>
+            <div class="code-box">
+                <div class="code-head"><span>dfs_basic.cpp</span></div>
+                <pre>const int maxN = 200001;
+
+bool vis[maxN];                    <span class="cmt">// مصفوفة الزيارة</span>
+vector&lt;int&gt; adj[maxN];            <span class="cmt">// قائمة التجاور</span>
+
+void dfs(int u) {
+    vis[u] = true;               <span class="cmt">// ضع علامة على الرأس الحالي</span>
+
+    for (int v : adj[u]) {
+        if (!vis[v])             <span class="cmt">// إذا لم يُزَر الجار</span>
+            dfs(v);             <span class="cmt">// زُره بشكل تكراري</span>
+    }
+}</pre>
+            </div>
+
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p><strong>نقطة مهمة:</strong> مصفوفة <code class="inline">vis[]</code> ضرورية جدًا — بدونها ستدخل الخوارزمية في حلقة لا نهائية إذا كان الرسم البياني يحتوي على دورة (Cycle)، لأن الكود سيستمر في القفز بين نفس الرؤوس إلى الأبد. جرّب بنفسك في محاكي الأعلى: لاحظ كيف يمر DFS على الدورة 3-6-5-2 دون أن يعلق فيها، لأن كل رأس يُزار مرة واحدة فقط.</p>
+            </div>
+        </div>
+
+        <!-- 4. Applied problem: Path Finding -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-route"></i>
+                <h3>مسألة تطبيقية: إيجاد المسار (Path Finding)</h3>
+            </div>
+            <p><strong>سهل</strong> — معطى رسم بياني غير موجّه يتكوّن من <code class="inline">N</code> رأسًا مرقّمة من 1 إلى <code class="inline">N</code>، و<code class="inline">M</code> حافة. تحقّق مما إذا كان الرأس 1 يمكنه الوصول إلى الرأس <code class="inline">N</code>، واطبع مسارًا ممكنًا إذا وُجد.</p>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p><strong>فكرة الحل:</strong> نخزّن مصفوفة <code class="inline">p[]</code> حيث <code class="inline">p[v]</code> = الرأس الذي اكتشف <code class="inline">v</code> أثناء DFS (أي الرأس الذي استدعى <code class="inline">dfs(v)</code>). بعد انتهاء DFS من الرأس 1، نتتبّع المسار عكسيًا بدءًا من <code class="inline">N</code> صعودًا حتى نصل إلى 1 عبر <code class="inline">p[]</code>.</p>
+            </div>
+
+            <div class="code-box">
+                <div class="code-head"><span>path_finding.cpp</span></div>
+                <pre>const int maxN = 200001;
+int vis[maxN], p[maxN];        <span class="cmt">// vis = زيارة, p = الأب</span>
+vector&lt;int&gt; adj[maxN];
+
+void dfs(int u) {
+    vis[u] = true;
+    for (int v : adj[u]) {
+        if (!vis[v]) {
+            p[v] = u;          <span class="cmt">// u أب v</span>
+            dfs(v);
+        }
+    }
+}
+
+int main() {
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+
+    for (int i = 0; i &lt; m; i++) {
+        int u, v;
+        cin &gt;&gt; u &gt;&gt; v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+
+    dfs(1);
+
+    if (!vis[n]) cout &lt;&lt; "No";
+    else {
+        cout &lt;&lt; "Yes\n";
+        vector&lt;int&gt; pth;
+        <span class="cmt">// تتبع المسار عكسياً</span>
+        for (int i = n; i != 1; i = p[i])
+            pth.push_back(i);
+        reverse(pth.begin(), pth.end());
+        cout &lt;&lt; 1 &lt;&lt; ' ';
+        for (int i : pth) cout &lt;&lt; i &lt;&lt; ' ';
+    }
+}</pre>
+            </div>
+
+            <!-- Interactive lab B: path finding on same graph -->
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-route"></i> جرّب إيجاد المسار على نفس الرسم البياني</p>
+                <div class="dfs-target-row">
+                    <span style="font-weight:700; color:var(--dark-navy); font-size:0.9rem;">الهدف N =</span>
+                    <select class="dfs-target-select" id="pathTargetSelect">
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8" selected>8</option>
+                        <option value="9">9 (منعزل — للتجربة)</option>
+                    </select>
+                    <button class="lab-btn" onclick="pathFindRun()">ابحث عن المسار من 1</button>
+                    <button class="lab-btn ghost" onclick="pathFindResetLab()">إعادة ضبط</button>
+                </div>
+
+                <div class="dfs-lab-dark" style="margin-top:16px;">
+                    <div class="dfs-canvas-wrap">
+                        <svg id="pathSvg" viewBox="0 0 700 420" class="dfs-svg"></svg>
+                    </div>
+                    <div class="dfs-legend-row">
+                        <span class="dfs-legend-item"><span class="dfs-legend-dot legend-unvisited"></span> لم يُزَر</span>
+                        <span class="dfs-legend-item"><span class="dfs-legend-dot legend-onstack"></span> زاره DFS، ليس على هذا المسار</span>
+                        <span class="dfs-legend-item"><span class="dfs-legend-dot legend-finished"></span> على المسار النهائي</span>
+                    </div>
+                </div>
+
+                <div class="output-box" id="pathOutput" style="margin-top:16px;">اختر رأسًا هدفًا واضغط "ابحث عن المسار من 1"...</div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>الحالة</th><th>ماذا نطبع؟</th></tr></thead>
+                    <tbody>
+                        <tr><td>الهدف N متصل بالرأس 1</td><td class="ltr">Yes ثم المسار كاملاً</td></tr>
+                        <tr><td>الهدف N غير متصل بالرأس 1 (No path)</td><td class="ltr">No</td></tr>
+                        <tr><td>الحالة الخاصة N = 1</td><td class="ltr">Yes، والمسار هو "1" فقط</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p><strong>لاحظ:</strong> أب الرأس في <code class="inline">p[]</code> ليس بالضرورة "أقرب" رأس منطقيًا — فمثلًا في رسمنا التجريبي، الرأس 3 مرتبط مباشرة بالرأس 1 عبر حافة، لكن DFS يكتشفه فعليًا عبر المسار 1→2→5→6→3 قبل أن يصل دور فحص تلك الحافة المباشرة (لأن 3 يكون قد زِيرَ بالفعل). هذا طبيعي تمامًا في DFS، ولا يؤثر على صحة النتيجة.</p>
+            </div>
+        </div>
+
+        <!-- Activity A -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>نشاط: مراجعة سريعة لمفهوم DFS</h4>
+            </div>
+            <p class="activity-intro">حدّد إن كانت كل عبارة صحيحة أم خاطئة.</p>
+
+            <div class="tf-item" id="tfDfs1">
+                <p class="tf-statement">التعقيد الزمني لـ DFS هو O(V + E).</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDfs1', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDfs1', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfDfs2">
+                <p class="tf-statement">DFS يزور جميع رؤوس الرسم البياني حتى لو كانت غير متصلة بالرأس المصدر.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDfs2', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDfs2', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfDfs3">
+                <p class="tf-statement">بدون مصفوفة vis[]، قد تدخل الخوارزمية في حلقة لا نهائية إذا كان الرسم البياني يحتوي على دورة.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDfs3', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDfs3', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfDfs4">
+                <p class="tf-statement">في مسألة Path Finding، الأب p[v] هو دائمًا الجار الأول لـ v في قائمة الجوار.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDfs4', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDfs4', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Homework -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-pen-ruler"></i>
+                <h3>تمارين منزلية</h3>
+            </div>
+
+            <div class="homework-item" id="hwDfs1">
+                <h4>1) تتبّع DFS يدويًا</h4>
+                <p>لديك رسم بياني بالحواف التالية (adjacency مبني بترتيب push_back): <code class="inline">1-2, 1-3, 2-4, 3-4</code>. اكتب ترتيب زيارة الرؤوس عند تنفيذ <code class="inline">dfs(1)</code>.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwDfs1sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwDfs1sol">
+                    <p>adj[1]={2,3}, adj[2]={1,4}, adj[3]={1,4}, adj[4]={2,3}</p>
+                    <div class="output-box">ترتيب الزيارة: 1 → 2 → 4 → 3
+(من 1 ننتقل إلى 2، ومن 2 إلى 4، ومن 4 نفحص جيرانه: 2 مُزار، 3 غير مُزار فننتقل إليه، ثم نعود بالكامل لأن كل الجيران زِيروا)</div>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwDfs2">
+                <h4>2) لماذا نحتاج vis[]؟</h4>
+                <p>ماذا يحدث بالضبط إذا حذفنا شرط <code class="inline">if (!vis[v])</code> من كود DFS الأساسي، وشغّلنا الخوارزمية على رسم بياني يحتوي على حافة واحدة فقط بين رأسين (1-2)؟</p>
+                <button class="toggle-btn" onclick="toggleSection('hwDfs2sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwDfs2sol">
+                    <p>ستدخل الخوارزمية في حلقة لا نهائية: <code class="inline">dfs(1)</code> يستدعي <code class="inline">dfs(2)</code> (لأن 2 جار لـ 1)، و<code class="inline">dfs(2)</code> يستدعي <code class="inline">dfs(1)</code> مجددًا (لأن 1 جار لـ 2)، وهكذا إلى ما لا نهاية حتى ينهار البرنامج بخطأ Stack Overflow. هذا يوضح أن vis[] ليست مجرد تحسين أداء، بل شرط ضروري لصحة الخوارزمية.</p>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwDfs3">
+                <h4>3) مسألة Path Finding — حالة خاصة</h4>
+                <p>ماذا يجب أن يطبع الكود إذا كان N = 1 (أي المصدر والهدف نفس الرأس)؟ تحقّق من أن الكود المعطى يتعامل مع هذه الحالة بشكل صحيح.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwDfs3sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwDfs3sol">
+                    <p>يجب أن يطبع <code class="inline">Yes</code> ثم المسار "1" فقط. بما أن <code class="inline">dfs(1)</code> يضع <code class="inline">vis[1] = true</code> فورًا، فإن الشرط <code class="inline">!vis[n]</code> يكون false عندما n=1، فينتقل الكود لطباعة "Yes"، وحلقة تتبع المسار <code class="inline">for (int i = n; i != 1; i = p[i])</code> لا تُنفَّذ أي تكرار لأن الشرط <code class="inline">i != 1</code> يفشل فورًا (لأن i يبدأ من n=1)، فتبقى <code class="inline">pth</code> فارغة، ويُطبع <code class="inline">1</code> فقط. تحققنا من هذا فعليًا بالتجربة: المدخل "1 0" ينتج "Yes" ثم "1".</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>تحقق من فهمك</h3>
+            </div>
+
+            <div class="quiz-q" id="qdfs1">
+                <h4>١. ما هي فكرة DFS الأساسية؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs1', this, true)">التوغّل بأقصى عمق ممكن، ثم الرجوع للخلف (backtrack) عند الوصول لطريق مسدود</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs1', this, false)">زيارة كل الرؤوس على نفس المسافة من المصدر أولاً</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs1', this, false)">ترتيب الرؤوس تصاعديًا قبل الزيارة</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdfs2">
+                <h4>٢. ما التعقيد الزمني لـ DFS؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs2', this, false)">O(V²)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs2', this, true)">O(V + E)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs2', this, false)">O(E²)</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdfs3">
+                <h4>٣. ماذا يحدث بدون مصفوفة vis[] في رسم بياني يحتوي على دورة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs3', this, true)">قد تدخل الخوارزمية في حلقة لا نهائية</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs3', this, false)">لا يوجد أي تأثير، النتيجة نفسها</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs3', this, false)">يرفض المترجم البرنامج فورًا</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdfs4">
+                <h4>٤. متى يحدث "backtrack" (الرجوع للخلف) في DFS؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs4', this, false)">في بداية كل استدعاء dfs جديد</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs4', this, true)">عندما تتم زيارة جميع جيران الرأس الحالي</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs4', this, false)">فقط عند الوصول إلى الرأس الأخير في الرسم البياني</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdfs5">
+                <h4>٥. في مسألة Path Finding، ماذا يمثّل p[v]؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs5', this, false)">أصغر جار لـ v</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs5', this, true)">الرأس الذي استدعى dfs(v) واكتشفه</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs5', this, false)">عدد المرات التي زُور فيها v</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdfs6">
+                <h4>٦. إذا كان الرأس N غير متصل بالرأس 1، ماذا تطبع مسألة Path Finding؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs6', this, false)">Yes مع مسار فارغ</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs6', this, true)">No</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs6', this, false)">خطأ تنفيذ (Runtime Error)</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdfs7">
+                <h4>٧. هل أب الرأس p[v] في DFS هو دائمًا "أقرب" رأس له منطقيًا (عبر حافة مباشرة معروفة مسبقًا)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs7', this, false)">نعم دائمًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs7', this, true)">لا، هو ببساطة الرأس الذي اكتشفه فعليًا أثناء تنفيذ DFS، وقد يختلف حسب ترتيب قائمة الجوار</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs7', this, false)">لا يوجد مفهوم "أب" في DFS إطلاقًا</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdfs8">
+                <h4>٨. أي من هذه المسائل يُستخدم DFS في حلّها عادةً؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs8', this, true)">اكتشاف الدورات (Cycle Detection) والتلوين الثنائي (Bipartite Coloring)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs8', this, false)">فرز مصفوفة من الأعداد</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs8', this, false)">ضرب مصفوفتين</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdfs9">
+                <h4>٩. في محاكي DFS، ماذا يعني اللون الذي يمثّل "قيد الزيارة (Stack)"؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs9', this, false)">الرأس لم يُزَر بعد إطلاقًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs9', this, true)">الرأس هو أعلى عنصر في مكدس الاستدعاءات الحالي (يُعالج الآن)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs9', this, false)">الرأس انتهت زيارته بالكامل ولن نعود إليه</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdfs10">
+                <h4>١٠. لماذا لم يُزَر الرأس رقم 9 في محاكي الأعلى مهما ضغطت "تشغيل"؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs10', this, false)">بسبب خطأ برمجي في المحاكي</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs10', this, true)">لأنه غير متصل بأي حافة مع الرأس المصدر (1)، وDFS يزور فقط الرؤوس المتصلة بمصدره</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdfs10', this, false)">لأن ترقيم الرؤوس يجب أن يبدأ من صفر</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>قاموس المصطلحات</h3>
+            </div>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">DFS (Depth-First Search)</span><span class="term-ar">البحث في العمق</span><p class="term-desc">خوارزمية اجتياز تتوغّل بأقصى عمق ممكن قبل الرجوع للخلف.</p></div>
+                <div class="term-card"><span class="term-en">Backtrack</span><span class="term-ar">الرجوع للخلف</span><p class="term-desc">العودة إلى الرأس الأب بعد استنفاد كل جيران الرأس الحالي.</p></div>
+                <div class="term-card"><span class="term-en">Visited Array (vis[])</span><span class="term-ar">مصفوفة الزيارة</span><p class="term-desc">تمنع زيارة نفس الرأس أكثر من مرة، وضرورية لتجنب الحلقات اللانهائية عند وجود دورات.</p></div>
+                <div class="term-card"><span class="term-en">Call Stack</span><span class="term-ar">مكدس الاستدعاءات</span><p class="term-desc">سلسلة الاستدعاءات التكرارية النشطة حاليًا (من المصدر وحتى الرأس الحالي).</p></div>
+                <div class="term-card"><span class="term-en">Recursion</span><span class="term-ar">التعاود</span><p class="term-desc">تقنية برمجية تستدعي فيها الدالة نفسها؛ الأسلوب الأكثر وضوحًا لتنفيذ DFS.</p></div>
+                <div class="term-card"><span class="term-en">Parent Array (p[])</span><span class="term-ar">مصفوفة الآباء</span><p class="term-desc">تخزّن الرأس الذي اكتشف كل رأس أثناء DFS؛ تُستخدم لإعادة بناء المسار.</p></div>
+                <div class="term-card"><span class="term-en">Connected Component</span><span class="term-ar">المكوّن المتصل</span><p class="term-desc">مجموعة الرؤوس التي يمكن الوصول إليها من رأس معيّن؛ DFS يزور مكوّنًا واحدًا فقط في كل استدعاء.</p></div>
+                <div class="term-card"><span class="term-en">Cycle</span><span class="term-ar">الدورة</span><p class="term-desc">مسار في الرسم البياني يعود إلى رأسه الأصلي؛ سبب الحاجة لمصفوفة الزيارة.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الرابع: البحث في العمق (DFS)</footer>
+
+    <script>
+        // ===== Shared graph data (verified against compiled C++ output) =====
+        // Edges: 1-2,1-3,2-4,2-5,3-6,3-7,5-6,7-8 — vertex 9 isolated on purpose.
+        const DFS_ADJ = {
+            1: [2, 3], 2: [1, 4, 5], 3: [1, 6, 7], 4: [2],
+            5: [2, 6], 6: [3, 5], 7: [3, 8], 8: [7], 9: []
+        };
+        const DFS_POS = {
+            1: { x: 350, y: 40 }, 2: { x: 200, y: 140 }, 3: { x: 500, y: 140 },
+            4: { x: 110, y: 240 }, 5: { x: 270, y: 240 }, 6: { x: 430, y: 240 },
+            7: { x: 590, y: 240 }, 8: { x: 590, y: 340 }, 9: { x: 110, y: 340 }
+        };
+        const DFS_EDGES = [[1,2],[1,3],[2,4],[2,5],[3,6],[3,7],[5,6],[7,8]];
+
+        function drawGraphBase(svgId) {
+            const svg = document.getElementById(svgId);
+            svg.innerHTML = '';
+            DFS_EDGES.forEach(function (e) {
+                const a = DFS_POS[e[0]], b = DFS_POS[e[1]];
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
+                line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
+                line.setAttribute('class', 'dfs-edge');
+                line.setAttribute('id', svgId + '_edge_' + e[0] + '_' + e[1]);
+                svg.appendChild(line);
+            });
+            Object.keys(DFS_POS).forEach(function (key) {
+                const id = parseInt(key, 10);
+                const pos = DFS_POS[id];
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', pos.x); circle.setAttribute('cy', pos.y); circle.setAttribute('r', 20);
+                circle.setAttribute('class', 'dfs-node-circle state-unvisited');
+                circle.setAttribute('id', svgId + '_node_' + id);
+                svg.appendChild(circle);
+
+                const idxText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                idxText.setAttribute('x', pos.x); idxText.setAttribute('y', pos.y);
+                idxText.setAttribute('class', 'dfs-node-index');
+                idxText.setAttribute('id', svgId + '_label_' + id);
+                idxText.textContent = id;
+                svg.appendChild(idxText);
+            });
+        }
+
+        function setNodeState(svgId, id, state) {
+            const circle = document.getElementById(svgId + '_node_' + id);
+            if (!circle) return;
+            circle.setAttribute('class', 'dfs-node-circle state-' + state);
+            const label = document.getElementById(svgId + '_label_' + id);
+            if (label) label.setAttribute('fill', state === 'unvisited' ? '#e2e8f0' : '#0b1220');
+        }
+
+        function setEdgeClass(svgId, u, v, cls) {
+            const el = document.getElementById(svgId + '_edge_' + u + '_' + v) || document.getElementById(svgId + '_edge_' + v + '_' + u);
+            if (el) el.setAttribute('class', 'dfs-edge' + (cls ? ' ' + cls : ''));
+        }
+
+        // ===== Event generation (mirrors the verified recursive C++ dfs()) =====
+        function generateDfsEvents(start) {
+            const events = [];
+            const visited = {};
+            function dfs(u) {
+                visited[u] = true;
+                events.push({ type: 'enter', node: u });
+                DFS_ADJ[u].forEach(function (v) {
+                    if (visited[v]) {
+                        events.push({ type: 'skip', node: u, neighbor: v });
+                    } else {
+                        events.push({ type: 'go', node: u, neighbor: v });
+                        dfs(v);
+                    }
+                });
+                events.push({ type: 'return', node: u });
+            }
+            dfs(start);
+            return events;
+        }
+
+        // ===== Lab A: DFS simulator =====
+        let dfsEvents = [];
+        let dfsEventIndex = 0;
+        let dfsCallStack = [];
+        let dfsFinished = {};
+        let dfsPlaying = false;
+        let dfsTimer = null;
+        let dfsSpeed = 1;
+
+        function dfsStackRender() {
+            const list = document.getElementById('dfsStackList');
+            list.innerHTML = '';
+            dfsCallStack.forEach(function (id) {
+                const frame = document.createElement('div');
+                frame.className = 'dfs-stack-frame';
+                frame.innerText = id;
+                list.appendChild(frame);
+            });
+        }
+
+        function dfsLog(text, highlight) {
+            const box = document.getElementById('dfsConsole');
+            const line = document.createElement('div');
+            if (highlight) line.className = 'highlight-line';
+            line.innerText = text;
+            box.appendChild(line);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function dfsRepaintStackColors() {
+            dfsCallStack.forEach(function (id, idx) {
+                const isTop = idx === dfsCallStack.length - 1;
+                setNodeState('dfsSvg', id, isTop ? 'current' : 'onstack');
+            });
+        }
+
+        function dfsResetSim() {
+            dfsEvents = generateDfsEvents(1);
+            dfsEventIndex = 0;
+            dfsCallStack = [];
+            dfsFinished = {};
+            dfsPlaying = false;
+            if (dfsTimer) { clearTimeout(dfsTimer); dfsTimer = null; }
+            drawGraphBase('dfsSvg');
+            document.getElementById('dfsConsole').innerHTML = '';
+            dfsStackRender();
+            document.getElementById('dfsStatus').innerText = 'اضغط "تشغيل" لبدء المحاكاة...';
+            document.getElementById('dfsPlayBtn').innerHTML = '<i class="fas fa-play"></i> تشغيل';
+        }
+
+        function dfsStep() {
+            if (dfsEventIndex >= dfsEvents.length) {
+                document.getElementById('dfsStatus').innerText = 'اكتملت المحاكاة! رتبة الزيارة: 1 → 2 → 4 → 5 → 6 → 3 → 7 → 8 (الرأس 9 لم يُزَر لأنه منعزل).';
+                dfsPauseAuto();
+                return false;
+            }
+            const ev = dfsEvents[dfsEventIndex];
+            dfsEventIndex++;
+
+            if (ev.type === 'enter') {
+                dfsCallStack.push(ev.node);
+                dfsRepaintStackColors();
+                dfsStackRender();
+                dfsLog('دخول الرأس ' + ev.node + ' → وضعناه على المكدس وميّزناه "مُزار".', true);
+                document.getElementById('dfsStatus').innerText = 'دخلنا الرأس ' + ev.node + '.';
+            } else if (ev.type === 'go') {
+                setEdgeClass('dfsSvg', ev.node, ev.neighbor, 'tree-edge');
+                dfsLog('  الجار ' + ev.neighbor + ' لم يُزَر بعد ← ننتقل إليه.');
+                document.getElementById('dfsStatus').innerText = 'من ' + ev.node + '، الجار ' + ev.neighbor + ' غير مُزار — سننتقل إليه.';
+            } else if (ev.type === 'skip') {
+                dfsLog('  الجار ' + ev.neighbor + ' مُزار مسبقًا ← تجاهله ونكمل.');
+                document.getElementById('dfsStatus').innerText = 'من ' + ev.node + '، الجار ' + ev.neighbor + ' مُزار مسبقًا — نتجاهله.';
+            } else if (ev.type === 'return') {
+                dfsCallStack.pop();
+                dfsFinished[ev.node] = true;
+                setNodeState('dfsSvg', ev.node, 'finished');
+                dfsRepaintStackColors();
+                dfsStackRender();
+                dfsLog('انتهت جيران ' + ev.node + ' بالكامل ← نعود للخلف (backtrack).', true);
+                document.getElementById('dfsStatus').innerText = 'انتهينا من ' + ev.node + '، نرجع للخلف.';
+            }
+
+            if (dfsEventIndex >= dfsEvents.length) {
+                document.getElementById('dfsStatus').innerText = 'اكتملت المحاكاة! رتبة الزيارة: 1 → 2 → 4 → 5 → 6 → 3 → 7 → 8 (الرأس 9 لم يُزَر لأنه منعزل).';
+                dfsPauseAuto();
+                return false;
+            }
+            return true;
+        }
+
+        function dfsPauseAuto() {
+            dfsPlaying = false;
+            if (dfsTimer) { clearTimeout(dfsTimer); dfsTimer = null; }
+            document.getElementById('dfsPlayBtn').innerHTML = '<i class="fas fa-play"></i> تشغيل';
+        }
+
+        function dfsTogglePlay() {
+            if (dfsPlaying) { dfsPauseAuto(); return; }
+            dfsPlaying = true;
+            document.getElementById('dfsPlayBtn').innerHTML = '<i class="fas fa-pause"></i> إيقاف';
+            function tick() {
+                if (!dfsPlaying) return;
+                const more = dfsStep();
+                if (!more) return;
+                dfsTimer = setTimeout(tick, 900 / dfsSpeed);
+            }
+            tick();
+        }
+
+        function dfsSpeedChanged() {
+            dfsSpeed = parseFloat(document.getElementById('dfsSpeedSelect').value);
+        }
+
+        // ===== Lab B: path finding on the same graph =====
+        function pathFindResetLab() {
+            drawGraphBase('pathSvg');
+            document.getElementById('pathOutput').innerText = 'اختر رأسًا هدفًا واضغط "ابحث عن المسار من 1"...';
+        }
+
+        function pathFindRun() {
+            const target = parseInt(document.getElementById('pathTargetSelect').value, 10);
+            drawGraphBase('pathSvg');
+
+            const vis = {};
+            const p = {};
+            (function dfs(u) {
+                vis[u] = true;
+                DFS_ADJ[u].forEach(function (v) {
+                    if (!vis[v]) { p[v] = u; dfs(v); }
+                });
+            })(1);
+
+            // المرحلة 1: كل رأس زاره DFS يُلوَّن بالأزرق أولاً (مُزار، لكن ليس بالضرورة على المسار النهائي إلى الهدف).
+            Object.keys(vis).forEach(function (k) { setNodeState('pathSvg', parseInt(k, 10), 'onstack'); });
+
+            let output = '';
+            if (!vis[target]) {
+                output = 'لا يوجد مسار (No) — الرأس ' + target + ' غير متصل بالرأس 1.\n\nهذا هو تحديدًا سبب وجود الرأس 9 المنعزل في رسمنا: ليوضّح حالة "No" بشكل عملي.';
+            } else if (target === 1) {
+                setNodeState('pathSvg', 1, 'finished');
+                output = 'Yes\nالمصدر والهدف نفس الرأس، المسار هو: 1';
+            } else {
+                const path = [];
+                let i = target;
+                while (i !== 1) { path.push(i); i = p[i]; }
+                path.push(1);
+                path.reverse();
+                // المرحلة 2: فقط الرؤوس والحواف التي تقع فعليًا على المسار النهائي تُعاد تلوينها بالأخضر،
+                // بينما تبقى الرؤوس الأخرى التي زارها DFS (مثل الرأس 4) زرقاء لتوضيح الفرق بصريًا.
+                path.forEach(function (node, idx) {
+                    setNodeState('pathSvg', node, 'finished');
+                    if (idx < path.length - 1) setEdgeClass('pathSvg', path[idx], path[idx + 1], 'path-edge');
+                });
+                output = 'Yes\nالمسار: ' + path.join(' → ') + '\n\nمصفوفة الآباء المستخدمة: ' +
+                    Object.keys(p).map(function (k) { return k + '→' + p[k]; }).join('، ') +
+                    '\n\nملاحظة: الرؤوس الزرقاء (إن وُجدت) زارها DFS لكنها ليست جزءًا من هذا المسار بالذات.';
+            }
+            document.getElementById('pathOutput').innerText = output;
+        }
+
+        // ===== Shared helpers =====
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        function checkTF(el, itemId, chosenValue, correctValue) {
+            const item = document.getElementById(itemId);
+            const buttons = item.querySelectorAll('.tf-btn');
+            buttons.forEach(function (b) { b.classList.remove('tf-selected-correct', 'tf-selected-wrong'); b.onclick = null; b.style.cursor = 'default'; });
+            const feedback = item.querySelector('.tf-feedback');
+            if (chosenValue === correctValue) {
+                el.classList.add('tf-selected-correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة!</span>';
+            } else {
+                el.classList.add('tf-selected-wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة خاطئة — العبارة في الواقع "' + (correctValue ? 'صحيح' : 'خطأ') + '".</span>';
+            }
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(function (o) { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة! أحسنت.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة غير صحيحة، حاول مرة أخرى في المرة القادمة.</span>';
+            }
+        }
+
+        dfsResetSim();
+        pathFindResetLab();
+    </script>
+</body>
+</html>

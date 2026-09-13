@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | Ordered Set — هياكل البيانات المتقدمة (PBDS)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+        .adv-badge {
+            background: var(--dark-navy); color: #facc15; border: none;
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .hero-banner { background: var(--blue-gradient); padding: 60px 6% 40px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 14px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 10px; }
+        .hero-desc { max-width: 780px; margin: 0 auto 22px; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+        .hero-stats-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+        .hero-stat { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 16px; padding: 10px 22px; text-align: center; }
+        .hero-stat .hs-label { display: block; font-size: 0.72rem; color: rgba(255,255,255,0.8); font-weight: 700; }
+        .hero-stat .hs-value { display: block; font-size: 1rem; font-weight: 800; color: white; margin-top: 2px; }
+
+        .tab-nav {
+            display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+            background: white; padding: 14px 6%; position: sticky; top: 87px; z-index: 900;
+            border-bottom: 1px solid #e2e8f0; box-shadow: 0 4px 14px -8px rgba(0,0,0,0.08);
+        }
+        .tab-btn {
+            border: 2px solid #e2e8f0; background: white; color: var(--text-body);
+            padding: 10px 18px; border-radius: 50px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.82rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .tab-btn:hover { border-color: var(--primary-blue); }
+        .tab-btn.active { background: var(--blue-gradient); border-color: transparent; color: white; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeIn 0.35s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .container { max-width: 980px; margin: 40px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header .section-num {
+            width: 34px; height: 34px; border-radius: 50%; background: var(--yellow-gradient); color: white;
+            display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;
+        }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.82rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.08); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #dc2626; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .definition-box { background: var(--dark-navy); color: white; border-radius: 18px; padding: 22px 24px; margin: 16px 0; }
+        .definition-box .df-title { color: #facc15; font-weight: 800; font-size: 0.88rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .definition-box p { color: #e2e8f0; margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+        .data-table td.yes { color: #16a34a; font-weight: 800; }
+        .data-table td.no { color: #dc2626; font-weight: 800; }
+
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+        .step-item.blue .step-num { background: var(--blue-gradient); }
+
+        /* interactive lab shared */
+        .nt-lab-dark { background: #0b1220; border-radius: 20px; padding: 26px; margin: 16px 0; border: 1px solid #1e293b; }
+        .nt-input-row { display: flex; gap: 14px; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+        .nt-input-group { display: flex; flex-direction: column; gap: 6px; align-items: center; flex: 1 1 auto; max-width: 420px; }
+        .nt-input-group.wide { max-width: 100%; width: 100%; }
+        .nt-input-group label { color: #94a3b8; font-size: 0.78rem; font-weight: 700; }
+        .nt-input-group input, .nt-input-group textarea {
+            width: 100%; text-align: center; background: #1e293b; border: 2px solid #334155; color: #e2e8f0;
+            border-radius: 12px; padding: 10px; font-family: 'Consolas', monospace; font-size: 1rem; font-weight: 700;
+            box-sizing: border-box;
+        }
+        .nt-input-group.narrow input { width: 100px; }
+        .nt-input-group input:focus, .nt-input-group textarea:focus { outline: none; border-color: var(--primary-blue); }
+        .nt-btn {
+            border-radius: 14px; padding: 11px 22px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 2px solid transparent; transition: all 0.2s ease;
+            align-self: flex-end; margin-top: 18px; white-space: nowrap;
+        }
+        .nt-btn-primary { background: var(--blue-gradient); color: white; }
+        .nt-btn-outline { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+        .nt-btn-outline:hover { border-color: #64748b; }
+        .nt-btn-danger { background: rgba(239,68,68,0.15); border-color: #ef4444; color: #fca5a5; }
+        .nt-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .nt-console { background: #0f172a; border-radius: 14px; padding: 16px 20px; margin: 14px 0; min-height: 40px; font-family: 'Consolas', monospace; color: #cbd5e1; direction: ltr; text-align: left; font-size: 0.82rem; line-height: 1.85; max-height: 280px; overflow-y: auto; border: 1px solid #1e293b; }
+        .nt-console .step-line { display: block; }
+        .nt-console .final-line { color: #facc15; font-weight: 800; margin-top: 8px; display: block; }
+        .nt-console .error-line { color: #f87171; font-weight: 700; }
+        .nt-console .ok-line { color: #4ade80; }
+
+        .op-badge { display: inline-flex; align-items: center; gap: 6px; background: #1e293b; color: #facc15; border-radius: 50px; padding: 6px 16px; font-size: 0.78rem; font-weight: 800; margin-bottom: 14px; }
+
+        /* ordered_set visual chips */
+        .os-visual { display: flex; flex-wrap: wrap; gap: 8px; min-height: 60px; padding: 14px; background: #0f172a; border-radius: 14px; border: 1px solid #1e293b; margin-bottom: 10px; direction: ltr; align-items: center; justify-content: center; }
+        .os-chip { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+        .os-chip .oc-val { background: linear-gradient(135deg, #a855f7, #00adef); color: white; width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Consolas', monospace; font-weight: 800; font-size: 0.95rem; transition: all 0.25s ease; }
+        .os-chip.hl .oc-val { background: linear-gradient(135deg, #f59e0b, #ef4444); box-shadow: 0 0 14px rgba(245,158,11,0.5); transform: scale(1.15); }
+        .os-chip .oc-idx { font-size: 0.65rem; color: #64748b; font-family: 'Consolas', monospace; }
+        .os-empty { color: #64748b; font-size: 0.85rem; font-style: italic; font-family: 'Consolas', monospace; }
+
+        /* sliding window visual */
+        .sw-array { display: flex; flex-wrap: wrap; gap: 8px; direction: ltr; margin-bottom: 12px; justify-content: center; }
+        .sw-cell { min-width: 46px; height: 46px; padding: 0 6px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'Consolas', monospace; font-weight: 800; border: 2px solid #334155; background: #1e293b; color: #e2e8f0; transition: all 0.3s ease; position: relative; }
+        .sw-cell .sw-idx { position: absolute; top: -18px; font-size: 0.6rem; color: #64748b; }
+        .sw-cell.in-window { background: rgba(124,58,237,0.25); border-color: #a855f7; color: #d8b4fe; }
+        .sw-cell.median { background: rgba(245,158,11,0.3); border-color: #facc15; color: #facc15; transform: scale(1.12); box-shadow: 0 0 14px rgba(245,158,11,0.4); }
+        .sw-results { display: flex; flex-wrap: wrap; gap: 6px; direction: ltr; min-height: 40px; background: #0f172a; border-radius: 10px; border: 1px solid #1e293b; padding: 10px 14px; align-items: center; }
+        .sw-pill { background: rgba(16,185,129,0.18); border: 1px solid rgba(16,185,129,0.4); color: #4ade80; padding: 4px 10px; border-radius: 6px; font-family: 'Consolas', monospace; font-size: 0.82rem; font-weight: 700; }
+        .sw-stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; justify-content: center; }
+        .sw-stat { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 6px 14px; font-size: 0.8rem; color: #94a3b8; }
+        .sw-stat b { color: #00adef; font-family: 'Consolas', monospace; }
+
+        /* duplicate-trick comparison lab */
+        .dup-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+        @media (max-width: 700px) { .dup-compare { grid-template-columns: 1fr; } }
+        .dup-col { background: #0f172a; border-radius: 14px; padding: 16px; border: 1px solid #1e293b; }
+        .dup-col-title { font-size: 0.82rem; font-weight: 800; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .dup-col-title.bad { color: #f87171; }
+        .dup-col-title.good { color: #4ade80; }
+        .dup-chip-row { display: flex; flex-wrap: wrap; gap: 6px; direction: ltr; min-height: 40px; }
+        .dup-chip { background: #1e293b; border: 2px solid #334155; border-radius: 8px; padding: 6px 10px; font-family: 'Consolas', monospace; font-size: 0.8rem; color: #e2e8f0; }
+        .dup-chip.rejected { border-color: #ef4444; color: #fca5a5; text-decoration: line-through; opacity: 0.6; }
+        .dup-chip.kept { border-color: #22c55e; }
+
+        details.bonus-details { background: #0f172a; border: 1px dashed #334155; border-radius: 16px; padding: 4px 0; margin: 16px 0; }
+        details.bonus-details summary { cursor: pointer; padding: 14px 20px; font-weight: 800; color: #facc15; font-size: 0.9rem; list-style: none; display: flex; align-items: center; gap: 10px; }
+        details.bonus-details summary::-webkit-details-marker { display: none; }
+        details.bonus-details summary::before { content: '▶'; font-size: 0.7rem; transition: transform 0.2s; }
+        details.bonus-details[open] summary::before { transform: rotate(90deg); }
+        details.bonus-details .bonus-body { padding: 0 20px 20px; color: #cbd5e1; font-size: 0.88rem; line-height: 1.9; }
+        details.bonus-details .bonus-body p { color: #cbd5e1; }
+        details.bonus-details .bonus-body code.inline { background: rgba(0,173,239,0.12); color: #7dd3fc; }
+
+        .research-box { background: var(--dark-navy); border-radius: 16px; padding: 20px 24px; margin: 16px 0; }
+        .research-box .rb-title { color: #facc15; font-weight: 800; font-size: 0.85rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .research-box ul { margin: 0; padding-inline-start: 20px; color: #e2e8f0; }
+        .research-box li { margin-bottom: 6px; font-size: 0.88rem; }
+        .research-box a { color: #7dd3fc; }
+
+        /* quiz bank */
+        .quizbank-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 10px; }
+        .quizbank-score-row { display: flex; gap: 16px; flex-wrap: wrap; }
+        .qb-score-chip { background: var(--bg-main); border-radius: 14px; padding: 10px 20px; text-align: center; border: 1px solid #e2e8f0; min-width: 90px; }
+        .qb-score-num { display: block; font-size: 1.3rem; font-weight: 800; color: var(--dark-navy); }
+        .qb-score-label { display: block; font-size: 0.75rem; color: var(--text-body); font-weight: 700; margin-top: 2px; }
+        .qb-score-chip.qb-correct .qb-score-num { color: #16a34a; }
+        .qb-score-chip.qb-wrong .qb-score-num { color: #dc2626; }
+        .qb-reset-btn {
+            background: white; border: 2px solid #cbd5e1; color: var(--text-body);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+        }
+        .qb-category-header { display: flex; align-items: center; gap: 10px; margin: 28px 0 14px; }
+        .qb-category-header h4 { margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--dark-navy); }
+        .qb-diff-badge { display: inline-block; padding: 4px 14px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; }
+        .qb-diff-easy { background: #dcfce7; color: #15803d; }
+        .qb-diff-medium { background: #fef3c7; color: #b45309; }
+        .qb-diff-hard { background: #fee2e2; color: #b91c1c; }
+        .qb-question-block { background: var(--bg-main); border-radius: 16px; padding: 20px; margin-bottom: 14px; border: 1px solid #e2e8f0; }
+        .qb-question-block h5 { margin: 0 0 12px; font-size: 0.98rem; font-weight: 800; color: var(--dark-navy); }
+        .qb-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 16px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.9rem; transition: 0.2s;
+            margin-bottom: 8px;
+        }
+        .qb-opt:hover { border-color: var(--primary-blue); }
+        .qb-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .qb-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .qb-feedback { margin-top: 10px; padding: 10px 14px; border-radius: 10px; font-size: 0.85rem; line-height: 1.7; }
+        .qb-feedback.correct { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+        .qb-feedback.wrong { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge">الدرس 12: Ordered Set (PBDS)</span>
+            <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الرابع</span>
+            <span class="adv-badge"><i class="fas fa-star"></i> متقدم</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-sitemap"></i>
+        <h1>Ordered Set — هياكل البيانات المتقدمة</h1>
+        <p class="hero-desc">هياكل البيانات · Policy-Based Data Structures (PBDS) — بنية شجرية تمنحك كل ميزات <code style="background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:6px;">std::set</code> مع قوتين إضافيتين: إيجاد العنصر بترتيبه، ومعرفة رتبة أي قيمة، كلاهما في O(log n).</p>
+        <div class="hero-stats-row">
+            <div class="hero-stat"><span class="hs-label">المستوى</span><span class="hs-value">متقدم</span></div>
+            <div class="hero-stat"><span class="hs-label">الوقت التقديري</span><span class="hs-value">70 دقيقة</span></div>
+            <div class="hero-stat"><span class="hs-label">الأسئلة</span><span class="hs-value">15 سؤالاً</span></div>
+            <div class="hero-stat"><span class="hs-label">التعقيد</span><span class="hs-value">O(log n)</span></div>
+        </div>
+    </div>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="showTab('tabConcept', this)"><i class="fas fa-lightbulb"></i> المفهوم</button>
+        <button class="tab-btn" onclick="showTab('tabPlayground', this)"><i class="fas fa-code"></i> الكود والتجربة</button>
+        <button class="tab-btn" onclick="showTab('tabDuplicates', this)"><i class="fas fa-clone"></i> حل التكرار</button>
+        <button class="tab-btn" onclick="showTab('tabProblem', this)"><i class="fas fa-trophy"></i> المسألة</button>
+        <button class="tab-btn" onclick="showTab('tabQuiz', this)"><i class="fas fa-pen"></i> الأسئلة</button>
+    </div>
+
+    <div class="container">
+
+        <!-- ============ TAB 1: CONCEPT ============ -->
+        <div class="tab-panel active" id="tabConcept">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">1</span>
+                    <h3>ما هي ordered_set؟</h3>
+                </div>
+
+                <p><strong style="color:var(--primary-blue)">ordered_set</strong> هي بنية بيانات متقدمة تعمل تمامًا مثل <code class="inline">set</code> العادي في C++ — لا تسمح بتكرار العناصر، ومرتبة تلقائيًا تصاعديًا — لكنها تُضيف عليه قدرتين استثنائيتين غير متوفرتين في <code class="inline">set</code> القياسي.</p>
+                <p>هي جزء من <strong>PBDS</strong> (Policy-Based Data Structures) التابعة لمكتبة GNU، وليست جزءًا من المعيار الرسمي لـ C++، لكنها مدعومة عمليًا في جميع منصات المسابقات البرمجية تقريبًا (Codeforces، CSES، وغيرها).</p>
+
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>العملية</th><th>الوصف</th><th class="ltr">التعقيد</th></tr></thead>
+                        <tbody>
+                            <tr><td><code class="inline">find_by_order(k)</code></td><td>تُرجع مؤشرًا (iterator) للعنصر ذي الترتيب k، بدءًا من 0، من الأصغر إلى الأكبر.</td><td class="ltr">O(log n)</td></tr>
+                            <tr><td><code class="inline">order_of_key(x)</code></td><td>تُرجع عدد العناصر الأصغر تمامًا من x الموجودة في المجموعة (سواء كان x موجودًا فيها أم لا).</td><td class="ltr">O(log n)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="sub-title">⚖️ مقارنة: set العادي مقابل ordered_set</h4>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>الميزة</th><th class="ltr">std::set</th><th class="ltr">ordered_set</th></tr></thead>
+                        <tbody>
+                            <tr><td>إدراج / حذف / بحث بـ O(log n)</td><td class="yes">✅</td><td class="yes">✅</td></tr>
+                            <tr><td>منع التكرار وترتيب تلقائي</td><td class="yes">✅</td><td class="yes">✅</td></tr>
+                            <tr><td>الوصول للعنصر رقم k مباشرة</td><td class="no">❌</td><td class="yes">✅ find_by_order</td></tr>
+                            <tr><td>معرفة رتبة عنصر معيّن</td><td class="no">❌</td><td class="yes">✅ order_of_key</td></tr>
+                            <tr><td>جزء من المعيار القياسي</td><td class="yes">✅</td><td class="no">❌ يحتاج headers إضافية</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="warn-box">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    <p><strong>تنبيه مهم قبل المسابقة:</strong> هذا الكود يعمل مع <strong>GCC</strong> فقط ولن يعمل مع MSVC (Visual Studio) بدون تعديلات، لأن PBDS جزء من مكتبة <code class="inline">libstdc++</code> وليست من المعيار الرسمي لـ C++.</p>
+                </div>
+
+                <details class="bonus-details">
+                    <summary>💡 دقة تقنية إضافية: هل هي مرتبطة بالمترجم أم بالمكتبة؟</summary>
+                    <div class="bonus-body">
+                        <p>الأدق تقنيًا أن PBDS مرتبطة بمكتبة <code class="inline">libstdc++</code> (مكتبة GNU القياسية) وليست حصرًا بمترجم GCC نفسه. هذا يعني عمليًا:</p>
+                        <p>✅ تعمل مع <strong>GCC</strong> (يستخدم libstdc++ افتراضيًا).<br>
+                        ✅ تعمل مع <strong>Clang</strong> إذا رُبط صراحة بـ <code class="inline">libstdc++</code> (كما هو الحال على أغلب حكام الأونلاين مثل Codeforces).<br>
+                        ❌ لا تعمل مع <strong>Clang + libc++</strong> (المكتبة الافتراضية على macOS الحديثة).<br>
+                        ❌ لا تعمل مع <strong>MSVC STL</strong> (مترجم Visual Studio) إطلاقًا.<br>
+                        القاعدة العملية في المسابقات: إذا كان الحكم يقبل GCC/G++ (وهذا شبه دائم في Codeforces وCSES)، فالكود سيعمل دون مشاكل.</p>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <!-- ============ TAB 2: CODE + PLAYGROUND ============ -->
+        <div class="tab-panel" id="tabPlayground">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">2</span>
+                    <h3>الكود الأساسي (Template)</h3>
+                </div>
+
+                <div class="code-box">
+                    <div class="code-head"><span>ordered_set.cpp — التعريف والاستخدام</span></div>
+                    <pre><span class="cmt">// الملفات المطلوبة</span>
+#include &lt;ext/pb_ds/assoc_container.hpp&gt;
+#include &lt;ext/pb_ds/tree_policy.hpp&gt;
+using namespace __gnu_pbds;
+
+<span class="cmt">// التعريف الكامل لـ ordered_set</span>
+template&lt;typename T&gt;
+using ordered_set = tree&lt;
+    T,                                    <span class="cmt">// نوع العناصر</span>
+    null_type,                            <span class="cmt">// لا يوجد value (تمامًا كـ set)</span>
+    less&lt;T&gt;,                              <span class="cmt">// ترتيب تصاعدي</span>
+    rb_tree_tag,                          <span class="cmt">// شجرة حمراء-سوداء (Red-Black Tree)</span>
+    tree_order_statistics_node_update     <span class="cmt">// يتيح find_by_order و order_of_key</span>
+&gt;;
+
+<span class="cmt">// طريقة الاستخدام:</span>
+ordered_set&lt;int&gt; os;
+os.insert(10);
+os.insert(20);
+os.insert(30);
+
+<span class="cmt">// العنصر في الرتبة 0 (الأصغر): 10</span>
+auto it = os.find_by_order(0); <span class="cmt">// يشير إلى 10</span>
+
+<span class="cmt">// كم عنصر أصغر من 25؟ الجواب: 2 (وهما 10 و 20)</span>
+int cnt = os.order_of_key(25); <span class="cmt">// = 2</span></pre>
+                </div>
+
+                <div class="tip-box">
+                    <i class="fas fa-graduation-cap"></i>
+                    <p><strong>ملاحظة:</strong> لترتيب تنازلي (من الأكبر إلى الأصغر)، استبدل <code class="inline">less&lt;T&gt;</code> بـ <code class="inline">greater&lt;T&gt;</code> في تعريف الشجرة، ودلالة find_by_order/order_of_key تنعكس معه تلقائيًا.</p>
+                </div>
+
+                <h4 class="sub-title">🎮 تجربة تفاعلية — العب مع ordered_set</h4>
+                <p>هذا المختبر يُشغّل بنية بيانات مرتّبة حقيقية في JavaScript (بحث ثنائي + إدراج/حذف مرتّب) تُحاكي سلوك ordered_set بالضبط: رفض التكرار، والترتيب التلقائي، وكلا الاستعلامين.</p>
+
+                <div class="nt-lab-dark">
+                    <div class="op-badge"><i class="fas fa-cube"></i> ordered_set&lt;int&gt; os;</div>
+
+                    <div class="nt-input-row">
+                        <div class="nt-input-group narrow">
+                            <label>قيمة للإدراج/الحذف</label>
+                            <input type="number" id="osInsertVal" value="10">
+                        </div>
+                        <button class="nt-btn nt-btn-primary" onclick="osDoInsert()"><i class="fas fa-plus"></i> insert</button>
+                        <button class="nt-btn nt-btn-danger" onclick="osDoErase()"><i class="fas fa-trash"></i> erase</button>
+                        <button class="nt-btn nt-btn-outline" onclick="osDoReset()"><i class="fas fa-rotate-right"></i> إعادة</button>
+                    </div>
+
+                    <div class="nt-input-row">
+                        <div class="nt-input-group narrow">
+                            <label>k =</label>
+                            <input type="number" id="osKVal" value="0" min="0">
+                        </div>
+                        <button class="nt-btn nt-btn-outline" onclick="osDoFindByOrder()"><i class="fas fa-magnifying-glass"></i> find_by_order(k)</button>
+                        <div class="nt-input-group narrow">
+                            <label>x =</label>
+                            <input type="number" id="osXVal" value="25">
+                        </div>
+                        <button class="nt-btn nt-btn-outline" onclick="osDoOrderOfKey()"><i class="fas fa-ranking-star"></i> order_of_key(x)</button>
+                    </div>
+
+                    <p style="font-size:0.78rem;color:#94a3b8;margin-bottom:8px;font-family:'Consolas',monospace;">العناصر في المجموعة (مرتبة تصاعديًا):</p>
+                    <div class="os-visual" id="osVisual"><span class="os-empty">المجموعة فارغة — أدرج بعض الأرقام!</span></div>
+
+                    <div class="nt-console" id="osConsole"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 3: DUPLICATES / PAIR TRICK ============ -->
+        <div class="tab-panel" id="tabDuplicates">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">3</span>
+                    <h3>💡 حل مشكلة التكرار — استخدام الأزواج</h3>
+                </div>
+
+                <div class="tip-box">
+                    <i class="fas fa-lightbulb"></i>
+                    <p>الـ <code class="inline">ordered_set</code> لا تقبل تكرار القيم تمامًا كـ <code class="inline">set</code>. الحل الذكي في مسائل مثل Sliding Window Median: نخزّن كل عنصر كزوج <code class="inline">(قيمة, فهرس)</code> بدلًا من مجرد القيمة!</p>
+                </div>
+
+                <ol class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">المشكلة:</strong> إذا كانت لدينا مصفوفة <code class="inline">[3, 1, 3, 2]</code> ونافذة تحتوي <code class="inline">[3, 1, 3]</code>، فلن نستطيع إدراج الرقم 3 مرتين في <code class="inline">ordered_set&lt;int&gt;</code> — العنصر الثاني سيُرفض بصمت!</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">الحل:</strong> نحوّل كل عنصر <code class="inline">a[i]</code> إلى زوج <code class="inline">(a[i], i)</code>. الآن <code class="inline">(3,0)</code> و <code class="inline">(3,2)</code> عنصران مختلفان تمامًا من منظور الشجرة.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">الترتيب محفوظ:</strong> الأزواج تُرتَّب افتراضيًا بالعنصر الأول (القيمة) ثم بالعنصر الثاني (الفهرس) عند التعادل، لذا ترتيبنا التصاعدي بالقيمة لا يتأثر إطلاقًا.</p></li>
+                </ol>
+
+                <h4 class="sub-title">⚗️ مختبر: قارن بنفسك</h4>
+                <p>أدخل مصفوفة تحتوي على قيم مكررة، وشاهد الفرق الحي بين محاولة إدراجها في <code class="inline">ordered_set&lt;int&gt;</code> مباشرة مقابل تحويلها إلى أزواج <code class="inline">(قيمة, فهرس)</code> أولًا.</p>
+
+                <div class="nt-lab-dark">
+                    <div class="nt-input-row">
+                        <div class="nt-input-group wide">
+                            <label>المصفوفة (أعداد مفصولة بمسافات)</label>
+                            <input type="text" id="dupArrInput" value="3 1 3 2">
+                        </div>
+                    </div>
+                    <div class="nt-input-row" style="margin-top:-8px;">
+                        <button class="nt-btn nt-btn-primary" onclick="runDupLab()"><i class="fas fa-play"></i> شغّل المقارنة</button>
+                    </div>
+
+                    <div class="dup-compare">
+                        <div class="dup-col">
+                            <div class="dup-col-title bad"><i class="fas fa-xmark"></i> ordered_set&lt;int&gt; (بدون فهرس)</div>
+                            <div class="dup-chip-row" id="dupNaiveRow"></div>
+                        </div>
+                        <div class="dup-col">
+                            <div class="dup-col-title good"><i class="fas fa-check"></i> ordered_set&lt;pair&lt;int,int&gt;&gt; (مع فهرس)</div>
+                            <div class="dup-chip-row" id="dupPairRow"></div>
+                        </div>
+                    </div>
+
+                    <div class="nt-console" id="dupConsole"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 4: PROBLEM ============ -->
+        <div class="tab-panel" id="tabProblem">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">4</span>
+                    <h3>📘 مسألة: Sliding Window Median</h3>
+                </div>
+
+                <p><strong style="color:var(--primary-blue)">المسألة:</strong> لديك مصفوفة من n عنصر وقيمة k. اطبع <strong>الوسيط</strong> لكل مصفوفة جزئية (نافذة) بطول k، من أقصى اليسار إلى أقصى اليمين.</p>
+                <p><strong>تعريف الوسيط:</strong> العنصر الأوسط بعد ترتيب النافذة. إذا كان k زوجيًا، فالوسيط هو القيمة الصغرى من العنصرين الأوسطين. مثال: <code class="inline">[1, 2, 3, 4]</code> ← الوسيط = <code class="inline">2</code>.</p>
+
+                <div class="research-box">
+                    <div class="rb-title"><i class="fas fa-magnifying-glass"></i> مرجع خارجي موثّق</div>
+                    <ul>
+                        <li><strong>CSES 1076 — Sliding Window Median</strong> (قسم Sliding Window): نفس المسألة تمامًا بصيغتها القياسية على منصة CSES Problem Set.</li>
+                    </ul>
+                </div>
+
+                <h4 class="sub-title">⚗️ محاكاة النافذة المنزلقة (بأزواج حقيقية)</h4>
+                <p>هذا المختبر يُشغّل بنية <code class="inline">ordered_set&lt;pair&lt;int,int&gt;&gt;</code> فعليًا: كل خطوة تحذف زوج العنصر الخارج من النافذة وتُدرج زوج العنصر الداخل، ثم تستخرج الوسيط عبر <code class="inline">find_by_order</code> — تمامًا كما في الكود الحقيقي.</p>
+
+                <div class="nt-lab-dark">
+                    <div class="nt-input-row">
+                        <div class="nt-input-group wide">
+                            <label>المصفوفة (أعداد مفصولة بمسافات)</label>
+                            <input type="text" id="swArrayInput" value="2 4 7 3 8 1 9">
+                        </div>
+                        <div class="nt-input-group narrow">
+                            <label>k =</label>
+                            <input type="number" id="swKInput" value="3" min="1">
+                        </div>
+                    </div>
+                    <div class="nt-input-row" style="margin-top:-8px;">
+                        <button class="nt-btn nt-btn-primary" onclick="swRunInit()"><i class="fas fa-power-off"></i> تشغيل</button>
+                        <button class="nt-btn nt-btn-outline" id="swNextBtn" onclick="swRunNext()" disabled><i class="fas fa-forward-step"></i> النافذة التالية</button>
+                    </div>
+
+                    <div class="sw-stat-row" id="swInfo"></div>
+
+                    <p style="font-size:0.78rem;color:#94a3b8;margin-bottom:6px;font-family:'Consolas',monospace;">🟣 داخل النافذة الحالية &nbsp;|&nbsp; 🟡 الوسيط</p>
+                    <div class="sw-array" id="swArrayVis"></div>
+
+                    <p style="font-size:0.78rem;color:#94a3b8;margin:14px 0 6px;font-family:'Consolas',monospace;">الوسيطات المستخرجة حتى الآن:</p>
+                    <div class="sw-results" id="swResults"><span class="os-empty">اضغط «تشغيل» للبدء...</span></div>
+
+                    <div class="nt-console" id="swConsole"></div>
+                </div>
+
+                <h4 class="sub-title">الكود الكامل للحل</h4>
+                <div class="code-box">
+                    <div class="code-head"><span>sliding_window_median.cpp</span></div>
+                    <pre>#include &lt;iostream&gt;
+using namespace std;
+
+#include &lt;ext/pb_ds/assoc_container.hpp&gt;
+#include &lt;ext/pb_ds/tree_policy.hpp&gt;
+using namespace __gnu_pbds;
+
+template&lt;typename T&gt;
+using ordered_set = tree&lt;T, null_type, less&lt;T&gt;, rb_tree_tag, tree_order_statistics_node_update&gt;;
+
+int main() {
+    int n, k;
+    cin &gt;&gt; n &gt;&gt; k;
+
+    pair&lt;int, int&gt; a[n];
+    for (int i = 0; i &lt; n; i++) {
+        cin &gt;&gt; a[i].first;
+        a[i].second = i;  <span class="cmt">// الفهرس يضمن عدم التكرار</span>
+    }
+
+    ordered_set&lt;pair&lt;int, int&gt;&gt; os;
+
+    <span class="cmt">// أدخل النافذة الأولى</span>
+    for (int i = 0; i &lt; k; i++) {
+        os.insert(a[i]);
+    }
+
+    <span class="cmt">// حساب موضع الوسيط</span>
+    int median = (k % 2 == 0) ? k/2 - 1 : k/2;
+
+    <span class="cmt">// طباعة وسيط النافذة الأولى</span>
+    pair&lt;int, int&gt; ans = *os.find_by_order(median);
+    cout &lt;&lt; ans.first &lt;&lt; ' ';
+
+    <span class="cmt">// التحرك عبر جميع النوافذ المتبقية</span>
+    for (int i = 0; i &lt; n - k; i++) {
+        os.erase(a[i]);      <span class="cmt">// احذف أول عنصر في النافذة</span>
+        os.insert(a[i + k]); <span class="cmt">// أضف العنصر الجديد</span>
+
+        pair&lt;int, int&gt; ans2 = *os.find_by_order(median);
+        cout &lt;&lt; ans2.first &lt;&lt; ' ';
+    }
+    return 0;
+}
+<span class="cmt">// التعقيد الزمني: O(n log n)</span>
+<span class="cmt">// التعقيد المكاني: O(k)</span></pre>
+                </div>
+
+                <details class="bonus-details">
+                    <summary>🧠 بديل محمول لكل المترجمات — الفينويك تري (Fenwick / BIT)</summary>
+                    <div class="bonus-body">
+                        <p>إن لم يقبل الحكم PBDS، يمكن محاكاة نفس الفكرة بشجرة Fenwick (BIT) بعد ضغط الإحداثيات (Coordinate Compression):</p>
+                        <p>• <code class="inline">order_of_key(x)</code> ≈ مجموع بادئة (Prefix Sum) لعدد العناصر حتى القيمة المضغوطة لـ x.<br>
+                        • <code class="inline">find_by_order(k)</code> ≈ "المشي الثنائي" (Binary Lifting) على شجرة Fenwick: نبدأ من أعلى قوة للعدد 2 لا تتجاوز حجم المصفوفة، وننزل بها تدريجيًا، متحركين للأمام كلما بقي المجموع التراكمي أقل من أو يساوي k.<br>
+                        كلا الأسلوبين O(log n)، لكن Fenwick يعمل مع أي مترجم قياسي دون الحاجة لمكتبات GNU الخاصة — الثمن هو كتابة أكواد أطول قليلًا وضغط الإحداثيات يدويًا.</p>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <!-- ============ TAB 5: QUIZ ============ -->
+        <div class="tab-panel" id="tabQuiz">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-pen"></i>
+                    <h3>❓ أسئلة تدريبية — 15 سؤالاً</h3>
+                </div>
+
+                <div class="quizbank-header">
+                    <div class="quizbank-score-row">
+                        <div class="qb-score-chip"><span class="qb-score-num" id="qbTotalNum">0 / 0</span><span class="qb-score-label">نتيجتك الحالية</span></div>
+                        <div class="qb-score-chip qb-correct"><span class="qb-score-num" id="qbCorrectNum">0</span><span class="qb-score-label">صحيح</span></div>
+                        <div class="qb-score-chip qb-wrong"><span class="qb-score-num" id="qbWrongNum">0</span><span class="qb-score-label">خطأ</span></div>
+                    </div>
+                    <button class="qb-reset-btn" onclick="qbResetAll()"><i class="fas fa-rotate-right"></i> إعادة</button>
+                </div>
+
+                <div id="qbContainer"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الرابع: Ordered Set (Policy-Based Data Structures)</footer>
+
+    <script>
+        // ===================================================================
+        // Tab navigation
+        // ===================================================================
+        function showTab(tabId, btn) {
+            document.querySelectorAll('.tab-panel').forEach(function (el) { el.classList.remove('active'); });
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+        }
+
+        // ===================================================================
+        // Generic self-computing ordered_set simulator (sorted array + binary
+        // search). Mirrors the real PBDS tree's observable behavior exactly:
+        // no duplicates, ascending order, find_by_order / order_of_key.
+        // ===================================================================
+        function OrderedSetSim(cmp) {
+            this.arr = [];
+            this.cmp = cmp || function (a, b) { return a - b; };
+        }
+        OrderedSetSim.prototype._lowerBound = function (v) {
+            let lo = 0, hi = this.arr.length;
+            while (lo < hi) {
+                const mid = (lo + hi) >> 1;
+                if (this.cmp(this.arr[mid], v) < 0) lo = mid + 1; else hi = mid;
+            }
+            return lo;
+        };
+        OrderedSetSim.prototype.insert = function (v) {
+            const i = this._lowerBound(v);
+            if (i < this.arr.length && this.cmp(this.arr[i], v) === 0) return false;
+            this.arr.splice(i, 0, v);
+            return true;
+        };
+        OrderedSetSim.prototype.erase = function (v) {
+            const i = this._lowerBound(v);
+            if (i < this.arr.length && this.cmp(this.arr[i], v) === 0) { this.arr.splice(i, 1); return true; }
+            return false;
+        };
+        OrderedSetSim.prototype.findByOrder = function (k) {
+            if (k < 0 || k >= this.arr.length) return undefined;
+            return this.arr[k];
+        };
+        OrderedSetSim.prototype.orderOfKey = function (v) {
+            return this._lowerBound(v);
+        };
+
+        // ===================================================================
+        // TAB 2: ordered_set<int> playground
+        // ===================================================================
+        let osSim = new OrderedSetSim(function (a, b) { return a - b; });
+
+        function osLog(msg, cls) {
+            const c = document.getElementById('osConsole');
+            const line = document.createElement('span');
+            line.className = 'step-line' + (cls ? ' ' + cls : '');
+            line.textContent = msg;
+            c.appendChild(line);
+            c.scrollTop = c.scrollHeight;
+        }
+
+        function osRenderVisual(hlIdx) {
+            const vis = document.getElementById('osVisual');
+            if (osSim.arr.length === 0) { vis.innerHTML = '<span class="os-empty">المجموعة فارغة — أدرج بعض الأرقام!</span>'; return; }
+            vis.innerHTML = osSim.arr.map(function (v, i) {
+                return '<div class="os-chip ' + (i === hlIdx ? 'hl' : '') + '"><div class="oc-val">' + v + '</div><div class="oc-idx">[' + i + ']</div></div>';
+            }).join('');
+        }
+
+        function osDoInsert() {
+            const v = parseInt(document.getElementById('osInsertVal').value, 10);
+            if (isNaN(v)) { osLog('⚠️ أدخل رقمًا صحيحًا.', 'error-line'); return; }
+            const ok = osSim.insert(v);
+            osRenderVisual(-1);
+            if (ok) osLog('os.insert(' + v + ')  →  تم الإدراج. الحجم الآن = ' + osSim.arr.length, 'ok-line');
+            else osLog('os.insert(' + v + ')  →  مرفوض! العنصر ' + v + ' موجود بالفعل (ordered_set لا تقبل التكرار).', 'error-line');
+        }
+
+        function osDoErase() {
+            const v = parseInt(document.getElementById('osInsertVal').value, 10);
+            if (isNaN(v)) { osLog('⚠️ أدخل رقمًا صحيحًا.', 'error-line'); return; }
+            const ok = osSim.erase(v);
+            osRenderVisual(-1);
+            if (ok) osLog('os.erase(' + v + ')  →  تم الحذف. الحجم الآن = ' + osSim.arr.length, 'ok-line');
+            else osLog('os.erase(' + v + ')  →  العنصر ' + v + ' غير موجود أصلًا.', 'error-line');
+        }
+
+        function osDoFindByOrder() {
+            const k = parseInt(document.getElementById('osKVal').value, 10);
+            if (isNaN(k)) { osLog('⚠️ أدخل قيمة k.', 'error-line'); return; }
+            const val = osSim.findByOrder(k);
+            if (val === undefined) { osRenderVisual(-1); osLog('os.find_by_order(' + k + ')  →  خارج النطاق! يجب أن يكون k بين 0 و ' + (osSim.arr.length - 1) + '.', 'error-line'); return; }
+            osRenderVisual(k);
+            osLog('*os.find_by_order(' + k + ')  =  ' + val + '   (العنصر ذو الترتيب ' + k + ' من الأصغر)', 'final-line');
+        }
+
+        function osDoOrderOfKey() {
+            const x = parseInt(document.getElementById('osXVal').value, 10);
+            if (isNaN(x)) { osLog('⚠️ أدخل قيمة x.', 'error-line'); return; }
+            const cnt = osSim.orderOfKey(x);
+            osRenderVisual(-1);
+            osLog('os.order_of_key(' + x + ')  =  ' + cnt + '   (عدد العناصر الأصغر تمامًا من ' + x + ')', 'final-line');
+        }
+
+        function osDoReset() {
+            osSim = new OrderedSetSim(function (a, b) { return a - b; });
+            osRenderVisual(-1);
+            document.getElementById('osConsole').innerHTML = '';
+            osLog('🔄 تمت إعادة تهيئة os إلى مجموعة فارغة.', 'ok-line');
+        }
+
+        // ===================================================================
+        // TAB 3: duplicate handling comparison lab
+        // ===================================================================
+        function runDupLab() {
+            const raw = document.getElementById('dupArrInput').value.trim().split(/\s+/).map(Number);
+            const consoleEl = document.getElementById('dupConsole');
+            consoleEl.innerHTML = '';
+            if (raw.length === 0 || raw.some(isNaN)) {
+                consoleEl.innerHTML = '<span class="error-line">⚠️ أدخل أعدادًا صحيحة مفصولة بمسافات.</span>';
+                return;
+            }
+
+            // Naive ordered_set<int> simulation
+            const naive = new OrderedSetSim(function (a, b) { return a - b; });
+            const naiveLog = [];
+            raw.forEach(function (v) {
+                const ok = naive.insert(v);
+                naiveLog.push({ v: v, ok: ok });
+            });
+
+            // Pair-based ordered_set<pair<int,int>> simulation
+            const pairCmp = function (a, b) { return a[0] !== b[0] ? a[0] - b[0] : a[1] - b[1]; };
+            const paired = new OrderedSetSim(pairCmp);
+            raw.forEach(function (v, i) { paired.insert([v, i]); });
+
+            document.getElementById('dupNaiveRow').innerHTML = naiveLog.map(function (e) {
+                return '<div class="dup-chip ' + (e.ok ? 'kept' : 'rejected') + '">' + e.v + '</div>';
+            }).join('');
+
+            document.getElementById('dupPairRow').innerHTML = paired.arr.map(function (p) {
+                return '<div class="dup-chip kept">(' + p[0] + ',' + p[1] + ')</div>';
+            }).join('');
+
+            const rejectedCount = naiveLog.filter(function (e) { return !e.ok; }).length;
+            const lines = [];
+            lines.push('المصفوفة المُدخلة: [' + raw.join(', ') + ']  (الحجم = ' + raw.length + ')');
+            lines.push('ordered_set&lt;int&gt;: تم إدراج ' + (raw.length - rejectedCount) + ' عنصرًا فقط، ورُفض ' + rejectedCount + ' عنصرًا مكررًا. الحجم النهائي = ' + naive.arr.length + ' (خطأ! فقدنا معلومات).');
+            lines.push('ordered_set&lt;pair&lt;int,int&gt;&gt;: تم إدراج جميع الـ ' + raw.length + ' عنصرًا بنجاح، لأن كل زوج (قيمة, فهرس) فريد دائمًا. الحجم النهائي = ' + paired.arr.length + ' (صحيح!).');
+            consoleEl.innerHTML = lines.map(function (l, i) {
+                return '<span class="' + (i === lines.length - 1 ? 'final-line' : 'step-line') + '">' + l + '</span>';
+            }).join('');
+        }
+
+        // ===================================================================
+        // TAB 4: Sliding Window Median — real pair-based ordered_set walk
+        // ===================================================================
+        let swArr = [], swK = 3, swPos = 0, swResults = [], swOS = null, swMedianIdx = 0, swReady = false;
+
+        function swLog(msg, cls) {
+            const c = document.getElementById('swConsole');
+            const line = document.createElement('span');
+            line.className = 'step-line' + (cls ? ' ' + cls : '');
+            line.textContent = msg;
+            c.appendChild(line);
+            c.scrollTop = c.scrollHeight;
+        }
+
+        function swPairCmp(a, b) { return a[0] !== b[0] ? a[0] - b[0] : a[1] - b[1]; }
+
+        function swRunInit() {
+            const raw = document.getElementById('swArrayInput').value.trim().split(/\s+/).map(Number);
+            const k = parseInt(document.getElementById('swKInput').value, 10);
+            document.getElementById('swConsole').innerHTML = '';
+            if (raw.some(isNaN) || isNaN(k) || k < 1 || k > raw.length) {
+                swLog('⚠️ تحقق من المصفوفة وقيمة k (يجب أن يكون 1 ≤ k ≤ طول المصفوفة).', 'error-line');
+                return;
+            }
+            swArr = raw; swK = k; swPos = 0; swResults = []; swReady = true;
+            swOS = new OrderedSetSim(swPairCmp);
+            for (let i = 0; i < swK; i++) swOS.insert([swArr[i], i]);
+            swMedianIdx = (swK % 2 === 0) ? swK / 2 - 1 : Math.floor(swK / 2);
+
+            const ans = swOS.findByOrder(swMedianIdx);
+            swResults.push(ans[0]);
+            swLog('بُنيت أول نافذة [0, ' + (swK - 1) + ']، أُدرجت ' + swK + ' أزواج. median index = ' + swMedianIdx + '.', 'step-line');
+            swLog('*os.find_by_order(' + swMedianIdx + ') = (' + ans[0] + ', ' + ans[1] + ')  →  الوسيط الأول = ' + ans[0], 'final-line');
+
+            document.getElementById('swNextBtn').disabled = (swArr.length - swK === 0);
+            document.getElementById('swNextBtn').innerHTML = '<i class="fas fa-forward-step"></i> النافذة التالية';
+            swRenderArray(0, swK - 1, ans[1]);
+            swRenderResults();
+            swUpdateInfo();
+        }
+
+        function swRunNext() {
+            if (!swReady || swPos >= swArr.length - swK) return;
+            const outVal = swArr[swPos], inIdx = swPos + swK, inVal = swArr[inIdx];
+            swOS.erase([outVal, swPos]);
+            swOS.insert([inVal, inIdx]);
+            swPos++;
+
+            const ans = swOS.findByOrder(swMedianIdx);
+            swResults.push(ans[0]);
+            swLog('erase(' + outVal + ',' + (swPos - 1) + ')  ثم  insert(' + inVal + ',' + inIdx + ')  →  النافذة [' + swPos + ', ' + (swPos + swK - 1) + ']', 'step-line');
+            swLog('*os.find_by_order(' + swMedianIdx + ') = (' + ans[0] + ', ' + ans[1] + ')  →  الوسيط = ' + ans[0], 'final-line');
+
+            swRenderArray(swPos, swPos + swK - 1, ans[1]);
+            swRenderResults();
+            swUpdateInfo();
+
+            if (swPos >= swArr.length - swK) {
+                document.getElementById('swNextBtn').disabled = true;
+                document.getElementById('swNextBtn').innerHTML = '<i class="fas fa-flag-checkered"></i> اكتملت كل النوافذ';
+            }
+        }
+
+        function swRenderArray(start, end, medianArrIdx) {
+            const el = document.getElementById('swArrayVis');
+            el.innerHTML = swArr.map(function (v, i) {
+                let cls = 'sw-cell';
+                if (i >= start && i <= end) cls += ' in-window';
+                if (i === medianArrIdx) cls += ' median';
+                return '<div class="' + cls + '"><span class="sw-idx">' + i + '</span>' + v + '</div>';
+            }).join('');
+        }
+
+        function swRenderResults() {
+            document.getElementById('swResults').innerHTML = swResults.map(function (v) {
+                return '<span class="sw-pill">' + v + '</span>';
+            }).join('');
+        }
+
+        function swUpdateInfo() {
+            const total = Math.max(0, swArr.length - swK + 1);
+            document.getElementById('swInfo').innerHTML =
+                '<div class="sw-stat">n = <b>' + swArr.length + '</b></div>' +
+                '<div class="sw-stat">k = <b>' + swK + '</b></div>' +
+                '<div class="sw-stat">النافذة الحالية: <b>' + (swPos + 1) + ' / ' + total + '</b></div>' +
+                '<div class="sw-stat">وسيطات مستخرجة: <b>' + swResults.length + '</b></div>';
+        }
+
+        // ===================================================================
+        // Quiz bank — all 15 questions + verified answers taken directly
+        // from the source lesson (easy 1-5, medium 6-10, hard 11-15).
+        // ===================================================================
+        const QUIZ_BANK = [
+            { diff: 'easy', q: 'ما هو التعقيد الزمني لعملية find_by_order(k) في ordered_set؟', opts: ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)'], correct: 1, fb: 'find_by_order تعمل بـ O(log n) لأن الشجرة الحمراء-السوداء تخزّن إحصاءات حجم في كل عقدة.' },
+            { diff: 'easy', q: 'هل تسمح ordered_set بإدراج قيمة مكررة، مثلًا إدراج الرقم 5 مرتين؟', opts: ['نعم، تسمح بأي عدد من التكرارات', 'لا، لا تسمح بالتكرار', 'نعم، لكن فقط مرتين', 'تعتمد على نوع البيانات'], correct: 1, fb: 'ordered_set تتصرف تمامًا مثل set — لا تكرار مطلقًا.' },
+            { diff: 'easy', q: 'إذا كانت ordered_set تحتوي على {3, 7, 15, 20}، فماذا يُرجع find_by_order(0)؟', opts: ['20', '7', '3', '15'], correct: 2, fb: 'الترقيم يبدأ من 0، لذا find_by_order(0) يُرجع أصغر عنصر وهو 3.' },
+            { diff: 'easy', q: 'ماذا يُرجع order_of_key(x)؟', opts: ['قيمة العنصر عند الفهرس x', 'عدد العناصر الأصغر من x', 'عدد العناصر الأكبر من x', 'موضع x في المصفوفة الأصلية'], correct: 1, fb: 'order_of_key(x) تحسب كم عنصرًا في المجموعة أصغر تمامًا من x.' },
+            { diff: 'easy', q: 'من أي مكتبة (library) تأتي ordered_set؟', opts: ['<algorithm>', '<bits/stdc++.h>', '<ext/pb_ds/assoc_container.hpp>', '<set>'], correct: 2, fb: 'نحتاج تضمين هذا الملف مع <ext/pb_ds/tree_policy.hpp> معًا؛ ordered_set ليست في المكتبة القياسية.' },
+            { diff: 'medium', q: 'ordered_set تحتوي على {1, 5, 10, 15, 20}. ما قيمة order_of_key(11)؟', opts: ['2', '3', '4', '5'], correct: 1, fb: 'العناصر الأصغر من 11 هي {1, 5, 10} → 3 عناصر.' },
+            { diff: 'medium', q: 'في مسألة Sliding Window Median، نستخدم pair&lt;int,int&gt; بدلًا من int. ما السبب الرئيسي؟', opts: ['لتسريع عمليات البحث', 'لأن ordered_set لا تعمل مع int', 'لتجنب مشكلة القيم المكررة في المصفوفة', 'لتقليل استهلاك الذاكرة'], correct: 2, fb: 'إذا أدرجنا القيمة فقط، ستُرفض القيم المكررة. الفهرس يجعل كل زوج فريدًا.' },
+            { diff: 'medium', q: 'لديك مصفوفة [2, 4, 7, 3] و k=3. ما هو وسيط النافذة الأولى [2, 4, 7]؟', opts: ['2', '7', '4', '13'], correct: 2, fb: 'بعد ترتيب [2,4,7] تبقى [2,4,7]، والوسيط عند k/2=1 هو 4.' },
+            { diff: 'medium', q: 'ما هو التعقيد الزمني الكلي لحل مسألة Sliding Window Median باستخدام ordered_set؟', opts: ['O(n)', 'O(n log n)', 'O(n · k)', 'O(n² log n)'], correct: 1, fb: 'n عملية إدراج وحذف، كل منها O(log n) ← إجمالي O(n log n).' },
+            { diff: 'medium', q: 'إذا كان k = 4 (زوجي)، ما فهرس الوسيط الذي نستخدمه في find_by_order؟', opts: ['k/2 = 2', 'k/2 - 1 = 1', 'k - 1 = 3', '0'], correct: 1, fb: 'عند k زوجي نأخذ الوسيط الأصغر من الاثنين الأوسطين، وهو في الفهرس k/2 - 1.' },
+            { diff: 'hard', q: 'ordered_set تحتوي على {2, 5, 8, 12, 18}. ماذا يُرجع: *os.find_by_order(os.order_of_key(9))؟', opts: ['8', '12', '9', 'خطأ في التنفيذ'], correct: 1, fb: 'order_of_key(9) = 3 (لأن {2,5,8} أصغر من 9)، ثم find_by_order(3) = 12 (الرابع بالترتيب).' },
+            { diff: 'hard', q: 'مصفوفة [3, 3, 3, 3] و k=3. لماذا لا يمكن حل هذه المسألة مباشرة باستخدام ordered_set&lt;int&gt;؟', opts: ['لأن قيمة 3 لا يمكن تخزينها في int', 'لأن جميع القيم متساوية وستُرفض كتكرارات عند الإدراج', 'لأن ordered_set لا تعمل مع k=3', 'لا يوجد مشكلة'], correct: 1, fb: 'جميع القيم 3 متساوية، فعند إدراج الثانية ستُتجاهل — النافذة ستحتوي عنصرًا واحدًا فقط بدلًا من 3.' },
+            { diff: 'hard', q: 'ما عدد الوسيطات المطبوعة لمصفوفة طولها n=7 مع نافذة k=3؟', opts: ['3', '7', '5', '4'], correct: 2, fb: 'عدد النوافذ = n - k + 1 = 7 - 3 + 1 = 5 نوافذ → 5 وسيطات.' },
+            { diff: 'hard', q: 'في هيكل tree&lt;T, null_type, less&lt;T&gt;, rb_tree_tag, tree_order_statistics_node_update&gt;، ما وظيفة المعامل الأخير؟', opts: ['يحدد نوع الترتيب (تصاعدي/تنازلي)', 'يجعل الشجرة توفر إحصاءات الترتيب في كل عقدة', 'يحدد نوع الذاكرة المستخدمة', 'يسمح بالتكرار'], correct: 1, fb: 'tree_order_statistics_node_update يجعل كل عقدة تحتفظ بحجم شجرتها الفرعية، مما يتيح find_by_order و order_of_key في O(log n).' },
+            { diff: 'hard', q: 'أريد استخدام ordered_set لحل مسألة تحتاج ترتيبًا تنازليًا (من الأكبر للأصغر). كيف أعدّل التعريف؟', opts: ['لا يمكن تغيير الترتيب في ordered_set', 'أستخدم greater&lt;T&gt; بدلًا من less&lt;T&gt;', 'أُدرج عناصر سالبة', 'أستخدم reverse_iterator'], correct: 1, fb: 'باستبدال less<T> بـ greater<T>، يصبح الترتيب تنازليًا وتعمل find_by_order من الأكبر للأصغر.' }
+        ];
+        let qbAnswers = new Array(QUIZ_BANK.length).fill(null);
+        const QB_DIFF_LABELS = { easy: 'سهل', medium: 'متوسط', hard: 'صعب' };
+        const QB_DIFF_CLASS = { easy: 'qb-diff-easy', medium: 'qb-diff-medium', hard: 'qb-diff-hard' };
+        const QB_DIFF_ICON = { easy: '🟢', medium: '🟡', hard: '🔴' };
+
+        function qbRenderAll() {
+            const container = document.getElementById('qbContainer');
+            let html = '';
+            ['easy', 'medium', 'hard'].forEach(function (diff) {
+                const items = QUIZ_BANK.map(function (item, idx) { return { item: item, idx: idx }; }).filter(function (x) { return x.item.diff === diff; });
+                html += '<div class="qb-category-header"><span style="font-size:1.2rem;">' + QB_DIFF_ICON[diff] + '</span><h4>' + QB_DIFF_LABELS[diff] + ' (' + items.length + ')</h4></div>';
+                items.forEach(function (entry, i) {
+                    const item = entry.item, idx = entry.idx;
+                    const chosen = qbAnswers[idx];
+                    html += '<div class="qb-question-block">';
+                    html += '<span class="qb-diff-badge ' + QB_DIFF_CLASS[diff] + '">' + QB_DIFF_LABELS[diff] + '</span>';
+                    html += '<h5 style="margin-top:10px;">' + (idx + 1) + '. ' + item.q + '</h5>';
+                    item.opts.forEach(function (opt, oi) {
+                        let cls = 'qb-opt';
+                        if (chosen !== null) {
+                            if (oi === item.correct) cls += ' correct';
+                            else if (oi === chosen) cls += ' wrong';
+                        }
+                        html += '<div class="' + cls + '" onclick="qbSelect(' + idx + ',' + oi + ')">' + opt + '</div>';
+                    });
+                    if (chosen !== null) {
+                        const isCorrect = chosen === item.correct;
+                        html += '<div class="qb-feedback ' + (isCorrect ? 'correct' : 'wrong') + '">' + (isCorrect ? '✅ ' : '❌ ') + item.fb + '</div>';
+                    }
+                    html += '</div>';
+                });
+            });
+            container.innerHTML = html;
+            qbUpdateScore();
+        }
+
+        function qbSelect(idx, oi) {
+            if (qbAnswers[idx] !== null) return;
+            qbAnswers[idx] = oi;
+            qbRenderAll();
+        }
+
+        function qbUpdateScore() {
+            let answered = 0, correct = 0;
+            qbAnswers.forEach(function (a, idx) {
+                if (a !== null) { answered++; if (a === QUIZ_BANK[idx].correct) correct++; }
+            });
+            document.getElementById('qbTotalNum').innerText = correct + ' / ' + answered;
+            document.getElementById('qbCorrectNum').innerText = correct;
+            document.getElementById('qbWrongNum').innerText = answered - correct;
+        }
+
+        function qbResetAll() {
+            qbAnswers = new Array(QUIZ_BANK.length).fill(null);
+            qbRenderAll();
+        }
+
+        // ===================================================================
+        // Init
+        // ===================================================================
+        osSim.insert(10); osSim.insert(20); osSim.insert(30);
+        osRenderVisual(-1);
+        osLog('تمت تهيئة os بالعناصر الافتراضية: 10, 20, 30.', 'ok-line');
+        qbRenderAll();
+    </script>
+</body>
+</html>

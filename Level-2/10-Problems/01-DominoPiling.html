@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | مسألة: Domino Piling</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+        /* hero banner */
+        .hero-banner { background: var(--blue-gradient); padding: 60px 6% 50px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 720px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+        .hero-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 22px; }
+        .diff-badge { padding: 7px 18px; border-radius: 50px; font-weight: 800; font-size: 0.82rem; }
+        .diff-easy { background: #dcfce7; color: #15803d; }
+        .diff-medium { background: #fef3c7; color: #b45309; }
+        .diff-hard { background: #fee2e2; color: #b91c1c; }
+        .source-badge {
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.4); color: white;
+            padding: 7px 18px; border-radius: 50px; font-size: 0.82rem; font-weight: 700; text-decoration: none;
+            direction: ltr; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .source-badge:hover { background: rgba(255,255,255,0.28); }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula { direction: ltr; display: inline-block; font-family: 'Consolas', monospace; font-weight: 800; background: #eef2f7; padding: 3px 10px; border-radius: 8px; color: var(--dark-navy); }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td code.inline, .data-table th code.inline { white-space: nowrap; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+
+        /* numbered steps */
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            margin-top: 14px;
+        }
+        .collapsible { display: none; margin-top: 14px; }
+        .collapsible.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* interactive lab */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 14px 0 6px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+
+        /* domino grid visualizer */
+        .domino-grid { display: grid; grid-auto-rows: 54px; gap: 4px; justify-content: center; direction: ltr; margin: 14px 0; }
+        .domino-cell {
+            border: 2px solid #cbd5e1; border-radius: 8px; background: var(--bg-main);
+            transition: background 0.25s, border-color 0.25s;
+        }
+        .domino-cell.domino-1 { background: rgba(0, 173, 239, 0.25); border-color: var(--primary-blue); }
+        .domino-cell.domino-2 { background: rgba(247, 148, 30, 0.25); border-color: var(--primary-yellow); }
+        .domino-cell.domino-3 { background: rgba(34, 197, 94, 0.25); border-color: #22c55e; }
+        .domino-cell.domino-4 { background: rgba(168, 85, 247, 0.25); border-color: #a855f7; }
+        .domino-cell.uncovered { background: repeating-linear-gradient(45deg, #fee2e2, #fee2e2 5px, #fecaca 5px, #fecaca 10px); border-color: #ef4444; }
+        .domino-counter { text-align: center; font-weight: 800; color: var(--primary-blue); font-size: 1rem; margin-top: 8px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge">المسائل: Domino Piling</span>
+            <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الثاني</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-th-large"></i>
+        <h1>المسألة 1: Domino Piling (تبليط الدومينو)</h1>
+        <p class="hero-desc">مسألة كلاسيكية سهلة من Codeforces تُطبّق مباشرة أسلوب "العمل على الحالات" الذي تعلّمناه: نقسّم المسألة حسب زوجية أبعاد المصفوفة، ونحلّ كل حالة على حدة قبل أن ندمجها في كود واحد بسيط وسريع.</p>
+        <div class="hero-badges">
+            <span class="diff-badge diff-easy">Easy</span>
+            <a class="source-badge" href="https://codeforces.com/problemset/problem/50/A" target="_blank" rel="noopener"><i class="fas fa-up-right-from-square"></i> Codeforces 50A</a>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- Problem statement -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-file-lines"></i>
+                <h3>نص المسألة</h3>
+            </div>
+            <p>توجد مصفوفة ثنائية الأبعاد مكوّنة من <code class="inline">N</code> صف و<code class="inline">M</code> عمود. لديك عدد غير محدود من القطع (Dominoes) ذات الحجم <code class="inline">2 &times; 1</code>، وتريد وضع أكبر عدد ممكن من هذه القطع في المصفوفة بحيث:</p>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p>كل قطعة تغطي خانتين كاملتين.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>جميع القطع لا تتقاطع.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>جميع القطع تكون داخل المصفوفة بشكل كامل.</p></li>
+            </ul>
+        </div>
+
+        <!-- Interactive labs -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>مختبر تفاعلي: شاهد الحل يُبنى أمامك</h3>
+            </div>
+            <p>قبل أن نشرح الحل، شاهد الحالات الثلاث بصريًا، كلٌّ في مصفوفة توضيحية — اضغط كل زر لمشاهدة القطع تُوضع خطوة بخطوة تمامًا كما يفعل الكود:</p>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> الحالة الأولى: N زوجي (مثال 4&times;3) — تغطية عمودية كاملة</p>
+                <div class="domino-grid" id="dominoGridA" style="grid-template-columns: repeat(3, 54px);">
+                    <div class="domino-cell" id="dcellA_0_0"></div>
+                    <div class="domino-cell" id="dcellA_0_1"></div>
+                    <div class="domino-cell" id="dcellA_0_2"></div>
+                    <div class="domino-cell" id="dcellA_1_0"></div>
+                    <div class="domino-cell" id="dcellA_1_1"></div>
+                    <div class="domino-cell" id="dcellA_1_2"></div>
+                    <div class="domino-cell" id="dcellA_2_0"></div>
+                    <div class="domino-cell" id="dcellA_2_1"></div>
+                    <div class="domino-cell" id="dcellA_2_2"></div>
+                    <div class="domino-cell" id="dcellA_3_0"></div>
+                    <div class="domino-cell" id="dcellA_3_1"></div>
+                    <div class="domino-cell" id="dcellA_3_2"></div>
+                </div>
+                <div class="lab-step-hint" id="dominoStepLabelA">اضغط "ابدأ التغطية" لمشاهدة تغطية مصفوفة N=4 (زوجي), M=3 بالكامل عموديًا.</div>
+                <div class="domino-counter" id="dominoCounterA"></div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runDominoLab('A')">ابدأ التغطية</button>
+                </div>
+            </div>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> الحالة الثانية: M زوجي (مثال 3&times;4) — تغطية أفقية كاملة</p>
+                <div class="domino-grid" id="dominoGridB" style="grid-template-columns: repeat(4, 54px);">
+                    <div class="domino-cell" id="dcellB_0_0"></div>
+                    <div class="domino-cell" id="dcellB_0_1"></div>
+                    <div class="domino-cell" id="dcellB_0_2"></div>
+                    <div class="domino-cell" id="dcellB_0_3"></div>
+                    <div class="domino-cell" id="dcellB_1_0"></div>
+                    <div class="domino-cell" id="dcellB_1_1"></div>
+                    <div class="domino-cell" id="dcellB_1_2"></div>
+                    <div class="domino-cell" id="dcellB_1_3"></div>
+                    <div class="domino-cell" id="dcellB_2_0"></div>
+                    <div class="domino-cell" id="dcellB_2_1"></div>
+                    <div class="domino-cell" id="dcellB_2_2"></div>
+                    <div class="domino-cell" id="dcellB_2_3"></div>
+                </div>
+                <div class="lab-step-hint" id="dominoStepLabelB">اضغط "ابدأ التغطية" لمشاهدة تغطية مصفوفة N=3, M=4 (زوجي) بالكامل أفقيًا.</div>
+                <div class="domino-counter" id="dominoCounterB"></div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runDominoLab('B')">ابدأ التغطية</button>
+                </div>
+            </div>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> الحالة الثالثة: كلاهما فردي (مثال 3&times;3) — طريقة مختلطة وخانة متبقية</p>
+                <div class="domino-grid" id="dominoGridC" style="grid-template-columns: repeat(3, 54px);">
+                    <div class="domino-cell" id="dcellC_0_0"></div>
+                    <div class="domino-cell" id="dcellC_0_1"></div>
+                    <div class="domino-cell" id="dcellC_0_2"></div>
+                    <div class="domino-cell" id="dcellC_1_0"></div>
+                    <div class="domino-cell" id="dcellC_1_1"></div>
+                    <div class="domino-cell" id="dcellC_1_2"></div>
+                    <div class="domino-cell" id="dcellC_2_0"></div>
+                    <div class="domino-cell" id="dcellC_2_1"></div>
+                    <div class="domino-cell" id="dcellC_2_2"></div>
+                </div>
+                <div class="lab-step-hint" id="dominoStepLabelC">اضغط "ابدأ التغطية" لمشاهدة كيف نضع القطع في مصفوفة 3×3 عندما يكون البعدان فرديين.</div>
+                <div class="domino-counter" id="dominoCounterC"></div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runDominoLab('C')">ابدأ التغطية</button>
+                </div>
+            </div>
+
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>لاحظ كيف يطابق كل مختبر بالضبط ما يفعله الكود سطرًا بسطر: في الحالتين الأولى والثانية تُغطّى المصفوفة بالكامل، بينما في الحالة الثالثة تبقى خانة واحدة يستحيل تغطيتها. الآن لننتقل لفهم لماذا يحدث هذا رياضيًا.</p>
+            </div>
+        </div>
+
+        <!-- CP methodology -->
+        <div class="card" style="border-right-color: var(--primary-yellow);">
+            <div class="card-header" style="color: var(--primary-yellow);">
+                <i class="fas fa-map-signs"></i>
+                <h3>منهجية الحل: كيف نفكّر في هذه المسألة؟</h3>
+            </div>
+            <p>قبل النظر إلى الحل، لنتّبع نفس المنهجية التي نستخدمها في كل مسألة برمجة تنافسية:</p>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p><strong>افهم المسألة:</strong> نريد أكبر عدد من قطع 2&times;1 نضعها في مصفوفة N&times;M دون تقاطع أو خروج عن الحدود.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>جرّب أمثلة صغيرة يدويًا:</strong> ماذا لو كانت المصفوفة 1&times;1؟ أو 2&times;2؟ أو 2&times;3؟</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>ابحث عن نمط:</strong> قارن النتائج وحاول ربطها بعدد الخانات الكلي <code class="inline">N &times; M</code>.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>قسّم إلى حالات:</strong> هل النمط يتغيّر حسب زوجية N أو M؟</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>اكتب الكود وتحقّق:</strong> جرّب الكود على كل الأمثلة.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>افحص الحالات الحدّية:</strong> ماذا يحدث عند N=1 وM=1؟</p></li>
+            </ul>
+        </div>
+
+        <!-- Step: try small examples -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-magnifying-glass"></i>
+                <h3>الخطوة 1: نجرّب أمثلة صغيرة</h3>
+            </div>
+            <p>قبل التفكير في صيغة عامة، لنحسب الإجابة يدويًا لبعض المصفوفات الصغيرة:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th class="center">N</th><th class="center">M</th><th>لماذا؟</th><th class="center">الإجابة</th></tr></thead>
+                    <tbody>
+                        <tr><td class="center">1</td><td class="center">1</td><td>خانة واحدة فقط، لا تكفي لأي قطعة</td><td class="center">0</td></tr>
+                        <tr><td class="center">1</td><td class="center">2</td><td>قطعة أفقية واحدة تغطي الخانتين</td><td class="center">1</td></tr>
+                        <tr><td class="center">2</td><td class="center">2</td><td>قطعتان (عموديتان أو أفقيتان)</td><td class="center">2</td></tr>
+                        <tr><td class="center">2</td><td class="center">3</td><td>6 خانات ÷ 2 = 3 قطع كاملة</td><td class="center">3</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>نلاحظ نمطًا: الإجابة قريبة جدًا من <span class="formula">(N &times; M) / 2</span> — لكن ماذا لو كان <code class="inline">N &times; M</code> فرديًا (كما في حالة 1&times;1)؟ عندها لا يمكن أن يكون عدد القطع كسريًا، فنحتاج للتقريب لأسفل، وهنا تحديدًا يظهر السبب في تقسيم المسألة إلى حالات.</p>
+        </div>
+
+        <!-- Step: casework analysis -->
+        <div class="card steps-card" style="border-right-color: var(--primary-yellow);">
+            <div class="card-header" style="color: var(--primary-yellow);">
+                <i class="fas fa-code-branch"></i>
+                <h3>الخطوة 2: التحليل بأسلوب العمل على الحالات</h3>
+            </div>
+            <p>في هذه المسألة لدينا 3 حالات، ونحلّلها بأسلوب "العمل على الحالات" الذي تعلّمناه سابقًا:</p>
+
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p><strong>إذا كان N عددًا زوجيًا</strong> (<code class="inline">N % 2 == 0</code>): يمكننا تغطية المصفوفة كاملة بوضع القطع بشكل عمودي. عدد القطع المستخدمة سيكون <span class="formula">(N &times; M) / 2</span>، لأنّ المصفوفة تحتوي على <code class="inline">N &times; M</code> خانة، وكل قطعة تغطي خانتين.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>إذا كان M عددًا زوجيًا</strong> (<code class="inline">M % 2 == 0</code>): يمكننا تغطية المصفوفة كاملة بوضع القطع بشكل أفقي. عدد القطع سيكون أيضًا <span class="formula">(N &times; M) / 2</span>.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>إذا كان كلّ من N وM عددين فرديين</strong>: أولًا نضع القطع بشكل عمودي ابتداءً من الصف الأول، مما يترك صفًا كاملًا غير مغطى (لأنّ N فردي). في ذلك الصف نضع القطع بشكل أفقي، فتتبقى خانة واحدة فقط غير مغطاة (لأنّ M فردي). بالتالي عدد القطع المستخدمة سيكون <span class="formula">(N &times; M - 1) / 2</span>.</p></li>
+            </ul>
+
+            <div class="code-box">
+                <div class="code-head"><span>domino_piling.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int N, M;
+    cin &gt;&gt; N &gt;&gt; M;
+
+    if (N % 2 == 0) {
+        cout &lt;&lt; (N * M) / 2 &lt;&lt; endl;
+    }
+    else if (M % 2 == 0) {
+        cout &lt;&lt; (N * M) / 2 &lt;&lt; endl;
+    }
+    else {
+        cout &lt;&lt; (N * M - 1) / 2 &lt;&lt; endl;
+    }
+}</pre>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th class="center">N</th><th class="center">M</th><th class="center">الحالة</th><th class="center">الناتج</th></tr></thead>
+                    <tbody>
+                        <tr><td class="center">2</td><td class="center">3</td><td class="center">N زوجي</td><td class="center">3</td></tr>
+                        <tr><td class="center">3</td><td class="center">4</td><td class="center">M زوجي</td><td class="center">6</td></tr>
+                        <tr><td class="center">3</td><td class="center">5</td><td class="center">كلاهما فردي</td><td class="center">7</td></tr>
+                        <tr><td class="center">3</td><td class="center">3</td><td class="center">كلاهما فردي</td><td class="center">4</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>لاحظ أنّ الصيغتين الأولى والثانية متطابقتان (<span class="formula">(N &times; M) / 2</span>) — يمكن دمج الحالتين الأوليين فعليًا في حالة واحدة "إذا كان N &times; M زوجيًا"، لكن تحليلها بشكل منفصل (عمودي أو أفقي) يساعد على فهم <strong>لماذا</strong> تعمل الصيغة، لا فقط حفظها.</p>
+            </div>
+        </div>
+
+        <!-- Step: edge cases -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-shield-halved"></i>
+                <h3>الخطوة 3: فحص الحالات الحدّية</h3>
+            </div>
+            <p>ماذا يحدث عند أصغر قيمة ممكنة؟ إذا كان <code class="inline">N = 1</code> و<code class="inline">M = 1</code>، فإنّ الكود يدخل الحالة الثالثة (كلاهما فردي)، فيحسب <span class="formula">(1 &times; 1 - 1) / 2 = 0</span> — وهذا صحيح تمامًا، فخانة واحدة لا تكفي لأي قطعة. هذا يؤكّد أنّ حلّنا يتعامل بشكل صحيح مع أصغر الحالات الممكنة دون الحاجة لأي معالجة خاصة إضافية.</p>
+        </div>
+
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الثاني: المسائل — Domino Piling</footer>
+
+    <script>
+        // ===== Domino piling visualizer (3 cases: A = N even, B = M even, C = both odd) =====
+        function buildDominoFramesA() {
+            // 4x3 grid, N=4 (even): pure vertical tiling, fully covered
+            return [
+                { cells: [[0,0],[1,0]], cls: 'domino-1', count: 1, label: 'القطعة 1 (عمودية): تغطي (0,0) و(1,0) في العمود الأول.' },
+                { cells: [[2,0],[3,0]], cls: 'domino-2', count: 2, label: 'القطعة 2 (عمودية): تغطي (2,0) و(3,0)، فيكتمل العمود الأول.' },
+                { cells: [[0,1],[1,1]], cls: 'domino-3', count: 3, label: 'القطعة 3 (عمودية): تغطي (0,1) و(1,1) في العمود الثاني.' },
+                { cells: [[2,1],[3,1]], cls: 'domino-4', count: 4, label: 'القطعة 4 (عمودية): تغطي (2,1) و(3,1)، فيكتمل العمود الثاني.' },
+                { cells: [[0,2],[1,2]], cls: 'domino-1', count: 5, label: 'القطعة 5 (عمودية): تغطي (0,2) و(1,2) في العمود الثالث.' },
+                { cells: [[2,2],[3,2]], cls: 'domino-2', count: 6, label: 'القطعة 6 (عمودية): تغطي (2,2) و(3,2). المصفوفة مغطّاة بالكامل — لا خانات متبقية!', isFinal: true }
+            ];
+        }
+
+        function buildDominoFramesB() {
+            // 3x4 grid, M=4 (even): pure horizontal tiling, fully covered
+            return [
+                { cells: [[0,0],[0,1]], cls: 'domino-1', count: 1, label: 'القطعة 1 (أفقية): تغطي (0,0) و(0,1) في الصف الأول.' },
+                { cells: [[0,2],[0,3]], cls: 'domino-2', count: 2, label: 'القطعة 2 (أفقية): تغطي (0,2) و(0,3)، فيكتمل الصف الأول.' },
+                { cells: [[1,0],[1,1]], cls: 'domino-3', count: 3, label: 'القطعة 3 (أفقية): تغطي (1,0) و(1,1) في الصف الثاني.' },
+                { cells: [[1,2],[1,3]], cls: 'domino-4', count: 4, label: 'القطعة 4 (أفقية): تغطي (1,2) و(1,3)، فيكتمل الصف الثاني.' },
+                { cells: [[2,0],[2,1]], cls: 'domino-1', count: 5, label: 'القطعة 5 (أفقية): تغطي (2,0) و(2,1) في الصف الثالث.' },
+                { cells: [[2,2],[2,3]], cls: 'domino-2', count: 6, label: 'القطعة 6 (أفقية): تغطي (2,2) و(2,3). المصفوفة مغطّاة بالكامل — لا خانات متبقية!', isFinal: true }
+            ];
+        }
+
+        function buildDominoFramesC() {
+            // 3x3 grid, both odd: mixed approach, one cell left uncovered
+            return [
+                { cells: [[0,0],[1,0]], cls: 'domino-1', count: 1, label: 'القطعة 1 (عمودية): تغطي الخانتين (0,0) و(1,0).' },
+                { cells: [[0,1],[1,1]], cls: 'domino-2', count: 2, label: 'القطعة 2 (عمودية): تغطي الخانتين (0,1) و(1,1).' },
+                { cells: [[0,2],[1,2]], cls: 'domino-3', count: 3, label: 'القطعة 3 (عمودية): تغطي الخانتين (0,2) و(1,2). الصف الأول والثاني مغطّيان بالكامل الآن.' },
+                { cells: [[2,0],[2,1]], cls: 'domino-4', count: 4, label: 'القطعة 4 (أفقية): تغطي الخانتين (2,0) و(2,1) في الصف الأخير المتبقي.' },
+                { cells: [[2,2]], cls: 'uncovered', count: 4, label: 'الخانة (2,2) الوحيدة تبقى بلا تغطية — لا يمكن لأي قطعة إضافية أن تتّسع. المجموع النهائي = 4 قطع، مطابق للصيغة (3×3-1)/2 = 4.', isFinal: true }
+            ];
+        }
+
+        const DOMINO_BUILDERS = { A: buildDominoFramesA, B: buildDominoFramesB, C: buildDominoFramesC };
+        const DOMINO_CELL_PREFIX = { A: 'dcellA_', B: 'dcellB_', C: 'dcellC_' };
+
+        function runDominoLab(caseKey) {
+            const frames = DOMINO_BUILDERS[caseKey]();
+            const prefix = DOMINO_CELL_PREFIX[caseKey];
+            let f = 0;
+            const label = document.getElementById('dominoStepLabel' + caseKey);
+            const counter = document.getElementById('dominoCounter' + caseKey);
+            function playNext() {
+                if (f >= frames.length) return;
+                const frame = frames[f];
+                frame.cells.forEach(([r, c]) => {
+                    document.getElementById(prefix + r + '_' + c).classList.add(frame.cls);
+                });
+                label.innerText = frame.label;
+                counter.innerText = 'عدد القطع الموضوعة حتى الآن: ' + frame.count;
+                f++;
+                setTimeout(playNext, 750);
+            }
+            playNext();
+        }
+    </script>
+</body>
+</html>

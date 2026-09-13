@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | تحليل الجذر التربيعي — Sqrt Decomposition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+        .adv-badge {
+            background: var(--dark-navy); color: #facc15; border: none;
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .hero-banner { background: var(--blue-gradient); padding: 60px 6% 40px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 14px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 10px; }
+        .hero-desc { max-width: 780px; margin: 0 auto 22px; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+        .hero-stats-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+        .hero-stat { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 16px; padding: 10px 22px; text-align: center; }
+        .hero-stat .hs-label { display: block; font-size: 0.72rem; color: rgba(255,255,255,0.8); font-weight: 700; }
+        .hero-stat .hs-value { display: block; font-size: 1rem; font-weight: 800; color: white; margin-top: 2px; }
+
+        /* tab navigation */
+        .tab-nav {
+            display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+            background: white; padding: 14px 6%; position: sticky; top: 87px; z-index: 900;
+            border-bottom: 1px solid #e2e8f0; box-shadow: 0 4px 14px -8px rgba(0,0,0,0.08);
+        }
+        .tab-btn {
+            border: 2px solid #e2e8f0; background: white; color: var(--text-body);
+            padding: 10px 18px; border-radius: 50px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.82rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .tab-btn:hover { border-color: var(--primary-blue); }
+        .tab-btn.active { background: var(--blue-gradient); border-color: transparent; color: white; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeIn 0.35s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .container { max-width: 980px; margin: 40px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header .section-num {
+            width: 34px; height: 34px; border-radius: 50%; background: var(--yellow-gradient); color: white;
+            display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;
+        }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.82rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .definition-box { background: var(--dark-navy); color: white; border-radius: 18px; padding: 22px 24px; margin: 16px 0; }
+        .definition-box .df-title { color: #facc15; font-weight: 800; font-size: 0.88rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .definition-box p { color: #e2e8f0; margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+
+        /* steps list */
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+        .step-item.blue .step-num { background: var(--blue-gradient); }
+
+        /* interactive lab shared */
+        .nt-lab-dark { background: #0b1220; border-radius: 20px; padding: 26px; margin: 16px 0; border: 1px solid #1e293b; }
+        .nt-input-row { display: flex; gap: 14px; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+        .nt-input-group { display: flex; flex-direction: column; gap: 6px; align-items: center; flex: 1 1 auto; max-width: 420px; }
+        .nt-input-group.wide { max-width: 100%; width: 100%; }
+        .nt-input-group label { color: #94a3b8; font-size: 0.78rem; font-weight: 700; }
+        .nt-input-group input, .nt-input-group textarea {
+            width: 100%; text-align: center; background: #1e293b; border: 2px solid #334155; color: #e2e8f0;
+            border-radius: 12px; padding: 10px; font-family: 'Consolas', monospace; font-size: 1rem; font-weight: 700;
+            box-sizing: border-box;
+        }
+        .nt-input-group textarea { text-align: left; direction: ltr; min-height: 70px; resize: vertical; }
+        .nt-input-group.narrow input { width: 100px; }
+        .nt-input-group input:focus, .nt-input-group textarea:focus { outline: none; border-color: var(--primary-blue); }
+        .nt-btn {
+            border-radius: 14px; padding: 11px 22px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 2px solid transparent; transition: all 0.2s ease;
+            align-self: flex-end; margin-top: 18px; white-space: nowrap;
+        }
+        .nt-btn-primary { background: var(--blue-gradient); color: white; }
+        .nt-btn-outline { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+        .nt-btn-outline:hover { border-color: #64748b; }
+        .nt-console { background: #0f172a; border-radius: 14px; padding: 16px 20px; margin: 14px 0; min-height: 40px; font-family: 'Consolas', monospace; color: #cbd5e1; direction: ltr; text-align: left; font-size: 0.82rem; line-height: 1.85; max-height: 280px; overflow-y: auto; border: 1px solid #1e293b; }
+        .nt-console .step-line { display: block; }
+        .nt-console .final-line { color: #facc15; font-weight: 800; margin-top: 8px; display: block; }
+        .nt-console .error-line { color: #f87171; font-weight: 700; }
+
+        /* op-type badge */
+        .op-badge { display: inline-flex; align-items: center; gap: 6px; background: #1e293b; color: #facc15; border-radius: 50px; padding: 6px 16px; font-size: 0.78rem; font-weight: 800; margin-bottom: 14px; }
+
+        /* array grid */
+        .sq-grid-wrap { overflow-x: auto; margin: 10px 0; }
+        .sq-grid { display: inline-flex; gap: 5px; padding-bottom: 6px; }
+        .sq-cell { min-width: 42px; text-align: center; border-radius: 8px; padding: 6px 4px; border: 2px solid #334155; background: #1e293b; transition: all 0.25s ease; }
+        .sq-cell.block-odd { background: #172033; }
+        .sq-cell .sq-idx { display: block; font-family: 'Consolas', monospace; font-size: 0.65rem; color: #64748b; }
+        .sq-cell .sq-val { display: block; font-family: 'Consolas', monospace; font-size: 0.9rem; font-weight: 800; color: #e2e8f0; }
+        .sq-cell.state-partial { background: #0c4a6e; border-color: #00adef; }
+        .sq-cell.state-fullblock { background: #3b1d4d; border-color: #a855f7; }
+        .sq-cell.state-updated { background: #4c1d1d; border-color: #f87171; }
+        .sq-cell.state-updated .sq-val { color: #fca5a5; }
+
+        .block-chips-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0; justify-content: center; }
+        .block-chip { background: #1e293b; border: 2px solid #334155; border-radius: 12px; padding: 8px 16px; text-align: center; font-family: 'Consolas', monospace; }
+        .block-chip .bc-label { display: block; font-size: 0.68rem; color: #94a3b8; font-weight: 700; }
+        .block-chip .bc-val { display: block; font-size: 1rem; font-weight: 800; color: #e2e8f0; }
+        .block-chip.bc-used { border-color: #facc15; background: #4a3a0f; }
+        .block-chip.bc-used .bc-val { color: #facc15; }
+
+        .sq-legend-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 14px; font-size: 0.78rem; color: #94a3b8; font-weight: 700; }
+        .sq-legend-row .dot { width: 14px; height: 14px; border-radius: 4px; display: inline-block; margin-left: 6px; vertical-align: middle; border: 2px solid; }
+
+        /* problem statement */
+        .problem-statement { background: var(--bg-main); border-radius: 16px; padding: 20px 24px; border: 1px solid #e2e8f0; margin-bottom: 16px; }
+        .op-type-box { background: var(--bg-main); border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px 18px; margin-bottom: 10px; }
+        .op-type-box .ot-label { font-weight: 800; color: var(--primary-blue); font-size: 0.85rem; }
+
+        /* quiz bank */
+        .quizbank-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 10px; }
+        .quizbank-score-row { display: flex; gap: 16px; flex-wrap: wrap; }
+        .qb-score-chip { background: var(--bg-main); border-radius: 14px; padding: 10px 20px; text-align: center; border: 1px solid #e2e8f0; min-width: 90px; }
+        .qb-score-num { display: block; font-size: 1.3rem; font-weight: 800; color: var(--dark-navy); }
+        .qb-score-label { display: block; font-size: 0.75rem; color: var(--text-body); font-weight: 700; margin-top: 2px; }
+        .qb-score-chip.qb-correct .qb-score-num { color: #16a34a; }
+        .qb-score-chip.qb-wrong .qb-score-num { color: #dc2626; }
+        .qb-reset-btn {
+            background: white; border: 2px solid #cbd5e1; color: var(--text-body);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+        }
+        .qb-category-header { display: flex; align-items: center; gap: 10px; margin: 28px 0 14px; }
+        .qb-category-header h4 { margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--dark-navy); }
+        .qb-diff-badge { display: inline-block; padding: 4px 14px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; }
+        .qb-diff-easy { background: #dcfce7; color: #15803d; }
+        .qb-diff-medium { background: #fef3c7; color: #b45309; }
+        .qb-diff-hard { background: #fee2e2; color: #b91c1c; }
+        .qb-question-block { background: var(--bg-main); border-radius: 16px; padding: 20px; margin-bottom: 14px; border: 1px solid #e2e8f0; }
+        .qb-question-block h5 { margin: 0 0 12px; font-size: 0.98rem; font-weight: 800; color: var(--dark-navy); }
+        .qb-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 16px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.9rem; transition: 0.2s;
+            margin-bottom: 8px;
+        }
+        .qb-opt:hover { border-color: var(--primary-blue); }
+        .qb-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .qb-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge">الدرس 11: تحليل الجذر التربيعي</span>
+            <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الرابع</span>
+            <span class="adv-badge"><i class="fas fa-star-half-stroke"></i> متوسط–متقدم</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-square-root-variable"></i>
+        <h1>تحليل الجذر التربيعي</h1>
+        <p class="hero-desc">هياكل البيانات · Sqrt Decomposition — تقنية أنيقة لمعالجة استعلامات النطاق بزمن √n، تجمع بين البساطة والكفاءة في التنفيذ.</p>
+        <div class="hero-stats-row">
+            <div class="hero-stat"><span class="hs-label">المستوى</span><span class="hs-value">متوسط–متقدم</span></div>
+            <div class="hero-stat"><span class="hs-label">الوقت التقديري</span><span class="hs-value">75 دقيقة</span></div>
+            <div class="hero-stat"><span class="hs-label">الأسئلة</span><span class="hs-value">15 سؤالاً</span></div>
+            <div class="hero-stat"><span class="hs-label">التعقيد</span><span class="hs-value">O(√n)</span></div>
+        </div>
+    </div>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="showTab('tabConcept', this)"><i class="fas fa-lightbulb"></i> المفهوم</button>
+        <button class="tab-btn" onclick="showTab('tabQuery', this)"><i class="fas fa-magnifying-glass"></i> الاستعلام</button>
+        <button class="tab-btn" onclick="showTab('tabUpdate', this)"><i class="fas fa-pen-to-square"></i> التحديث</button>
+        <button class="tab-btn" onclick="showTab('tabCode', this)"><i class="fas fa-code"></i> الكود</button>
+        <button class="tab-btn" onclick="showTab('tabProblem', this)"><i class="fas fa-trophy"></i> المسألة</button>
+        <button class="tab-btn" onclick="showTab('tabQuiz', this)"><i class="fas fa-pen"></i> الأسئلة</button>
+    </div>
+
+    <div class="container">
+
+        <!-- ============ TAB 1: CONCEPT ============ -->
+        <div class="tab-panel active" id="tabConcept">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">1</span>
+                    <h3>الفكرة الأساسية</h3>
+                </div>
+
+                <h4 class="sub-title" style="margin-top:0;">🧩 لماذا نحتاج هذه التقنية؟</h4>
+                <p>عندما نمتلك مصفوفةً ونريد الإجابة عن استعلامات تطلب قيمةً محددة (مجموع، أو أصغر قيمة، أو أكبر قيمة) لنطاق من العناصر، فإن الطريقة الساذجة تستغرق زمن O(n) لكل استعلام. إذا كان عدد الاستعلامات Q كبيراً، يصبح الأداء الكلي O(n × Q) وهو ضعيف جداً.</p>
+                <p>تحليل الجذر التربيعي يُقدّم حلاً وسطاً ذكياً: يُقسّم المصفوفة إلى كتل بحجم √n تقريباً، ويُخزّن نتيجةً محسوبةً مسبقاً لكل كتلة. هذا يُتيح الإجابة عن أي استعلام في زمن O(√n).</p>
+
+                <div class="definition-box">
+                    <div class="df-title"><i class="fas fa-thumbtack"></i> استعلام النطاق — تعريف</div>
+                    <p>استعلام على مستوى نطاق هو استعلام يطلب حساب قيمة محددة (مجموع / أصغر / أكبر) لجميع عناصر المصفوفة في النطاق [l, r].</p>
+                </div>
+
+                <h4 class="sub-title">🏗️ بناء الهيكل خطوةً بخطوة</h4>
+                <p>لنفترض أن لدينا مصفوفة a بطول n. خطوات بناء هيكل الجذر التربيعي:</p>
+                <ol class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p>نحسب حجم الكتلة: <code class="inline">sz = ⌈√n⌉</code>. بما أن √n × √n = n، يكون عدد الكتل تقريباً √n أيضاً.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p>ننشئ مصفوفة مساعدة b بطول √n، حيث يخزّن b[i] القيمة المحسوبة مسبقاً للكتلة رقم i.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p>ينتمي العنصر a[j] إلى الكتلة رقم j / sz (القسمة الصحيحة).</p></li>
+                    <li class="step-item"><span class="step-num"></span><p>نملأ مصفوفة b بمرور واحد على المصفوفة a، وهو ما يستغرق زمن O(n).</p></li>
+                </ol>
+
+                <div class="good-box">
+                    <i class="fas fa-flask"></i>
+                    <p><strong>مثال عددي:</strong> إذا كانت n = 9، فإن sz = 3. الكتلة الأولى (b[0]) تضم العناصر a[0], a[1], a[2]. الكتلة الثانية (b[1]) تضم a[3], a[4], a[5]. الثالثة (b[2]) تضم a[6], a[7], a[8].</p>
+                </div>
+
+                <h4 class="sub-title">⚗️ مختبر بناء الهيكل</h4>
+                <p>أدخل مصفوفةً من الأعداد مفصولةً بمسافات، ثم اضغط «بناء» لمشاهدة تقسيمها إلى كتل وحساب مصفوفة b.</p>
+                <div class="nt-lab-dark">
+                    <div class="op-badge"><i class="fas fa-arrow-up-wide-short"></i> نوع الاستعلام في هذا المختبر: أكبر قيمة (Max)</div>
+                    <div class="nt-input-row">
+                        <div class="nt-input-group wide">
+                            <label>المصفوفة (أعداد مفصولة بمسافات)</label>
+                            <input type="text" id="buildInputArr" value="3 1 4 1 5 9 2 6 5 3 5 8">
+                        </div>
+                    </div>
+                    <div class="nt-input-row" style="margin-top:-8px;">
+                        <button class="nt-btn nt-btn-primary" onclick="buildSqrtLab()"><i class="fas fa-hammer"></i> بناء</button>
+                        <button class="nt-btn nt-btn-outline" onclick="randomBuildLab()"><i class="fas fa-dice"></i> عشوائي</button>
+                    </div>
+                    <div class="sq-grid-wrap"><div class="sq-grid" id="buildGrid"></div></div>
+                    <div class="block-chips-row" id="buildBlockChips"></div>
+                    <div class="sq-legend-row">
+                        <span><span class="dot" style="background:#1e293b; border-color:#334155;"></span>عنصر عادي</span>
+                        <span><span class="dot" style="background:#0c4a6e; border-color:#00adef;"></span>نطاق الاستعلام (جزئي)</span>
+                        <span><span class="dot" style="background:#3b1d4d; border-color:#a855f7;"></span>كتلة كاملة</span>
+                        <span><span class="dot" style="background:#4a3a0f; border-color:#facc15;"></span>الجواب النهائي</span>
+                        <span><span class="dot" style="background:#4c1d1d; border-color:#f87171;"></span>عنصر محدَّث</span>
+                    </div>
+                    <div class="nt-console" id="buildConsole"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 2: QUERY ============ -->
+        <div class="tab-panel" id="tabQuery">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">2</span>
+                    <h3>معالجة الاستعلامات</h3>
+                </div>
+
+                <h4 class="sub-title" style="margin-top:0;">🔍 كيف نُجيب عن استعلام [l, r]؟</h4>
+                <p>النطاق [l, r] ينقسم إلى ثلاثة أجزاء:</p>
+                <ol class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p><strong>الكتلة الأولى (جزئية):</strong> من l حتى نهاية كتلتها. نمشي على هذه العناصر واحداً واحداً.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong>الكتل الوسطى (كاملة):</strong> كتل مغطاة بالكامل. نستخدم القيم في b مباشرةً دون المرور على عناصرها الفردية.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong>الكتلة الأخيرة (جزئية):</strong> من بداية كتلتها حتى r. نمشي على هذه العناصر واحداً واحداً.</p></li>
+                </ol>
+
+                <div class="tip-box">
+                    <i class="fas fa-circle-exclamation"></i>
+                    <p><strong>الحالة الخاصة:</strong> إذا كان l و r ينتميان إلى الكتلة ذاتها (blockL == blockR)، نمشي على جميع العناصر من l إلى r مباشرةً. لا توجد كتل كاملة في هذه الحالة.</p>
+                </div>
+
+                <div class="good-box">
+                    <i class="fas fa-bolt"></i>
+                    <p><strong>التعقيد الزمني للاستعلام:</strong> O(√n) ≈ √n عنصراً جزئياً + √n كتلةً كاملة</p>
+                </div>
+
+                <h4 class="sub-title">⚗️ مختبر الاستعلام</h4>
+                <p>بعد بناء الهيكل من التبويب السابق، أدخل نطاقاً [l, r] لمشاهدة الخطوات بالتفصيل.</p>
+                <div class="nt-lab-dark">
+                    <div class="nt-input-row">
+                        <div class="nt-input-group narrow">
+                            <label>l =</label>
+                            <input type="number" id="queryInputL" value="2" min="0">
+                        </div>
+                        <div class="nt-input-group narrow">
+                            <label>r =</label>
+                            <input type="number" id="queryInputR" value="9" min="0">
+                        </div>
+                        <button class="nt-btn nt-btn-primary" onclick="runQueryLab()"><i class="fas fa-magnifying-glass"></i> استعلام</button>
+                    </div>
+                    <div class="sq-grid-wrap"><div class="sq-grid" id="queryGrid"></div></div>
+                    <p style="color:#94a3b8; font-size:0.82rem; text-align:center; margin:6px 0;">مصفوفة b (قيم الكتل المحسوبة مسبقاً):</p>
+                    <div class="block-chips-row" id="queryBlockChips"></div>
+                    <div class="nt-console" id="queryConsole">ابنِ الهيكل أولاً من تبويب «المفهوم»…</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 3: UPDATE ============ -->
+        <div class="tab-panel" id="tabUpdate">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">3</span>
+                    <h3>تحديث نقطة</h3>
+                </div>
+
+                <h4 class="sub-title" style="margin-top:0;">✏️ كيف نُحدّث عنصراً؟</h4>
+                <p>تحديث العنصر في الموضع j إلى القيمة v يمر بخطوتين:</p>
+                <ol class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p><strong>تحديث المصفوفة الأصلية:</strong> a[j] = v بزمن O(1).</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong>إعادة حساب الكتلة كاملةً:</strong> نمر على جميع عناصر الكتلة التي ينتمي إليها j ونحسب قيمتها من الصفر. بما أن حجم الكتلة √n، يستغرق هذا زمن O(√n).</p></li>
+                </ol>
+
+                <div class="tip-box">
+                    <i class="fas fa-circle-question"></i>
+                    <p><strong>لماذا نُعيد حساب الكتلة كاملةً؟</strong> بعد تغيير a[j]، قد تكون القيمة القديمة هي التي كانت تحدد نتيجة الكتلة (مثلاً القيمة الكبرى). لذا لا يمكننا تحديث b[blockJ] بشكل مباشر دون إعادة المرور على كامل الكتلة.</p>
+                </div>
+
+                <div class="good-box">
+                    <i class="fas fa-bolt"></i>
+                    <p><strong>التعقيد الكلي للتحديث:</strong> O(√n)</p>
+                </div>
+
+                <h4 class="sub-title">⚗️ مختبر التحديث</h4>
+                <p>حدّد الموضع j والقيمة الجديدة v لمشاهدة كيفية تحديث المصفوفة والكتلة المقابلة.</p>
+                <div class="nt-lab-dark">
+                    <div class="nt-input-row">
+                        <div class="nt-input-group narrow">
+                            <label>j =</label>
+                            <input type="number" id="updateInputJ" value="4" min="0">
+                        </div>
+                        <div class="nt-input-group narrow">
+                            <label>v =</label>
+                            <input type="number" id="updateInputV" value="99">
+                        </div>
+                        <button class="nt-btn nt-btn-primary" onclick="runUpdateLab()"><i class="fas fa-pen"></i> حدّث</button>
+                    </div>
+                    <div class="sq-grid-wrap"><div class="sq-grid" id="updateGrid"></div></div>
+                    <p style="color:#94a3b8; font-size:0.82rem; text-align:center; margin:6px 0;">مصفوفة b (قيم الكتل المحسوبة مسبقاً):</p>
+                    <div class="block-chips-row" id="updateBlockChips"></div>
+                    <div class="nt-console" id="updateConsole">ابنِ الهيكل أولاً من تبويب «المفهوم»…</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 4: CODE ============ -->
+        <div class="tab-panel" id="tabCode">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">4</span>
+                    <h3>كتابة الكود</h3>
+                </div>
+
+                <h4 class="sub-title" style="margin-top:0;">⚙️ الحسابات المسبقة — بناء الهيكل</h4>
+                <p>نمر مرةً واحدة على المصفوفة ونملأ b. العنصر a[i] ينتمي إلى الكتلة رقم i / sz.</p>
+                <div class="code-box">
+                    <div class="code-head"><span>build.cpp</span></div>
+                    <pre><span class="cmt">// نملأ مصفوفة الكتل b بمرور واحد على a</span>
+for (int i = 0; i &lt; n; i++) {
+    b[i / sz] = max(a[i], b[i / sz]);  <span class="cmt">// i/sz هو رقم الكتلة التي ينتمي إليها i</span>
+}</pre>
+                </div>
+
+                <h4 class="sub-title">🔍 دالة الاستعلام — القيمة العظمى</h4>
+                <p>نُعالج الكتلة الأولى الجزئية، ثم الكتل الوسطى الكاملة، ثم الكتلة الأخيرة الجزئية. الحالة الخاصة عندما يقع l و r في الكتلة ذاتها.</p>
+                <div class="code-box">
+                    <div class="code-head"><span>queryMax.cpp</span></div>
+                    <pre>int queryMax(int l, int r) {
+    int blockL = l / sz;
+    int blockR = r / sz;
+    int ans = INT_MIN;
+
+    <span class="cmt">// الحالة الخاصة: l و r في الكتلة ذاتها</span>
+    if (blockL == blockR) {
+        for (int i = l; i &lt;= r; i++)
+            ans = max(ans, a[i]);
+        return ans;
+    }
+
+    <span class="cmt">// الجزء الأيسر — الكتلة الأولى الجزئية</span>
+    for (int i = l; i &lt; (blockL + 1) * sz; i++)
+        ans = max(ans, a[i]);
+
+    <span class="cmt">// الكتل الوسطى الكاملة (نستخدم b مباشرةً — لا نمر على عناصرها)</span>
+    for (int i = blockL + 1; i &lt; blockR; i++)
+        ans = max(ans, b[i]);
+
+    <span class="cmt">// الجزء الأيمن — الكتلة الأخيرة الجزئية</span>
+    for (int i = blockR * sz; i &lt;= r; i++)
+        ans = max(ans, a[i]);
+
+    return ans;
+}</pre>
+                </div>
+
+                <h4 class="sub-title">🔍 شرح كود الاستعلام سطراً بسطر</h4>
+                <ol class="steps-list">
+                    <li class="step-item blue"><span class="step-num"></span><p><strong>blockL و blockR:</strong> نحسب رقم الكتلة التي تنتمي إليها l و r بقسمتهما على sz. هذا يُخبرنا إذا كانا في نفس الكتلة أم لا.</p></li>
+                    <li class="step-item blue"><span class="step-num"></span><p><strong>الحالة الخاصة (blockL == blockR):</strong> إذا كان النطاق بأكمله داخل كتلة واحدة، نمشي عليه مباشرةً. لا توجد كتل كاملة هنا ولا جزء آخر.</p></li>
+                    <li class="step-item blue"><span class="step-num"></span><p><strong>الكتلة الأولى الجزئية:</strong> من l حتى (blockL + 1) * sz - 1. نمشي فردياً لأنها غير مغطاة بالكامل.</p></li>
+                    <li class="step-item blue"><span class="step-num"></span><p><strong>الكتل الكاملة:</strong> من الكتلة blockL+1 حتى blockR-1. نقرأ b[i] مباشرةً. هذا هو جوهر التحسين — نتجنب المرور على كل عنصر داخل هذه الكتل.</p></li>
+                    <li class="step-item blue"><span class="step-num"></span><p><strong>الكتلة الأخيرة الجزئية:</strong> من blockR * sz حتى r. نمشي فردياً لأنها غير مغطاة بالكامل.</p></li>
+                </ol>
+
+                <h4 class="sub-title">✏️ دالة التحديث النقطي — شرح مفصّل</h4>
+                <p>نُحدّث a[j] أولاً، ثم نُعيد حساب الكتلة blockJ كاملةً من الصفر.</p>
+                <div class="code-box">
+                    <div class="code-head"><span>pointUpdate.cpp</span></div>
+                    <pre>void pointUpdate(int j, int v) {
+    int blockJ = j / sz;  <span class="cmt">// رقم الكتلة التي ينتمي إليها j</span>
+
+    a[j] = v;              <span class="cmt">// تحديث المصفوفة الأصلية — O(1)</span>
+
+    <span class="cmt">// إعادة حساب b[blockJ] من الصفر</span>
+    b[blockJ] = INT_MIN;
+    for (int i = blockJ * sz; i &lt; (blockJ + 1) * sz; i++) {
+        b[blockJ] = max(b[blockJ], a[i]);
+    }
+}</pre>
+                </div>
+
+                <h4 class="sub-title">🔍 شرح كود التحديث</h4>
+                <ol class="steps-list">
+                    <li class="step-item blue"><span class="step-num"></span><p><strong>blockJ = j / sz:</strong> نجد رقم الكتلة التي ينتمي إليها j.</p></li>
+                    <li class="step-item blue"><span class="step-num"></span><p><strong>a[j] = v:</strong> نُحدّث قيمة العنصر في المصفوفة الأصلية مباشرةً. هذا O(1).</p></li>
+                    <li class="step-item blue"><span class="step-num"></span><p><strong>b[blockJ] = INT_MIN:</strong> نُعيد ضبط قيمة الكتلة إلى القيمة الأدنى ممكنة تمهيداً لإعادة حساب الحد الأقصى.</p></li>
+                    <li class="step-item blue"><span class="step-num"></span><p><strong>حلقة إعادة الحساب:</strong> نمر على جميع عناصر الكتلة من blockJ * sz حتى (blockJ + 1) * sz - 1 ونحسب الحد الأقصى الجديد. التعقيد: O(sz) = O(√n).</p></li>
+                </ol>
+
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>العملية</th><th>التعقيد الزمني</th><th>السبب</th></tr></thead>
+                        <tbody>
+                            <tr><td>بناء الهيكل</td><td class="ltr">O(n)</td><td>مرور واحد على المصفوفة</td></tr>
+                            <tr><td>استعلام النطاق</td><td class="ltr">O(√n)</td><td>√n عنصراً جزئياً + √n كتلة كاملة</td></tr>
+                            <tr><td>تحديث نقطة</td><td class="ltr">O(√n)</td><td>إعادة حساب كتلة بحجم √n</td></tr>
+                            <tr><td>الذاكرة الإضافية</td><td class="ltr">O(√n)</td><td>مصفوفة b بطول √n فقط</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 5: PROBLEM ============ -->
+        <div class="tab-panel" id="tabProblem">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">5</span>
+                    <h3>المسألة التطبيقية — Dynamic Range Minimum Queries</h3>
+                </div>
+
+                <h4 class="sub-title" style="margin-top:0;">📋 نص المسألة (CSES)</h4>
+                <div class="problem-statement">
+                    <p style="margin:0;">لديك مصفوفة a من n عنصر، وتريد معالجة q استعلام من نوعين:</p>
+                    <div class="op-type-box" style="margin-top:12px;"><span class="ot-label">النوع الأول:</span> <code class="inline">1 k u</code> — حدّث القيمة في الموضع k إلى u.</div>
+                    <div class="op-type-box"><span class="ot-label">النوع الثاني:</span> <code class="inline">2 l r</code> — ما أصغر قيمة في النطاق [l, r]؟</div>
+                </div>
+
+                <h4 class="sub-title">💡 الملاحظات المهمة في الكود</h4>
+                <ol class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p><strong>MAXN و sz في النطاق العام:</strong> المصفوفات الكبيرة يجب أن تكون في الذاكرة الثابتة (Static Memory) لا في المكدّس (Stack)، لذا نُعرّفها خارج main.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong>k-- و l-- و r--:</strong> المسألة ترقّم العناصر ابتداءً من 1، لكن مصفوفات C++ تبدأ من 0. نطرح 1 من كل مؤشر قبل التعامل معه.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong>تهيئة b بـ INT_MAX:</strong> لأننا نحسب الحد الأدنى، نهيّئ الكتل بأكبر قيمة ممكنة حتى لا تُؤثر على النتيجة قبل ملئها.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong>ceil(sqrt(MAXN)):</strong> نستخدم القيمة القصوى MAXN لضمان صحة حجم مصفوفة b في جميع الأحوال بدلاً من sqrt(n).</p></li>
+                </ol>
+
+                <div class="code-box">
+                    <div class="code-head"><span>drmq.cpp</span></div>
+                    <pre>#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+#include &lt;climits&gt;
+using namespace std;
+
+const int MAXN = 200000;
+const int sz   = (int)ceil(sqrt(MAXN));  <span class="cmt">// ≈ 448</span>
+int a[MAXN];   <span class="cmt">// المصفوفة الأصلية</span>
+int b[sz];     <span class="cmt">// الحد الأدنى لكل كتلة</span>
+
+int queryMin(int l, int r) {
+    int blockL = l / sz, blockR = r / sz;
+    int ans = INT_MAX;
+
+    if (blockL == blockR) {
+        for (int i = l; i &lt;= r; i++) ans = min(ans, a[i]);
+        return ans;
+    }
+    for (int i = l;         i &lt; (blockL+1)*sz; i++) ans = min(ans, a[i]);
+    for (int i = blockL+1;  i &lt; blockR;        i++) ans = min(ans, b[i]);
+    for (int i = blockR*sz; i &lt;= r;          i++) ans = min(ans, a[i]);
+    return ans;
+}
+
+void pointUpdate(int j, int v) {
+    int blockJ = j / sz;
+    a[j] = v;
+    b[blockJ] = INT_MAX;
+    for (int i = blockJ*sz; i &lt; (blockJ+1)*sz; i++)
+        b[blockJ] = min(b[blockJ], a[i]);
+}
+
+int main() {
+    int n, q;
+    cin &gt;&gt; n &gt;&gt; q;
+
+    for (int i = 0; i &lt; n; i++) cin &gt;&gt; a[i];
+
+    <span class="cmt">// تهيئة الكتل</span>
+    for (int i = 0; i &lt; sz; i++) b[i] = INT_MAX;
+    for (int i = 0; i &lt; n; i++)
+        b[i / sz] = min(a[i], b[i / sz]);
+
+    while (q--) {
+        int type; cin &gt;&gt; type;
+        if (type == 1) {
+            int k, u; cin &gt;&gt; k &gt;&gt; u;
+            pointUpdate(--k, u);  <span class="cmt">// k-- لأن الترقيم يبدأ من 1</span>
+        } else {
+            int l, r; cin &gt;&gt; l &gt;&gt; r;
+            cout &lt;&lt; queryMin(--l, --r) &lt;&lt; "\n";
+        }
+    }
+    return 0;
+}</pre>
+                </div>
+
+                <h4 class="sub-title">⚗️ مختبر CSES التفاعلي</h4>
+                <p>أدخل مصفوفة ابتدائية وسلسلة عمليات بنفس صيغة CSES (كل سطر: <code class="inline">1 k u</code> للتحديث أو <code class="inline">2 l r</code> للاستعلام، بترقيم من 1)، وشاهد النتائج الفعلية.</p>
+                <div class="nt-lab-dark">
+                    <div class="nt-input-row">
+                        <div class="nt-input-group wide">
+                            <label>المصفوفة الابتدائية (1-indexed في العرض)</label>
+                            <input type="text" id="drmqInputArr" value="5 3 8 1 9 2">
+                        </div>
+                    </div>
+                    <div class="nt-input-row">
+                        <div class="nt-input-group wide">
+                            <label>العمليات (سطر لكل عملية)</label>
+                            <textarea id="drmqInputOps">2 1 6
+1 3 0
+2 1 6
+2 3 5</textarea>
+                        </div>
+                    </div>
+                    <div class="nt-input-row" style="margin-top:-8px;">
+                        <button class="nt-btn nt-btn-primary" onclick="runDrmqLab()"><i class="fas fa-play"></i> نفّذ العمليات</button>
+                    </div>
+                    <div class="nt-console" id="drmqConsole"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 6: QUIZ ============ -->
+        <div class="tab-panel" id="tabQuiz">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-pen"></i>
+                    <h3>❓ أسئلة تدريبية — 15 سؤالاً</h3>
+                </div>
+
+                <div class="quizbank-header">
+                    <div class="quizbank-score-row">
+                        <div class="qb-score-chip"><span class="qb-score-num" id="qbTotalNum">0 / 0</span><span class="qb-score-label">نتيجتك الحالية</span></div>
+                        <div class="qb-score-chip qb-correct"><span class="qb-score-num" id="qbCorrectNum">0</span><span class="qb-score-label">صحيح</span></div>
+                        <div class="qb-score-chip qb-wrong"><span class="qb-score-num" id="qbWrongNum">0</span><span class="qb-score-label">خطأ</span></div>
+                    </div>
+                    <button class="qb-reset-btn" onclick="qbResetAll()"><i class="fas fa-rotate-right"></i> إعادة</button>
+                </div>
+
+                <div id="qbContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الرابع: تحليل الجذر التربيعي (Sqrt Decomposition)</footer>
+
+    <script>
+        // ===================================================================
+        // Tab navigation
+        // ===================================================================
+        function showTab(tabId, btn) {
+            document.querySelectorAll('.tab-panel').forEach(function (el) { el.classList.remove('active'); });
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+        }
+
+        // ===================================================================
+        // Shared state for the Concept/Query/Update labs (Max-query structure)
+        // ===================================================================
+        let sq = null; // { a: [...], n, sz, b: [...] }
+
+        function renderSqGrid(containerId, highlightFn) {
+            const grid = document.getElementById(containerId);
+            grid.innerHTML = '';
+            if (!sq) return;
+            for (let i = 0; i < sq.n; i++) {
+                const blockIdx = Math.floor(i / sq.sz);
+                const cell = document.createElement('div');
+                let cls = 'sq-cell' + (blockIdx % 2 === 1 ? ' block-odd' : '');
+                if (highlightFn) {
+                    const extra = highlightFn(i, blockIdx);
+                    if (extra) cls += ' ' + extra;
+                }
+                cell.className = cls;
+                cell.innerHTML = '<span class="sq-idx">' + i + '</span><span class="sq-val">' + sq.a[i] + '</span>';
+                grid.appendChild(cell);
+            }
+        }
+
+        function renderBlockChips(containerId, usedBlocks) {
+            const row = document.getElementById(containerId);
+            row.innerHTML = '';
+            if (!sq) return;
+            sq.b.forEach(function (val, i) {
+                const chip = document.createElement('div');
+                chip.className = 'block-chip' + (usedBlocks && usedBlocks.has(i) ? ' bc-used' : '');
+                chip.innerHTML = '<span class="bc-label">b[' + i + ']</span><span class="bc-val">' + val + '</span>';
+                row.appendChild(chip);
+            });
+        }
+
+        // ===================================================================
+        // Tab 1: build lab
+        // ===================================================================
+        function buildSqrtLabFor(arr) {
+            const n = arr.length;
+            const szv = Math.ceil(Math.sqrt(n));
+            const numBlocks = Math.ceil(n / szv);
+            const b = new Array(numBlocks).fill(-Infinity);
+            for (let i = 0; i < n; i++) {
+                const blk = Math.floor(i / szv);
+                b[blk] = Math.max(b[blk], arr[i]);
+            }
+            sq = { a: arr.slice(), n: n, sz: szv, b: b };
+
+            renderSqGrid('buildGrid', null);
+            renderBlockChips('buildBlockChips', null);
+
+            const box = document.getElementById('buildConsole');
+            box.innerHTML = '';
+            const lines = [];
+            lines.push('▸ المصفوفة: [' + arr.join(', ') + ']');
+            lines.push('▸ n = ' + n + '، sz = ⌈√' + n + '⌉ = ' + szv + '، عدد الكتل = ' + numBlocks);
+            for (let i = 0; i < numBlocks; i++) {
+                const from = i * szv, to = Math.min(n, (i + 1) * szv) - 1;
+                lines.push('▸ b[' + i + '] = max(a[' + from + '..' + to + ']) = ' + b[i]);
+            }
+            lines.forEach(function (l) {
+                const s = document.createElement('span');
+                s.className = 'step-line';
+                s.innerText = l;
+                box.appendChild(s);
+            });
+            const final = document.createElement('span');
+            final.className = 'final-line';
+            final.innerText = '✓ بُني الهيكل بنجاح في O(n)';
+            box.appendChild(final);
+
+            // reset dependent labs' consoles since the structure changed
+            document.getElementById('queryConsole').innerHTML = 'الهيكل جاهز — أدخل l و r واضغط "استعلام".';
+            renderSqGrid('queryGrid', null);
+            renderBlockChips('queryBlockChips', null);
+            document.getElementById('updateConsole').innerHTML = 'الهيكل جاهز — أدخل j و v واضغط "حدّث".';
+            renderSqGrid('updateGrid', null);
+            renderBlockChips('updateBlockChips', null);
+        }
+
+        function buildSqrtLab() {
+            const raw = document.getElementById('buildInputArr').value.trim();
+            const arr = raw.split(/\s+/).filter(function (x) { return x.length > 0; }).map(Number);
+            if (arr.length === 0 || arr.some(isNaN)) {
+                document.getElementById('buildConsole').innerHTML = '<span class="error-line">الرجاء إدخال أعداد صحيحة مفصولة بمسافات.</span>';
+                return;
+            }
+            buildSqrtLabFor(arr);
+        }
+
+        function randomBuildLab() {
+            const len = Math.floor(Math.random() * 10) + 8; // 8..17
+            const arr = [];
+            for (let i = 0; i < len; i++) arr.push(Math.floor(Math.random() * 50) + 1);
+            document.getElementById('buildInputArr').value = arr.join(' ');
+            buildSqrtLabFor(arr);
+        }
+
+        // ===================================================================
+        // Tab 2: query lab (real queryMax, mirrors the C++ exactly)
+        // ===================================================================
+        function runQueryLab() {
+            const box = document.getElementById('queryConsole');
+            if (!sq) {
+                box.innerHTML = '<span class="error-line">ابنِ الهيكل أولاً من تبويب «المفهوم».</span>';
+                return;
+            }
+            const l = parseInt(document.getElementById('queryInputL').value, 10);
+            const r = parseInt(document.getElementById('queryInputR').value, 10);
+            if (isNaN(l) || isNaN(r) || l < 0 || r >= sq.n || l > r) {
+                box.innerHTML = '<span class="error-line">أدخل 0 ≤ l ≤ r ≤ ' + (sq.n - 1) + '.</span>';
+                return;
+            }
+            const blockL = Math.floor(l / sq.sz), blockR = Math.floor(r / sq.sz);
+            const usedBlocks = new Set();
+            let ans = -Infinity;
+            box.innerHTML = '';
+            const lines = [];
+
+            if (blockL === blockR) {
+                for (let i = l; i <= r; i++) ans = Math.max(ans, sq.a[i]);
+                lines.push('blockL = blockR = ' + blockL + ' → حالة خاصة: نمشي مباشرة من ' + l + ' إلى ' + r);
+            } else {
+                for (let i = l; i < (blockL + 1) * sq.sz && i < sq.n; i++) ans = Math.max(ans, sq.a[i]);
+                lines.push('الجزء الجزئي الأول: من ' + l + ' إلى ' + (Math.min((blockL + 1) * sq.sz, sq.n) - 1));
+                for (let i = blockL + 1; i < blockR; i++) { ans = Math.max(ans, sq.b[i]); usedBlocks.add(i); }
+                if (blockR - 1 >= blockL + 1) lines.push('الكتل الكاملة: من الكتلة ' + (blockL + 1) + ' إلى ' + (blockR - 1) + ' (باستخدام b[] مباشرةً)');
+                for (let i = blockR * sq.sz; i <= r; i++) ans = Math.max(ans, sq.a[i]);
+                lines.push('الجزء الجزئي الأخير: من ' + (blockR * sq.sz) + ' إلى ' + r);
+            }
+
+            lines.forEach(function (l2) {
+                const s = document.createElement('span');
+                s.className = 'step-line';
+                s.innerText = l2;
+                box.appendChild(s);
+            });
+            const final = document.createElement('span');
+            final.className = 'final-line';
+            final.innerText = '✓ queryMax(' + l + ', ' + r + ') = ' + ans;
+            box.appendChild(final);
+
+            renderSqGrid('queryGrid', function (i, blockIdx) {
+                if (blockL === blockR) {
+                    if (i >= l && i <= r) return 'state-partial';
+                } else {
+                    if (i >= l && i < (blockL + 1) * sq.sz) return 'state-partial';
+                    if (i >= blockR * sq.sz && i <= r) return 'state-partial';
+                    if (blockIdx > blockL && blockIdx < blockR) return 'state-fullblock';
+                }
+                return '';
+            });
+            renderBlockChips('queryBlockChips', usedBlocks);
+        }
+
+        // ===================================================================
+        // Tab 3: update lab (real pointUpdate, mirrors the C++ exactly)
+        // ===================================================================
+        function runUpdateLab() {
+            const box = document.getElementById('updateConsole');
+            if (!sq) {
+                box.innerHTML = '<span class="error-line">ابنِ الهيكل أولاً من تبويب «المفهوم».</span>';
+                return;
+            }
+            const j = parseInt(document.getElementById('updateInputJ').value, 10);
+            const v = parseInt(document.getElementById('updateInputV').value, 10);
+            if (isNaN(j) || isNaN(v) || j < 0 || j >= sq.n) {
+                box.innerHTML = '<span class="error-line">أدخل 0 ≤ j ≤ ' + (sq.n - 1) + ' وقيمة v صحيحة.</span>';
+                return;
+            }
+            const blockJ = Math.floor(j / sq.sz);
+            const oldVal = sq.a[j];
+            const oldBlockVal = sq.b[blockJ];
+            sq.a[j] = v;
+            let newBlockVal = -Infinity;
+            const from = blockJ * sq.sz, to = Math.min(sq.n, (blockJ + 1) * sq.sz) - 1;
+            for (let i = from; i <= to; i++) newBlockVal = Math.max(newBlockVal, sq.a[i]);
+            sq.b[blockJ] = newBlockVal;
+
+            box.innerHTML = '';
+            const lines = [
+                'a[' + j + '] : ' + oldVal + ' → ' + v,
+                'blockJ = ' + j + ' / ' + sq.sz + ' = ' + blockJ,
+                'إعادة حساب b[' + blockJ + '] من a[' + from + '..' + to + ']: ' + oldBlockVal + ' → ' + newBlockVal
+            ];
+            lines.forEach(function (l) {
+                const s = document.createElement('span');
+                s.className = 'step-line';
+                s.innerText = l;
+                box.appendChild(s);
+            });
+            const final = document.createElement('span');
+            final.className = 'final-line';
+            final.innerText = '✓ تم التحديث في O(√n)';
+            box.appendChild(final);
+
+            renderSqGrid('updateGrid', function (i) { return i === j ? 'state-updated' : ''; });
+            const usedBlocks = new Set(); usedBlocks.add(blockJ);
+            renderBlockChips('updateBlockChips', usedBlocks);
+        }
+
+        // ===================================================================
+        // Tab 5: CSES Dynamic Range Minimum Queries interactive solver
+        // (independent self-computing implementation, 1-indexed input like CSES)
+        // ===================================================================
+        function runDrmqLab() {
+            const box = document.getElementById('drmqConsole');
+            box.innerHTML = '';
+            const rawArr = document.getElementById('drmqInputArr').value.trim();
+            const arr = rawArr.split(/\s+/).filter(function (x) { return x.length > 0; }).map(Number);
+            if (arr.length === 0 || arr.some(isNaN)) {
+                box.innerHTML = '<span class="error-line">أدخل مصفوفة صحيحة مفصولة بمسافات.</span>';
+                return;
+            }
+            const n = arr.length;
+            const szv = Math.ceil(Math.sqrt(n));
+            const numBlocks = Math.ceil(n / szv);
+            const a = arr.slice();
+            const b = new Array(numBlocks).fill(Infinity);
+            for (let i = 0; i < n; i++) {
+                const blk = Math.floor(i / szv);
+                b[blk] = Math.min(b[blk], a[i]);
+            }
+
+            function queryMin(l, r) {
+                const blockL = Math.floor(l / szv), blockR = Math.floor(r / szv);
+                let ans = Infinity;
+                if (blockL === blockR) {
+                    for (let i = l; i <= r; i++) ans = Math.min(ans, a[i]);
+                    return ans;
+                }
+                for (let i = l; i < (blockL + 1) * szv; i++) ans = Math.min(ans, a[i]);
+                for (let i = blockL + 1; i < blockR; i++) ans = Math.min(ans, b[i]);
+                for (let i = blockR * szv; i <= r; i++) ans = Math.min(ans, a[i]);
+                return ans;
+            }
+
+            function pointUpdate(j, v) {
+                const blockJ = Math.floor(j / szv);
+                a[j] = v;
+                let nb = Infinity;
+                const from = blockJ * szv, to = Math.min(n, (blockJ + 1) * szv) - 1;
+                for (let i = from; i <= to; i++) nb = Math.min(nb, a[i]);
+                b[blockJ] = nb;
+            }
+
+            const opsRaw = document.getElementById('drmqInputOps').value.split('\n');
+            const lines = [];
+            let queryNum = 0;
+            let hadError = false;
+            opsRaw.forEach(function (lineRaw) {
+                const line = lineRaw.trim();
+                if (!line) return;
+                const parts = line.split(/\s+/).map(Number);
+                if (parts.length !== 3 || parts.some(isNaN)) {
+                    lines.push({ cls: 'error-line', text: 'سطر غير صالح: "' + lineRaw + '"' });
+                    hadError = true;
+                    return;
+                }
+                const type = parts[0];
+                if (type === 1) {
+                    let k = parts[1], u = parts[2];
+                    if (k < 1 || k > n) { lines.push({ cls: 'error-line', text: 'k خارج النطاق: ' + k }); return; }
+                    pointUpdate(k - 1, u);
+                    lines.push({ cls: 'step-line', text: '[تحديث] الموضع ' + k + ' ← ' + u });
+                } else if (type === 2) {
+                    let l = parts[1], r = parts[2];
+                    if (l < 1 || r > n || l > r) { lines.push({ cls: 'error-line', text: 'نطاق غير صالح: ' + l + ' ' + r }); return; }
+                    queryNum++;
+                    const ans = queryMin(l - 1, r - 1);
+                    lines.push({ cls: 'final-line', text: '[استعلام ' + queryNum + '] queryMin(' + l + ', ' + r + ') = ' + ans });
+                } else {
+                    lines.push({ cls: 'error-line', text: 'نوع عملية غير معروف: ' + type });
+                }
+            });
+
+            lines.forEach(function (item) {
+                const s = document.createElement('span');
+                s.className = item.cls;
+                s.innerText = item.text;
+                box.appendChild(s);
+            });
+            if (lines.length === 0) {
+                box.innerHTML = '<span class="error-line">أدخل عملية واحدة على الأقل.</span>';
+            }
+        }
+
+        // ===================================================================
+        // Quiz bank — all 15 questions authored (source gave only category
+        // counts, no question text), grounded in sqrt decomposition specifics.
+        // ===================================================================
+        const QUIZ_BANK = [
+            { diff: 'easy', q: 'ما هو حجم الكتلة الأمثل تقريباً في تحليل الجذر التربيعي لمصفوفة بطول n؟', opts: ['n', 'log n', '√n', 'n²'], correct: 2 },
+            { diff: 'easy', q: 'إلى أي كتلة ينتمي العنصر a[j] في تحليل الجذر التربيعي؟', opts: ['j % sz', 'j / sz', 'j × sz', 'sz / j'], correct: 1 },
+            { diff: 'easy', q: 'ما التعقيد الزمني لبناء هيكل الجذر التربيعي بالكامل من مصفوفة بطول n؟', opts: ['O(1)', 'O(√n)', 'O(n)', 'O(n log n)'], correct: 2 },
+            { diff: 'easy', q: 'ما التعقيد الزمني لاستعلام نطاق واحد [l, r] باستخدام تحليل الجذر التربيعي؟', opts: ['O(1)', 'O(√n)', 'O(n)', 'O(n²)'], correct: 1 },
+            { diff: 'easy', q: 'متى نتعامل مع النطاق [l, r] بالمرور المباشر على كل عنصر دون استخدام مصفوفة الكتل b؟', opts: ['عندما يكون l = 0', 'عندما تكون l و r في الكتلة ذاتها (blockL == blockR)', 'عندما يكون r = n - 1', 'لا يحدث هذا أبداً'], correct: 1 },
+            { diff: 'medium', q: 'لماذا يستغرق تحديث عنصر واحد O(√n) وليس O(1) رغم أن تحديث a[j] نفسه هو O(1)؟', opts: ['لأننا نحتاج إعادة بناء المصفوفة بأكملها', 'لأننا نحتاج إعادة حساب قيمة الكتلة b[blockJ] بالكامل من عناصرها (بحجم √n)، لأن العنصر القديم قد يكون كان هو المحدد للنتيجة', 'لأن القسمة الصحيحة j/sz بطيئة', 'التحديث فعلاً O(1) وليس O(√n)'], correct: 1 },
+            { diff: 'medium', q: 'في مسألة CSES المطروحة، لماذا عُرّفت المصفوفتان a و b خارج دالة main بدلاً من داخلها؟', opts: ['لأن C++ لا يسمح بمصفوفات داخل main', 'لأن المصفوفات الكبيرة يجب أن تكون في الذاكرة الثابتة (Static/Global) بدلاً من المكدّس (Stack) الذي له حجم محدود صغير', 'لتسريع الوصول العشوائي فقط', 'لا يوجد سبب حقيقي، مجرد أسلوب برمجي'], correct: 1 },
+            { diff: 'medium', q: 'لماذا استُخدم ceil(sqrt(MAXN)) بدلاً من ceil(sqrt(n)) الفعلي عند تعريف حجم مصفوفة b؟', opts: ['لأنهما يعطيان نفس القيمة دائماً', 'لضمان أن حجم مصفوفة b (المُعرَّفة عالمياً بحجم ثابت) كافٍ مهما كانت القيمة الفعلية لـ n عند التشغيل، بما أن حجم المصفوفات العامة يجب تحديده وقت الترجمة', 'sqrt(n) غير معرّفة في مكتبة cmath', 'لتقليل استهلاك الذاكرة'], correct: 1 },
+            { diff: 'medium', q: 'لماذا نُهيّئ مصفوفة b بالقيمة INT_MAX في queryMin، بينما نهيّئها بـ INT_MIN في queryMax؟', opts: ['هذا خطأ مطبعي، يجب أن تكون نفس القيمة دائماً', 'لأن أي قيمة حقيقية ستكون دائماً أصغر من INT_MAX (فلا تُفسد نتيجة min)، بينما أي قيمة حقيقية ستكون أكبر من INT_MIN (فلا تُفسد نتيجة max) — القيمة المحايدة تعتمد على نوع العملية', 'INT_MAX أسرع حسابياً من INT_MIN', 'لا علاقة بنوع الاستعلام إطلاقاً'], correct: 1 },
+            { diff: 'medium', q: 'إذا أردنا تعديل الهيكل ليدعم استعلام «المجموع» بدلاً من «القيمة العظمى»، ما التغيير الأساسي المطلوب؟', opts: ['استبدال max بـ + عند بناء b وعند دمج نتائج الكتل، مع تهيئة b بالقيمة 0 بدلاً من INT_MIN', 'لا حاجة لأي تغيير، الكود يعمل كما هو', 'يجب إعادة كتابة الخوارزمية بالكامل من الصفر', 'المجموع لا يمكن حسابه بتحليل الجذر التربيعي'], correct: 0 },
+            { diff: 'hard', q: 'إذا كانت عمليات التحديث في مسألة ما أكثر تكراراً بكثير من استعلامات النطاق، ما التعديل المنطقي على حجم الكتلة sz لتحسين الأداء الكلي؟', opts: ['تكبير sz عن √n لتسريع الاستعلامات فقط', 'تصغير sz عن √n قليلاً، لأن تكلفة التحديث O(sz) تتناسب طردياً مع sz، وتقليله يُسرّع العملية الأكثر تكراراً على حساب زيادة طفيفة في تكلفة الاستعلامات النادرة', 'لا يجب تغيير sz أبداً بغض النظر عن نمط الاستعلامات', 'استخدام sz = n دائماً'], correct: 1 },
+            { diff: 'hard', q: 'ما القيمة التقريبية لـ sz عندما n = 200,000 (كما في مسألة CSES)؟ ولماذا هذا الرقم مهم عملياً؟', opts: ['sz ≈ 45، لأن الجذر التربيعي لـ 200,000 قريب من ذلك', 'sz ≈ 448، وهذا مهم لأنه يعني أن كل استعلام أو تحديث يكلّف عملياً بضع مئات من العمليات فقط، مما يجعل معالجة مئات الآلاف من الاستعلامات ممكنة ضمن حد زمني ثانية واحدة', 'sz ≈ 200,000 نفسها', 'sz دائماً تساوي 1000 بغض النظر عن n'], correct: 1 },
+            { diff: 'hard', q: 'لماذا لا يمكن استخدام خوارزمية Mo القياسية مباشرةً في مسألة تحتوي على عمليات تحديث (Updates) على المصفوفة؟', opts: ["خوارزمية Mo الأساسية مصممة لمصفوفة ثابتة (بدون تحديثات) ومعالجة استعلامات غير متصلة (offline)؛ لدعم التحديثات نحتاج نسخة معدّلة أكثر تعقيداً (Mo's Algorithm with Updates) بتعقيد أعلى O(n^(5/3))", 'خوارزمية Mo أسرع دائماً في كل الحالات فلا داعي لتحليل الجذر التربيعي أصلاً', 'خوارزمية Mo لا علاقة لها بتحليل الجذر التربيعي إطلاقاً', 'خوارزمية Mo تعمل فقط مع الأعداد الأولية'], correct: 0 },
+            { diff: 'hard', q: 'ماذا يحدث لتعقيد استعلام النطاق إذا اخترنا حجم كتلة sz = 1 بدلاً من √n؟', opts: ['يبقى الاستعلام O(√n) دائماً بغض النظر عن اختيار sz', 'يتحول الاستعلام عملياً إلى O(n) في أسوأ الحالات، لأن عدد الكتل يصبح n، فتُهيمن حلقة «الكتل الكاملة» وتُصبح مكافئة تماماً للمسح المباشر على المصفوفة', 'يصبح الاستعلام أسرع من O(1)', 'يتوقف البرنامج عن العمل نهائياً'], correct: 1 },
+            { diff: 'hard', q: 'بافتراض n = 10⁶ و Q = 10⁶ استعلام، قارن العدد التقريبي للعمليات الكلية بين الطريقة الساذجة O(nQ) وتحليل الجذر التربيعي O(Q√n).', opts: ['الطريقة الساذجة: ~10¹² عملية (غير عملية إطلاقاً)، تحليل الجذر التربيعي: ~10⁹ عملية (قابل للتنفيذ ضمن ثوانٍ معدودة) — فرق يقارب 1000 ضعف', 'كلتا الطريقتين تحتاجان نفس عدد العمليات تقريباً', 'الطريقة الساذجة أسرع لأن كودها أبسط', 'تحليل الجذر التربيعي يحتاج 10¹² عملية أيضاً'], correct: 0 }
+        ];
+        let qbAnswers = new Array(QUIZ_BANK.length).fill(null);
+        const QB_DIFF_LABELS = { easy: 'سهل', medium: 'متوسط', hard: 'صعب' };
+        const QB_DIFF_CLASS = { easy: 'qb-diff-easy', medium: 'qb-diff-medium', hard: 'qb-diff-hard' };
+        const QB_DIFF_ICON = { easy: '🟢', medium: '🟡', hard: '🔴' };
+
+        function escapeHtml(s) {
+            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function qbRenderAll() {
+            const container = document.getElementById('qbContainer');
+            let html = '';
+            ['easy', 'medium', 'hard'].forEach(function (diff) {
+                const items = QUIZ_BANK.map(function (item, idx) { return { item: item, idx: idx }; }).filter(function (x) { return x.item.diff === diff; });
+                html += '<div class="qb-category-header"><span style="font-size:1.2rem;">' + QB_DIFF_ICON[diff] + '</span><h4>' + QB_DIFF_LABELS[diff] + ' (' + items.length + ')</h4></div>';
+                items.forEach(function (entry, i) {
+                    const item = entry.item, idx = entry.idx;
+                    const chosen = qbAnswers[idx];
+                    html += '<div class="qb-question-block">';
+                    html += '<span class="qb-diff-badge ' + QB_DIFF_CLASS[diff] + '">' + QB_DIFF_LABELS[diff] + '</span>';
+                    html += '<h5 style="margin-top:10px;">' + (i + 1) + '. ' + escapeHtml(item.q) + '</h5>';
+                    item.opts.forEach(function (opt, oi) {
+                        let cls = 'qb-opt';
+                        if (chosen !== null) {
+                            if (oi === item.correct) cls += ' correct';
+                            else if (oi === chosen) cls += ' wrong';
+                        }
+                        html += '<div class="' + cls + '" onclick="qbSelect(' + idx + ',' + oi + ')">' + escapeHtml(opt) + '</div>';
+                    });
+                    html += '</div>';
+                });
+            });
+            container.innerHTML = html;
+            qbUpdateScore();
+        }
+
+        function qbSelect(idx, oi) {
+            if (qbAnswers[idx] !== null) return;
+            qbAnswers[idx] = oi;
+            qbRenderAll();
+        }
+
+        function qbUpdateScore() {
+            let answered = 0, correct = 0;
+            qbAnswers.forEach(function (a, idx) {
+                if (a !== null) {
+                    answered++;
+                    if (a === QUIZ_BANK[idx].correct) correct++;
+                }
+            });
+            document.getElementById('qbTotalNum').innerText = correct + ' / ' + answered;
+            document.getElementById('qbCorrectNum').innerText = correct;
+            document.getElementById('qbWrongNum').innerText = answered - correct;
+        }
+
+        function qbResetAll() {
+            qbAnswers = new Array(QUIZ_BANK.length).fill(null);
+            qbRenderAll();
+        }
+
+        // ===================================================================
+        // Init
+        // ===================================================================
+        buildSqrtLabFor([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8]);
+        qbRenderAll();
+    </script>
+</body>
+</html>

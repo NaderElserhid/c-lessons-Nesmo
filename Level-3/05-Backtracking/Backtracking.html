@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | Backtracking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .hero-banner { background: var(--blue-gradient); padding: 70px 6% 60px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 720px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+            white-space: pre-line;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        .bullet-list { list-style: none; padding: 0; margin: 16px 0; }
+        .bullet-list li { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; color: var(--text-body); }
+        .bullet-list li i { color: var(--primary-blue); margin-top: 4px; flex-shrink: 0; }
+
+        /* interactive lab */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 6px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-sub { text-align: center; font-size: 0.85rem; color: var(--text-body); margin-bottom: 14px; }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 14px 0 6px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+        .lab-btn.ghost { background: white; border: 2px solid #cbd5e1; color: var(--text-body); }
+        .lab-btn.yellow { background: var(--yellow-gradient); }
+
+        /* backtracking visual panels */
+        .bt-visual-row { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin: 16px 0; }
+        .bt-panel { flex: 1 1 220px; background: var(--bg-main); border-radius: 14px; padding: 16px; border: 1px solid #e2e8f0; min-width: 200px; }
+        .bt-panel-title { font-weight: 800; font-size: 0.8rem; color: var(--dark-navy); margin-bottom: 10px; text-align: center; }
+        .bt-stack-list { display: flex; flex-direction: column-reverse; gap: 6px; align-items: center; min-height: 70px; justify-content: flex-start; }
+        .bt-stack-frame { background: white; border: 2px solid var(--primary-blue); border-radius: 10px; padding: 6px 16px; font-family: 'Consolas', monospace; font-weight: 800; font-size: 0.85rem; color: var(--dark-navy); direction: ltr; }
+        .bt-v-list { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; min-height: 44px; align-items: center; direction: ltr; }
+        .bt-v-slot { width: 40px; height: 40px; border-radius: 10px; background: white; border: 2px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-family: 'Consolas', monospace; font-weight: 800; color: var(--dark-navy); }
+        .bt-sums-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+        .bt-sum-box { background: white; border-radius: 12px; border: 2px solid #cbd5e1; padding: 10px 18px; text-align: center; min-width: 90px; }
+        .bt-sum-label { font-size: 0.72rem; color: #94a3b8; }
+        .bt-sum-value { font-family: 'Consolas', monospace; font-weight: 800; font-size: 1.05rem; color: var(--dark-navy); }
+        .bt-ans-box { text-align: center; margin: 12px 0 0; font-weight: 800; color: var(--primary-blue); font-family: 'Consolas', monospace; font-size: 1rem; }
+
+        .subset-console {
+            background: #0f172a; border-radius: 14px; padding: 16px 20px; margin: 14px 0; min-height: 40px;
+            font-family: 'Consolas', monospace; color: #4ade80; direction: ltr; text-align: left; font-size: 0.85rem; line-height: 1.8;
+            max-height: 220px; overflow-y: auto;
+        }
+        .subset-console .improved-line { color: #facc15; font-weight: 700; }
+
+        /* true/false activity */
+        .activity-box { background: white; border-radius: 22px; padding: 32px; margin: 28px 0; box-shadow: var(--soft-shadow); border: 1px solid #e2e8f0; }
+        .activity-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .activity-header i { color: var(--primary-blue); font-size: 1.2rem; }
+        .activity-header h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); }
+        .activity-intro { margin-bottom: 20px; font-size: 0.92rem; }
+        .tf-item {
+            background: var(--bg-main); border-radius: 16px; padding: 18px 22px; margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+            border: 1px solid #e2e8f0;
+        }
+        .tf-statement { margin: 0; font-weight: 700; color: var(--dark-navy); font-size: 0.95rem; flex: 1 1 260px; direction: ltr; text-align: right; unicode-bidi: plaintext; }
+        .tf-buttons { display: flex; gap: 10px; flex-shrink: 0; }
+        .tf-btn {
+            border: 2px solid #e2e8f0; background: white; padding: 9px 26px; border-radius: 50px;
+            font-weight: 800; font-family: 'Tajawal'; font-size: 0.88rem; cursor: pointer; color: var(--dark-navy); transition: 0.2s;
+        }
+        .tf-btn:hover { border-color: var(--primary-blue); }
+        .tf-btn.tf-selected-correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .tf-btn.tf-selected-wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .tf-feedback { flex-basis: 100%; margin-top: 2px; font-weight: 700; font-size: 0.85rem; min-height: 18px; }
+
+        .homework-item { background: var(--bg-main); border-radius: 18px; padding: 24px; margin-top: 20px; border: 1px solid #e2e8f0; }
+        .homework-item h4 { margin: 0 0 10px; color: var(--dark-navy); font-size: 1.02rem; font-weight: 800; }
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            margin-top: 14px;
+        }
+        .collapsible { display: none; margin-top: 14px; }
+        .collapsible.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge">الفصل 5: Backtracking</span>
+            <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الثالث</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-route"></i>
+        <h1>الفصل الخامس: Backtracking</h1>
+        <p class="hero-desc">في الفصل الرابع ولّدنا كل المجموعات الجزئية بالمرور على أرقام من 0 إلى 2ⁿ-1. الآن سنرى طريقة أخرى، أكثر عمومية وقوة: <strong>Backtracking</strong> — نبني الحل قرارًا بعد قرار، ونتراجع (نلغي القرار) كلما استكشفنا كل الاحتمالات في اتجاه معيّن. هذا الأسلوب سيصبح أداتك الأساسية لحل مسائل أكبر بكثير من مجرد توليد المجموعات الجزئية.</p>
+    </div>
+
+    <div class="container">
+
+        <!-- What is backtracking -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-info"></i>
+                <h3>ما هو Backtracking؟</h3>
+            </div>
+            <p><strong>Backtracking</strong> هو أسلوب يستكشف جميع الحلول الممكنة لمشكلة معينة. يقوم الـ Backtracking ببناء الحلول خطوة بخطوة، ويتراجع عن الخطوات كلما انتهى من استكشاف اتجاه معيّن.</p>
+        </div>
+
+        <!-- How it works -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-gears"></i>
+                <h3>كيف تعمل؟</h3>
+            </div>
+            <p>تبدأ خوارزمية Backtracking بحل فارغ. في كل خطوة، تحاول الخوارزمية كل الطرق الممكنة. بعد استكشاف جميع الطرق، تتراجع الخوارزمية إلى الخطوة السابقة عن طريق إلغاء آخر خطوة. يمكن تلخيص الخوارزمية كما يلي:</p>
+            <ul class="steps-list">
+                <li class="step-item"><div class="step-num"></div><p>ابدأ بحل فارغ.</p></li>
+                <li class="step-item"><div class="step-num"></div><p>قم بتمديد الحل خطوة بخطوة.</p></li>
+                <li class="step-item"><div class="step-num"></div><p>استكشف بشكل متكرر جميع الطرق المختلفة التي يمكن أن يُبنى بها الحل.</p></li>
+                <li class="step-item"><div class="step-num"></div><p>تراجع عن آخر خطوة تم تنفيذها.</p></li>
+            </ul>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>لاحظ أن هذا الوصف عامّ جدًا — Backtracking ليس خوارزمية واحدة محددة، بل هو <strong>إطار عام</strong> نطبّقه بطرق مختلفة حسب المشكلة. سنرى مثالين مختلفين في هذا الفصل.</p>
+            </div>
+        </div>
+
+        <!-- Generating subsets via backtracking -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-diagram-project"></i>
+                <h3>توليد المجموعات الجزئية عبر Backtracking</h3>
+            </div>
+            <p>لتوليد جميع المجموعات الجزئية لمصفوفة باستخدام Backtracking، ابدأ بحل فارغ. في كل خطوة، لديك الموقع <code class="inline">i</code>؛ حاول كلا الاحتمالين: إضافة <code class="inline">a[i]</code> إلى المجموعة الجزئية أو استبعاده. بعد استكشاف كل طريقة، تراجع عن آخر تغيير. عندما يصبح <code class="inline">i</code> خارج المصفوفة (<code class="inline">i == n</code>)، اطبع المجموعة الجزئية الحالية.</p>
+            <div class="code-box">
+                <div class="code-head"><span>subsets_backtracking.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int n = 3;
+int a[3] = {5, 3, 1};
+vector&lt;int&gt; v;
+
+void backtracking(int i) {
+
+    <span class="cmt">// إذا i == n، تم المرور على جميع العناصر، اطبع المجموعة الجزئية الحالية</span>
+    if (i == n) {
+        cout &lt;&lt; "subset: ";
+        for (int j = 0; j &lt; v.size(); j++) {
+            cout &lt;&lt; v[j] &lt;&lt; ' ';
+        }
+        cout &lt;&lt; "\n";
+        return;
+    }
+
+    <span class="cmt">// حاول إضافة a[i] إلى المجموعة الجزئية</span>
+    v.push_back(a[i]);   <span class="cmt">// أضفها إلى v</span>
+    backtracking(i + 1); <span class="cmt">// حاول جميع الحلول حيث a[i] موجودة في v</span>
+
+    <span class="cmt">// حاول إستبعاد a[i] من المجموعة الجزئية</span>
+    v.pop_back();        <span class="cmt">// تراجع عن إضافة a[i]</span>
+    backtracking(i + 1); <span class="cmt">// حاول جميع الحلول حيث a[i] غير موجودة في v</span>
+
+    <span class="cmt">// لا نحتاج لأي تراجع هنا لأننا لم نغيّر شيئًا في آخر خطوة</span>
+}
+
+int main() {
+    backtracking(0);
+}</pre>
+            </div>
+            <div class="output-box">subset: 5 3 1
+subset: 5 3
+subset: 5 1
+subset: 5
+subset: 3 1
+subset: 3
+subset: 1
+subset: </div>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>لاحظ أن هذه هي نفس الثماني مجموعات جزئية التي رأيناها في الفصل السابق باستخدام الأقنعة الثنائية — لكن هنا وصلنا إليها بترتيب مختلف تمامًا، لأن Backtracking يستكشفها عبر شجرة قرارات متكرّرة بدلًا من العدّ الرقمي المباشر من 0 إلى 2ⁿ-1.</p>
+            </div>
+        </div>
+
+        <!-- Lab 1: recursion tree visualizer -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>مختبر تفاعلي: شاهد شجرة الاستدعاءات المتكررة</h3>
+            </div>
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-sitemap"></i> تتبّع backtracking(i) خطوة بخطوة</p>
+                <p class="lab-sub">استخدم "الخطوة التالية" للتقدّم يدويًا، أو "تشغيل تلقائي" لمشاهدة التنفيذ الكامل لمصفوفة {5, 3, 1}.</p>
+
+                <div class="bt-visual-row">
+                    <div class="bt-panel">
+                        <div class="bt-panel-title">مكدس الاستدعاءات (Call Stack)</div>
+                        <div class="bt-stack-list" id="btStackList"></div>
+                    </div>
+                    <div class="bt-panel">
+                        <div class="bt-panel-title">المجموعة الجزئية الحالية (v)</div>
+                        <div class="bt-v-list" id="btVList"></div>
+                    </div>
+                </div>
+
+                <div class="subset-console" id="btConsole"></div>
+                <div class="lab-step-hint" id="btHint">اضغط "الخطوة التالية" أو "تشغيل تلقائي" للبدء.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="btStep()">الخطوة التالية</button>
+                    <button class="lab-btn yellow" onclick="btAutoPlay()">تشغيل تلقائي</button>
+                    <button class="lab-btn ghost" onclick="btResetLab()">إعادة ضبط</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity A -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>نشاط: مراجعة سريعة لفكرة Backtracking</h4>
+            </div>
+            <p class="activity-intro">حدّد إن كانت كل عبارة صحيحة أم خاطئة.</p>
+
+            <div class="tf-item" id="tfBk1">
+                <p class="tf-statement">Backtracking يبني الحل خطوة بخطوة ويتراجع بعد استكشاف كل اتجاه.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk1', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk1', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBk2">
+                <p class="tf-statement">في مثال المجموعات الجزئية، عند كل موقع i نجرّب احتمالًا واحدًا فقط.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk2', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk2', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBk3">
+                <p class="tf-statement">v.pop_back() في الكود يمثّل خطوة "التراجع" (إلغاء آخر قرار).</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk3', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk3', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBk4">
+                <p class="tf-statement">الترتيب الذي تُطبع به المجموعات الجزئية عبر Backtracking مطابق تمامًا لترتيبها عبر الأقنعة الثنائية.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk4', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk4', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Apple Division problem -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-apple-whole"></i>
+                <h3>مثال على مسألة: Apple Division</h3>
+            </div>
+            <p><a href="https://cses.fi/problemset/task/1623" target="_blank" rel="noopener" style="color:var(--primary-blue); font-weight:700; text-decoration:none;">CSES 1623</a> — لديك مصفوفة <code class="inline">p</code> من <code class="inline">n</code> تفاحة بأوزان معلومة. تريد تقسيم التفاحات إلى مجموعتين بحيث يكون الفرق بين مجموع وزن كل مجموعة أصغر ما يمكن. المطلوب طباعة أصغر فرق ممكن.</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>القيد</th><th class="ltr">النطاق</th></tr></thead>
+                    <tbody>
+                        <tr><td>عدد التفاحات n</td><td class="ltr">1 ≤ n ≤ 20</td></tr>
+                        <tr><td>وزن كل تفاحة p_i</td><td class="ltr">1 ≤ p_i ≤ 10⁹</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <h4 style="color:var(--dark-navy); font-weight:800; margin-top:24px;">مثال (من الموقع الرسمي)</h4>
+            <div class="code-box">
+                <div class="code-head"><span>input</span></div>
+                <pre>5
+3 2 7 4 1</pre>
+            </div>
+            <div class="output-box">1</div>
+            <p>التفسير: المجموعة الأولى بأوزان 2، 3، 4 (المجموع 9)، والمجموعة الثانية بأوزان 1، 7 (المجموع 8). الفرق = |9 - 8| = 1، وهو أصغر فرق ممكن.</p>
+
+            <h4 style="color:var(--dark-navy); font-weight:800; margin-top:24px;">الحل</h4>
+            <p>سنستخدم Backtracking لتجربة كل التقسيمات الممكنة: عند كل تفاحة <code class="inline">i</code>، نجرّب وضعها في المجموعة الأولى، ثم نجرّب وضعها في المجموعة الثانية. عندما نُنهي كل التفاحات (<code class="inline">i == n</code>)، نقارن الفرق الحالي بأفضل فرق وجدناه حتى الآن.</p>
+            <div class="code-box">
+                <div class="code-head"><span>apple_division.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int n;
+int a[20];
+long long sum1 = 0;         <span class="cmt">// مجموع المجموعة الأولى</span>
+long long sum2 = 0;         <span class="cmt">// مجموع المجموعة الثانية</span>
+long long ans = 2000000000; <span class="cmt">// الحل، رقم كبير جدًا مبدئيًا</span>
+
+void backtracking(int i) {
+    <span class="cmt">// إذا i == n، حدّث الحل الحالي</span>
+    if (i == n) {
+        ans = min(ans, abs(sum1 - sum2));
+        return;
+    }
+    <span class="cmt">// حاول جميع الاختيارات الممكنة</span>
+
+    <span class="cmt">// حاول إضافة a[i] للمجموعة الأولى</span>
+    sum1 += a[i];
+    backtracking(i + 1);
+    sum1 -= a[i];
+
+    <span class="cmt">// حاول إضافة a[i] للمجموعة الثانية</span>
+    sum2 += a[i];
+    backtracking(i + 1);
+    sum2 -= a[i];
+}
+
+int main() {
+    cin &gt;&gt; n;
+    for (int i = 0; i &lt; n; i++) {
+        cin &gt;&gt; a[i];
+    }
+
+    backtracking(0);
+
+    cout &lt;&lt; ans &lt;&lt; "\n";
+}</pre>
+            </div>
+            <div class="output-box">1</div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>لاحظ استخدام <code class="inline">long long</code> للمجاميع، وليس <code class="inline">int</code>. بما أن كل وزن قد يصل إلى <code class="inline">10⁹</code> وقد يوجد حتى 20 تفاحة، فإن أكبر مجموع ممكن يصل إلى نحو <code class="inline">2×10¹⁰</code> — وهذا يتجاوز حدّ <code class="inline">int</code> (نحو 2.1×10⁹) بكثير.</p>
+            </div>
+        </div>
+
+        <!-- Lab 2: apple division visualizer -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>مختبر تفاعلي: شاهد البحث عن أفضل تقسيم</h3>
+            </div>
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-scale-balanced"></i> مثال مبسّط: أوزان {4, 2, 3}</p>
+                <p class="lab-sub">لتسهيل المتابعة، نستخدم 3 تفاحات فقط بدلًا من مثال الموقع الرسمي (8 مجموعات فقط بدلًا من 32).</p>
+
+                <div class="bt-visual-row">
+                    <div class="bt-panel">
+                        <div class="bt-panel-title">مكدس الاستدعاءات (Call Stack)</div>
+                        <div class="bt-stack-list" id="adStackList"></div>
+                    </div>
+                    <div class="bt-panel">
+                        <div class="bt-panel-title">مجموع كل مجموعة</div>
+                        <div class="bt-sums-row">
+                            <div class="bt-sum-box"><div class="bt-sum-label">sum1</div><div class="bt-sum-value" id="adSum1">0</div></div>
+                            <div class="bt-sum-box"><div class="bt-sum-label">sum2</div><div class="bt-sum-value" id="adSum2">0</div></div>
+                        </div>
+                        <div class="bt-ans-box" id="adAns">أفضل فرق حتى الآن: —</div>
+                    </div>
+                </div>
+
+                <div class="subset-console" id="adConsole"></div>
+                <div class="lab-step-hint" id="adHint">اضغط "الخطوة التالية" أو "تشغيل تلقائي" للبدء.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="adStep()">الخطوة التالية</button>
+                    <button class="lab-btn yellow" onclick="adAutoPlay()">تشغيل تلقائي</button>
+                    <button class="lab-btn ghost" onclick="adResetLab()">إعادة ضبط</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Common pitfalls -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>أخطاء شائعة</h3>
+            </div>
+
+            <h4 style="color:var(--dark-navy); font-weight:800; margin-top:0;">1) نسيان خطوة التراجع (undo)</h4>
+            <p>انظر إلى هذا الكود المعدَّل لتوليد المجموعات الجزئية — نسي كاتبه سطر <code class="inline">v.pop_back();</code>:</p>
+            <div class="code-box">
+                <div class="code-head"><span>missing_undo.cpp</span></div>
+                <pre>void backtracking(int i) {
+    if (i == n) {
+        cout << "subset: ";
+        for (int j = 0; j < (int)v.size(); j++) cout << v[j] << ' ';
+        cout << "\n";
+        return;
+    }
+    v.push_back(a[i]);
+    backtracking(i + 1);
+
+    <span class="cmt">// !! نسينا v.pop_back(); هنا !!</span>
+    backtracking(i + 1);
+}</pre>
+            </div>
+            <div class="output-box">subset: 5 3 1
+subset: 5 3 1
+subset: 5 3 1 1
+subset: 5 3 1 1
+subset: 5 3 1 1 3 1
+subset: 5 3 1 1 3 1
+subset: 5 3 1 1 3 1 1
+subset: 5 3 1 1 3 1 1</div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>بدون التراجع، تبقى العناصر متراكمة في <code class="inline">v</code> إلى الأبد، فتحصل على مجموعات جزئية خاطئة ومتضخّمة بدلًا من 8 مجموعات صحيحة ومميّزة. <strong>كل خطوة تُغيّر حالة مشتركة (مثل v أو sum) يجب أن تُلغى بعد استكشاف ذلك الاتجاه</strong> — هذا هو جوهر "التراجع" في Backtracking.</p>
+            </div>
+
+            <h4 style="color:var(--dark-navy); font-weight:800;">2) استخدام int بدلًا من long long للمجاميع الكبيرة</h4>
+            <p>في مسألة Apple Division، إذا استخدمت <code class="inline">int</code> بدلًا من <code class="inline">long long</code> لتخزين <code class="inline">sum1</code> و<code class="inline">sum2</code>، فقد يحدث فيضان (overflow) بصمت عندما تكون الأوزان كبيرة:</p>
+            <div class="output-box">1500000000 + 1500000000 كـ int      = -1294967296  (خطأ!)
+1500000000 + 1500000000 كـ long long =  3000000000  (صحيح)</div>
+
+            <h4 style="color:var(--dark-navy); font-weight:800;">3) استكشاف اتجاه واحد فقط</h4>
+            <p>إذا نسيت أحد الفرعين (مثلًا استكشفت "إضافة العنصر" فقط دون "استبعاده")، فلن تستكشف الخوارزمية كل الحلول الممكنة، وقد تفوّتك الإجابة الصحيحة تمامًا.</p>
+        </div>
+
+        <!-- Activity B -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>نشاط: مراجعة سريعة لمسألة Apple Division والأخطاء الشائعة</h4>
+            </div>
+            <p class="activity-intro">حدّد إن كانت كل عبارة صحيحة أم خاطئة.</p>
+
+            <div class="tf-item" id="tfBk5">
+                <p class="tf-statement">في Apple Division، يجب استخدام long long للمجاميع لأن الأوزان قد تصل إلى 10⁹ ولدينا حتى 20 وزنًا.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk5', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk5', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBk6">
+                <p class="tf-statement">نسيان v.pop_back() (أو ما يعادلها) لا يؤثر على صحة النتائج.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk6', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk6', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBk7">
+                <p class="tf-statement">بما أن n ≤ 20 في هذه المسألة، فإن تجربة كل 2ⁿ تقسيم ممكن (حتى 2²⁰ ≈ مليون) تبقى سريعة بما يكفي.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk7', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk7', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBk8">
+                <p class="tf-statement">يكفي دائمًا استكشاف فرع واحد فقط (إضافة العنصر) للحصول على كل الحلول الممكنة.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk8', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk8', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Quick summary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>خلاصة سريعة</h3>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>
+                    Backtracking يبني الحل خطوة بخطوة، ويستكشف كل الاحتمالات بشكل متكرر، ثم يتراجع بعد كل استكشاف.<br>
+                    لتوليد المجموعات الجزئية: عند كل عنصر، جرّب إضافته ثم استبعاده، وتراجع بين المحاولتين.<br>
+                    في Apple Division: عند كل تفاحة، جرّب وضعها في المجموعة الأولى ثم الثانية، وحدّث أفضل فرق عند اكتمال التقسيم.<br>
+                    لا تنسَ خطوة التراجع أبدًا، واستخدم النوع المناسب (long long) لتفادي الفيضان.
+                </p>
+            </div>
+        </div>
+
+        <!-- Homework -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-pen-ruler"></i>
+                <h3>تمارين منزلية</h3>
+            </div>
+
+            <div class="homework-item" id="hwBk1">
+                <h4>1) تتبّع يدوي لمصفوفة أصغر</h4>
+                <p>بنفس كود توليد المجموعات الجزئية بالـ Backtracking، لكن مع المصفوفة <code class="inline">a = {2, 4}</code> (أي n=2)، اكتب بالترتيب كل الأسطر التي سيطبعها البرنامج.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwBk1sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwBk1sol">
+                    <div class="output-box">subset: 2 4
+subset: 2
+subset: 4
+subset: </div>
+                    <p>الترتيب: نضيف 2، ثم نضيف 4 فوقه (يطبع "2 4")، نتراجع عن 4 (يطبع "2")، نتراجع عن 2، نضيف 4 فقط (يطبع "4")، نتراجع عن 4 (يطبع المجموعة الفارغة).</p>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwBk2">
+                <h4>2) طبّق Apple Division يدويًا</h4>
+                <p>لديك 4 تفاحات بأوزان <code class="inline">{10, 10, 10, 7}</code>. ما أصغر فرق ممكن بين مجموعتين؟</p>
+                <button class="toggle-btn" onclick="toggleSection('hwBk2sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwBk2sol">
+                    <p>المجموع الكلي = 37. أفضل تقسيم: المجموعة الأولى {10, 7} = 17، والمجموعة الثانية {10, 10} = 20.</p>
+                    <div class="output-box">|17 - 20| = 3</div>
+                    <p>وهذا بالفعل أصغر فرق ممكن (يمكنك التحقق بتجربة بقية التقسيمات الثمانية).</p>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwBk3">
+                <h4>3) اكتشف الخطأ</h4>
+                <p>زميلك عدّل كود Apple Division بحيث يستكشف فرعًا واحدًا فقط لكل تفاحة (وضعها في المجموعة الأولى فقط):</p>
+                <div class="code-box">
+                    <div class="code-head"><span>find_error4.cpp</span></div>
+                    <pre>void backtracking(int i) {
+    if (i == n) {
+        ans = min(ans, abs(sum1 - sum2));
+        return;
+    }
+    sum1 += a[i];
+    backtracking(i + 1);
+    sum1 -= a[i];
+    <span class="cmt">// !! نسي فرع "إضافة a[i] للمجموعة الثانية" بالكامل !!</span>
+}</pre>
+                </div>
+                <p>ما الخطأ في هذا الكود؟ وماذا سيطبع دائمًا؟</p>
+                <button class="toggle-btn" onclick="toggleSection('hwBk3sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwBk3sol">
+                    <p>الكود يستكشف فرعًا واحدًا فقط (كل تفاحة تُوضع في المجموعة الأولى دائمًا)، ولا يجرّب أبدًا وضع أي تفاحة في المجموعة الثانية. بما أن <code class="inline">sum2</code> تبقى 0 دائمًا، فإن الناتج سيكون دائمًا <code class="inline">|مجموع كل الأوزان - 0|</code>، أي مجموع كل الأوزان — وهو أسوأ حل ممكن تقريبًا، وليس الحل الأمثل.</p>
+                    <p>الإصلاح: أضف الفرع الثاني (<code class="inline">sum2 += a[i]; backtracking(i+1); sum2 -= a[i];</code>) لاستكشاف كلا الاحتمالين.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>تحقق من فهمك</h3>
+            </div>
+
+            <div class="quiz-q" id="qbk1">
+                <h4>١. ما التعريف الأدق لـ Backtracking؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbk1', this, true)">أسلوب يبني الحل خطوة بخطوة ويستكشف كل الاحتمالات، ثم يتراجع بعد كل استكشاف</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk1', this, false)">خوارزمية فرز تعتمد على المقارنة فقط</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk1', this, false)">طريقة لتسريع البحث الثنائي</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbk2">
+                <h4>٢. في كود توليد المجموعات الجزئية، ما الذي يمثّله الشرط i == n؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbk2', this, false)">بداية استدعاء جديد</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk2', this, true)">الحالة الأساسية: انتهينا من كل العناصر، فنطبع الحل الحالي</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk2', this, false)">خطأ في الكود يجب إصلاحه</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbk3">
+                <h4>٣. ما وظيفة v.pop_back() في كود المجموعات الجزئية؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbk3', this, false)">إضافة عنصر جديد إلى v</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk3', this, true)">التراجع عن آخر عنصر تمت إضافته، لاستكشاف الاحتمال الآخر</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk3', this, false)">طباعة محتوى v</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbk4">
+                <h4>٤. في مسألة Apple Division، لماذا نستخدم long long بدلًا من int للمجاميع؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbk4', this, false)">لأن long long أسرع من int دائمًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk4', this, true)">لأن مجموع الأوزان قد يصل إلى حوالي 2×10¹⁰، وهذا يتجاوز حدّ int</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk4', this, false)">لأن C++ لا يسمح باستخدام int مع الدوال المتكررة</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbk5">
+                <h4>٥. كم عدد التقسيمات الممكنة التي يستكشفها Backtracking في Apple Division لمصفوفة من n تفاحة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbk5', this, false)">n</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk5', this, false)">n²</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk5', this, true)">2ⁿ</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbk6">
+                <h4>٦. ماذا يحدث إذا نسينا سطر v.pop_back() في كود المجموعات الجزئية؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbk6', this, false)">لا شيء، النتيجة تبقى صحيحة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk6', this, true)">تتراكم العناصر في v دون أن تُزال، فتظهر مجموعات جزئية خاطئة ومتضخّمة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk6', this, false)">يتوقف البرنامج عن الترجمة</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbk7">
+                <h4>٧. في مثال Apple Division بأوزان {3, 2, 7, 4, 1}، ما أصغر فرق ممكن؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbk7', this, false)">0</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk7', this, true)">1</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk7', this, false)">3</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbk8">
+                <h4>٨. ما أهم خطوة تُميّز Backtracking عن مجرد التجربة العشوائية؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbk8', this, true)">التراجع المنظّم (undo) بعد كل استكشاف، للعودة إلى حالة معروفة قبل تجربة الاحتمال التالي</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk8', this, false)">استخدام حلقات for فقط بدلًا من التكرار (recursion)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk8', this, false)">تخزين كل الحلول في مصفوفة ثنائية الأبعاد</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbk9">
+                <h4>٩. لو استكشفنا في Apple Division فرعًا واحدًا فقط (كل تفاحة في المجموعة الأولى)، ماذا يحدث؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbk9', this, false)">نحصل دائمًا على نفس الإجابة الصحيحة بشكل أسرع</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk9', this, true)">لن نستكشف كل الحلول الممكنة، وقد نفوّت الإجابة المثلى</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk9', this, false)">سيرفض المترجم البرنامج</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbk10">
+                <h4>١٠. ما العلاقة بين خوارزمية Backtracking وشجرة الاستدعاءات المتكررة (recursion tree)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbk10', this, true)">كل مسار في Backtracking يقابل مسارًا من الجذر إلى ورقة في شجرة الاستدعاءات</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk10', this, false)">لا توجد أي علاقة بينهما</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk10', this, false)">Backtracking يعمل بدون أي استدعاءات متكررة إطلاقًا</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>قاموس المصطلحات</h3>
+            </div>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Backtracking</span><span class="term-ar">التراجع الخوارزمي</span><p class="term-desc">أسلوب لاستكشاف كل الحلول الممكنة عبر بناء الحل تدريجيًا والتراجع بعد كل استكشاف.</p></div>
+                <div class="term-card"><span class="term-en">Recursion</span><span class="term-ar">الاستدعاء المتكرر</span><p class="term-desc">استدعاء الدالة لنفسها لحل نسخة أصغر من نفس المشكلة.</p></div>
+                <div class="term-card"><span class="term-en">Base Case</span><span class="term-ar">الحالة الأساسية</span><p class="term-desc">الشرط الذي يوقف الاستدعاء المتكرر (مثل i == n)، ويمنع الدالة من استدعاء نفسها إلى ما لا نهاية.</p></div>
+                <div class="term-card"><span class="term-en">Undo Step</span><span class="term-ar">خطوة التراجع</span><p class="term-desc">إلغاء آخر تغيير في الحالة المشتركة (مثل pop_back أو طرح قيمة) بعد استكشاف اتجاه معيّن.</p></div>
+                <div class="term-card"><span class="term-en">Call Stack</span><span class="term-ar">مكدس الاستدعاءات</span><p class="term-desc">البنية التي تتذكّر بها اللغة سلسلة الاستدعاءات المتكررة النشطة حاليًا.</p></div>
+                <div class="term-card"><span class="term-en">Brute Force</span><span class="term-ar">القوة الغاشمة</span><p class="term-desc">حل مسألة بتجربة كل الاحتمالات الممكنة دون اختصارات ذكية.</p></div>
+                <div class="term-card"><span class="term-en">State Space</span><span class="term-ar">فضاء الحالات</span><p class="term-desc">مجموع كل الحلول الجزئية والكاملة الممكنة التي قد تستكشفها الخوارزمية.</p></div>
+                <div class="term-card"><span class="term-en">Overflow</span><span class="term-ar">فيضان</span><p class="term-desc">تجاوز القيمة الحدّ الذي يستطيع نوع البيانات تخزينه، مما يُنتج نتيجة خاطئة دون خطأ ترجمة.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الثالث: Backtracking</footer>
+
+    <script>
+        // ===== Lab 1: subset backtracking recursion visualizer =====
+        const BT_ARR = [5, 3, 1];
+        const BT_N = 3;
+
+        function buildBacktrackFrames() {
+            const frames = [];
+            const v = [];
+            function rec(i, depth) {
+                frames.push({ type: 'call', i: i, depth: depth });
+                if (i === BT_N) {
+                    frames.push({ type: 'print', line: v.slice() });
+                    frames.push({ type: 'return', i: i, depth: depth });
+                    return;
+                }
+                v.push(BT_ARR[i]);
+                frames.push({ type: 'push', value: BT_ARR[i], v: v.slice() });
+                rec(i + 1, depth + 1);
+
+                v.pop();
+                frames.push({ type: 'pop', v: v.slice() });
+                rec(i + 1, depth + 1);
+
+                frames.push({ type: 'return', i: i, depth: depth });
+            }
+            rec(0, 0);
+            return frames;
+        }
+
+        let btFrames = [];
+        let btIndex = 0;
+        let btStack = [];
+        let btAutoTimer = false;
+
+        function btRenderStack() {
+            const list = document.getElementById('btStackList');
+            list.innerHTML = '';
+            btStack.forEach(function (i) {
+                const frame = document.createElement('div');
+                frame.className = 'bt-stack-frame';
+                frame.innerText = 'i = ' + i;
+                list.appendChild(frame);
+            });
+        }
+
+        function btRenderV(vArr) {
+            const list = document.getElementById('btVList');
+            list.innerHTML = '';
+            vArr.forEach(function (val) {
+                const slot = document.createElement('div');
+                slot.className = 'bt-v-slot';
+                slot.innerText = val;
+                list.appendChild(slot);
+            });
+        }
+
+        function btApplyFrame(frame) {
+            const hint = document.getElementById('btHint');
+            const consoleBox = document.getElementById('btConsole');
+
+            if (frame.type === 'call') {
+                btStack.push(frame.i);
+                btRenderStack();
+                hint.innerText = 'دخلنا backtracking(i=' + frame.i + ')';
+            } else if (frame.type === 'push') {
+                btRenderV(frame.v);
+                hint.innerText = 'أضفنا a[' + (frame.v.length - 1) + ']=' + frame.value + ' إلى v';
+            } else if (frame.type === 'pop') {
+                btRenderV(frame.v);
+                hint.innerText = 'تراجعنا: أزلنا آخر عنصر من v';
+            } else if (frame.type === 'print') {
+                const line = document.createElement('div');
+                line.innerText = 'subset: ' + frame.line.join(' ');
+                consoleBox.appendChild(line);
+                hint.innerText = 'وصلنا لـ i == n، فطبعنا المجموعة الجزئية الحالية.';
+            } else if (frame.type === 'return') {
+                btStack.pop();
+                btRenderStack();
+                hint.innerText = 'عدنا من backtracking(i=' + frame.i + ')';
+            }
+        }
+
+        function btStep() {
+            if (btIndex >= btFrames.length) {
+                document.getElementById('btHint').innerText = 'اكتملت المحاكاة! تحقق من الأسطر الثمانية في المخرجات.';
+                return;
+            }
+            btApplyFrame(btFrames[btIndex]);
+            btIndex++;
+        }
+
+        function btAutoPlay() {
+            if (btAutoTimer) return;
+            btAutoTimer = true;
+            function tick() {
+                if (btIndex >= btFrames.length) {
+                    btAutoTimer = false;
+                    document.getElementById('btHint').innerText = 'اكتملت المحاكاة! تحقق من الأسطر الثمانية في المخرجات.';
+                    return;
+                }
+                btApplyFrame(btFrames[btIndex]);
+                btIndex++;
+                setTimeout(tick, 260);
+            }
+            tick();
+        }
+
+        function btResetLab() {
+            btFrames = buildBacktrackFrames();
+            btIndex = 0;
+            btStack = [];
+            btAutoTimer = false;
+            btRenderStack();
+            btRenderV([]);
+            document.getElementById('btConsole').innerHTML = '';
+            document.getElementById('btHint').innerText = 'اضغط "الخطوة التالية" أو "تشغيل تلقائي" للبدء.';
+        }
+
+        // ===== Lab 2: Apple Division visualizer =====
+        const AD_ARR = [4, 2, 3];
+        const AD_N = 3;
+
+        function buildAppleFrames() {
+            const frames = [];
+            let sum1 = 0, sum2 = 0;
+            let ans = Infinity;
+            function rec(i, depth) {
+                frames.push({ type: 'call', i: i, depth: depth });
+                if (i === AD_N) {
+                    const diff = Math.abs(sum1 - sum2);
+                    const improved = diff < ans;
+                    if (improved) ans = diff;
+                    frames.push({ type: 'complete', sum1: sum1, sum2: sum2, diff: diff, improved: improved, ans: ans });
+                    frames.push({ type: 'return', i: i, depth: depth });
+                    return;
+                }
+                sum1 += AD_ARR[i];
+                frames.push({ type: 'addg1', value: AD_ARR[i], sum1: sum1, sum2: sum2 });
+                rec(i + 1, depth + 1);
+                sum1 -= AD_ARR[i];
+                frames.push({ type: 'undo1', value: AD_ARR[i], sum1: sum1, sum2: sum2 });
+
+                sum2 += AD_ARR[i];
+                frames.push({ type: 'addg2', value: AD_ARR[i], sum1: sum1, sum2: sum2 });
+                rec(i + 1, depth + 1);
+                sum2 -= AD_ARR[i];
+                frames.push({ type: 'undo2', value: AD_ARR[i], sum1: sum1, sum2: sum2 });
+
+                frames.push({ type: 'return', i: i, depth: depth });
+            }
+            rec(0, 0);
+            return frames;
+        }
+
+        let adFrames = [];
+        let adIndex = 0;
+        let adStack = [];
+        let adAutoTimer = false;
+
+        function adRenderStack() {
+            const list = document.getElementById('adStackList');
+            list.innerHTML = '';
+            adStack.forEach(function (i) {
+                const frame = document.createElement('div');
+                frame.className = 'bt-stack-frame';
+                frame.innerText = 'i = ' + i;
+                list.appendChild(frame);
+            });
+        }
+
+        function adApplyFrame(frame) {
+            const hint = document.getElementById('adHint');
+            const consoleBox = document.getElementById('adConsole');
+            const sum1El = document.getElementById('adSum1');
+            const sum2El = document.getElementById('adSum2');
+            const ansEl = document.getElementById('adAns');
+
+            if (frame.type === 'call') {
+                adStack.push(frame.i);
+                adRenderStack();
+                hint.innerText = 'دخلنا backtracking(i=' + frame.i + ')';
+            } else if (frame.type === 'addg1') {
+                sum1El.innerText = frame.sum1;
+                hint.innerText = 'وضعنا التفاحة بوزن ' + frame.value + ' في المجموعة الأولى → sum1 = ' + frame.sum1;
+            } else if (frame.type === 'undo1') {
+                sum1El.innerText = frame.sum1;
+                hint.innerText = 'تراجعنا: أزلنا التفاحة بوزن ' + frame.value + ' من المجموعة الأولى';
+            } else if (frame.type === 'addg2') {
+                sum2El.innerText = frame.sum2;
+                hint.innerText = 'وضعنا التفاحة بوزن ' + frame.value + ' في المجموعة الثانية → sum2 = ' + frame.sum2;
+            } else if (frame.type === 'undo2') {
+                sum2El.innerText = frame.sum2;
+                hint.innerText = 'تراجعنا: أزلنا التفاحة بوزن ' + frame.value + ' من المجموعة الثانية';
+            } else if (frame.type === 'complete') {
+                const line = document.createElement('div');
+                if (frame.improved) line.className = 'improved-line';
+                line.innerText = 'sum1=' + frame.sum1 + ', sum2=' + frame.sum2 + ' -> diff=' + frame.diff + (frame.improved ? '  (أفضل حل جديد!)' : '');
+                consoleBox.appendChild(line);
+                ansEl.innerText = 'أفضل فرق حتى الآن: ' + frame.ans;
+                hint.innerText = 'اكتمل تقسيم كامل: sum1=' + frame.sum1 + ', sum2=' + frame.sum2 + '.';
+            } else if (frame.type === 'return') {
+                adStack.pop();
+                adRenderStack();
+                hint.innerText = 'عدنا من backtracking(i=' + frame.i + ')';
+            }
+        }
+
+        function adStep() {
+            if (adIndex >= adFrames.length) {
+                document.getElementById('adHint').innerText = 'اكتملت المحاكاة! أفضل فرق تم إيجاده هو 1.';
+                return;
+            }
+            adApplyFrame(adFrames[adIndex]);
+            adIndex++;
+        }
+
+        function adAutoPlay() {
+            if (adAutoTimer) return;
+            adAutoTimer = true;
+            function tick() {
+                if (adIndex >= adFrames.length) {
+                    adAutoTimer = false;
+                    document.getElementById('adHint').innerText = 'اكتملت المحاكاة! أفضل فرق تم إيجاده هو 1.';
+                    return;
+                }
+                adApplyFrame(adFrames[adIndex]);
+                adIndex++;
+                setTimeout(tick, 260);
+            }
+            tick();
+        }
+
+        function adResetLab() {
+            adFrames = buildAppleFrames();
+            adIndex = 0;
+            adStack = [];
+            adAutoTimer = false;
+            adRenderStack();
+            document.getElementById('adSum1').innerText = '0';
+            document.getElementById('adSum2').innerText = '0';
+            document.getElementById('adAns').innerText = 'أفضل فرق حتى الآن: —';
+            document.getElementById('adConsole').innerHTML = '';
+            document.getElementById('adHint').innerText = 'اضغط "الخطوة التالية" أو "تشغيل تلقائي" للبدء.';
+        }
+
+        // ===== Shared helpers (toggle, TF activity, quiz) =====
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        function checkTF(el, itemId, chosenValue, correctValue) {
+            const item = document.getElementById(itemId);
+            const buttons = item.querySelectorAll('.tf-btn');
+            buttons.forEach(function (b) { b.classList.remove('tf-selected-correct', 'tf-selected-wrong'); b.onclick = null; b.style.cursor = 'default'; });
+            const feedback = item.querySelector('.tf-feedback');
+            if (chosenValue === correctValue) {
+                el.classList.add('tf-selected-correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة!</span>';
+            } else {
+                el.classList.add('tf-selected-wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة خاطئة — العبارة في الواقع "' + (correctValue ? 'صحيح' : 'خطأ') + '".</span>';
+            }
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(function (o) { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة! أحسنت.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة غير صحيحة، حاول مرة أخرى في المرة القادمة.</span>';
+            }
+        }
+
+        btResetLab();
+        adResetLab();
+    </script>
+</body>
+</html>

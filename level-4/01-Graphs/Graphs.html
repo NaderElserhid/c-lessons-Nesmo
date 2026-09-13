@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | الرسوم البيانية (Graphs)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .hero-banner { background: var(--blue-gradient); padding: 70px 6% 60px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 760px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        .container { max-width: 960px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula-box {
+            background: #0f172a; color: #facc15; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin: 14px 0; direction: ltr; text-align: center;
+            font-size: 1rem; font-weight: 700;
+        }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.84rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+            white-space: pre-line;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        .bullet-list { list-style: none; padding: 0; margin: 16px 0; }
+        .bullet-list li { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; color: var(--text-body); }
+        .bullet-list li i { color: var(--primary-blue); margin-top: 4px; flex-shrink: 0; }
+
+        /* use-case grid */
+        .usecase-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-top: 10px; }
+        .usecase-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .usecase-icon { font-size: 1.6rem; margin-bottom: 8px; display: block; }
+        .usecase-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 4px; }
+        .usecase-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        /* small svg graph diagrams */
+        .graph-diagram-row { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin: 16px 0; }
+        .graph-diagram-box { background: var(--bg-main); border-radius: 16px; padding: 14px; border: 1px solid #e2e8f0; text-align: center; }
+        .graph-diagram-box svg { display: block; margin: 0 auto; }
+        .graph-diagram-label { font-size: 0.78rem; color: var(--text-body); margin-top: 8px; font-weight: 700; }
+
+        /* interactive lab */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 6px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-sub { text-align: center; font-size: 0.85rem; color: var(--text-body); margin-bottom: 14px; }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 14px 0 6px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+        .lab-btn.ghost { background: white; border: 2px solid #cbd5e1; color: var(--text-body); }
+        .lab-btn.yellow { background: var(--yellow-gradient); }
+
+        /* city graph lab — dark network canvas */
+        .graph-lab-dark { background: #0b1220; border-radius: 20px; padding: 24px; margin: 16px 0; border: 1px solid #1e293b; }
+        .graph-lab-header { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        .graph-lab-title { color: var(--primary-blue); font-weight: 800; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
+        .graph-lab-hint-top { color: #94a3b8; font-size: 0.85rem; text-align: right; min-height: 20px; }
+
+        .graph-canvas-wrap { background: #0f172a; border-radius: 16px; padding: 8px; border: 1px solid #1e293b; }
+        .graph-svg { width: 100%; height: auto; display: block; }
+
+        .graph-edge { stroke: #7c3aed; stroke-width: 2; transition: all 0.25s ease; }
+        .graph-edge.highlight { stroke: #facc15; stroke-width: 3.5; }
+
+        .graph-node-circle { fill: #00c2ff; stroke: #0b1220; stroke-width: 3; cursor: pointer; transition: fill 0.25s ease, r 0.25s ease; }
+        .graph-node-circle:hover { fill: #38bdf8; }
+        .graph-node-circle.selected { fill: #facc15; }
+        .graph-node-circle.neighbor { fill: #f7941e; }
+        .graph-node-circle.visited { fill: #22c55e; }
+        .graph-node-circle.road-pending { fill: #a855f7; }
+
+        .graph-node-index { fill: #0b1220; font-weight: 800; font-size: 14px; font-family: 'Consolas', monospace; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+        .graph-node-label { fill: #e2e8f0; font-weight: 700; font-size: 13px; font-family: 'Tajawal', sans-serif; text-anchor: middle; pointer-events: none; }
+
+        .graph-stats-row { display: flex; justify-content: center; gap: 24px; margin-top: 14px; color: #94a3b8; font-size: 0.82rem; font-weight: 700; }
+
+        .graph-addcity-box { display: flex; gap: 10px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+        .graph-addcity-input { padding: 10px 16px; border-radius: 12px; border: 2px solid #334155; background: #0f172a; color: #e2e8f0; font-family: 'Tajawal'; font-size: 0.9rem; min-width: 220px; }
+        .graph-addcity-input::placeholder { color: #64748b; }
+
+        .graph-lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+        .graph-btn {
+            border-radius: 14px; padding: 11px 20px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 2px solid transparent; transition: all 0.2s ease;
+        }
+        .graph-btn-primary { background: var(--blue-gradient); color: white; }
+        .graph-btn-outline { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+        .graph-btn-outline:hover { border-color: #64748b; }
+        .graph-btn-outline.active { border-color: var(--primary-blue); color: var(--primary-blue); background: rgba(0,173,239,0.1); }
+        .graph-btn-danger { background: #0f172a; border-color: #3f1d2b; color: #f87171; }
+        .graph-btn-danger:hover { border-color: #f87171; }
+        .graph-btn-cyan { background: #0f172a; border-color: #0e4a5c; color: #22d3ee; }
+        .graph-btn-cyan:hover { border-color: #22d3ee; }
+
+        .graph-bfs-panel { margin-top: 18px; background: #0f172a; border-radius: 14px; padding: 16px; border: 1px solid #1e293b; }
+        .graph-bfs-panel .bt-stack-frame { background: #1e293b; border-color: var(--primary-blue); color: #e2e8f0; }
+        .graph-lab-hint-bottom { text-align: center; font-size: 0.85rem; font-weight: 700; color: #94a3b8; margin-top: 12px; min-height: 20px; }
+
+        /* step-by-step graph construction walkthrough */
+        .build-step-indicator { text-align: center; font-size: 0.78rem; font-weight: 800; color: #94a3b8; margin-bottom: 10px; letter-spacing: 0.3px; }
+        .build-caption-box {
+            background: rgba(0, 173, 239, 0.06); border: 2px solid var(--primary-blue); border-radius: 16px;
+            padding: 18px 22px; margin: 6px 0 16px; min-height: 60px; display: flex; align-items: center; gap: 14px;
+        }
+        .build-caption-icon { font-size: 1.5rem; color: var(--primary-blue); flex-shrink: 0; }
+        .build-caption-text { margin: 0; font-weight: 700; color: var(--dark-navy); font-size: 0.95rem; line-height: 1.9; }
+
+        .bt-panel { flex: 1 1 220px; background: var(--bg-main); border-radius: 14px; padding: 16px; border: 1px solid #e2e8f0; min-width: 200px; }
+        .bt-panel-title { font-weight: 800; font-size: 0.8rem; color: var(--dark-navy); margin-bottom: 10px; text-align: center; }
+        .bt-stack-list { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; min-height: 40px; align-items: center; direction: ltr; }
+        .bt-stack-frame { background: white; border: 2px solid var(--primary-blue); border-radius: 10px; padding: 6px 14px; font-family: 'Consolas', monospace; font-weight: 800; font-size: 0.85rem; color: var(--dark-navy); }
+
+        .subset-console {
+            background: #0f172a; border-radius: 14px; padding: 16px 20px; margin: 14px 0; min-height: 40px;
+            font-family: 'Consolas', monospace; color: #4ade80; direction: ltr; text-align: left; font-size: 0.83rem; line-height: 1.8;
+            max-height: 200px; overflow-y: auto;
+        }
+        .subset-console .highlight-line { color: #facc15; font-weight: 700; }
+
+        /* adjacency list builder */
+        .adjlist-textarea {
+            width: 100%; box-sizing: border-box; min-height: 110px; direction: ltr; font-family: 'Consolas', monospace;
+            font-size: 0.85rem; padding: 12px; border-radius: 12px; border: 2px solid #cbd5e1; resize: vertical;
+        }
+        .adjlist-output { direction: ltr; text-align: left; }
+
+        /* adjacency matrix builder */
+        .matrix-n-input {
+            width: 80px; padding: 8px 10px; border-radius: 10px; border: 2px solid #cbd5e1; font-family: 'Consolas', monospace;
+            font-size: 0.9rem; text-align: center; direction: ltr;
+        }
+        .matrix-table-wrap { overflow-x: auto; margin: 14px 0; display: flex; justify-content: center; }
+        .matrix-table { border-collapse: collapse; direction: ltr; }
+        .matrix-table th { background: var(--bg-main); font-family: 'Consolas', monospace; font-size: 0.72rem; color: var(--text-body); padding: 6px 4px; border: 1px solid #e2e8f0; min-width: 32px; }
+        .matrix-cell {
+            width: 34px; height: 30px; text-align: center; border: 1px solid #e2e8f0; cursor: pointer;
+            font-family: 'Consolas', monospace; font-weight: 800; font-size: 0.8rem; color: var(--dark-navy); background: white;
+            transition: all 0.2s ease;
+        }
+        .matrix-cell:hover { background: rgba(0,173,239,0.1); }
+        .matrix-cell.edge-on { background: rgba(34,197,94,0.18); color: #15803d; }
+        .matrix-cell.diagonal { background: var(--bg-main); cursor: default; color: #94a3b8; }
+
+        /* true/false activity */
+        .activity-box { background: white; border-radius: 22px; padding: 32px; margin: 28px 0; box-shadow: var(--soft-shadow); border: 1px solid #e2e8f0; }
+        .activity-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .activity-header i { color: var(--primary-blue); font-size: 1.2rem; }
+        .activity-header h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); }
+        .activity-intro { margin-bottom: 20px; font-size: 0.92rem; }
+        .tf-item {
+            background: var(--bg-main); border-radius: 16px; padding: 18px 22px; margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+            border: 1px solid #e2e8f0;
+        }
+        .tf-statement { margin: 0; font-weight: 700; color: var(--dark-navy); font-size: 0.95rem; flex: 1 1 260px; direction: ltr; text-align: right; unicode-bidi: plaintext; }
+        .tf-buttons { display: flex; gap: 10px; flex-shrink: 0; }
+        .tf-btn {
+            border: 2px solid #e2e8f0; background: white; padding: 9px 26px; border-radius: 50px;
+            font-weight: 800; font-family: 'Tajawal'; font-size: 0.88rem; cursor: pointer; color: var(--dark-navy); transition: 0.2s;
+        }
+        .tf-btn:hover { border-color: var(--primary-blue); }
+        .tf-btn.tf-selected-correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .tf-btn.tf-selected-wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .tf-feedback { flex-basis: 100%; margin-top: 2px; font-weight: 700; font-size: 0.85rem; min-height: 18px; }
+
+        .homework-item { background: var(--bg-main); border-radius: 18px; padding: 24px; margin-top: 20px; border: 1px solid #e2e8f0; }
+        .homework-item h4 { margin: 0 0 10px; color: var(--dark-navy); font-size: 1.02rem; font-weight: 800; }
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            margin-top: 14px;
+        }
+        .collapsible { display: none; margin-top: 14px; }
+        .collapsible.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge">الفصل 1: الرسوم البيانية (Graphs)</span>
+            <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الرابع</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-circle-nodes"></i>
+        <h1>الفصل الأول: الرسوم البيانية (Graphs)</h1>
+        <p class="hero-desc">هذا أول فصل في هيكل بيانات جديد بالكامل، وهو ربما الأكثر شيوعًا في المسابقات التنافسية بعد المصفوفات. سنبدأ بفهم ما هو الـ Graph وكيف يُخزَّن في الذاكرة بأكثر من طريقة، قبل أن ننتقل في الفصول القادمة إلى خوارزميات المرور عليه مثل BFS وDFS.</p>
+    </div>
+
+    <div class="container">
+
+        <!-- Where are graphs used -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-globe"></i>
+                <h3>أين تُستخدم الرسوم البيانية؟</h3>
+            </div>
+            <div class="usecase-grid">
+                <div class="usecase-card"><span class="usecase-icon">🗺️</span><span class="usecase-title">شبكات الخرائط</span><p class="usecase-desc">Google Maps وأنظمة GPS تعتمد على Graph لإيجاد أقصر مسار بين نقطتين.</p></div>
+                <div class="usecase-card"><span class="usecase-icon">🌐</span><span class="usecase-title">شبكة الإنترنت</span><p class="usecase-desc">توجيه الحزم (Packet Routing) عبر الشبكة يعتمد على خوارزميات الرسوم البيانية.</p></div>
+                <div class="usecase-card"><span class="usecase-icon">👥</span><span class="usecase-title">الشبكات الاجتماعية</span><p class="usecase-desc">Facebook وLinkedIn يمثّلان المستخدمين وعلاقاتهم كـ Graph لاقتراح الأصدقاء.</p></div>
+                <div class="usecase-card"><span class="usecase-icon">🧬</span><span class="usecase-title">علم الأحياء الحسابي</span><p class="usecase-desc">تمثيل شبكات البروتينات والجينات وتحليل العلاقات البيولوجية.</p></div>
+                <div class="usecase-card"><span class="usecase-icon">📦</span><span class="usecase-title">إدارة الحزم البرمجية</span><p class="usecase-desc">npm وpip يستخدمان Graph لإدارة التبعيات بين المكتبات البرمجية.</p></div>
+                <div class="usecase-card"><span class="usecase-icon">🏆</span><span class="usecase-title">المسابقات التنافسية</span><p class="usecase-desc">أكثر من 30% من مسائل ICPC وIOI تتطلب خوارزميات الرسوم البيانية.</p></div>
+            </div>
+        </div>
+
+        <!-- 1. Definition -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-info"></i>
+                <h3>1. التعريف والمفاهيم الأساسية</h3>
+            </div>
+            <p>الـ <strong>Graph</strong> هو هيكل رياضي يُستخدم لتمثيل العلاقات بين عناصر منفصلة تُسمّى <strong>Vertices</strong> (أو Nodes). العلاقة الواحدة بين عنصرين تُسمّى <strong>Edge</strong>، وهي تعبّر عن ارتباط مباشر بين زوج من الـ Vertices.</p>
+            <p>رياضيًا يُكتب الـ Graph كـ:</p>
+            <div class="formula-box">G = (V, E)</div>
+            <p>حيث <code class="inline">V</code> هي مجموعة الـ Vertices، و<code class="inline">E</code> هي مجموعة الـ Edges.</p>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p><strong>مثال واقعي:</strong> تخيّل عدة مدن في دولة، بعض أزواج المدن بينهم طرق والبعض الآخر لا. إذا كنت تخطط للسفر من المدينة <code class="inline">u</code> إلى المدينة <code class="inline">v</code>، قد تحتاج تمرّ على مدينة أو أكثر كمدن وسيطة في الطريق. هذه بالضبط المسألة التي يحلّها الـ Graph! المدن هي الـ Vertices، والطرق المباشرة بينها هي الـ Edges.</p>
+            </div>
+
+            <h4 class="sub-title">لماذا نستخدم Graphs؟</h4>
+            <p>تمثيل المسائل على شكل Graphs يسمح لنا بحلّها بكفاءة باستخدام خوارزميات جاهزة، مثل: <strong>BFS</strong> لإيجاد أقصر مسار (بعدد الخطوات)، <strong>DFS</strong> لاستكشاف الرسم البياني بالكامل، <strong>Dijkstra</strong> للمسارات الأقصر في الرسوم الموزونة، وغيرها الكثير — وهي خوارزميات سنتعلمها في الفصول القادمة.</p>
+        </div>
+
+        <!-- Interactive lab A: city network -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>مختبر تفاعلي: شبكة المدن والطرق</h3>
+            </div>
+            <p>اضغط على أي مدينة لترى جيرانها المباشرين (المدن المرتبطة بها بطريق واحد). أضف مدنًا وطرقًا جديدة بنفسك بالضغط على الأزرار أدناه، ثم شغّل BFS لمشاهدة ترتيب الزيارة خطوة بخطوة انطلاقًا من أول مدينة.</p>
+
+            <div class="graph-lab-dark">
+                <div class="graph-lab-header">
+                    <span class="graph-lab-title"><i class="fas fa-diagram-project"></i> مثال تفاعلي: شبكة المدن والطرق</span>
+                    <span class="graph-lab-hint-top" id="graphHintTop">اضغط على أي مدينة لترى مدنًا مرتبطة بها مباشرة (الجيران). يمكنك إضافة مدن وطرق جديدة.</span>
+                </div>
+
+                <div class="graph-canvas-wrap">
+                    <svg id="graphSvg" viewBox="0 0 700 400" class="graph-svg"></svg>
+                </div>
+
+                <div class="graph-stats-row">
+                    <span id="graphStatCities">عدد المدن: 5</span>
+                    <span id="graphStatRoads">عدد الطرق: 6</span>
+                </div>
+
+                <div class="graph-addcity-box" id="graphAddCityBox" style="display:none;">
+                    <input type="text" id="graphNewCityInput" class="graph-addcity-input" placeholder="اسم المدينة الجديدة...">
+                    <button class="lab-btn" onclick="graphConfirmAddCity()">إضافة</button>
+                    <button class="lab-btn ghost" onclick="graphCancelAddCity()">إلغاء</button>
+                </div>
+
+                <div class="graph-lab-buttons-row">
+                    <button class="graph-btn graph-btn-primary" onclick="graphShowAddCity()"><i class="fas fa-plus"></i> أضف مدينة</button>
+                    <button class="graph-btn graph-btn-outline" id="graphAddRoadBtn" onclick="graphToggleRoadMode()"><i class="fas fa-link"></i> أضف طريق</button>
+                    <button class="graph-btn graph-btn-danger" onclick="graphReset(true)"><i class="fas fa-rotate-right"></i> إعادة تعيين</button>
+                    <button class="graph-btn graph-btn-cyan" onclick="graphBfsAutoPlay()"><i class="fas fa-magnifying-glass"></i> BFS من المدينة الأولى</button>
+                </div>
+
+                <div class="graph-bfs-panel" id="graphBfsPanel" style="display:none;">
+                    <div class="bt-panel-title" style="color:#94a3b8;">طابور BFS (Queue)</div>
+                    <div class="bt-stack-list" id="graphBfsQueueList"></div>
+                    <div class="subset-console" id="graphBfsConsole"></div>
+                </div>
+                <div class="graph-lab-hint-bottom" id="graphHintBottom"></div>
+            </div>
+        </div>
+
+        <!-- Interactive step-by-step graph construction walkthrough -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-diagram-project"></i>
+                <h3>شرح تفاعلي خطوة بخطوة: كيف نبني الـGraph؟</h3>
+            </div>
+            <p>هذا الشرح يعمل مباشرة على نفس شبكة المدن في الأعلى. اضغط "الخطوة التالية ←" لمشاهدة كيف يُبنى الـGraph تدريجيًا، Node تلو الأخرى وEdge تلو الأخرى، مع توضيح ما تغيّر في كل خطوة. بمجرد أن تبدأ الشرح ستُعاد الشبكة أعلاه إلى رسم فارغ لنبنيه معًا من الصفر، ويمكنك دائمًا العودة للشبكة الافتراضية بالضغط على زر "إعادة تعيين" بالأعلى.</p>
+
+            <div class="build-step-indicator" id="buildStepIndicator">اضغط "الخطوة التالية ←" للبدء</div>
+            <div class="build-caption-box">
+                <i class="fas fa-comment-dots build-caption-icon"></i>
+                <p class="build-caption-text" id="buildCaptionText">لم نبدأ بعد. اضغط الزر أدناه لنبدأ ببناء Graph من نقطة الصفر، Node واحدة في كل مرة.</p>
+            </div>
+
+            <div class="lab-buttons-row">
+                <button class="lab-btn" onclick="buildNextStep()">الخطوة التالية ←</button>
+                <button class="lab-btn ghost" onclick="buildRestart()">🔁 إعادة الشرح من البداية</button>
+            </div>
+        </div>
+
+        <!-- 2. Types of graphs -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-shapes"></i>
+                <h3>2. أنواع الرسوم البيانية</h3>
+            </div>
+
+            <h4 class="sub-title" style="margin-top:0;">🔀 Undirected Graph</h4>
+            <p>الـ Edges ليس لها اتجاه محدد. إذا كانت هناك علاقة بين <code class="inline">u</code> و<code class="inline">v</code>، فالعلاقة متبادلة في الاتجاهين. يُشار إليه بمصطلحات مثل <code class="inline">bidirectional</code> أو <code class="inline">undirected</code>.</p>
+
+            <h4 class="sub-title">➡️ Directed Graph</h4>
+            <p>الـ Edges لها اتجاه محدد. Edge من <code class="inline">u</code> إلى <code class="inline">v</code> تختلف عن Edge من <code class="inline">v</code> إلى <code class="inline">u</code>. يُشار إليه بمصطلحات مثل <code class="inline">unidirectional</code> أو <code class="inline">directed</code>.</p>
+
+            <h4 class="sub-title">⚖️ Weighted Graph</h4>
+            <p>كل Edge لها قيمة (وزن) مرتبطة بها. مثلًا، قد تمثّل المسافة بين المدن أو وقت السفر. الصيغة تُكتب كـ <code class="inline">edge(u, v, w)</code> حيث <code class="inline">w</code> هو الوزن.</p>
+
+            <h4 class="sub-title">🔗 Weighted + Directed</h4>
+            <p>الأكثر تعقيدًا — الـ Edges لها اتجاه ووزن معًا. شائع في مسائل أقصر مسار مثل Dijkstra أو Bellman-Ford. مثلًا: شبكة طيران بأوقات رحلات محددة الاتجاه.</p>
+
+            <div class="graph-diagram-row">
+                <div class="graph-diagram-box">
+                    <svg width="150" height="130" viewBox="0 0 150 130">
+                        <line x1="30" y1="100" x2="75" y2="25" stroke="#0f172a" stroke-width="2"/>
+                        <line x1="75" y1="25" x2="120" y2="100" stroke="#0f172a" stroke-width="2"/>
+                        <line x1="30" y1="100" x2="120" y2="100" stroke="#0f172a" stroke-width="2"/>
+                        <circle cx="30" cy="100" r="16" fill="#00adef"/>
+                        <circle cx="75" cy="25" r="16" fill="#00adef"/>
+                        <circle cx="120" cy="100" r="16" fill="#00adef"/>
+                        <text x="30" y="105" text-anchor="middle" fill="white" font-size="13" font-weight="800">A</text>
+                        <text x="75" y="30" text-anchor="middle" fill="white" font-size="13" font-weight="800">B</text>
+                        <text x="120" y="105" text-anchor="middle" fill="white" font-size="13" font-weight="800">C</text>
+                    </svg>
+                    <div class="graph-diagram-label">Undirected</div>
+                </div>
+                <div class="graph-diagram-box">
+                    <svg width="150" height="130" viewBox="0 0 150 130">
+                        <defs>
+                            <marker id="arrow1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                                <path d="M0,0 L8,4 L0,8 Z" fill="#0f172a"/>
+                            </marker>
+                        </defs>
+                        <line x1="34" y1="93" x2="70" y2="32" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow1)"/>
+                        <line x1="80" y1="32" x2="116" y2="93" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow1)"/>
+                        <line x1="116" y1="100" x2="34" y2="100" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow1)"/>
+                        <circle cx="30" cy="100" r="16" fill="#00adef"/>
+                        <circle cx="75" cy="25" r="16" fill="#00adef"/>
+                        <circle cx="120" cy="100" r="16" fill="#00adef"/>
+                        <text x="30" y="105" text-anchor="middle" fill="white" font-size="13" font-weight="800">A</text>
+                        <text x="75" y="30" text-anchor="middle" fill="white" font-size="13" font-weight="800">B</text>
+                        <text x="120" y="105" text-anchor="middle" fill="white" font-size="13" font-weight="800">C</text>
+                    </svg>
+                    <div class="graph-diagram-label">Directed</div>
+                </div>
+                <div class="graph-diagram-box">
+                    <svg width="150" height="130" viewBox="0 0 150 130">
+                        <line x1="30" y1="100" x2="75" y2="25" stroke="#0f172a" stroke-width="2"/>
+                        <line x1="75" y1="25" x2="120" y2="100" stroke="#0f172a" stroke-width="2"/>
+                        <circle cx="30" cy="100" r="16" fill="#00adef"/>
+                        <circle cx="75" cy="25" r="16" fill="#00adef"/>
+                        <circle cx="120" cy="100" r="16" fill="#00adef"/>
+                        <text x="30" y="105" text-anchor="middle" fill="white" font-size="13" font-weight="800">A</text>
+                        <text x="75" y="30" text-anchor="middle" fill="white" font-size="13" font-weight="800">B</text>
+                        <text x="120" y="105" text-anchor="middle" fill="white" font-size="13" font-weight="800">C</text>
+                        <rect x="42" y="55" width="18" height="16" fill="#f7941e" rx="3"/>
+                        <text x="51" y="67" text-anchor="middle" fill="white" font-size="10" font-weight="800">5</text>
+                        <rect x="90" y="55" width="20" height="16" fill="#f7941e" rx="3"/>
+                        <text x="100" y="67" text-anchor="middle" fill="white" font-size="10" font-weight="800">12</text>
+                    </svg>
+                    <div class="graph-diagram-label">Weighted</div>
+                </div>
+                <div class="graph-diagram-box">
+                    <svg width="150" height="130" viewBox="0 0 150 130">
+                        <defs>
+                            <marker id="arrow2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                                <path d="M0,0 L8,4 L0,8 Z" fill="#0f172a"/>
+                            </marker>
+                        </defs>
+                        <line x1="34" y1="93" x2="70" y2="32" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow2)"/>
+                        <line x1="80" y1="32" x2="116" y2="93" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow2)"/>
+                        <circle cx="30" cy="100" r="16" fill="#00adef"/>
+                        <circle cx="75" cy="25" r="16" fill="#00adef"/>
+                        <circle cx="120" cy="100" r="16" fill="#00adef"/>
+                        <text x="30" y="105" text-anchor="middle" fill="white" font-size="13" font-weight="800">A</text>
+                        <text x="75" y="30" text-anchor="middle" fill="white" font-size="13" font-weight="800">B</text>
+                        <text x="120" y="105" text-anchor="middle" fill="white" font-size="13" font-weight="800">C</text>
+                        <rect x="40" y="55" width="18" height="16" fill="#f7941e" rx="3"/>
+                        <text x="49" y="67" text-anchor="middle" fill="white" font-size="10" font-weight="800">7</text>
+                        <rect x="92" y="55" width="18" height="16" fill="#f7941e" rx="3"/>
+                        <text x="101" y="67" text-anchor="middle" fill="white" font-size="10" font-weight="800">3</text>
+                    </svg>
+                    <div class="graph-diagram-label">Weighted + Directed</div>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p><strong>ملاحظة مهمة:</strong> في الصياغة <code class="inline">edge(u, v, w)</code> بدون ذكر اتجاه محدد، نفترض أن الـ Edge غير موجّهة (undirected). أما إذا ذُكر صراحةً أن الـ Graph موجّه (directed)، فيكون الـ Edge من <code class="inline">u</code> إلى <code class="inline">v</code> فقط.</p>
+            </div>
+        </div>
+
+        <!-- 3. Input format -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-keyboard"></i>
+                <h3>3. صيغة المدخلات في المسابقات</h3>
+            </div>
+            <p>الطريقة الأكثر شيوعًا لإعطاء الـ Graph في مدخلات المسألة: أولًا نقرأ العددين <code class="inline">N</code> و<code class="inline">M</code>، حيث <code class="inline">N</code> يمثّل عدد الـ Vertices و<code class="inline">M</code> عدد الـ Edges. ثم في كل واحد من الأسطر الـ <code class="inline">M</code> التالية يُعطى زوج أعداد صحيحة <code class="inline">u v</code> (وأحيانًا وزن <code class="inline">w</code>). هذا يعني أن هناك Edge بين الـ Vertices <code class="inline">u</code> و<code class="inline">v</code>. وإذا كان الـ Graph موجّهًا، فعادةً يكون من <code class="inline">u</code> إلى <code class="inline">v</code> إلا إذا ذُكر غير ذلك.</p>
+
+            <h4 class="sub-title">مثال على مدخلات</h4>
+            <div class="code-box">
+                <div class="code-head"><span>input.txt</span></div>
+                <pre>5 6
+1 2
+1 3
+2 4
+3 4
+4 5
+2 5</pre>
+            </div>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p><code class="inline">N=5</code> vertices، <code class="inline">M=6</code> edges.</p></li>
+                <li><i class="fas fa-check"></i><p>الأزواج الستة تعني: Edge بين 1↔2، 1↔3، 2↔4، 3↔4، 4↔5، 2↔5.</p></li>
+            </ul>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p><strong>نصيحة:</strong> من أفضل الممارسات أن تجعل كل الحاويات (containers) المتعلقة بالـ Graph معرّفة بشكل <code class="inline">global</code>. أغلب خوارزميات الرسوم البيانية يُفضّل تنفيذها باستخدام دوال، ويكون الوصول للـ Graph أسهل بكثير إذا كانت المتغيرات global. مهم جدًا أن تعرف القيود على متغيرات مثل <code class="inline">N</code> و<code class="inline">M</code> لضبط أحجام الحاويات وتجنّب الوصول خارج الحدود (Out of Bounds).</p>
+            </div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p><strong>تحذير:</strong> نفترض في هذا الشرح أن الـ Graph لا يحتوي على <strong>Multiple Edges</strong>، أي لا يوجد زوج من الـ Vertices مرتبطين مباشرةً بأكثر من Edge واحدة. كذلك نفترض عدم وجود <strong>Self-loops</strong> (وهي Edge من vertex إلى نفسه، مثل <code class="inline">edge(3, 3)</code>). بعض المسائل تسمح بهذه الحالات صراحةً، فتأكّد دائمًا من قراءة نص المسألة جيدًا.</p>
+            </div>
+        </div>
+
+        <!-- 4. Basic queries -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-scale-balanced"></i>
+                <h3>4. الاستعلامات الأساسية للمقارنة</h3>
+            </div>
+            <p>قبل أن نختار طريقة التخزين، يجب أن نفهم الاستعلامات التي سنحتاج تنفيذها، لأن كل طريقة لها نقاط قوة وضعف:</p>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p><strong>📦 التعقيد المكاني:</strong> كم مقدار الذاكرة التي تحتاجها هذه الطريقة بالنسبة لـ <code class="inline">N</code> و<code class="inline">M</code>؟</p></li>
+                <li><i class="fas fa-check"></i><p><strong>🔍 هل Edge موجودة؟</strong> ما زمن التحقق من وجود Edge بين vertex رقم <code class="inline">u</code> وvertex رقم <code class="inline">v</code>؟</p></li>
+                <li><i class="fas fa-check"></i><p><strong>🔁 المرور على الجيران:</strong> ما زمن المرور على كل الـ Vertices المجاورة لـ <code class="inline">v</code> معيّن؟</p></li>
+            </ul>
+        </div>
+
+        <!-- 5a. Array of edges -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list"></i>
+                <h3>5. طرق التخزين — 📋 Array of Edges</h3>
+            </div>
+            <p>أبسط طريقة لتخزين الـ Edges. بما أن الـ Edges تُعطى على شكل قائمة أزواج، نخزّنها مباشرةً في array من أزواج. كل عنصر في الـ Array هو زوج <code class="inline">(u, v)</code> يمثّل Edge بين vertex رقم <code class="inline">u</code> وvertex رقم <code class="inline">v</code>.</p>
+            <p>هذه الطريقة مناسبة عندما نحتاج فقط المرور على كل الـ Edges، مثل خوارزمية <strong>Kruskal</strong> لإيجاد <strong>Minimum Spanning Tree</strong> (سنتعلمها لاحقًا).</p>
+            <div class="code-box">
+                <div class="code-head"><span>array_of_edges.cpp</span></div>
+                <pre>const int maxN = 100'000;
+const int maxM = 200'000;
+pair&lt;int,int&gt; E[maxM]; <span class="cmt">// array الـ Edges</span>
+
+int main() {
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    for (int i = 0; i &lt; m; i++) {
+        int u, v;
+        cin &gt;&gt; u &gt;&gt; v;
+        E[i] = {u, v}; <span class="cmt">// نخزّن كل Edge كزوج</span>
+    }
+}</pre>
+            </div>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p><strong>للـ Weighted Graphs:</strong> نعرّف <code class="inline">struct</code> يحتوي القيم الثلاث <code class="inline">(u, v, w)</code>، أو نستخدم <code class="inline">std::tuple</code> أو <code class="inline">std::array&lt;int,3&gt;</code>. يُفضّل تجنّب الـ Nested Pairs (مثل <code class="inline">pair&lt;pair&lt;int,int&gt;,int&gt;</code>) لأنها تجعل الكود أقل وضوحًا.</p>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>الاستعلام</th><th class="center">التعقيد</th></tr></thead>
+                    <tbody>
+                        <tr><td>التعقيد المكاني (Space)</td><td class="center ltr">O(M)</td></tr>
+                        <tr><td>التحقق من وجود Edge</td><td class="center ltr">O(M)</td></tr>
+                        <tr><td>المرور على جيران Vertex</td><td class="center ltr">O(M)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 5b. Adjacency list -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-ul"></i>
+                <h3>5. طرق التخزين — 📑 Adjacency List ⭐</h3>
+            </div>
+            <p>الطريقة الأكثر شيوعًا في المسابقات! ننشئ <code class="inline">N</code> قوائم، كل واحدة عبارة عن <code class="inline">vector</code>، بحيث أن القائمة رقم <code class="inline">i</code> تخزن كل الجيران (Neighbors) للـ Vertex رقم <code class="inline">i</code>.</p>
+            <p>هذه الطريقة هي الأمثل لمعظم خوارزميات الرسوم البيانية مثل <strong>BFS</strong> و<strong>DFS</strong> والتي تحتاج المرور على جيران كل Vertex.</p>
+            <div class="code-box">
+                <div class="code-head"><span>adjacency_list.cpp</span></div>
+                <pre>const int maxN = 100'000;
+const int maxM = 200'000;
+
+<span class="cmt">// +1 لأن الـ Vertices غالبًا تبدأ من 1</span>
+vector&lt;int&gt; adj[maxN + 1];
+
+int main() {
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    for (int i = 0; i &lt; m; i++) {
+        int u, v;
+        cin &gt;&gt; u &gt;&gt; v;
+        adj[u].push_back(v); <span class="cmt">// أضف v لجيران u</span>
+        adj[v].push_back(u); <span class="cmt">// إذا undirected أضف u لجيران v</span>
+    }
+}
+
+<span class="cmt">// للـ Weighted Graphs نستخدم pair:
+// vector&lt;pair&lt;int,int&gt;&gt; adj[maxN + 1];
+// adj[u].push_back({v, w}); // v الجار ووزنه w</span></pre>
+            </div>
+            <div class="output-box">مثال (edges: 1-2, 1-3, 2-4, 3-4, 4-5):
+adj[1] = { 2 3 }
+adj[2] = { 1 4 }
+adj[3] = { 1 4 }
+adj[4] = { 2 3 5 }
+adj[5] = { 4 }</div>
+        </div>
+
+        <!-- Interactive lab B: adjacency list builder -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>مختبر تفاعلي: ابنِ الـ Adjacency List بنفسك</h3>
+            </div>
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-diagram-project"></i> أدخل الـ Edges (كل سطر: u v)</p>
+                <textarea class="adjlist-textarea" id="adjlistInput">1 2
+1 3
+2 4
+3 4
+4 5</textarea>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="buildAdjList()">بناء الـ Adjacency List</button>
+                    <button class="lab-btn ghost" onclick="resetAdjList()">إعادة ضبط للمثال الافتراضي</button>
+                </div>
+                <div class="output-box adjlist-output" id="adjlistOutput" style="margin-top: 16px;">اضغط "بناء الـ Adjacency List" لرؤية النتيجة...</div>
+            </div>
+
+            <div class="tip-box">
+                <i class="fas fa-bolt"></i>
+                <p><strong>نصيحة التعقيد:</strong> رغم أن المرور على جيران Vertex واحد يبدو <code class="inline">O(degree)</code>، إلا أنه إذا جمعنا على كل الـ Vertices، فالمجموع الكلي يساوي <code class="inline">O(N + M)</code>. السبب: كل Edge تُضاف إلى قائمتين بالضبط (جيران طرفيها)، لذا مجموع كل الدرجات (degrees) يساوي <code class="inline">2M</code> دائمًا. تحقّقنا من هذا فعليًا على المثال أعلاه: مجموع أطوال كل القوائم = <code class="inline">2+2+2+3+1 = 10 = 2 &times; 5</code>.</p>
+            </div>
+
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p><strong>خطأ شائع:</strong> نسيان إضافة الاتجاه الثاني في الرسم غير الموجّه. إذا كتبت <code class="inline">adj[u].push_back(v);</code> فقط دون <code class="inline">adj[v].push_back(u);</code>، ستحصل على قوائم غير متماثلة (asymmetric) — مثلًا <code class="inline">adj[2]</code> ستفتقد الرقم 1 رغم وجود Edge بينهما، مما يكسر أي خوارزمية BFS أو DFS لاحقة بصمت تام.</p>
+            </div>
+
+            <div class="tip-box">
+                <i class="fas fa-brain"></i>
+                <p><strong>تحدٍّ للتفكير:</strong> هل تقدر تعدّل هذا الـ Container بحيث تسرّع عملية "التحقق من وجود Edge" بدون أن تؤثر كثيرًا على باقي الاستعلامات؟ تلميح: فكّر في استخدام <code class="inline">unordered_set</code> بدل <code class="inline">vector</code>.</p>
+            </div>
+            <button class="toggle-btn" onclick="toggleSection('challengeAnswer')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+            <div class="collapsible" id="challengeAnswer">
+                <div class="code-box">
+                    <div class="code-head"><span>adjacency_set.cpp</span></div>
+                    <pre>vector&lt;unordered_set&lt;int&gt;&gt; adj(maxN + 1);
+
+adj[u].insert(v);
+adj[v].insert(u);
+
+bool hasEdge = adj[u].count(v) &gt; 0; <span class="cmt">// O(1) في المتوسط بدلًا من O(degree)</span></pre>
+                </div>
+                <p>هذا يحوّل "التحقق من وجود Edge" من <code class="inline">O(degree)</code> إلى <code class="inline">O(1)</code> في المتوسط، والمرور على الجيران يبقى <code class="inline">O(degree)</code> كما هو. الثمن: استهلاك ذاكرة أكبر قليلًا (بنية unordered_set أثقل من vector)، وسرعة فعلية أبطأ قليلًا عند المرور المتكرر بسبب تكلفة الـ hashing — لذا لا تستخدمها إلا إذا كنت فعليًا بحاجة للتحقق المتكرر من وجود Edge.</p>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>الاستعلام</th><th class="center">التعقيد</th></tr></thead>
+                    <tbody>
+                        <tr><td>التعقيد المكاني (Space)</td><td class="center ltr">O(N + M)</td></tr>
+                        <tr><td>التحقق من وجود Edge</td><td class="center ltr">O(degree(v))</td></tr>
+                        <tr><td>المرور على جيران Vertex</td><td class="center ltr">O(degree(v))</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 5c. Adjacency matrix -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-table-cells"></i>
+                <h3>5. طرق التخزين — 🔲 Adjacency Matrix</h3>
+            </div>
+            <p>هذه الطريقة تنشئ مصفوفة بحجم <code class="inline">N &times; N</code> من القيم المنطقية (Booleans)، نسمّيها <code class="inline">G</code>، بحيث أن <code class="inline">G[u][v] = true</code> إذا كان هناك Edge مباشرة بين <code class="inline">u</code> و<code class="inline">v</code>، و<code class="inline">false</code> في غير ذلك.</p>
+            <p>تتميّز بسرعة التحقق من وجود Edge، لكنها تستهلك ذاكرة كبيرة، لذا تُستخدم فقط عندما يكون <code class="inline">N</code> صغيرًا.</p>
+            <div class="code-box">
+                <div class="code-head"><span>adjacency_matrix.cpp</span></div>
+                <pre>const int maxN = 1'000; <span class="cmt">// صغير بسبب O(N&sup2;) للذاكرة</span>
+
+bool G[maxN + 1][maxN + 1];
+
+int main() {
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    for (int i = 0; i &lt; m; i++) {
+        int u, v;
+        cin &gt;&gt; u &gt;&gt; v;
+        G[u][v] = true;
+        G[v][u] = true; <span class="cmt">// إذا undirected</span>
+    }
+}
+
+<span class="cmt">// للـ Weighted Graphs:
+// int G[maxN+1][maxN+1]; // 0 تعني لا توجد Edge
+// G[u][v] = w; // وزن الـ Edge</span></pre>
+            </div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p><strong>لماذا لا نستخدمها دائمًا؟</strong> بالنسبة لـ <code class="inline">N = 1,000</code>، تحتاج المصفوفة تقريبًا <code class="inline">1 ميجابايت</code> فقط. لكن بالنسبة لـ <code class="inline">N = 100,000</code> (وهو حدّ معتاد في المسابقات)، تحتاج المصفوفة تقريبًا <code class="inline">9.3 غيغابايت</code> — أكبر بكثير من حدّ الذاكرة المعتاد في أي مسابقة! لهذا السبب Adjacency Matrix تصلح فقط عندما تكون <code class="inline">N</code> صغيرة.</p>
+            </div>
+
+            <!-- Interactive lab C: adjacency matrix builder -->
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-border-all"></i> عرّف مصفوفة صغيرة وجرّب بنفسك</p>
+                <div class="lab-sub" style="display:flex; align-items:center; justify-content:center; gap:10px; direction:ltr;">
+                    <span>N = </span>
+                    <input type="number" class="matrix-n-input" id="matrixNInput" value="5" min="2" max="8">
+                    <button class="lab-btn" onclick="buildMatrix()">بناء المصفوفة</button>
+                </div>
+                <div class="matrix-table-wrap">
+                    <table class="matrix-table" id="matrixTable"></table>
+                </div>
+                <div class="lab-step-hint">اضغط على أي خلية لإضافة/حذف Edge بين الـ Vertices المقابلة (المصفوفة متماثلة تلقائيًا).</div>
+            </div>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p><strong>للـ Weighted Graphs:</strong> بدلًا من Boolean، استخدم <code class="inline">int</code> أو <code class="inline">double</code>. انتبه لكيفية التمييز بين الـ Edges غير الموجودة — استخدم قيمة خاصة مثل <code class="inline">-1</code> أو <code class="inline">&infin;</code> للإشارة إلى غياب الـ Edge (وليس 0، فقد يكون 0 وزنًا حقيقيًا لبعض الـ Edges).</p>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>الاستعلام</th><th class="center">التعقيد</th></tr></thead>
+                    <tbody>
+                        <tr><td>التعقيد المكاني (Space)</td><td class="center ltr">O(N&sup2;)</td></tr>
+                        <tr><td>التحقق من وجود Edge</td><td class="center ltr">O(1)</td></tr>
+                        <tr><td>المرور على جيران Vertex</td><td class="center ltr">O(N)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 5d. Full comparison -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-table-list"></i>
+                <h3>مقارنة شاملة</h3>
+            </div>
+            <p>هذا الجدول يلخّص مقارنة شاملة بين الطرق الثلاثة من حيث التعقيد الزمني والمكاني، لتختار المناسب حسب متطلبات مسألتك:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>الاستعلام</th><th class="center">Array of Edges</th><th class="center">Adjacency List</th><th class="center">Adjacency Matrix</th></tr></thead>
+                    <tbody>
+                        <tr><td>التعقيد المكاني</td><td class="center ltr">O(M)</td><td class="center ltr">O(N+M)</td><td class="center ltr">O(N&sup2;)</td></tr>
+                        <tr><td>التحقق من وجود Edge</td><td class="center ltr">O(M)</td><td class="center ltr">O(degree)</td><td class="center ltr">O(1)</td></tr>
+                        <tr><td>المرور على الجيران</td><td class="center ltr">O(M)</td><td class="center ltr">O(degree)</td><td class="center ltr">O(N)</td></tr>
+                        <tr><td>متى تستخدمها؟</td><td>Kruskal / المرور على كل Edges</td><td>BFS, DFS, Dijkstra — الأكثر شيوعًا</td><td>N صغير / كثير من استعلامات Edge</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p><strong>📋 Array of Edges:</strong> مثالي لخوارزمية Kruskal وعندما تحتاج فقط المرور على كل الـ Edges دون استعلام عن الجيران.</p>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-star"></i>
+                <p><strong>📑 Adjacency List ⭐:</strong> الخيار الافتراضي في معظم المسائل. يوازن بين الكفاءة والمرونة. أساس BFS وDFS وDijkstra.</p>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-table-cells"></i>
+                <p><strong>🔲 Adjacency Matrix:</strong> عندما N صغير (حتى ~1000) وتحتاج فحص Edge بسرعة O(1)، أو لخوارزمية Floyd-Warshall (سنتعلمها لاحقًا).</p>
+            </div>
+        </div>
+
+        <!-- Common pitfalls -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>أخطاء شائعة يجب الانتباه لها</h3>
+            </div>
+
+            <h4 class="sub-title" style="margin-top:0;">1) الترقيم: 0-indexed أم 1-indexed؟</h4>
+            <p>أغلب مسائل المسابقات تُرقّم الـ Vertices من 1 إلى N (1-indexed)، بعكس الأعراف البرمجية المعتادة في المصفوفات (0-indexed). لهذا رأينا في الكود <code class="inline">vector&lt;int&gt; adj[maxN + 1];</code> — الـ <code class="inline">+1</code> هنا ليس اعتباطيًا، بل لضمان أن الفهرس <code class="inline">N</code> نفسه صالح (وليس فقط حتى <code class="inline">N-1</code>).</p>
+
+            <h4 class="sub-title">2) نسيان الاتجاه الثاني في Undirected Graph</h4>
+            <p>كما رأينا في المختبر التفاعلي، نسيان <code class="inline">adj[v].push_back(u);</code> (أو ما يعادله في المصفوفة) يُنتج قوائم جيران غير متماثلة، وهذا يكسر أي خوارزمية لاحقة بصمت دون أي خطأ ترجمة.</p>
+
+            <h4 class="sub-title">3) الخلط بين Directed وUndirected بالخطأ</h4>
+            <p>العكس أيضًا خطأ شائع: إضافة كلا الاتجاهين لرسم بياني يُفترض أنه Directed (مثلًا في مسألة "تبعيات الحزم البرمجية" حيث الحزمة A تعتمد على B، وليس العكس بالضرورة).</p>
+
+            <h4 class="sub-title">4) تجاوز حدود المصفوفة (Out of Bounds)</h4>
+            <p>إذا حجّمت <code class="inline">adj[]</code> أو <code class="inline">G[][]</code> بحجم أصغر من القيد الفعلي لـ N في المسألة، ستحصل على سلوك غير معرّف (Undefined Behavior) قد لا يظهر كخطأ واضح دائمًا. تحقّق دائمًا من القيود قبل كتابة الكود.</p>
+
+            <h4 class="sub-title">5) استخدام Adjacency Matrix مع N كبيرة</h4>
+            <p>كما رأينا، <code class="inline">N = 100,000</code> مع Adjacency Matrix يحتاج حوالي 9.3 غيغابايت من الذاكرة — سيتسبب هذا في خطأ تجاوز حدّ الذاكرة (Memory Limit Exceeded) فورًا. راجع القيود دائمًا قبل اختيار طريقة التخزين.</p>
+        </div>
+
+        <!-- Activity A -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>نشاط: مراجعة سريعة للمفاهيم الأساسية وأنواع الرسوم البيانية</h4>
+            </div>
+            <p class="activity-intro">حدّد إن كانت كل عبارة صحيحة أم خاطئة.</p>
+
+            <div class="tf-item" id="tfGr1">
+                <p class="tf-statement">في Undirected Graph، إذا وُجدت علاقة بين u وv فهي متبادلة في الاتجاهين.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr1', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr1', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfGr2">
+                <p class="tf-statement">في Directed Graph، وجود Edge من u إلى v يعني تلقائيًا وجود Edge من v إلى u.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr2', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr2', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfGr3">
+                <p class="tf-statement">الصيغة edge(u, v, w) بدون ذكر اتجاه تعني افتراضيًا أن الـ Graph موجّه.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr3', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr3', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfGr4">
+                <p class="tf-statement">في مدخلات المسابقات، N وM عادةً تمثّلان عدد الـ Vertices وعدد الـ Edges على الترتيب.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr4', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr4', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Activity B -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>نشاط: مراجعة سريعة لطرق التخزين</h4>
+            </div>
+            <p class="activity-intro">حدّد إن كانت كل عبارة صحيحة أم خاطئة.</p>
+
+            <div class="tf-item" id="tfGr5">
+                <p class="tf-statement">Adjacency List هي الخيار الأمثل لخوارزميات مثل BFS وDFS التي تحتاج المرور على جيران كل Vertex.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr5', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr5', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfGr6">
+                <p class="tf-statement">مجموع أطوال كل قوائم Adjacency List (لرسم بياني غير موجّه) يساوي دائمًا 2M.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr6', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr6', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfGr7">
+                <p class="tf-statement">Adjacency Matrix مناسبة دائمًا بغض النظر عن حجم N.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr7', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr7', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfGr8">
+                <p class="tf-statement">التحقق من وجود Edge في Adjacency Matrix يكلّف O(1).</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr8', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr8', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Quick summary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>خلاصة سريعة</h3>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>
+                    Graph = (V, E): مجموعة Vertices ومجموعة Edges تربطها.<br>
+                    أربعة أنواع أساسية: Undirected، Directed، Weighted، Weighted+Directed.<br>
+                    ثلاث طرق تخزين: Array of Edges (للمرور الكامل)، Adjacency List (الأكثر استخدامًا)، Adjacency Matrix (لـ N الصغيرة أو فحص Edge السريع).<br>
+                    انتبه دائمًا لـ: الترقيم (0 أم 1)، اتجاه الـ Edges، حدود N وM، وحجم الذاكرة قبل اختيار الطريقة.
+                </p>
+            </div>
+        </div>
+
+        <!-- Homework -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-pen-ruler"></i>
+                <h3>تمارين منزلية</h3>
+            </div>
+
+            <div class="homework-item" id="hwGr1">
+                <h4>1) ابنِ Adjacency List يدويًا</h4>
+                <p>لديك رسم بياني غير موجّه بالـ Edges التالية: <code class="inline">(1,2), (2,3), (1,4), (3,4), (4,5), (2,5)</code>. اكتب <code class="inline">adj[i]</code> لكل <code class="inline">i</code> من 1 إلى 5.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwGr1sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwGr1sol">
+                    <div class="output-box">adj[1] = { 2 4 }
+adj[2] = { 1 3 5 }
+adj[3] = { 2 4 }
+adj[4] = { 1 3 5 }
+adj[5] = { 4 2 }</div>
+                    <p>تحقّق: مجموع الأطوال = 2+3+2+3+2 = 12 = 2 &times; 6 (عدد الـ Edges). ✓</p>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwGr2">
+                <h4>2) احسب الذاكرة اللازمة</h4>
+                <p>لديك رسم بياني بـ <code class="inline">N = 2,000</code> vertex. كم ميجابايت تقريبًا تحتاجها Adjacency Matrix من نوع <code class="inline">bool</code> (بايت واحد لكل خلية)؟</p>
+                <button class="toggle-btn" onclick="toggleSection('hwGr2sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwGr2sol">
+                    <div class="output-box">2000 × 2000 = 4,000,000 بايت &asymp; 3.8 ميجابايت</div>
+                    <p>هذا الحجم مقبول تمامًا (على عكس N=100,000 التي رأيناها سابقًا تحتاج ~9.3 غيغابايت) — لهذا Adjacency Matrix تصلح جيدًا عندما N في حدود الآلاف فقط.</p>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwGr3">
+                <h4>3) اختر طريقة التخزين المناسبة</h4>
+                <p>لكل سيناريو التالي، اختر طريقة التخزين الأنسب (Array of Edges / Adjacency List / Adjacency Matrix) مع تبرير مختصر:</p>
+                <ul class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p>(أ) رسم بياني بـ N=50 فقط، وتحتاج فحص "هل يوجد طريق مباشر بين المدينتين X وY؟" آلاف المرات.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p>(ب) رسم بياني بـ N=10⁵ وM=2×10⁵، وتحتاج تنفيذ BFS لإيجاد أقصر مسار.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p>(ج) رسم بياني بـ N=10⁵ وM=2×10⁵، وتحتاج فقط ترتيب كل الـ Edges حسب الوزن (لخوارزمية Kruskal).</p></li>
+                </ul>
+                <button class="toggle-btn" onclick="toggleSection('hwGr3sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwGr3sol">
+                    <p><strong>(أ) Adjacency Matrix:</strong> N صغيرة جدًا (50)، والاستعلام المتكرر هو "فحص وجود Edge" — بالضبط ما تتفوق فيه المصفوفة بزمن O(1).</p>
+                    <p><strong>(ب) Adjacency List:</strong> N وM كبيرتان، وBFS يحتاج المرور المتكرر على جيران كل Vertex — تمامًا استخدام Adjacency List النموذجي.</p>
+                    <p><strong>(ج) Array of Edges:</strong> لا نحتاج أي استعلام عن الجيران أو وجود Edge، فقط قائمة كل الـ Edges لفرزها — هذا بالضبط ما تحتاجه Kruskal.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>تحقق من فهمك</h3>
+            </div>
+
+            <div class="quiz-q" id="qgr1">
+                <h4>١. ماذا تعني الصيغة G = (V, E)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qgr1', this, true)">Graph يتكوّن من مجموعة Vertices ومجموعة Edges</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qgr1', this, false)">Graph يتكوّن من متغيّرين عدديين فقط</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qgr1', this, false)">صيغة رياضية لحساب عدد الأعمدة في مصفوفة</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qgr2">
+                <h4>٢. في Directed Graph، ماذا يعني وجود Edge من u إلى v؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qgr2', this, true)">يمكن الانتقال من u إلى v فقط، وليس بالضرورة العكس</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qgr2', this, false)">يمكن الانتقال في الاتجاهين تلقائيًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qgr2', this, false)">لا يوجد أي علاقة بين u وv</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qgr3">
+                <h4>٣. أي طريقة تخزين هي الأفضل لخوارزمية Kruskal؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qgr3', this, true)">Array of Edges</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qgr3', this, false)">Adjacency Matrix فقط</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qgr3', this, false)">لا فرق بين أي طريقة</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qgr4">
+                <h4>٤. لماذا نحجم adj[] بحجم maxN + 1 وليس maxN فقط؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qgr4', this, true)">لأن الـ Vertices غالبًا تُرقَّم من 1 إلى N، فنحتاج الفهرس N نفسه صالحًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qgr4', this, false)">لأن ++C يتطلب دائمًا عنصرًا إضافيًا في أي مصفوفة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qgr4', this, false)">لتسريع البرنامج</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qgr5">
+                <h4>٥. ما تعقيد التحقق من وجود Edge باستخدام Adjacency Matrix؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qgr5', this, false)">O(N)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qgr5', this, true)">O(1)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qgr5', this, false)">O(M)</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qgr6">
+                <h4>٦. لماذا لا نستخدم Adjacency Matrix عندما N = 100,000؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qgr6', this, true)">لأنها تحتاج ذاكرة O(N²) تصل لعدة غيغابايت، تتجاوز حدود الذاكرة المعتادة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qgr6', this, false)">لأنها بطيئة جدًا في التحقق من وجود Edge</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qgr6', this, false)">لأن ++C لا يدعم مصفوفات بهذا الحجم إطلاقًا</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qgr7">
+                <h4>٧. ماذا يحدث إذا نسيت adj[v].push_back(u) في رسم بياني غير موجّه؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qgr7', this, true)">تصبح قوائم الجيران غير متماثلة، وقد تفشل خوارزميات مثل BFS بصمت</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qgr7', this, false)">يرفض المترجم البرنامج فورًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qgr7', this, false)">لا يوجد أي تأثير على النتيجة النهائية</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qgr8">
+                <h4>٨. ما مجموع أطوال كل قوائم Adjacency List لرسم بياني غير موجّه بـ M من الـ Edges؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qgr8', this, false)">M</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qgr8', this, true)">2M</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qgr8', this, false)">M²</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qgr9">
+                <h4>٩. كيف نمثّل عدم وجود Edge في Weighted Adjacency Matrix؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qgr9', this, false)">دائمًا بالقيمة 0</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qgr9', this, true)">بقيمة خاصة مثل -1 أو ما لا نهاية، لتمييزها عن وزن حقيقي قد يكون 0</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qgr9', this, false)">لا حاجة لتمييزها إطلاقًا</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qgr10">
+                <h4>١٠. أي طريقة تخزين هي الخيار الافتراضي الأنسب لخوارزميات BFS وDFS؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qgr10', this, false)">Array of Edges</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qgr10', this, true)">Adjacency List</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qgr10', this, false)">Adjacency Matrix دائمًا بغض النظر عن N</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>قاموس المصطلحات</h3>
+            </div>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Graph</span><span class="term-ar">رسم بياني</span><p class="term-desc">هيكل رياضي G=(V,E) يمثّل علاقات بين عناصر (Vertices) عبر روابط (Edges).</p></div>
+                <div class="term-card"><span class="term-en">Vertex (Node)</span><span class="term-ar">رأس / عقدة</span><p class="term-desc">عنصر أساسي واحد في الرسم البياني.</p></div>
+                <div class="term-card"><span class="term-en">Edge</span><span class="term-ar">حافة / رابط</span><p class="term-desc">ارتباط مباشر بين زوج من الـ Vertices.</p></div>
+                <div class="term-card"><span class="term-en">Degree</span><span class="term-ar">درجة العقدة</span><p class="term-desc">عدد الـ Edges المرتبطة مباشرة بـ vertex معيّن.</p></div>
+                <div class="term-card"><span class="term-en">Undirected / Directed</span><span class="term-ar">غير موجّه / موجّه</span><p class="term-desc">هل للـ Edge اتجاه محدد أم أنها متبادلة تلقائيًا.</p></div>
+                <div class="term-card"><span class="term-en">Weighted Graph</span><span class="term-ar">رسم بياني موزون</span><p class="term-desc">رسم بياني تحمل فيه كل Edge قيمة (وزن) مرتبطة بها.</p></div>
+                <div class="term-card"><span class="term-en">Adjacency List</span><span class="term-ar">قائمة الجوار</span><p class="term-desc">تخزين جيران كل vertex في قائمة منفصلة؛ الطريقة الأشيع في المسابقات.</p></div>
+                <div class="term-card"><span class="term-en">Adjacency Matrix</span><span class="term-ar">مصفوفة الجوار</span><p class="term-desc">مصفوفة N×N تحدد مباشرة وجود Edge بين كل زوج من الـ Vertices.</p></div>
+                <div class="term-card"><span class="term-en">Multiple Edges</span><span class="term-ar">حواف متعددة</span><p class="term-desc">أكثر من Edge واحدة تربط نفس زوج الـ Vertices.</p></div>
+                <div class="term-card"><span class="term-en">Self-loop</span><span class="term-ar">حلقة ذاتية</span><p class="term-desc">Edge تربط vertex بنفسه.</p></div>
+                <div class="term-card"><span class="term-en">BFS (Breadth-First Search)</span><span class="term-ar">البحث بالعرض</span><p class="term-desc">خوارزمية مرور تستكشف الرسم البياني مستوى تلو الآخر، بدءًا من نقطة انطلاق؛ سنتعلّمها بالتفصيل في الفصل القادم.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الرابع: الرسوم البيانية</footer>
+
+    <script>
+        // ===== Shared graph utility =====
+        function buildAdjFromEdges(edges, n) {
+            const adj = [];
+            for (let i = 0; i <= n; i++) adj.push([]);
+            edges.forEach(function (e) {
+                adj[e[0]].push(e[1]);
+                adj[e[1]].push(e[0]);
+            });
+            return adj;
+        }
+
+        // ===== Lab A: city network + BFS (dark SVG canvas) =====
+        let graphNodes = [];
+        let graphEdges = [];
+        let graphNextId = 0;
+        let graphRoadMode = false;
+        let graphRoadFirst = null;
+
+        function graphDefaultData() {
+            return {
+                nodes: [
+                    { id: 0, name: 'الرياض', x: 170, y: 230 },
+                    { id: 1, name: 'جدة', x: 310, y: 130 },
+                    { id: 2, name: 'الدمام', x: 430, y: 260 },
+                    { id: 3, name: 'مكة', x: 520, y: 130 },
+                    { id: 4, name: 'أبها', x: 370, y: 330 }
+                ],
+                edges: [[0,1],[0,2],[1,3],[0,3],[1,4],[3,4]]
+            };
+        }
+
+        function graphAdjacency() {
+            const adj = {};
+            graphNodes.forEach(function (n) { adj[n.id] = []; });
+            graphEdges.forEach(function (e) { adj[e[0]].push(e[1]); adj[e[1]].push(e[0]); });
+            return adj;
+        }
+
+        function graphFindNode(id) {
+            for (let i = 0; i < graphNodes.length; i++) if (graphNodes[i].id === id) return graphNodes[i];
+            return null;
+        }
+
+        function graphRender() {
+            const svg = document.getElementById('graphSvg');
+            svg.innerHTML = '';
+            graphEdges.forEach(function (e) {
+                const a = graphFindNode(e[0]), b = graphFindNode(e[1]);
+                if (!a || !b) return;
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
+                line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
+                line.setAttribute('class', 'graph-edge');
+                line.setAttribute('id', 'graphEdge_' + e[0] + '_' + e[1]);
+                svg.appendChild(line);
+            });
+            graphNodes.forEach(function (n) {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', n.x); circle.setAttribute('cy', n.y); circle.setAttribute('r', 22);
+                circle.setAttribute('class', 'graph-node-circle');
+                circle.setAttribute('id', 'graphNode_' + n.id);
+                circle.onclick = (function (id) { return function () { graphNodeClicked(id); }; })(n.id);
+                svg.appendChild(circle);
+
+                const idxText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                idxText.setAttribute('x', n.x); idxText.setAttribute('y', n.y);
+                idxText.setAttribute('class', 'graph-node-index');
+                idxText.textContent = n.id;
+                svg.appendChild(idxText);
+
+                const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                nameText.setAttribute('x', n.x); nameText.setAttribute('y', n.y - 32);
+                nameText.setAttribute('class', 'graph-node-label');
+                nameText.textContent = n.name;
+                svg.appendChild(nameText);
+            });
+            document.getElementById('graphStatCities').innerText = 'عدد المدن: ' + graphNodes.length;
+            document.getElementById('graphStatRoads').innerText = 'عدد الطرق: ' + graphEdges.length;
+        }
+
+        function graphClearSelectionClasses() {
+            graphNodes.forEach(function (n) {
+                const el = document.getElementById('graphNode_' + n.id);
+                if (el) el.classList.remove('selected', 'neighbor');
+            });
+        }
+
+        function graphSelectNode(id) {
+            graphClearSelectionClasses();
+            document.getElementById('graphNode_' + id).classList.add('selected');
+            const adj = graphAdjacency();
+            const neighbors = adj[id] || [];
+            neighbors.forEach(function (nb) {
+                document.getElementById('graphNode_' + nb).classList.add('neighbor');
+            });
+            const names = neighbors.map(function (nb) { return graphFindNode(nb).name; });
+            document.getElementById('graphHintTop').innerText = 'جيران ' + graphFindNode(id).name + ': ' + (names.length ? names.join('، ') : 'لا يوجد جيران مباشرون.');
+            setBuildCaption('ضغطت على "' + graphFindNode(id).name + '" — ' + (names.length ? 'الـNodes المرتبطة بها مباشرة (جيرانها) هي: ' + names.join('، ') + '.' : 'هذه المدينة ليس لديها أي جيران (Edges) حتى الآن.'));
+        }
+
+        function graphNodeClicked(id) {
+            if (graphRoadMode) {
+                if (graphRoadFirst === null) {
+                    graphRoadFirst = id;
+                    document.getElementById('graphNode_' + id).classList.add('road-pending');
+                    document.getElementById('graphHintBottom').innerText = 'اختر المدينة الثانية لإتمام الطريق مع ' + graphFindNode(id).name + '.';
+                } else if (graphRoadFirst === id) {
+                    document.getElementById('graphNode_' + id).classList.remove('road-pending');
+                    graphRoadFirst = null;
+                    document.getElementById('graphHintBottom').innerText = 'اختر مدينة لبدء طريق جديد.';
+                } else {
+                    const u = graphRoadFirst, v = id;
+                    const exists = graphEdges.some(function (e) { return (e[0] === u && e[1] === v) || (e[0] === v && e[1] === u); });
+                    if (exists) {
+                        document.getElementById('graphHintBottom').innerText = 'يوجد طريق مباشر بين هاتين المدينتين مسبقًا! اختر مدينتين أخريين، أو اضغط "إنهاء إضافة الطرق".';
+                        setBuildCaption('توجد بالفعل Edge مباشرة بين هاتين المدينتين — لا حاجة لإضافتها مرة أخرى.');
+                    } else {
+                        graphEdges.push([u, v]);
+                        document.getElementById('graphHintBottom').innerText = 'تمت إضافة طريق بين ' + graphFindNode(u).name + ' و' + graphFindNode(v).name + '. اختر مدينتين أخريين لإضافة طريق آخر، أو اضغط "إنهاء إضافة الطرق".';
+                        setBuildCaption('تمت إضافة علاقة (Edge) جديدة بين "' + graphFindNode(u).name + '" و"' + graphFindNode(v).name + '"! لاحظ الخط الجديد الذي يربط بينهما في الرسم.');
+                    }
+                    const firstEl = document.getElementById('graphNode_' + graphRoadFirst);
+                    if (firstEl) firstEl.classList.remove('road-pending');
+                    graphRoadFirst = null;
+                    graphRender();
+                }
+                return;
+            }
+            graphSelectNode(id);
+        }
+
+        function graphToggleRoadMode() {
+            graphRoadMode = !graphRoadMode;
+            const btn = document.getElementById('graphAddRoadBtn');
+            if (graphRoadMode) {
+                btn.classList.add('active');
+                btn.innerHTML = '<i class="fas fa-check"></i> إنهاء إضافة الطرق';
+                document.getElementById('graphHintBottom').innerText = 'وضع إضافة طريق مفعّل: اختر مدينتين لربطهما. يمكنك إضافة أكثر من طريق قبل أن تضغط "إنهاء".';
+            } else {
+                btn.classList.remove('active');
+                btn.innerHTML = '<i class="fas fa-link"></i> أضف طريق';
+                if (graphRoadFirst !== null) {
+                    const el = document.getElementById('graphNode_' + graphRoadFirst);
+                    if (el) el.classList.remove('road-pending');
+                }
+                graphRoadFirst = null;
+                document.getElementById('graphHintBottom').innerText = '';
+            }
+        }
+
+        function graphShowAddCity() {
+            document.getElementById('graphAddCityBox').style.display = 'flex';
+            document.getElementById('graphNewCityInput').value = '';
+        }
+
+        function graphCancelAddCity() {
+            document.getElementById('graphAddCityBox').style.display = 'none';
+        }
+
+        function graphFindFreePosition() {
+            const marginX = 60, marginY = 50, W = 700, H = 400;
+            let best = null, bestScore = -1;
+            for (let attempt = 0; attempt < 40; attempt++) {
+                const x = marginX + Math.random() * (W - 2 * marginX);
+                const y = marginY + Math.random() * (H - 2 * marginY);
+                let minDist = Infinity;
+                graphNodes.forEach(function (n) {
+                    const d = Math.hypot(n.x - x, n.y - y);
+                    if (d < minDist) minDist = d;
+                });
+                if (graphNodes.length === 0) { best = { x: x, y: y }; break; }
+                if (minDist > bestScore) { bestScore = minDist; best = { x: x, y: y }; }
+                if (minDist > 90) break;
+            }
+            return best || { x: W / 2, y: H / 2 };
+        }
+
+        function graphConfirmAddCity() {
+            const input = document.getElementById('graphNewCityInput');
+            let name = input.value.trim();
+            if (!name) name = 'مدينة ' + graphNextId;
+            const pos = graphFindFreePosition();
+            graphNodes.push({ id: graphNextId, name: name, x: pos.x, y: pos.y });
+            graphNextId++;
+            document.getElementById('graphAddCityBox').style.display = 'none';
+            graphRender();
+            document.getElementById('graphHintBottom').innerText = 'تمت إضافة "' + name + '" للشبكة.';
+            setBuildCaption('أنت أضفت Node جديدة بنفسك باسم "' + name + '". لاحظ كيف ظهرت في الرسم فورًا وبدون أي Edges بعد.');
+        }
+
+        // BFS state
+        let graphBfsQueue = [];
+        let graphBfsVisited = {};
+        let graphBfsOrder = [];
+        let graphBfsTimer = false;
+
+        function graphBfsRenderQueue() {
+            const list = document.getElementById('graphBfsQueueList');
+            list.innerHTML = '';
+            graphBfsQueue.forEach(function (id) {
+                const frame = document.createElement('div');
+                frame.className = 'bt-stack-frame';
+                frame.innerText = graphFindNode(id).name;
+                list.appendChild(frame);
+            });
+        }
+
+        function graphBfsLog(text, highlight) {
+            const box = document.getElementById('graphBfsConsole');
+            const line = document.createElement('div');
+            if (highlight) line.className = 'highlight-line';
+            line.innerText = text;
+            box.appendChild(line);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function graphBfsStep() {
+            if (graphBfsQueue.length === 0 && Object.keys(graphBfsVisited).length === 0) {
+                if (graphNodes.length === 0) return false;
+                const start = graphNodes[0].id;
+                graphBfsVisited[start] = true;
+                graphBfsQueue.push(start);
+                graphBfsRenderQueue();
+                document.getElementById('graphNode_' + start).classList.add('visited');
+                graphBfsLog('ابدأ من ' + graphFindNode(start).name);
+                return true;
+            }
+            if (graphBfsQueue.length === 0) return false;
+
+            const adj = graphAdjacency();
+            const cur = graphBfsQueue.shift();
+            graphBfsOrder.push(cur);
+            graphBfsRenderQueue();
+            graphBfsLog('زيارة ' + graphFindNode(cur).name + ' (الترتيب #' + graphBfsOrder.length + ')', true);
+
+            const discovered = [];
+            (adj[cur] || []).forEach(function (nb) {
+                if (!graphBfsVisited[nb]) {
+                    graphBfsVisited[nb] = true;
+                    graphBfsQueue.push(nb);
+                    document.getElementById('graphNode_' + nb).classList.add('visited');
+                    const edgeEl = document.getElementById('graphEdge_' + cur + '_' + nb) || document.getElementById('graphEdge_' + nb + '_' + cur);
+                    if (edgeEl) edgeEl.classList.add('highlight');
+                    discovered.push(graphFindNode(nb).name);
+                }
+            });
+            graphBfsRenderQueue();
+            if (discovered.length) graphBfsLog('  اكتشاف: ' + discovered.join(', '));
+            return true;
+        }
+
+        function graphBfsAutoPlay() {
+            if (graphBfsTimer) return;
+            document.getElementById('graphBfsPanel').style.display = 'block';
+            graphClearSelectionClasses();
+            graphBfsQueue = [];
+            graphBfsVisited = {};
+            graphBfsOrder = [];
+            graphNodes.forEach(function (n) {
+                const el = document.getElementById('graphNode_' + n.id);
+                if (el) el.classList.remove('visited');
+            });
+            graphEdges.forEach(function (e) {
+                const el = document.getElementById('graphEdge_' + e[0] + '_' + e[1]);
+                if (el) el.classList.remove('highlight');
+            });
+            document.getElementById('graphBfsQueueList').innerHTML = '';
+            document.getElementById('graphBfsConsole').innerHTML = '';
+
+            graphBfsTimer = true;
+            function tick() {
+                const more = graphBfsStep();
+                if (!more) {
+                    graphBfsTimer = false;
+                    document.getElementById('graphHintBottom').innerText = 'اكتمل BFS! ترتيب الزيارة: ' + graphBfsOrder.map(function (id) { return graphFindNode(id).name; }).join(' → ');
+                    return;
+                }
+                setTimeout(tick, 700);
+            }
+            tick();
+        }
+
+        function graphReset(isManual) {
+            const data = graphDefaultData();
+            graphNodes = data.nodes.map(function (n) { return { id: n.id, name: n.name, x: n.x, y: n.y }; });
+            graphEdges = data.edges.map(function (e) { return e.slice(); });
+            graphNextId = graphNodes.length;
+            graphRoadMode = false;
+            graphRoadFirst = null;
+            graphBfsQueue = [];
+            graphBfsVisited = {};
+            graphBfsOrder = [];
+            graphBfsTimer = false;
+            document.getElementById('graphAddRoadBtn').classList.remove('active');
+            document.getElementById('graphAddRoadBtn').innerHTML = '<i class="fas fa-link"></i> أضف طريق';
+            document.getElementById('graphAddCityBox').style.display = 'none';
+            document.getElementById('graphHintTop').innerText = 'اضغط على أي مدينة لترى مدنًا مرتبطة بها مباشرة (الجيران). يمكنك إضافة مدن وطرق جديدة.';
+            document.getElementById('graphHintBottom').innerText = '';
+            document.getElementById('graphBfsPanel').style.display = 'none';
+            document.getElementById('graphBfsQueueList').innerHTML = '';
+            document.getElementById('graphBfsConsole').innerHTML = '';
+            graphRender();
+            if (isManual) {
+                buildStep = 0;
+                setBuildCaption('تمت العودة إلى الشبكة الافتراضية (5 مدن، 6 طرق). يمكنك استكشافها بحرية، أو تجربة الشرح التفاعلي أدناه.');
+                updateBuildStepIndicator();
+            }
+        }
+
+        // ===== Step-by-step graph construction walkthrough (uses the SAME graphNodes/graphEdges/graphSvg as Lab A above) =====
+        function setBuildCaption(text) {
+            const el = document.getElementById('buildCaptionText');
+            if (el) el.innerText = text;
+        }
+
+        function updateBuildStepIndicator() {
+            const el = document.getElementById('buildStepIndicator');
+            if (!el) return;
+            if (buildStep <= 0) {
+                el.innerText = 'اضغط "الخطوة التالية ←" للبدء';
+            } else if (buildStep >= buildSteps.length) {
+                el.innerText = 'انتهى الشرح ✓ (' + buildSteps.length + ' من ' + buildSteps.length + ')';
+            } else {
+                el.innerText = 'الخطوة ' + buildStep + ' من ' + buildSteps.length;
+            }
+        }
+
+        function graphAddBuildNode(nodeDef) {
+            graphNodes.push({ id: nodeDef.id, name: nodeDef.name, x: nodeDef.x, y: nodeDef.y });
+            if (nodeDef.id >= graphNextId) graphNextId = nodeDef.id + 1;
+            graphRender();
+        }
+
+        function graphAddBuildEdge(u, v) {
+            graphEdges.push([u, v]);
+            graphRender();
+            const edgeEl = document.getElementById('graphEdge_' + u + '_' + v) || document.getElementById('graphEdge_' + v + '_' + u);
+            if (edgeEl) edgeEl.classList.add('highlight');
+        }
+
+        function graphRemoveBuildNode(id) {
+            graphEdges = graphEdges.filter(function (e) { return e[0] !== id && e[1] !== id; });
+            graphNodes = graphNodes.filter(function (n) { return n.id !== id; });
+            graphRender();
+        }
+
+        function graphRemoveBuildEdge(u, v) {
+            graphEdges = graphEdges.filter(function (e) { return !((e[0] === u && e[1] === v) || (e[0] === v && e[1] === u)); });
+            graphRender();
+        }
+
+        let buildStep = 0;
+        const BUILD_CITY = graphDefaultData().nodes;
+
+        const buildSteps = [
+            {
+                caption: 'هذا Graph فارغ تمامًا — لا توجد فيه أي Node ولا أي Edge بعد. سنبنيه معًا خطوة بخطوة.',
+                run: function () { graphNodes = []; graphEdges = []; graphNextId = 0; graphRender(); }
+            },
+            {
+                caption: 'تمت إضافة Node جديدة: "' + BUILD_CITY[0].name + '". أصبح الـGraph يحتوي على Node واحدة فقط، وبدون أي Edges بعد.',
+                run: function () { graphAddBuildNode(BUILD_CITY[0]); }
+            },
+            {
+                caption: 'تمت إضافة Node أخرى: "' + BUILD_CITY[1].name + '". لاحظ أنه لا يوجد أي خط يربط بينهما بعد — وجود الـNodes وحده لا يكفي لتكوين علاقة.',
+                run: function () { graphAddBuildNode(BUILD_CITY[1]); }
+            },
+            {
+                caption: 'الآن سنضيف Edge لربط "' + BUILD_CITY[0].name + '" و"' + BUILD_CITY[1].name + '"... تم إنشاء علاقة جديدة بينهما! لاحظ الخط الأرجواني الذي ظهر للتو، وهو الـEdge.',
+                run: function () { graphAddBuildEdge(BUILD_CITY[0].id, BUILD_CITY[1].id); }
+            },
+            {
+                caption: 'أضفنا Node ثالثة: "' + BUILD_CITY[2].name + '". هي حاليًا منفصلة تمامًا عن باقي الـGraph.',
+                run: function () { graphAddBuildNode(BUILD_CITY[2]); }
+            },
+            {
+                caption: 'أضفنا Edge جديدة تربط "' + BUILD_CITY[0].name + '" و"' + BUILD_CITY[2].name + '". أصبح لدى "' + BUILD_CITY[0].name + '" الآن جارتان: "' + BUILD_CITY[1].name + '" و"' + BUILD_CITY[2].name + '".',
+                run: function () { graphAddBuildEdge(BUILD_CITY[0].id, BUILD_CITY[2].id); }
+            },
+            {
+                caption: 'عند الضغط على أي Node، يوضّح الـGraph كل الـNodes المرتبطة بها مباشرة (جيرانها). جرّبنا هذا على "' + BUILD_CITY[0].name + '" — لاحظ تلوّن جيرانها.',
+                run: function () { graphSelectNode(BUILD_CITY[0].id); }
+            },
+            {
+                caption: 'أضفنا Node رابعة: "' + BUILD_CITY[3].name + '"، وربطناها مباشرة بـ"' + BUILD_CITY[1].name + '" عبر Edge جديدة. الـGraph بدأ يكبر وتتشعب فيه العلاقات.',
+                run: function () { graphAddBuildNode(BUILD_CITY[3]); graphAddBuildEdge(BUILD_CITY[1].id, BUILD_CITY[3].id); }
+            },
+            {
+                caption: 'الآن سنرى تأثير حذف Node تحتوي على أكثر من Edge. سنحذف "' + BUILD_CITY[0].name + '" بالكامل... لاحظ أن كل الـEdges المرتبطة بها اختفت معها تلقائيًا!',
+                run: function () { graphRemoveBuildNode(BUILD_CITY[0].id); }
+            },
+            {
+                caption: 'والآن سنحذف Edge واحدة فقط، بين "' + BUILD_CITY[1].name + '" و"' + BUILD_CITY[3].name + '"، دون حذف أي Node. الـNodes بقيت موجودة، لكن العلاقة بينهما اختفت.',
+                run: function () { graphRemoveBuildEdge(BUILD_CITY[1].id, BUILD_CITY[3].id); }
+            },
+            {
+                caption: 'أصبح لدينا الآن عدة Nodes مستقلة بدون أي Edges. هذا يلخّص الفكرة: الـGraph = مجموعة Nodes + مجموعة Edges، وأي تغيير في أحدهما يغيّر شكل الـGraph بالكامل. اضغط "إعادة الشرح" لمشاهدته مجددًا، أو مرّر لأعلى واستخدم الشبكة بحرية.',
+                run: function () { /* الحالة النهائية، بدون أي تعديل إضافي */ }
+            }
+        ];
+
+        function buildNextStep() {
+            if (buildStep >= buildSteps.length) {
+                setBuildCaption('انتهى الشرح! اضغط "إعادة الشرح من البداية" لمشاهدته مرة أخرى، أو مرّر لأعلى واستخدم الشبكة بحرية.');
+                return;
+            }
+            buildSteps[buildStep].run();
+            setBuildCaption(buildSteps[buildStep].caption);
+            buildStep++;
+            updateBuildStepIndicator();
+        }
+
+        function buildRestart() {
+            graphNodes = [];
+            graphEdges = [];
+            graphNextId = 0;
+            graphRoadMode = false;
+            graphRoadFirst = null;
+            const roadBtn = document.getElementById('graphAddRoadBtn');
+            if (roadBtn) { roadBtn.classList.remove('active'); roadBtn.innerHTML = '<i class="fas fa-link"></i> أضف طريق'; }
+            const addBox = document.getElementById('graphAddCityBox');
+            if (addBox) addBox.style.display = 'none';
+            graphRender();
+            buildStep = 0;
+            setBuildCaption('تمت إعادة الضبط. اضغط "الخطوة التالية ←" لبدء بناء الـGraph من جديد، Node واحدة تلو الأخرى.');
+            updateBuildStepIndicator();
+        }
+
+        // ===== Lab B: adjacency list builder =====
+        function parseEdgesFromText(text) {
+            const lines = text.split('\n').map(function (l) { return l.trim(); }).filter(function (l) { return l.length > 0; });
+            const edges = [];
+            let maxV = 0;
+            lines.forEach(function (line) {
+                const parts = line.split(/\s+/).map(Number);
+                if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                    edges.push([parts[0], parts[1]]);
+                    maxV = Math.max(maxV, parts[0], parts[1]);
+                }
+            });
+            return { edges: edges, maxV: maxV };
+        }
+
+        function buildAdjList() {
+            const text = document.getElementById('adjlistInput').value;
+            const parsed = parseEdgesFromText(text);
+            const adj = {};
+            for (let i = 1; i <= parsed.maxV; i++) adj[i] = [];
+            parsed.edges.forEach(function (e) {
+                adj[e[0]].push(e[1]);
+                adj[e[1]].push(e[0]);
+            });
+            let output = '';
+            for (let i = 1; i <= parsed.maxV; i++) {
+                output += 'adj[' + i + '] = { ' + adj[i].join(' ') + ' }\n';
+            }
+            let sumDeg = 0;
+            for (let i = 1; i <= parsed.maxV; i++) sumDeg += adj[i].length;
+            output += '\nمجموع الدرجات = ' + sumDeg + '  (= 2 × ' + parsed.edges.length + ' edges)';
+            document.getElementById('adjlistOutput').innerText = output;
+        }
+
+        function resetAdjList() {
+            document.getElementById('adjlistInput').value = '1 2\n1 3\n2 4\n3 4\n4 5';
+            document.getElementById('adjlistOutput').innerText = 'اضغط "بناء الـ Adjacency List" لرؤية النتيجة...';
+        }
+
+        // ===== Lab C: adjacency matrix builder =====
+        let matrixState = [];
+        let matrixN = 5;
+
+        function buildMatrix() {
+            const nInput = document.getElementById('matrixNInput');
+            let n = parseInt(nInput.value, 10);
+            if (isNaN(n) || n < 2) n = 2;
+            if (n > 8) n = 8;
+            nInput.value = n;
+            matrixN = n;
+            matrixState = [];
+            for (let i = 0; i <= n; i++) matrixState.push(new Array(n + 1).fill(false));
+
+            const table = document.getElementById('matrixTable');
+            table.innerHTML = '';
+
+            const headRow = document.createElement('tr');
+            const corner = document.createElement('th');
+            corner.innerText = '';
+            headRow.appendChild(corner);
+            for (let j = 1; j <= n; j++) {
+                const th = document.createElement('th');
+                th.innerText = j;
+                headRow.appendChild(th);
+            }
+            table.appendChild(headRow);
+
+            for (let i = 1; i <= n; i++) {
+                const row = document.createElement('tr');
+                const th = document.createElement('th');
+                th.innerText = i;
+                row.appendChild(th);
+                for (let j = 1; j <= n; j++) {
+                    const td = document.createElement('td');
+                    if (i === j) {
+                        td.className = 'matrix-cell diagonal';
+                        td.innerText = '—';
+                    } else {
+                        td.className = 'matrix-cell';
+                        td.id = 'matCell_' + i + '_' + j;
+                        td.innerText = '0';
+                        td.onclick = (function (ii, jj) { return function () { toggleMatrixCell(ii, jj); }; })(i, j);
+                    }
+                    row.appendChild(td);
+                }
+                table.appendChild(row);
+            }
+        }
+
+        function toggleMatrixCell(i, j) {
+            const newVal = !matrixState[i][j];
+            matrixState[i][j] = newVal;
+            matrixState[j][i] = newVal;
+            [[i, j], [j, i]].forEach(function (pair) {
+                const cell = document.getElementById('matCell_' + pair[0] + '_' + pair[1]);
+                if (cell) {
+                    cell.innerText = newVal ? '1' : '0';
+                    cell.classList.toggle('edge-on', newVal);
+                }
+            });
+        }
+
+        // ===== Shared helpers =====
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        function checkTF(el, itemId, chosenValue, correctValue) {
+            const item = document.getElementById(itemId);
+            const buttons = item.querySelectorAll('.tf-btn');
+            buttons.forEach(function (b) { b.classList.remove('tf-selected-correct', 'tf-selected-wrong'); b.onclick = null; b.style.cursor = 'default'; });
+            const feedback = item.querySelector('.tf-feedback');
+            if (chosenValue === correctValue) {
+                el.classList.add('tf-selected-correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة!</span>';
+            } else {
+                el.classList.add('tf-selected-wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة خاطئة — العبارة في الواقع "' + (correctValue ? 'صحيح' : 'خطأ') + '".</span>';
+            }
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(function (o) { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة! أحسنت.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة غير صحيحة، حاول مرة أخرى في المرة القادمة.</span>';
+            }
+        }
+
+        graphReset();
+        buildMatrix();
+    </script>
+</body>
+</html>

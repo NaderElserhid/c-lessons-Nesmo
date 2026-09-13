@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | Segment Tree — شجرة القطاعات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+        .adv-badge {
+            background: var(--dark-navy); color: #facc15; border: none;
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .hero-banner { background: var(--blue-gradient); padding: 60px 6% 40px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 14px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 10px; }
+        .hero-desc { max-width: 780px; margin: 0 auto 22px; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+        .hero-stats-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+        .hero-stat { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 16px; padding: 10px 22px; text-align: center; }
+        .hero-stat .hs-label { display: block; font-size: 0.72rem; color: rgba(255,255,255,0.8); font-weight: 700; }
+        .hero-stat .hs-value { display: block; font-size: 1rem; font-weight: 800; color: white; margin-top: 2px; }
+
+        .tab-nav {
+            display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+            background: white; padding: 14px 6%; position: sticky; top: 87px; z-index: 900;
+            border-bottom: 1px solid #e2e8f0; box-shadow: 0 4px 14px -8px rgba(0,0,0,0.08);
+        }
+        .tab-btn {
+            border: 2px solid #e2e8f0; background: white; color: var(--text-body);
+            padding: 10px 18px; border-radius: 50px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.82rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .tab-btn:hover { border-color: var(--primary-blue); }
+        .tab-btn.active { background: var(--blue-gradient); border-color: transparent; color: white; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeIn 0.35s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header .section-num {
+            width: 34px; height: 34px; border-radius: 50%; background: var(--yellow-gradient); color: white;
+            display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;
+        }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.82rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.08); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #dc2626; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .definition-box { background: var(--dark-navy); color: white; border-radius: 18px; padding: 22px 24px; margin: 16px 0; }
+        .definition-box .df-title { color: #facc15; font-weight: 800; font-size: 0.88rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .definition-box p { color: #e2e8f0; margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        /* interactive lab shared */
+        .nt-lab-dark { background: #0b1220; border-radius: 20px; padding: 26px; margin: 16px 0; border: 1px solid #1e293b; }
+        .nt-input-row { display: flex; gap: 14px; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+        .nt-input-group { display: flex; flex-direction: column; gap: 6px; align-items: center; flex: 1 1 auto; max-width: 420px; }
+        .nt-input-group.wide { max-width: 100%; width: 100%; }
+        .nt-input-group label { color: #94a3b8; font-size: 0.78rem; font-weight: 700; }
+        .nt-input-group input, .nt-input-group textarea, .nt-input-group select {
+            width: 100%; text-align: center; background: #1e293b; border: 2px solid #334155; color: #e2e8f0;
+            border-radius: 12px; padding: 10px; font-family: 'Consolas', monospace; font-size: 1rem; font-weight: 700;
+            box-sizing: border-box;
+        }
+        .nt-input-group textarea { text-align: left; direction: ltr; min-height: 70px; resize: vertical; }
+        .nt-input-group.narrow input, .nt-input-group.narrow select { width: 120px; }
+        .nt-input-group input:focus, .nt-input-group textarea:focus, .nt-input-group select:focus { outline: none; border-color: var(--primary-blue); }
+        .nt-btn {
+            border-radius: 14px; padding: 11px 22px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 2px solid transparent; transition: all 0.2s ease;
+            align-self: flex-end; margin-top: 18px; white-space: nowrap;
+        }
+        .nt-btn-primary { background: var(--blue-gradient); color: white; }
+        .nt-btn-outline { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+        .nt-btn-outline:hover { border-color: #64748b; }
+        .nt-console { background: #0f172a; border-radius: 14px; padding: 16px 20px; margin: 14px 0; min-height: 40px; font-family: 'Consolas', monospace; color: #cbd5e1; direction: ltr; text-align: left; font-size: 0.82rem; line-height: 1.85; max-height: 320px; overflow-y: auto; border: 1px solid #1e293b; }
+        .nt-console .step-line { display: block; }
+        .nt-console .ok-line { color: #4ade80; display: block; }
+        .nt-console .final-line { color: #facc15; font-weight: 800; margin-top: 8px; display: block; }
+        .nt-console .error-line { color: #f87171; font-weight: 700; display: block; }
+
+        /* segment tree diagram */
+        .stree-wrap { background: #0b1220; border-radius: 16px; padding: 14px; border: 1px solid #1e293b; overflow-x: auto; margin-bottom: 12px; }
+        .stree-legend { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin: 10px 0 16px; font-size: 0.76rem; color: #94a3b8; font-weight: 700; }
+        .stree-legend .dot { width: 13px; height: 13px; border-radius: 4px; display: inline-block; margin-left: 5px; vertical-align: middle; border: 2px solid; }
+        .mini-stats-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; justify-content: center; }
+        .mini-stat { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 6px 14px; font-size: 0.8rem; color: #94a3b8; }
+        .mini-stat b { color: #00adef; font-family: 'Consolas', monospace; }
+
+        details.bonus-details { background: #0f172a; border: 1px dashed #334155; border-radius: 16px; padding: 4px 0; margin: 16px 0; }
+        details.bonus-details summary { cursor: pointer; padding: 14px 20px; font-weight: 800; color: #facc15; font-size: 0.9rem; list-style: none; display: flex; align-items: center; gap: 10px; }
+        details.bonus-details summary::-webkit-details-marker { display: none; }
+        details.bonus-details summary::before { content: '▶'; font-size: 0.7rem; transition: transform 0.2s; }
+        details.bonus-details[open] summary::before { transform: rotate(90deg); }
+        details.bonus-details .bonus-body { padding: 0 20px 20px; color: #cbd5e1; font-size: 0.88rem; line-height: 1.9; }
+        details.bonus-details .bonus-body p { color: #cbd5e1; }
+        details.bonus-details .bonus-body code.inline { background: rgba(0,173,239,0.12); color: #7dd3fc; }
+
+        .research-box { background: var(--dark-navy); border-radius: 16px; padding: 20px 24px; margin: 16px 0; }
+        .research-box .rb-title { color: #facc15; font-weight: 800; font-size: 0.85rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .research-box ul { margin: 0; padding-inline-start: 20px; color: #e2e8f0; }
+        .research-box li { margin-bottom: 6px; font-size: 0.88rem; }
+
+        /* open-ended toggle-reveal quiz */
+        .quiz-diff-section { margin-top: 30px; }
+        .quiz-diff-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+        .quiz-diff-header h4 { margin: 0; font-size: 1.1rem; font-weight: 800; color: var(--dark-navy); }
+        .homework-item {
+            background: var(--bg-main); border: 1px solid #e2e8f0; border-radius: 16px;
+            padding: 18px 22px; margin-bottom: 14px;
+        }
+        .homework-item .hw-top-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+        .homework-item .hw-num { font-weight: 800; color: var(--primary-blue); font-size: 0.85rem; }
+        .homework-item .hw-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+        .q-tag { background: white; border: 1px solid #cbd5e1; color: var(--text-body); font-size: 0.7rem; font-weight: 700; padding: 3px 12px; border-radius: 50px; }
+        .homework-item .hw-question { font-weight: 700; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 12px; }
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-weight: 800; font-size: 1.1rem;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0;
+        }
+        .toggle-btn:hover { background: var(--primary-blue); color: white; }
+        .toggle-btn.open { transform: rotate(45deg); }
+        .collapsible { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+        .collapsible.open { max-height: 3000px; }
+        .answer-box { background: white; border-radius: 14px; padding: 18px 20px; margin-top: 6px; border: 1px dashed #cbd5e1; font-size: 0.88rem; color: var(--text-body); }
+        .answer-box strong { color: var(--dark-navy); }
+        .answer-box .mini-code { background: #1e293b; color: #e2e8f0; font-family: 'Consolas', monospace; font-size: 0.78rem; border-radius: 10px; padding: 12px 16px; margin: 10px 0; direction: ltr; text-align: left; overflow-x: auto; line-height: 1.7; white-space: pre; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge">الدرس 13: Segment Tree</span>
+            <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الرابع</span>
+            <span class="adv-badge"><i class="fas fa-star-half-stroke"></i> متوسط–متقدم</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-diagram-project"></i>
+        <h1>Segment Tree — شجرة القطاعات</h1>
+        <p class="hero-desc">هياكل البيانات · هيكل بيانات قوي يُمثّل كل عقدة فيه قيمةً مجمَّعة لمقطع من المصفوفة، ويُتيح معالجة استعلامات النطاق والتحديثات في زمن O(log n) بدلاً من O(n).</p>
+        <div class="hero-stats-row">
+            <div class="hero-stat"><span class="hs-label">المستوى</span><span class="hs-value">متوسط–متقدم</span></div>
+            <div class="hero-stat"><span class="hs-label">الوقت التقديري</span><span class="hs-value">90 دقيقة</span></div>
+            <div class="hero-stat"><span class="hs-label">الأسئلة</span><span class="hs-value">15 سؤالاً</span></div>
+            <div class="hero-stat"><span class="hs-label">التعقيد</span><span class="hs-value">O(log n)</span></div>
+        </div>
+    </div>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="showTab('tabConcept', this)"><i class="fas fa-lightbulb"></i> المفهوم</button>
+        <button class="tab-btn" onclick="showTab('tabBuild', this)"><i class="fas fa-hammer"></i> البناء</button>
+        <button class="tab-btn" onclick="showTab('tabQuery', this)"><i class="fas fa-magnifying-glass"></i> الاستعلام</button>
+        <button class="tab-btn" onclick="showTab('tabUpdate', this)"><i class="fas fa-pen-to-square"></i> التحديث</button>
+        <button class="tab-btn" onclick="showTab('tabProblem', this)"><i class="fas fa-trophy"></i> المسألة</button>
+        <button class="tab-btn" onclick="showTab('tabQuiz', this)"><i class="fas fa-pen"></i> الأسئلة</button>
+    </div>
+
+    <div class="container">
+
+        <!-- ============ TAB 1: CONCEPT ============ -->
+        <div class="tab-panel active" id="tabConcept">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">1</span>
+                    <h3>🌳 ما هي Segment Tree؟</h3>
+                </div>
+
+                <p><strong style="color:var(--primary-blue)">Segment Tree (شجرة القطاعات)</strong> هي شجرة ثنائية يمثّل كل عقدة (node) فيها قيمةً مجمَّعةً لمقطع (نطاق) معيّن من المصفوفة الأصلية. تتميّز بأنها تُتيح معالجة استعلامات النطاق والتحديثات في زمن O(log n) بدلاً من O(n).</p>
+
+                <div class="definition-box">
+                    <div class="df-title"><i class="fas fa-thumbtack"></i> قاعدة البناء</div>
+                    <p>كل <strong>leaf node</strong> يمثّل عنصرًا واحدًا فقط من المصفوفة. كل <strong>internal node</strong> يمثّل دمجًا لطفليه (مجموع، أو أصغر قيمة، أو أكبر قيمة، أو أي عملية ترابطية أخرى).</p>
+                </div>
+
+                <h4 class="sub-title">📐 مثال بصري على المصفوفة [2, 4, 6, 8]</h4>
+                <p>شجرة القطاعات لحساب المجموع على المصفوفة [2, 4, 6, 8] تبدو كما في الرسم أدناه. الأرقام بين الأقواس تمثّل النطاق الذي تغطيه كل عقدة، وهذا الرسم مُولَّد فعليًا من نفس محرك البناء الذي ستستخدمه في تبويب «البناء».</p>
+
+                <div class="stree-wrap"><div id="conceptTreeSvg"></div></div>
+                <div class="stree-legend">
+                    <span><span class="dot" style="background:#eef2ff;border-color:#818cf8;"></span>ورقة (عنصر مفرد)</span>
+                    <span><span class="dot" style="background:#ffffff;border-color:#cbd5e1;"></span>عقدة داخلية (دمج طفليها)</span>
+                </div>
+
+                <h4 class="sub-title">🔢 عدد العقد</h4>
+                <p>في كل مستوى من الشجرة يتضاعف عدد العقد: 1، 2، 4، 8، ... أي قوى العدد 2. وبما أن كل قوة تساوي مجموع القوى السابقة زائد 1، فإن العدد الكلي لعقد شجرة ذات N ورقة هو:</p>
+                <div class="good-box">
+                    <i class="fas fa-calculator"></i>
+                    <p><strong>Total Nodes = 2N − 1</strong> — لذا نُخصّص مصفوفة بحجم <code class="inline">2 * N</code> لتخزين الشجرة (نُهمل الموضع 0 للتبسيط).</p>
+                </div>
+
+                <h4 class="sub-title">🧩 الحشو (Padding)</h4>
+                <p>إذا كان طول المصفوفة n ليس قوةً للعدد 2، نحتاج إلى حشو العناصر حتى يكون عدد الأوراق N هو أقرب قوة للعدد 2 لا تقل عن n.</p>
+                <div class="tip-box">
+                    <i class="fas fa-flask"></i>
+                    <p><strong>مثال:</strong> المصفوفة [2, 4, 6] بطول 3. أقرب قوة لـ 2 تعلو 3 هي N = 4. نُضيف 0 كعنصر رابع، فتصبح الشجرة بـ 7 عقد (2×4 − 1). القيمة المُضافة 0 لا تُؤثر على حسابات المجموع ولا الحد الأقصى، لكن للحد الأدنى نُضيف INT_MAX.</p>
+                </div>
+
+                <h4 class="sub-title">حساب N برمجيًا</h4>
+                <p>يمكن حساب N بطريقتين متكافئتين في C++:</p>
+                <div class="code-box">
+                    <div class="code-head"><span>C++ — حساب N</span></div>
+                    <pre><span class="cmt">// الطريقة الأولى: بالبت</span>
+int N = 1 &lt;&lt; (32 - __builtin_clz(n - 1));
+
+<span class="cmt">// الطريقة الثانية: بالحلقة (ملاحظة: الفاصلة المنقوطة في نهاية for مهمة!)</span>
+int N;
+for (N = 1; N &lt; n; N *= 2);  <span class="cmt">// الفاصلة المنقوطة هنا تعني أن جسم الحلقة فارغ</span></pre>
+                </div>
+
+                <h4 class="sub-title">📍 التمثيل كمصفوفة — خاصية الأرقام</h4>
+                <p>نُمثّل الشجرة كمصفوفة <code class="inline">seg</code> بدلاً من بنية شجرية صريحة (بدون مؤشرات). هذا يُوفّر الذاكرة ويُسرّع العمليات. العقدة رقم i لها العلاقات التالية:</p>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>العلاقة</th><th class="ltr">الصيغة</th><th>المعنى</th></tr></thead>
+                        <tbody>
+                            <tr><td>الطفل الأيسر</td><td class="ltr">2 * i</td><td>الفرع الأيسر للعقدة i</td></tr>
+                            <tr><td>الطفل الأيمن</td><td class="ltr">2 * i + 1</td><td>الفرع الأيمن للعقدة i</td></tr>
+                            <tr><td>الوالد</td><td class="ltr">i / 2</td><td>الأب في الشجرة</td></tr>
+                            <tr><td>الورقة للعنصر j</td><td class="ltr">j + N - 1</td><td>موضع العنصر j (مرقّم من 1) في مصفوفة seg</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="good-box">
+                    <i class="fas fa-eye"></i>
+                    <p><strong>مثال على التمثيل:</strong> للشجرة السابقة مع N = 4: الجذر في الموضع 1 (يغطي [1,4]). أبناؤه في الموضعين 2 و 3. الأوراق في المواضع 4, 5, 6, 7 وتقابل العناصر a[1], a[2], a[3], a[4] على التوالي.</p>
+                </div>
+
+                <details class="bonus-details">
+                    <summary>💡 دقة إضافية: أسلوب هجين — بناء تكراري (Iterative) واستعلام تعاودي (Recursive)</summary>
+                    <div class="bonus-body">
+                        <p>قد تُلاحظ لاحقًا أن كود البناء والتحديث في هذا الدرس تكراري بالكامل (لا يستخدم recursion، ويعتمد على أن N قوة للعدد 2)، بينما دالة الاستعلام تعاودية (تستقبل l وr كمعاملين). هذا أسلوب هجين شائع جدًا في المسابقات — أسرع من الأسلوب التعاودي الكامل في البناء، وأبسط من الأسلوب التكراري الكامل في الاستعلام. الأسلوب الآخر الشائع (segment tree تعاودي بالكامل، لا يحتاج N قوة للعدد 2 ويُخصَّص عادة بحجم <code class="inline">4*n</code>) أكثر مرونة (يدعم Lazy Propagation بسهولة أكبر) لكنه أبطأ قليلًا بسبب الاستدعاءات الإضافية.</p>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <!-- ============ TAB 2: BUILD ============ -->
+        <div class="tab-panel" id="tabBuild">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">2</span>
+                    <h3>⚙️ بناء شجرة القطاعات</h3>
+                </div>
+
+                <ol class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">حساب N:</strong> أقرب قوة للعدد 2 لا تقل عن n.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">ملء الأوراق من المصفوفة الأصلية:</strong> <code class="inline">seg[i + N] = a[i]</code> لكل عنصر (مرقّمة من 0).</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">ملء الأوراق الإضافية بالقيمة المحايدة:</strong> 0 للمجموع، INT_MAX للحد الأدنى، INT_MIN للحد الأقصى.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">بناء العقد الداخلية بترتيب عكسي:</strong> من N−1 حتى 1، كل عقدة = دمج طفليها.</p></li>
+                </ol>
+
+                <div class="code-box">
+                    <div class="code-head"><span>C++ — بناء الشجرة</span></div>
+                    <pre><span class="cmt">// ملء الأوراق من المصفوفة الأصلية (مرقّمة من 0)</span>
+for (int i = 0; i &lt; n; i++) {
+    seg[i + N] = a[i];
+}
+
+<span class="cmt">// ملء الأوراق المُضافة (الحشو) بالقيمة المحايدة</span>
+for (int i = n + N; i &lt; 2 * N; i++) {
+    seg[i] = 0;  <span class="cmt">// 0 للمجموع | INT_MAX للحد الأدنى | INT_MIN للحد الأقصى</span>
+}
+
+<span class="cmt">// بناء العقد الداخلية من الأسفل إلى الأعلى</span>
+for (int i = N - 1; i &gt; 0; i--) {
+    seg[i] = seg[i * 2] + seg[i * 2 + 1];  <span class="cmt">// دمج الطفلين</span>
+}</pre>
+                </div>
+
+                <div class="tip-box">
+                    <i class="fas fa-graduation-cap"></i>
+                    <p><strong>لماذا الترتيب العكسي (N−1 → 1)؟</strong> كل عقدة داخلية i تأخذ قيمتها من دمج طفليها 2i و2i+1، وكلاهما له رقم أكبر من i. بالترتيب العكسي نضمن أن الأبناء مبنيّون دائمًا قبل معالجة أبيهم.</p>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>العملية</th><th class="ltr">التعقيد الزمني</th><th>ملاحظة</th></tr></thead>
+                        <tbody>
+                            <tr><td>بناء الشجرة</td><td class="ltr">O(n)</td><td>مرور واحد على جميع العقد</td></tr>
+                            <tr><td>استعلام النطاق</td><td class="ltr">O(log n)</td><td>على الأكثر 4 × log(N) عقدة</td></tr>
+                            <tr><td>تحديث نقطة</td><td class="ltr">O(log n)</td><td>log(N) أب على مسار الورقة للجذر</td></tr>
+                            <tr><td>الذاكرة</td><td class="ltr">O(n)</td><td>مصفوفة seg بحجم 2N</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="sub-title">⚗️ مختبر بناء الشجرة</h4>
+                <p>أدخل مصفوفةً (من 1 إلى 8 أعداد للحفاظ على وضوح الرسم) واختر عملية الدمج، ثم اضغط «بناء» لمشاهدة الشجرة الحقيقية مبنيّة أمامك عقدةً عقدة.</p>
+
+                <div class="nt-lab-dark">
+                    <div class="nt-input-row">
+                        <div class="nt-input-group wide">
+                            <label>المصفوفة (أعداد مفصولة بمسافات، حتى 8 عناصر)</label>
+                            <input type="text" id="buildArrInput" value="2 4 6 8">
+                        </div>
+                        <div class="nt-input-group narrow">
+                            <label>عملية الدمج</label>
+                            <select id="opSelect">
+                                <option value="sum">مجموع (+)</option>
+                                <option value="min">أصغر قيمة (min)</option>
+                                <option value="max">أكبر قيمة (max)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="nt-input-row" style="margin-top:-8px;">
+                        <button class="nt-btn nt-btn-primary" onclick="doBuildTree()"><i class="fas fa-hammer"></i> بناء</button>
+                        <button class="nt-btn nt-btn-outline" onclick="doRandomBuild()"><i class="fas fa-dice"></i> عشوائي</button>
+                    </div>
+
+                    <div class="mini-stats-row" id="buildStats"></div>
+                    <div class="stree-wrap"><div id="buildTreeSvg"></div></div>
+                    <div class="stree-legend">
+                        <span><span class="dot" style="background:#eef2ff;border-color:#818cf8;"></span>ورقة حقيقية</span>
+                        <span><span class="dot" style="background:#f8fafc;border-color:#cbd5e1;"></span>ورقة حشو (padding)</span>
+                        <span><span class="dot" style="background:#ffffff;border-color:#cbd5e1;"></span>عقدة داخلية</span>
+                    </div>
+                    <div class="nt-console" id="buildLog"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 3: QUERY ============ -->
+        <div class="tab-panel" id="tabQuery">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">3</span>
+                    <h3>🔍 الاستعلام عن نطاق</h3>
+                </div>
+
+                <p>الدالة <code class="inline">query(id, l, r, ql, qr)</code> تعمل بشكل تعاودي (Recursive) بثلاث حالات:</p>
+                <ol class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">لا تقاطع (No Overlap):</strong> إذا كان نطاق الاستعلام [ql, qr] لا يتقاطع مع نطاق العقدة [l, r] تمامًا (ql &gt; r || l &gt; qr)، نُرجع القيمة المحايدة (0 للمجموع، INT_MAX للحد الأدنى، INT_MIN للحد الأقصى) ونتوقف.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">تغطية كاملة (Full Cover):</strong> إذا كان نطاق الاستعلام يغطي نطاق العقدة بالكامل (ql <= l && r <= qr)، نُرجع قيمة العقدة مباشرةً دون نزول إضافي.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">تقاطع جزئي (Partial):</strong> نقسم على المنتصف m = (l + r) / 2 ونستدعي الدالة على الطفلين ثم ندمج النتيجتين.</p></li>
+                </ol>
+                <div class="good-box">
+                    <i class="fas fa-bolt"></i>
+                    <p><strong>التعقيد الزمني: O(log n)</strong> — على الأكثر 4 × log(N) عقدة تُزار.</p>
+                </div>
+
+                <div class="code-box">
+                    <div class="code-head"><span>C++ — دالة query</span></div>
+                    <pre>int query(int id, int l, int r, int ql, int qr) {
+    <span class="cmt">// حالة 1: لا تقاطع — يُرجع القيمة المحايدة</span>
+    if (ql &gt; r || l &gt; qr) {
+        return 0;  <span class="cmt">// 0 للمجموع | INT_MAX للحد الأدنى | INT_MIN للحد الأقصى</span>
+    }
+    <span class="cmt">// حالة 2: تغطية كاملة — يُرجع قيمة العقدة مباشرةً</span>
+    if (ql &lt;= l &amp;&amp; r &lt;= qr) {
+        return seg[id];
+    }
+    <span class="cmt">// حالة 3: تقاطع جزئي — تقسيم واستدعاء ذاتي</span>
+    int m = (l + r) / 2;
+    return query(id * 2, l, m, ql, qr) + query(id * 2 + 1, m + 1, r, ql, qr);
+}
+<span class="cmt">// استدعاء الاستعلام عن النطاق [ql, qr]:</span>
+<span class="cmt">// query(1, 1, N, ql, qr)</span></pre>
+                </div>
+
+                <h4 class="sub-title">🔍 شرح الكود سطرًا بسطر</h4>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <tbody>
+                            <tr><td style="width:30%"><strong>المعاملات id, l, r</strong></td><td>id هو رقم العقدة الحالية في مصفوفة seg. l وr هما حدّا النطاق الذي تغطيه هذه العقدة.</td></tr>
+                            <tr><td><strong>المعاملات ql, qr</strong></td><td>هما حدّا نطاق الاستعلام الذي يُريده المستخدم. تبقى ثابتةً في كل الاستدعاءات التعاودية.</td></tr>
+                            <tr><td><strong>شرط اللاتقاطع</strong></td><td>إذا كان نطاق العقدة لا يتداخل مع نطاق الاستعلام، لا فائدة من النزول أعمق. نُرجع القيمة المحايدة (لا تُؤثر على الدمج).</td></tr>
+                            <tr><td><strong>شرط التغطية الكاملة</strong></td><td>إذا كان نطاق الاستعلام يحتوي نطاق العقدة بالكامل، نُرجع seg[id] مباشرةً. هذا هو <strong>سرّ كفاءة الشجرة</strong> — نتجنب إعادة حساب ما حُسب مسبقًا.</td></tr>
+                            <tr><td><strong>الاستدعاء التعاودي</strong></td><td>نقسم على المنتصف ونستدعي الطفلين، ثم ندمج النتيجتين بعملية الدمج المناسبة (+ أو min أو max).</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="sub-title">⚗️ مختبر الاستعلام — تتبّع الاستدعاءات التعاودية حيًا</h4>
+                <p>بعد بناء الشجرة من تبويب «البناء»، أدخل نطاقًا [ql, qr] وشاهد بالضبط أي العقد تُزار، وأي منها يُحسم فورًا (لا تقاطع)، وأي منها يُساهم في الجواب النهائي (تغطية كاملة) — إلى جانب سجل نصي كامل لكل استدعاء تعاودي.</p>
+
+                <div class="nt-lab-dark">
+                    <div class="nt-input-row">
+                        <div class="nt-input-group narrow">
+                            <label>ql =</label>
+                            <input type="number" id="qlInput" value="2" min="1">
+                        </div>
+                        <div class="nt-input-group narrow">
+                            <label>qr =</label>
+                            <input type="number" id="qrInput" value="3" min="1">
+                        </div>
+                        <button class="nt-btn nt-btn-primary" onclick="doQueryRun()"><i class="fas fa-magnifying-glass"></i> استعلام</button>
+                    </div>
+
+                    <div class="mini-stats-row" id="queryStats"></div>
+                    <div class="stree-wrap"><div id="queryTreeSvg"></div></div>
+                    <div class="stree-legend">
+                        <span><span class="dot" style="background:#f8fafc;border-color:#cbd5e1;"></span>لم تُزر (تجاهُل كامل الفرع)</span>
+                        <span><span class="dot" style="background:#f8fafc;border-color:#cbd5e1;opacity:0.6"></span>لا تقاطع (⊗ حُسمت فورًا)</span>
+                        <span><span class="dot" style="background:#e0f2fe;border-color:#00adef;"></span>تقاطع جزئي (نزول أعمق)</span>
+                        <span><span class="dot" style="background:#dcfce7;border-color:#22c55e;"></span>تغطية كاملة (✓ في الجواب)</span>
+                    </div>
+                    <div class="nt-console" id="queryLog">ابنِ الشجرة أولًا من تبويب «البناء»...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 4: UPDATE ============ -->
+        <div class="tab-panel" id="tabUpdate">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">4</span>
+                    <h3>✏️ تحديث نقطة</h3>
+                </div>
+
+                <p>لتحديث العنصر في الموضع j إلى القيمة v، نتبع خطوتين:</p>
+                <ol class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">تحديث الورقة:</strong> الورقة التي تمثّل j تقع في الموضع <code class="inline">j + N - 1</code> في مصفوفة seg. نضبط قيمتها على v.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">إعادة حساب الآباء:</strong> نصعد من الورقة إلى الجذر بقسمة الرقم على 2، ونُعيد حساب كل أب بدمج طفليه. عدد الآباء هو log(N) وهو أيضًا عمق الشجرة.</p></li>
+                </ol>
+                <div class="tip-box">
+                    <i class="fas fa-question"></i>
+                    <p><strong>لماذا نصعد إلى الجذر؟</strong> لأن كل أب يحمل قيمةً محسوبةً من أبنائه. بتغيير ورقة، تتغيّر قيمة كل أب على المسار من الورقة إلى الجذر، لذا يجب إعادة حسابها جميعًا.</p>
+                </div>
+                <div class="good-box">
+                    <i class="fas fa-bolt"></i>
+                    <p><strong>التعقيد الزمني: O(log n)</strong></p>
+                </div>
+
+                <div class="code-box">
+                    <div class="code-head"><span>C++ — pointUpdate</span></div>
+                    <pre>void pointUpdate(int j, int v) {
+    a[j] = v;          <span class="cmt">// تحديث المصفوفة الأصلية</span>
+
+    int idx = j + N - 1;  <span class="cmt">// موضع الورقة في مصفوفة seg</span>
+    seg[idx] = v;
+
+    <span class="cmt">// الصعود من الورقة إلى الجذر وإعادة حساب كل أب</span>
+    for (int i = idx / 2; i &gt; 0; i /= 2) {
+        seg[i] = seg[i * 2] + seg[i * 2 + 1];  <span class="cmt">// دمج الطفلين</span>
+    }
+}</pre>
+                </div>
+
+                <h4 class="sub-title">🔍 شرح كود التحديث</h4>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <tbody>
+                            <tr><td style="width:26%"><strong>a[j] = v</strong></td><td>نُحدّث المصفوفة الأصلية للإبقاء عليها متزامنةً مع الشجرة.</td></tr>
+                            <tr><td><strong>idx = j + N - 1</strong></td><td>نحوّل فهرس المصفوفة الأصلية (مرقّم من 1) إلى موضع الورقة في مصفوفة seg. مثلًا إذا j=2 وN=4، فالورقة في الموضع 5.</td></tr>
+                            <tr><td><strong>seg[idx] = v</strong></td><td>نُحدّث الورقة مباشرةً.</td></tr>
+                            <tr><td><strong>حلقة الصعود (i /= 2)</strong></td><td>نبدأ من والد الورقة (idx/2) ونصعد إلى الجذر. في كل خطوة نُعيد حساب قيمة العقدة i بدمج طفليها. نتوقف عند i=0 (تجاوزنا الجذر).</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="sub-title">⚗️ مختبر التحديث — راقب المسار من الورقة إلى الجذر</h4>
+                <p>أدخل موضع العنصر j (يبدأ من 1) والقيمة الجديدة v لمشاهدة القيمة القديمة والجديدة عند كل عقدة على مسار التحديث.</p>
+
+                <div class="nt-lab-dark">
+                    <div class="nt-input-row">
+                        <div class="nt-input-group narrow">
+                            <label>j =</label>
+                            <input type="number" id="ujInput" value="2" min="1">
+                        </div>
+                        <div class="nt-input-group narrow">
+                            <label>v =</label>
+                            <input type="number" id="uvInput" value="10">
+                        </div>
+                        <button class="nt-btn nt-btn-primary" onclick="doUpdateRun()"><i class="fas fa-pen"></i> حدّث</button>
+                    </div>
+
+                    <div class="stree-wrap"><div id="updateTreeSvg"></div></div>
+                    <div class="stree-legend">
+                        <span><span class="dot" style="background:#fee2e2;border-color:#ef4444;"></span>الورقة المُحدَّثة مباشرةً</span>
+                        <span><span class="dot" style="background:#fef3c7;border-color:#f59e0b;"></span>أسلاف أُعيد حسابهم</span>
+                    </div>
+                    <div class="nt-console" id="updateLog">ابنِ الشجرة أولًا من تبويب «البناء»...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 5: PROBLEM ============ -->
+        <div class="tab-panel" id="tabProblem">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">5</span>
+                    <h3>📋 المسألة التطبيقية — Dynamic Range Minimum Queries</h3>
+                </div>
+
+                <p>لديك مصفوفة a من n عنصر وتريد معالجة q استعلام من نوعين:</p>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>النوع</th><th class="ltr">الصيغة</th><th>المعنى</th></tr></thead>
+                        <tbody>
+                            <tr><td>الأول</td><td class="ltr">1 k u</td><td>حدّث القيمة في الموضع k إلى u.</td></tr>
+                            <tr><td>الثاني</td><td class="ltr">2 l r</td><td>ما أصغر قيمة في النطاق [l, r]؟</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="research-box">
+                    <div class="rb-title"><i class="fas fa-magnifying-glass"></i> مرجع خارجي موثّق</div>
+                    <ul>
+                        <li><strong>CSES 1649 — Dynamic Range Minimum Queries</strong> (قسم Range Queries): نفس المسألة تمامًا بصيغتها القياسية على منصة CSES Problem Set.</li>
+                    </ul>
+                </div>
+
+                <h4 class="sub-title">💡 ملاحظات مهمة على الكود</h4>
+                <ol class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">التعريف في النطاق العام مع MAXN ثابت:</strong> نستخدم MAXN كحد أقصى ثابت لحساب N في وقت الترجمة. هذا يُتيح تعريف seg كمصفوفة ذات حجم ثابت.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">قيمة الحشو INT_MAX:</strong> لأننا نحسب الحد الأدنى، الأوراق الإضافية تُملأ بـ INT_MAX حتى لا تُؤثر على النتيجة.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">في الاستعلام نُرجع INT_MAX لا 0 عند اللاتقاطع:</strong> لأن دمج min(a, INT_MAX) = a وهو ما نريده.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">pointUpdate تستخدم j (من 1) لا j-1:</strong> الدالة تستقبل الفهرس المرقّم من 1 وتُحوّله داخليًا إلى موضع الورقة بـ j + N - 1.</p></li>
+                </ol>
+
+                <div class="code-box">
+                    <div class="code-head"><span>C++ — الكود الكامل للمسألة</span></div>
+                    <pre>#include &lt;iostream&gt;
+#include &lt;climits&gt;
+using namespace std;
+
+const int MAXN = 200000;
+const int N = (1 &lt;&lt; (32 - __builtin_clz(MAXN - 1)));  <span class="cmt">// = 262144</span>
+
+int seg[N * 2];
+int a[MAXN];
+
+int query(int id, int l, int r, int ql, int qr) {
+    if (ql &gt; r || l &gt; qr) return INT_MAX;  <span class="cmt">// لا تقاطع</span>
+    if (ql &lt;= l &amp;&amp; r &lt;= qr) return seg[id];   <span class="cmt">// تغطية كاملة</span>
+    int m = (l + r) / 2;
+    return min(query(id*2, l, m, ql, qr), query(id*2+1, m+1, r, ql, qr));
+}
+
+void pointUpdate(int j, int v) {
+    a[j - 1] = v;
+    int idx = j + N - 1;
+    seg[idx] = v;
+    for (int i = idx / 2; i &gt; 0; i /= 2)
+        seg[i] = min(seg[i * 2], seg[i * 2 + 1]);
+}
+
+int main() {
+    int n, q;
+    cin &gt;&gt; n &gt;&gt; q;
+
+    for (int i = 0; i &lt; n; i++) cin &gt;&gt; a[i];
+
+    for (int i = 0; i &lt; n; i++)   seg[i + N] = a[i];
+    for (int i = n + N; i &lt; 2*N; i++) seg[i] = INT_MAX;
+    for (int i = N-1; i &gt; 0; i--)   seg[i] = min(seg[i*2], seg[i*2+1]);
+
+    while (q--) {
+        int type; cin &gt;&gt; type;
+        if (type == 1) {
+            int k, u; cin &gt;&gt; k &gt;&gt; u;
+            pointUpdate(k, u);
+        } else {
+            int ql, qr; cin &gt;&gt; ql &gt;&gt; qr;
+            cout &lt;&lt; query(1, 1, N, ql, qr) &lt;&lt; "\n";
+        }
+    }
+    return 0;
+}</pre>
+                </div>
+
+                <h4 class="sub-title">⚗️ مختبر تفاعلي — نفّذ عملياتك الخاصة</h4>
+                <p>أدخل المصفوفة الابتدائية، ثم اكتب عمليات بصيغة CSES بالضبط (سطر لكل عملية): <code class="inline">1 k u</code> للتحديث أو <code class="inline">2 l r</code> للاستعلام. سيُنفَّذ نفس الكود أعلاه فعليًا (فهرسة من 1، وseg مبنية داخليًا بنفس الطريقة) على مصفوفتك.</p>
+
+                <div class="nt-lab-dark">
+                    <div class="nt-input-row">
+                        <div class="nt-input-group wide">
+                            <label>المصفوفة الابتدائية</label>
+                            <input type="text" id="drmqArrInput" value="9 1 5 3 7 2">
+                        </div>
+                    </div>
+                    <div class="nt-input-row">
+                        <div class="nt-input-group wide">
+                            <label>العمليات (سطر لكل عملية)</label>
+                            <textarea id="drmqOpsInput">2 1 6
+1 2 20
+2 1 6</textarea>
+                        </div>
+                    </div>
+                    <div class="nt-input-row" style="margin-top:-8px;">
+                        <button class="nt-btn nt-btn-primary" onclick="runDrmqLab()"><i class="fas fa-play"></i> نفّذ العمليات</button>
+                    </div>
+                    <div class="nt-console" id="drmqConsole"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 6: QUIZ ============ -->
+        <div class="tab-panel" id="tabQuiz">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-pen"></i>
+                    <h3>❓ أسئلة تدريبية — 15 سؤالاً</h3>
+                </div>
+                <p style="margin-top:-6px;">أسئلة مفتوحة تحتاج تفكيرًا وكتابة كود — اضغط على العلامة (+) لإظهار الإجابة النموذجية الكاملة (بما فيها الكود عند الحاجة).</p>
+                <div id="hwContainer"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الرابع: Segment Tree (شجرة القطاعات)</footer>
+
+    <script>
+        // ===================================================================
+        // Tab navigation
+        // ===================================================================
+        function showTab(tabId, btn) {
+            document.querySelectorAll('.tab-panel').forEach(function (el) { el.classList.remove('active'); });
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+        }
+
+        // ===================================================================
+        // Core segment-tree math — shared by every lab in this file.
+        // ===================================================================
+        function mergeOp(a, b, op) {
+            if (op === 'min') return Math.min(a, b);
+            if (op === 'max') return Math.max(a, b);
+            return a + b;
+        }
+        function neutralOp(op) {
+            return op === 'min' ? Infinity : (op === 'max' ? -Infinity : 0);
+        }
+        function opLabel(op) {
+            return op === 'min' ? 'الحد الأدنى (min)' : (op === 'max' ? 'الحد الأقصى (max)' : 'مجموع (+)');
+        }
+        function fmtVal(v) {
+            return v === Infinity ? '∞' : (v === -Infinity ? '-∞' : v);
+        }
+        function buildSegState(arr, op) {
+            const n = arr.length;
+            let N = 1; while (N < n) N *= 2;
+            const seg = new Array(2 * N).fill(neutralOp(op));
+            for (let i = 0; i < n; i++) seg[i + N] = arr[i];
+            for (let i = N - 1; i > 0; i--) seg[i] = mergeOp(seg[i * 2], seg[i * 2 + 1], op);
+            return { ARR: arr.slice(), N: N, SEG: seg, OP: op };
+        }
+        // Range [lo, hi] covered by node id, found by walking to the leftmost
+        // and rightmost descendant leaf — valid because N is a power of two.
+        function nodeRange(id, N) {
+            let tmp = id; while (tmp < N) tmp = tmp * 2;
+            const lo = tmp - N + 1;
+            tmp = id; while (tmp < N) tmp = tmp * 2 + 1;
+            const hi = tmp - N + 1;
+            return [lo, hi];
+        }
+
+        function line(text, cls) { return '<span class="' + (cls || 'step-line') + '">' + text + '</span>'; }
+        function statChip(label, val) { return '<div class="mini-stat">' + label + ': <b>' + val + '</b></div>'; }
+
+        // ===================================================================
+        // SVG tree renderer — a real binary-tree diagram (nodes positioned by
+        // depth/level, edges drawn to parents), shared across every tab.
+        // ===================================================================
+        const ST_COLORS = {
+            normal:  { fill: '#ffffff', stroke: '#cbd5e1', text: '#0f172a' },
+            leaf:    { fill: '#eef2ff', stroke: '#818cf8', text: '#4338ca' },
+            padding: { fill: '#f8fafc', stroke: '#cbd5e1', text: '#94a3b8', dash: '4,3' },
+            skip:    { fill: '#f8fafc', stroke: '#cbd5e1', text: '#94a3b8', dash: '3,3', dim: true },
+            partial: { fill: '#e0f2fe', stroke: '#00adef', text: '#0369a1' },
+            hit:     { fill: '#dcfce7', stroke: '#22c55e', text: '#15803d' },
+            updLeaf: { fill: '#fee2e2', stroke: '#ef4444', text: '#b91c1c' },
+            updPath: { fill: '#fef3c7', stroke: '#f59e0b', text: '#b45309' }
+        };
+
+        function renderSegTreeSVG(containerId, N, seg, hlMap, nReal) {
+            const el = document.getElementById(containerId);
+            if (!el || !N) return;
+            hlMap = hlMap || {};
+            const levels = Math.floor(Math.log2(N)) + 1;
+            const W = 680, topMargin = 34, rowH = 62, r = 22;
+            const H = topMargin + levels * rowH + 20;
+            function pos(id) {
+                const depth = Math.floor(Math.log2(id));
+                const levelNodes = Math.pow(2, depth);
+                const posInLevel = id - levelNodes;
+                const x = (W / levelNodes) * (posInLevel + 0.5);
+                const y = topMargin + depth * rowH;
+                return { x: x, y: y };
+            }
+            let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;min-width:460px;height:auto" xmlns="http://www.w3.org/2000/svg">';
+            for (let id = 1; id < N; id++) {
+                const p = pos(id), lc = pos(id * 2), rc = pos(id * 2 + 1);
+                svg += '<line x1="' + p.x + '" y1="' + p.y + '" x2="' + lc.x + '" y2="' + lc.y + '" stroke="#cbd5e1" stroke-width="1.5"/>';
+                svg += '<line x1="' + p.x + '" y1="' + p.y + '" x2="' + rc.x + '" y2="' + rc.y + '" stroke="#cbd5e1" stroke-width="1.5"/>';
+            }
+            for (let id = 1; id < 2 * N; id++) {
+                const p = pos(id);
+                const isLeaf = id >= N;
+                const isPadding = isLeaf && nReal !== undefined && (id - N) >= nReal;
+                let state = isPadding ? 'padding' : (isLeaf ? 'leaf' : 'normal');
+                if (hlMap[id]) state = hlMap[id];
+                const c = ST_COLORS[state];
+                const rg = nodeRange(id, N);
+                const dash = c.dash ? ' stroke-dasharray="' + c.dash + '"' : '';
+                const op = c.dim ? ' opacity="0.55"' : '';
+                svg += '<g' + op + '><circle cx="' + p.x + '" cy="' + p.y + '" r="' + r + '" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="2"' + dash + '/>';
+                svg += '<text x="' + p.x + '" y="' + (p.y - 1) + '" text-anchor="middle" dominant-baseline="middle" fill="' + c.text + '" font-family="Consolas,monospace" font-size="12" font-weight="700">' + fmtVal(seg[id]) + '</text>';
+                svg += '<text x="' + p.x + '" y="' + (p.y + 12) + '" text-anchor="middle" fill="' + c.text + '" font-family="Tajawal,sans-serif" font-size="8" opacity="0.85">[' + rg[0] + '-' + rg[1] + ']</text>';
+                svg += '</g>';
+            }
+            svg += '</svg>';
+            el.innerHTML = svg;
+        }
+
+        // ===================================================================
+        // TAB 1 (Concept) — static illustrative diagram, built once.
+        // ===================================================================
+        const CONCEPT_DEMO = buildSegState([2, 4, 6, 8], 'sum');
+        renderSegTreeSVG('conceptTreeSvg', CONCEPT_DEMO.N, CONCEPT_DEMO.SEG, {}, 4);
+
+        // ===================================================================
+        // TAB 2: Build lab — shared live state (ST) reused by Query/Update.
+        // ===================================================================
+        let ST = null;
+
+        function doBuildTree() {
+            const raw = document.getElementById('buildArrInput').value.trim().split(/\s+/).map(Number).filter(function (x) { return !isNaN(x); });
+            if (raw.length < 1 || raw.length > 8) { alert('أدخل من 1 إلى 8 أعداد للحفاظ على وضوح رسم الشجرة.'); return; }
+            const op = document.getElementById('opSelect').value;
+            ST = buildSegState(raw, op);
+            const n = raw.length;
+
+            renderSegTreeSVG('buildTreeSvg', ST.N, ST.SEG, {}, n);
+            document.getElementById('buildStats').innerHTML =
+                statChip('n', n) + statChip('N (بعد الحشو)', ST.N) + statChip('عدد العقد', 2 * ST.N - 1) + statChip('ارتفاع الشجرة', Math.floor(Math.log2(ST.N)) + 1);
+
+            const leavesStr = Array.from({ length: ST.N }, function (_, i) {
+                return i < n ? 'seg[' + (i + ST.N) + ']=' + raw[i] : 'seg[' + (i + ST.N) + ']=' + fmtVal(neutralOp(op));
+            }).join(' | ');
+            document.getElementById('buildLog').innerHTML =
+                line('▸ المصفوفة: [' + raw.join(', ') + ']  |  n=' + n + ', N=' + ST.N + ', عدد العقد=' + (2 * ST.N - 1)) +
+                line('▸ الأوراق (' + ST.N + ' ورقة): ' + leavesStr) +
+                line('▸ الجذر: seg[1] = ' + fmtVal(ST.SEG[1])) +
+                line('✓ الشجرة جاهزة (عملية: ' + opLabel(op) + ')', 'final-line');
+
+            // keep Query/Update tabs in sync with the freshly built tree
+            renderSegTreeSVG('queryTreeSvg', ST.N, ST.SEG, {}, n);
+            document.getElementById('queryLog').innerHTML = 'الشجرة جاهزة — أدخل [ql, qr] واضغط استعلام.';
+            document.getElementById('queryStats').innerHTML = '';
+            renderSegTreeSVG('updateTreeSvg', ST.N, ST.SEG, {}, n);
+            document.getElementById('updateLog').innerHTML = 'الشجرة جاهزة — أدخل j وv واضغط تحديث.';
+        }
+
+        function doRandomBuild() {
+            const len = 3 + Math.floor(Math.random() * 6); // 3..8
+            const arr = Array.from({ length: len }, function () { return Math.floor(Math.random() * 20) + 1; });
+            document.getElementById('buildArrInput').value = arr.join(' ');
+            doBuildTree();
+        }
+
+        // ===================================================================
+        // TAB 3: Query lab — real recursive query() mirroring the C++ exactly,
+        // with a full call-by-call trace and live node-visit statistics.
+        // ===================================================================
+        function doQueryRun() {
+            if (!ST) { document.getElementById('queryLog').innerHTML = line('⚠️ ابنِ الشجرة أولًا من تبويب «البناء».', 'error-line'); return; }
+            const ql = parseInt(document.getElementById('qlInput').value, 10);
+            const qr = parseInt(document.getElementById('qrInput').value, 10);
+            if (isNaN(ql) || isNaN(qr) || ql < 1 || qr > ST.ARR.length || ql > qr) {
+                document.getElementById('queryLog').innerHTML = line('⚠️ نطاق غير صالح: يجب أن يكون 1 ≤ ql ≤ qr ≤ ' + ST.ARR.length, 'error-line');
+                return;
+            }
+            const hlMap = {};
+            const trace = [];
+            function rec(id, l, r) {
+                if (ql > r || l > qr) {
+                    hlMap[id] = 'skip';
+                    trace.push(line('⊗ seg[' + id + '] [' + l + '-' + r + ']: لا تقاطع → ترجع ' + fmtVal(neutralOp(ST.OP))));
+                    return neutralOp(ST.OP);
+                }
+                if (ql <= l && r <= qr) {
+                    hlMap[id] = 'hit';
+                    trace.push(line('✓ seg[' + id + '] [' + l + '-' + r + ']: تغطية كاملة → ترجع ' + fmtVal(ST.SEG[id]), 'ok-line'));
+                    return ST.SEG[id];
+                }
+                hlMap[id] = 'partial';
+                const m = Math.floor((l + r) / 2);
+                trace.push(line('↓ seg[' + id + '] [' + l + '-' + r + ']: تقاطع جزئي عند m=' + m + ' → ينزل للطفلين'));
+                const lv = rec(id * 2, l, m);
+                const rv = rec(id * 2 + 1, m + 1, r);
+                return mergeOp(lv, rv, ST.OP);
+            }
+            const ans = rec(1, 1, ST.N);
+            trace.push(line('🏁 النتيجة النهائية: query(' + ql + ', ' + qr + ') = ' + fmtVal(ans), 'final-line'));
+            document.getElementById('queryLog').innerHTML = trace.join('');
+            renderSegTreeSVG('queryTreeSvg', ST.N, ST.SEG, hlMap, ST.ARR.length);
+
+            const visited = Object.keys(hlMap).length;
+            const bound = 4 * Math.ceil(Math.log2(Math.max(ST.N, 2)));
+            document.getElementById('queryStats').innerHTML =
+                statChip('عقد زُرت فعليًا', visited) + statChip('الحد النظري ≈4×log₂N', bound) + statChip('مسح ساذج O(n)', ST.ARR.length);
+        }
+
+        // ===================================================================
+        // TAB 4: Update lab — real pointUpdate mirroring the C++ exactly,
+        // logging the before/after value at every ancestor on the path.
+        // ===================================================================
+        function doUpdateRun() {
+            if (!ST) { document.getElementById('updateLog').innerHTML = line('⚠️ ابنِ الشجرة أولًا من تبويب «البناء».', 'error-line'); return; }
+            const j = parseInt(document.getElementById('ujInput').value, 10);
+            const v = parseInt(document.getElementById('uvInput').value, 10);
+            if (isNaN(j) || j < 1 || j > ST.ARR.length || isNaN(v)) {
+                document.getElementById('updateLog').innerHTML = line('⚠️ قيم غير صالحة: يجب أن يكون 1 ≤ j ≤ ' + ST.ARR.length, 'error-line');
+                return;
+            }
+            const old = ST.ARR[j - 1];
+            ST.ARR[j - 1] = v;
+            const idx = j + ST.N - 1;
+            ST.SEG[idx] = v;
+            const hlMap = {}; hlMap[idx] = 'updLeaf';
+            const lines = [line('▸ تحديث a[' + j + ']: ' + old + ' → ' + v + '   |   الورقة في seg[' + idx + ']')];
+            let hops = 0;
+            for (let i = Math.floor(idx / 2); i > 0; i = Math.floor(i / 2)) {
+                const before = ST.SEG[i];
+                ST.SEG[i] = mergeOp(ST.SEG[i * 2], ST.SEG[i * 2 + 1], ST.OP);
+                hlMap[i] = 'updPath';
+                hops++;
+                lines.push(line('↑ إعادة حساب seg[' + i + ']: merge(' + fmtVal(ST.SEG[i * 2]) + ', ' + fmtVal(ST.SEG[i * 2 + 1]) + ') = ' + fmtVal(ST.SEG[i]) + '   (كانت ' + fmtVal(before) + ')'));
+            }
+            lines.push(line('✓ اكتمل التحديث في O(log N) — أُعيد حساب ' + hops + ' سلفًا فقط من أصل ' + (ST.N - 1) + ' عقدة داخلية.', 'final-line'));
+            document.getElementById('updateLog').innerHTML = lines.join('');
+            renderSegTreeSVG('updateTreeSvg', ST.N, ST.SEG, hlMap, ST.ARR.length);
+            renderSegTreeSVG('buildTreeSvg', ST.N, ST.SEG, {}, ST.ARR.length);
+            renderSegTreeSVG('queryTreeSvg', ST.N, ST.SEG, {}, ST.ARR.length);
+        }
+
+        // ===================================================================
+        // TAB 5: CSES 1649 multi-operation runner — builds its own min-tree
+        // and executes "1 k u" / "2 l r" op lines exactly like the C++ above.
+        // ===================================================================
+        function runDrmqLab() {
+            const raw = document.getElementById('drmqArrInput').value.trim().split(/\s+/).map(Number).filter(function (x) { return !isNaN(x); });
+            const opsRaw = document.getElementById('drmqOpsInput').value.trim().split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+            const box = document.getElementById('drmqConsole');
+            if (raw.length < 1) { box.innerHTML = line('⚠️ أدخل مصفوفة صحيحة.', 'error-line'); return; }
+            if (opsRaw.length < 1) { box.innerHTML = line('⚠️ أدخل عملية واحدة على الأقل.', 'error-line'); return; }
+
+            const n = raw.length;
+            let N = 1; while (N < n) N *= 2;
+            const seg = new Array(2 * N).fill(Infinity);
+            for (let i = 0; i < n; i++) seg[i + N] = raw[i];
+            for (let i = N - 1; i > 0; i--) seg[i] = Math.min(seg[i * 2], seg[i * 2 + 1]);
+
+            function q(id, l, r, ql, qr) {
+                if (ql > r || l > qr) return Infinity;
+                if (ql <= l && r <= qr) return seg[id];
+                const m = Math.floor((l + r) / 2);
+                return Math.min(q(id * 2, l, m, ql, qr), q(id * 2 + 1, m + 1, r, ql, qr));
+            }
+
+            const out = [line('▸ بُنيت الشجرة: n=' + n + ', N=' + N + ' (min، الحشو = ∞)')];
+            opsRaw.forEach(function (opLine) {
+                const parts = opLine.split(/\s+/).map(Number);
+                if (parts[0] === 1) {
+                    const k = parts[1], u = parts[2];
+                    if (isNaN(k) || isNaN(u) || k < 1 || k > n) { out.push(line('⚠️ سطر غير صالح: "' + opLine + '"', 'error-line')); return; }
+                    const idx = k + N - 1;
+                    seg[idx] = u;
+                    for (let i = Math.floor(idx / 2); i > 0; i = Math.floor(i / 2)) seg[i] = Math.min(seg[i * 2], seg[i * 2 + 1]);
+                    out.push(line(opLine + '   →   تحديث: a[' + k + '] = ' + u));
+                } else if (parts[0] === 2) {
+                    const l = parts[1], r = parts[2];
+                    if (isNaN(l) || isNaN(r) || l < 1 || r > n || l > r) { out.push(line('⚠️ سطر غير صالح: "' + opLine + '"', 'error-line')); return; }
+                    const ans = q(1, 1, N, l, r);
+                    out.push(line(opLine + '   →   min = ' + ans, 'ok-line'));
+                } else {
+                    out.push(line('⚠️ نوع عملية غير معروف: "' + opLine + '"', 'error-line'));
+                }
+            });
+            box.innerHTML = out.join('');
+        }
+
+        // ===================================================================
+        // TAB 6: Quiz bank — 15 open-ended questions with full model answers
+        // (the source lesson provided only category counts, no questions;
+        // all 15 below are authored from scratch, grounded in this chapter).
+        // ===================================================================
+        function escapeHtml(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+        const HW_BANK = {
+            easy: [
+                {
+                    q: 'ما هو موضع الورقة التي تُمثّل العنصر a[3] (مرقّم من 1) في مصفوفة seg إذا كانت N = 8؟',
+                    tags: ['التمثيل', 'الأوراق'],
+                    a: 'موضع الورقة = j + N - 1 = 3 + 8 - 1 = <strong>10</strong>. أي أن العنصر a[3] يقع في seg[10].',
+                    c: null
+                },
+                {
+                    q: 'إذا كانت n = 5، ما هي N (عدد الأوراق) وما هو الحجم الكلي لمصفوفة seg؟',
+                    tags: ['N والحشو', 'الذاكرة'],
+                    a: 'N هي أقرب قوة للعدد 2 لا تقل عن 5، وهي N = 8. حجم مصفوفة seg = 2 × 8 = 16. عدد العقد الفعلية = 2×8 - 1 = 15 (الموضع 0 لا يُستخدم).',
+                    c: null
+                },
+                {
+                    q: 'في دالة الاستعلام، ما القيمة التي يجب إرجاعها عند اللاتقاطع إذا كانت عملية الدمج min؟ ولماذا؟',
+                    tags: ['القيمة المحايدة', 'min'],
+                    a: 'يجب إرجاع INT_MAX. السبب: عند دمج النتيجتين بـ min، يكون min(x, INT_MAX) = x لأي قيمة x، إذن اللاتقاطع لا يُؤثر على النتيجة النهائية.',
+                    c: null
+                },
+                {
+                    q: 'لماذا نبني العقد الداخلية بترتيب عكسي (من N-1 إلى 1) وليس بترتيب أمامي (من 1 إلى N-1)؟',
+                    tags: ['ترتيب البناء', 'الاعتمادية'],
+                    a: 'لأن كل عقدة داخلية i تعتمد على طفليها (i*2) و(i*2+1). بالترتيب العكسي، عند معالجة العقدة i تكون طفلاها مبنيّتان بالفعل (لأن رقمهما أكبر). أما بالترتيب الأمامي فقد نعالج عقدة قبل أن تُبنى أبناؤها.',
+                    c: null
+                },
+                {
+                    q: 'ما الفرق الجوهري بين Segment Tree وتحليل الجذر التربيعي من حيث التعقيد الزمني للاستعلام والتحديث؟',
+                    tags: ['المقارنة', 'التعقيد'],
+                    a: 'Segment Tree: استعلام O(log n)، تحديث O(log n).<br>تحليل الجذر التربيعي: استعلام O(√n)، تحديث O(√n).<br>لـ n = 10⁶: log₂(10⁶) ≈ 20 مقارنةً بـ √10⁶ = 1000.<br>Segment Tree أسرع بكثير لكنها أصعب تنفيذًا وأقل مرونة من حيث التعديل.',
+                    c: null
+                }
+            ],
+            medium: [
+                {
+                    q: 'عدّل دالة query لتحسب الحد الأقصى بدلاً من المجموع. ما الذي يتغيّر بالضبط؟',
+                    tags: ['max Query', 'تعديل'],
+                    a: 'يتغيّر شيئان: (1) نُرجع INT_MIN عند اللاتقاطع بدلاً من 0. (2) نستبدل عملية الجمع بـ max. كود البناء أيضًا يستبدل الجمع بـ max والقيمة المحايدة بـ INT_MIN.',
+                    c: 'int query(int id, int l, int r, int ql, int qr) {\n    if (ql > r || l > qr) return INT_MIN; // تغيّر\n    if (ql <= l && r <= qr) return seg[id];\n    int m = (l + r) / 2;\n    return max(query(id*2, l, m, ql, qr),\n               query(id*2+1, m+1, r, ql, qr)); // تغيّر\n}\n// وفي البناء:\nfor (int i = n + N; i < 2*N; i++) seg[i] = INT_MIN; // تغيّر\nfor (int i = N-1; i > 0; i--) seg[i] = max(seg[i*2], seg[i*2+1]); // تغيّر'
+                },
+                {
+                    q: 'ما العقد التي ستُزار عند الاستعلام عن النطاق [2, 3] في مصفوفة [2, 4, 6, 8] مع N = 4؟ (جرّبها في مختبر الاستعلام وتحقّق من إجابتك)',
+                    tags: ['تتبع الاستدعاءات', 'مثال عملي'],
+                    a: 'نبدأ من الجذر (id=1، [1-4]):<br>• id=1 [1-4]: تقاطع جزئي → تقسيم عند m=2<br>&nbsp;&nbsp;• id=2 [1-2]: تقاطع جزئي → تقسيم عند m=1<br>&nbsp;&nbsp;&nbsp;&nbsp;• id=4 [1-1]: لا تقاطع → قيمة محايدة<br>&nbsp;&nbsp;&nbsp;&nbsp;• id=5 [2-2]: تغطية كاملة → 4 ✓<br>&nbsp;&nbsp;• id=3 [3-4]: تقاطع جزئي → تقسيم عند m=3<br>&nbsp;&nbsp;&nbsp;&nbsp;• id=6 [3-3]: تغطية كاملة → 6 ✓<br>&nbsp;&nbsp;&nbsp;&nbsp;• id=7 [4-4]: لا تقاطع → قيمة محايدة<br><br>الجواب لعملية المجموع = 0 + 4 + 6 + 0 = <strong>10</strong> (ولعملية max = 6).',
+                    c: null
+                },
+                {
+                    q: 'كيف تُعدّل Segment Tree لدعم استعلام «عدد الأصفار» في نطاق [l, r]؟',
+                    tags: ['عدّ الأصفار', 'تعميم'],
+                    a: 'نُخزّن في كل عقدة عدد الأصفار في النطاق الذي تغطيه. الأوراق: 1 إذا كان العنصر = 0، وإلا 0. العقد الداخلية: مجموع الطفلين. القيمة المحايدة = 0. دالة الدمج = الجمع. بهذا يصبح الاستعلام O(log n) بدلًا من مسح النطاق بالكامل.',
+                    c: '// البناء\nfor (int i = 0; i < n; i++) seg[i + N] = (a[i] == 0) ? 1 : 0;\nfor (int i = n + N; i < 2*N; i++) seg[i] = 0;\nfor (int i = N-1; i > 0; i--) seg[i] = seg[i*2] + seg[i*2+1];\n\n// الاستعلام — نفس دالة المجموع تمامًا\nint queryZeros(int id, int l, int r, int ql, int qr) {\n    if (ql > r || l > qr) return 0;\n    if (ql <= l && r <= qr) return seg[id];\n    int m = (l+r)/2;\n    return queryZeros(id*2,l,m,ql,qr) + queryZeros(id*2+1,m+1,r,ql,qr);\n}'
+                },
+                {
+                    q: 'كيف تُعدّل pointUpdate لتتعامل مع مصفوفة مُرقّمة ابتداءً من 0 بدلاً من 1؟',
+                    tags: ['ترقيم من 0', 'pointUpdate'],
+                    a: 'إذا كانت المصفوفة مُرقّمة من 0، يكون موضع الورقة للعنصر a[j] هو j + N (بدلًا من j + N - 1). يجب الانتباه إلى التناسق: عند بناء الشجرة نضع seg[i + N] = a[i] (من 0 إلى n-1)، وعند التحديث idx = j + N.',
+                    c: 'void pointUpdate(int j, int v) { // j من 0\n    a[j] = v;\n    int idx = j + N; // لا نطرح 1 هنا لأن j يبدأ من 0\n    seg[idx] = v;\n    for (int i = idx/2; i > 0; i /= 2)\n        seg[i] = seg[i*2] + seg[i*2+1];\n}'
+                },
+                {
+                    q: 'ما الفرق في طريقة استدعاء الاستعلام عند ترقيم العناصر من 1 مقارنةً بالترقيم من 0؟',
+                    tags: ['الاستدعاء الجذري', 'الترقيم'],
+                    a: 'عند الترقيم من 1: الاستعلام يُستدعى بـ query(1, 1, N, ql, qr).<br>عند الترقيم من 0: الاستعلام يُستدعى بـ query(1, 0, N-1, ql, qr).<br>الفرق فقط في حدود l وr عند الجذر (تبدأ من 1 أو 0 بحسب الاصطلاح المُتَّبع) — الكود الداخلي للدالة نفسه لا يتغيّر إطلاقًا.',
+                    c: null
+                }
+            ],
+            hard: [
+                {
+                    q: 'نفّذ Lazy Propagation لدعم تحديث نطاق (أضف v لجميع عناصر [l, r]) مع استعلام مجموع النطاق.',
+                    tags: ['Lazy Propagation', 'تحديث نطاق'],
+                    a: 'Lazy Propagation تُؤجّل التحديثات: بدلًا من تحديث كل عنصر في النطاق فورًا، نُخزّن التحديث المُعلَّق في مصفوفة lazy عند العقدة المُغطاة بالكامل. عند الحاجة للنزول أعمق (استعلام أو تحديث لاحق يتقاطع جزئيًا)، نَدفع (push down) التحديث المُعلَّق إلى الأبناء أولًا قبل النزول. هذا يُبقي كل عملية O(log n) بدلًا من O(n) في أسوأ الحالات.',
+                    c: 'int seg[4*MAXN], lazy[4*MAXN]; // 4*n كافٍ للشجرة التعاودية الكاملة\n\nvoid pushDown(int id, int l, int r) {\n    if (lazy[id] != 0) {\n        int m = (l+r)/2;\n        seg[id*2]   += lazy[id] * (m - l + 1);\n        seg[id*2+1] += lazy[id] * (r - m);\n        lazy[id*2]   += lazy[id];\n        lazy[id*2+1] += lazy[id];\n        lazy[id] = 0;\n    }\n}\n\nvoid rangeAdd(int id, int l, int r, int ql, int qr, int v) {\n    if (ql > r || l > qr) return;\n    if (ql <= l && r <= qr) {\n        seg[id]  += v * (r - l + 1);\n        lazy[id] += v;\n        return;\n    }\n    pushDown(id, l, r);\n    int m = (l+r)/2;\n    rangeAdd(id*2,   l, m,   ql, qr, v);\n    rangeAdd(id*2+1, m+1, r, ql, qr, v);\n    seg[id] = seg[id*2] + seg[id*2+1];\n}'
+                },
+                {
+                    q: 'كيف تبني Segment Tree للـ GCD (القاسم المشترك الأكبر) للنطاقات؟ وما خاصية الدمج التي تجعل ذلك ممكنًا؟',
+                    tags: ['GCD', 'الترابطية'],
+                    a: 'الخاصية المهمة: GCD تمتلك خاصية <strong>الترابطية (associativity)</strong>: gcd(a, gcd(b, c)) = gcd(gcd(a, b), c). إذن يمكن تعريف دالة الدمج بـ gcd مباشرةً. القيمة المحايدة = 0 (لأن gcd(x, 0) = x لأي x). بناء الشجرة وعمليات الاستعلام والتحديث مطابقة تمامًا لحالة المجموع مع استبدال + بـ gcd.',
+                    c: '#include <algorithm>\nusing namespace std;\n\n// نفس كود Segment Tree مع استبدال عملية الدمج فقط\nfor (int i = N-1; i > 0; i--)\n    seg[i] = __gcd(seg[i*2], seg[i*2+1]);\n\nint query(int id, int l, int r, int ql, int qr) {\n    if (ql > r || l > qr) return 0; // gcd(x,0) = x — القيمة المحايدة\n    if (ql <= l && r <= qr) return seg[id];\n    int m = (l+r)/2;\n    return __gcd(query(id*2,l,m,ql,qr), query(id*2+1,m+1,r,ql,qr));\n}'
+                },
+                {
+                    q: 'اشرح كيف تُنفَّذ Segment Tree تدعم استعلام «عدد العناصر الموجبة في [l, r]» مع تحديث نطاق «اضرب جميع عناصر [l, r] في -1».',
+                    tags: ['Range Flip', 'Lazy'],
+                    a: 'لكل عقدة نُخزّن عدد الموجبات (pos) والسالبات (neg) في نطاقها. عند الضرب في -1: تتبادل pos وneg في العقدة نفسها. مع Lazy Propagation: نُخزّن في lazy علامةً منطقية تُعبّر عن وجوب الانعكاس. عند push down: إذا كانت lazy = true، نُبدّل pos وneg في كلا الابنين وننشر العلامة إليهما.',
+                    c: 'struct Node { int pos, neg; };\nNode seg[4*MAXN];\nbool lazy[4*MAXN]; // هل نُطبّق flip؟\n\nvoid flip(int id) { swap(seg[id].pos, seg[id].neg); lazy[id] ^= 1; }\n\nvoid pushDown(int id) {\n    if (lazy[id]) { flip(id*2); flip(id*2+1); lazy[id] = 0; }\n}\n\nvoid rangeFlip(int id,int l,int r,int ql,int qr) {\n    if (ql>r||l>qr) return;\n    if (ql<=l&&r<=qr) { flip(id); return; }\n    pushDown(id);\n    int m=(l+r)/2;\n    rangeFlip(id*2,l,m,ql,qr);\n    rangeFlip(id*2+1,m+1,r,ql,qr);\n    seg[id]={seg[id*2].pos+seg[id*2+1].pos, seg[id*2].neg+seg[id*2+1].neg};\n}'
+                },
+                {
+                    q: 'ما هو Merge Sort Tree؟ وكيف يُجيب عن استعلام «كم عنصرًا في [l, r] أصغر من x؟» بكفاءة؟',
+                    tags: ['Merge Sort Tree', 'Binary Search'],
+                    a: 'Merge Sort Tree هي شجرة قطاعات حيث كل عقدة تُخزّن عناصر نطاقها في مصفوفة (vector) مرتَّبة. بناؤها O(n log n) زمنًا وذاكرةً (كل عنصر يظهر في O(log n) عقدة). للاستعلام «عدد العناصر أصغر من x في [l, r]»: نزور O(log n) عقدة، وفي كل عقدة نُطبّق بحثًا ثنائيًا (lower_bound) بتكلفة O(log n)، فيصبح التعقيد الكلي O(log² n). ملاحظة مهمّة: هذا هيكل static — لا يدعم التحديث بكفاءة لأن كل تحديث قد يُغيّر ترتيب عناصر O(log n) عقدة.',
+                    c: 'vector<int> seg_msort[4*MAXN];\n\nvoid build(int id, int l, int r) {\n    if (l == r) { seg_msort[id] = {a[l]}; return; }\n    int m = (l+r)/2;\n    build(id*2, l, m);\n    build(id*2+1, m+1, r);\n    merge(seg_msort[id*2].begin(), seg_msort[id*2].end(),\n          seg_msort[id*2+1].begin(), seg_msort[id*2+1].end(),\n          back_inserter(seg_msort[id]));\n}\n\nint countLess(int id, int l, int r, int ql, int qr, int x) {\n    if (ql > r || l > qr) return 0;\n    if (ql <= l && r <= qr)\n        return (int)(lower_bound(seg_msort[id].begin(), seg_msort[id].end(), x)\n                   - seg_msort[id].begin());\n    int m = (l+r)/2;\n    return countLess(id*2,l,m,ql,qr,x) + countLess(id*2+1,m+1,r,ql,qr,x);\n}'
+                },
+                {
+                    q: 'كيف تُنفّذ استعلام «أوجد أكبر مجموع مصفوفة جزئية متجاورة في النطاق [l, r]» باستخدام Segment Tree؟ (مسألة Maximum Subarray)',
+                    tags: ['Maximum Subarray', 'دمج المعلومات'],
+                    a: 'كل عقدة تُخزّن 4 قيم بدلًا من قيمة واحدة: (1) total: مجموع النطاق كاملًا. (2) prefix: أكبر مجموع بادئة (تبدأ من أول النطاق). (3) suffix: أكبر مجموع لاحقة (تنتهي عند آخر النطاق). (4) best: أفضل مجموع جزئي متجاور داخل النطاق بالكامل. عند دمج عقدتين L وR: best = max(L.best, R.best, L.suffix + R.prefix) — فالمصفوفة الجزئية الفضلى إمّا بالكامل في L، أو بالكامل في R، أو تعبر الحد الفاصل بينهما (نهاية L مع بداية R). هذا يُتيح استعلامًا صحيحًا عن أي نطاق [l, r] في O(log n).',
+                    c: 'struct Node {\n    long long total, prefix, suffix, best;\n};\n\nNode combine(Node L, Node R) {\n    Node res;\n    res.total  = L.total + R.total;\n    res.prefix = max(L.prefix, L.total + R.prefix);\n    res.suffix = max(R.suffix, R.total + L.suffix);\n    res.best   = max({L.best, R.best, L.suffix + R.prefix});\n    return res;\n}\n\n// بناء الأوراق: seg[id] = {a[i], a[i], a[i], a[i]}\n// (حتى لو كان a[i] سالبًا، المصفوفة الجزئية المكوّنة من عنصر واحد صالحة)'
+                }
+            ]
+        };
+
+        function hwRenderAll() {
+            const container = document.getElementById('hwContainer');
+            const sections = [
+                { key: 'easy', label: 'سهل — المستوى الأول', icon: '🟢' },
+                { key: 'medium', label: 'متوسط — المستوى الثاني', icon: '🟡' },
+                { key: 'hard', label: 'صعب — المستوى الثالث', icon: '🔴' }
+            ];
+            let html = '';
+            let qNum = 0;
+            sections.forEach(function (sec) {
+                html += '<div class="quiz-diff-section"><div class="quiz-diff-header"><span style="font-size:1.2rem;">' + sec.icon + '</span><h4>' + sec.label + '</h4></div>';
+                HW_BANK[sec.key].forEach(function (item, idx) {
+                    qNum++;
+                    const uid = sec.key + '_' + idx;
+                    const tagsHtml = item.tags.map(function (t) { return '<span class="q-tag">' + t + '</span>'; }).join('');
+                    html += '<div class="homework-item">';
+                    html += '<div class="hw-top-row"><span class="hw-num">س' + qNum + '</span><div class="hw-tags">' + tagsHtml + '</div></div>';
+                    html += '<p class="hw-question">' + item.q + '</p>';
+                    html += '<button class="toggle-btn" id="toggleBtn_' + uid + '" onclick="hwToggle(\'' + uid + '\')">+</button>';
+                    html += '<div class="collapsible" id="collapsible_' + uid + '"><div class="answer-box"><p><strong style="color:var(--primary-blue)">الإجابة:</strong></p><p>' + item.a + '</p>';
+                    if (item.c) html += '<div class="mini-code">' + escapeHtml(item.c) + '</div>';
+                    html += '</div></div>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            });
+            container.innerHTML = html;
+        }
+
+        function hwToggle(uid) {
+            const box = document.getElementById('collapsible_' + uid);
+            const btn = document.getElementById('toggleBtn_' + uid);
+            const isOpen = box.classList.toggle('open');
+            btn.classList.toggle('open', isOpen);
+            btn.innerText = isOpen ? '×' : '+';
+        }
+
+        // ===================================================================
+        // Init
+        // ===================================================================
+        hwRenderAll();
+    </script>
+</body>
+</html>

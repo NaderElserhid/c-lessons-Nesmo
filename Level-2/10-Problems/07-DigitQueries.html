@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | مسألة: Digit Queries</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        /* hero banner */
+        .hero-banner { background: var(--blue-gradient); padding: 60px 6% 50px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 720px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+        .hero-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 22px; }
+        .diff-badge { padding: 7px 18px; border-radius: 50px; font-weight: 800; font-size: 0.82rem; }
+        .diff-easy { background: #dcfce7; color: #15803d; }
+        .diff-medium { background: #fef3c7; color: #b45309; }
+        .diff-hard { background: #fee2e2; color: #b91c1c; }
+        .source-badge {
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.4); color: white;
+            padding: 7px 18px; border-radius: 50px; font-size: 0.82rem; font-weight: 700; text-decoration: none;
+            direction: ltr; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .source-badge:hover { background: rgba(255,255,255,0.28); }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula { direction: ltr; display: inline-block; font-family: 'Consolas', monospace; font-weight: 800; background: #eef2f7; padding: 3px 10px; border-radius: 8px; color: var(--dark-navy); }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td code.inline, .data-table th code.inline { white-space: nowrap; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+
+        /* numbered steps */
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        /* interactive lab */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 14px 0 6px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+
+        /* digit queries lab */
+        .digitq-blocks { display: flex; flex-direction: column; gap: 10px; margin-bottom: 6px; }
+        .digitq-block {
+            display: flex; justify-content: space-between; align-items: center; gap: 10px;
+            background: var(--bg-main); border: 2px solid #cbd5e1; border-radius: 12px; padding: 10px 16px;
+            font-size: 0.85rem; font-weight: 700; color: var(--text-body); transition: all 0.3s ease;
+            animation: chipPop 0.3s ease;
+        }
+        .digitq-block .digitq-block-label { color: var(--dark-navy); }
+        .digitq-block .digitq-block-len { font-family: 'Consolas', monospace; direction: ltr; }
+        .digitq-block.skipped { opacity: 0.5; text-decoration: line-through; }
+        .digitq-block.current { border-color: #22c55e; background: rgba(34,197,94,0.08); color: #15803d; }
+        @keyframes chipPop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        .digitq-number-boxes { display: flex; gap: 8px; justify-content: center; direction: ltr; margin-top: 14px; min-height: 52px; }
+        .digitq-digit-box {
+            width: 42px; height: 50px; border-radius: 10px; background: var(--bg-main); border: 2px solid #cbd5e1;
+            display: flex; align-items: center; justify-content: center; font-family: 'Consolas', monospace;
+            font-weight: 800; font-size: 1.2rem; color: var(--dark-navy);
+        }
+        .digitq-digit-box.target { border-color: #22c55e; background: rgba(34,197,94,0.15); color: #15803d; transform: scale(1.15); }
+
+        .digitq-result-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 16px; text-align: center; direction: ltr;
+            display: none;
+        }
+        .digitq-result-box.show { display: block; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge">المسائل: Digit Queries</span>
+            <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الثاني</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-hashtag"></i>
+        <h1>المسألة 7: Digit Queries (استعلامات الخانات)</h1>
+        <p class="hero-desc">سلسلة لا نهائية من كل الأعداد الصحيحة الموجبة ملصوقة ببعضها، وعليك إيجاد الخانة عند موضع قد يصل إلى <span class="formula">10&#185;&#8312;</span> — دون بناء السلسلة نفسها بالطبع! الحل يعتمد على تجميع الأعداد حسب عدد خاناتها والقفز بين الكتل مباشرة.</p>
+        <div class="hero-badges">
+            <span class="diff-badge diff-medium">Medium</span>
+            <a class="source-badge" href="https://cses.fi/problemset/task/2431" target="_blank" rel="noopener"><i class="fas fa-up-right-from-square"></i> CSES 2431</a>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- Problem statement -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-file-lines"></i>
+                <h3>نص المسألة</h3>
+            </div>
+            <p>اعتبر السلسلة اللانهائية الناتجة عن لصق جميع الأعداد الصحيحة الموجبة بالترتيب:</p>
+            <div class="output-box">1234567891011121314151617181920212223...</div>
+            <p style="margin-top: 14px;">لدينا <code class="inline">q</code> استعلام. في كل استعلام، يُعطى لك موقع <code class="inline">k</code> (مرقّم بداية من 1) داخل هذه السلسلة اللانهائية. مهمتك هي طباعة الخانة (digit) الموجودة في الموقع <code class="inline">k</code>.</p>
+
+            <h4 class="sub-title">القيود</h4>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p><code class="inline">1 &le; q &le; 1000</code></p></li>
+                <li class="step-item"><span class="step-num"></span><p><code class="inline">1 &le; k &le; 10&#185;&#8312;</code></p></li>
+            </ul>
+
+            <h4 class="sub-title">مثال</h4>
+            <div class="output-box">Input:<br>3<br>7<br>19<br>12</div>
+            <div class="output-box" style="margin-top: 10px;">Output:<br>7<br>4<br>1</div>
+        </div>
+
+        <!-- Interactive lab -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>مختبر تفاعلي: تخطَّ الكتل حتى تصل إلى الخانة المطلوبة</h3>
+            </div>
+            <p>شغّل المحاكاة لإيجاد الخانة عند الموضع <code class="inline">k = 200</code>: سنطرح أطوال الكتل (خانة واحدة، خانتان، ثلاث خانات...) واحدة تلو الأخرى حتى نصل إلى الكتلة الصحيحة، ثم نحدّد العدد والخانة بداخله بالضبط:</p>
+
+            <div class="lab-box">
+                <div class="digitq-blocks" id="digitqBlocks"></div>
+                <div class="digitq-number-boxes" id="digitqNumberBoxes"></div>
+                <div class="lab-step-hint" id="digitqHint">اضغط "شغّل المحاكاة" لإيجاد الخانة عند الموضع k = 200.</div>
+                <div class="digitq-result-box" id="digitqResultBox"></div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runDigitLab()">شغّل المحاكاة</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CP methodology -->
+        <div class="card" style="border-right-color: var(--primary-yellow);">
+            <div class="card-header" style="color: var(--primary-yellow);">
+                <i class="fas fa-map-signs"></i>
+                <h3>منهجية الحل: كيف نفكّر في هذه المسألة؟</h3>
+            </div>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p><strong>افهم المسألة:</strong> نريد الخانة رقم k في سلسلة لا نهائية دون بناء السلسلة فعليًا.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>جرّب أمثلة صغيرة يدويًا:</strong> احسب يدويًا الخانة عند k=7 وk=19 وk=12 وتحقّق من المثال.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>ابحث عن نمط:</strong> جمّع الأعداد حسب عدد خاناتها (خانة واحدة، خانتان، ثلاث...) وستجد أن كل مجموعة تساهم بعدد ثابت من الخانات.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>قسّم إلى حالات:</strong> استخدم هذا التقسيم للقفز مباشرة إلى الكتلة الصحيحة بدل المرور رقمًا رقمًا.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>اكتب الكود وتحقّق:</strong> جرّبه على أمثلة المسألة الثلاثة.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>افحص الحالات الحدّية:</strong> ماذا يحدث عند أكبر قيمة ممكنة لـ k؟ وهل قد يفيض أي متغيّر؟</p></li>
+            </ul>
+        </div>
+
+        <!-- Step 1: why brute force fails -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-magnifying-glass"></i>
+                <h3>الخطوة 1: لماذا لا يمكننا بناء السلسلة فعليًا؟</h3>
+            </div>
+            <p>بما أن <code class="inline">k</code> قد يصل إلى <code class="inline">10&#185;&#8312;</code>، فإن بناء السلسلة حتى هذا الموضع يحتاج مساحة وزمنًا هائلين — لا يمكن حتى تخزين بادئة بهذا الطول. نحتاج طريقة رياضية تحسب الخانة المطلوبة مباشرة دون المرور على كل رقم قبلها.</p>
+        </div>
+
+        <!-- Step 2: grouping by digit length -->
+        <div class="card steps-card" style="border-right-color: var(--primary-yellow);">
+            <div class="card-header" style="color: var(--primary-yellow);">
+                <i class="fas fa-lightbulb"></i>
+                <h3>الخطوة 2: تجميع الأعداد حسب عدد الخانات</h3>
+            </div>
+            <p>لاحظ أن الأعداد تنقسم بشكل طبيعي إلى كتل حسب عدد خاناتها:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>عدد الخانات</th><th>المدى</th><th class="center">عدد الأعداد</th><th class="center">إجمالي الخانات</th></tr></thead>
+                    <tbody>
+                        <tr><td>1</td><td class="formula">1 &ndash; 9</td><td class="center">9</td><td class="center">9</td></tr>
+                        <tr><td>2</td><td class="formula">10 &ndash; 99</td><td class="center">90</td><td class="center">180</td></tr>
+                        <tr><td>3</td><td class="formula">100 &ndash; 999</td><td class="center">900</td><td class="center">2700</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>بشكل عام، لكتلة الأعداد ذات <code class="inline">d</code> خانة: أول عدد فيها هو <code class="inline">base = 10^(d-1)</code>، ويوجد فيها <code class="inline">9 &times; base</code> عددًا، فتساهم بإجمالي <span class="formula">9 &times; base &times; d</span> خانة.</p>
+            <p>لأي موضع <code class="inline">k</code>: نبدأ بـ <code class="inline">d=1</code> و<code class="inline">base=1</code>، ونحسب طول الكتلة الحالية. إذا كان <code class="inline">k</code> أكبر من طول الكتلة، نطرحه وننتقل للكتلة التالية (<code class="inline">d++</code>, <code class="inline">base *= 10</code>). نتوقف عندما يقع <code class="inline">k</code> داخل الكتلة الحالية.</p>
+            <p>بعد إيجاد الكتلة الصحيحة، نرقّم داخلها بدءًا من الصفر: <code class="inline">k0 = k - 1</code>، فيكون <code class="inline">index_of_number = k0 / d</code> (أي عدد داخل الكتلة) و<code class="inline">index_in_number = k0 % d</code> (أي خانة داخل هذا العدد)، والعدد الفعلي هو <code class="inline">num = base + index_of_number</code>.</p>
+        </div>
+
+        <!-- Step 3: full solution -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-code"></i>
+                <h3>الخطوة 3: الحل الكامل</h3>
+            </div>
+            <div class="code-box">
+                <div class="code-head"><span>digit_queries.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int q;
+    cin &gt;&gt; q;
+
+    while (q--) {
+        long long k;
+        cin &gt;&gt; k;
+
+        long long d = 1;       <span class="cmt">// current digit length</span>
+        long long base = 1;    <span class="cmt">// 10^(d-1)</span>
+
+        <span class="cmt">// Step 1: find the block (digit length d) that contains position k</span>
+        while (true) {
+            long long count_numbers = 9 * base;
+            long long block_len = count_numbers * d;
+
+            if (k &gt; block_len) {
+                k -= block_len;
+                d++;
+                base *= 10;
+            } else {
+                break;
+            }
+        }
+
+        <span class="cmt">// Step 2: find the exact number and digit within this d-digit block</span>
+        long long k0 = k - 1;
+        long long index_of_number = k0 / d;
+        long long index_in_number = k0 % d;
+
+        long long num = base + index_of_number;
+
+        string s = to_string(num);
+        char answer_digit = s[index_in_number];
+
+        cout &lt;&lt; answer_digit &lt;&lt; endl;
+    }
+
+    return 0;
+}</pre>
+            </div>
+            <div class="output-box">Input: 3 / 7 19 12  &rarr;  Output: 7, 4, 1</div>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>لكل استعلام، حلقة البحث عن الكتلة قصيرة جدًا: <code class="inline">d</code> لن يتجاوز 18 تقريبًا لأن <code class="inline">k &le; 10&#185;&#8312;</code>. لذلك زمن كل استعلام قريب من ثابت، والتعقيد الكلي <span class="formula">O(q log k)</span>.</p>
+            </div>
+        </div>
+
+        <!-- Step 4: edge cases -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-shield-halved"></i>
+                <h3>الخطوة 4: حذر من تجاوز السعة</h3>
+            </div>
+            <p>استخدم النوع <code class="inline">long long</code> لكل من <code class="inline">k</code> و<code class="inline">base</code> و<code class="inline">block_len</code>، لأن هذه القيم قد تصل إلى مليارات المليارات مع <code class="inline">k</code> حتى <code class="inline">10&#185;&#8312;</code>.</p>
+            <p>ضمن هذه القيود، لن يتجاوز <code class="inline">d</code> القيمة 18 تقريبًا، لذا فإن حاصل ضرب <code class="inline">9 * base * d</code> يبقى ضمن حدود النوع <code class="inline">long long</code> دون أي فيض.</p>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>جرّب دائمًا أكبر قيمة ممكنة (<code class="inline">k = 10&#185;&#8312;</code>) كحالة حدّية أساسية — الحل أعلاه يعطي الإجابة <code class="inline">3</code> عندها.</p>
+            </div>
+        </div>
+
+        <div class="good-box">
+            <i class="fas fa-circle-check"></i>
+            <p>هذا النمط — تقسيم مسألة كبيرة إلى "كتل" ذات خصائص موحّدة، ثم القفز بينها بدل المرور عنصرًا عنصرًا — يظهر كثيرًا في مسائل تتعامل مع مدىً هائل من الأرقام. تذكّر هذه الفكرة كلما رأيت قيدًا ضخمًا مثل <code class="inline">10&#185;&#8312;</code>.</p>
+        </div>
+
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الثاني: المسائل — Digit Queries</footer>
+
+    <script>
+        // ===== Digit Queries block-skip visualizer =====
+        function buildDigitFrames(kStart) {
+            const frames = [];
+            let k = kStart;
+            let d = 1;
+            let base = 1;
+
+            while (true) {
+                const countNumbers = 9 * base;
+                const blockLen = countNumbers * d;
+                const skip = k > blockLen;
+                frames.push({ type: 'block', d: d, base: base, blockLen: blockLen, kBefore: k, skip: skip });
+
+                if (skip) {
+                    k -= blockLen;
+                    d++;
+                    base *= 10;
+                } else {
+                    break;
+                }
+            }
+
+            const k0 = k - 1;
+            const indexOfNumber = Math.floor(k0 / d);
+            const indexInNumber = k0 % d;
+            const num = base + indexOfNumber;
+            const numStr = String(num);
+            const digit = numStr[indexInNumber];
+
+            frames.push({
+                type: 'result', k0: k0, indexOfNumber: indexOfNumber, indexInNumber: indexInNumber,
+                num: num, numStr: numStr, digit: digit
+            });
+
+            return frames;
+        }
+
+        function runDigitLab() {
+            const frames = buildDigitFrames(200);
+            const blocksBox = document.getElementById('digitqBlocks');
+            const hint = document.getElementById('digitqHint');
+            const numberBox = document.getElementById('digitqNumberBoxes');
+            const resultBox = document.getElementById('digitqResultBox');
+            blocksBox.innerHTML = '';
+            numberBox.innerHTML = '';
+            resultBox.classList.remove('show');
+
+            let f = 0;
+
+            function playNext() {
+                if (f >= frames.length) return;
+                const frame = frames[f];
+
+                if (frame.type === 'block') {
+                    const chip = document.createElement('div');
+                    chip.className = 'digitq-block';
+                    const rangeEnd = frame.base * 10 - 1;
+                    chip.innerHTML = '<span class="digitq-block-label">أعداد بـ ' + frame.d + ' خانة (من ' + frame.base + ' إلى ' + rangeEnd + ')</span><span class="digitq-block-len">' + frame.blockLen + ' خانة</span>';
+                    blocksBox.appendChild(chip);
+
+                    if (frame.skip) {
+                        hint.innerText = 'k = ' + frame.kBefore + ' أكبر من ' + frame.blockLen + ' → نطرح ونتابع للكتلة التالية.';
+                        setTimeout(function () {
+                            chip.classList.add('skipped');
+                            f++;
+                            setTimeout(playNext, 500);
+                        }, 800);
+                    } else {
+                        chip.classList.add('current');
+                        hint.innerText = 'k = ' + frame.kBefore + ' لا يتجاوز ' + frame.blockLen + ' → الموضع داخل هذه الكتلة!';
+                        f++;
+                        setTimeout(playNext, 1000);
+                    }
+                } else {
+                    const chars = frame.numStr.split('');
+                    chars.forEach(function (ch, idx) {
+                        const box = document.createElement('div');
+                        box.className = 'digitq-digit-box' + (idx === frame.indexInNumber ? ' target' : '');
+                        box.innerText = ch;
+                        numberBox.appendChild(box);
+                    });
+                    hint.innerText = 'k0 = ' + frame.k0 + '، index_of_number = ' + frame.indexOfNumber + '، index_in_number = ' + frame.indexInNumber + ' → العدد = ' + frame.num;
+                    resultBox.innerText = 'الخانة رقم ' + frame.indexInNumber + ' من العدد ' + frame.num + ' هي: ' + frame.digit;
+                    resultBox.classList.add('show');
+                }
+            }
+
+            playNext();
+        }
+    </script>
+</body>
+</html>

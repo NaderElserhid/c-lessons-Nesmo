@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | مسألة: Labyrinth — CSES 1193</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+        .adv-badge {
+            background: #dcfce7; color: #15803d; border: none;
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .hero-banner { background: var(--blue-gradient); padding: 60px 6% 40px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 14px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 10px; }
+        .hero-desc { max-width: 780px; margin: 0 auto 22px; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+        .hero-stats-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+        .hero-stat { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 16px; padding: 10px 22px; text-align: center; }
+        .hero-stat .hs-label { display: block; font-size: 0.72rem; color: rgba(255,255,255,0.8); font-weight: 700; }
+        .hero-stat .hs-value { display: block; font-size: 1rem; font-weight: 800; color: white; margin-top: 2px; }
+        .hero-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; background: white; color: var(--primary-blue); padding: 10px 24px; border-radius: 50px; font-weight: 800; font-size: 0.88rem; text-decoration: none; }
+        .hero-cta:hover { background: #eef2f7; }
+
+        .tab-nav {
+            display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+            background: white; padding: 14px 6%; position: sticky; top: 87px; z-index: 900;
+            border-bottom: 1px solid #e2e8f0; box-shadow: 0 4px 14px -8px rgba(0,0,0,0.08);
+        }
+        .tab-btn {
+            border: 2px solid #e2e8f0; background: white; color: var(--text-body);
+            padding: 10px 18px; border-radius: 50px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.82rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .tab-btn:hover { border-color: var(--primary-blue); }
+        .tab-btn.active { background: var(--blue-gradient); border-color: transparent; color: white; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeIn 0.35s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header .section-num {
+            width: 34px; height: 34px; border-radius: 50%; background: var(--yellow-gradient); color: white;
+            display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;
+        }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.82rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.08); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #dc2626; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .definition-box { background: var(--dark-navy); color: white; border-radius: 18px; padding: 22px 24px; margin: 16px 0; }
+        .definition-box .df-title { color: #facc15; font-weight: 800; font-size: 0.88rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .definition-box p { color: #e2e8f0; margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        /* original-statement quote box */
+        .original-statement { background: #0f172a; border-radius: 18px; padding: 4px 0 20px; margin: 16px 0; overflow: hidden; }
+        .original-statement .os-head { background: #1e293b; padding: 12px 22px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .original-statement .os-head span { color: #94a3b8; font-size: 0.8rem; font-weight: 700; }
+        .original-statement .os-head a { color: #7dd3fc; font-size: 0.8rem; font-weight: 800; text-decoration: none; }
+        .original-statement .os-body { padding: 0 24px; direction: ltr; text-align: left; color: #e2e8f0; font-size: 0.92rem; line-height: 1.85; }
+        .original-statement .os-body h5 { color: #facc15; font-size: 0.85rem; margin: 16px 0 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+        .original-statement .os-body code { background: rgba(0,173,239,0.15); color: #7dd3fc; padding: 1px 6px; border-radius: 4px; font-family: 'Consolas', monospace; }
+        .original-statement .os-body pre { padding: 12px 16px; background: #080c14; border-radius: 10px; font-size: 0.85rem; }
+
+        /* interactive lab shared */
+        .nt-lab-dark { background: #0b1220; border-radius: 20px; padding: 26px; margin: 16px 0; border: 1px solid #1e293b; }
+        .nt-input-row { display: flex; gap: 14px; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+        .nt-input-group { display: flex; flex-direction: column; gap: 6px; align-items: center; flex: 1 1 auto; max-width: 420px; }
+        .nt-input-group.narrow input { width: 90px; }
+        .nt-input-group label { color: #94a3b8; font-size: 0.78rem; font-weight: 700; }
+        .nt-input-group input {
+            width: 100%; text-align: center; background: #1e293b; border: 2px solid #334155; color: #e2e8f0;
+            border-radius: 12px; padding: 10px; font-family: 'Consolas', monospace; font-size: 1rem; font-weight: 700;
+            box-sizing: border-box;
+        }
+        .nt-input-group input:focus { outline: none; border-color: var(--primary-blue); }
+        .nt-btn {
+            border-radius: 14px; padding: 11px 22px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 2px solid transparent; transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .nt-btn-primary { background: var(--blue-gradient); color: white; }
+        .nt-btn-outline { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+        .nt-btn-outline:hover { border-color: #64748b; }
+        .nt-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .nt-console { background: #0f172a; border-radius: 14px; padding: 16px 20px; margin: 14px 0; min-height: 40px; font-family: 'Consolas', monospace; color: #cbd5e1; direction: ltr; text-align: left; font-size: 0.85rem; line-height: 1.9; max-height: 260px; overflow-y: auto; border: 1px solid #1e293b; }
+        .nt-console .step-line { display: block; }
+        .nt-console .ok-line { color: #4ade80; display: block; font-weight: 800; }
+        .nt-console .final-line { color: #facc15; font-weight: 800; margin-top: 8px; display: block; }
+        .nt-console .error-line { color: #f87171; font-weight: 700; display: block; }
+        .mini-stats-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; justify-content: center; }
+        .mini-stat { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 6px 14px; font-size: 0.8rem; color: #94a3b8; }
+        .mini-stat b { color: #00adef; font-family: 'Consolas', monospace; }
+
+        /* maze grid */
+        .brush-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
+        .brush-btn { border: 2px solid #334155; background: #1e293b; color: #cbd5e1; padding: 8px 16px; border-radius: 12px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+        .brush-btn .swatch { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+        .brush-btn.active { border-color: var(--primary-blue); background: rgba(0,173,239,0.15); color: #7dd3fc; }
+        .maze-wrap { background: #0b1220; border-radius: 16px; padding: 16px; border: 1px solid #1e293b; overflow-x: auto; margin-bottom: 14px; display: flex; justify-content: center; }
+        .maze-grid { display: inline-grid; gap: 2px; }
+        .maze-cell { display: flex; align-items: center; justify-content: center; font-family: 'Consolas', monospace; font-weight: 800; border-radius: 4px; cursor: pointer; user-select: none; transition: background 0.15s, box-shadow 0.15s; }
+        .maze-cell.wall { background: #1e293b; }
+        .maze-cell.floor { background: #f1f5f9; color: #cbd5e1; }
+        .maze-cell.start { background: #22c55e; color: white; }
+        .maze-cell.end { background: #ef4444; color: white; }
+        .maze-cell.visited { background: #bfdbfe; color: #1e3a8a; }
+        .maze-cell.frontier { background: #00adef; color: white; box-shadow: 0 0 8px rgba(0,173,239,0.7); }
+        .maze-cell.path { background: #facc15; color: #78350f; }
+        .maze-legend { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin: 4px 0 16px; font-size: 0.76rem; color: #94a3b8; font-weight: 700; }
+        .maze-legend .dot { width: 13px; height: 13px; border-radius: 4px; display: inline-block; margin-left: 5px; vertical-align: middle; }
+
+        details.bonus-details { background: #0f172a; border: 1px dashed #334155; border-radius: 16px; padding: 4px 0; margin: 16px 0; }
+        details.bonus-details summary { cursor: pointer; padding: 14px 20px; font-weight: 800; color: #facc15; font-size: 0.9rem; list-style: none; display: flex; align-items: center; gap: 10px; }
+        details.bonus-details summary::-webkit-details-marker { display: none; }
+        details.bonus-details summary::before { content: '▶'; font-size: 0.7rem; transition: transform 0.2s; }
+        details.bonus-details[open] summary::before { transform: rotate(90deg); }
+        details.bonus-details .bonus-body { padding: 0 20px 20px; color: #cbd5e1; font-size: 0.88rem; line-height: 1.9; }
+        details.bonus-details .bonus-body p { color: #cbd5e1; }
+        details.bonus-details .bonus-body code.inline { background: rgba(0,173,239,0.12); color: #7dd3fc; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge"><i class="fas fa-route"></i> مسألة: Labyrinth</span>
+            <span class="level-badge"><i class="fas fa-diagram-project"></i> BFS · رسوم بيانية</span>
+            <span class="adv-badge"><i class="fas fa-seedling"></i> سهل</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>مسائل تطبيقية — حلول ومختبرات</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-route"></i>
+        <h1>Labyrinth — المتاهة</h1>
+        <p class="hero-desc">مسألة CSES 1193 من قسم Graph Algorithms — أوجد أقصر مسار داخل متاهة باستخدام البحث بالعرض أولاً (BFS)، ثم أعد بناء المسار نفسه خطوة بخطوة. هذه الصفحة تُجهّزك لفهم نص المسألة كما يظهر تمامًا على المنصة، وتشرح الحل سطرًا بسطر، وتضع بين يديك مختبرًا تفاعليًا حيًا لتجربة الخوارزمية بنفسك قبل حلّها فعليًا.</p>
+        <div class="hero-stats-row">
+            <div class="hero-stat"><span class="hs-label">الصعوبة</span><span class="hs-value">سهل</span></div>
+            <div class="hero-stat"><span class="hs-label">حد الوقت</span><span class="hs-value">1.00 ثانية</span></div>
+            <div class="hero-stat"><span class="hs-label">حد الذاكرة</span><span class="hs-value">512 ميجابايت</span></div>
+            <div class="hero-stat"><span class="hs-label">التعقيد</span><span class="hs-value">O(n×m)</span></div>
+        </div>
+        <a class="hero-cta" href="https://cses.fi/problemset/task/1193" target="_blank" rel="noopener"><i class="fas fa-up-right-from-square"></i> افتح المسألة على CSES</a>
+    </div>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="showTab('tabProblem', this)"><i class="fas fa-file-lines"></i> المسألة</button>
+        <button class="tab-btn" onclick="showTab('tabIdea', this)"><i class="fas fa-lightbulb"></i> الفكرة</button>
+        <button class="tab-btn" onclick="showTab('tabCode', this)"><i class="fas fa-code"></i> الكود</button>
+        <button class="tab-btn" onclick="showTab('tabLab', this)"><i class="fas fa-flask"></i> المختبر</button>
+        <button class="tab-btn" onclick="showTab('tabAnalysis', this)"><i class="fas fa-chart-line"></i> التحليل</button>
+    </div>
+
+    <div class="container">
+
+        <!-- ============ TAB 1: PROBLEM STATEMENT ============ -->
+        <div class="tab-panel active" id="tabProblem">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">1</span>
+                    <h3>📄 نص المسألة كما يظهر على CSES</h3>
+                </div>
+                <p>حين تفتح هذه المسألة على المنصة ستجدها باللغة الإنجليزية بالضبط كما هي أدناه — من المهم أن تتعوّد على قراءة نص المسألة الأصلي مباشرةً بدلًا من الاعتماد فقط على الترجمة، لأن التفاصيل الدقيقة (مثل صيغة الإخراج أو حالات خاصة) تُصاغ دائمًا بعناية في النص الإنجليزي.</p>
+
+                <div class="original-statement">
+                    <div class="os-head">
+                        <span><i class="fas fa-lock-open"></i> CSES 1193 — Labyrinth (Graph Algorithms)</span>
+                        <a href="https://cses.fi/problemset/task/1193" target="_blank" rel="noopener">cses.fi/problemset/task/1193 ↗</a>
+                    </div>
+                    <div class="os-body">
+                        <p>You are given a map of a labyrinth, and your task is to find a path from start to end. You can walk left, right, up and down.</p>
+                        <h5>Input</h5>
+                        <p>The first input line has two integers n and m: the height and width of the map.</p>
+                        <p>Then there are n lines of m characters describing the labyrinth. Each character is <code>.</code> (floor), <code>#</code> (wall), <code>A</code> (start), or <code>B</code> (end). There is exactly one <code>A</code> and one <code>B</code> in the input.</p>
+                        <h5>Output</h5>
+                        <p>First print "YES", if there is a path, and "NO" otherwise.</p>
+                        <p>If there is a path, print the length of the shortest such path and its description as a string consisting of characters <code>L</code> (left), <code>R</code> (right), <code>U</code> (up), and <code>D</code> (down). You can print any valid solution.</p>
+                        <h5>Constraints</h5>
+                        <p>1 ≤ n, m ≤ 1000</p>
+                        <h5>Example</h5>
+                        <pre>Input:
+5 8
+########
+#.A#...#
+#.##.#B#
+#......#
+########
+
+Output:
+YES
+9
+LDDRRRRRU</pre>
+                    </div>
+                </div>
+
+                <h4 class="sub-title">🗣️ بالعربية — ماذا يعني هذا فعليًا؟</h4>
+                <p>لديك شبكة (grid) من n صفًا و m عمودًا. كل خلية إمّا أرضية <code class="inline">.</code> يمكن المشي عليها، أو جدار <code class="inline">#</code> لا يمكن عبوره، أو نقطة البداية <code class="inline">A</code>، أو نقطة النهاية <code class="inline">B</code> (وكلتاهما تُعاملان كأرضية يمكن الوقوف عليها). تتحرك خطوة واحدة في كل مرة، في أحد الاتجاهات الأربعة فقط (لا حركة قطرية).</p>
+                <div class="definition-box">
+                    <div class="df-title"><i class="fas fa-thumbtack"></i> المطلوب بدقة</div>
+                    <p>1) اطبع <code class="inline">YES</code> إذا وُجد مسار من A إلى B، وإلا اطبع <code class="inline">NO</code> فقط وتوقف.<br>
+                    2) إذا وُجد مسار، اطبع في السطر التالي طول أقصر مسار (عدد الخطوات)، ثم في السطر الذي يليه سلسلة من الحروف L/R/U/D تصف الحركات بالترتيب من A إلى B.<br>
+                    3) أي مسار بأقصر طول مقبول — لا يشترط أن يطابق مثال الحل تمامًا.</p>
+                </div>
+
+                <h4 class="sub-title">🔎 تتبّع المثال المعطى خطوة بخطوة</h4>
+                <p>هذه هي نفس المتاهة من المثال، معروضة هنا بصريًا (A أخضر، B أحمر). المسار المُعطى في الحل <code class="inline">LDDRRRRRU</code> طوله 9 حركات — جرّب اتّباعه بإصبعك: يسار، أسفل، أسفل، يمين×5، أعلى، لتصل من A إلى B.</p>
+                <div class="maze-wrap"><div class="maze-grid" id="exampleGridDisplay"></div></div>
+                <div class="good-box">
+                    <i class="fas fa-check-double"></i>
+                    <p>لاحظ أن الحكم (judge) على CSES يقبل <strong>أي</strong> مسار بنفس الطول الأقصر — إذا سلكت مسارًا مختلفًا لكنه أيضًا بطول 9، سيُقبل الحل. سنتحقق من هذا لاحقًا في تبويب «المختبر».</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 2: IDEA ============ -->
+        <div class="tab-panel" id="tabIdea">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">2</span>
+                    <h3>💡 لماذا BFS تحديدًا؟</h3>
+                </div>
+                <p>حوّل المتاهة إلى رسم بياني (graph): كل خلية أرضية (أو A أو B) هي عقدة، وبين كل خليتين متجاورتين (يمين/يسار/أعلى/أسفل، كلاهما ليس جدارًا) حافة بوزن 1. المطلوب هو أقصر مسار بعدد الحواف من A إلى B — وهذا بالضبط ما يضمنه BFS في رسم بياني <strong>غير مُوزَّن</strong> (كل الحواف بنفس الوزن).</p>
+
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>الخوارزمية</th><th>هل تضمن أقصر مسار؟</th><th>لماذا (أو لماذا لا)</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>BFS</strong></td><td style="color:#16a34a;font-weight:800;">نعم ✓</td><td>تستكشف العقد بترتيب تصاعدي صارم للمسافة من المصدر (طبقة تلو طبقة)، فأول مرة تصل فيها لعقدة تكون مسافتها هي الأقصر فعلًا.</td></tr>
+                            <tr><td><strong>DFS</strong></td><td style="color:#dc2626;font-weight:800;">لا ✗</td><td>تتعمّق في مسار واحد حتى نهايته قبل تجربة غيره، فقد تصل إلى B عبر مسار طويل وملتوٍ رغم وجود مسار أقصر لم تُجرّبه بعد.</td></tr>
+                            <tr><td><strong>Dijkstra</strong></td><td style="color:#b45309;font-weight:800;">نعم، لكنه مبالغة</td><td>يعمل بشكل صحيح حتى مع أوزان مختلفة، لكنه هنا أبطأ من BFS بلا داعٍ (O((V+E)log V) بدلًا من O(V+E)) لأن كل الأوزان أصلًا متساوية.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="sub-title">🧭 خطة الحل الكاملة</h4>
+                <ol class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">اقرأ الشبكة</strong> وحدّد موضعي A وB بمسح كل الخلايا.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">شغّل BFS من A</strong>، مع مصفوفتين إضافيتين لكل خلية: <code class="inline">dist</code> (المسافة من A، ‎-1‎ تعني لم تُزر بعد) و<code class="inline">parDir</code> (اتّجاه الحركة التي أوصلتنا إلى هذه الخلية من أبيها في شجرة BFS).</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">إذا ظلّت dist[B] = -1</strong> بعد انتهاء BFS، فلا يوجد مسار → اطبع NO.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">إذا وُجد مسار</strong>، اطبع YES ثم dist[B]، ثم أعد بناء المسار بالمشي من B إلى A عكسيًا باستخدام parDir، واعكس السلسلة الناتجة في النهاية لأنها بُنيت من B إلى A لا من A إلى B.</p></li>
+                </ol>
+
+                <div class="tip-box">
+                    <i class="fas fa-graduation-cap"></i>
+                    <p><strong>لماذا نُخزّن اتّجاه الحركة لا "الأب" مباشرةً؟</strong> تخزين حرف واحد (U/D/L/R) بدلًا من إحداثيات الأب الكاملة يوفّر الذاكرة (char بدلًا من pair&lt;int,int&gt;) ويكفي تمامًا لإعادة بناء المسار، لأننا نعرف دائمًا كيف نعكس كل حركة (المعاكس لأعلى هو أسفل، والمعاكس لليمين هو اليسار).</p>
+                </div>
+
+                <details class="bonus-details">
+                    <summary>🎯 نقطة دقيقة: أي مسار "أقصر" تجده BFS أولاً؟</summary>
+                    <div class="bonus-body">
+                        <p>عندما توجد عدة مسارات بنفس الطول الأقصر، فإن المسار الذي يُعاد بناؤه يعتمد على <strong>ترتيب فحص الاتجاهات الأربعة</strong> داخل حلقة BFS (في الكود المُعطى: U ثم D ثم L ثم R). لو بدّلنا هذا الترتيب، قد نحصل على سلسلة حروف مختلفة تمامًا لكن بنفس الطول — وكلاهما صحيح لأن المسألة تقبل «أي حل صحيح» صراحةً.</p>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <!-- ============ TAB 3: CODE ============ -->
+        <div class="tab-panel" id="tabCode">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">3</span>
+                    <h3>💻 الكود الكامل مع شرح كل جزء</h3>
+                </div>
+
+                <div class="code-box">
+                    <div class="code-head"><span>C++ — الحل الكامل</span></div>
+                    <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+#include &lt;queue&gt;
+#include &lt;utility&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+
+    vector&lt;string&gt; grid(n);
+    for (int i = 0; i &lt; n; i++) cin &gt;&gt; grid[i];
+
+    pair&lt;int, int&gt; A {-1, -1}, B {-1, -1};
+    for (int i = 0; i &lt; n; i++) {
+        for (int j = 0; j &lt; m; j++) {
+            if (grid[i][j] == 'A') A = {i, j};
+            if (grid[i][j] == 'B') B = {i, j};
+        }
+    }
+
+    vector&lt;vector&lt;int&gt;&gt; dist(n, vector&lt;int&gt;(m, -1));
+    vector&lt;vector&lt;char&gt;&gt; parDir(n, vector&lt;char&gt;(m, 0));
+
+    queue&lt;pair&lt;int, int&gt;&gt; q;
+    dist[A.first][A.second] = 0;
+    q.push(A);
+
+    <span class="cmt">// Directions: (dr, dc, moveChar)</span>
+    const int dr[4] = {-1, 1, 0, 0};
+    const int dc[4] = {0, 0, -1, 1};
+    const char mv[4] = {'U', 'D', 'L', 'R'};
+
+    while (!q.empty()) {
+        auto [r, c] = q.front(); q.pop();
+
+        for (int k = 0; k &lt; 4; k++) {
+            int nr = r + dr[k];
+            int nc = c + dc[k];
+
+            if (nr &lt; 0 || nr &gt;= n || nc &lt; 0 || nc &gt;= m) continue;
+            if (grid[nr][nc] == '#') continue;
+            if (dist[nr][nc] != -1) continue;
+
+            dist[nr][nc] = dist[r][c] + 1;
+            parDir[nr][nc] = mv[k];
+            q.push({nr, nc});
+        }
+    }
+
+    if (dist[B.first][B.second] == -1) {
+        cout &lt;&lt; "NO\n";
+        return 0;
+    }
+
+    cout &lt;&lt; "YES\n";
+    cout &lt;&lt; dist[B.first][B.second] &lt;&lt; "\n";
+
+    <span class="cmt">// Reconstruct path from B back to A</span>
+    string path;
+    int r = B.first, c = B.second;
+    while (!(r == A.first &amp;&amp; c == A.second)) {
+        char d = parDir[r][c];
+        path.push_back(d);
+
+        <span class="cmt">// Move to parent (reverse the move)</span>
+        if (d == 'U') r += 1;
+        else if (d == 'D') r -= 1;
+        else if (d == 'L') c += 1;
+        else if (d == 'R') c -= 1;
+    }
+
+    reverse(path.begin(), path.end());
+    cout &lt;&lt; path &lt;&lt; "\n";
+    return 0;
+}</pre>
+                </div>
+
+                <h4 class="sub-title">🔍 شرح مفصّل لكل جزء</h4>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <tbody>
+                            <tr><td style="width:26%"><strong>ios::sync_with_stdio(false); cin.tie(nullptr);</strong></td><td>تسريع القراءة/الكتابة القياسية في C++. ضروري هنا لأن الشبكة قد تصل إلى 1000×1000 = مليون خلية، والقراءة البطيئة الافتراضية قد تستهلك وقتًا ثمينًا من حد الثانية الواحدة.</td></tr>
+                            <tr><td><strong>vector&lt;string&gt; grid(n); … cin &gt;&gt; grid[i];</strong></td><td>قراءة كل صف كسلسلة نصية كاملة دفعة واحدة (أسرع وأبسط من قراءة حرفًا حرفًا)، ثم الوصول لأي خلية عبر <code class="inline">grid[i][j]</code>.</td></tr>
+                            <tr><td><strong>حلقة إيجاد A وB</strong></td><td>مسح كل خلايا الشبكة مرة واحدة O(n×m) لتسجيل إحداثيات البداية والنهاية، لأن المسألة لا تخبرنا موضعيهما مسبقًا.</td></tr>
+                            <tr><td><strong>dist و parDir</strong></td><td><code class="inline">dist[i][j] = -1</code> تعني «لم تُزر بعد» (تُستخدم أيضًا كعلامة visited). <code class="inline">parDir[i][j]</code> تُخزّن حرف الحركة التي أوصلتنا إلى (i,j) من أبيها في شجرة BFS.</td></tr>
+                            <tr><td><strong>مصفوفات dr, dc, mv الموازية</strong></td><td>بدلًا من كتابة 4 كتل if منفصلة متطابقة تقريبًا (لأعلى، أسفل، يسار، يمين)، نُلخّصها في حلقة واحدة <code class="inline">for k in 0..3</code> تقرأ الإزاحة والحرف المقابل من نفس الفهرس k في المصفوفات الثلاث — أسلوب شائع جدًا ومختصر في مسائل الشبكات.</td></tr>
+                            <tr><td><strong>auto [r, c] = q.front();</strong></td><td>Structured Binding من C++17 — تفكيك الـ pair مباشرةً إلى متغيرين r وc دون كتابة <code class="inline">.first</code> و<code class="inline">.second</code>. إن كان الحكم يستخدم معيارًا أقدم من C++17، استبدلها بـ <code class="inline">auto p = q.front(); int r = p.first, c = p.second;</code>.</td></tr>
+                            <tr><td><strong>فحوصات continue الثلاثة</strong></td><td>بالترتيب: تجاوز الحدود، جدار، أو زُيارت من قبل. أي شرط منها يعني تجاهل هذا الجار والانتقال للاتجاه التالي مباشرةً.</td></tr>
+                            <tr><td><strong>dist[nr][nc] = dist[r][c] + 1</strong></td><td>هذا هو جوهر BFS: كل جار جديد يبعد مسافة واحدة أكثر من العقدة الحالية، وبما أننا نُعالج العقد بترتيب المسافة، هذه القيمة مضمونة أن تكون الأقصر.</td></tr>
+                            <tr><td><strong>if (dist[B] == -1) → "NO"</strong></td><td>إن انتهى BFS دون أن يصل إلى B إطلاقًا، فهذا يعني عدم وجود أي مسار متصل بين A وB.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="sub-title">🧩 أهم جزء: كيف تعمل إعادة بناء المسار؟</h4>
+                <p>هذا الجزء يُربك كثيرًا من الطلاب لأول وهلة، فلنُفكّكه بمثال حقيقي من المسألة نفسها. لدينا <code class="inline">parDir[2][6] = 'U'</code> عند B — ومعناها: «وصلنا إلى (2,6) عبر حركة للأعلى». إذن لكي نرجع للخلف من B نحو أبيها، يجب أن نتحرك بعكس الأعلى، أي للأسفل: <code class="inline">r += 1</code>. بهذا المنطق بالضبط يُبنى الشرط الكامل:</p>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>الحركة المُخزَّنة (كيف وصلنا للخلية)</th><th>الحركة العكسية (للرجوع للأب)</th></tr></thead>
+                        <tbody>
+                            <tr><td>U (تحرّكنا للأعلى)</td><td class="ltr">r += 1  (ننزل صفًا)</td></tr>
+                            <tr><td>D (تحرّكنا للأسفل)</td><td class="ltr">r -= 1  (نصعد صفًا)</td></tr>
+                            <tr><td>L (تحرّكنا لليسار)</td><td class="ltr">c += 1  (نرجع عمودًا لليمين)</td></tr>
+                            <tr><td>R (تحرّكنا لليمين)</td><td class="ltr">c -= 1  (نرجع عمودًا لليسار)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="good-box">
+                    <i class="fas fa-magnifying-glass-chart"></i>
+                    <p><strong>تتبّع كامل مطابق للمثال:</strong> بدءًا من B=(2,6): U→(3,6)، R→(3,5)، R→(3,4)، R→(3,3)، R→(3,2)، R→(3,1)، D→(2,1)، D→(1,1)، L→(1,2)=A. السلسلة المُجمَّعة أثناء الرجوع هي <code class="inline">U R R R R R D D L</code>، وبعد عكسها (<code class="inline">reverse</code>) نحصل بالضبط على <code class="inline">L D D R R R R R U</code> — وهي إجابة المثال المُعطى حرفيًا! جرّب هذا التتبّع بنفسك في تبويب «المختبر».</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 4: LAB ============ -->
+        <div class="tab-panel" id="tabLab">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">4</span>
+                    <h3>⚗️ المختبر التفاعلي — حلّال المتاهة بالـ BFS</h3>
+                </div>
+                <p>هذا المختبر يُشغّل <strong>نفس الخوارزمية بالضبط</strong> من الكود أعلاه (نفس ترتيب الاتجاهات U→D→L→R، ونفس منطق إعادة البناء بالعكس) على متاهة تختارها أنت. ارسم متاهتك الخاصة، أو استخدم مثال المسألة، أو ولّد متاهة عشوائية، ثم شاهد موجات BFS تتوسّع طبقةً بعد طبقة حتى الوصول إلى B، تليها إعادة بناء المسار الفعلي.</p>
+
+                <div class="tip-box">
+                    <i class="fas fa-circle-info"></i>
+                    <p>القيود الحقيقية على المنصة تصل إلى 1000×1000 خلية، لكن نُحدّد الحجم هنا (حتى 20×28) للحفاظ على وضوح الرسم والتفاعل السلس — الخوارزمية المُنفَّذة هي نفسها تمامًا بغض النظر عن الحجم.</p>
+                </div>
+
+                <div class="nt-lab-dark">
+                    <div class="nt-input-row">
+                        <div class="nt-input-group narrow">
+                            <label>الصفوف n</label>
+                            <input type="number" id="mazeRowsInput" value="5" min="2" max="20">
+                        </div>
+                        <div class="nt-input-group narrow">
+                            <label>الأعمدة m</label>
+                            <input type="number" id="mazeColsInput" value="8" min="2" max="28">
+                        </div>
+                        <button class="nt-btn nt-btn-outline" onclick="mazeResize()"><i class="fas fa-ruler-combined"></i> تغيير الحجم</button>
+                        <button class="nt-btn nt-btn-outline" onclick="mazeLoadExample()"><i class="fas fa-book-open"></i> مثال المسألة</button>
+                        <button class="nt-btn nt-btn-outline" onclick="mazeRandom()"><i class="fas fa-dice"></i> عشوائي</button>
+                    </div>
+
+                    <p style="text-align:center;color:#94a3b8;font-size:0.8rem;margin-bottom:8px;">اختر أداة الرسم ثم اضغط على أي خلية في الشبكة:</p>
+                    <div class="brush-row">
+                        <button class="brush-btn active" id="brushBtn_floor" onclick="mazeSetBrush('floor')"><span class="swatch" style="background:#f1f5f9;"></span> أرضية .</button>
+                        <button class="brush-btn" id="brushBtn_wall" onclick="mazeSetBrush('wall')"><span class="swatch" style="background:#1e293b;border:1px solid #475569;"></span> جدار #</button>
+                        <button class="brush-btn" id="brushBtn_start" onclick="mazeSetBrush('start')"><span class="swatch" style="background:#22c55e;"></span> بداية A</button>
+                        <button class="brush-btn" id="brushBtn_end" onclick="mazeSetBrush('end')"><span class="swatch" style="background:#ef4444;"></span> نهاية B</button>
+                    </div>
+
+                    <div class="maze-wrap"><div class="maze-grid" id="mazeGridEl"></div></div>
+                    <div class="maze-legend">
+                        <span><span class="dot" style="background:#bfdbfe;"></span>خلية زُارها BFS</span>
+                        <span><span class="dot" style="background:#00adef;"></span>الموجة الحالية</span>
+                        <span><span class="dot" style="background:#facc15;"></span>المسار النهائي</span>
+                    </div>
+
+                    <div class="nt-input-row" style="margin-top:4px;">
+                        <button class="nt-btn nt-btn-primary" onclick="mazeStartBfs()"><i class="fas fa-play"></i> ابدأ BFS</button>
+                        <button class="nt-btn nt-btn-outline" id="mazeStepBtn" onclick="mazeStepOnce()" disabled><i class="fas fa-forward-step"></i> الموجة التالية</button>
+                        <button class="nt-btn nt-btn-outline" id="mazeRunAllBtn" onclick="mazeRunToEnd()" disabled><i class="fas fa-forward-fast"></i> شغّل حتى النهاية</button>
+                        <button class="nt-btn nt-btn-outline" onclick="mazeReset()"><i class="fas fa-rotate-right"></i> إعادة تعيين</button>
+                    </div>
+
+                    <div class="mini-stats-row" id="mazeStats"></div>
+                    <div class="nt-console" id="mazeConsole">ارسم متاهتك (أو اختر «مثال المسألة») ثم اضغط «ابدأ BFS».</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 5: ANALYSIS ============ -->
+        <div class="tab-panel" id="tabAnalysis">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">5</span>
+                    <h3>📊 تحليل التعقيد ونصائح الحل</h3>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>الجانب</th><th class="ltr">التعقيد</th><th>لماذا</th></tr></thead>
+                        <tbody>
+                            <tr><td>الزمن</td><td class="ltr">O(n × m)</td><td>كل خلية تدخل قائمة الانتظار مرة واحدة فقط (بفضل فحص dist != -1)، وعند معالجتها نفحص جيرانها الأربعة في زمن ثابت O(1) — المجموع الكلي O(n×m).</td></tr>
+                            <tr><td>الذاكرة</td><td class="ltr">O(n × m)</td><td>مصفوفتا dist وparDir بحجم n×m، بالإضافة لقائمة الانتظار التي لا تتجاوز حجمها n×m في أسوأ الحالات.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="good-box">
+                    <i class="fas fa-bolt"></i>
+                    <p>لأقصى مدخل ممكن (1000×1000 = 1,000,000 خلية)، فإن O(n×m) تعني مليون عملية تقريبًا — أقل بكثير من حد الثانية الواحدة، حتى مع هامش أمان كبير.</p>
+                </div>
+
+                <h4 class="sub-title">⚠️ أخطاء شائعة عند الحل على المنصة</h4>
+                <ol class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">استخدام DFS بدلًا من BFS:</strong> DFS قد يجد مسارًا صحيحًا لكن ليس بالضرورة الأقصر، وسيُرفض الحل حتى لو كانت "YES" صحيحة.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">قلب اتجاه العكس عند إعادة البناء:</strong> الخطأ الأكثر شيوعًا هو كتابة <code class="inline">if (d=='U') r -= 1</code> (بدلًا من +=) بالخلط بين «الحركة التي وصلتنا للخلية» و«الحركة للرجوع منها» — راجع الجدول في تبويب «الكود» إن التبس عليك الأمر.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">نسيان طباعة "NO" فقط دون أسطر إضافية:</strong> إذا لم يوجد مسار، يجب أن يكون الإخراج بالكامل هو السطر "NO" ولا شيء غيره.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">القراءة البطيئة:</strong> مع شبكة قد تصل إلى مليون خلية، تجاهل <code class="inline">ios::sync_with_stdio(false)</code> قد يتسبّب بتجاوز حد الوقت (Time Limit Exceeded) رغم صحة الخوارزمية.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">إصدار المترجم:</strong> Structured Bindings (<code class="inline">auto [r, c] = ...</code>) تتطلب C++17 على الأقل — تأكد من اختيار C++17 أو أحدث عند الإرسال على CSES.</p></li>
+                </ol>
+
+                <details class="bonus-details">
+                    <summary>🚀 تحدٍّ إضافي: ماذا لو كان هناك أكثر من نقطة بداية أو نهاية؟</summary>
+                    <div class="bonus-body">
+                        <p>لو كانت المسألة تسمح بعدة نقاط بداية (متعدّدة المصادر)، يمكن تعميم نفس الفكرة بـ <strong>Multi-Source BFS</strong>: بدلًا من دفع A واحدة فقط في قائمة الانتظار في البداية، ندفع كل نقاط البداية معًا بمسافة 0. تبقى الخوارزمية صحيحة تمامًا لأن BFS لا يهتم من أي مصدر بدأت العقدة، طالما جميع المصادر تبدأ بنفس المسافة الأولية 0. هذا نمط شائع جدًا في مسائل الشبكات (مثل "أقرب نار تنتشر من عدة نقاط" أو "أقرب مستشفى" في مسائل أخرى).</p>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — مسائل تطبيقية: Labyrinth (CSES 1193)</footer>
+
+    <script>
+        // ===================================================================
+        // Tab navigation
+        // ===================================================================
+        function showTab(tabId, btn) {
+            document.querySelectorAll('.tab-panel').forEach(function (el) { el.classList.remove('active'); });
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+        }
+
+        function line(text, cls) { return '<span class="' + (cls || 'step-line') + '">' + text + '</span>'; }
+        function statChip(label, val) { return '<div class="mini-stat">' + label + ': <b>' + val + '</b></div>'; }
+
+        // ===================================================================
+        // Shared maze grid renderer — used for both the static example in
+        // Tab 1 and the fully interactive lab in Tab 4.
+        // ===================================================================
+        function baseClassFor(ch) {
+            if (ch === '#') return 'wall';
+            if (ch === 'A') return 'start';
+            if (ch === 'B') return 'end';
+            return 'floor';
+        }
+        function cellSizeFor(cols) {
+            if (cols <= 10) return 34;
+            if (cols <= 16) return 28;
+            if (cols <= 22) return 24;
+            return 20;
+        }
+        function renderMaze(containerId, grid, hlMap) {
+            hlMap = hlMap || {};
+            const rows = grid.length, cols = grid[0].length;
+            const el = document.getElementById(containerId);
+            const size = cellSizeFor(cols);
+            el.style.gridTemplateColumns = 'repeat(' + cols + ', ' + size + 'px)';
+            let html = '';
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const ch = grid[r][c];
+                    let cls = 'maze-cell ' + baseClassFor(ch);
+                    const key = r + ',' + c;
+                    if (hlMap[key]) cls += ' ' + hlMap[key];
+                    const clickAttr = containerId === 'mazeGridEl' ? ' onclick="mazePaint(' + r + ',' + c + ')"' : '';
+                    html += '<div class="' + cls + '" style="width:' + size + 'px;height:' + size + 'px;font-size:' + Math.max(9, size * 0.34) + 'px;"' + clickAttr + '>' + (ch === '.' ? '' : ch) + '</div>';
+                }
+            }
+            el.innerHTML = html;
+        }
+
+        // ===================================================================
+        // TAB 1 — static illustrative rendering of the example maze.
+        // ===================================================================
+        const EXAMPLE_GRID = ['########', '#.A#...#', '#.##.#B#', '#......#', '########'];
+        renderMaze('exampleGridDisplay', EXAMPLE_GRID);
+
+        // ===================================================================
+        // TAB 4 — fully interactive maze editor + real BFS engine mirroring
+        // the C++ solution exactly (same direction order, same reconstruction).
+        // ===================================================================
+        let mazeGrid = EXAMPLE_GRID.map(function (row) { return row.split(''); });
+        let brush = 'floor';
+        let bfsState = null;
+
+        function findAB() {
+            let A = null, B = null;
+            for (let r = 0; r < mazeGrid.length; r++) {
+                for (let c = 0; c < mazeGrid[0].length; c++) {
+                    if (mazeGrid[r][c] === 'A') A = { r: r, c: c };
+                    if (mazeGrid[r][c] === 'B') B = { r: r, c: c };
+                }
+            }
+            return { A: A, B: B };
+        }
+
+        function mazeSetBrush(b) {
+            brush = b;
+            ['floor', 'wall', 'start', 'end'].forEach(function (name) {
+                document.getElementById('brushBtn_' + name).classList.toggle('active', name === b);
+            });
+        }
+
+        function mazePaint(r, c) {
+            const rows = mazeGrid.length, cols = mazeGrid[0].length;
+            if (brush === 'start') {
+                for (let i = 0; i < rows; i++) for (let j = 0; j < cols; j++) if (mazeGrid[i][j] === 'A') mazeGrid[i][j] = '.';
+                mazeGrid[r][c] = 'A';
+            } else if (brush === 'end') {
+                for (let i = 0; i < rows; i++) for (let j = 0; j < cols; j++) if (mazeGrid[i][j] === 'B') mazeGrid[i][j] = '.';
+                mazeGrid[r][c] = 'B';
+            } else if (brush === 'wall') {
+                mazeGrid[r][c] = '#';
+            } else {
+                mazeGrid[r][c] = '.';
+            }
+            renderMaze('mazeGridEl', mazeGrid);
+        }
+
+        function mazeResize() {
+            let rows = parseInt(document.getElementById('mazeRowsInput').value, 10);
+            let cols = parseInt(document.getElementById('mazeColsInput').value, 10);
+            if (isNaN(rows) || isNaN(cols)) { alert('أدخل أعدادًا صحيحة.'); return; }
+            rows = Math.max(2, Math.min(20, rows));
+            cols = Math.max(2, Math.min(28, cols));
+            document.getElementById('mazeRowsInput').value = rows;
+            document.getElementById('mazeColsInput').value = cols;
+            const g = [];
+            for (let r = 0; r < rows; r++) {
+                const row = [];
+                for (let c = 0; c < cols; c++) row.push('.');
+                g.push(row);
+            }
+            g[0][0] = 'A';
+            g[rows - 1][cols - 1] = 'B';
+            mazeGrid = g;
+            mazeResetBfsOnly();
+            renderMaze('mazeGridEl', mazeGrid);
+        }
+
+        function mazeLoadExample() {
+            mazeGrid = EXAMPLE_GRID.map(function (row) { return row.split(''); });
+            document.getElementById('mazeRowsInput').value = mazeGrid.length;
+            document.getElementById('mazeColsInput').value = mazeGrid[0].length;
+            mazeResetBfsOnly();
+            renderMaze('mazeGridEl', mazeGrid);
+        }
+
+        function mazeRandom() {
+            const rows = mazeGrid.length, cols = mazeGrid[0].length;
+            const g = [];
+            for (let r = 0; r < rows; r++) {
+                const row = [];
+                for (let c = 0; c < cols; c++) row.push(Math.random() < 0.28 ? '#' : '.');
+                g.push(row);
+            }
+            g[0][0] = 'A';
+            g[rows - 1][cols - 1] = 'B';
+            mazeGrid = g;
+            mazeResetBfsOnly();
+            renderMaze('mazeGridEl', mazeGrid);
+        }
+
+        function mazeResetBfsOnly() {
+            bfsState = null;
+            document.getElementById('mazeStepBtn').disabled = true;
+            document.getElementById('mazeRunAllBtn').disabled = true;
+            document.getElementById('mazeStats').innerHTML = '';
+            document.getElementById('mazeConsole').innerHTML = 'ارسم متاهتك (أو اختر «مثال المسألة») ثم اضغط «ابدأ BFS».';
+        }
+
+        function mazeReset() {
+            mazeResetBfsOnly();
+            renderMaze('mazeGridEl', mazeGrid);
+        }
+
+        function mazeStartBfs() {
+            const ab = findAB();
+            if (!ab.A || !ab.B) {
+                document.getElementById('mazeConsole').innerHTML = line('⚠️ يجب أن توجد نقطة بداية A ونقطة نهاية B في الشبكة.', 'error-line');
+                return;
+            }
+            const rows = mazeGrid.length, cols = mazeGrid[0].length;
+            const dist = Array.from({ length: rows }, function () { return new Array(cols).fill(-1); });
+            const parDir = Array.from({ length: rows }, function () { return new Array(cols).fill(''); });
+            dist[ab.A.r][ab.A.c] = 0;
+            bfsState = { A: ab.A, B: ab.B, dist: dist, parDir: parDir, frontier: [ab.A], level: 0, done: false, found: (ab.A.r === ab.B.r && ab.A.c === ab.B.c) };
+            document.getElementById('mazeStepBtn').disabled = false;
+            document.getElementById('mazeRunAllBtn').disabled = false;
+            const hl = {}; hl[ab.A.r + ',' + ab.A.c] = 'frontier';
+            renderMaze('mazeGridEl', mazeGrid, hl);
+            document.getElementById('mazeConsole').innerHTML = line('بدأ BFS من A=(' + ab.A.r + ',' + ab.A.c + '). اضغط «الموجة التالية» أو «شغّل حتى النهاية».');
+            updateMazeStats();
+        }
+
+        function updateMazeStats() {
+            if (!bfsState) return;
+            let visited = 0;
+            bfsState.dist.forEach(function (row) { row.forEach(function (v) { if (v !== -1) visited++; }); });
+            document.getElementById('mazeStats').innerHTML =
+                statChip('الموجة (المسافة)', bfsState.level) + statChip('خلايا زُارت', visited) + statChip('حجم الموجة الحالية', bfsState.frontier.length);
+        }
+
+        function mazeStepOnce() {
+            if (!bfsState || bfsState.done) return;
+            const dr = [-1, 1, 0, 0], dc = [0, 0, -1, 1], mv = ['U', 'D', 'L', 'R'];
+            const rows = mazeGrid.length, cols = mazeGrid[0].length;
+            const next = [];
+            let justFound = false;
+            bfsState.frontier.forEach(function (cell) {
+                for (let k = 0; k < 4; k++) {
+                    const nr = cell.r + dr[k], nc = cell.c + dc[k];
+                    if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+                    if (mazeGrid[nr][nc] === '#') continue;
+                    if (bfsState.dist[nr][nc] !== -1) continue;
+                    bfsState.dist[nr][nc] = bfsState.dist[cell.r][cell.c] + 1;
+                    bfsState.parDir[nr][nc] = mv[k];
+                    next.push({ r: nr, c: nc });
+                    if (nr === bfsState.B.r && nc === bfsState.B.c) justFound = true;
+                }
+            });
+            bfsState.level++;
+            const prevFrontier = bfsState.frontier;
+            bfsState.frontier = next;
+            if (justFound) bfsState.found = true;
+            if (next.length === 0 || bfsState.found) bfsState.done = true;
+
+            const hl = {};
+            bfsState.dist.forEach(function (row, r) { row.forEach(function (v, c) { if (v !== -1) hl[r + ',' + c] = 'visited'; }); });
+            next.forEach(function (cell) { hl[cell.r + ',' + cell.c] = 'frontier'; });
+
+            const consoleLines = [line('▸ الموجة ' + bfsState.level + ': وُسّعت ' + prevFrontier.length + ' خلية → اكتُشفت ' + next.length + ' خلية جديدة.')];
+
+            if (bfsState.done) {
+                if (bfsState.found || (bfsState.dist[bfsState.B.r][bfsState.B.c] !== -1)) {
+                    const path = mazeReconstructPath(bfsState);
+                    path.split('').forEach(function () {}); // no-op, kept for clarity
+                    const pathCells = mazePathCells(bfsState, path);
+                    pathCells.forEach(function (cell) { hl[cell.r + ',' + cell.c] = 'path'; });
+                    consoleLines.push(line('YES', 'ok-line'));
+                    consoleLines.push(line(String(bfsState.dist[bfsState.B.r][bfsState.B.c])));
+                    consoleLines.push(line(path, 'final-line'));
+                } else {
+                    consoleLines.push(line('NO', 'error-line'));
+                }
+                document.getElementById('mazeStepBtn').disabled = true;
+                document.getElementById('mazeRunAllBtn').disabled = true;
+            }
+
+            renderMaze('mazeGridEl', mazeGrid, hl);
+            document.getElementById('mazeConsole').innerHTML = consoleLines.join('');
+            updateMazeStats();
+        }
+
+        function mazeRunToEnd() {
+            let guard = 0;
+            while (bfsState && !bfsState.done && guard < 5000) { mazeStepOnce(); guard++; }
+        }
+
+        function mazeReconstructPath(state) {
+            let path = [];
+            let r = state.B.r, c = state.B.c;
+            while (!(r === state.A.r && c === state.A.c)) {
+                const d = state.parDir[r][c];
+                path.push(d);
+                if (d === 'U') r += 1;
+                else if (d === 'D') r -= 1;
+                else if (d === 'L') c += 1;
+                else if (d === 'R') c -= 1;
+            }
+            path.reverse();
+            return path.join('');
+        }
+
+        function mazePathCells(state, path) {
+            // Walk forward from A applying each move, to know which cells to highlight.
+            const cells = [];
+            let r = state.A.r, c = state.A.c;
+            cells.push({ r: r, c: c });
+            for (let i = 0; i < path.length; i++) {
+                const d = path[i];
+                if (d === 'U') r -= 1;
+                else if (d === 'D') r += 1;
+                else if (d === 'L') c -= 1;
+                else if (d === 'R') c += 1;
+                cells.push({ r: r, c: c });
+            }
+            return cells;
+        }
+
+        // ===================================================================
+        // Init
+        // ===================================================================
+        mazeSetBrush('floor');
+        renderMaze('mazeGridEl', mazeGrid);
+    </script>
+</body>
+</html>

@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | مسألة: Tree Matching — CSES 1130</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+        .adv-badge {
+            background: #dcfce7; color: #15803d; border: none;
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+        .adv-badge.medium { background: #fef3c7; color: #b45309; }
+
+        .hero-banner { background: var(--blue-gradient); padding: 60px 6% 40px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 14px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 10px; }
+        .hero-desc { max-width: 780px; margin: 0 auto 22px; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+        .hero-stats-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+        .hero-stat { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 16px; padding: 10px 22px; text-align: center; }
+        .hero-stat .hs-label { display: block; font-size: 0.72rem; color: rgba(255,255,255,0.8); font-weight: 700; }
+        .hero-stat .hs-value { display: block; font-size: 1rem; font-weight: 800; color: white; margin-top: 2px; }
+        .hero-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; background: white; color: var(--primary-blue); padding: 10px 24px; border-radius: 50px; font-weight: 800; font-size: 0.88rem; text-decoration: none; }
+        .hero-cta:hover { background: #eef2f7; }
+
+        .tab-nav {
+            display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+            background: white; padding: 14px 6%; position: sticky; top: 87px; z-index: 900;
+            border-bottom: 1px solid #e2e8f0; box-shadow: 0 4px 14px -8px rgba(0,0,0,0.08);
+        }
+        .tab-btn {
+            border: 2px solid #e2e8f0; background: white; color: var(--text-body);
+            padding: 10px 18px; border-radius: 50px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.82rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .tab-btn:hover { border-color: var(--primary-blue); }
+        .tab-btn.active { background: var(--blue-gradient); border-color: transparent; color: white; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeIn 0.35s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header .section-num {
+            width: 34px; height: 34px; border-radius: 50%; background: var(--yellow-gradient); color: white;
+            display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;
+        }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.82rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.08); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #dc2626; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .definition-box { background: var(--dark-navy); color: white; border-radius: 18px; padding: 22px 24px; margin: 16px 0; }
+        .definition-box .df-title { color: #facc15; font-weight: 800; font-size: 0.88rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .definition-box p { color: #e2e8f0; margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        /* original-statement quote box */
+        .original-statement { background: #0f172a; border-radius: 18px; padding: 4px 0 20px; margin: 16px 0; overflow: hidden; }
+        .original-statement .os-head { background: #1e293b; padding: 12px 22px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .original-statement .os-head span { color: #94a3b8; font-size: 0.8rem; font-weight: 700; }
+        .original-statement .os-head a { color: #7dd3fc; font-size: 0.8rem; font-weight: 800; text-decoration: none; }
+        .original-statement .os-body { padding: 0 24px; direction: ltr; text-align: left; color: #e2e8f0; font-size: 0.92rem; line-height: 1.85; }
+        .original-statement .os-body h5 { color: #facc15; font-size: 0.85rem; margin: 16px 0 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+        .original-statement .os-body code { background: rgba(0,173,239,0.15); color: #7dd3fc; padding: 1px 6px; border-radius: 4px; font-family: 'Consolas', monospace; }
+        .original-statement .os-body pre { padding: 12px 16px; background: #080c14; border-radius: 10px; font-size: 0.85rem; }
+        .original-statement .os-body em { color: #cbd5e1; }
+
+        /* interactive lab shared */
+        .nt-lab-dark { background: #0b1220; border-radius: 20px; padding: 26px; margin: 16px 0; border: 1px solid #1e293b; }
+        .nt-input-row { display: flex; gap: 14px; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+        .nt-input-group { display: flex; flex-direction: column; gap: 6px; align-items: center; flex: 1 1 auto; max-width: 420px; }
+        .nt-input-group.narrow input { width: 90px; }
+        .nt-input-group label { color: #94a3b8; font-size: 0.78rem; font-weight: 700; }
+        .nt-input-group input {
+            width: 100%; text-align: center; background: #1e293b; border: 2px solid #334155; color: #e2e8f0;
+            border-radius: 12px; padding: 10px; font-family: 'Consolas', monospace; font-size: 1rem; font-weight: 700;
+            box-sizing: border-box;
+        }
+        .nt-input-group input:focus { outline: none; border-color: var(--primary-blue); }
+        .nt-textarea {
+            width: 100%; background: #1e293b; border: 2px solid #334155; color: #e2e8f0;
+            border-radius: 12px; padding: 12px; font-family: 'Consolas', monospace; font-size: 0.85rem;
+            box-sizing: border-box; resize: vertical; min-height: 120px; direction: ltr; text-align: left;
+        }
+        .nt-textarea:focus { outline: none; border-color: var(--primary-blue); }
+        .nt-btn {
+            border-radius: 14px; padding: 11px 22px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 2px solid transparent; transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .nt-btn-primary { background: var(--blue-gradient); color: white; }
+        .nt-btn-outline { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+        .nt-btn-outline:hover { border-color: #64748b; }
+        .nt-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .nt-console { background: #0f172a; border-radius: 14px; padding: 16px 20px; margin: 14px 0; min-height: 40px; font-family: 'Consolas', monospace; color: #cbd5e1; direction: ltr; text-align: left; font-size: 0.83rem; line-height: 1.9; max-height: 300px; overflow-y: auto; border: 1px solid #1e293b; }
+        .nt-console .step-line { display: block; }
+        .nt-console .ok-line { color: #4ade80; display: block; font-weight: 800; }
+        .nt-console .final-line { color: #facc15; font-weight: 800; margin-top: 8px; display: block; }
+        .nt-console .error-line { color: #f87171; font-weight: 700; display: block; }
+        .mini-stats-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; justify-content: center; }
+        .mini-stat { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 6px 14px; font-size: 0.8rem; color: #94a3b8; }
+        .mini-stat b { color: #00adef; font-family: 'Consolas', monospace; }
+
+        /* tree diagram */
+        .tm-tree-wrap { background: #0b1220; border-radius: 16px; padding: 16px; border: 1px solid #1e293b; overflow-x: auto; display: flex; justify-content: center; margin-bottom: 14px; }
+        .tm-tree-wrap svg { display: block; }
+        .tm-legend { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin: 4px 0 16px; font-size: 0.76rem; color: #94a3b8; font-weight: 700; }
+        .tm-legend .swline { display: inline-block; width: 22px; height: 3px; vertical-align: middle; margin-left: 6px; border-radius: 2px; }
+
+        details.bonus-details { background: #0f172a; border: 1px dashed #334155; border-radius: 16px; padding: 4px 0; margin: 16px 0; }
+        details.bonus-details summary { cursor: pointer; padding: 14px 20px; font-weight: 800; color: #facc15; font-size: 0.9rem; list-style: none; display: flex; align-items: center; gap: 10px; }
+        details.bonus-details summary::-webkit-details-marker { display: none; }
+        details.bonus-details summary::before { content: '▶'; font-size: 0.7rem; transition: transform 0.2s; }
+        details.bonus-details[open] summary::before { transform: rotate(90deg); }
+        details.bonus-details .bonus-body { padding: 0 20px 20px; color: #cbd5e1; font-size: 0.88rem; line-height: 1.9; }
+        details.bonus-details .bonus-body p { color: #cbd5e1; }
+        details.bonus-details .bonus-body code.inline { background: rgba(0,173,239,0.12); color: #7dd3fc; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge"><i class="fas fa-sitemap"></i> مسألة: Tree Matching</span>
+            <span class="level-badge"><i class="fas fa-diagram-project"></i> DP على الأشجار</span>
+            <span class="adv-badge medium"><i class="fas fa-fire"></i> متوسط</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>مسائل تطبيقية — حلول ومختبرات</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-sitemap"></i>
+        <h1>Tree Matching — المطابقة في شجرة</h1>
+        <p class="hero-desc">مسألة CSES 1130 من قسم Tree Algorithms — أوجد أكبر عدد من الحواف يمكن اختيارها من شجرة بحيث لا تشترك أي عقدة في أكثر من حافة مختارة، باستخدام برمجة ديناميكية على الأشجار بحالتين لكل عقدة. هذه الصفحة تشرح إثبات الحل بأسلوب SRTBOT كاملًا، وتضع بين يديك مختبرًا يُحلّل أي شجرة تكتبها بنفس صيغة الإدخال على المنصة.</p>
+        <div class="hero-stats-row">
+            <div class="hero-stat"><span class="hs-label">الصعوبة</span><span class="hs-value">متوسط</span></div>
+            <div class="hero-stat"><span class="hs-label">حد الوقت</span><span class="hs-value">1.00 ثانية</span></div>
+            <div class="hero-stat"><span class="hs-label">حد الذاكرة</span><span class="hs-value">512 ميجابايت</span></div>
+            <div class="hero-stat"><span class="hs-label">التعقيد</span><span class="hs-value">O(n)</span></div>
+        </div>
+        <a class="hero-cta" href="https://cses.fi/problemset/task/1130" target="_blank" rel="noopener"><i class="fas fa-up-right-from-square"></i> افتح المسألة على CSES</a>
+    </div>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="showTab('tabProblem', this)"><i class="fas fa-file-lines"></i> المسألة</button>
+        <button class="tab-btn" onclick="showTab('tabIdea', this)"><i class="fas fa-lightbulb"></i> الفكرة والإثبات</button>
+        <button class="tab-btn" onclick="showTab('tabCode', this)"><i class="fas fa-code"></i> الكود</button>
+        <button class="tab-btn" onclick="showTab('tabLab', this)"><i class="fas fa-flask"></i> المختبر</button>
+        <button class="tab-btn" onclick="showTab('tabAnalysis', this)"><i class="fas fa-chart-line"></i> التحليل</button>
+    </div>
+
+    <div class="container">
+
+        <!-- ============ TAB 1: PROBLEM STATEMENT ============ -->
+        <div class="tab-panel active" id="tabProblem">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">1</span>
+                    <h3>📄 نص المسألة كما يظهر على CSES</h3>
+                </div>
+                <p>هذا هو النص الأصلي بالإنجليزية تمامًا كما يظهر على منصة CSES — تعوّد على قراءته مباشرة، لأن صيغة الإخراج المطلوبة (سطر واحد فقط يحتوي رقمًا) غالبًا ما تُفهم خطأً لو اعتمدت فقط على الشرح المترجم.</p>
+
+                <div class="original-statement">
+                    <div class="os-head">
+                        <span><i class="fas fa-lock-open"></i> CSES 1130 — Tree Matching (Tree Algorithms)</span>
+                        <a href="https://cses.fi/problemset/task/1130" target="_blank" rel="noopener">cses.fi/problemset/task/1130 ↗</a>
+                    </div>
+                    <div class="os-body">
+                        <p>You are given a tree consisting of n nodes.</p>
+                        <p>A <em>matching</em> is a set of edges where each node is an endpoint of at most one edge. What is the maximum number of edges in a matching?</p>
+                        <h5>Input</h5>
+                        <p>The first input line contains an integer n: the number of nodes. The nodes are numbered 1,2,…,n.</p>
+                        <p>Then there are n−1 lines describing the edges. Each line contains two integers a and b: there is an edge between nodes a and b.</p>
+                        <h5>Output</h5>
+                        <p>Print one integer: the maximum number of pairs.</p>
+                        <h5>Constraints</h5>
+                        <p>1 ≤ n ≤ 2·10<sup>5</sup><br>1 ≤ a, b ≤ n</p>
+                        <h5>Example</h5>
+                        <pre>Input:
+5
+1 2
+1 3
+3 4
+3 5
+
+Output:
+2</pre>
+                    </div>
+                </div>
+
+                <h4 class="sub-title">🗣️ بالعربية — ماذا يعني هذا فعليًا؟</h4>
+                <p>لديك شجرة (tree): رسم بياني متصل بلا دورات، فيه n عقدة وn−1 حافة بالضبط. <strong>المطابقة (matching)</strong> هي مجموعة من الحواف بحيث لا تظهر أي عقدة كطرف لأكثر من حافة واحدة من هذه المجموعة — بمعنى آخر، إذا اخترت حافة (u,v) فلا يمكنك اختيار أي حافة أخرى تلمس u أو تلمس v. المطلوب هو أكبر عدد ممكن من الحواف في مثل هذه المجموعة.</p>
+
+                <div class="definition-box">
+                    <div class="df-title"><i class="fas fa-thumbtack"></i> ترجمة المثال المعطى</div>
+                    <p>الشجرة: 1 متصلة بـ2 وبـ3، و3 متصلة أيضًا بـ4 وبـ5 (أي أن 3 عقدة مركزية بثلاثة جيران: 1، 4، 5). أكبر مطابقة ممكنة حجمها 2، وأحد الحلول الصحيحة هو اختيار الحافتين (1,2) و(3,4) — لاحظ أن العقدة 3 استُخدمت فقط في حافة واحدة (3,4)، رغم أن لها جارين آخرين (1 و5)، لأنها لا يمكن أن تكون طرفًا في أكثر من حافة مختارة واحدة.</p>
+                </div>
+
+                <h4 class="sub-title">🌳 عرض الشجرة بصريًا</h4>
+                <p>هذا رسم للشجرة نفسها من المثال، مع تظليل حواف إحدى المطابقات القصوى الصحيحة (البرتقالي الغامق):</p>
+                <div class="tm-tree-wrap"><div id="exampleTreeDisplay"></div></div>
+                <div class="tm-legend">
+                    <span><span class="swline" style="background:#94a3b8;"></span>حافة عادية في الشجرة</span>
+                    <span><span class="swline" style="background:#f7941e;height:5px;"></span>حافة ضمن المطابقة المختارة</span>
+                </div>
+
+                <div class="good-box">
+                    <i class="fas fa-check-double"></i>
+                    <p>الحكم على CSES يقبل <strong>أي</strong> مطابقة صحيحة تصل إلى العدد الأقصى — لا يشترط أن تختار بالضبط نفس الحافتين الموضحتين في المثال، فقط العدد يجب أن يكون صحيحًا.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 2: IDEA + PROOF ============ -->
+        <div class="tab-panel" id="tabIdea">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">2</span>
+                    <h3>💡 فكرة الحل: DP بحالتين على شجرة مُجذَّرة</h3>
+                </div>
+                <p>نُجذّر الشجرة عند عقدة عشوائية (هنا نختار العقدة 1)، ثم لكل عقدة v نحسب حالتين ممكنتين، لأن التفاعل الوحيد بين شجرة فرعية والباقي يمر عبر حافة واحدة فقط: الحافة إلى الأب.</p>
+
+                <div class="definition-box">
+                    <div class="df-title"><i class="fas fa-layer-group"></i> تعريف الحالتين</div>
+                    <p><code class="inline" style="background:rgba(0,173,239,0.15);color:#7dd3fc;">dp0[v]</code> — أكبر مطابقة داخل الشجرة الفرعية لـ v عندما v <strong>غير</strong> مرتبطة بأبيها (حرة: قد تُطابق أحد أبنائها أو لا تُطابق أحدًا).<br>
+                    <code class="inline" style="background:rgba(247,148,30,0.18);color:#fbbf24;">dp1[v]</code> — أكبر مطابقة داخل الشجرة الفرعية لـ v عندما v <strong>مُطابَقة بالفعل</strong> مع أبيها (مشغولة، فلا يمكنها مطابقة أي ابن).</p>
+                </div>
+
+                <p>الإجابة النهائية هي <code class="inline">dp0[الجذر]</code> لأن الجذر لا أب له أصلًا.</p>
+
+                <h4 class="sub-title">🧮 علاقات الحساب (Recurrence)</h4>
+                <div class="code-box">
+                    <div class="code-head"><span>الصيغ الرياضية</span></div>
+                    <pre>base   = مجموع dp0[child] لكل الأبناء المباشرين لـ v
+
+dp1[v] = base                       (v مشغولة، لا يمكنها مطابقة أي ابن)
+
+dp0[v] = max( base ,
+              max عبر كل ابن u من:
+                  base - dp0[u] + dp1[u] + 1 )</pre>
+                </div>
+                <p>الفكرة في الحد الثاني: لو طابقنا v مع ابن معيّن u عبر الحافة (v,u)، فإننا نضيف حافة واحدة (+1)، ونُجبر u على الانتقال من حالته dp0[u] إلى حالته dp1[u] (لأنه أصبح مشغولًا بأبيه)، بينما بقية الأبناء يظلّون في حالة dp0 الحرة كما هم ضمن base — لذلك نطرح dp0[u] القديمة ونضيف dp1[u] الجديدة بدلًا عنها.</p>
+
+                <h4 class="sub-title">📐 إثبات SRTBOT الكامل</h4>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <tbody>
+                            <tr><td style="width:14%"><strong>S — الحالة</strong></td><td>الحالتان <code class="inline">dp0[v]</code> و<code class="inline">dp1[v]</code> تغطيان كل الاحتمالات الممكنة، لأن التفاعل الوحيد بين شجرة v الفرعية وبقية الشجرة يمر حصرًا عبر حافة الأب — فإما أن هذه الحافة مُستخدمة في المطابقة أو غير مُستخدمة، ولا يوجد احتمال ثالث.</td></tr>
+                            <tr><td><strong>R — العلاقة</strong></td><td>إن كانت v مستخدَمة من أبيها (<code class="inline">dp1[v]</code>) فلا يمكنها أن تكون طرفًا لأي حافة أخرى، فتُجبر جميع أبنائها على البقاء في حالة dp0. أما إن كانت v حرة (<code class="inline">dp0[v]</code>) فأمامها خياران فقط: لا تُطابق أي ابن (base)، أو تُطابق ابنًا واحدًا بالضبط u (يحوّل حالته إلى dp1[u] ويضيف حافة واحدة). هذان الخياران متبادلا الاستبعاد وشاملان معًا لكل الحالات — وهذا يثبت أن الصيغ أعلاه ضرورية وكافية.</td></tr>
+                            <tr><td><strong>T — الانتقال</strong></td><td>نحسب أبناء كل عقدة أولًا عبر DFS، ثم: <code class="inline">base = Σ dp0[child]</code>، ثم <code class="inline">dp1[v] = base</code>، ثم <code class="inline">dp0[v] = max(base, max(base - dp0[u] + dp1[u] + 1))</code>.</td></tr>
+                            <tr><td><strong>B — الحالة الأساسية</strong></td><td>لعقدة ورقة (leaf) لا أبناء لها: base = 0 (مجموع فارغ)، فتصبح <code class="inline">dp1[v] = 0</code> (لا يوجد ابن لتطابقه أصلًا) و<code class="inline">dp0[v] = 0</code> (لا يوجد ابن لتطابقه أيضًا). صحيح ومتّسق مع التعريف.</td></tr>
+                            <tr><td><strong>O — ترتيب الحساب</strong></td><td>DFS بترتيب post-order: نحسب DP لكل الأبناء قبل الأب. بما أن كل عقدة تعتمد فقط على قيم dp0/dp1 لأبنائها المباشرين، فإن هذا الترتيب يضمن توفر كل الاعتماديات وقت الحساب.</td></tr>
+                            <tr><td><strong>T — الوقت والذاكرة</strong></td><td>كل حافة تُعالَج عددًا ثابتًا من المرات أثناء DFS، لذلك الزمن O(n) والذاكرة O(n) لقوائم التجاور ومصفوفتي dp0/dp1 وعمق الاستدعاء.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <details class="bonus-details">
+                    <summary>🎯 بونص: أنماط DP مشابهة على الأشجار يجب ألا تخلط بينها</summary>
+                    <div class="bonus-body">
+                        <p>هذا النمط (حالتان: "حرة" و"مشغولة بالأب") يظهر في عائلة كاملة من مسائل DP على الأشجار، لكن كل مسألة تُعرّف "الحالة" بمعنى مختلف قليلًا:</p>
+                        <p><strong>Maximum Independent Set على شجرة</strong> يستخدم أيضًا حالتين <code class="inline">dp[v][0]</code> و<code class="inline">dp[v][1]</code>، لكن المعنى هناك هو "هل العقدة v نفسها مُختارة ضمن المجموعة المستقلة أم لا" — وهي مسألة مختلفة تمامًا عن المطابقة (matching)، رغم تشابه شكل الكود. لا تخلط بين الاثنين: في Independent Set نختار عُقَدًا (nodes) بحيث لا يتجاور أي اثنان منها، بينما في Tree Matching نختار حوافًا (edges) بحيث لا تشترك في عقدة.</p>
+                        <p><strong>Minimum Vertex Cover على شجرة</strong> مرتبطة رياضيًا بالـ Matching عبر نظرية كونيغ (König's theorem) في الأشجار والرسوم ثنائية التجزئة، حيث حجم أصغر تغطية رؤوس يساوي حجم أكبر مطابقة — تفصيل جميل يستحق الاستكشاف لاحقًا إن أردت الغوص أعمق في نظرية الرسوم البيانية.</p>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <!-- ============ TAB 3: CODE ============ -->
+        <div class="tab-panel" id="tabCode">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">3</span>
+                    <h3>💻 الكود الكامل مع شرح كل جزء</h3>
+                </div>
+
+                <div class="code-box">
+                    <div class="code-head"><span>C++ — الحل الكامل</span></div>
+                    <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+vector&lt;vector&lt;int&gt;&gt; g;
+vector&lt;long long&gt; dp0, dp1;
+
+void dfs(int v, int p) {
+    long long base = 0;
+
+    <span class="cmt">// أولًا: حلّ كل الأبناء أولًا (post-order)</span>
+    for (int to : g[v]) {
+        if (to == p) continue;
+        dfs(to, v);
+        base += dp0[to];
+    }
+
+    <span class="cmt">// إن كانت v مطابَقة مع أبيها -> لا يمكنها مطابقة أي ابن</span>
+    dp1[v] = base;
+
+    <span class="cmt">// إن كانت v غير مطابَقة مع أبيها -> إما لا تطابق أحدًا، أو تطابق ابنًا واحدًا بالضبط</span>
+    dp0[v] = base;
+
+    for (int u : g[v]) {
+        if (u == p) continue;
+        long long candidate = base - dp0[u] + dp1[u] + 1;  // مطابقة الحافة (v,u)
+        dp0[v] = max(dp0[v], candidate);
+    }
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n;
+    cin &gt;&gt; n;
+
+    g.assign(n + 1, {});
+    for (int i = 0; i &lt; n - 1; i++) {
+        int a, b;
+        cin &gt;&gt; a &gt;&gt; b;
+        g[a].push_back(b);
+        g[b].push_back(a);
+    }
+
+    dp0.assign(n + 1, 0);
+    dp1.assign(n + 1, 0);
+
+    int root = 1;
+    dfs(root, -1);
+
+    cout &lt;&lt; dp0[root] &lt;&lt; "\n";
+    return 0;
+}</pre>
+                </div>
+
+                <h4 class="sub-title">🔍 شرح مفصّل لكل جزء</h4>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <tbody>
+                            <tr><td style="width:26%"><strong>vector&lt;vector&lt;int&gt;&gt; g;</strong></td><td>قائمة تجاور (adjacency list) عالمية — g[v] تحتوي كل جيران العقدة v في الشجرة غير الموجّهة.</td></tr>
+                            <tr><td><strong>vector&lt;long long&gt; dp0, dp1;</strong></td><td>مصفوفتا DP. استُخدم <code class="inline">long long</code> هنا كعادة أمان في المسائل التنافسية أكثر منه ضرورة صارمة: أكبر مطابقة ممكنة في شجرة بحجم n هي على الأكثر n/2 ≤ 10^5، وهي قيمة تدخل بارتياح في int، لكن long long يتجنب أي مفاجأة لو أُعيد استخدام نفس الكود لاحقًا في مسألة بمجاميع أكبر.</td></tr>
+                            <tr><td><strong>dfs(int v, int p)</strong></td><td>v هي العقدة الحالية، وp هي أبوها (لتجنّب الرجوع إليها ضمن حلقة الجيران). يُستدعى الدالة recursively على كل الأبناء أولًا، مما يضمن ترتيب post-order المطلوب في إثبات SRTBOT.</td></tr>
+                            <tr><td><strong>حلقة for (int to : g[v]) { if (to==p) continue; dfs(to,v); base += dp0[to]; }</strong></td><td>تمرّ على كل جار، تتجاهل الأب، تحل الشجرة الفرعية للابن recursively، ثم تجمع قيم dp0 لكل الأبناء في base — وهذا هو "الأساس" الذي تُبنى عليه كل من dp1[v] وdp0[v].</td></tr>
+                            <tr><td><strong>dp1[v] = base;</strong></td><td>ترجمة مباشرة للصيغة الرياضية: إن كانت v مشغولة بأبيها، كل أبنائها يبقون أحرارًا (dp0)، فمجموع مساهماتهم هو base بالضبط.</td></tr>
+                            <tr><td><strong>حلقة for (int u : g[v]) { ... candidate = base - dp0[u] + dp1[u] + 1; dp0[v] = max(...); }</strong></td><td>تجرّب مطابقة v مع كل ابن u على حدة: تزيل مساهمة u القديمة (dp0[u]) من base، وتضيف مساهمته الجديدة كمُطابَق (dp1[u])، بالإضافة إلى +1 عن الحافة (v,u) نفسها، ثم تُبقي أفضل نتيجة رأتها عبر كل الأبناء (أو base نفسها إن لم يكن أي ابن يستحق ذلك).</td></tr>
+                            <tr><td><strong>g.assign(n + 1, {}); قراءة n−1 حافة</strong></td><td>تُضاف كل حافة في الاتجاهين (g[a].push_back(b) وg[b].push_back(a)) لأن الشجرة غير موجّهة، والقراءة تتوقف تلقائيًا عند n−1 حافة كما تنص المسألة تمامًا.</td></tr>
+                            <tr><td><strong>int root = 1; dfs(root, -1);</strong></td><td>تجذير الشجرة عند العقدة 1 اختياري بحت — حجم أكبر مطابقة في شجرة لا يعتمد إطلاقًا على أي عقدة اخترتها جذرًا، فقط يجب اختيار عقدة موجودة فعلًا (1 آمنة دائمًا لأن 1 ≤ n).</td></tr>
+                            <tr><td><strong>cout &lt;&lt; dp0[root]</strong></td><td>الجذر ليس له أب بالتعريف، لذا فهو دائمًا في حالة "حرة" — والإجابة النهائية هي بالضبط dp0[root].</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="warn-box">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    <p><strong>تنبيه مهم لعمق الاستدعاء:</strong> هذا الكود يستخدم DFS تكراريًا (recursive) عبر استدعاء الدالة نفسها لنفسها. مع n حتى 2×10^5، لو كانت الشجرة على شكل سلسلة طويلة (path) بدلًا من شجرة متفرّعة، فإن عمق الاستدعاء قد يصل إلى 2×10^5 مستوى متتاليًا — وهذا قد يتجاوز حجم المكدّس الافتراضي (stack) في بعض بيئات التصحيح المحلية ويُسبب Stack Overflow، رغم أنه غالبًا يعمل بأمان على خوادم الحكم مثل CSES التي تمنح حجم مكدّس أكبر. سنتوسّع في هذه النقطة وحلولها في تبويب «التحليل».</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 4: LAB ============ -->
+        <div class="tab-panel" id="tabLab">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">4</span>
+                    <h3>⚗️ المختبر التفاعلي — محلّل المطابقة على الشجرة</h3>
+                </div>
+                <p>اكتب شجرتك الخاصة بنفس صيغة الإدخال على CSES بالضبط (n في السطر الأول، ثم n−1 سطرًا لكل حافة "a b")، أو حمّل مثال المسألة، أو ولّد شجرة عشوائية — ثم اضغط «حلّل الشجرة» لتشغيل خوارزمية DP الحقيقية (بترتيب post-order فعلي مبني تكراريًا وليس recursion، لتفادي مشكلة عمق الاستدعاء المذكورة في تبويب «الكود»)، ومشاهدة كل خطوة من خطوات الحساب، بالإضافة إلى إعادة بناء المطابقة القصوى فعليًا وتظليل حوافها على الرسم.</p>
+
+                <div class="tip-box">
+                    <i class="fas fa-circle-info"></i>
+                    <p>القيد الحقيقي على المنصة يصل إلى n ≤ 2×10^5، لكن نُحدّد الحجم هنا بحد أقصى 24 عقدة فقط للحفاظ على وضوح رسم الشجرة — الخوارزمية المُنفَّذة (بما فيها ترتيب post-order التكراري) هي نفسها تمامًا بغض النظر عن الحجم.</p>
+                </div>
+
+                <div class="nt-lab-dark">
+                    <div class="nt-input-row">
+                        <div class="nt-input-group narrow">
+                            <label>عدد العقد (للتوليد العشوائي)</label>
+                            <input type="number" id="tmRandomN" value="8" min="2" max="24">
+                        </div>
+                        <button class="nt-btn nt-btn-outline" onclick="tmLoadExample()"><i class="fas fa-book-open"></i> مثال المسألة</button>
+                        <button class="nt-btn nt-btn-outline" onclick="tmRandomTree()"><i class="fas fa-dice"></i> شجرة عشوائية</button>
+                        <button class="nt-btn nt-btn-outline" onclick="tmClear()"><i class="fas fa-eraser"></i> مسح</button>
+                    </div>
+
+                    <div class="nt-input-group" style="max-width:100%;">
+                        <label>الإدخال بصيغة CSES (n ثم n−1 سطر "a b")</label>
+                        <textarea id="tmInput" class="nt-textarea">5
+1 2
+1 3
+3 4
+3 5</textarea>
+                    </div>
+
+                    <div class="nt-input-row" style="margin-top:16px;">
+                        <button class="nt-btn nt-btn-primary" onclick="tmAnalyze()"><i class="fas fa-play"></i> حلّل الشجرة</button>
+                    </div>
+
+                    <div class="mini-stats-row" id="tmStats"></div>
+                    <div class="tm-tree-wrap"><div id="tmTreeContainer"></div></div>
+                    <div class="tm-legend">
+                        <span><span class="swline" style="background:#94a3b8;"></span>حافة عادية</span>
+                        <span><span class="swline" style="background:#f7941e;height:5px;"></span>حافة ضمن المطابقة القصوى</span>
+                    </div>
+                    <div class="nt-console" id="tmConsole">اضغط «حلّل الشجرة» لتشغيل الخوارزمية.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 5: ANALYSIS ============ -->
+        <div class="tab-panel" id="tabAnalysis">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">5</span>
+                    <h3>📊 تحليل التعقيد ونصائح الحل</h3>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>الجانب</th><th class="ltr">التعقيد</th><th>لماذا</th></tr></thead>
+                        <tbody>
+                            <tr><td>الزمن</td><td class="ltr">O(n)</td><td>كل عقدة تُزار مرة واحدة، وكل حافة تُفحص مرتين بالضبط (مرة من كل طرف) عبر كل حلقات dfs، فالمجموع الكلي خطي في عدد العقد والحواف.</td></tr>
+                            <tr><td>الذاكرة</td><td class="ltr">O(n)</td><td>قائمة التجاور، ومصفوفتا dp0/dp1، وعمق مكدّس الاستدعاء (أو المكدّس اليدوي في نسخة تكرارية)، كلها خطية في n.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="sub-title">⚠️ أخطاء شائعة عند الحل على المنصة</h4>
+                <ol class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">Stack Overflow على شجرة خطية (path):</strong> إن كانت الشجرة سلسلة طويلة (كل عقدة لها ابن واحد فقط) بحجم n=2×10^5، فقد يفشل DFS التكراري (recursive) بسبب تجاوز حجم مكدّس النداءات. الحلول الشائعة في المسابقات: (أ) تحويل DFS إلى نسخة تكرارية بمكدّس يدوي (Iterative DFS) كما فعلنا في المختبر أعلاه، أو (ب) زيادة حجم المكدّس صراحة (مثلًا عبر تشغيل الحل داخل thread بحجم مكدّس أكبر في ++C، أو رفع حد ulimit -s في بيئات Linux محلية).</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">نسيان إضافة الحافة في الاتجاهين:</strong> بما أن الشجرة غير موجّهة، يجب استدعاء <code class="inline">g[a].push_back(b)</code> و<code class="inline">g[b].push_back(a)</code> معًا لكل حافة — نسيان أحدهما يكسر الاتصال بين العقد.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">الخلط بين Tree Matching وMaximum Independent Set:</strong> الكودان متشابهان شكليًا (حالتان لكل عقدة) لكن المعنى مختلف جذريًا — راجع البونص في تبويب «الفكرة والإثبات» لتفادي هذا الالتباس الشائع جدًا بين الطلاب.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">اختيار جذر غير موجود:</strong> تجذير الشجرة عند عقدة عشوائية أمر صحيح دائمًا طالما هذه العقدة موجودة فعليًا ضمن 1..n — العقدة 1 اختيار آمن ومضمون دائمًا لأن القيد يضمن 1 ≤ n.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">قراءة بطيئة:</strong> مع n حتى 2×10^5 حافة تقريبًا، نسيان <code class="inline">ios::sync_with_stdio(false)</code> قد يستهلك وقتًا غير ضروري من حد الثانية الواحدة.</p></li>
+                </ol>
+
+                <details class="bonus-details">
+                    <summary>🚀 مسائل تالية مقترحة من نفس قسم Tree Algorithms على CSES</summary>
+                    <div class="bonus-body">
+                        <p>بعد إتقان هذا النمط، القسم نفسه على CSES يحتوي مسائل ممتازة للتدرّب أكثر على DP والتقنيات على الأشجار: <strong>Subordinates</strong> (مجموع تراكمي بسيط على شجرة)، <strong>Tree Diameter</strong> (أطول مسار داخل شجرة)، <strong>Tree Distances I</strong> و<strong>Tree Distances II</strong> (المسافة من/إلى كل عقدة، تقنية Re-rooting)، و<strong>Distance Queries</strong> (استعلامات LCA). كل هذه المسائل تبني تدريجيًا على مهارات DFS/DP على الأشجار التي تدرّبت عليها هنا.</p>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — مسائل تطبيقية: Tree Matching (CSES 1130)</footer>
+
+    <script>
+        // ===================================================================
+        // Tab navigation
+        // ===================================================================
+        function showTab(tabId, btn) {
+            document.querySelectorAll('.tab-panel').forEach(function (el) { el.classList.remove('active'); });
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+        }
+
+        function line(text, cls) { return '<span class="' + (cls || 'step-line') + '">' + text + '</span>'; }
+        function statChip(label, val) { return '<div class="mini-stat">' + label + ': <b>' + val + '</b></div>'; }
+
+        // ===================================================================
+        // Parsing + validation of a tree given in CSES input format.
+        // ===================================================================
+        function tmParseTree(text, maxN) {
+            const lines = text.trim().split(/\r?\n/).map(function (l) { return l.trim(); }).filter(function (l) { return l.length > 0; });
+            if (lines.length === 0) throw new Error('المدخل فارغ.');
+            const n = parseInt(lines[0], 10);
+            if (isNaN(n) || n < 1) throw new Error('قيمة n غير صحيحة في السطر الأول.');
+            if (n > maxN) throw new Error('لأغراض العرض التفاعلي هنا، الحد الأقصى هو ' + maxN + ' عقدة (رغم أن الخوارزمية نفسها تدعم فعليًا حتى 2×10^5 كما في المسألة الأصلية).');
+
+            const edges = [];
+            for (let i = 1; i <= n - 1; i++) {
+                if (i >= lines.length) throw new Error('عدد أسطر الحواف أقل من المطلوب (n-1 = ' + (n - 1) + ' سطرًا).');
+                const parts = lines[i].split(/\s+/).map(Number);
+                if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) throw new Error('صيغة الحافة غير صحيحة في السطر ' + (i + 1) + '. المتوقع: a b');
+                const a = parts[0], b = parts[1];
+                if (a < 1 || a > n || b < 1 || b > n) throw new Error('الحافة (' + a + ',' + b + ') تحتوي عقدة خارج المدى المسموح 1..' + n + '.');
+                edges.push([a, b]);
+            }
+
+            // Union-Find validation: exactly a tree (connected, acyclic).
+            const parentUF = [];
+            for (let i = 0; i <= n; i++) parentUF.push(i);
+            function find(x) { while (parentUF[x] !== x) { parentUF[x] = parentUF[parentUF[x]]; x = parentUF[x]; } return x; }
+
+            const adj = [];
+            for (let i = 0; i <= n; i++) adj.push([]);
+            edges.forEach(function (e) {
+                const ra = find(e[0]), rb = find(e[1]);
+                if (ra === rb) throw new Error('الحواف تحتوي دورة (cycle) بين العقدتين ' + e[0] + ' و' + e[1] + ' — هذا ليس شجرة صحيحة.');
+                parentUF[ra] = rb;
+                adj[e[0]].push(e[1]);
+                adj[e[1]].push(e[0]);
+            });
+
+            const root0 = find(1);
+            for (let i = 2; i <= n; i++) {
+                if (find(i) !== root0) throw new Error('الشجرة غير متصلة (disconnected) — العقدة ' + i + ' في مكوّن منفصل عن بقية الشجرة.');
+            }
+
+            return { n: n, adj: adj, edges: edges };
+        }
+
+        // ===================================================================
+        // Iterative post-order construction (children processed before
+        // parents) — avoids recursion-depth issues, mirroring the
+        // real-world fix discussed in the Analysis tab.
+        // ===================================================================
+        function tmBuildOrderAndChildren(adj, n, root) {
+            const parentOf = new Array(n + 1).fill(-1);
+            const visited = new Array(n + 1).fill(false);
+            const order = [];
+            const stack = [root];
+            visited[root] = true;
+            while (stack.length) {
+                const v = stack.pop();
+                order.push(v);
+                adj[v].forEach(function (to) {
+                    if (!visited[to]) {
+                        visited[to] = true;
+                        parentOf[to] = v;
+                        stack.push(to);
+                    }
+                });
+            }
+            order.reverse(); // now: every child appears strictly before its parent
+            const childrenOf = [];
+            for (let i = 0; i <= n; i++) childrenOf.push([]);
+            for (let v = 1; v <= n; v++) if (parentOf[v] !== -1) childrenOf[parentOf[v]].push(v);
+            return { parentOf: parentOf, order: order, childrenOf: childrenOf };
+        }
+
+        // ===================================================================
+        // The actual DP — mirrors the C++ dfs() exactly (same base/dp1/dp0
+        // formulas), just executed in post-order via an explicit array
+        // instead of function recursion.
+        // ===================================================================
+        function tmRunDp(n, childrenOf, order) {
+            const dp0 = new Array(n + 1).fill(0);
+            const dp1 = new Array(n + 1).fill(0);
+            const bestChild = new Array(n + 1).fill(-1);
+            const traceLines = [];
+
+            order.forEach(function (v) {
+                const kids = childrenOf[v];
+                let base = 0;
+                kids.forEach(function (c) { base += dp0[c]; });
+
+                dp1[v] = base;
+                dp0[v] = base;
+                bestChild[v] = -1;
+
+                kids.forEach(function (c) {
+                    const candidate = base - dp0[c] + dp1[c] + 1;
+                    if (candidate > dp0[v]) { dp0[v] = candidate; bestChild[v] = c; }
+                });
+
+                let desc;
+                if (kids.length === 0) desc = 'ورقة (leaf) — لا أبناء لها.';
+                else if (bestChild[v] === -1) desc = 'لا يوجد ابن يستحق المطابقة معه (base هي الأفضل).';
+                else desc = 'أفضل خيار: مطابقة الحافة (' + v + ',' + bestChild[v] + ').';
+
+                traceLines.push('v=' + v + ':  base=' + base + ',  dp1[' + v + ']=' + dp1[v] + ',  dp0[' + v + ']=' + dp0[v] + '   →   ' + desc);
+            });
+
+            return { dp0: dp0, dp1: dp1, bestChild: bestChild, traceLines: traceLines };
+        }
+
+        // ===================================================================
+        // Top-down reconstruction of one actual maximum matching, using the
+        // bestChild[] choices recorded during the DP. This is an enhancement
+        // beyond the original source (which only asked for the count).
+        // ===================================================================
+        function tmReconstructMatching(root, childrenOf, bestChild) {
+            const matched = [];
+            const stack = [{ v: root, matchedToParent: false }];
+            while (stack.length) {
+                const cur = stack.pop();
+                const v = cur.v, matchedToParent = cur.matchedToParent;
+                const kids = childrenOf[v];
+                if (matchedToParent) {
+                    kids.forEach(function (c) { stack.push({ v: c, matchedToParent: false }); });
+                } else {
+                    const bc = bestChild[v];
+                    if (bc !== -1) matched.push([v, bc]);
+                    kids.forEach(function (c) { stack.push({ v: c, matchedToParent: (c === bc) }); });
+                }
+            }
+            return matched;
+        }
+
+        // ===================================================================
+        // Simple tidy-tree layout: leaves get sequential x positions,
+        // internal nodes are centered above their children.
+        // ===================================================================
+        function tmComputeLayout(childrenOf, root) {
+            const xOf = {}, yOf = {};
+            let nextX = 0;
+            function assign(v, depth) {
+                yOf[v] = depth;
+                const kids = childrenOf[v];
+                if (kids.length === 0) {
+                    xOf[v] = nextX; nextX += 1;
+                } else {
+                    let sum = 0;
+                    kids.forEach(function (c) { assign(c, depth + 1); sum += xOf[c]; });
+                    xOf[v] = sum / kids.length;
+                }
+            }
+            assign(root, 0);
+            return { xOf: xOf, yOf: yOf };
+        }
+
+        function tmRenderTree(containerId, n, childrenOf, root, matchedSet, dp0, dp1, showDp) {
+            const layout = tmComputeLayout(childrenOf, root);
+            const cellW = 58, cellH = 78, marginX = 40, marginY = 34, rad = 18;
+            let maxX = 0, maxY = 0;
+            for (let v = 1; v <= n; v++) { maxX = Math.max(maxX, layout.xOf[v]); maxY = Math.max(maxY, layout.yOf[v]); }
+            const width = marginX * 2 + maxX * cellW + cellW;
+            const height = marginY * 2 + maxY * cellH + cellH;
+            function px(v) { return marginX + layout.xOf[v] * cellW + cellW / 2; }
+            function py(v) { return marginY + layout.yOf[v] * cellH + cellH / 2; }
+
+            let svg = '<svg viewBox="0 0 ' + width + ' ' + height + '" width="' + width + '" height="' + height + '" xmlns="http://www.w3.org/2000/svg">';
+
+            for (let v = 1; v <= n; v++) {
+                childrenOf[v].forEach(function (c) {
+                    const isMatched = matchedSet.has(v + ',' + c) || matchedSet.has(c + ',' + v);
+                    svg += '<line x1="' + px(v) + '" y1="' + py(v) + '" x2="' + px(c) + '" y2="' + py(c) + '" stroke="' + (isMatched ? '#f7941e' : '#94a3b8') + '" stroke-width="' + (isMatched ? 5 : 2) + '" />';
+                });
+            }
+
+            for (let v = 1; v <= n; v++) {
+                const isRoot = v === root;
+                const fill = isRoot ? '#00adef' : '#ffffff';
+                const strokeColor = isRoot ? '#007bb5' : '#00adef';
+                const textColor = isRoot ? '#ffffff' : '#0f172a';
+                svg += '<circle cx="' + px(v) + '" cy="' + py(v) + '" r="' + rad + '" fill="' + fill + '" stroke="' + strokeColor + '" stroke-width="2.5" />';
+                svg += '<text x="' + px(v) + '" y="' + (py(v) + 5) + '" text-anchor="middle" font-family="Consolas,monospace" font-weight="800" font-size="13" fill="' + textColor + '">' + v + '</text>';
+                if (showDp) {
+                    svg += '<text x="' + px(v) + '" y="' + (py(v) + rad + 15) + '" text-anchor="middle" font-family="Consolas,monospace" font-size="10" fill="#94a3b8">d0=' + dp0[v] + ' d1=' + dp1[v] + '</text>';
+                }
+            }
+
+            svg += '</svg>';
+            document.getElementById(containerId).innerHTML = svg;
+        }
+
+        // ===================================================================
+        // Lab driver
+        // ===================================================================
+        let tmState = null;
+
+        function tmAnalyze() {
+            const consoleEl = document.getElementById('tmConsole');
+            try {
+                const maxN = 24;
+                const parsed = tmParseTree(document.getElementById('tmInput').value, maxN);
+                const built = tmBuildOrderAndChildren(parsed.adj, parsed.n, 1);
+                const dpRes = tmRunDp(parsed.n, built.childrenOf, built.order);
+                const matched = tmReconstructMatching(1, built.childrenOf, dpRes.bestChild);
+                const matchedSet = new Set();
+                matched.forEach(function (e) { matchedSet.add(e[0] + ',' + e[1]); });
+                tmState = { parsed: parsed, built: built, dpRes: dpRes, matched: matched, matchedSet: matchedSet };
+
+                tmRenderTree('tmTreeContainer', parsed.n, built.childrenOf, 1, matchedSet, dpRes.dp0, dpRes.dp1, true);
+
+                document.getElementById('tmStats').innerHTML =
+                    statChip('عدد العقد n', parsed.n) + statChip('عدد الحواف', parsed.edges.length) + statChip('حجم المطابقة القصوى', dpRes.dp0[1]);
+
+                let html = dpRes.traceLines.map(function (l) { return line(l); }).join('');
+                const matchedStr = matched.map(function (e) { return '(' + e[0] + ',' + e[1] + ')'; }).join(', ');
+                html += line('إعادة بناء مطابقة قصوى فعلية: ' + matched.length + ' حافة → {' + matchedStr + '}', 'ok-line');
+                html += line('الإجابة النهائية = dp0[الجذر=1] = ' + dpRes.dp0[1], 'final-line');
+                consoleEl.innerHTML = html;
+            } catch (err) {
+                consoleEl.innerHTML = line('⚠️ ' + err.message, 'error-line');
+                document.getElementById('tmTreeContainer').innerHTML = '';
+                document.getElementById('tmStats').innerHTML = '';
+            }
+        }
+
+        function tmLoadExample() {
+            document.getElementById('tmInput').value = '5\n1 2\n1 3\n3 4\n3 5';
+        }
+
+        function tmRandomTree() {
+            let n = parseInt(document.getElementById('tmRandomN').value, 10);
+            if (isNaN(n) || n < 2) n = 2;
+            if (n > 24) n = 24;
+            document.getElementById('tmRandomN').value = n;
+            const lines = [String(n)];
+            for (let i = 2; i <= n; i++) {
+                const p = 1 + Math.floor(Math.random() * (i - 1));
+                lines.push(p + ' ' + i);
+            }
+            document.getElementById('tmInput').value = lines.join('\n');
+        }
+
+        function tmClear() {
+            document.getElementById('tmInput').value = '';
+            document.getElementById('tmConsole').innerHTML = 'الصق شجرة بصيغة CSES (n ثم n-1 سطر لكل حافة) ثم اضغط «حلّل الشجرة».';
+            document.getElementById('tmTreeContainer').innerHTML = '';
+            document.getElementById('tmStats').innerHTML = '';
+        }
+
+        // ===================================================================
+        // TAB 1 — static illustrative rendering of the example tree with the
+        // example matching {(1,2), (3,4)} highlighted.
+        // ===================================================================
+        (function initExampleDisplay() {
+            const exAdj = [[], [2, 3], [1], [1, 4, 5], [3], [3]]; // index 0 unused
+            const exChildrenOf = [[], [2, 3], [], [4, 5], [], []];
+            const exMatched = new Set(['1,2', '3,4']);
+            const exDp0 = [0, 2, 0, 1, 0, 0], exDp1 = [0, 1, 0, 0, 0, 0];
+            tmRenderTree('exampleTreeDisplay', 5, exChildrenOf, 1, exMatched, exDp0, exDp1, false);
+        })();
+
+        // ===================================================================
+        // Init lab with the example already analyzed.
+        // ===================================================================
+        tmLoadExample();
+        tmAnalyze();
+    </script>
+</body>
+</html>

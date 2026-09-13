@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | مسألة: Stick Lengths</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+        /* hero banner */
+        .hero-banner { background: var(--blue-gradient); padding: 60px 6% 50px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 720px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+        .hero-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 22px; }
+        .diff-badge { padding: 7px 18px; border-radius: 50px; font-weight: 800; font-size: 0.82rem; }
+        .diff-easy { background: #dcfce7; color: #15803d; }
+        .diff-medium { background: #fef3c7; color: #b45309; }
+        .diff-hard { background: #fee2e2; color: #b91c1c; }
+        .source-badge {
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.4); color: white;
+            padding: 7px 18px; border-radius: 50px; font-size: 0.82rem; font-weight: 700; text-decoration: none;
+            direction: ltr; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .source-badge:hover { background: rgba(255,255,255,0.28); }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula { direction: ltr; display: inline-block; font-family: 'Consolas', monospace; font-weight: 800; background: #eef2f7; padding: 3px 10px; border-radius: 8px; color: var(--dark-navy); }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td code.inline, .data-table th code.inline { white-space: nowrap; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+
+        /* numbered steps */
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        /* interactive lab */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 14px 0 6px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+
+        /* stick lengths lab */
+        .stick-chart {
+            position: relative; display: flex; align-items: flex-end; justify-content: center;
+            gap: 18px; height: 190px; padding: 0 10px; border-bottom: 3px solid #e2e8f0; margin-top: 10px;
+            transition: box-shadow 0.3s ease; border-radius: 12px;
+        }
+        .stick-chart.is-final-best { box-shadow: 0 0 0 3px rgba(34,197,94,0.35); }
+        .stick-bar {
+            width: 40px; border-radius: 8px 8px 0 0; background: var(--blue-gradient);
+            transition: box-shadow 0.3s ease;
+        }
+        .stick-bar.is-target { box-shadow: 0 0 0 3px var(--primary-yellow) inset, 0 0 14px rgba(247,148,30,0.5); }
+        .stick-target-line {
+            position: absolute; left: 0; right: 0; border-top: 3px dashed var(--primary-yellow);
+            opacity: 0; transition: bottom 0.4s ease, opacity 0.3s ease; pointer-events: none;
+        }
+        .stick-target-tag {
+            position: absolute; left: 0; transform: translateY(-100%);
+            background: var(--yellow-gradient); color: white; font-size: 0.7rem; font-weight: 800;
+            padding: 3px 10px; border-radius: 8px 8px 8px 0; opacity: 0; white-space: nowrap;
+            transition: bottom 0.4s ease, opacity 0.3s ease;
+        }
+        .stick-labels-row { display: flex; justify-content: center; gap: 18px; padding: 0 10px; margin-top: 10px; }
+        .stick-label-col { width: 40px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .stick-value-label { font-size: 0.8rem; font-weight: 800; color: var(--dark-navy); }
+        .stick-cost-label { font-size: 0.78rem; font-weight: 700; color: #b91c1c; font-family: 'Consolas', monospace; }
+        .stick-cost-label.zero-cost { color: #16a34a; }
+        .stick-total-badge { text-align: center; font-weight: 800; font-size: 1.05rem; color: var(--dark-navy); margin-top: 18px; }
+        .stick-total-badge .cost-num { color: var(--primary-blue); font-family: 'Consolas', monospace; }
+        .stick-total-badge.is-best { color: #16a34a; }
+        .stick-total-badge.is-best .cost-num { color: #16a34a; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge">المسائل: Stick Lengths</span>
+            <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الثاني</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-ruler-combined"></i>
+        <h1>المسألة 3: Stick Lengths (أطوال العصي)</h1>
+        <p class="hero-desc">مسألة شهيرة من CSES نصّها بسيط جدًا، لكنّ الوصول إلى الحل الأمثل يحتاج ملاحظة رياضية ذكية. سنستخدم فيها الترتيب (Sorting) الذي تعلّمته في الفصل الرابع لنكتشف أنّ القيمة المثالية دائمًا هي القيمة الوسيطة (Median) للمصفوفة.</p>
+        <div class="hero-badges">
+            <span class="diff-badge diff-medium">Medium</span>
+            <a class="source-badge" href="https://cses.fi/problemset/task/1074" target="_blank" rel="noopener"><i class="fas fa-up-right-from-square"></i> CSES 1074</a>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- Problem statement -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-file-lines"></i>
+                <h3>نص المسألة</h3>
+            </div>
+            <p>يُعطى لك <code class="inline">n</code> من العصي بأطوال معيّنة. تريد جعل كل العصي بنفس الطول.</p>
+            <p>يمكنك زيادة أو إنقاص طول كل عصا. تغيير طول عصا من <code class="inline">x</code> إلى <code class="inline">y</code> يكلّف <code class="inline">|x - y|</code>.</p>
+            <p><strong>المطلوب:</strong> إيجاد أقل كلفة كلية ممكنة لجعل جميع العصي بنفس الطول.</p>
+
+            <h4 class="sub-title">القيود</h4>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p><code class="inline">1 &le; n &le; 2 &times; 10&#8309;</code></p></li>
+                <li class="step-item"><span class="step-num"></span><p><code class="inline">1 &le; </code>طول كل عصا<code class="inline"> &le; 10&#8313;</code></p></li>
+            </ul>
+
+            <h4 class="sub-title">الإدخال</h4>
+            <p>السطر الأول: عدد صحيح <code class="inline">n</code> — عدد العصي.<br>السطر الثاني: <code class="inline">n</code> عددًا — أطوال العصي.</p>
+
+            <h4 class="sub-title">المخرجات</h4>
+            <p>عدد صحيح واحد — أقل كلفة كلية ممكنة.</p>
+
+            <h4 class="sub-title">مثال</h4>
+            <div class="output-box">Input:<br>5<br>2 3 1 5 2</div>
+            <div class="output-box" style="margin-top: 10px;">Output:<br>5</div>
+        </div>
+
+        <!-- Interactive lab -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>مختبر تفاعلي: جرّب أطوالًا مختلفة وشاهد التكلفة</h3>
+            </div>
+            <p>قبل أن نشرح الحل، جرّب بنفسك: العصي (بعد ترتيبها) أطوالها <code class="inline">1, 2, 2, 3, 5</code>. ماذا لو اخترنا طولًا هدفًا مختلفًا لكل العصي؟ شغّل المحاكاة لترى كيف تتغيّر التكلفة الكلية مع كل هدف نجرّبه، وأين تكون أقل ما يمكن.</p>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> محاكاة: تجربة كل هدف ممكن من 1 إلى 5</p>
+
+                <div class="stick-chart" id="stickChart">
+                    <div class="stick-target-line" id="stickTargetLine"></div>
+                    <div class="stick-target-tag" id="stickTargetTag"></div>
+                    <div class="stick-bar" id="stickBar_0" style="height:30px;"></div>
+                    <div class="stick-bar" id="stickBar_1" style="height:60px;"></div>
+                    <div class="stick-bar" id="stickBar_2" style="height:60px;"></div>
+                    <div class="stick-bar" id="stickBar_3" style="height:90px;"></div>
+                    <div class="stick-bar" id="stickBar_4" style="height:150px;"></div>
+                </div>
+                <div class="stick-labels-row">
+                    <div class="stick-label-col"><span class="stick-value-label">1</span><span class="stick-cost-label" id="stickCost_0">-</span></div>
+                    <div class="stick-label-col"><span class="stick-value-label">2</span><span class="stick-cost-label" id="stickCost_1">-</span></div>
+                    <div class="stick-label-col"><span class="stick-value-label">2</span><span class="stick-cost-label" id="stickCost_2">-</span></div>
+                    <div class="stick-label-col"><span class="stick-value-label">3</span><span class="stick-cost-label" id="stickCost_3">-</span></div>
+                    <div class="stick-label-col"><span class="stick-value-label">5</span><span class="stick-cost-label" id="stickCost_4">-</span></div>
+                </div>
+
+                <div class="stick-total-badge" id="stickTotalBadge">التكلفة الكلية: <span class="cost-num">-</span></div>
+                <div class="lab-step-hint" id="stickStepHint">اضغط "شغّل المحاكاة" لتجربة كل هدف ممكن ومشاهدة التكلفة الكلية لكل واحد.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runStickLab()">شغّل المحاكاة</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CP methodology -->
+        <div class="card" style="border-right-color: var(--primary-yellow);">
+            <div class="card-header" style="color: var(--primary-yellow);">
+                <i class="fas fa-map-signs"></i>
+                <h3>منهجية الحل: كيف نفكّر في هذه المسألة؟</h3>
+            </div>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p><strong>افهم المسألة:</strong> نريد اختيار طول هدف واحد يجعل مجموع <code class="inline">|طول العصا - الهدف|</code> لكل العصي أقل ما يمكن.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>جرّب أمثلة صغيرة يدويًا:</strong> خذ 3 أو 4 عصي واحسب التكلفة عند كل هدف ممكن بنفسك.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>ابحث عن نمط:</strong> أين تقع القيمة التي تعطي أقل تكلفة دائمًا؟</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>لماذا يصح ذلك؟</strong> فكّر في العصي كأزواج (أصغر قيمة مع أكبر قيمة) وماذا يحدث للتكلفة عند تحريك الهدف.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>اكتب الكود وتحقّق:</strong> رتّب المصفوفة، خذ العنصر الأوسط (الوسيط)، واحسب التكلفة.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>افحص الحالات الحدّية:</strong> ماذا يحدث عند n=1؟ وماذا لو كان n زوجيًا؟ وهل قد يفيض المجموع نوع <code class="inline">int</code>؟</p></li>
+            </ul>
+        </div>
+
+        <!-- Step 1: try small examples -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-magnifying-glass"></i>
+                <h3>الخطوة 1: نجرّب أمثلة صغيرة يدويًا</h3>
+            </div>
+            <p>لنأخذ مثالًا صغيرًا جدًا: عصي أطوالها <code class="inline">1, 2, 3</code>. لنحسب التكلفة الكلية عند كل هدف ممكن:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th class="center">الهدف</th><th>التكلفة لكل عصا</th><th class="center">المجموع</th></tr></thead>
+                    <tbody>
+                        <tr><td class="center">1</td><td><code class="inline">|1-1|+|2-1|+|3-1| = 0+1+2</code></td><td class="center">3</td></tr>
+                        <tr><td class="center">2</td><td><code class="inline">|1-2|+|2-2|+|3-2| = 1+0+1</code></td><td class="center">2</td></tr>
+                        <tr><td class="center">3</td><td><code class="inline">|1-3|+|2-3|+|3-3| = 2+1+0</code></td><td class="center">3</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>أقل تكلفة كانت عند الهدف <code class="inline">2</code> — وهو بالضبط العنصر الأوسط (الوسيط) بعد الترتيب! جرّب نفس الشيء على المثال الأصلي <code class="inline">1, 2, 2, 3, 5</code> في المختبر أعلاه وستلاحظ أنّ أقل تكلفة (5) تقع أيضًا عند الوسيط <code class="inline">2</code>.</p>
+        </div>
+
+        <!-- Step 2: why the median works -->
+        <div class="card steps-card" style="border-right-color: var(--primary-yellow);">
+            <div class="card-header" style="color: var(--primary-yellow);">
+                <i class="fas fa-lightbulb"></i>
+                <h3>الخطوة 2: لماذا الحل الأمثل هو الوسيط (Median)؟</h3>
+            </div>
+            <p>بعد ترتيب العصي تصاعديًا، تخيّلها كأزواج: العصا الأصغر مع العصا الأكبر، ثم ثاني أصغر مع ثاني أكبر، وهكذا:</p>
+            <p>لأي هدف <code class="inline">t</code> يقع بين طرفي أي زوج <code class="inline">(min, max)</code>، فإنّ التكلفة الناتجة عن هذا الزوج تكون دائمًا <code class="inline">|min - t| + |max - t| = max - min</code> — أي أنها <strong>ثابتة لا تتغيّر</strong> طالما بقي <code class="inline">t</code> بين الطرفين! لكن بمجرد أن يخرج <code class="inline">t</code> من هذا النطاق (يصبح أصغر من الطرفين أو أكبر منهما)، تبدأ التكلفة بالازدياد.</p>
+            <p>إذن: أفضل هدف هو القيمة التي تقع داخل <strong>كل الأزواج المتداخلة في آنٍ واحد</strong> — وهذه بالضبط هي القيمة الوسيطة (Median) للمصفوفة المرتّبة. إن كان <code class="inline">n</code> فرديًا، فهي العنصر الأوسط تمامًا؛ وإن كان زوجيًا، فأي قيمة بين العنصرين الأوسطين (بما في ذلك أحدهما) تعطي نفس التكلفة المثلى.</p>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>هذه بالضبط الفكرة التي رأيتها في المختبر التفاعلي أعلاه: التكلفة تنخفض كلما اقترب الهدف من المنتصف، وتبدأ بالارتفاع بمجرد تجاوزه.</p>
+            </div>
+        </div>
+
+        <!-- Step 3: full solution -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-code"></i>
+                <h3>الخطوة 3: الحل الكامل (الترتيب + الوسيط)</h3>
+            </div>
+            <p>الخوارزمية بسيطة الآن بعد أن فهمنا السبب: رتّب المصفوفة (باستخدام خوارزميات الترتيب من الفصل الرابع)، خذ العنصر الأوسط كهدف، ثم اجمع المسافات المطلقة بينه وبين كل عصا:</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>stick_lengths.cpp</span></div>
+                <pre>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n;
+    cin &gt;&gt; n;
+    vector&lt;long long&gt; a(n);
+    for (auto &amp;x : a) cin &gt;&gt; x;
+
+    sort(a.begin(), a.end());
+    long long median = a[n / 2];
+
+    long long cost = 0;
+    for (long long x : a) cost += abs(x - median);
+
+    cout &lt;&lt; cost &lt;&lt; "\n";
+    return 0;
+}</pre>
+            </div>
+            <p>بعد الترتيب، تصبح المصفوفة <code class="inline">1, 2, 2, 3, 5</code>، والوسيط هو <code class="inline">a[5/2] = a[2] = 2</code>. التكلفة الكلية: <code class="inline">|1-2|+|2-2|+|2-2|+|3-2|+|5-2| = 1+0+0+1+3 = 5</code>.</p>
+            <div class="output-box">Input: 5 / 2 3 1 5 2  &rarr;  Output: 5</div>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>زمن التنفيذ هنا هو <code class="inline">O(n log n)</code> بسبب خطوة الترتيب — وهي سريعة بما يكفي حتى مع <code class="inline">n</code> يصل إلى <code class="inline">2 &times; 10&#8309;</code>.</p>
+            </div>
+        </div>
+
+        <!-- Step 4: edge cases -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-shield-halved"></i>
+                <h3>الخطوة 4: فحص الحالات الحدّية</h3>
+            </div>
+            <p><strong>عصا واحدة (n=1):</strong> الوسيط هو العصا نفسها، فتكون التكلفة <code class="inline">0</code> دون أي حاجة لتغيير أي شيء.</p>
+            <p><strong>كل العصي متساوية الطول:</strong> كل الفروق تساوي صفرًا، فالتكلفة الكلية <code class="inline">0</code> — الحل يتعامل مع هذا تلقائيًا دون أي حالة خاصة.</p>
+            <p><strong>n زوجي:</strong> يوجد عنصران في المنتصف بدلًا من واحد. جرّب <code class="inline">1, 2, 3, 4</code>: عند الهدف <code class="inline">2</code> التكلفة <code class="inline">1+0+1+2=4</code>، وعند الهدف <code class="inline">3</code> التكلفة <code class="inline">2+1+0+1=4</code> — نفس النتيجة تمامًا! لذلك اختيار أي من العنصرين الأوسطين صحيح.</p>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>احذر من فخ شائع: أطوال العصي قد تصل إلى <code class="inline">10&#8313;</code>، وعددها إلى <code class="inline">2 &times; 10&#8309;</code>، فقد يصل مجموع التكلفة الكلية إلى نحو <code class="inline">2 &times; 10&#185;&#8308;</code> — وهذا يتجاوز مدى النوع <code class="inline">int</code> بكثير! لهذا استخدمنا <code class="inline">long long</code> لكل من الأطوال والمجموع في الكود أعلاه.</p>
+            </div>
+        </div>
+
+        <div class="good-box">
+            <i class="fas fa-circle-check"></i>
+            <p>لاحظ كيف اجتمع هنا كل ما تعلّمته: الترتيب (Sorting) من الفصل الرابع أعطانا طريقة سريعة لإيجاد الوسيط، بينما ملاحظة رياضية بسيطة عن الأزواج المتداخلة حوّلت مسألة تبدو معقّدة إلى حل من سطرين. هذا النمط — "رتّب ثم استخدم الوسيط" — سيتكرر كثيرًا في مسائل تحسين المسافات المطلقة.</p>
+        </div>
+
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الثاني: المسائل — Stick Lengths</footer>
+
+    <script>
+        // ===== Stick Lengths target-cost visualizer =====
+        const STICK_VALUES = [1, 2, 2, 3, 5];
+        const STICK_UNIT = 30;
+
+        function buildStickFrames() {
+            const targets = [1, 2, 3, 4, 5];
+            const bestTarget = 2;
+            const frames = targets.map(t => {
+                const costs = STICK_VALUES.map(v => Math.abs(v - t));
+                const total = costs.reduce((a, b) => a + b, 0);
+                return {
+                    target: t,
+                    costs: costs,
+                    total: total,
+                    isFinal: false,
+                    label: 'جرّب الهدف = ' + t + ' → التكلفة الكلية = ' + total
+                };
+            });
+            const bestCosts = STICK_VALUES.map(v => Math.abs(v - bestTarget));
+            const bestTotal = bestCosts.reduce((a, b) => a + b, 0);
+            frames.push({
+                target: bestTarget,
+                costs: bestCosts,
+                total: bestTotal,
+                isFinal: true,
+                label: 'أفضل هدف هو الوسيط (Median) = ' + bestTarget + ' بتكلفة كلية = ' + bestTotal + ' — لا يوجد هدف أفضل منه!'
+            });
+            return frames;
+        }
+
+        function runStickLab() {
+            const frames = buildStickFrames();
+            let f = 0;
+            const line = document.getElementById('stickTargetLine');
+            const tag = document.getElementById('stickTargetTag');
+            const hint = document.getElementById('stickStepHint');
+            const totalBadge = document.getElementById('stickTotalBadge');
+            const chart = document.getElementById('stickChart');
+
+            function playNext() {
+                if (f >= frames.length) return;
+                const frame = frames[f];
+                const px = (frame.target * STICK_UNIT) + 'px';
+
+                line.style.opacity = '1';
+                line.style.bottom = px;
+                tag.style.opacity = '1';
+                tag.style.bottom = px;
+                tag.innerText = 'الهدف = ' + frame.target;
+
+                for (let i = 0; i < STICK_VALUES.length; i++) {
+                    const costEl = document.getElementById('stickCost_' + i);
+                    const barEl = document.getElementById('stickBar_' + i);
+                    const c = frame.costs[i];
+                    costEl.innerText = c === 0 ? '0 ✓' : String(c);
+                    if (c === 0) {
+                        costEl.classList.add('zero-cost');
+                        barEl.classList.add('is-target');
+                    } else {
+                        costEl.classList.remove('zero-cost');
+                        barEl.classList.remove('is-target');
+                    }
+                }
+
+                totalBadge.innerHTML = 'التكلفة الكلية عند الهدف ' + frame.target + ': <span class="cost-num">' + frame.total + '</span>';
+                if (frame.isFinal) {
+                    totalBadge.classList.add('is-best');
+                    chart.classList.add('is-final-best');
+                } else {
+                    totalBadge.classList.remove('is-best');
+                    chart.classList.remove('is-final-best');
+                }
+
+                hint.innerText = frame.label;
+
+                f++;
+                setTimeout(playNext, 1200);
+            }
+
+            playNext();
+        }
+    </script>
+</body>
+</html>

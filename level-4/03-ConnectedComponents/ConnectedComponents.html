@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | المكونات المتصلة (Connected Components)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .hero-banner { background: var(--blue-gradient); padding: 70px 6% 60px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 760px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        .container { max-width: 960px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.84rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+            white-space: pre-line;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        .bullet-list { list-style: none; padding: 0; margin: 16px 0; }
+        .bullet-list li { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; color: var(--text-body); }
+        .bullet-list li i { color: var(--primary-blue); margin-top: 4px; flex-shrink: 0; }
+
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 6px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+        .lab-btn.ghost { background: white; border: 2px solid #cbd5e1; color: var(--text-body); }
+        .lab-btn.yellow { background: var(--yellow-gradient); }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+
+        /* connected components simulator (dark canvas) */
+        .cc-lab-dark { background: #0b1220; border-radius: 20px; padding: 24px; margin: 16px 0; border: 1px solid #1e293b; }
+        .cc-lab-title { color: var(--primary-blue); font-weight: 800; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; justify-content: flex-end; margin-bottom: 6px; }
+        .cc-lab-sub { color: #94a3b8; font-size: 0.85rem; text-align: right; margin-bottom: 14px; }
+        .cc-canvas-wrap { background: #0f172a; border-radius: 16px; padding: 8px; border: 1px solid #1e293b; }
+        .cc-svg { width: 100%; height: auto; display: block; cursor: crosshair; }
+        .cc-edge { stroke: #475569; stroke-width: 2; transition: stroke 0.3s ease; }
+        .cc-node-circle { stroke: #0b1220; stroke-width: 3; cursor: pointer; transition: fill 0.3s ease, stroke 0.2s ease; fill: #334155; }
+        .cc-node-circle.cc-selected { stroke: #facc15; stroke-width: 5; }
+        .cc-node-index { fill: #e2e8f0; font-weight: 800; font-size: 13px; font-family: 'Consolas', monospace; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+        .cc-stats-row { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 14px; color: #94a3b8; font-size: 0.82rem; font-weight: 700; }
+        .cc-status-line { text-align: center; font-size: 0.85rem; font-weight: 700; color: #94a3b8; margin-top: 12px; min-height: 20px; }
+        .cc-controls-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+        .cc-btn {
+            border-radius: 14px; padding: 11px 20px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 2px solid transparent; transition: all 0.2s ease;
+        }
+        .cc-btn-primary { background: var(--blue-gradient); color: white; }
+        .cc-btn-outline { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+        .cc-btn-outline:hover { border-color: #64748b; }
+        .cc-btn-danger { background: #0f172a; border-color: #3f1d2b; color: #f87171; }
+        .cc-btn-danger:hover { border-color: #f87171; }
+        .cc-code-preview {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace; font-size: 0.78rem;
+            border-radius: 12px; padding: 14px 18px; margin-top: 14px; direction: ltr; text-align: left;
+            max-height: 160px; overflow-y: auto; border: 1px solid #1e293b; line-height: 1.7;
+        }
+        .cc-hint-top { text-align: center; font-size: 0.8rem; color: #94a3b8; margin-bottom: 10px; }
+
+        .activity-box { background: white; border-radius: 22px; padding: 32px; margin: 28px 0; box-shadow: var(--soft-shadow); border: 1px solid #e2e8f0; }
+        .activity-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .activity-header i { color: var(--primary-blue); font-size: 1.2rem; }
+        .activity-header h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        /* quiz bank with scoring */
+        .quizbank-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
+        .quizbank-score-row { display: flex; gap: 16px; flex-wrap: wrap; }
+        .qb-score-chip { background: var(--bg-main); border-radius: 14px; padding: 10px 20px; text-align: center; border: 1px solid #e2e8f0; min-width: 90px; }
+        .qb-score-num { display: block; font-size: 1.3rem; font-weight: 800; color: var(--dark-navy); }
+        .qb-score-label { display: block; font-size: 0.75rem; color: var(--text-body); font-weight: 700; margin-top: 2px; }
+        .qb-score-chip.qb-correct .qb-score-num { color: #16a34a; }
+        .qb-score-chip.qb-wrong .qb-score-num { color: #dc2626; }
+        .qb-progress-track { background: #e2e8f0; border-radius: 50px; height: 10px; overflow: hidden; margin-bottom: 24px; }
+        .qb-progress-fill { background: var(--blue-gradient); height: 100%; border-radius: 50px; transition: width 0.3s ease; width: 0%; }
+        .qb-diff-badge { display: inline-block; padding: 4px 14px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; margin-bottom: 10px; }
+        .qb-diff-easy { background: #dcfce7; color: #15803d; }
+        .qb-diff-medium { background: #fef3c7; color: #b45309; }
+        .qb-diff-hard { background: #fee2e2; color: #b91c1c; }
+        .qb-question-counter { text-align: center; font-size: 0.8rem; color: var(--text-body); font-weight: 700; margin-bottom: 6px; }
+        .qb-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal', 'Consolas', monospace; font-size: 0.95rem; transition: 0.2s;
+            margin-bottom: 10px; direction: ltr; text-align: left;
+        }
+        .qb-opt:hover { border-color: var(--primary-blue); }
+        .qb-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .qb-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .qb-code-snippet {
+            background: #0f172a; color: #e2e8f0; font-family: 'Consolas', monospace; font-size: 0.8rem;
+            border-radius: 12px; padding: 14px 18px; margin: 10px 0 16px; direction: ltr; text-align: left; line-height: 1.7;
+            overflow-x: auto;
+        }
+        .qb-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+        .qb-nav-row { display: flex; justify-content: space-between; margin-top: 20px; gap: 10px; }
+        .qb-final-box { text-align: center; padding: 20px; }
+        .qb-final-score { font-size: 2.4rem; font-weight: 800; color: var(--primary-blue); }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge">الدرس 03: المكونات المتصلة</span>
+            <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الرابع</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-diagram-project"></i>
+        <h1>الدرس الثالث: المكونات المتصلة (Connected Components)</h1>
+        <p class="hero-desc">بعد أن تعلّمنا DFS كخوارزمية اجتياز، سنستخدمها الآن لحل مسألة كلاسيكية: كيف نعرف عدد "الجزر" المنفصلة في رسم بياني؟ هذا المفهوم أساس لعشرات المسائل التنافسية، بدءًا من توصيل المدن وحتى اكتشاف الأنماط داخل الرسم البياني.</p>
+    </div>
+
+    <div class="container">
+
+        <!-- Concepts -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book-open"></i>
+                <h3>المفاهيم الأساسية</h3>
+            </div>
+            <h4 class="sub-title" style="margin-top:0;">تعريف المكوّن المتصل</h4>
+            <p>في الرسم البياني غير الموجّه، يُقال إن الرأسين <code class="inline">u</code> و<code class="inline">v</code> ينتميان إلى نفس <strong>المكوّن المتصل (Connected Component)</strong> إذا كان هناك مسار يربط بينهما. إذا كان الرسم البياني يتكوّن من مكوّن واحد فقط، فإنه يُعتبر متصلاً بالكامل (Connected Graph).</p>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p><strong>فكرة جوهرية:</strong> عند تشغيل DFS من رأس غير مُزار، فإنها ستزور جميع الرؤوس القابلة للوصول منه — أي كل رؤوس مكوّنه المتصل بالضبط، ولن تتخطاه إلى أي رأس في مكوّن آخر. لذا، إذا مررنا على كل الرؤوس من 1 إلى N وشغّلنا DFS في كل مرة نجد فيها رأسًا غير مُزار، فإن عدد مرّات بدء DFS يساوي بالضبط عدد المكوّنات المتصلة.</p>
+            </div>
+
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p><strong>تنبيه:</strong> هذه التقنية تعمل فقط على الرسوم البيانية <strong>غير الموجّهة</strong>. أما بالنسبة للرسوم الموجّهة، فهناك مفهوم مختلف تمامًا يُسمى "المكوّنات القوية الترابطية" (Strongly Connected Components - SCCs)، والذي يتطلّب خوارزميات مختلفة (مثل Kosaraju أو Tarjan) سنتعرّض لها لاحقًا في مستويات متقدّمة.</p>
+            </div>
+        </div>
+
+        <!-- Steps -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-gears"></i>
+                <h3>خطوات الخوارزمية</h3>
+            </div>
+            <ol class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p>قراءة الرسم البياني (الرؤوس والأحرف) وبناء قائمة الجوار <code class="inline">adj[]</code>.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>إنشاء مصفوفة زيارة <code class="inline">vis[]</code> بقيم <code class="inline">false</code>.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>للمرور على جميع الرؤوس من 1 إلى N: إذا لم يُزَر الرأس <code class="inline">i</code> بعد، نشغّل DFS منه ونزيد عدّاد المكوّنات بمقدار 1.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>داخل DFS: نضع <code class="inline">vis[u] = true</code> ثم ندعو DFS لكل جار غير مُزار.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>نستخدم قيمة عدّاد المكوّنات النهائية للإجابة على متطلبات المسألة.</p></li>
+            </ol>
+        </div>
+
+        <!-- Interactive lab: Connected Components simulator -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>المحاكي التفاعلي للمكوّنات المتصلة</h3>
+            </div>
+            <p>انقر على أي مكان فارغ في اللوحة لإضافة رأس جديد هناك، ثم اضغط على رأسين (بالترتيب) لتوصيلهما بحافة. اضغط "مثال جاهز" لتحميل رسم بياني جاهز فيه 3 مكوّنات، ثم شغّل DFS لترى كيف يكتشفها بألوان مختلفة.</p>
+
+            <div class="cc-lab-dark">
+                <div class="cc-lab-title"><i class="fas fa-diagram-project"></i> بانِي الرسم البياني التفاعلي</div>
+                <div class="cc-hint-top" id="ccHint">انقر في أي مكان فارغ لإضافة رأس، أو اضغط "مثال جاهز" للبدء بسرعة.</div>
+
+                <div class="cc-canvas-wrap">
+                    <svg id="ccSvg" viewBox="0 0 700 380" class="cc-svg"></svg>
+                </div>
+
+                <div class="cc-stats-row">
+                    <span id="ccStatVertices">الرؤوس: 0</span>
+                    <span id="ccStatEdges">الأحرف: 0</span>
+                    <span id="ccStatComponents">المكوّنات: 0</span>
+                </div>
+                <div class="cc-status-line" id="ccStatus">الحالة: الرسم فارغ — انقر لإضافة رؤوس!</div>
+
+                <div class="cc-controls-row">
+                    <button class="cc-btn cc-btn-primary" onclick="ccRunDFS()"><i class="fas fa-play"></i> تشغيل DFS</button>
+                    <button class="cc-btn cc-btn-outline" onclick="ccResetColors()"><i class="fas fa-rotate-left"></i> إعادة تعيين الألوان</button>
+                    <button class="cc-btn cc-btn-danger" onclick="ccClearGraph()"><i class="fas fa-trash"></i> مسح الرسم</button>
+                    <button class="cc-btn cc-btn-outline" onclick="ccLoadPreset()"><i class="fas fa-shapes"></i> مثال جاهز</button>
+                </div>
+
+                <div class="cc-code-preview" id="ccCodePreview">// الرسم فارغ</div>
+            </div>
+        </div>
+
+        <!-- Base code -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-code"></i>
+                <h3>الكود الأساسي لعدّ المكوّنات المتصلة</h3>
+            </div>
+            <div class="code-box">
+                <div class="code-head"><span>connected_components.cpp</span></div>
+                <pre>const int maxN = 200001;
+
+bool vis[maxN];
+vector&lt;int&gt; adj[maxN];
+
+void dfs(int u) {
+    vis[u] = true;
+    for (int v : adj[u])
+        if (!vis[v])
+            dfs(v);
+}
+
+int main() {
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    for (int i = 0; i &lt; m; i++) {
+        int u, v;
+        cin &gt;&gt; u &gt;&gt; v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+
+    int components = 0;
+    for (int i = 1; i &lt;= n; i++) {
+        if (!vis[i]) {
+            components++;
+            dfs(i);
+        }
+    }
+
+    cout &lt;&lt; components;
+}</pre>
+            </div>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>لاحظ أن هذا الكود هو <strong>نفس</strong> كود DFS الأساسي من الدرس السابق، مع إضافة واحدة فقط: حلقة تمر على كل الرؤوس وتشغّل DFS من كل رأس غير مُزار، مع عدّاد يزداد في كل مرة نبدأ فيها DFS جديدة. هذا مثال ممتاز على كيف تُبنى الخوارزميات الأكثر تعقيدًا فوق أساسيات بسيطة تعلّمناها سابقًا.</p>
+            </div>
+        </div>
+
+        <!-- Problem 1: Building Roads -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-road"></i>
+                <h3>مسألة: Building Roads</h3>
+            </div>
+            <p><strong>سهل</strong> — <a href="https://cses.fi/problemset/task/1666" target="_blank" rel="noopener">CSES 1666 ↗</a></p>
+            <p>يوجد <code class="inline">n</code> مدينة و<code class="inline">m</code> طريقًا بينها. مهمتك هي إيجاد الحد الأدنى من عدد الطرق التي يجب إضافتها بحيث يكون هناك مسار بين أي مدينتين، وتحديد أي الطرق يجب بناؤها.</p>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p><strong>الفكرة الرئيسية:</strong> إذا كان هناك <code class="inline">k</code> مكوّنًا متصلاً، فنحتاج بالضبط إلى <code class="inline">k - 1</code> طريقًا لتوحيدها (تمامًا كما تحتاج لربط k جزيرة معًا بأقل عدد جسور: k-1 جسرًا يكفي دائمًا). الاستراتيجية: نختار رأسًا "مرجعيًا" (source) من كل مكوّن — وليكن أول رأس نكتشفه فيه — ثم نربط مرجع المكوّن الأول بمرجع كل مكوّن آخر.</p>
+            </div>
+
+            <h4 class="sub-title">الحل المشروح</h4>
+            <p>نشغّل نفس خوارزمية عدّ المكوّنات، لكن بدلًا من الاكتفاء بعدّها، نحفظ في مصفوفة <code class="inline">sources[]</code> أول رأس نبدأ منه DFS في كل مكوّن (أي الرأس الذي دخل الشرط <code class="inline">if (!vis[i])</code>). في النهاية، عدد عناصر <code class="inline">sources[]</code> يساوي عدد المكوّنات <code class="inline">k</code>، والإجابة هي <code class="inline">k - 1</code>. لطباعة الطرق، نربط <code class="inline">sources[0]</code> بكل عنصر آخر في المصفوفة.</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>building_roads.cpp</span></div>
+                <pre>const int maxN = 100001;
+bool vis[maxN];
+vector&lt;int&gt; adj[maxN];
+
+void dfs(int u) {
+    vis[u] = true;
+    for (int v : adj[u])
+        if (!vis[v])
+            dfs(v);
+}
+
+int main() {
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    for (int i = 0; i &lt; m; i++) {
+        int a, b;
+        cin &gt;&gt; a &gt;&gt; b;
+        adj[a].push_back(b);
+        adj[b].push_back(a);
+    }
+
+    vector&lt;int&gt; sources;
+    for (int i = 1; i &lt;= n; i++) {
+        if (!vis[i]) {
+            sources.push_back(i);  <span class="cmt">// أول رأس في هذا المكوّن</span>
+            dfs(i);
+        }
+    }
+
+    cout &lt;&lt; sources.size() - 1 &lt;&lt; "\n";
+    for (int i = 1; i &lt; (int)sources.size(); i++) {
+        cout &lt;&lt; sources[0] &lt;&lt; " " &lt;&lt; sources[i] &lt;&lt; "\n";
+    }
+}</pre>
+            </div>
+
+            <h4 class="sub-title">تتبّع مثال</h4>
+            <p>لنأخذ <code class="inline">n = 5</code> مع الطرق: <code class="inline">(1,2)</code> و<code class="inline">(4,5)</code> (والرأس 3 بلا أي طريق).</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>الخطوة</th><th>ماذا يحدث؟</th></tr></thead>
+                    <tbody>
+                        <tr><td>i = 1</td><td>غير مُزار → sources = [1] → dfs(1) يزور {1, 2}</td></tr>
+                        <tr><td>i = 2</td><td>مُزار بالفعل → تخطّ</td></tr>
+                        <tr><td>i = 3</td><td>غير مُزار → sources = [1, 3] → dfs(3) يزور {3} فقط</td></tr>
+                        <tr><td>i = 4</td><td>غير مُزار → sources = [1, 3, 4] → dfs(4) يزور {4, 5}</td></tr>
+                        <tr><td>i = 5</td><td>مُزار بالفعل → تخطّ</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="output-box">sources = [1, 3, 4]  →  k = 3 مكوّنات
+الإجابة: sources.size() - 1 = 2
+الطرق المطلوبة:
+1 3
+1 4</div>
+
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>تحقّق بنفسك في المحاكي أعلاه: ابنِ نفس هذا المثال (5 رؤوس، حافتان تفصلان الرؤوس إلى 3 مجموعات) وشغّل DFS لترى المكوّنات الثلاثة بألوان مختلفة — بالضبط كما تنبّأنا في هذا التتبّع.</p>
+            </div>
+        </div>
+
+        <!-- Problem 2: Cyclic Components -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-arrows-spin"></i>
+                <h3>مسألة: Cyclic Components</h3>
+            </div>
+            <p><strong>سهل</strong> — <a href="https://codeforces.com/problemset/problem/977/E" target="_blank" rel="noopener">Codeforces 977E ↗</a></p>
+            <p>معطى رسم بياني غير موجّه، احسب عدد المكوّنات التي تُشكّل دورة (Cycle). المكوّن الذي يتكوّن من <code class="inline">n</code> رأسًا يُعتبر دورة إذا كان له بالضبط <code class="inline">n</code> حافة (أي أن كل رأس فيه درجته (degree) تساوي 2 بالضبط).</p>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p><strong>البرهان:</strong> إذا كان كل رأس في المكوّن مجاورًا لرأسين بالضبط (<code class="inline">degree = 2</code>)، فإن المكوّن يُشكّل دورة بسيطة واحدة. هذا شرط ضروري وكافٍ في الرسوم البيانية البسيطة غير الموجّهة (بدون حواف متعددة أو حلقات ذاتية).</p>
+            </div>
+
+            <h4 class="sub-title">الحل المشروح</h4>
+            <p>نشغّل DFS من كل رأس غير مُزار، لكن هذه المرة تُرجع الدالة قيمة <code class="inline">bool</code>: صحيح (<code class="inline">true</code>) إذا كان المكوّن بأكمله يحقق شرط الدورة. نبدأ بافتراض أن الرأس الحالي يحقق الشرط (<code class="inline">ret = degree[u] == 2</code>)، ثم "نُضاعف" هذه النتيجة مع نتيجة كل جار باستخدام <code class="inline">ret &amp;= dfs(v)</code> — بحيث تصبح <code class="inline">ret</code> صحيحة فقط إذا كان <strong>كل</strong> رأس في المكوّن (وليس رأسًا واحدًا فقط) يحقق شرط الدورة.</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>cyclic_components.cpp</span></div>
+                <pre>const int maxN = 200001;
+bool vis[maxN];
+vector&lt;int&gt; adj[maxN];
+
+bool dfs(int u) {
+    vis[u] = true;
+    bool ret = (adj[u].size() == 2);   <span class="cmt">// افتراض أولي: هل درجة u تساوي 2؟</span>
+
+    for (int v : adj[u]) {
+        if (!vis[v]) {
+            ret &amp;= dfs(v);            <span class="cmt">// يجب أن يتحقق الشرط لكل الرؤوس، وليس فقط لآخر واحد</span>
+        }
+    }
+    return ret;
+}
+
+int main() {
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    for (int i = 0; i &lt; m; i++) {
+        int a, b;
+        cin &gt;&gt; a &gt;&gt; b;
+        adj[a].push_back(b);
+        adj[b].push_back(a);
+    }
+
+    int ans = 0;
+    for (int i = 1; i &lt;= n; i++) {
+        if (!vis[i]) {
+            if (dfs(i)) ans++;
+        }
+    }
+
+    cout &lt;&lt; ans;
+}</pre>
+            </div>
+
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p><strong>فخّ مهم — الحلقات الذاتية (Self-loops):</strong> لو أن مكوّنًا يتكوّن من رأس واحد فقط مع حلقة ذاتية عليه (self-loop مثل <code class="inline">edge(6, 6)</code>)، فإن الكود <code class="inline">adj[6].push_back(6); adj[6].push_back(6);</code> يجعل <code class="inline">adj[6].size() == 2</code>! هذا يعني أن الكود سيعتبر هذا الرأس المفرد "دورة" رغم أنه ليس كذلك منطقيًا. لحسن الحظ، مسألة Codeforces 977E تضمن صراحةً عدم وجود حلقات ذاتية أو حواف متكرّرة في المدخلات (رسم بياني بسيط)، لكن من المهم جدًا أن تنتبه لهذا الفخّ إذا واجهته في مسألة أخرى لا تضمن ذلك.</p>
+            </div>
+
+            <h4 class="sub-title">تتبّع مثال</h4>
+            <p>لنأخذ <code class="inline">n = 9</code> بثلاثة مكوّنات: مثلث <code class="inline">{1,2,3}</code> بالحواف <code class="inline">(1,2),(2,3),(3,1)</code>، وحافة واحدة <code class="inline">{4,5}</code> بالحافة <code class="inline">(4,5)</code>، ودورة رباعية <code class="inline">{6,7,8,9}</code> بالحواف <code class="inline">(6,7),(7,8),(8,9),(9,6)</code>.</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>المكوّن</th><th>عدد الرؤوس</th><th>عدد الحواف</th><th>هل كل الدرجات = 2؟</th><th>دورة؟</th></tr></thead>
+                    <tbody>
+                        <tr><td>{1, 2, 3}</td><td class="center">3</td><td class="center">3</td><td class="center">نعم</td><td class="center ltr">true ✓</td></tr>
+                        <tr><td>{4, 5}</td><td class="center">2</td><td class="center">1</td><td class="center">لا (كل رأس درجته 1)</td><td class="center ltr">false ✗</td></tr>
+                        <tr><td>{6, 7, 8, 9}</td><td class="center">4</td><td class="center">4</td><td class="center">نعم</td><td class="center ltr">true ✓</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="output-box">عدد المكوّنات الدورية (ans) = 2</div>
+
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p><strong>لاحظ:</strong> المكوّن {4,5} يوضّح لماذا لا يمكن لأي مكوّن من رأسين فقط أن يكون دورة في رسم بياني بسيط — فهذا يتطلّب حافتين متكرّرتين بين نفس الرأسين (multi-edge)، وهو أمر غير مسموح به في الرسوم البسيطة. أصغر دورة ممكنة في رسم بياني بسيط تتكوّن من 3 رؤوس على الأقل.</p>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>قاموس المصطلحات</h3>
+            </div>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Connected Component</span><span class="term-ar">مكوّن متصل</span><p class="term-desc">مجموعة الرؤوس التي يوجد بينها مسار في كل الاتجاهات، ضمن رسم بياني غير موجّه.</p></div>
+                <div class="term-card"><span class="term-en">Connected Graph</span><span class="term-ar">رسم بياني متصل</span><p class="term-desc">رسم بياني يتكوّن من مكوّن متصل واحد فقط، أي يمكن الوصول من أي رأس إلى أي رأس آخر.</p></div>
+                <div class="term-card"><span class="term-en">Source Vertex</span><span class="term-ar">الرأس المرجعي</span><p class="term-desc">أول رأس يُكتشف في مكوّن معيّن أثناء المرور على الرؤوس؛ يُستخدم لتمثيل المكوّن بأكمله.</p></div>
+                <div class="term-card"><span class="term-en">Degree</span><span class="term-ar">درجة الرأس</span><p class="term-desc">عدد الحواف المتصلة برأس معيّن؛ يساوي <code class="inline">adj[u].size()</code>.</p></div>
+                <div class="term-card"><span class="term-en">Simple Graph</span><span class="term-ar">رسم بياني بسيط</span><p class="term-desc">رسم بياني بدون حلقات ذاتية (self-loops) وبدون حواف متكرّرة (multi-edges) بين نفس الزوج من الرؤوس.</p></div>
+                <div class="term-card"><span class="term-en">Self-loop</span><span class="term-ar">حلقة ذاتية</span><p class="term-desc">حافة تربط رأسًا بنفسه؛ قد تُخلّ بشروط مثل "الدرجة = 2" إذا لم يُنتبه لها.</p></div>
+                <div class="term-card"><span class="term-en">Strongly Connected Components (SCC)</span><span class="term-ar">المكوّنات القوية الترابطية</span><p class="term-desc">المفهوم المكافئ للمكوّنات المتصلة، لكن في الرسوم البيانية الموجّهة؛ يتطلّب خوارزميات مختلفة.</p></div>
+                <div class="term-card"><span class="term-en">Disjoint Set Union (DSU)</span><span class="term-ar">مجموعات منفصلة متّحدة</span><p class="term-desc">هيكل بيانات بديل لإيجاد المكوّنات المتصلة، مفيد بشكل خاص عند تحديث الرسم البياني ديناميكيًا (إضافة حواف تباعًا).</p></div>
+            </div>
+        </div>
+
+        <!-- Quiz bank -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-brain"></i>
+                <h3>بنك الأسئلة</h3>
+            </div>
+            <p style="margin-top:-10px; margin-bottom:20px;">15 سؤالاً: 5 سهل · 5 متوسط · 5 صعب</p>
+
+            <div class="quizbank-header">
+                <div class="quizbank-score-row">
+                    <div class="qb-score-chip"><span class="qb-score-num" id="qbTotalNum">0 / 0</span><span class="qb-score-label">النتيجة</span></div>
+                    <div class="qb-score-chip qb-correct"><span class="qb-score-num" id="qbCorrectNum">0</span><span class="qb-score-label">صحيح</span></div>
+                    <div class="qb-score-chip qb-wrong"><span class="qb-score-num" id="qbWrongNum">0</span><span class="qb-score-label">خطأ</span></div>
+                </div>
+            </div>
+            <div class="qb-progress-track"><div class="qb-progress-fill" id="qbProgressFill"></div></div>
+
+            <div id="qbQuestionArea"></div>
+
+            <div class="qb-nav-row">
+                <button class="lab-btn ghost" id="qbPrevBtn" onclick="qbPrev()">→ السابق</button>
+                <button class="lab-btn" id="qbNextBtn" onclick="qbNext()">التالي ←</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الرابع: المكوّنات المتصلة</footer>
+
+    <script>
+        // ===================================================================
+        // Connected Components interactive simulator
+        // ===================================================================
+        let ccNodes = [];   // {id, x, y}
+        let ccEdges = [];   // [u, v]
+        let ccNextId = 1;
+        let ccSelectedFirst = null;
+        let ccColored = false;
+
+        const CC_PALETTE = ['#00adef', '#f7941e', '#22c55e', '#a855f7', '#ef4444', '#eab308', '#ec4899', '#14b8a6'];
+
+        function ccFindNode(id) {
+            for (let i = 0; i < ccNodes.length; i++) if (ccNodes[i].id === id) return ccNodes[i];
+            return null;
+        }
+
+        function ccAdjacency() {
+            const adj = {};
+            ccNodes.forEach(function (n) { adj[n.id] = []; });
+            ccEdges.forEach(function (e) { adj[e[0]].push(e[1]); adj[e[1]].push(e[0]); });
+            return adj;
+        }
+
+        function ccRender() {
+            const svg = document.getElementById('ccSvg');
+            svg.innerHTML = '';
+
+            ccEdges.forEach(function (e) {
+                const a = ccFindNode(e[0]), b = ccFindNode(e[1]);
+                if (!a || !b) return;
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
+                line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
+                line.setAttribute('class', 'cc-edge');
+                line.setAttribute('id', 'ccEdge_' + e[0] + '_' + e[1]);
+                svg.appendChild(line);
+            });
+
+            ccNodes.forEach(function (n) {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', n.x); circle.setAttribute('cy', n.y); circle.setAttribute('r', 20);
+                circle.setAttribute('class', 'cc-node-circle');
+                circle.setAttribute('id', 'ccNode_' + n.id);
+                circle.onclick = (function (id) { return function (evt) { evt.stopPropagation(); ccNodeClicked(id); }; })(n.id);
+                svg.appendChild(circle);
+
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', n.x); label.setAttribute('y', n.y);
+                label.setAttribute('class', 'cc-node-index');
+                label.textContent = n.id;
+                label.style.pointerEvents = 'none';
+                svg.appendChild(label);
+            });
+
+            document.getElementById('ccStatVertices').innerText = 'الرؤوس: ' + ccNodes.length;
+            document.getElementById('ccStatEdges').innerText = 'الأحرف: ' + ccEdges.length;
+            ccUpdateCodePreview();
+        }
+
+        function ccUpdateCodePreview() {
+            const box = document.getElementById('ccCodePreview');
+            if (ccNodes.length === 0) {
+                box.innerText = '// الرسم فارغ';
+                return;
+            }
+            const adj = ccAdjacency();
+            let text = '';
+            ccNodes.forEach(function (n) {
+                text += 'adj[' + n.id + '] = { ' + (adj[n.id] || []).join(' ') + ' }\n';
+            });
+            box.innerText = text;
+        }
+
+        function ccSvgClicked(evt) {
+            if (evt.target.tagName === 'circle') return; // node clicks are handled separately
+            const svg = document.getElementById('ccSvg');
+            const rect = svg.getBoundingClientRect();
+            const viewBox = svg.viewBox.baseVal;
+            const scaleX = viewBox.width / rect.width;
+            const scaleY = viewBox.height / rect.height;
+            const x = (evt.clientX - rect.left) * scaleX;
+            const y = (evt.clientY - rect.top) * scaleY;
+
+            const newId = ccNextId;
+            ccNextId++;
+            ccNodes.push({ id: newId, x: x, y: y });
+            ccColored = false;
+            ccRender();
+            document.getElementById('ccStatus').innerText = 'الحالة: تمت إضافة الرأس ' + newId + '. انقر على رأسين لتوصيلهما.';
+            document.getElementById('ccHint').innerText = 'انقر في مكان فارغ لإضافة رأس آخر، أو اضغط على رأسين لتوصيلهما.';
+        }
+
+        function ccNodeClicked(id) {
+            if (ccSelectedFirst === null) {
+                ccSelectedFirst = id;
+                const el = document.getElementById('ccNode_' + id);
+                if (el) el.classList.add('cc-selected');
+                document.getElementById('ccStatus').innerText = 'الحالة: اختر الرأس الثاني لربطه بالرأس ' + id + '.';
+            } else if (ccSelectedFirst === id) {
+                const el = document.getElementById('ccNode_' + id);
+                if (el) el.classList.remove('cc-selected');
+                ccSelectedFirst = null;
+                document.getElementById('ccStatus').innerText = 'الحالة: أُلغي التحديد. انقر لبدء طريق جديد.';
+            } else {
+                const u = ccSelectedFirst, v = id;
+                const exists = ccEdges.some(function (e) { return (e[0] === u && e[1] === v) || (e[0] === v && e[1] === u); });
+                const firstEl = document.getElementById('ccNode_' + u);
+                if (firstEl) firstEl.classList.remove('cc-selected');
+                ccSelectedFirst = null;
+                if (exists) {
+                    document.getElementById('ccStatus').innerText = 'الحالة: توجد حافة بالفعل بين ' + u + ' و' + v + '.';
+                } else {
+                    ccEdges.push([u, v]);
+                    ccColored = false;
+                    document.getElementById('ccStatus').innerText = 'الحالة: تمت إضافة حافة بين ' + u + ' و' + v + '.';
+                }
+                ccRender();
+            }
+        }
+
+        function ccRunDFS() {
+            if (ccNodes.length === 0) {
+                document.getElementById('ccStatus').innerText = 'الحالة: أضف رؤوسًا أولاً قبل تشغيل DFS!';
+                return;
+            }
+            const adj = ccAdjacency();
+            const vis = {};
+            const components = [];
+
+            ccNodes.forEach(function (n) {
+                if (!vis[n.id]) {
+                    const comp = [];
+                    (function dfs(u) {
+                        vis[u] = true;
+                        comp.push(u);
+                        (adj[u] || []).forEach(function (v) {
+                            if (!vis[v]) dfs(v);
+                        });
+                    })(n.id);
+                    components.push(comp);
+                }
+            });
+
+            components.forEach(function (comp, idx) {
+                const color = CC_PALETTE[idx % CC_PALETTE.length];
+                comp.forEach(function (id) {
+                    const el = document.getElementById('ccNode_' + id);
+                    if (el) el.style.fill = color; // inline style beats the .cc-node-circle class rule
+                });
+            });
+            // color edges whose both endpoints share the same component
+            ccEdges.forEach(function (e) {
+                const compIdxU = components.findIndex(function (c) { return c.indexOf(e[0]) !== -1; });
+                const el = document.getElementById('ccEdge_' + e[0] + '_' + e[1]);
+                if (el) el.style.stroke = CC_PALETTE[compIdxU % CC_PALETTE.length]; // inline style beats the .cc-edge class rule
+            });
+
+            ccColored = true;
+            document.getElementById('ccStatComponents').innerText = 'المكوّنات: ' + components.length;
+            document.getElementById('ccStatus').innerText = 'الحالة: اكتُشف ' + components.length + ' مكوّن' + (components.length === 1 ? '' : 'ات') + '! كل لون يمثّل مكوّنًا مستقلاً.';
+        }
+
+        function ccResetColors() {
+            ccNodes.forEach(function (n) {
+                const el = document.getElementById('ccNode_' + n.id);
+                if (el) el.style.fill = '';
+            });
+            ccEdges.forEach(function (e) {
+                const el = document.getElementById('ccEdge_' + e[0] + '_' + e[1]);
+                if (el) el.style.stroke = '';
+            });
+            ccColored = false;
+            document.getElementById('ccStatComponents').innerText = 'المكوّنات: 0';
+            document.getElementById('ccStatus').innerText = 'الحالة: أُعيد ضبط الألوان. جرّب DFS مجددًا!';
+        }
+
+        function ccClearGraph() {
+            ccNodes = [];
+            ccEdges = [];
+            ccNextId = 1;
+            ccSelectedFirst = null;
+            ccColored = false;
+            ccRender();
+            document.getElementById('ccStatComponents').innerText = 'المكوّنات: 0';
+            document.getElementById('ccStatus').innerText = 'الحالة: الرسم فارغ — انقر لإضافة رؤوس!';
+            document.getElementById('ccHint').innerText = 'انقر في أي مكان فارغ لإضافة رأس، أو اضغط "مثال جاهز" للبدء بسرعة.';
+        }
+
+        function ccLoadPreset() {
+            // Triangle {1,2,3} (cycle) + square {4,5,6,7} (cycle) + isolated {8}
+            // => 8 vertices, 7 edges, 3 components (matches the lesson's stated example).
+            ccNodes = [
+                { id: 1, x: 120, y: 90 }, { id: 2, x: 60, y: 190 }, { id: 3, x: 180, y: 190 },
+                { id: 4, x: 400, y: 90 }, { id: 5, x: 500, y: 90 }, { id: 6, x: 500, y: 190 }, { id: 7, x: 400, y: 190 },
+                { id: 8, x: 620, y: 300 }
+            ];
+            ccEdges = [[1,2],[2,3],[3,1],[4,5],[5,6],[6,7],[7,4]];
+            ccNextId = 9;
+            ccSelectedFirst = null;
+            ccColored = false;
+            ccRender();
+            document.getElementById('ccStatComponents').innerText = 'المكوّنات: 0';
+            document.getElementById('ccStatus').innerText = 'الحالة: 3 مكوّنات — جرّب DFS!';
+            document.getElementById('ccHint').innerText = 'هذا مثال جاهز فيه 8 رؤوس و7 أحرف موزّعة على 3 مكوّنات. اضغط "تشغيل DFS" لاكتشافها.';
+        }
+
+        // Script runs at the end of <body>, so #ccSvg already exists in the DOM — no need to wait for DOMContentLoaded.
+        document.getElementById('ccSvg').addEventListener('click', ccSvgClicked);
+
+        // ===================================================================
+        // Quiz bank with scoring
+        // ===================================================================
+        const QUIZ_BANK = [
+            { diff: 'easy', q: 'ما هو عدد المكوّنات المتصلة في رسم بياني يحتوي على 5 رؤوس وصفر أحرف؟', opts: ['1', '3', '5', '0'], correct: 2 },
+            { diff: 'easy', q: 'ما هي قيمة vis[u] بعد استدعاء dfs(u) في الخوارزمية المشروحة؟', opts: ['false', 'true', '0', '-1'], correct: 1 },
+            { diff: 'easy', q: 'كم طريقًا يجب إضافتها لتوصيل k مكوّنًا متصلاً؟', opts: ['k', 'k+1', 'k-1', '2k'], correct: 2 },
+            { diff: 'easy', q: 'في مسألة Cyclic Components، ما هو شرط الدورة لكل رأس u؟', opts: ['adj[u].size() == 1', 'adj[u].size() == 2', 'adj[u].size() == 3', 'adj[u].size() > 2'], correct: 1 },
+            { diff: 'easy', q: 'ما هو نوع الرسم البياني الذي تعمل عليه خوارزمية المكوّنات المتصلة بالطريقة المشروحة؟', opts: ['موجّه فقط', 'غير موجّه فقط', 'الاثنان معًا', 'موزون فقط'], correct: 1 },
+            { diff: 'medium', q: 'ما هو التعقيد الزمني لخوارزمية DFS لإيجاد المكوّنات المتصلة؟', opts: ['O(V²)', 'O(V + E)', 'O(E log V)', 'O(V × E)'], correct: 1 },
+            { diff: 'medium', q: 'في الكود التالي، ماذا يمثّل sources[0]؟', code: 'vector<int> sources;\nfor (int i = 1; i <= n; i++)\n    if (!vis[i]) { sources.push_back(i); dfs(i); }', opts: ['آخر رأس في الرسم', 'أول رأس في المكوّن الأول', 'الرأس ذو أعلى درجة', 'الرأس المركزي'], correct: 1 },
+            { diff: 'medium', q: 'لماذا نُضيف الحافة في الاتجاهين (u→v وv→u) في الرسم غير الموجّه؟', opts: ['لتسريع الكود', 'لأن الرسم ثنائي الاتجاه يتطلّب ذلك', 'لأن قائمة الجوار تحتاج ذلك للتنقّل في كلا الاتجاهين', 'لتجنّب الأخطاء'], correct: 2 },
+            { diff: 'medium', q: 'كيف يمكن تعديل خوارزمية المكوّنات المتصلة لتعمل مع BFS بدلاً من DFS؟', opts: ['لا يمكن تعديلها', 'باستخدام stack بدلاً من recursion', 'باستخدام queue وتطبيق نفس منطق vis[]', 'باستخدام priority queue'], correct: 2 },
+            { diff: 'medium', q: 'في Cyclic Components، لماذا نستخدم ret &= dfs(v) وليس ret = dfs(v)؟', opts: ['لأن &= أسرع', 'للتأكد أن كل رأس في المكوّن يحقق الشرط (وليس آخر رأس فقط)', 'لمنع overflow', 'لأنه الصحيح نحويًا فقط'], correct: 1 },
+            { diff: 'hard', q: 'ما ناتج الكود التالي إذا كان n=6 وأحرف: (1,2),(2,3),(3,1),(4,5),(6,6)؟', code: '// (6,6) هو حرف ذاتي (self-loop)\n// المكوّن {1,2,3}: مثلث كامل\n// المكوّن {4,5}: حافة واحدة فقط\n// المكوّن {6}: حلقة ذاتية فقط\n// احسب عدد Cyclic Components', opts: ['0', '1', '2', '3'], correct: 2 },
+            { diff: 'hard', q: 'ما هو خطر DFS العميقة التكرارية (recursive DFS) على مسائل n=200,000؟', code: 'void dfs(int u) {\n    vis[u] = true;\n    for (int v : adj[u])\n        if (!vis[v]) dfs(v); // <- خطر؟\n}', opts: ['لا يوجد خطر', 'Stack Overflow من العمق الزائد', 'Memory Leak', 'Time Limit Exceeded فقط'], correct: 1 },
+            { diff: 'hard', q: 'كيف تحسب عدد الأحرف داخل كل مكوّن متصل؟ ما هي البيانات التي تحتاج تتبّعها؟', opts: ['عدد الرؤوس فقط', 'عدد الأحرف التي طُرحت خلال DFS', 'عدد الجيران لكل رأس مقسومًا على 2', 'جميع ما سبق مع إضافة عدّاد للأحرف في كل dfs'], correct: 3 },
+            { diff: 'hard', q: 'إذا كان الرسم البياني يحتوي على n=10^5 رأس وm=10^5 حافة وكل الرؤوس في مكوّن واحد، ما هو الحل الأفضل لتجنّب مشاكل العمق إذا كانت DFS عودية؟', opts: ['زيادة وقت المعالج', 'استخدام iterative DFS', 'استخدام BFS', 'كلاهما B وC صحيحان'], correct: 3 },
+            { diff: 'hard', q: 'إذا أردت إيجاد المكوّنات المتصلة في رسم بياني يُحدَّث ديناميكيًا (إضافة أحرف جديدة باستمرار)، ما هي الهياكل البيانية الأنسب؟', opts: ['DFS من الصفر عند كل تحديث', 'Union-Find (Disjoint Set Union)', 'BFS المتكرّرة', 'Segment Tree'], correct: 1 }
+        ];
+
+        let qbIndex = 0;
+        let qbAnswers = new Array(QUIZ_BANK.length).fill(null); // null = unanswered, else chosen option index
+
+        const QB_DIFF_LABELS = { easy: 'سهل', medium: 'متوسط', hard: 'صعب' };
+        const QB_DIFF_CLASS = { easy: 'qb-diff-easy', medium: 'qb-diff-medium', hard: 'qb-diff-hard' };
+
+        function qbRenderQuestion() {
+            const area = document.getElementById('qbQuestionArea');
+            const item = QUIZ_BANK[qbIndex];
+            const chosen = qbAnswers[qbIndex];
+
+            let html = '';
+            html += '<div class="qb-question-counter">سؤال ' + (qbIndex + 1) + ' / ' + QUIZ_BANK.length + '</div>';
+            html += '<span class="qb-diff-badge ' + QB_DIFF_CLASS[item.diff] + '">' + QB_DIFF_LABELS[item.diff] + '</span>';
+            html += '<h4 style="margin:10px 0 14px; color:var(--dark-navy);">' + item.q.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</h4>';
+            if (item.code) {
+                html += '<div class="qb-code-snippet">' + item.code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>';
+            }
+            item.opts.forEach(function (opt, i) {
+                let cls = 'qb-opt';
+                if (chosen !== null) {
+                    if (i === item.correct) cls += ' correct';
+                    else if (i === chosen) cls += ' wrong';
+                }
+                html += '<div class="' + cls + '" onclick="qbSelect(' + i + ')">' + opt.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>';
+            });
+            html += '<div class="qb-feedback" id="qbFeedback"></div>';
+            area.innerHTML = html;
+
+            if (chosen !== null) {
+                const fb = document.getElementById('qbFeedback');
+                if (chosen === item.correct) {
+                    fb.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة!</span>';
+                } else {
+                    fb.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة غير صحيحة.</span>';
+                }
+            }
+
+            document.getElementById('qbPrevBtn').style.visibility = qbIndex === 0 ? 'hidden' : 'visible';
+            document.getElementById('qbNextBtn').innerText = (qbIndex === QUIZ_BANK.length - 1) ? 'إنهاء ✓' : 'التالي ←';
+
+            qbUpdateScore();
+        }
+
+        function qbSelect(i) {
+            if (qbAnswers[qbIndex] !== null) return; // lock after first answer
+            qbAnswers[qbIndex] = i;
+            qbRenderQuestion();
+        }
+
+        function qbUpdateScore() {
+            let answered = 0, correct = 0;
+            qbAnswers.forEach(function (a, idx) {
+                if (a !== null) {
+                    answered++;
+                    if (a === QUIZ_BANK[idx].correct) correct++;
+                }
+            });
+            document.getElementById('qbTotalNum').innerText = correct + ' / ' + answered;
+            document.getElementById('qbCorrectNum').innerText = correct;
+            document.getElementById('qbWrongNum').innerText = answered - correct;
+            document.getElementById('qbProgressFill').style.width = Math.round((answered / QUIZ_BANK.length) * 100) + '%';
+        }
+
+        function qbNext() {
+            if (qbIndex < QUIZ_BANK.length - 1) {
+                qbIndex++;
+                qbRenderQuestion();
+            } else {
+                qbShowFinal();
+            }
+        }
+
+        function qbPrev() {
+            if (qbIndex > 0) {
+                qbIndex--;
+                qbRenderQuestion();
+            }
+        }
+
+        function qbShowFinal() {
+            let correct = 0;
+            qbAnswers.forEach(function (a, idx) { if (a === QUIZ_BANK[idx].correct) correct++; });
+            const area = document.getElementById('qbQuestionArea');
+            area.innerHTML = '<div class="qb-final-box">' +
+                '<div class="qb-final-score">' + correct + ' / ' + QUIZ_BANK.length + '</div>' +
+                '<p style="margin-top:10px;">أحسنت! راجع الأسئلة التي أخطأت فيها باستخدام زر "السابق" أدناه.</p>' +
+                '</div>';
+            document.getElementById('qbNextBtn').innerText = 'التالي ←';
+            document.getElementById('qbPrevBtn').style.visibility = 'visible';
+        }
+
+        qbRenderQuestion();
+        ccClearGraph();
+    </script>
+</body>
+</html>

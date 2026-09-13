@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | الحسابيات المعيارية — Modular Arithmetic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        /* hero banner */
+        .hero-banner { background: var(--blue-gradient); padding: 70px 6% 60px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 720px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula { direction: ltr; display: inline-block; font-family: 'Consolas', monospace; font-weight: 800; background: #eef2f7; padding: 3px 10px; border-radius: 8px; color: var(--dark-navy); }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td code.inline, .data-table th code.inline { white-space: nowrap; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+
+        /* numbered steps */
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        /* interactive lab */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 14px 0 6px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+
+        /* clock visualizer */
+        .clock-svg-wrap { text-align: center; margin: 10px 0; }
+        .clock-svg-wrap svg { max-width: 320px; width: 100%; height: auto; }
+        .clock-node { fill: var(--bg-main); stroke: #cbd5e1; stroke-width: 3; transition: fill 0.2s, stroke 0.2s; }
+        .clock-node.active { fill: rgba(247, 148, 30, 0.25); stroke: var(--primary-yellow); }
+        .clock-node.final { fill: rgba(34, 197, 94, 0.2); stroke: #22c55e; }
+        .clock-label { font-family: 'Consolas', monospace; font-weight: 800; font-size: 15px; fill: var(--dark-navy); text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+
+        /* modpow trace */
+        .trace-lines { margin-top: 14px; }
+        .trace-line { padding: 10px 14px; border-radius: 10px; margin-bottom: 8px; font-family: 'Consolas', monospace; font-size: 0.82rem; direction: ltr; text-align: left; }
+        .trace-call { background: #eef2f7; color: var(--dark-navy); border-right: 4px solid var(--primary-blue); }
+        .trace-return { background: #fef3c7; color: #78350f; border-right: 4px solid var(--primary-yellow); }
+
+        /* true/false quick-review activity */
+        .activity-box { background: white; border-radius: 22px; padding: 32px; margin: 28px 0; box-shadow: var(--soft-shadow); border: 1px solid #e2e8f0; }
+        .activity-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .activity-header i { color: var(--primary-blue); font-size: 1.2rem; }
+        .activity-header h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); }
+        .activity-intro { margin-bottom: 20px; font-size: 0.92rem; }
+        .tf-item {
+            background: var(--bg-main); border-radius: 16px; padding: 18px 22px; margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+            border: 1px solid #e2e8f0;
+        }
+        .tf-statement { margin: 0; font-weight: 700; color: var(--dark-navy); font-size: 0.95rem; flex: 1 1 260px; direction: ltr; text-align: right; unicode-bidi: plaintext; }
+        .tf-buttons { display: flex; gap: 10px; flex-shrink: 0; }
+        .tf-btn {
+            border: 2px solid #e2e8f0; background: white; padding: 9px 26px; border-radius: 50px;
+            font-weight: 800; font-family: 'Tajawal'; font-size: 0.88rem; cursor: pointer; color: var(--dark-navy); transition: 0.2s;
+        }
+        .tf-btn:hover { border-color: var(--primary-blue); }
+        .tf-btn.tf-selected-correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .tf-btn.tf-selected-wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .tf-feedback { flex-basis: 100%; margin-top: 2px; font-weight: 700; font-size: 0.85rem; min-height: 18px; }
+
+        /* homework toggles */
+        .homework-item { background: var(--bg-main); border-radius: 18px; padding: 24px; margin-top: 20px; border: 1px solid #e2e8f0; }
+        .homework-item h4 { margin: 0 0 10px; color: var(--dark-navy); font-size: 1.02rem; font-weight: 800; }
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            margin-top: 14px;
+        }
+        .collapsible { display: none; margin-top: 14px; }
+        .collapsible.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge">الفصل 6: الحسابيات المعيارية</span>
+            <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الثاني</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-clock-rotate-left"></i>
+        <h1>الفصل السادس: الحسابيات المعيارية (Modular Arithmetic)</h1>
+        <p class="hero-desc">خلال هذا المستوى تعاملت مع مصفوفات، رتّبتها، وبحثت فيها بسرعة. لكن ماذا يحدث عندما تصبح الأرقام في مسألة ما ضخمة جدًا لدرجة أنها لا تتّسع حتى في متغيّر long long؟ في هذا الفصل ستتعلّم "الحسابيات المعيارية" — أداة أساسية في البرمجة التنافسية تُبقي الأرقام صغيرة ومُدارة عن طريق أخذ الباقي دائمًا عند القسمة على عدد معيّن، تمامًا كما تدور عقارب الساعة كل 12 أو 24 ساعة.</p>
+    </div>
+
+    <div class="container">
+
+        <!-- Intro: what is mod -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-arrows-rotate"></i>
+                <h3>ما معنى mod؟</h3>
+            </div>
+            <p><strong>الحسابيات المعيارية (Modular Arithmetic)</strong> هي طريقة للقيام بالعمليات الحسابية حيث "تدور" الأعداد بعد الوصول إلى قيمة معيّنة تُسمّى <strong>المعامل (modulus)</strong>.</p>
+            <p>فكّر بها مثل الساعة: بعد مرور 24 ساعة، تعود الساعة لنفس الوقت من جديد. هذه هي بالضبط عملية <span class="formula">mod 24</span>!</p>
+            <p>عندما نقول <span class="formula">a mod m</span>، فهذا يعني <strong>الباقي</strong> عند قسمة <code class="inline">a</code> على <code class="inline">m</code>.</p>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>التعبير</th><th>المعنى</th><th class="center">النتيجة</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><span class="formula">7 mod 3</span></td><td>7 ÷ 3 → الباقي</td><td class="center">1</td></tr>
+                        <tr><td><span class="formula">10 mod 4</span></td><td>10 ÷ 4 → الباقي</td><td class="center">2</td></tr>
+                        <tr><td><span class="formula">15 mod 6</span></td><td>15 ÷ 6 → الباقي</td><td class="center">3</td></tr>
+                        <tr><td><span class="formula">12 mod 12</span></td><td>12 ÷ 12 → الباقي</td><td class="center">0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>في C++ نستخدم عامل <code class="inline">%</code> لحساب الباقي:</p>
+            <div class="code-box">
+                <div class="code-head"><span>basic_mod.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; 7 % 3 &lt;&lt; endl;    <span class="cmt">// 1</span>
+    cout &lt;&lt; 10 % 4 &lt;&lt; endl;   <span class="cmt">// 2</span>
+    cout &lt;&lt; 10 % 5 &lt;&lt; endl;   <span class="cmt">// 0</span>
+}</pre>
+            </div>
+            <div class="output-box">1
+2
+0</div>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> المختبر التفاعلي: ساعة العدّ (Clock of mod 12)</p>
+                <p style="text-align:center; font-size:0.85rem; color:var(--text-body); margin-bottom: 10px;">شاهد كيف "تدور" الأرقام حول الساعة عند العد للأمام 15 خطوة بدءًا من 0 — تمامًا مثل mod 12.</p>
+                <div class="clock-svg-wrap">
+                    <svg viewBox="0 0 300 300">
+                        <circle cx="150" cy="150" r="140" fill="none" stroke="#e2e8f0" stroke-width="2"></circle>
+                        <circle class="clock-node" id="clockNode0" cx="150.0" cy="40.0" r="22"></circle>
+                        <text class="clock-label" x="150.0" y="40.0">0</text>
+                        <circle class="clock-node" id="clockNode1" cx="205.0" cy="54.7" r="22"></circle>
+                        <text class="clock-label" x="205.0" y="54.7">1</text>
+                        <circle class="clock-node" id="clockNode2" cx="245.3" cy="95.0" r="22"></circle>
+                        <text class="clock-label" x="245.3" y="95.0">2</text>
+                        <circle class="clock-node" id="clockNode3" cx="260.0" cy="150.0" r="22"></circle>
+                        <text class="clock-label" x="260.0" y="150.0">3</text>
+                        <circle class="clock-node" id="clockNode4" cx="245.3" cy="205.0" r="22"></circle>
+                        <text class="clock-label" x="245.3" y="205.0">4</text>
+                        <circle class="clock-node" id="clockNode5" cx="205.0" cy="245.3" r="22"></circle>
+                        <text class="clock-label" x="205.0" y="245.3">5</text>
+                        <circle class="clock-node" id="clockNode6" cx="150.0" cy="260.0" r="22"></circle>
+                        <text class="clock-label" x="150.0" y="260.0">6</text>
+                        <circle class="clock-node" id="clockNode7" cx="95.0" cy="245.3" r="22"></circle>
+                        <text class="clock-label" x="95.0" y="245.3">7</text>
+                        <circle class="clock-node" id="clockNode8" cx="54.7" cy="205.0" r="22"></circle>
+                        <text class="clock-label" x="54.7" y="205.0">8</text>
+                        <circle class="clock-node" id="clockNode9" cx="40.0" cy="150.0" r="22"></circle>
+                        <text class="clock-label" x="40.0" y="150.0">9</text>
+                        <circle class="clock-node" id="clockNode10" cx="54.7" cy="95.0" r="22"></circle>
+                        <text class="clock-label" x="54.7" y="95.0">10</text>
+                        <circle class="clock-node" id="clockNode11" cx="95.0" cy="54.7" r="22"></circle>
+                        <text class="clock-label" x="95.0" y="54.7">11</text>
+                    </svg>
+                </div>
+                <div class="lab-step-hint" id="clockStepLabel">اضغط "ابدأ العدّ" للعدّ للأمام 15 خطوة بدءًا من 0.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runClockLab()">ابدأ العدّ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Why use it in programming -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-shield-halved"></i>
+                <h3>لماذا نستخدم الحسابيات المعيارية في البرمجة؟</h3>
+            </div>
+            <p>عند التعامل مع أعداد كبيرة جدًا (مثلًا في التوافقيات أو التشفير)، قد تصبح النتائج أكبر من أن تتّسع لأنواع البيانات العادية، بل وحتى لـ <code class="inline">long long</code>. الحل: نأخذ الباقي (<code class="inline">mod</code>) بعد كل عملية لنُبقي الأرقام صغيرة طوال الوقت.</p>
+
+            <p>المعامل الشائع في البرمجة التنافسية:</p>
+            <div class="code-box">
+                <div class="code-head"><span>constant.cpp</span></div>
+                <pre>const int MOD = 1'000'000'007; <span class="cmt">// عدد أولي كبير</span></pre>
+            </div>
+            <p>لماذا نستخدمه بالتحديد؟</p>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p>يناسب الأعداد 64-بت بأمان (لا يسبّب تجاوز سعة عند ضرب رقمين أصغر منه).</p></li>
+                <li class="step-item"><span class="step-num"></span><p>يتجنّب تجاوز السعة (overflow) عند الجمع أو الضرب المتكرر.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>لأنه عدد أولي، له خصائص رياضية مفيدة (مثل إمكانية حساب المعكوس المعياري، كما سنرى لاحقًا).</p></li>
+            </ul>
+
+            <h4 class="sub-title">مثال: جمع أعداد كبيرة</h4>
+            <div class="code-box">
+                <div class="code-head"><span>big_sum.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    const int MOD = 1'000'000'007;
+    long long a = 1e12, b = 1e12;
+    cout &lt;&lt; (a + b) % MOD &lt;&lt; endl;
+}</pre>
+            </div>
+            <div class="output-box">999986007</div>
+            <p>بدون أخذ mod، كان الناتج سيكون <span class="formula">2,000,000,000,000</span> — رقم كبير جدًا قد يسبّب مشاكل في بعض العمليات اللاحقة. بأخذ mod، حافظنا على النتيجة ضمن نطاق صغير وآمن.</p>
+        </div>
+
+        <!-- Basic rules -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-square-root-variable"></i>
+                <h3>قواعد أساسية</h3>
+            </div>
+
+            <h4 class="sub-title">الجمع</h4>
+            <p class="formula" style="display:block; text-align:center; padding:14px;">(a + b) % m = (a % m + b % m) % m</p>
+
+            <h4 class="sub-title">الطرح</h4>
+            <p class="formula" style="display:block; text-align:center; padding:14px;">(a - b) % m = ((a % m - b % m) + m) % m</p>
+            <p>نضيف <code class="inline">+ m</code> لضمان عدم الحصول على نتيجة سالبة (سنرى السبب بالتفصيل بعد قليل).</p>
+
+            <h4 class="sub-title">الضرب</h4>
+            <p class="formula" style="display:block; text-align:center; padding:14px;">(a * b) % m = (a % m * b % m) % m</p>
+
+            <h4 class="sub-title">مثال</h4>
+            <div class="code-box">
+                <div class="code-head"><span>rules_example.cpp</span></div>
+                <pre>int a = 7, b = 5, m = 3;
+cout &lt;&lt; (a + b) % m &lt;&lt; endl;   <span class="cmt">// 0</span>
+cout &lt;&lt; (a * b) % m &lt;&lt; endl;   <span class="cmt">// 2</span></pre>
+            </div>
+            <div class="output-box">0
+2</div>
+        </div>
+
+        <!-- Activity A -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>نشاط: مراجعة سريعة لمفهوم mod والقواعد الأساسية</h4>
+            </div>
+            <p class="activity-intro">حدّد إن كانت كل عبارة صحيحة أم خاطئة.</p>
+
+            <div class="tf-item" id="tfMod1">
+                <p class="tf-statement">12 mod 12 يساوي 12.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod1', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod1', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfMod2">
+                <p class="tf-statement">الساعة (تدور كل 12 أو 24 ساعة) مثال جيد على فكرة mod.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod2', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod2', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfMod3">
+                <p class="tf-statement">نستخدم المعامل 1,000,000,007 لأنه عدد أولي كبير يناسب الأعداد 64-بت ويساعد على تجنّب تجاوز السعة.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod3', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod3', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfMod4">
+                <p class="tf-statement">(a * b) % m تساوي دائمًا (a % m * b % m) % m.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod4', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod4', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Negative numbers -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-minus"></i>
+                <h3>التعامل مع الأعداد السالبة</h3>
+            </div>
+            <p>في C++، عامل <code class="inline">%</code> قد يعطي نتيجة سالبة عندما يكون أحد الطرفين سالبًا:</p>
+            <div class="code-box">
+                <div class="code-head"><span>negative_mod.cpp</span></div>
+                <pre>cout &lt;&lt; (-5) % 3; <span class="cmt">// -2</span></pre>
+            </div>
+            <div class="output-box">-2</div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>هذا يخالف التعريف الرياضي المعتاد لـ mod الذي يفترض أن تكون النتيجة دائمًا بين 0 وm-1. هذا قد يسبّب أخطاء دقيقة عند استخدام النتيجة كفهرس في مصفوفة، مثلًا.</p>
+            </div>
+            <p>لحل هذه المشكلة، نضيف <code class="inline">m</code> ثم نأخذ mod مرة أخرى:</p>
+            <p class="formula" style="display:block; text-align:center; padding:14px;">((a % m) + m) % m</p>
+            <div class="code-box">
+                <div class="code-head"><span>fixed_negative_mod.cpp</span></div>
+                <pre>int a = -5, m = 3;
+cout &lt;&lt; ((a % m) + m) % m; <span class="cmt">// 1</span></pre>
+            </div>
+            <div class="output-box">1</div>
+        </div>
+
+        <!-- Modular exponentiation -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-bolt"></i>
+                <h3>الأسس المعيارية (Modular Exponentiation)</h3>
+            </div>
+            <p>لحساب <span class="formula">(a^b) mod m</span> بطريقة سريعة، لا نضرب <code class="inline">a</code> بنفسها <code class="inline">b</code> مرة (فهذا سيكون بتعقيد O(b) وبطيء جدًا لأعداد كبيرة). بدلًا من ذلك، نستخدم <strong>الأس السريع (Fast/Binary Exponentiation)</strong>:</p>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p>إذا كان <code class="inline">b</code> زوجيًا: <span class="formula">a^b = (a^(b/2))&sup2;</span></p></li>
+                <li class="step-item"><span class="step-num"></span><p>إذا كان <code class="inline">b</code> فرديًا: <span class="formula">a^b = (a^(b/2))&sup2; &times; a</span></p></li>
+            </ul>
+
+            <div class="code-box">
+                <div class="code-head"><span>modpow.cpp</span></div>
+                <pre>long long modpow(long long a, long long b, long long m) {
+    if (b == 0) return 1;
+    long long half = modpow(a, b / 2, m);
+    long long res = (half * half) % m;
+    if (b % 2 == 1)
+        res = (res * (a % m)) % m;
+
+    return res;
+}</pre>
+            </div>
+            <p>بما أنّ <code class="inline">b</code> يُقسَّم إلى النصف في كل مرة يُستدعى فيها التكرار، فإنّ العدد الإجمالي للاستدعاءات التكرارية هو تقريبًا <span class="formula">log&#8322;(b)</span> — تمامًا مثل حلقة المضاعفة التي درسناها في فصل التعقيد الزمني. لذا فإنّ تعقيد هذه الدالة هو <span class="formula">O(log b)</span>.</p>
+
+            <div class="output-box">modpow(2, 10, 1000) → 24</div>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> المختبر التفاعلي: تتبّع استدعاءات modpow(3, 13, 17)</p>
+                <p style="text-align:center; font-size:0.85rem; color:var(--text-body); margin-bottom: 6px;">اضغط الزر عدة مرات لكشف خطوات النزول (الاستدعاءات) ثم الصعود (النتائج) واحدة تلو الأخرى.</p>
+                <div class="trace-lines" id="modpowTraceLines"></div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" id="modpowStepBtn" onclick="revealNextModpowStep()">الخطوة التالية</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity B -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>نشاط: مراجعة سريعة للأس السريع والمعكوس المعياري</h4>
+            </div>
+            <p class="activity-intro">حدّد إن كانت كل عبارة صحيحة أم خاطئة.</p>
+
+            <div class="tf-item" id="tfMod5">
+                <p class="tf-statement">التعقيد الزمني لدالة modpow السريعة هو O(log b).</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod5', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod5', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfMod6">
+                <p class="tf-statement">لحساب a^b mod m بطريقة الأس السريع، نضرب a بنفسها b مرة بشكل متكرر.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod6', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod6', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfMod7">
+                <p class="tf-statement">يمكن حساب المعكوس المعياري لعدد a باستخدام modpow(a, MOD-2, MOD) فقط إذا كان MOD عددًا أوليًا.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod7', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod7', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Modular inverse -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-divide"></i>
+                <h3>المعكوس المعياري (Modular Inverse)</h3>
+            </div>
+            <p>عند الحاجة للقيام بعملية <strong>قسمة</strong> تحت المودولو، لا يمكننا فقط كتابة <code class="inline">(a / b) % m</code> — فالقسمة العادية لا تتوافق مع خصائص الحسابيات المعيارية. بدلًا من ذلك، نستخدم <strong>المعكوس المعياري</strong>.</p>
+            <p>إذا كان <code class="inline">MOD</code> عددًا أوليًا، فإنّ معكوس <code class="inline">a</code> يُحسب بـ:</p>
+            <div class="code-box">
+                <div class="code-head"><span>modular_inverse.cpp</span></div>
+                <pre>long long inverse = modpow(a, MOD - 2, MOD);</pre>
+            </div>
+            <p>وبالتالي فإنّ القسمة <span class="formula">a / b mod m</span> تصبح:</p>
+            <div class="code-box">
+                <div class="code-head"><span>modular_division.cpp</span></div>
+                <pre>(a * modpow(b, MOD - 2, MOD)) % MOD</pre>
+            </div>
+            <p><strong>مثال للتحقق:</strong> معكوس 5 بالنسبة لـ <code class="inline">MOD = 1,000,000,007</code> هو <code class="inline">400,000,003</code>. يمكننا التأكد من صحّته لأنّ:</p>
+            <div class="output-box">(5 * 400000003) % 1000000007 = 1</div>
+            <p>وهذا بالضبط تعريف المعكوس المعياري: عدد إذا ضربته بالعدد الأصلي تحت نفس المودولو، تحصل على 1.</p>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>هذه الطريقة (استخدام <code class="inline">modpow(a, MOD-2, MOD)</code>) تعتمد على مبرهنة صغيرة تُسمّى "مبرهنة فيرما الصغرى"، وتعمل فقط عندما يكون <code class="inline">MOD</code> عددًا أوليًا و<code class="inline">a</code> غير قابل للقسمة على <code class="inline">MOD</code>.</p>
+            </div>
+        </div>
+
+        <!-- Quick summary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>الملخّص السريع</h3>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>
+                    <code class="inline">%</code> يعطي الباقي عند القسمة.<br>
+                    استخدم <code class="inline">(a + b) % MOD</code>، <code class="inline">(a * b) % MOD</code>، و<code class="inline">((a - b) % MOD + MOD) % MOD</code>.<br>
+                    للأسس الكبيرة، استخدم الأس السريع (modular exponentiation) بتعقيد O(log b).<br>
+                    للقسمة، استخدم المعكوس المعياري (modular inverse) إذا كان المودولو عددًا أوليًا.
+                </p>
+            </div>
+        </div>
+
+        <!-- Homework -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-pen-ruler"></i>
+                <h3>تمارين منزلية</h3>
+            </div>
+
+            <div class="homework-item" id="hwM1">
+                <h4>1) الطرح الآمن تحت المودولو</h4>
+                <p>لديك <code class="inline">a = 3</code>، <code class="inline">b = 8</code>، <code class="inline">m = 7</code>. احسب <code class="inline">(a - b) % m</code> بالطريقة العادية، ثم احسبها بالطريقة الآمنة التي لا تعطي نتيجة سالبة.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwM1sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwM1sol">
+                    <div class="code-box">
+                        <div class="code-head"><span>hw1.cpp</span></div>
+                        <pre>int a = 3, b = 8, m = 7;
+cout &lt;&lt; (a - b) % m &lt;&lt; endl;             <span class="cmt">// -5</span>
+cout &lt;&lt; ((a - b) % m + m) % m &lt;&lt; endl;    <span class="cmt">// 2</span></pre>
+                    </div>
+                    <div class="output-box">-5
+2</div>
+                    <p>الطريقة العادية تعطي <code class="inline">-5</code> لأنّ <code class="inline">3 - 8 = -5</code>، والحاصل سالب أصلًا. بإضافة <code class="inline">m</code> قبل أخذ mod الثانية، نحصل على النتيجة الصحيحة <code class="inline">2</code>.</p>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwM2">
+                <h4>2) استخدام الأس السريع</h4>
+                <p>احسب <span class="formula">3^13 mod 17</span> باستخدام دالة <code class="inline">modpow</code>.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwM2sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwM2sol">
+                    <div class="code-box">
+                        <div class="code-head"><span>hw2.cpp</span></div>
+                        <pre>cout &lt;&lt; modpow(3, 13, 17) &lt;&lt; endl;</pre>
+                    </div>
+                    <div class="output-box">12</div>
+                    <p>يمكنك التحقق يدويًا: <code class="inline">3^13 = 1,594,323</code>، و<code class="inline">1,594,323 mod 17 = 12</code>. الأس السريع يصل لنفس النتيجة في عدد خطوات أقل بكثير (تقريبًا log&#8322;(13) ≈ 4 استدعاءات فقط، بدلًا من 13 عملية ضرب).</p>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwM3">
+                <h4>3) القسمة باستخدام المعكوس المعياري</h4>
+                <p>احسب <span class="formula">(10 / 3) mod 1,000,000,007</span> باستخدام المعكوس المعياري.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwM3sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwM3sol">
+                    <div class="code-box">
+                        <div class="code-head"><span>hw3.cpp</span></div>
+                        <pre>long long MOD = 1000000007;
+long long a = 10, b = 3;
+long long result = (a % MOD * modpow(b, MOD - 2, MOD)) % MOD;
+cout &lt;&lt; result &lt;&lt; endl;</pre>
+                    </div>
+                    <div class="output-box">333333339</div>
+                    <p>للتحقق: <code class="inline">(333,333,339 * 3) % 1,000,000,007 = 10</code> — أي أنّ القسمة عادت للعدد الأصلي بنجاح، تمامًا كما تتوقع من عملية قسمة صحيحة.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>تحقق من فهمك</h3>
+            </div>
+
+            <div class="quiz-q" id="qm1">
+                <h4>١. ماذا يعني "a mod m"؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qm1', this, false)">ناتج قسمة a على m</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm1', this, true)">الباقي عند قسمة a على m</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm1', this, false)">حاصل ضرب a في m</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qm2">
+                <h4>٢. ما ناتج 15 mod 6؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qm2', this, false)">2</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm2', this, true)">3</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm2', this, false)">15</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qm3">
+                <h4>٣. ما ناتج 12 mod 12؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qm3', this, false)">12</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm3', this, false)">1</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm3', this, true)">0</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qm4">
+                <h4>٤. ما القيمة الشائعة المستخدمة كمعامل (MOD) في البرمجة التنافسية؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qm4', this, false)">100</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm4', this, true)">1,000,000,007</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm4', this, false)">2</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qm5">
+                <h4>٥. لماذا يُختار 1e9+7 تحديدًا كمعامل؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qm5', this, true)">لأنه عدد أولي كبير يناسب الأعداد 64-بت ويساعد على تجنّب تجاوز السعة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm5', this, false)">لأنه أصغر عدد ممكن استخدامه</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm5', this, false)">لأنه عدد زوجي يسهّل القسمة</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qm6">
+                <h4>٦. ما الصيغة الصحيحة لحساب (a - b) % m دون نتيجة سالبة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qm6', this, false)">(a - b) % m</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm6', this, true)">((a - b) % m + m) % m</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm6', this, false)">(a % m) - (b % m)</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qm7">
+                <h4>٧. ما تعقيد دالة الأس السريع (modular exponentiation) الزمني؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qm7', this, false)">O(b)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm7', this, true)">O(log b)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm7', this, false)">O(b²)</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qm8">
+                <h4>٨. متى يمكن استخدام modpow(a, MOD-2, MOD) لحساب معكوس a؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qm8', this, false)">في أي حالة، بغض النظر عن قيمة MOD</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm8', this, true)">فقط عندما يكون MOD عددًا أوليًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm8', this, false)">فقط عندما يكون a = 0</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qm9">
+                <h4>٩. ما ناتج modpow(2, 10, 1000)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qm9', this, false)">1024</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm9', this, true)">24</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm9', this, false)">0</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qm10">
+                <h4>١٠. ما الصيغة الصحيحة لضرب عددين تحت المودولو؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qm10', this, false)">a * b % m فقط بدون أي أقواس مهمة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm10', this, true)">(a % m * b % m) % m</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm10', this, false)">(a * b) / m</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>قاموس المصطلحات</h3>
+            </div>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Modular Arithmetic</span><span class="term-ar">الحسابيات المعيارية</span><p class="term-desc">حسابيات تُبقي الأعداد ضمن نطاق صغير عبر أخذ الباقي عند القسمة على معامل ثابت.</p></div>
+                <div class="term-card"><span class="term-en">Modulus</span><span class="term-ar">المعامل</span><p class="term-desc">العدد الذي نأخذ الباقي بالنسبة له، غالبًا 1,000,000,007 في البرمجة التنافسية.</p></div>
+                <div class="term-card"><span class="term-en">% (mod operator)</span><span class="term-ar">عامل الباقي</span><p class="term-desc">عامل C++ الذي يحسب باقي القسمة بين عددين صحيحين.</p></div>
+                <div class="term-card"><span class="term-en">Overflow</span><span class="term-ar">تجاوز السعة</span><p class="term-desc">حدوث نتيجة أكبر من أن يتّسع لها نوع البيانات المستخدم.</p></div>
+                <div class="term-card"><span class="term-en">Modular Exponentiation</span><span class="term-ar">الأس المعياري (السريع)</span><p class="term-desc">حساب a^b mod m بتعقيد O(log b) عبر تقسيم الأس إلى النصف تكراريًا.</p></div>
+                <div class="term-card"><span class="term-en">Modular Inverse</span><span class="term-ar">المعكوس المعياري</span><p class="term-desc">عدد إذا ضُرب بالعدد الأصلي تحت نفس المودولو، أعطى الناتج 1؛ يُستخدم لمحاكاة القسمة.</p></div>
+                <div class="term-card"><span class="term-en">Prime Modulus</span><span class="term-ar">معامل أولي</span><p class="term-desc">اختيار عدد أولي كمعامل يسمح باستخدام مبرهنة فيرما الصغرى لحساب المعكوس المعياري بسهولة.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الثاني: الحسابيات المعيارية (Modular Arithmetic)</footer>
+
+    <script>
+        // ===== Clock (mod 12) visualizer =====
+        function buildClockFrames(totalSteps, modBase) {
+            const frames = [];
+            for (let s = 0; s <= totalSteps; s++) {
+                frames.push({ step: s, pos: s % modBase, isLast: s === totalSteps });
+            }
+            return frames;
+        }
+
+        function renderClockFrame(frame) {
+            for (let i = 0; i < 12; i++) {
+                const el = document.getElementById('clockNode' + i);
+                el.classList.remove('active', 'final');
+                if (i === frame.pos) {
+                    el.classList.add(frame.isLast ? 'final' : 'active');
+                }
+            }
+            document.getElementById('clockStepLabel').innerText =
+                'الخطوة ' + frame.step + ': نتوقف عند الموضع ' + frame.pos + ' (لأنّ ' + frame.step + ' mod 12 = ' + frame.pos + ')' + (frame.isLast ? ' — انتهى العدّ!' : '');
+        }
+
+        function runClockLab() {
+            const frames = buildClockFrames(15, 12);
+            let f = 0;
+            function playNext() {
+                if (f >= frames.length) return;
+                renderClockFrame(frames[f]);
+                f++;
+                setTimeout(playNext, 350);
+            }
+            playNext();
+        }
+
+        // ===== modpow recursion trace =====
+        const modpowTrace = [
+            { type: 'call', text: 'استدعاء modpow(3, 13, 17) → b=13 فردي' },
+            { type: 'call', text: 'استدعاء modpow(3, 6, 17) → b=6 زوجي' },
+            { type: 'call', text: 'استدعاء modpow(3, 3, 17) → b=3 فردي' },
+            { type: 'call', text: 'استدعاء modpow(3, 1, 17) → b=1 فردي' },
+            { type: 'call', text: 'استدعاء modpow(3, 0, 17) → الحالة الأساسية: نعيد 1' },
+            { type: 'return', text: 'عودة b=1: half=1 → res=(1×1)%17=1 → فردي: res=(1×3)%17=3' },
+            { type: 'return', text: 'عودة b=3: half=3 → res=(3×3)%17=9 → فردي: res=(9×3)%17=10' },
+            { type: 'return', text: 'عودة b=6: half=10 → res=(10×10)%17=15 → زوجي: النتيجة 15' },
+            { type: 'return', text: 'عودة b=13: half=15 → res=(15×15)%17=4 → فردي: res=(4×3)%17=12 (الإجابة النهائية)' }
+        ];
+        let modpowTraceIndex = 0;
+
+        function revealNextModpowStep() {
+            if (modpowTraceIndex >= modpowTrace.length) return;
+            const step = modpowTrace[modpowTraceIndex];
+            const container = document.getElementById('modpowTraceLines');
+            const line = document.createElement('div');
+            line.className = step.type === 'call' ? 'trace-line trace-call' : 'trace-line trace-return';
+            line.innerText = (modpowTraceIndex + 1) + '. ' + step.text;
+            container.appendChild(line);
+            modpowTraceIndex++;
+            if (modpowTraceIndex >= modpowTrace.length) {
+                document.getElementById('modpowStepBtn').innerText = 'اكتملت كل الخطوات ✓';
+            }
+        }
+
+        // ===== Shared helpers (toggle, TF activity, quiz) =====
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        function checkTF(el, itemId, chosenValue, correctValue) {
+            const item = document.getElementById(itemId);
+            const buttons = item.querySelectorAll('.tf-btn');
+            buttons.forEach(b => { b.classList.remove('tf-selected-correct', 'tf-selected-wrong'); b.onclick = null; b.style.cursor = 'default'; });
+            const feedback = item.querySelector('.tf-feedback');
+            if (chosenValue === correctValue) {
+                el.classList.add('tf-selected-correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة!</span>';
+            } else {
+                el.classList.add('tf-selected-wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة خاطئة — العبارة في الواقع "' + (correctValue ? 'صحيح' : 'خطأ') + '".</span>';
+            }
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة! أحسنت.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة غير صحيحة، حاول مرة أخرى في المرة القادمة.</span>';
+            }
+        }
+    </script>
+</body>
+</html>

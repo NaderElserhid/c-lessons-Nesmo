@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | الهياكل — struct</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        /* hero banner */
+        .hero-banner { background: var(--blue-gradient); padding: 70px 6% 60px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 720px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula { direction: ltr; display: inline-block; font-family: 'Consolas', monospace; font-weight: 800; background: #eef2f7; padding: 3px 10px; border-radius: 8px; color: var(--dark-navy); }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+            white-space: pre-line;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td code.inline, .data-table th code.inline { white-space: nowrap; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+
+        /* numbered steps */
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        /* bullet list (non-numbered, for tips) */
+        .bullet-list { list-style: none; padding: 0; margin: 16px 0; }
+        .bullet-list li { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; color: var(--text-body); }
+        .bullet-list li i { color: var(--primary-blue); margin-top: 4px; flex-shrink: 0; }
+
+        /* interactive lab */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 14px 0 6px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+        .lab-btn.ghost { background: white; border: 2px solid #cbd5e1; color: var(--text-body); }
+
+        /* struct execution visualizer */
+        .struct-boxes-row { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin: 16px 0 6px; direction: ltr; }
+        .struct-box {
+            background: var(--bg-main); border: 2px solid #cbd5e1; border-radius: 16px; padding: 14px 20px;
+            min-width: 160px; opacity: 0.25; transition: opacity 0.4s ease, border-color 0.3s ease;
+        }
+        .struct-box.appeared { opacity: 1; }
+        .struct-box.melon-warn { border-color: #ef4444; }
+        .struct-box-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin-bottom: 10px; text-align: center; direction: ltr; }
+        .struct-member-row {
+            display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 6px 0;
+            border-bottom: 1px dashed #e2e8f0; font-family: 'Consolas', monospace; font-size: 0.85rem;
+        }
+        .struct-member-row:last-child { border-bottom: none; }
+        .struct-member-name { color: #94a3b8; font-weight: 700; }
+        .struct-member-value { color: var(--dark-navy); font-weight: 800; transition: all 0.25s ease; }
+        .struct-member-value.filled { color: var(--primary-blue); }
+        .struct-member-value.uninitialized { color: #ef4444; font-style: italic; font-size: 0.78rem; }
+        .struct-console {
+            background: #0f172a; border-radius: 14px; padding: 16px 20px; margin-top: 16px; min-height: 30px;
+            font-family: 'Consolas', monospace; color: #4ade80; direction: ltr; text-align: left; font-size: 0.88rem; line-height: 1.9;
+        }
+
+        /* true/false quick-review activity */
+        .activity-box { background: white; border-radius: 22px; padding: 32px; margin: 28px 0; box-shadow: var(--soft-shadow); border: 1px solid #e2e8f0; }
+        .activity-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .activity-header i { color: var(--primary-blue); font-size: 1.2rem; }
+        .activity-header h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); }
+        .activity-intro { margin-bottom: 20px; font-size: 0.92rem; }
+        .tf-item {
+            background: var(--bg-main); border-radius: 16px; padding: 18px 22px; margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+            border: 1px solid #e2e8f0;
+        }
+        .tf-statement { margin: 0; font-weight: 700; color: var(--dark-navy); font-size: 0.95rem; flex: 1 1 260px; direction: ltr; text-align: right; unicode-bidi: plaintext; }
+        .tf-buttons { display: flex; gap: 10px; flex-shrink: 0; }
+        .tf-btn {
+            border: 2px solid #e2e8f0; background: white; padding: 9px 26px; border-radius: 50px;
+            font-weight: 800; font-family: 'Tajawal'; font-size: 0.88rem; cursor: pointer; color: var(--dark-navy); transition: 0.2s;
+        }
+        .tf-btn:hover { border-color: var(--primary-blue); }
+        .tf-btn.tf-selected-correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .tf-btn.tf-selected-wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .tf-feedback { flex-basis: 100%; margin-top: 2px; font-weight: 700; font-size: 0.85rem; min-height: 18px; }
+
+        /* homework toggles */
+        .homework-item { background: var(--bg-main); border-radius: 18px; padding: 24px; margin-top: 20px; border: 1px solid #e2e8f0; }
+        .homework-item h4 { margin: 0 0 10px; color: var(--dark-navy); font-size: 1.02rem; font-weight: 800; }
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            margin-top: 14px;
+        }
+        .collapsible { display: none; margin-top: 14px; }
+        .collapsible.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge">الفصل 2: الهياكل (struct)</span>
+            <span class="level-badge"><i class="fas fa-layer-group"></i> المستوى الثالث</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-boxes-stacked"></i>
+        <h1>الفصل الثاني: الهياكل (struct)</h1>
+        <p class="hero-desc">حتى الآن كنت تخزّن كل معلومة في متغيّر منفصل. لكن ماذا لو أردت تجميع عدة معلومات مرتبطة ببعضها — مثل وزن وسعر منتج — تحت اسم واحد؟ في هذا الفصل ستتعلّم كيف تصمّم نوع بيانات خاصًّا بك باستخدام <code style="direction:ltr; display:inline-block; background:rgba(255,255,255,0.15); color:white; padding:2px 8px; border-radius:6px;">struct</code>، وهي لبنة أساسية ستحتاجها كثيرًا في المسائل الأكبر القادمة.</p>
+    </div>
+
+    <div class="container">
+
+        <!-- What is a struct -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-info"></i>
+                <h3>ما هي البنية struct؟</h3>
+            </div>
+            <p>في لغة ++C تسمح لك البنية (<code class="inline">struct</code>) بتجميع عدة أجزاء من البيانات تحت اسم واحد. يمكنك التفكير فيها كنوع بيانات مخصّص تقوم أنت بتصميمه بنفسك.</p>
+            <p>البنية <code class="inline">struct</code> تجمع مجموعة من المتغيرات ذات العلاقة (تسمّى <strong>أعضاء</strong> أو members) وقد تكون من أنواع مختلفة داخل نفس الكيان.</p>
+        </div>
+
+        <!-- Syntax -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-code"></i>
+                <h3>الصيغة العامة</h3>
+            </div>
+            <div class="code-box">
+                <div class="code-head"><span>struct_syntax.cpp</span></div>
+                <pre>struct TypeName {
+    member_type1 member_name1;
+    member_type2 member_name2;
+    // ...
+};</pre>
+            </div>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p><code class="inline">TypeName</code> → اسم نوع البيانات الجديد الذي تعرّفه.</p></li>
+                <li><i class="fas fa-check"></i><p>داخل الأقواس المعقوفة <code class="inline">{ }</code> → الأعضاء (members)، وهي المتغيرات التي تنتمي لهذا النوع.</p></li>
+            </ul>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>لاحظ الفاصلة المنقوطة <code class="inline">;</code> بعد القوس المعقوف الأخير <code class="inline">}</code> — نسيانها من أشهر الأخطاء عند كتابة struct لأول مرة، وسنرى رسالة الخطأ الفعلية لاحقًا في هذا الفصل.</p>
+            </div>
+        </div>
+
+        <!-- Example: product struct -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-apple-whole"></i>
+                <h3>مثال: بنية product</h3>
+            </div>
+            <div class="code-box">
+                <div class="code-head"><span>product.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+struct product {
+    int weight;     <span class="cmt">// in grams</span>
+    double price;   <span class="cmt">// in riyals</span>
+};
+
+int main() {
+    product apple;
+    product banana, melon;
+
+    apple.weight = 150;
+    apple.price  = 1.99;
+
+    banana.weight = 120;
+    banana.price  = 0.99;
+
+    cout &lt;&lt; "Apple: "  &lt;&lt; apple.weight  &lt;&lt; " g, " &lt;&lt; apple.price &lt;&lt; " SAR" &lt;&lt; endl;
+    cout &lt;&lt; "Banana: " &lt;&lt; banana.weight &lt;&lt; " g, " &lt;&lt; banana.price &lt;&lt; " SAR" &lt;&lt; endl;
+}</pre>
+            </div>
+            <p>في هذا المثال:</p>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>عرّفنا نوعًا جديدًا اسمه <code class="inline">product</code>.</p></li>
+                <li><i class="fas fa-check"></i><p>هذا النوع يحتوي عضوين: <code class="inline">weight</code> من نوع <code class="inline">int</code> يمثّل الوزن بالجرام، و<code class="inline">price</code> من نوع <code class="inline">double</code> يمثّل السعر بالريال.</p></li>
+                <li><i class="fas fa-check"></i><p>بعدها أنشأنا متغيّرات (كائنات) من هذا النوع: <code class="inline">apple</code>، <code class="inline">banana</code>، و<code class="inline">melon</code>، وأعطينا كلًا منها قيمًا خاصة به.</p></li>
+            </ul>
+            <div class="output-box">Apple: 150 g, 1.99 SAR
+Banana: 120 g, 0.99 SAR</div>
+
+            <!-- Interactive lab -->
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> مختبر تفاعلي: شاهد البرنامج ينفَّذ سطرًا بسطر</p>
+                <p style="text-align:center; font-size:0.85rem; color:var(--text-body); margin-bottom: 4px;">شغّل المحاكاة لمشاهدة كيف يُنشئ البرنامج ثلاثة كائنات من نوع <code class="inline">product</code>، ويملأ أعضاء اثنين منها فقط، ثم يطبعهما.</p>
+
+                <div class="struct-boxes-row">
+                    <div class="struct-box" id="structBoxApple">
+                        <div class="struct-box-title">apple</div>
+                        <div class="struct-member-row"><span class="struct-member-name">weight</span><span class="struct-member-value" id="appleWeightVal">?</span></div>
+                        <div class="struct-member-row"><span class="struct-member-name">price</span><span class="struct-member-value" id="applePriceVal">?</span></div>
+                    </div>
+                    <div class="struct-box" id="structBoxBanana">
+                        <div class="struct-box-title">banana</div>
+                        <div class="struct-member-row"><span class="struct-member-name">weight</span><span class="struct-member-value" id="bananaWeightVal">?</span></div>
+                        <div class="struct-member-row"><span class="struct-member-name">price</span><span class="struct-member-value" id="bananaPriceVal">?</span></div>
+                    </div>
+                    <div class="struct-box" id="structBoxMelon">
+                        <div class="struct-box-title">melon</div>
+                        <div class="struct-member-row"><span class="struct-member-name">weight</span><span class="struct-member-value" id="melonWeightVal">?</span></div>
+                        <div class="struct-member-row"><span class="struct-member-name">price</span><span class="struct-member-value" id="melonPriceVal">?</span></div>
+                    </div>
+                </div>
+
+                <div class="struct-console" id="structConsole"></div>
+                <div class="lab-step-hint" id="structHint">اضغط "شغّل المحاكاة" للبدء.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runStructLab()">شغّل المحاكاة</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Member access -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-arrow-pointer"></i>
+                <h3>الوصول إلى الأعضاء (Member Access)</h3>
+            </div>
+            <p>نستخدم عامل النقطة <code class="inline">.</code> للوصول إلى أعضاء الكائن:</p>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p><code class="inline">apple.weight</code> → عضو من نوع <code class="inline">int</code></p></li>
+                <li><i class="fas fa-check"></i><p><code class="inline">apple.price</code> → عضو من نوع <code class="inline">double</code></p></li>
+            </ul>
+            <p>يمكنك القراءة من هذه الأعضاء أو التعديل عليها مثل أي متغير عادي تمامًا.</p>
+        </div>
+
+        <!-- Inline declaration -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-layer-group"></i>
+                <h3>تعريف كائنات مباشرة بعد تعريف البنية</h3>
+            </div>
+            <p>يمكنك أيضًا تعريف المتغيرات في نهاية تعريف البنية مباشرة:</p>
+            <div class="code-box">
+                <div class="code-head"><span>product_inline.cpp</span></div>
+                <pre>struct product {
+    int weight;
+    double price;
+} apple, banana, melon;</pre>
+            </div>
+            <p>هنا: <code class="inline">product</code> هو اسم النوع (البنية)، و<code class="inline">apple</code>، <code class="inline">banana</code>، <code class="inline">melon</code> هي متغيرات (كائنات) من هذا النوع — تمامًا كما لو كتبتها في سطر منفصل بعد تعريف البنية.</p>
+        </div>
+
+        <!-- Activity A -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>نشاط: مراجعة سريعة لتعريف البنية والوصول لأعضائها</h4>
+            </div>
+            <p class="activity-intro">حدّد إن كانت كل عبارة صحيحة أم خاطئة.</p>
+
+            <div class="tf-item" id="tfSt1">
+                <p class="tf-statement">البنية struct تسمح بتجميع متغيرات من أنواع مختلفة تحت اسم واحد.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSt1', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSt1', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfSt2">
+                <p class="tf-statement">للوصول إلى عضو weight في الكائن apple، نكتب apple-weight.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSt2', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSt2', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfSt3">
+                <p class="tf-statement">يجب وضع فاصلة منقوطة ; بعد القوس المعقوف الأخير في تعريف struct.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSt3', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSt3', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfSt4">
+                <p class="tf-statement">كل كائن من نوع product (مثل apple وbanana) له نسخته الخاصة من الأعضاء weight وprice.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSt4', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSt4', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Why use structs -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-lightbulb"></i>
+                <h3>لماذا نستخدم structs؟</h3>
+            </div>
+            <p>بدون struct، سنضطر لتخزين كل معلومة عن كل منتج في متغيّرات منفصلة تمامًا، مما يصبح فوضويًا بسرعة مع زيادة عدد المنتجات أو عدد الخصائص:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>بدون struct</th><th>مع struct</th></tr></thead>
+                    <tbody>
+                        <tr><td><code class="inline">int appleWeight; double applePrice;<br>int bananaWeight; double bananaPrice;</code></td><td><code class="inline">product apple; product banana;</code></td></tr>
+                        <tr><td>متغيّران منفصلان لكل منتج، ولا رابط واضح بينهما في الكود</td><td>كائن واحد يجمع كل خصائص المنتج، والعلاقة واضحة فورًا</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>الفكرة الأساسية: <strong>struct يجعل الكود أقرب لطريقة تفكيرنا</strong> — بدلًا من "وزن التفاحة" و"سعر التفاحة" كمتغيّرين منفصلين، نفكّر في "التفاحة" ككائن واحد له خصائص.</p>
+        </div>
+
+        <!-- Common pitfalls -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>أخطاء شائعة</h3>
+            </div>
+            <p><strong>نسيان الفاصلة المنقوطة بعد تعريف البنية:</strong> هذا الكود يفشل في الترجمة:</p>
+            <div class="code-box">
+                <div class="code-head"><span>missing_semicolon.cpp</span></div>
+                <pre>struct product {
+    int weight;
+    double price;
+}  <span class="cmt">// نسينا ; هنا!</span>
+
+int main() {
+    return 0;
+}</pre>
+            </div>
+            <div class="output-box">error: expected ';' after struct definition</div>
+            <p><strong>الاعتماد على أعضاء لم تُهيَّأ (uninitialized):</strong> في مثال product أعلاه، الكائن <code class="inline">melon</code> أُنشئ لكن لم نُسند لأعضائه أي قيمة أبدًا. لو حاولنا طباعة <code class="inline">melon.weight</code> الآن، سنحصل على قيمة عشوائية غير متوقّعة (garbage value) موجودة مسبقًا في الذاكرة — وليس صفرًا بالضرورة.</p>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>دائمًا تأكّد من إسناد قيمة لكل عضو قبل استخدامه، تمامًا كما تفعل مع أي متغيّر عادي.</p>
+            </div>
+            <p><strong>الخلط بين اسم النوع واسم المتغيّر:</strong> <code class="inline">product</code> هو اسم النوع (القالب)، بينما <code class="inline">apple</code> هو متغيّر (كائن) فعلي من هذا النوع. لا يمكنك كتابة <code class="inline">product.weight</code> مباشرة — فـ <code class="inline">product</code> نفسه ليس كائنًا، بل هو النوع الذي تُبنى منه الكائنات.</p>
+        </div>
+
+        <!-- Activity B -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>نشاط: مراجعة سريعة للأخطاء الشائعة والفوائد</h4>
+            </div>
+            <p class="activity-intro">حدّد إن كانت كل عبارة صحيحة أم خاطئة.</p>
+
+            <div class="tf-item" id="tfSt5">
+                <p class="tf-statement">نسيان الفاصلة المنقوطة بعد تعريف struct لا يسبّب أي مشكلة في الترجمة.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSt5', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSt5', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfSt6">
+                <p class="tf-statement">الكائن الذي لا نُسند لأعضائه أي قيمة يحتوي على قيم عشوائية غير متوقّعة.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSt6', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSt6', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfSt7">
+                <p class="tf-statement">يمكن كتابة product.weight للوصول إلى عضو دون إنشاء كائن أولًا، لأن product نوع بيانات.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSt7', true, false)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSt7', false, false)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfSt8">
+                <p class="tf-statement">استخدام struct يجعل تجميع البيانات المرتبطة أوضح مقارنة بمتغيّرات منفصلة.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSt8', true, true)">صحيح</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSt8', false, true)">خطأ</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Quick summary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>خلاصة سريعة</h3>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>
+                    struct تجمع عدة متغيّرات (أعضاء) من أنواع مختلفة تحت اسم نوع واحد تصمّمه بنفسك.<br>
+                    نصل لأعضاء الكائن بعامل النقطة <code class="inline">.</code> مثل <code class="inline">apple.weight</code>.<br>
+                    يمكن تعريف الكائنات في سطر منفصل، أو مباشرة بعد تعريف البنية.<br>
+                    لا تنسَ الفاصلة المنقوطة بعد <code class="inline">}</code>، وتأكّد دائمًا من تهيئة كل الأعضاء قبل استخدامها.
+                </p>
+            </div>
+        </div>
+
+        <!-- Homework -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-pen-ruler"></i>
+                <h3>تمارين منزلية</h3>
+            </div>
+
+            <div class="homework-item" id="hwSt1">
+                <h4>1) بنية Student</h4>
+                <p>عرّف بنية <code class="inline">Student</code> تحتوي على <code class="inline">name</code> (نص/string)، <code class="inline">age</code> (عدد صحيح)، و<code class="inline">gpa</code> (عدد عشري). أنشئ كائنًا باسم <code class="inline">student1</code> بالقيم: الاسم "Sara"، العمر 17، المعدّل 3.8، ثم اطبعها بصيغة: <code class="inline">الاسم, العمر years old, GPA: المعدل</code>.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwSt1sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwSt1sol">
+                    <div class="code-box">
+                        <div class="code-head"><span>student.cpp</span></div>
+                        <pre>#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+struct Student {
+    string name;
+    int age;
+    double gpa;
+};
+
+int main() {
+    Student student1;
+    student1.name = "Sara";
+    student1.age = 17;
+    student1.gpa = 3.8;
+
+    cout &lt;&lt; student1.name &lt;&lt; ", " &lt;&lt; student1.age
+         &lt;&lt; " years old, GPA: " &lt;&lt; student1.gpa &lt;&lt; endl;
+}</pre>
+                    </div>
+                    <div class="output-box">Sara, 17 years old, GPA: 3.8</div>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwSt2">
+                <h4>2) اكتشف الخطأ</h4>
+                <p>ما الخطأ في هذا الكود، وما رسالة الخطأ التي سيعطيها المترجم تقريبًا؟</p>
+                <div class="code-box">
+                    <div class="code-head"><span>find_error.cpp</span></div>
+                    <pre>struct Point {
+    int x;
+    int y;
+}
+
+int main() {
+    Point p;
+    p.x = 3;
+    p.y = 4;
+    cout &lt;&lt; p.x &lt;&lt; " " &lt;&lt; p.y &lt;&lt; endl;
+}</pre>
+                </div>
+                <button class="toggle-btn" onclick="toggleSection('hwSt2sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwSt2sol">
+                    <p>ينقص الكود فاصلة منقوطة <code class="inline">;</code> بعد القوس المعقوف الأخير <code class="inline">}</code> في تعريف <code class="inline">struct Point</code>.</p>
+                    <div class="output-box">error: expected ';' after struct definition</div>
+                    <p>الإصلاح: أضف <code class="inline">;</code> مباشرة بعد <code class="inline">}</code> التي تغلق تعريف البنية.</p>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwSt3">
+                <h4>3) تتبّع البرنامج (Trace)</h4>
+                <p>بدون تشغيل الكود، حدّد ما الذي ستطبعه السطور الأخيرة:</p>
+                <div class="code-box">
+                    <div class="code-head"><span>trace_item.cpp</span></div>
+                    <pre>struct Item {
+    int id;
+    double cost;
+};
+
+int main() {
+    Item a, b;
+    a.id = 1;
+    a.cost = 10.5;
+    b.id = 2;
+    b.cost = 20.0;
+
+    a.cost = b.cost + 5;
+
+    cout &lt;&lt; a.id &lt;&lt; " " &lt;&lt; a.cost &lt;&lt; "\n";
+    cout &lt;&lt; b.id &lt;&lt; " " &lt;&lt; b.cost &lt;&lt; "\n";
+}</pre>
+                </div>
+                <button class="toggle-btn" onclick="toggleSection('hwSt3sol')"><i class="fas fa-check"></i> إظهار / إخفاء الحل</button>
+                <div class="collapsible" id="hwSt3sol">
+                    <p>السطر <code class="inline">a.cost = b.cost + 5;</code> يغيّر فقط عضو <code class="inline">cost</code> في الكائن <code class="inline">a</code> (يصبح <code class="inline">20.0 + 5 = 25</code>)، ولا يؤثر إطلاقًا على الكائن <code class="inline">b</code> — فكل كائن له نسخته المستقلة من الأعضاء.</p>
+                    <div class="output-box">1 25
+2 20</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>تحقق من فهمك</h3>
+            </div>
+
+            <div class="quiz-q" id="qs1">
+                <h4>١. ما وظيفة البنية struct في ++C؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qs1', this, true)">تجميع عدة متغيرات (أعضاء) من أنواع مختلفة تحت اسم نوع بيانات واحد</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qs1', this, false)">تسريع تنفيذ البرنامج تلقائيًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qs1', this, false)">استبدال الحلقات التكرارية</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qs2">
+                <h4>٢. في <span style="direction:ltr; display:inline-block;">struct product { int weight; double price; };</span>، ما هو product؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qs2', this, false)">متغيّر يخزّن قيمة عددية</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qs2', this, true)">اسم نوع بيانات جديد نصمّمه بأنفسنا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qs2', this, false)">دالة تطبع بيانات المنتج</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qs3">
+                <h4>٣. كيف نصل إلى عضو weight في الكائن apple؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qs3', this, false)">apple-&gt;weight فقط</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qs3', this, true)">apple.weight</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qs3', this, false)">weight(apple)</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qs4">
+                <h4>٤. ماذا ينقص هذا الكود ليكون صحيحًا؟ <span style="direction:ltr; display:inline-block;">struct Point { int x; int y; }</span></h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qs4', this, false)">قوس معقوف إضافي {</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qs4', this, true)">فاصلة منقوطة ; بعد القوس الأخير }</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qs4', this, false)">كلمة return</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qs5">
+                <h4>٥. في مثال product، الكائن melon أُنشئ لكن لم تُسند لأعضائه أي قيمة. ماذا يحدث لو طُبعت أعضاؤه؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qs5', this, false)">تكون دائمًا صفرًا تلقائيًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qs5', this, true)">تحتوي على قيم عشوائية غير متوقّعة (garbage values)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qs5', this, false)">يرفض المترجم تصريف البرنامج</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qs6">
+                <h4>٦. أيّ الطرق التالية تُعرّف كائنات مباشرة بعد تعريف البنية؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qs6', this, true)"><span style="direction:ltr; display:inline-block;">struct product { int weight; double price; } apple, banana;</span></div>
+                    <div class="quiz-opt" onclick="checkAnswer('qs6', this, false)"><span style="direction:ltr; display:inline-block;">struct product apple { int weight; };</span></div>
+                    <div class="quiz-opt" onclick="checkAnswer('qs6', this, false)"><span style="direction:ltr; display:inline-block;">apple = new struct product();</span></div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qs7">
+                <h4>٧. إذا كان لدينا <span style="direction:ltr; display:inline-block;">Item a, b;</span> وغيّرنا <span style="direction:ltr; display:inline-block;">a.cost</span> فقط، ماذا يحدث لـ <span style="direction:ltr; display:inline-block;">b.cost</span>؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qs7', this, false)">يتغيّر بنفس القيمة تلقائيًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qs7', this, true)">يبقى دون تغيير، لأن لكل كائن نسخته الخاصة من الأعضاء</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qs7', this, false)">يصبح صفرًا</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qs8">
+                <h4>٨. ما الفائدة الأساسية لاستخدام struct بدل متغيّرات منفصلة لكل خاصية؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qs8', this, true)">تجميع البيانات المرتبطة منطقيًا، مما يجعل الكود أوضح وأسهل للتوسّع</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qs8', this, false)">جعل البرنامج يعمل أسرع دائمًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qs8', this, false)">التخلّص من الحاجة لأنواع بيانات مثل int وdouble</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qs9">
+                <h4>٩. هل يمكن أن تحتوي البنية الواحدة على أعضاء من أنواع مختلفة (مثل int وdouble معًا)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qs9', this, true)">نعم، هذا بالضبط أحد أهم فوائد struct</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qs9', this, false)">لا، كل الأعضاء يجب أن تكون من نفس النوع</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qs9', this, false)">فقط إذا استخدمنا الكلمة المفتاحية class بدلًا من struct</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qs10">
+                <h4>١٠. لماذا نكتب <span style="direction:ltr; display:inline-block;">product apple;</span> بدلًا من <span style="direction:ltr; display:inline-block;">product.apple;</span>؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qs10', this, true)">لأن product اسم نوع وليس كائنًا، وapple هو الكائن الذي ننشئه من هذا النوع</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qs10', this, false)">لأن الصيغتين متكافئتان تمامًا في ++C</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qs10', this, false)">لأن apple اسم عضو داخل product</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>قاموس المصطلحات</h3>
+            </div>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">struct</span><span class="term-ar">البنية</span><p class="term-desc">كلمة مفتاحية في ++C تُستخدم لتعريف نوع بيانات جديد يجمع عدة أعضاء تحت اسم واحد.</p></div>
+                <div class="term-card"><span class="term-en">Member</span><span class="term-ar">عضو</span><p class="term-desc">متغيّر يقع داخل تعريف البنية، وينتمي لكل كائن يُنشأ من هذا النوع.</p></div>
+                <div class="term-card"><span class="term-en">Object / Instance</span><span class="term-ar">كائن</span><p class="term-desc">متغيّر فعلي يُنشأ من نوع البنية، ويملك نسخته الخاصة من كل الأعضاء.</p></div>
+                <div class="term-card"><span class="term-en">Dot Operator (.)</span><span class="term-ar">عامل النقطة</span><p class="term-desc">الرمز المستخدم للوصول إلى عضو داخل كائن، مثل apple.weight.</p></div>
+                <div class="term-card"><span class="term-en">Type Definition</span><span class="term-ar">تعريف النوع</span><p class="term-desc">وصف بنية البيانات (أسماء وأنواع الأعضاء) الذي يُبنى عليه كل كائن لاحقًا.</p></div>
+                <div class="term-card"><span class="term-en">Uninitialized</span><span class="term-ar">غير مُهيَّأ</span><p class="term-desc">وصف لعضو أو متغيّر لم يُسند له أي قيمة بعد، فيحمل قيمة عشوائية من الذاكرة.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — المستوى الثالث: الهياكل (struct)</footer>
+
+    <script>
+        // ===== Struct program execution visualizer =====
+        function buildStructFrames() {
+            return [
+                { type: 'declare', boxes: ['apple'], label: 'product apple; → ينشئ كائنًا apple بأعضاء غير مُهيّأة بعد.' },
+                { type: 'declare', boxes: ['banana', 'melon'], label: 'product banana, melon; → ينشئ كائنين إضافيين، أعضاؤهما غير مُهيّأة أيضًا.' },
+                { type: 'assign', box: 'apple', member: 'Weight', value: '150', label: 'apple.weight = 150;' },
+                { type: 'assign', box: 'apple', member: 'Price', value: '1.99', label: 'apple.price = 1.99;' },
+                { type: 'assign', box: 'banana', member: 'Weight', value: '120', label: 'banana.weight = 120;' },
+                { type: 'assign', box: 'banana', member: 'Price', value: '0.99', label: 'banana.price = 0.99;' },
+                { type: 'print', text: 'Apple: 150 g, 1.99 SAR', label: 'cout يطبع بيانات apple.' },
+                { type: 'print', text: 'Banana: 120 g, 0.99 SAR', label: 'cout يطبع بيانات banana.' },
+                { type: 'final', label: 'لاحظ: melon لم تُسند لأعضائه أي قيمة ولم يُطبع — أعضاؤه تبقى غير مُهيّأة (قيم عشوائية).' }
+            ];
+        }
+
+        function runStructLab() {
+            const frames = buildStructFrames();
+            const hint = document.getElementById('structHint');
+            const console_ = document.getElementById('structConsole');
+
+            ['Apple', 'Banana', 'Melon'].forEach(function (name) {
+                document.getElementById('structBox' + name).classList.remove('appeared', 'melon-warn');
+            });
+            ['appleWeightVal', 'applePriceVal', 'bananaWeightVal', 'bananaPriceVal', 'melonWeightVal', 'melonPriceVal'].forEach(function (id) {
+                const el = document.getElementById(id);
+                el.innerText = '?';
+                el.classList.remove('filled', 'uninitialized');
+            });
+            console_.innerHTML = '';
+
+            let f = 0;
+
+            function playNext() {
+                if (f >= frames.length) return;
+                const frame = frames[f];
+
+                if (frame.type === 'declare') {
+                    frame.boxes.forEach(function (b) {
+                        const name = b.charAt(0).toUpperCase() + b.slice(1);
+                        document.getElementById('structBox' + name).classList.add('appeared');
+                    });
+                } else if (frame.type === 'assign') {
+                    const el = document.getElementById(frame.box + frame.member + 'Val');
+                    el.innerText = frame.value;
+                    el.classList.add('filled');
+                } else if (frame.type === 'print') {
+                    const line = document.createElement('div');
+                    line.className = 'console-line';
+                    line.innerText = frame.text;
+                    console_.appendChild(line);
+                } else if (frame.type === 'final') {
+                    document.getElementById('structBoxMelon').classList.add('melon-warn');
+                    ['melonWeightVal', 'melonPriceVal'].forEach(function (id) {
+                        const el = document.getElementById(id);
+                        el.innerText = '?';
+                        el.classList.add('uninitialized');
+                    });
+                }
+
+                hint.innerText = frame.label;
+                f++;
+                setTimeout(playNext, 950);
+            }
+
+            playNext();
+        }
+
+        // ===== Shared helpers (toggle, TF activity, quiz) =====
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        function checkTF(el, itemId, chosenValue, correctValue) {
+            const item = document.getElementById(itemId);
+            const buttons = item.querySelectorAll('.tf-btn');
+            buttons.forEach(function (b) { b.classList.remove('tf-selected-correct', 'tf-selected-wrong'); b.onclick = null; b.style.cursor = 'default'; });
+            const feedback = item.querySelector('.tf-feedback');
+            if (chosenValue === correctValue) {
+                el.classList.add('tf-selected-correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة!</span>';
+            } else {
+                el.classList.add('tf-selected-wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة خاطئة — العبارة في الواقع "' + (correctValue ? 'صحيح' : 'خطأ') + '".</span>';
+            }
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(function (o) { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة! أحسنت.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة غير صحيحة، حاول مرة أخرى في المرة القادمة.</span>';
+            }
+        }
+    </script>
+</body>
+</html>

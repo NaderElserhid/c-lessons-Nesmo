@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | مسألة: Counting Rooms — CSES 1192</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+        .adv-badge {
+            background: #dcfce7; color: #15803d; border: none;
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .hero-banner { background: var(--blue-gradient); padding: 60px 6% 40px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 14px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 10px; }
+        .hero-desc { max-width: 780px; margin: 0 auto 22px; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+        .hero-stats-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+        .hero-stat { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 16px; padding: 10px 22px; text-align: center; }
+        .hero-stat .hs-label { display: block; font-size: 0.72rem; color: rgba(255,255,255,0.8); font-weight: 700; }
+        .hero-stat .hs-value { display: block; font-size: 1rem; font-weight: 800; color: white; margin-top: 2px; }
+        .hero-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; background: white; color: var(--primary-blue); padding: 10px 24px; border-radius: 50px; font-weight: 800; font-size: 0.88rem; text-decoration: none; }
+        .hero-cta:hover { background: #eef2f7; }
+
+        .tab-nav {
+            display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+            background: white; padding: 14px 6%; position: sticky; top: 87px; z-index: 900;
+            border-bottom: 1px solid #e2e8f0; box-shadow: 0 4px 14px -8px rgba(0,0,0,0.08);
+        }
+        .tab-btn {
+            border: 2px solid #e2e8f0; background: white; color: var(--text-body);
+            padding: 10px 18px; border-radius: 50px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.82rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .tab-btn:hover { border-color: var(--primary-blue); }
+        .tab-btn.active { background: var(--blue-gradient); border-color: transparent; color: white; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeIn 0.35s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header .section-num {
+            width: 34px; height: 34px; border-radius: 50%; background: var(--yellow-gradient); color: white;
+            display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;
+        }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.82rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.08); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #dc2626; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .definition-box { background: var(--dark-navy); color: white; border-radius: 18px; padding: 22px 24px; margin: 16px 0; }
+        .definition-box .df-title { color: #facc15; font-weight: 800; font-size: 0.88rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .definition-box p { color: #e2e8f0; margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        /* original-statement quote box */
+        .original-statement { background: #0f172a; border-radius: 18px; padding: 4px 0 20px; margin: 16px 0; overflow: hidden; }
+        .original-statement .os-head { background: #1e293b; padding: 12px 22px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .original-statement .os-head span { color: #94a3b8; font-size: 0.8rem; font-weight: 700; }
+        .original-statement .os-head a { color: #7dd3fc; font-size: 0.8rem; font-weight: 800; text-decoration: none; }
+        .original-statement .os-body { padding: 0 24px; direction: ltr; text-align: left; color: #e2e8f0; font-size: 0.92rem; line-height: 1.85; }
+        .original-statement .os-body h5 { color: #facc15; font-size: 0.85rem; margin: 16px 0 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+        .original-statement .os-body code { background: rgba(0,173,239,0.15); color: #7dd3fc; padding: 1px 6px; border-radius: 4px; font-family: 'Consolas', monospace; }
+        .original-statement .os-body pre { padding: 12px 16px; background: #080c14; border-radius: 10px; font-size: 0.85rem; }
+
+        /* interactive lab shared */
+        .nt-lab-dark { background: #0b1220; border-radius: 20px; padding: 26px; margin: 16px 0; border: 1px solid #1e293b; }
+        .nt-input-row { display: flex; gap: 14px; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+        .nt-input-group { display: flex; flex-direction: column; gap: 6px; align-items: center; flex: 1 1 auto; max-width: 420px; }
+        .nt-input-group.narrow input { width: 90px; }
+        .nt-input-group label { color: #94a3b8; font-size: 0.78rem; font-weight: 700; }
+        .nt-input-group input {
+            width: 100%; text-align: center; background: #1e293b; border: 2px solid #334155; color: #e2e8f0;
+            border-radius: 12px; padding: 10px; font-family: 'Consolas', monospace; font-size: 1rem; font-weight: 700;
+            box-sizing: border-box;
+        }
+        .nt-input-group input:focus { outline: none; border-color: var(--primary-blue); }
+        .nt-btn {
+            border-radius: 14px; padding: 11px 22px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 2px solid transparent; transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .nt-btn-primary { background: var(--blue-gradient); color: white; }
+        .nt-btn-outline { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+        .nt-btn-outline:hover { border-color: #64748b; }
+        .nt-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .nt-console { background: #0f172a; border-radius: 14px; padding: 16px 20px; margin: 14px 0; min-height: 40px; font-family: 'Consolas', monospace; color: #cbd5e1; direction: ltr; text-align: left; font-size: 0.83rem; line-height: 1.9; max-height: 280px; overflow-y: auto; border: 1px solid #1e293b; }
+        .nt-console .step-line { display: block; }
+        .nt-console .ok-line { color: #4ade80; display: block; font-weight: 800; }
+        .nt-console .final-line { color: #facc15; font-weight: 800; margin-top: 8px; display: block; }
+        .nt-console .error-line { color: #f87171; font-weight: 700; display: block; }
+        .mini-stats-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; justify-content: center; }
+        .mini-stat { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 6px 14px; font-size: 0.8rem; color: #94a3b8; }
+        .mini-stat b { color: #00adef; font-family: 'Consolas', monospace; }
+
+        /* room grid */
+        .brush-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
+        .brush-btn { border: 2px solid #334155; background: #1e293b; color: #cbd5e1; padding: 8px 16px; border-radius: 12px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+        .brush-btn .swatch { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+        .brush-btn.active { border-color: var(--primary-blue); background: rgba(0,173,239,0.15); color: #7dd3fc; }
+        .cr-wrap { background: #0b1220; border-radius: 16px; padding: 16px; border: 1px solid #1e293b; overflow-x: auto; margin-bottom: 14px; display: flex; justify-content: center; }
+        .cr-grid { display: inline-grid; gap: 2px; }
+        .cr-cell { display: flex; align-items: center; justify-content: center; font-family: 'Consolas', monospace; font-weight: 800; border-radius: 4px; cursor: pointer; user-select: none; transition: background 0.15s; }
+        .cr-cell.wall { background: #1e293b; }
+        .cr-cell.floor { background: #f1f5f9; color: #94a3b8; }
+        .cr-legend { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin: 4px 0 16px; font-size: 0.76rem; color: #94a3b8; font-weight: 700; }
+        .cr-legend .dot { width: 13px; height: 13px; border-radius: 4px; display: inline-block; margin-left: 5px; vertical-align: middle; }
+
+        details.bonus-details { background: #0f172a; border: 1px dashed #334155; border-radius: 16px; padding: 4px 0; margin: 16px 0; }
+        details.bonus-details summary { cursor: pointer; padding: 14px 20px; font-weight: 800; color: #facc15; font-size: 0.9rem; list-style: none; display: flex; align-items: center; gap: 10px; }
+        details.bonus-details summary::-webkit-details-marker { display: none; }
+        details.bonus-details summary::before { content: '▶'; font-size: 0.7rem; transition: transform 0.2s; }
+        details.bonus-details[open] summary::before { transform: rotate(90deg); }
+        details.bonus-details .bonus-body { padding: 0 20px 20px; color: #cbd5e1; font-size: 0.88rem; line-height: 1.9; }
+        details.bonus-details .bonus-body p { color: #cbd5e1; }
+        details.bonus-details .bonus-body code.inline { background: rgba(0,173,239,0.12); color: #7dd3fc; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge"><i class="fas fa-door-open"></i> مسألة: Counting Rooms</span>
+            <span class="level-badge"><i class="fas fa-diagram-project"></i> BFS/DFS · مكوّنات متصلة</span>
+            <span class="adv-badge"><i class="fas fa-seedling"></i> سهل</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>مسائل تطبيقية — حلول ومختبرات</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-door-open"></i>
+        <h1>Counting Rooms — عدّ الغرف</h1>
+        <p class="hero-desc">مسألة CSES 1192 من قسم Graph Algorithms — عدّ عدد الغرف (المكوّنات المتصلة من خلايا الأرضية) داخل مخطط مبنى، باستخدام نفس فكرة BFS/DFS التي رأيتها في Labyrinth، لكن بهدف مختلف: العدّ بدلًا من إيجاد مسار. هذه الصفحة تجهّزك لفهم نص المسألة كما يظهر تمامًا على المنصة، وتضع بين يديك مختبرًا يكشف كل غرفة بلون مختلف خطوة بخطوة.</p>
+        <div class="hero-stats-row">
+            <div class="hero-stat"><span class="hs-label">الصعوبة</span><span class="hs-value">سهل</span></div>
+            <div class="hero-stat"><span class="hs-label">حد الوقت</span><span class="hs-value">1.00 ثانية</span></div>
+            <div class="hero-stat"><span class="hs-label">حد الذاكرة</span><span class="hs-value">512 ميجابايت</span></div>
+            <div class="hero-stat"><span class="hs-label">التعقيد</span><span class="hs-value">O(n×m)</span></div>
+        </div>
+        <a class="hero-cta" href="https://cses.fi/problemset/task/1192" target="_blank" rel="noopener"><i class="fas fa-up-right-from-square"></i> افتح المسألة على CSES</a>
+    </div>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="showTab('tabProblem', this)"><i class="fas fa-file-lines"></i> المسألة</button>
+        <button class="tab-btn" onclick="showTab('tabIdea', this)"><i class="fas fa-lightbulb"></i> الفكرة</button>
+        <button class="tab-btn" onclick="showTab('tabCode', this)"><i class="fas fa-code"></i> الكود</button>
+        <button class="tab-btn" onclick="showTab('tabLab', this)"><i class="fas fa-flask"></i> المختبر</button>
+        <button class="tab-btn" onclick="showTab('tabAnalysis', this)"><i class="fas fa-chart-line"></i> التحليل</button>
+    </div>
+
+    <div class="container">
+
+        <!-- ============ TAB 1: PROBLEM STATEMENT ============ -->
+        <div class="tab-panel active" id="tabProblem">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">1</span>
+                    <h3>📄 نص المسألة كما يظهر على CSES</h3>
+                </div>
+                <p>هذا هو النص الأصلي بالإنجليزية تمامًا كما يظهر على منصة CSES:</p>
+
+                <div class="original-statement">
+                    <div class="os-head">
+                        <span><i class="fas fa-lock-open"></i> CSES 1192 — Counting Rooms (Graph Algorithms)</span>
+                        <a href="https://cses.fi/problemset/task/1192" target="_blank" rel="noopener">cses.fi/problemset/task/1192 ↗</a>
+                    </div>
+                    <div class="os-body">
+                        <p>You are given a map of a building, and your task is to count the number of its rooms. The size of the map is n×m squares, and each square is either floor or wall. You can walk left, right, up and down through the floor squares.</p>
+                        <h5>Input</h5>
+                        <p>The first input line has two integers n and m: the height and width of the map.</p>
+                        <p>Then there are n lines of m characters describing the map. Each character is either <code>.</code> (floor) or <code>#</code> (wall).</p>
+                        <h5>Output</h5>
+                        <p>Print one integer: the number of rooms.</p>
+                        <h5>Constraints</h5>
+                        <p>1 ≤ n, m ≤ 1000</p>
+                        <h5>Example</h5>
+                        <pre>Input:
+5 8
+########
+#..#...#
+####.#.#
+#..#...#
+########
+
+Output:
+3</pre>
+                    </div>
+                </div>
+
+                <h4 class="sub-title">🗣️ بالعربية — ماذا يعني هذا فعليًا؟</h4>
+                <p>لديك شبكة n×m، كل خلية فيها إما أرضية <code class="inline">.</code> يمكن المشي عليها أو جدار <code class="inline">#</code> لا يمكن عبوره. <strong>الغرفة</strong> هنا تعني بالضبط: مجموعة من خلايا الأرضية المتصلة ببعضها عبر حركات لأعلى/أسفل/يمين/يسار فقط (بدون قطر). المطلوب هو عدّ كم مجموعة منفصلة (متصلة داخليًا لكن غير متصلة مع غيرها) من هذا النوع توجد في الشبكة بأكملها.</p>
+
+                <div class="definition-box">
+                    <div class="df-title"><i class="fas fa-thumbtack"></i> ترجمة مباشرة للمصطلح</div>
+                    <p>بلغة نظرية الرسوم البيانية: كل خلية أرضية هي عقدة (node)، وتوجد حافة بين كل خليتين متجاورتين أرضيتين. "الغرفة" هي بالضبط <strong>مكوّن متصل (connected component)</strong> في هذا الرسم البياني. المسألة إذن تسأل: كم عدد المكوّنات المتصلة الموجودة؟</p>
+                </div>
+
+                <h4 class="sub-title">🎨 عرض المثال المعطى بصريًا</h4>
+                <p>هذا رسم لنفس المخطط من المثال، مع تلوين كل غرفة بلون مختلف بترتيب اكتشافها الطبيعي أثناء مسح الشبكة صفًا صفًا من الأعلى لليسار: الغرفة البرتقالية اكتُشفت أولًا (أعلى اليسار)، ثم الزرقاء (الغرفة الكبيرة المتشعبة)، ثم البنفسجية (أسفل اليسار).</p>
+                <div class="cr-wrap"><div class="cr-grid" id="exampleRoomsDisplay"></div></div>
+                <div class="good-box">
+                    <i class="fas fa-check-double"></i>
+                    <p>لاحظ كيف أن الغرفة الزرقاء (الوسطى) متشعبة الشكل لكنها لا تزال غرفة واحدة فقط، لأن كل خلاياها متصلة ببعضها عبر مسار من خلايا أرضية متجاورة — الشكل لا يهم، الاتصال هو كل ما يهم.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 2: IDEA ============ -->
+        <div class="tab-panel" id="tabIdea">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">2</span>
+                    <h3>💡 فكرة الحل: عدّ المكوّنات المتصلة</h3>
+                </div>
+                <p>حوّل كل خلية أرضية إلى عقدة في رسم بياني، وأضف حافة بين كل خليتين أرضيتين متجاورتين. المطلوب الآن هو ببساطة: <strong>كم عدد المكوّنات المتصلة</strong> في هذا الرسم البياني؟</p>
+
+                <h4 class="sub-title">🧭 خطة الحل</h4>
+                <ol class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">امسح الشبكة</strong> خلية خلية بترتيب صفوف (من الأعلى لليسار إلى الأسفل لليمين).</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">كلما وجدت خلية أرضية لم تُزر بعد</strong>، فهذا يعني أنك اكتشفت غرفة جديدة لم تُعدّ من قبل — زِد العدّاد <code class="inline">rooms</code> بمقدار 1.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">ابدأ BFS (أو DFS) من هذه الخلية</strong> لتمييز كل الخلايا الأرضية المتصلة بها كـ"مُزارة" — وبذلك لن تُعاد عدّها مرة أخرى لاحقًا في المسح.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">تابع المسح</strong> حتى نهاية الشبكة. القيمة النهائية لـ<code class="inline">rooms</code> هي عدد المكوّنات المتصلة، أي عدد الغرف.</p></li>
+                </ol>
+
+                <div class="tip-box">
+                    <i class="fas fa-graduation-cap"></i>
+                    <p><strong>هل BFS ضروري هنا، أم يكفي DFS؟</strong> بخلاف Labyrinth (حيث احتجنا BFS تحديدًا لضمان أقصر مسار)، هذه المسألة لا تسأل عن أقصر شيء إطلاقًا — فقط عن الاتصال (connectivity). لذلك BFS وDFS كلاهما صحيح تمامًا وبنفس التعقيد الزمني O(n×m). الكود المعطى يستخدم BFS بقائمة انتظار (queue)، لكن استبدالها بمكدّس (stack) أو باستدعاء ذاتي recursive لتنفيذ DFS يُعطي نفس الإجابة الصحيحة بالضبط.</p>
+                </div>
+
+                <div class="good-box">
+                    <i class="fas fa-lightbulb"></i>
+                    <p><strong>تشبيه من الحياة الواقعية:</strong> هذه بالضبط نفس فكرة أداة "التعبئة بالدلو" (paint bucket / flood fill) في برامج تحرير الصور — عندما تنقر على منطقة بلون معيّن فتمتلئ كل المنطقة المتصلة بنفس اللون تلقائيًا. البرمجية هنا تفعل نفس الشيء: "تملأ" كل غرفة بعلامة "مُزارة" دفعة واحدة.</p>
+                </div>
+
+                <details class="bonus-details">
+                    <summary>🎯 بونص: حل بديل باستخدام Union-Find (DSU)</summary>
+                    <div class="bonus-body">
+                        <p>بدلًا من BFS/DFS، يمكن حل هذه المسألة أيضًا بهيكل بيانات Union-Find (Disjoint Set Union): لكل خلية أرضية، اربطها (union) مع جارتها الأرضية اليمنى والسفلية إن وُجدتا، ثم في النهاية عدّ كم "جذرًا" (root) مختلفًا يوجد بين كل الخلايا الأرضية — وهذا العدد هو بالضبط عدد الغرف. هذا الأسلوب مفيد جدًا في مسائل تُضاف فيها الحواف تدريجيًا بمرور الوقت (كأن تُفتح ممرات جديدة لاحقًا)، وهو نمط شائع جدًا يستحق إتقانه بجانب BFS/DFS.</p>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <!-- ============ TAB 3: CODE ============ -->
+        <div class="tab-panel" id="tabCode">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">3</span>
+                    <h3>💻 الكود الكامل مع شرح كل جزء</h3>
+                </div>
+
+                <div class="code-box">
+                    <div class="code-head"><span>C++ — الحل الكامل</span></div>
+                    <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+#include &lt;queue&gt;
+#include &lt;utility&gt;
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+
+    vector&lt;string&gt; grid(n);
+    for (int i = 0; i &lt; n; i++) cin &gt;&gt; grid[i];
+
+    vector&lt;vector&lt;char&gt;&gt; vis(n, vector&lt;char&gt;(m, 0));
+    int rooms = 0;
+
+    const int dr[4] = {-1, 1, 0, 0};
+    const int dc[4] = {0, 0, -1, 1};
+
+    for (int i = 0; i &lt; n; i++) {
+        for (int j = 0; j &lt; m; j++) {
+            if (grid[i][j] != '.' || vis[i][j]) continue;
+
+            rooms++;
+            queue&lt;pair&lt;int, int&gt;&gt; q;
+            q.push({i, j});
+            vis[i][j] = 1;
+
+            while (!q.empty()) {
+                auto [r, c] = q.front(); q.pop();
+
+                for (int k = 0; k &lt; 4; k++) {
+                    int nr = r + dr[k];
+                    int nc = c + dc[k];
+                    if (nr &lt; 0 || nr &gt;= n || nc &lt; 0 || nc &gt;= m) continue;
+                    if (grid[nr][nc] != '.' || vis[nr][nc]) continue;
+                    vis[nr][nc] = 1;
+                    q.push({nr, nc});
+                }
+            }
+        }
+    }
+
+    cout &lt;&lt; rooms &lt;&lt; "\n";
+    return 0;
+}</pre>
+                </div>
+
+                <h4 class="sub-title">🔍 شرح مفصّل لكل جزء</h4>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <tbody>
+                            <tr><td style="width:26%"><strong>vector&lt;vector&lt;char&gt;&gt; vis(n, vector&lt;char&gt;(m, 0));</strong></td><td>مصفوفة "مُزارة" بحجم الشبكة كاملة، تبدأ كلها بصفر (لم تُزر). استُخدم <code class="inline">char</code> بدلًا من <code class="inline">bool</code> لتفادي بعض تعقيدات تخزين <code class="inline">vector&lt;bool&gt;</code> الخاصة في ++C (وهي تخزّن بت واحد لكل عنصر بطريقة غير عادية قد تُبطئ الوصول العشوائي).</td></tr>
+                            <tr><td><strong>الحلقتان الخارجيتان for(i) for(j)</strong></td><td>مسح كامل الشبكة صفًا صفًا. هذا هو "البحث عن نقطة بداية جديدة لم تُعدّ بعد".</td></tr>
+                            <tr><td><strong>if (grid[i][j] != '.' || vis[i][j]) continue;</strong></td><td>شرط تخطٍّ مدمج: تجاهل الخلية إن كانت جدارًا، أو إن كانت أرضية لكنها زُارت من قبل (أي تنتمي لغرفة سبق عدّها). فقط الأرضية غير المزارة تكمل التنفيذ.</td></tr>
+                            <tr><td><strong>rooms++;</strong></td><td>هذا هو جوهر الحل: كل مرة نصل هذا السطر، فهذا يعني أننا اكتشفنا للتو غرفة جديدة كليًا لم تُلمس من قبل.</td></tr>
+                            <tr><td><strong>queue&lt;pair&lt;int, int&gt;&gt; q; q.push({i, j}); vis[i][j] = 1;</strong></td><td>بدء BFS من نقطة الاكتشاف. لاحظ التفصيل الدقيق والمهم: <code class="inline">vis[i][j] = 1</code> يُنفَّذ فورًا <strong>عند الدفع إلى الطابور</strong> وليس عند إخراجها منه لاحقًا — وهذا يمنع دفع نفس الخلية أكثر من مرة إلى الطابور من جيران مختلفين.</td></tr>
+                            <tr><td><strong>auto [r, c] = q.front(); q.pop();</strong></td><td>Structured Binding (C++17) لتفكيك الـ pair المسحوب من مقدمة الطابور مباشرة إلى متغيرين r وc.</td></tr>
+                            <tr><td><strong>حلقة for(k=0..3) وفحص الجيران الأربعة</strong></td><td>لكل جار: تجاوز الحدود أولًا (فحص منفصل)، ثم فحص مدمج (جدار أو مُزارة) قبل تمييزه مُزارًا ودفعه للطابور — نفس نمط التخطي المستخدم أعلاه، مطبّق الآن على كل جار أثناء التوسّع.</td></tr>
+                            <tr><td><strong>cout &lt;&lt; rooms &lt;&lt; "\n";</strong></td><td>بعد انتهاء المسح الكامل للشبكة، rooms تحمل بالضبط عدد المكوّنات المتصلة المكتشفة — وهذا هو الجواب المطلوب مباشرة.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tip-box">
+                    <i class="fas fa-circle-info"></i>
+                    <p><strong>مقارنة سريعة مع Labyrinth:</strong> لاحظ أن BFS هنا لا يحتاج مصفوفة <code class="inline">parDir</code> لإعادة بناء أي مسار — لأننا لا نريد مسارًا، فقط نريد "تغطية" كل الخلايا المتصلة وتمييزها مُزارة. هذا الفرق في الهدف (عدّ/تغطية مقابل أقصر مسار) هو ما يُبسّط الكود هنا مقارنة بمسألة المتاهة.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 4: LAB ============ -->
+        <div class="tab-panel" id="tabLab">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">4</span>
+                    <h3>⚗️ المختبر التفاعلي — عدّاد الغرف بالـ Flood Fill</h3>
+                </div>
+                <p>ارسم مخططك الخاص، أو حمّل مثال المسألة، أو ولّد مخططًا عشوائيًا، ثم اضغط «الغرفة التالية» لمشاهدة الخوارزمية تكتشف الغرف واحدة تلو الأخرى بألوان مختلفة — تمامًا مثل مسح الشبكة صفًا صفًا في الكود الحقيقي أعلاه — أو اضغط «عدّ كل الغرف دفعة واحدة» لإنهاء المسح بالكامل فورًا.</p>
+
+                <div class="tip-box">
+                    <i class="fas fa-circle-info"></i>
+                    <p>القيود الحقيقية على المنصة تصل إلى 1000×1000 خلية، لكن نُحدّد الحجم هنا (حتى 18×26) للحفاظ على وضوح الرسم والتفاعل السلس — خوارزمية الـ BFS المُنفَّذة هي نفسها تمامًا بغض النظر عن الحجم.</p>
+                </div>
+
+                <div class="nt-lab-dark">
+                    <div class="nt-input-row">
+                        <div class="nt-input-group narrow">
+                            <label>الصفوف n</label>
+                            <input type="number" id="crRowsInput" value="5" min="2" max="18">
+                        </div>
+                        <div class="nt-input-group narrow">
+                            <label>الأعمدة m</label>
+                            <input type="number" id="crColsInput" value="8" min="2" max="26">
+                        </div>
+                        <button class="nt-btn nt-btn-outline" onclick="crResize()"><i class="fas fa-ruler-combined"></i> تغيير الحجم</button>
+                        <button class="nt-btn nt-btn-outline" onclick="crLoadExample()"><i class="fas fa-book-open"></i> مثال المسألة</button>
+                        <button class="nt-btn nt-btn-outline" onclick="crRandom()"><i class="fas fa-dice"></i> عشوائي</button>
+                    </div>
+
+                    <p style="text-align:center;color:#94a3b8;font-size:0.8rem;margin-bottom:8px;">اختر أداة الرسم ثم اضغط على أي خلية في الشبكة:</p>
+                    <div class="brush-row">
+                        <button class="brush-btn active" id="crBrushBtn_floor" onclick="crSetBrush('floor')"><span class="swatch" style="background:#f1f5f9;"></span> أرضية .</button>
+                        <button class="brush-btn" id="crBrushBtn_wall" onclick="crSetBrush('wall')"><span class="swatch" style="background:#1e293b;border:1px solid #475569;"></span> جدار #</button>
+                    </div>
+
+                    <div class="cr-wrap"><div class="cr-grid" id="crGridEl"></div></div>
+
+                    <div class="nt-input-row" style="margin-top:4px;">
+                        <button class="nt-btn nt-btn-primary" onclick="crStepNextRoom()" id="crStepBtn"><i class="fas fa-forward-step"></i> الغرفة التالية</button>
+                        <button class="nt-btn nt-btn-outline" onclick="crCountAll()" id="crRunAllBtn"><i class="fas fa-forward-fast"></i> عدّ كل الغرف دفعة واحدة</button>
+                        <button class="nt-btn nt-btn-outline" onclick="crReset()"><i class="fas fa-rotate-right"></i> إعادة تعيين</button>
+                    </div>
+
+                    <div class="mini-stats-row" id="crStats"></div>
+                    <div class="nt-console" id="crConsole">ارسم مخططك (أو اختر «مثال المسألة») ثم اضغط «الغرفة التالية».</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 5: ANALYSIS ============ -->
+        <div class="tab-panel" id="tabAnalysis">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">5</span>
+                    <h3>📊 تحليل التعقيد ونصائح الحل</h3>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>الجانب</th><th class="ltr">التعقيد</th><th>لماذا</th></tr></thead>
+                        <tbody>
+                            <tr><td>الزمن</td><td class="ltr">O(n × m)</td><td>كل خلية تدخل قائمة الانتظار مرة واحدة فقط على الأكثر (بفضل التحقق من vis قبل الدفع)، وكل خلية تُفحص فيها 4 جيران بزمن ثابت.</td></tr>
+                            <tr><td>الذاكرة</td><td class="ltr">O(n × m)</td><td>مصفوفة الشبكة grid ومصفوفة vis، بالإضافة لقائمة الانتظار التي لا تتجاوز حجمها n×m في أسوأ الحالات.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="sub-title">⚠️ أخطاء شائعة عند الحل على المنصة</h4>
+                <ol class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">استخدام DFS تكراري (recursive) بدلًا من BFS:</strong> مع شبكة حتى 1000×1000 = مليون خلية، لو كانت غرفة واحدة ملتوية بشكل يشبه أفعوانًا طويلًا (كممر ضيق متعرّج)، فقد يصل عمق استدعاء DFS التكراري إلى قرابة مليون مستوى، مما قد يُسبب Stack Overflow. الحل المعطى هنا آمن تمامًا لأنه يستخدم BFS بقائمة انتظار (queue) مبنية على الكومة (heap) لا على المكدّس (stack)، لكن لو كتبت DFS بنفسك، اجعله تكراريًا (iterative) بمكدّس يدوي بدلًا من استدعاء ذاتي.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">تمييز الخلية "مُزارة" متأخرًا:</strong> يجب وضع <code class="inline">vis[nr][nc] = 1</code> فور دفع الخلية إلى الطابور، وليس عند إخراجها لاحقًا — وإلا فقد تُدفع نفس الخلية عدة مرات إلى الطابور من جيران مختلفين، مما يُبطئ التنفيذ (رغم أنه لا يُنتج إجابة خاطئة هنا، فقط عمل زائد غير ضروري).</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">قراءة بطيئة:</strong> نسيان <code class="inline">ios::sync_with_stdio(false)</code> مع مليون خلية قد يستهلك وقتًا ثمينًا من حد الثانية الواحدة.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">الخلط بين "عدّ الغرف" و"إيجاد مسار":</strong> لا حاجة إطلاقًا لمصفوفة <code class="inline">dist</code> أو <code class="inline">parDir</code> هنا كما في Labyrinth — هذه المسألة تسأل فقط "كم" وليس "كيف تصل"، فلا تُعقّد الحل بإضافة منطق غير مطلوب.</p></li>
+                </ol>
+
+                <details class="bonus-details">
+                    <summary>🚀 مسائل تالية من نفس قسم Graph Algorithms على CSES</summary>
+                    <div class="bonus-body">
+                        <p>القسم نفسه يحتوي مسائل تبني تدريجيًا على هذه الفكرة: <strong>Labyrinth</strong> (نفس فكرة BFS على شبكة، لكن لإيجاد أقصر مسار بدلًا من العدّ)، <strong>Building Roads</strong> (عدّ المكوّنات المتصلة في رسم بياني عام، ثم ربطها ببعضها بأقل عدد طرق)، <strong>Building Teams</strong> (BFS/DFS مع تلوين ثنائي للتحقق من رسم بياني ثنائي التجزئة)، و<strong>Monsters</strong> (BFS متعدد المصادر من نقاط الخطر، مقارنة بمسافة اللاعب). كل هذه المسائل تستخدم نفس عائلة الأدوات (BFS/DFS على الشبكات والرسوم البيانية) بأهداف مختلفة قليلًا في كل مرة.</p>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — مسائل تطبيقية: Counting Rooms (CSES 1192)</footer>
+
+    <script>
+        // ===================================================================
+        // Tab navigation
+        // ===================================================================
+        function showTab(tabId, btn) {
+            document.querySelectorAll('.tab-panel').forEach(function (el) { el.classList.remove('active'); });
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+        }
+
+        function line(text, cls) { return '<span class="' + (cls || 'step-line') + '">' + text + '</span>'; }
+        function statChip(label, val) { return '<div class="mini-stat">' + label + ': <b>' + val + '</b></div>'; }
+
+        const CR_ROOM_COLORS = ['#f7941e', '#00adef', '#a855f7', '#22c55e', '#ef4444', '#eab308', '#ec4899', '#14b8a6', '#6366f1', '#f97316'];
+
+        function crCellSize(cols) {
+            if (cols <= 10) return 34;
+            if (cols <= 16) return 28;
+            if (cols <= 22) return 24;
+            return 20;
+        }
+
+        // ===================================================================
+        // Shared grid renderer — used for both the static Tab-1 example and
+        // the interactive Tab-4 lab. roomIdGrid is optional: -1/absent = not
+        // yet assigned to a room (plain floor color); >=0 = colored by room.
+        // ===================================================================
+        function crRenderGrid(containerId, grid, roomIdGrid, interactive) {
+            const rows = grid.length, cols = grid[0].length;
+            const el = document.getElementById(containerId);
+            const size = crCellSize(cols);
+            el.style.gridTemplateColumns = 'repeat(' + cols + ', ' + size + 'px)';
+            let html = '';
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const ch = grid[r][c];
+                    const isWall = ch === '#';
+                    let cls = 'cr-cell ' + (isWall ? 'wall' : 'floor');
+                    let styleExtra = '';
+                    if (!isWall && roomIdGrid && roomIdGrid[r][c] !== -1) {
+                        const color = CR_ROOM_COLORS[roomIdGrid[r][c] % CR_ROOM_COLORS.length];
+                        styleExtra = 'background:' + color + ';color:#0f172a;';
+                    }
+                    const clickAttr = interactive ? ' onclick="crPaint(' + r + ',' + c + ')"' : '';
+                    html += '<div class="' + cls + '" style="width:' + size + 'px;height:' + size + 'px;font-size:' + Math.max(9, size * 0.3) + 'px;' + styleExtra + '"' + clickAttr + '></div>';
+                }
+            }
+            el.innerHTML = html;
+        }
+
+        // ===================================================================
+        // TAB 1 — static illustrative rendering with the 3 rooms of the
+        // official example colored by their natural row-major discovery order.
+        // ===================================================================
+        const EX_GRID = ['########', '#..#...#', '####.#.#', '#..#...#', '########'];
+        const EX_ROOMID = [
+            [-1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, 0, 0, -1, 1, 1, 1, -1],
+            [-1, -1, -1, -1, 1, -1, 1, -1],
+            [-1, 2, 2, -1, 1, 1, 1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1]
+        ];
+        crRenderGrid('exampleRoomsDisplay', EX_GRID, EX_ROOMID, false);
+
+        // ===================================================================
+        // TAB 4 — fully interactive editor + real BFS flood-fill scan,
+        // mirroring the C++ solution exactly (same dr/dc order, same
+        // "mark visited at push time" detail).
+        // ===================================================================
+        let crGrid = EX_GRID.map(function (row) { return row.split(''); });
+        let crBrush = 'floor';
+        let crScan = null;
+
+        function crSetBrush(b) {
+            crBrush = b;
+            ['floor', 'wall'].forEach(function (name) {
+                document.getElementById('crBrushBtn_' + name).classList.toggle('active', name === b);
+            });
+        }
+
+        function crPaint(r, c) {
+            crGrid[r][c] = (crBrush === 'wall') ? '#' : '.';
+            crResetScan();
+            crRenderGrid('crGridEl', crGrid, crScan.roomId, true);
+            document.getElementById('crConsole').innerHTML = 'تم تعديل الشبكة — اضغط «الغرفة التالية» أو «عدّ كل الغرف دفعة واحدة» لإعادة المسح.';
+            document.getElementById('crStats').innerHTML = '';
+        }
+
+        function crResize() {
+            let rows = parseInt(document.getElementById('crRowsInput').value, 10);
+            let cols = parseInt(document.getElementById('crColsInput').value, 10);
+            if (isNaN(rows) || isNaN(cols)) { alert('أدخل أعدادًا صحيحة.'); return; }
+            rows = Math.max(2, Math.min(18, rows));
+            cols = Math.max(2, Math.min(26, cols));
+            document.getElementById('crRowsInput').value = rows;
+            document.getElementById('crColsInput').value = cols;
+            const g = [];
+            for (let r = 0; r < rows; r++) {
+                const row = [];
+                for (let c = 0; c < cols; c++) row.push('.');
+                g.push(row);
+            }
+            crGrid = g;
+            crReset();
+        }
+
+        function crLoadExample() {
+            crGrid = EX_GRID.map(function (row) { return row.split(''); });
+            document.getElementById('crRowsInput').value = crGrid.length;
+            document.getElementById('crColsInput').value = crGrid[0].length;
+            crReset();
+        }
+
+        function crRandom() {
+            const rows = crGrid.length, cols = crGrid[0].length;
+            const g = [];
+            for (let r = 0; r < rows; r++) {
+                const row = [];
+                for (let c = 0; c < cols; c++) row.push(Math.random() < 0.32 ? '#' : '.');
+                g.push(row);
+            }
+            crGrid = g;
+            crReset();
+        }
+
+        function crResetScan() {
+            const rows = crGrid.length, cols = crGrid[0].length;
+            crScan = {
+                visited: Array.from({ length: rows }, function () { return new Array(cols).fill(false); }),
+                roomId: Array.from({ length: rows }, function () { return new Array(cols).fill(-1); }),
+                cursor: { r: 0, c: 0 },
+                roomsFound: 0,
+                done: false
+            };
+            document.getElementById('crStepBtn').disabled = false;
+            document.getElementById('crRunAllBtn').disabled = false;
+        }
+
+        function crReset() {
+            crResetScan();
+            crRenderGrid('crGridEl', crGrid, crScan.roomId, true);
+            document.getElementById('crConsole').innerHTML = 'ارسم مخططك (أو اختر «مثال المسألة») ثم اضغط «الغرفة التالية».';
+            document.getElementById('crStats').innerHTML = '';
+        }
+
+        function crFindNextUnvisitedFloor() {
+            const rows = crGrid.length, cols = crGrid[0].length;
+            let r = crScan.cursor.r, c = crScan.cursor.c;
+            while (r < rows) {
+                while (c < cols) {
+                    if (crGrid[r][c] === '.' && !crScan.visited[r][c]) {
+                        crScan.cursor = { r: r, c: c };
+                        return { r: r, c: c };
+                    }
+                    c++;
+                }
+                c = 0; r++;
+            }
+            crScan.cursor = { r: rows, c: 0 };
+            return null;
+        }
+
+        function crBfsFill(startR, startC, roomIndex) {
+            const rows = crGrid.length, cols = crGrid[0].length;
+            const dr = [-1, 1, 0, 0], dc = [0, 0, -1, 1];
+            const queueArr = [[startR, startC]];
+            crScan.visited[startR][startC] = true;
+            crScan.roomId[startR][startC] = roomIndex;
+            let head = 0, size = 1;
+            while (head < queueArr.length) {
+                const cur = queueArr[head++];
+                const r = cur[0], c = cur[1];
+                for (let k = 0; k < 4; k++) {
+                    const nr = r + dr[k], nc = c + dc[k];
+                    if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+                    if (crGrid[nr][nc] !== '.' || crScan.visited[nr][nc]) continue;
+                    crScan.visited[nr][nc] = true;
+                    crScan.roomId[nr][nc] = roomIndex;
+                    queueArr.push([nr, nc]);
+                    size++;
+                }
+            }
+            return size;
+        }
+
+        function crStepNextRoom() {
+            if (!crScan) crResetScan();
+            if (crScan.done) return;
+            const next = crFindNextUnvisitedFloor();
+            const consoleEl = document.getElementById('crConsole');
+            if (!next) {
+                crScan.done = true;
+                document.getElementById('crStepBtn').disabled = true;
+                document.getElementById('crRunAllBtn').disabled = true;
+                consoleEl.innerHTML += line('انتهى المسح — لا مزيد من الخلايا الأرضية غير المزارة.', 'ok-line') + line('عدد الغرف الكلي = ' + crScan.roomsFound, 'final-line');
+                crRenderGrid('crGridEl', crGrid, crScan.roomId, true);
+                return;
+            }
+            const roomIndex = crScan.roomsFound;
+            const size = crBfsFill(next.r, next.c, roomIndex);
+            crScan.roomsFound++;
+
+            if (crScan.roomsFound === 1) consoleEl.innerHTML = '';
+            consoleEl.innerHTML += line('غرفة رقم ' + (roomIndex + 1) + ': بدأت عند الخلية (' + next.r + ',' + next.c + ')، حجمها ' + size + ' خلية أرضية.');
+            document.getElementById('crStats').innerHTML =
+                statChip('n×m', crGrid.length + '×' + crGrid[0].length) + statChip('غرف مكتشفة حتى الآن', crScan.roomsFound);
+
+            crRenderGrid('crGridEl', crGrid, crScan.roomId, true);
+        }
+
+        function crCountAll() {
+            if (!crScan) crResetScan();
+            let guard = 0;
+            while (crScan && !crScan.done && guard < 20000) { crStepNextRoom(); guard++; }
+        }
+
+        // ===================================================================
+        // Init
+        // ===================================================================
+        crSetBrush('floor');
+        crReset();
+    </script>
+</body>
+</html>
