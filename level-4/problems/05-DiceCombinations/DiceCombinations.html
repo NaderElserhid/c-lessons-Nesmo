@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | مسألة: Dice Combinations — CSES 1633</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+        .adv-badge {
+            background: #dcfce7; color: #15803d; border: none;
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .hero-banner { background: var(--blue-gradient); padding: 60px 6% 40px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 14px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 10px; }
+        .hero-desc { max-width: 780px; margin: 0 auto 22px; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+        .hero-stats-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+        .hero-stat { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 16px; padding: 10px 22px; text-align: center; }
+        .hero-stat .hs-label { display: block; font-size: 0.72rem; color: rgba(255,255,255,0.8); font-weight: 700; }
+        .hero-stat .hs-value { display: block; font-size: 1rem; font-weight: 800; color: white; margin-top: 2px; }
+        .hero-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; background: white; color: var(--primary-blue); padding: 10px 24px; border-radius: 50px; font-weight: 800; font-size: 0.88rem; text-decoration: none; }
+        .hero-cta:hover { background: #eef2f7; }
+
+        .tab-nav {
+            display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+            background: white; padding: 14px 6%; position: sticky; top: 87px; z-index: 900;
+            border-bottom: 1px solid #e2e8f0; box-shadow: 0 4px 14px -8px rgba(0,0,0,0.08);
+        }
+        .tab-btn {
+            border: 2px solid #e2e8f0; background: white; color: var(--text-body);
+            padding: 10px 18px; border-radius: 50px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.82rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .tab-btn:hover { border-color: var(--primary-blue); }
+        .tab-btn.active { background: var(--blue-gradient); border-color: transparent; color: white; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeIn 0.35s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header .section-num {
+            width: 34px; height: 34px; border-radius: 50%; background: var(--yellow-gradient); color: white;
+            display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;
+        }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.82rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.08); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #dc2626; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .definition-box { background: var(--dark-navy); color: white; border-radius: 18px; padding: 22px 24px; margin: 16px 0; }
+        .definition-box .df-title { color: #facc15; font-weight: 800; font-size: 0.88rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .definition-box p { color: #e2e8f0; margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        .original-statement { background: #0f172a; border-radius: 18px; padding: 4px 0 20px; margin: 16px 0; overflow: hidden; }
+        .original-statement .os-head { background: #1e293b; padding: 12px 22px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .original-statement .os-head span { color: #94a3b8; font-size: 0.8rem; font-weight: 700; }
+        .original-statement .os-head a { color: #7dd3fc; font-size: 0.8rem; font-weight: 800; text-decoration: none; }
+        .original-statement .os-body { padding: 0 24px; direction: ltr; text-align: left; color: #e2e8f0; font-size: 0.92rem; line-height: 1.85; }
+        .original-statement .os-body h5 { color: #facc15; font-size: 0.85rem; margin: 16px 0 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+        .original-statement .os-body code { background: rgba(0,173,239,0.15); color: #7dd3fc; padding: 1px 6px; border-radius: 4px; font-family: 'Consolas', monospace; }
+        .original-statement .os-body pre { padding: 12px 16px; background: #080c14; border-radius: 10px; font-size: 0.85rem; }
+        .original-statement .os-body ul { margin: 6px 0; padding-right: 20px; }
+
+        .srtbot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: 10px; margin: 16px 0; }
+        .srtbot-letter { background: var(--bg-main); border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px; text-align: center; }
+        .srtbot-letter .sl-char { font-weight: 800; font-size: 1.4rem; color: var(--primary-blue); font-family: 'Consolas', monospace; }
+        .srtbot-letter .sl-word { font-size: 0.72rem; color: var(--text-body); font-weight: 700; margin-top: 4px; }
+
+        .nt-lab-dark { background: #0b1220; border-radius: 20px; padding: 26px; margin: 16px 0; border: 1px solid #1e293b; }
+        .nt-input-row { display: flex; gap: 14px; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+        .nt-input-group { display: flex; flex-direction: column; gap: 6px; align-items: center; flex: 1 1 auto; max-width: 420px; }
+        .nt-input-group.narrow input { width: 90px; }
+        .nt-input-group label { color: #94a3b8; font-size: 0.78rem; font-weight: 700; }
+        .nt-input-group input {
+            width: 100%; text-align: center; background: #1e293b; border: 2px solid #334155; color: #e2e8f0;
+            border-radius: 12px; padding: 10px; font-family: 'Consolas', monospace; font-size: 1rem; font-weight: 700;
+            box-sizing: border-box;
+        }
+        .nt-input-group input:focus { outline: none; border-color: var(--primary-blue); }
+        .nt-btn {
+            border-radius: 14px; padding: 11px 22px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 2px solid transparent; transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .nt-btn-primary { background: var(--blue-gradient); color: white; }
+        .nt-btn-secondary { background: var(--yellow-gradient); color: white; }
+        .nt-btn-outline { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+        .nt-btn-outline:hover { border-color: #64748b; }
+        .nt-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .nt-console { background: #0f172a; border-radius: 14px; padding: 16px 20px; margin: 14px 0; min-height: 40px; font-family: 'Consolas', monospace; color: #cbd5e1; direction: ltr; text-align: left; font-size: 0.83rem; line-height: 1.9; max-height: 260px; overflow-y: auto; border: 1px solid #1e293b; }
+        .nt-console .step-line { display: block; }
+        .nt-console .ok-line { color: #4ade80; display: block; font-weight: 800; }
+        .nt-console .final-line { color: #facc15; font-weight: 800; margin-top: 8px; display: block; }
+        .nt-console .error-line { color: #f87171; font-weight: 700; display: block; }
+        .mini-stats-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; justify-content: center; }
+        .mini-stat { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 6px 14px; font-size: 0.8rem; color: #94a3b8; }
+        .mini-stat b { color: #00adef; font-family: 'Consolas', monospace; }
+
+        .dc-array-wrap { background: #0b1220; border-radius: 16px; padding: 16px; border: 1px solid #1e293b; overflow-x: auto; margin-bottom: 14px; }
+        .dc-array-row { display: flex; gap: 6px; direction: ltr; width: max-content; }
+        .dc-cell { width: 52px; flex-shrink: 0; text-align: center; }
+        .dc-cell .dc-idx { font-size: 0.66rem; color: #64748b; font-family: 'Consolas', monospace; }
+        .dc-cell .dc-box {
+            height: 46px; display: flex; align-items: center; justify-content: center; border-radius: 8px;
+            border: 2px solid #334155; background: #1e293b; color: #64748b; font-family: 'Consolas', monospace; font-weight: 800; font-size: 0.85rem;
+        }
+        .dc-cell.source .dc-box { border-color: var(--primary-yellow); background: rgba(247,148,30,0.18); color: #fde68a; }
+        .dc-cell.active .dc-box { border-color: var(--primary-blue); background: rgba(0,173,239,0.22); color: #7dd3fc; }
+        .dc-cell.done .dc-box { border-color: #22c55e; background: rgba(34,197,94,0.15); color: #4ade80; }
+
+        .details-bonus { background: #0f172a; border: 1px dashed #334155; border-radius: 16px; padding: 4px 0; margin: 16px 0; }
+        .details-bonus summary { cursor: pointer; padding: 14px 20px; font-weight: 800; color: #facc15; font-size: 0.9rem; list-style: none; display: flex; align-items: center; gap: 10px; }
+        .details-bonus summary::-webkit-details-marker { display: none; }
+        .details-bonus summary::before { content: '▶'; font-size: 0.7rem; transition: transform 0.2s; }
+        .details-bonus[open] summary::before { transform: rotate(90deg); }
+        .details-bonus .bonus-body { padding: 0 20px 20px; color: #cbd5e1; font-size: 0.88rem; line-height: 1.9; }
+        .details-bonus .bonus-body p { color: #cbd5e1; }
+        .details-bonus .bonus-body code.inline { background: rgba(0,173,239,0.12); color: #7dd3fc; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge"><i class="fas fa-dice"></i> مسألة: Dice Combinations</span>
+            <span class="level-badge"><i class="fas fa-diagram-project"></i> DP خطية (1D)</span>
+            <span class="adv-badge"><i class="fas fa-seedling"></i> سهل</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>مسائل تطبيقية — حلول ومختبرات</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-dice"></i>
+        <h1>Dice Combinations — عدد طرق الوصول إلى مجموع n</h1>
+        <p class="hero-desc">مسألة CSES 1633 من قسم Dynamic Programming — نرمي حجر نرد سداسي الأوجه مرة تلو الأخرى ونجمع النتائج، والمطلوب حساب عدد الطرق (مع اعتبار الترتيب) للوصول إلى مجموع n بالضبط. مثال كلاسيكي على برمجة ديناميكية أحادية البعد (1D DP)، ونستخدم إطار عمل SRTBOT لتصميم الحل خطوة بخطوة.</p>
+        <div class="hero-stats-row">
+            <div class="hero-stat"><span class="hs-label">الصعوبة</span><span class="hs-value">سهل</span></div>
+            <div class="hero-stat"><span class="hs-label">حد الوقت</span><span class="hs-value">1.00 ثانية</span></div>
+            <div class="hero-stat"><span class="hs-label">حد الذاكرة</span><span class="hs-value">512 ميجابايت</span></div>
+            <div class="hero-stat"><span class="hs-label">التعقيد</span><span class="hs-value">O(n)</span></div>
+        </div>
+        <a class="hero-cta" href="https://cses.fi/problemset/task/1633" target="_blank" rel="noopener"><i class="fas fa-up-right-from-square"></i> افتح المسألة على CSES</a>
+    </div>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="showTab('tabProblem', this)"><i class="fas fa-file-lines"></i> المسألة</button>
+        <button class="tab-btn" onclick="showTab('tabIdea', this)"><i class="fas fa-lightbulb"></i> الفكرة</button>
+        <button class="tab-btn" onclick="showTab('tabCode', this)"><i class="fas fa-code"></i> الكود</button>
+        <button class="tab-btn" onclick="showTab('tabLab', this)"><i class="fas fa-flask"></i> المختبر</button>
+        <button class="tab-btn" onclick="showTab('tabAnalysis', this)"><i class="fas fa-chart-line"></i> التحليل</button>
+    </div>
+
+    <div class="container">
+
+        <!-- ============ TAB 1: PROBLEM STATEMENT ============ -->
+        <div class="tab-panel active" id="tabProblem">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">1</span>
+                    <h3>📄 نص المسألة كما يظهر على CSES</h3>
+                </div>
+                <p>هذا هو النص الأصلي بالإنجليزية تمامًا كما يظهر على منصة CSES:</p>
+
+                <div class="original-statement">
+                    <div class="os-head">
+                        <span><i class="fas fa-lock-open"></i> CSES 1633 — Dice Combinations (Dynamic Programming)</span>
+                        <a href="https://cses.fi/problemset/task/1633" target="_blank" rel="noopener">cses.fi/problemset/task/1633 ↗</a>
+                    </div>
+                    <div class="os-body">
+                        <p>Your task is to count the number of ways to construct sum n by throwing a dice one or more times. Each throw produces an outcome between 1 and 6.</p>
+                        <p>For example, if n=3, there are 4 ways:</p>
+                        <ul>
+                            <li>1+1+1</li>
+                            <li>1+2</li>
+                            <li>2+1</li>
+                            <li>3</li>
+                        </ul>
+                        <h5>Input</h5>
+                        <p>The only input line has an integer n.</p>
+                        <h5>Output</h5>
+                        <p>Print the number of ways modulo 10^9+7.</p>
+                        <h5>Constraints</h5>
+                        <p>1 ≤ n ≤ 10^6</p>
+                        <h5>Example</h5>
+                        <pre>Input:
+3
+
+Output:
+4</pre>
+                    </div>
+                </div>
+
+                <h4 class="sub-title">🗣️ بالعربية — ماذا يعني هذا فعليًا؟</h4>
+                <p>نرمي نرد سداسي الأوجه (نتيجة كل رمية من 1 إلى 6) مرة واحدة أو أكثر، ونجمع نتائج كل الرميات. المطلوب: كم عدد <strong>التسلسلات المختلفة</strong> من الرميات التي مجموعها يساوي <code class="inline">n</code> بالضبط؟ <strong>الترتيب مهم هنا</strong>: التسلسل <code class="inline">1+2</code> يُعدّ مختلفًا عن <code class="inline">2+1</code>، رغم أن مجموعهما نفس القيمة (3) — وهذا هو سبب وجود أربع طرق (وليس أقل) للوصول إلى المجموع 3.</p>
+
+                <div class="definition-box">
+                    <div class="df-title"><i class="fas fa-thumbtack"></i> ترجمة المثال المعطى (n=3)</div>
+                    <p>الطرق الأربع: <code class="inline">1+1+1</code> (ثلاث رميات)، <code class="inline">1+2</code> (رميتان)، <code class="inline">2+1</code> (رميتان، بترتيب معكوس)، <code class="inline">3</code> (رمية واحدة). لاحظ أن الناتج المطلوب هو باقي القسمة على <code class="inline">10^9+7</code>، لأن العدد الحقيقي للطرق يكبر بسرعة هائلة كلما زاد n.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 2: IDEA (SRTBOT) ============ -->
+        <div class="tab-panel" id="tabIdea">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">2</span>
+                    <h3>💡 فكرة الحل: إطار عمل SRTBOT</h3>
+                </div>
+                <p>هذه مسألة برمجة ديناميكية كلاسيكية أحادية البعد. لنصمّم الحل باستخدام إطار عمل <strong>SRTBOT</strong> المكوّن من 6 خطوات، وهو أسلوب منهجي مفيد لأي مسألة DP جديدة:</p>
+
+                <div class="srtbot-grid">
+                    <div class="srtbot-letter"><div class="sl-char">S</div><div class="sl-word">State<br>الحالة</div></div>
+                    <div class="srtbot-letter"><div class="sl-char">R</div><div class="sl-word">Recurrence<br>علاقة التكرار</div></div>
+                    <div class="srtbot-letter"><div class="sl-char">T</div><div class="sl-word">Transitions<br>الانتقالات</div></div>
+                    <div class="srtbot-letter"><div class="sl-char">B</div><div class="sl-word">Base cases<br>الحالات الأساسية</div></div>
+                    <div class="srtbot-letter"><div class="sl-char">O</div><div class="sl-word">Order<br>ترتيب الحساب</div></div>
+                    <div class="srtbot-letter"><div class="sl-char">T</div><div class="sl-word">Time/Space<br>التعقيد</div></div>
+                </div>
+
+                <h4 class="sub-title">S — الحالة (State)</h4>
+                <div class="definition-box">
+                    <div class="df-title"><i class="fas fa-layer-group"></i> التعريف</div>
+                    <p><code class="inline" style="background:rgba(0,173,239,0.15);color:#7dd3fc;">dp[x]</code> = عدد الطرق (مع اعتبار الترتيب) للوصول إلى المجموع <code class="inline">x</code> بالضبط. المطلوب في النهاية هو <code class="inline">dp[n]</code>.</p>
+                </div>
+
+                <h4 class="sub-title">R — علاقة التكرار (Recurrence)</h4>
+                <p>للوصول إلى المجموع <code class="inline">x</code>، آخر رمية للنرد كانت لا بد إحدى القيم 1 إلى 6. إن كانت آخر رمية تساوي <code class="inline">k</code>، فإن المجموع قبلها كان <code class="inline">x - k</code>. إذن كل طريقة للوصول إلى <code class="inline">x</code> تتكوّن من: طريقة للوصول إلى <code class="inline">x - k</code>، ثم رمية أخيرة بقيمة <code class="inline">k</code>:</p>
+                <div class="definition-box">
+                    <p style="direction:ltr; text-align:left; font-family:'Consolas',monospace;">dp[x] = Σ dp[x - k]  for k = 1..6, only terms with x - k ≥ 0  (mod 10^9+7)</p>
+                </div>
+
+                <h4 class="sub-title">T — الانتقالات (Transitions)</h4>
+                <p>من المجاميع الأصغر إلى الأكبر: لكل <code class="inline">x</code>، ننظر إلى ما يصل إلى 6 حالات سابقة: <code class="inline">dp[x-1], dp[x-2], ..., dp[x-6]</code> (نتجاهل أي منها يكون أصغر من صفر). هذه هي "الحواف" في رسم بياني للـDP لدينا.</p>
+
+                <h4 class="sub-title">B — الحالات الأساسية (Base cases)</h4>
+                <p>ماذا عن <code class="inline">x = 0</code>؟ يوجد بالضبط طريقة واحدة للوصول إلى المجموع 0: عدم رمي النرد إطلاقًا (تسلسل فارغ). إذن:</p>
+                <ul class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p><code class="inline">dp[0] = 1</code></p></li>
+                    <li class="step-item"><span class="step-num"></span><p>لأي <code class="inline">x &lt; 0</code>، نعامل <code class="inline">dp[x] = 0</code> (لا توجد طرق للوصول إلى مجموع سالب).</p></li>
+                </ul>
+
+                <h4 class="sub-title">O — ترتيب الحساب (Order of computation)</h4>
+                <p>يجب حساب <code class="inline">dp[x]</code> بترتيب تصاعدي في <code class="inline">x</code>، لأن <code class="inline">dp[x]</code> يعتمد فقط على مجاميع أصغر منه: نبدأ من <code class="inline">dp[0]</code>، ثم <code class="inline">dp[1], dp[2], ..., dp[n]</code> بالترتيب.</p>
+
+                <div class="tip-box">
+                    <i class="fas fa-graduation-cap"></i>
+                    <p><strong>خلاصة الحدس:</strong> قسّم المسألة عند آخر رمية نرد. الحالة = "عدد الطرق للوصول إلى مجموع معيّن". كل حالة تعتمد على ما يصل إلى 6 مجاميع سابقة. نبني الإجابات تصاعديًا من 0 حتى n.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 3: CODE ============ -->
+        <div class="tab-panel" id="tabCode">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">3</span>
+                    <h3>💻 الكود الكامل مع شرح كل جزء</h3>
+                </div>
+
+                <div class="code-box">
+                    <div class="code-head"><span>C++ — الحل الكامل</span></div>
+                    <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+const int MOD = 1'000'000'007;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n;
+    cin &gt;&gt; n;
+
+    vector&lt;int&gt; dp(n + 1, 0);
+    dp[0] = 1;  <span class="cmt">// طريقة واحدة للوصول لمجموع 0: تسلسل فارغ</span>
+
+    for (int x = 1; x &lt;= n; x++) {
+        long long ways = 0;
+        for (int k = 1; k &lt;= 6; k++) {
+            if (x - k &gt;= 0) {
+                ways += dp[x - k];
+                if (ways &gt;= MOD) ways -= MOD;  <span class="cmt">// تفادي الفيضان (overflow)</span>
+            }
+        }
+        dp[x] = (int)ways;
+    }
+
+    cout &lt;&lt; dp[n] &lt;&lt; '\n';
+    return 0;
+}</pre>
+                </div>
+
+                <h4 class="sub-title">🔍 شرح مفصّل لكل جزء</h4>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <tbody>
+                            <tr><td style="width:26%"><strong>const int MOD = 1'000'000'007;</strong></td><td>الفاصلة الفردية (<code class="inline">'</code>) داخل الرقم هي "فاصل الأرقام الرقمي" (digit separator) المتاح منذ ++C14 لتحسين قراءة الأرقام الكبيرة فقط — لا يغيّر قيمة العدد إطلاقًا، فهو مطابق تمامًا لكتابة <code class="inline">1000000007</code>.</td></tr>
+                            <tr><td><strong>vector&lt;int&gt; dp(n + 1, 0);</strong></td><td>مصفوفة بحجم n+1 (لتشمل الفهرس 0 حتى n)، كل عناصرها مُهيّأة بصفر ابتداءً.</td></tr>
+                            <tr><td><strong>dp[0] = 1;</strong></td><td>الحالة الأساسية: طريقة واحدة فقط (التسلسل الفارغ) للوصول إلى المجموع صفر.</td></tr>
+                            <tr><td><strong>long long ways = 0;</strong></td><td>نستخدم <code class="inline">long long</code> أثناء الجمع (وليس <code class="inline">int</code>) لأن جمع قيمتين أصغر من MOD (كل منهما &lt; 10^9+7) قد يتجاوز مؤقتًا سعة <code class="inline">int</code> (~2.1×10^9) قبل تطبيق باقي القسمة.</td></tr>
+                            <tr><td><strong>for (int k = 1; k &lt;= 6; k++)</strong></td><td>نجرّب كل قيمة ممكنة لآخر رمية نرد (من 1 إلى 6)، ونضيف <code class="inline">dp[x-k]</code> فقط إن كان <code class="inline">x-k</code> غير سالب.</td></tr>
+                            <tr><td><strong>if (ways &gt;= MOD) ways -= MOD;</strong></td><td>طريقة سريعة لتطبيق باقي القسمة يدويًا بدل استخدام عامل <code class="inline">%</code> في كل خطوة (كلا الأسلوبين صحيح؛ هذا فقط أسرع قليلًا لأنه يتجنّب عملية القسمة الفعلية عندما لا تكون ضرورية).</td></tr>
+                            <tr><td><strong>dp[x] = (int)ways;</strong></td><td>بعد الجمع والتصحيح، تكون القيمة دائمًا أصغر من MOD، لذا يمكن تخزينها بأمان في <code class="inline">int</code> مجددًا.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="warn-box">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    <p><strong>الباقي (modulo) والأنواع العددية:</strong> طبّق دائمًا الباقي على <code class="inline">10^9+7</code>؛ استخدم <code class="inline">long long</code> أثناء الجمع لتفادي الفيضان، ثم أعد التحويل إلى <code class="inline">int</code> بعد ذلك. مصفوفة الـDP يمكن أن تكون <code class="inline">vector&lt;int&gt;</code> لأننا نُخزّن دائمًا قيمًا أصغر من MOD.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 4: LAB ============ -->
+        <div class="tab-panel" id="tabLab">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">4</span>
+                    <h3>⚗️ المختبر التفاعلي — بناء جدول dp خطوة بخطوة</h3>
+                </div>
+                <p>اختر قيمة n، ثم شاهد مصفوفة <code class="inline">dp</code> تُبنى فعليًا خلية بخلية أمامك: الخلايا الصفراء هي المجاميع الستة السابقة (<code class="inline">x-1</code> حتى <code class="inline">x-6</code>) التي تُجمع لحساب الخلية الزرقاء الحالية <code class="inline">x</code>.</p>
+
+                <div class="tip-box">
+                    <i class="fas fa-circle-info"></i>
+                    <p>القيد الحقيقي على المنصة يصل إلى n ≤ 10^6، ونفس بالضبط الحلقة <code class="inline">O(n)</code> تعمل بسرعة كبيرة عليه — نُحدّد هنا الحجم بحد أقصى 40 فقط لوضوح العرض التفاعلي البصري.</p>
+                </div>
+
+                <div class="nt-lab-dark">
+                    <div class="nt-input-row">
+                        <div class="nt-input-group narrow">
+                            <label>n</label>
+                            <input type="number" id="dcN" value="8" min="1" max="40">
+                        </div>
+                        <button class="nt-btn nt-btn-outline" onclick="dcResetProgress()"><i class="fas fa-rotate"></i> ابدأ من جديد</button>
+                    </div>
+
+                    <div class="mini-stats-row" id="dcStats"></div>
+                    <div class="dc-array-wrap"><div class="dc-array-row" id="dcArrayRow"></div></div>
+
+                    <div class="nt-input-row" style="margin-top:4px;">
+                        <button class="nt-btn nt-btn-primary" onclick="dcStep()"><i class="fas fa-forward-step"></i> الخطوة التالية</button>
+                        <button class="nt-btn nt-btn-secondary" onclick="dcAutoPlay()"><i class="fas fa-play"></i> تشغيل تلقائي</button>
+                    </div>
+
+                    <div class="nt-console" id="dcConsole">اضغط «الخطوة التالية» أو «تشغيل تلقائي» للبدء.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 5: ANALYSIS ============ -->
+        <div class="tab-panel" id="tabAnalysis">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">5</span>
+                    <h3>📊 تحليل التعقيد ونصائح الحل</h3>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>الجانب</th><th class="ltr">التعقيد</th><th>لماذا</th></tr></thead>
+                        <tbody>
+                            <tr><td>الزمن</td><td class="ltr">O(n)</td><td>كل قيمة x من 1 إلى n تُحسب بعدد ثابت من العمليات (حتى 6 عمليات جمع)، أي O(6n) = O(n).</td></tr>
+                            <tr><td>الذاكرة</td><td class="ltr">O(n)</td><td>مصفوفة dp بحجم n+1 فقط.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="sub-title">⚠️ أخطاء شائعة عند الحل على المنصة</h4>
+                <ol class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">نسيان تطبيق الباقي (modulo):</strong> إغفال أخذ باقي القسمة على 10^9+7 يجعل القيم تتجاوز حدود الأنواع العددية بسرعة كبيرة جدًا كلما كبر n (العدد الحقيقي للطرق ينمو أُسّيًا تقريبًا).</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">الجمع بنوع int مباشرة:</strong> جمع قيمتين كل منهما أصغر من MOD (~10^9) قد يتجاوز سعة int (~2.1×10^9) قبل تطبيق الباقي — استخدم long long أثناء الجمع كما في الكود أعلاه.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">إهمال فحص x - k &ge; 0:</strong> عند x الصغيرة (مثل x=1 أو x=2)، بعض قيم k من 1 إلى 6 ستُنتج فهرسًا سالبًا في المصفوفة — يجب تجاهل هذه الحالات صراحة، لا افتراض أنها تساوي صفرًا تلقائيًا دون فحص.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">الخلط بين "المجموعات" و"التسلسلات":</strong> المسألة تعتبر الترتيب مهمًا (1+2 و2+1 طريقتان منفصلتان) — لو كانت المسألة تسأل عن التركيبات (combinations) بدل التبديلات (permutations)، لاختلف الحل جذريًا (كما في مسائل Coin Combinations اللاحقة في نفس القسم).</p></li>
+                </ol>
+
+                <details class="details-bonus">
+                    <summary>🚀 مسائل تالية من نفس قسم Dynamic Programming على CSES</summary>
+                    <div class="bonus-body">
+                        <p>بعد إتقان هذا النمط الأساسي (DP خطي بعدد ثابت من الانتقالات لكل حالة)، القسم نفسه يحتوي: <strong>Minimizing Coins</strong> (نفس البنية لكن نبحث عن أقل عدد رميات/عملات بدل عدد الطرق)، و<strong>Coin Combinations I</strong> (نفس المسألة تمامًا لكن بمجموعة قيم عامة بدل 1..6 فقط)، و<strong>Coin Combinations II</strong> (نفس الأخيرة، لكن الترتيب لا يهم هذه المرة — أي نطلب التركيبات لا التبديلات، وهذا يغيّر ترتيب الحلقات في الكود). مقارنة الحلول الأربعة معًا طريقة ممتازة لفهم كيف يُغيّر تفصيل صغير في نص المسألة بنية الحل بالكامل.</p>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — مسائل تطبيقية: Dice Combinations (CSES 1633)</footer>
+
+    <script>
+        // ===================================================================
+        // Tab navigation
+        // ===================================================================
+        function showTab(tabId, btn) {
+            document.querySelectorAll('.tab-panel').forEach(function (el) { el.classList.remove('active'); });
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+        }
+
+        function line(text, cls) { return '<span class="' + (cls || 'step-line') + '">' + text + '</span>'; }
+        function statChip(label, val) { return '<div class="mini-stat">' + label + ': <b>' + val + '</b></div>'; }
+
+        // ===================================================================
+        // Real DP computation (mirrors the C++ exactly), event-stepped.
+        // ===================================================================
+        const DC_MOD = 1000000007;
+
+        function dcComputeEvents(n) {
+            const dp = new Array(n + 1).fill(0);
+            dp[0] = 1;
+            const events = [];
+            for (let x = 1; x <= n; x++) {
+                const sources = [];
+                let ways = 0;
+                for (let k = 1; k <= 6; k++) {
+                    if (x - k >= 0) {
+                        sources.push(x - k);
+                        ways += dp[x - k];
+                        if (ways >= DC_MOD) ways -= DC_MOD;
+                    }
+                }
+                dp[x] = ways;
+                events.push({ x: x, sources: sources, value: ways });
+            }
+            return { dp: dp, events: events };
+        }
+
+        let dcN = 8;
+        let dcDp = [];
+        let dcEvents = [];
+        let dcIndex = 0;
+        let dcAutoTimer = false;
+
+        function dcRenderArray(activeX, doneUpTo, sourceSet) {
+            const row = document.getElementById('dcArrayRow');
+            let html = '';
+            for (let x = 0; x <= dcN; x++) {
+                let cls = 'dc-cell';
+                if (x === activeX) cls += ' active';
+                else if (sourceSet && sourceSet.has(x)) cls += ' source';
+                else if (x <= doneUpTo) cls += ' done';
+                const val = (x <= doneUpTo || x === 0) ? dcDp[x] : '?';
+                html += '<div class="' + cls + '"><div class="dc-idx">dp[' + x + ']</div><div class="dc-box">' + val + '</div></div>';
+            }
+            row.innerHTML = html;
+        }
+
+        function dcStep() {
+            const consoleEl = document.getElementById('dcConsole');
+            if (dcIndex >= dcEvents.length) {
+                consoleEl.innerHTML += line('اكتملت المحاكاة! dp[' + dcN + '] = ' + dcDp[dcN], 'final-line');
+                return;
+            }
+            const ev = dcEvents[dcIndex];
+            dcIndex++;
+            const sourceSet = new Set(ev.sources);
+            dcRenderArray(ev.x, ev.x - 1, sourceSet);
+
+            const terms = ev.sources.map(function (s) { return 'dp[' + s + ']=' + dcDp[s]; }).join(' + ');
+            consoleEl.innerHTML += line('x=' + ev.x + ':  dp[' + ev.x + '] = ' + terms + '  =  ' + ev.value);
+
+            document.getElementById('dcStats').innerHTML =
+                statChip('n', dcN) + statChip('x الحالي', ev.x) + statChip('dp[' + ev.x + ']', ev.value);
+
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+
+            if (dcIndex === dcEvents.length) {
+                dcRenderArray(-1, dcN, null);
+                consoleEl.innerHTML += line('✓ اكتمل بناء الجدول بالكامل. الإجابة النهائية: dp[' + dcN + '] = ' + dcDp[dcN], 'ok-line');
+                consoleEl.scrollTop = consoleEl.scrollHeight;
+            }
+        }
+
+        function dcAutoPlay() {
+            if (dcAutoTimer) return;
+            dcAutoTimer = true;
+            function tick() {
+                if (dcIndex >= dcEvents.length) { dcAutoTimer = false; return; }
+                dcStep();
+                setTimeout(tick, 450);
+            }
+            tick();
+        }
+
+        function dcResetProgress() {
+            dcN = Math.max(1, Math.min(40, parseInt(document.getElementById('dcN').value, 10) || 1));
+            document.getElementById('dcN').value = dcN;
+            const res = dcComputeEvents(dcN);
+            dcDp = res.dp;
+            dcEvents = res.events;
+            dcIndex = 0;
+            dcAutoTimer = false;
+            dcRenderArray(0, 0, null);
+            document.getElementById('dcStats').innerHTML = statChip('n', dcN) + statChip('dp[0]', 1);
+            document.getElementById('dcConsole').innerHTML = line('dp[0] = 1  (طريقة واحدة: تسلسل فارغ للوصول إلى مجموع 0)') + line('اضغط «الخطوة التالية» أو «تشغيل تلقائي» للمتابعة.');
+        }
+
+        // Init
+        dcResetProgress();
+    </script>
+</body>
+</html>
