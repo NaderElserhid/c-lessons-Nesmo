@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | مسألة: Coin Combinations I — CSES 1635</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+        .adv-badge {
+            background: #fef3c7; color: #b45309; border: none;
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .hero-banner { background: var(--blue-gradient); padding: 60px 6% 40px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 14px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 10px; }
+        .hero-desc { max-width: 780px; margin: 0 auto 22px; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+        .hero-stats-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+        .hero-stat { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 16px; padding: 10px 22px; text-align: center; }
+        .hero-stat .hs-label { display: block; font-size: 0.72rem; color: rgba(255,255,255,0.8); font-weight: 700; }
+        .hero-stat .hs-value { display: block; font-size: 1rem; font-weight: 800; color: white; margin-top: 2px; }
+        .hero-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; background: white; color: var(--primary-blue); padding: 10px 24px; border-radius: 50px; font-weight: 800; font-size: 0.88rem; text-decoration: none; }
+        .hero-cta:hover { background: #eef2f7; }
+
+        .tab-nav {
+            display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+            background: white; padding: 14px 6%; position: sticky; top: 87px; z-index: 900;
+            border-bottom: 1px solid #e2e8f0; box-shadow: 0 4px 14px -8px rgba(0,0,0,0.08);
+        }
+        .tab-btn {
+            border: 2px solid #e2e8f0; background: white; color: var(--text-body);
+            padding: 10px 18px; border-radius: 50px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.82rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .tab-btn:hover { border-color: var(--primary-blue); }
+        .tab-btn.active { background: var(--blue-gradient); border-color: transparent; color: white; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeIn 0.35s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header .section-num {
+            width: 34px; height: 34px; border-radius: 50%; background: var(--yellow-gradient); color: white;
+            display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;
+        }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.82rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.08); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #dc2626; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .definition-box { background: var(--dark-navy); color: white; border-radius: 18px; padding: 22px 24px; margin: 16px 0; }
+        .definition-box .df-title { color: #facc15; font-weight: 800; font-size: 0.88rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .definition-box p { color: #e2e8f0; margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        .original-statement { background: #0f172a; border-radius: 18px; padding: 4px 0 20px; margin: 16px 0; overflow: hidden; }
+        .original-statement .os-head { background: #1e293b; padding: 12px 22px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .original-statement .os-head span { color: #94a3b8; font-size: 0.8rem; font-weight: 700; }
+        .original-statement .os-head a { color: #7dd3fc; font-size: 0.8rem; font-weight: 800; text-decoration: none; }
+        .original-statement .os-body { padding: 0 24px; direction: ltr; text-align: left; color: #e2e8f0; font-size: 0.92rem; line-height: 1.85; }
+        .original-statement .os-body h5 { color: #facc15; font-size: 0.85rem; margin: 16px 0 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+        .original-statement .os-body code { background: rgba(0,173,239,0.15); color: #7dd3fc; padding: 1px 6px; border-radius: 4px; font-family: 'Consolas', monospace; }
+        .original-statement .os-body pre { padding: 12px 16px; background: #080c14; border-radius: 10px; font-size: 0.85rem; }
+        .original-statement .os-body ul { margin: 6px 0; padding-right: 20px; }
+
+        .srtbot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: 10px; margin: 16px 0; }
+        .srtbot-letter { background: var(--bg-main); border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px; text-align: center; }
+        .srtbot-letter .sl-char { font-weight: 800; font-size: 1.4rem; color: var(--primary-blue); font-family: 'Consolas', monospace; }
+        .srtbot-letter .sl-word { font-size: 0.72rem; color: var(--text-body); font-weight: 700; margin-top: 4px; }
+
+        .nt-lab-dark { background: #0b1220; border-radius: 20px; padding: 26px; margin: 16px 0; border: 1px solid #1e293b; }
+        .nt-input-row { display: flex; gap: 14px; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+        .nt-input-group { display: flex; flex-direction: column; gap: 6px; align-items: center; flex: 1 1 auto; max-width: 420px; }
+        .nt-input-group.narrow input { width: 90px; }
+        .nt-input-group label { color: #94a3b8; font-size: 0.78rem; font-weight: 700; }
+        .nt-input-group input {
+            width: 100%; text-align: center; background: #1e293b; border: 2px solid #334155; color: #e2e8f0;
+            border-radius: 12px; padding: 10px; font-family: 'Consolas', monospace; font-size: 1rem; font-weight: 700;
+            box-sizing: border-box;
+        }
+        .nt-input-group input:focus { outline: none; border-color: var(--primary-blue); }
+        .nt-btn {
+            border-radius: 14px; padding: 11px 22px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 2px solid transparent; transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .nt-btn-primary { background: var(--blue-gradient); color: white; }
+        .nt-btn-secondary { background: var(--yellow-gradient); color: white; }
+        .nt-btn-outline { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+        .nt-btn-outline:hover { border-color: #64748b; }
+        .nt-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .nt-console { background: #0f172a; border-radius: 14px; padding: 16px 20px; margin: 14px 0; min-height: 40px; font-family: 'Consolas', monospace; color: #cbd5e1; direction: ltr; text-align: left; font-size: 0.83rem; line-height: 1.9; max-height: 260px; overflow-y: auto; border: 1px solid #1e293b; }
+        .nt-console .step-line { display: block; }
+        .nt-console .ok-line { color: #4ade80; display: block; font-weight: 800; }
+        .nt-console .final-line { color: #facc15; font-weight: 800; margin-top: 8px; display: block; }
+        .nt-console .error-line { color: #f87171; font-weight: 700; display: block; }
+        .mini-stats-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; justify-content: center; }
+        .mini-stat { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 6px 14px; font-size: 0.8rem; color: #94a3b8; }
+        .mini-stat b { color: #00adef; font-family: 'Consolas', monospace; }
+
+        .cc-array-wrap { background: #0b1220; border-radius: 16px; padding: 16px; border: 1px solid #1e293b; overflow-x: auto; margin-bottom: 14px; }
+        .cc-array-row { display: flex; gap: 6px; direction: ltr; width: max-content; }
+        .cc-cell { width: 52px; flex-shrink: 0; text-align: center; }
+        .cc-cell .cc-idx { font-size: 0.66rem; color: #64748b; font-family: 'Consolas', monospace; }
+        .cc-cell .cc-box {
+            height: 46px; display: flex; align-items: center; justify-content: center; border-radius: 8px;
+            border: 2px solid #334155; background: #1e293b; color: #64748b; font-family: 'Consolas', monospace; font-weight: 800; font-size: 0.85rem;
+        }
+        .cc-cell.source .cc-box { border-color: var(--primary-yellow); background: rgba(247,148,30,0.18); color: #fde68a; }
+        .cc-cell.active .cc-box { border-color: var(--primary-blue); background: rgba(0,173,239,0.22); color: #7dd3fc; }
+        .cc-cell.done .cc-box { border-color: #22c55e; background: rgba(34,197,94,0.15); color: #4ade80; }
+
+        .coin-chip-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; direction: ltr; margin-bottom: 4px; }
+        .coin-chip { background: #1e293b; border: 2px solid var(--primary-blue); color: #7dd3fc; border-radius: 50px; padding: 6px 16px; font-family: 'Consolas', monospace; font-weight: 800; font-size: 0.85rem; }
+
+        .details-bonus { background: #0f172a; border: 1px dashed #334155; border-radius: 16px; padding: 4px 0; margin: 16px 0; }
+        .details-bonus summary { cursor: pointer; padding: 14px 20px; font-weight: 800; color: #facc15; font-size: 0.9rem; list-style: none; display: flex; align-items: center; gap: 10px; }
+        .details-bonus summary::-webkit-details-marker { display: none; }
+        .details-bonus summary::before { content: '▶'; font-size: 0.7rem; transition: transform 0.2s; }
+        .details-bonus[open] summary::before { transform: rotate(90deg); }
+        .details-bonus .bonus-body { padding: 0 20px 20px; color: #cbd5e1; font-size: 0.88rem; line-height: 1.9; }
+        .details-bonus .bonus-body p { color: #cbd5e1; }
+        .details-bonus .bonus-body code.inline { background: rgba(0,173,239,0.12); color: #7dd3fc; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge"><i class="fas fa-coins"></i> مسألة: Coin Combinations I</span>
+            <span class="level-badge"><i class="fas fa-diagram-project"></i> DP خطية (1D)</span>
+            <span class="adv-badge"><i class="fas fa-fire"></i> متوسط</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>مسائل تطبيقية — حلول ومختبرات</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-coins"></i>
+        <h1>Coin Combinations I — عدد طرق تكوين مبلغ x</h1>
+        <p class="hero-desc">مسألة CSES 1635 من قسم Dynamic Programming — امتداد مباشر لـDice Combinations، لكن بدل نرد بقيم ثابتة 1..6، لدينا الآن مجموعة عملات عامة بقيم اختيارية. المطلوب: عدد الطرق (مع اعتبار الترتيب) لتكوين مبلغ x بالضبط باستخدام هذه العملات.</p>
+        <div class="hero-stats-row">
+            <div class="hero-stat"><span class="hs-label">الصعوبة</span><span class="hs-value">متوسط</span></div>
+            <div class="hero-stat"><span class="hs-label">حد الوقت</span><span class="hs-value">1.00 ثانية</span></div>
+            <div class="hero-stat"><span class="hs-label">حد الذاكرة</span><span class="hs-value">512 ميجابايت</span></div>
+            <div class="hero-stat"><span class="hs-label">التعقيد</span><span class="hs-value">O(n&middot;x)</span></div>
+        </div>
+        <a class="hero-cta" href="https://cses.fi/problemset/task/1635" target="_blank" rel="noopener"><i class="fas fa-up-right-from-square"></i> افتح المسألة على CSES</a>
+    </div>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="showTab('tabProblem', this)"><i class="fas fa-file-lines"></i> المسألة</button>
+        <button class="tab-btn" onclick="showTab('tabIdea', this)"><i class="fas fa-lightbulb"></i> الفكرة</button>
+        <button class="tab-btn" onclick="showTab('tabCode', this)"><i class="fas fa-code"></i> الكود</button>
+        <button class="tab-btn" onclick="showTab('tabLab', this)"><i class="fas fa-flask"></i> المختبر</button>
+        <button class="tab-btn" onclick="showTab('tabAnalysis', this)"><i class="fas fa-chart-line"></i> التحليل</button>
+    </div>
+
+    <div class="container">
+
+        <!-- ============ TAB 1: PROBLEM STATEMENT ============ -->
+        <div class="tab-panel active" id="tabProblem">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">1</span>
+                    <h3>📄 نص المسألة كما يظهر على CSES</h3>
+                </div>
+                <p>هذا هو النص الأصلي بالإنجليزية تمامًا كما يظهر على منصة CSES:</p>
+
+                <div class="original-statement">
+                    <div class="os-head">
+                        <span><i class="fas fa-lock-open"></i> CSES 1635 — Coin Combinations I (Dynamic Programming)</span>
+                        <a href="https://cses.fi/problemset/task/1635" target="_blank" rel="noopener">cses.fi/problemset/task/1635 ↗</a>
+                    </div>
+                    <div class="os-body">
+                        <p>Consider a money system consisting of n coins. Each coin has a positive integer value. Your task is to calculate the number of distinct ways you can produce a money sum x using the available coins.</p>
+                        <p>For example, if the coins are {2,3,5} and the desired sum is 9, there are 8 ways:</p>
+                        <ul>
+                            <li>2+2+5</li>
+                            <li>2+5+2</li>
+                            <li>5+2+2</li>
+                            <li>3+3+3</li>
+                            <li>2+2+2+3</li>
+                            <li>2+2+3+2</li>
+                            <li>2+3+2+2</li>
+                            <li>3+2+2+2</li>
+                        </ul>
+                        <h5>Input</h5>
+                        <p>The first input line has two integers n and x: the number of coins and the desired sum of money.</p>
+                        <p>The second line has n distinct integers c_1,c_2,...,c_n: the value of each coin.</p>
+                        <h5>Output</h5>
+                        <p>Print one integer: the number of ways modulo 10^9+7.</p>
+                        <h5>Constraints</h5>
+                        <p>1 ≤ n ≤ 100<br>1 ≤ x ≤ 10^6<br>1 ≤ c_i ≤ 10^6</p>
+                        <h5>Example</h5>
+                        <pre>Input:
+3 9
+2 3 5
+
+Output:
+8</pre>
+                    </div>
+                </div>
+
+                <h4 class="sub-title">🗣️ بالعربية — ماذا يعني هذا فعليًا؟</h4>
+                <p>لدينا مجموعة من <code class="inline">n</code> عملة، كل عملة لها قيمة صحيحة موجبة. المطلوب: عدد <strong>التسلسلات المختلفة</strong> (وليس فقط المجموعات) من العملات التي مجموع قيمها يساوي <code class="inline">x</code> بالضبط. تمامًا كما في Dice Combinations، <strong>الترتيب مهم</strong>: <code class="inline">2+2+5</code> و<code class="inline">2+5+2</code> و<code class="inline">5+2+2</code> تُحسب كثلاث طرق منفصلة رغم أنها نفس مجموعة العملات {2,2,5}.</p>
+
+                <div class="definition-box">
+                    <div class="df-title"><i class="fas fa-thumbtack"></i> العلاقة مع Dice Combinations</div>
+                    <p>هذه المسألة هي بالضبط Dice Combinations، لكن بدل قيم النرد الثابتة <code class="inline">{1,2,3,4,5,6}</code>، أصبحت قيم "العملات" عامة ويحدّدها الإدخال. نفس المنطق بالضبط ينطبق: نقسّم عند "آخر عملة استُخدمت" بدل "آخر رمية نرد".</p>
+            </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 2: IDEA (SRTBOT) ============ -->
+        <div class="tab-panel" id="tabIdea">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">2</span>
+                    <h3>💡 فكرة الحل: إطار عمل SRTBOT</h3>
+                </div>
+
+                <div class="warn-box">
+                    <i class="fas fa-circle-info"></i>
+                    <p>لم يُرفق حل جاهز مع هذه المسألة، لذا التحليل والكود التاليان من إعدادنا، باستخدام نفس أسلوب SRTBOT المُستخدَم في Dice Combinations، وتم التحقّق منهما يدويًا بالكامل على المثال المُعطى (الناتج طابق <code class="inline">8</code> حرفيًا).</p>
+                </div>
+
+                <div class="srtbot-grid">
+                    <div class="srtbot-letter"><div class="sl-char">S</div><div class="sl-word">State<br>الحالة</div></div>
+                    <div class="srtbot-letter"><div class="sl-char">R</div><div class="sl-word">Recurrence<br>علاقة التكرار</div></div>
+                    <div class="srtbot-letter"><div class="sl-char">T</div><div class="sl-word">Transitions<br>الانتقالات</div></div>
+                    <div class="srtbot-letter"><div class="sl-char">B</div><div class="sl-word">Base cases<br>الحالات الأساسية</div></div>
+                    <div class="srtbot-letter"><div class="sl-char">O</div><div class="sl-word">Order<br>ترتيب الحساب</div></div>
+                    <div class="srtbot-letter"><div class="sl-char">T</div><div class="sl-word">Time/Space<br>التعقيد</div></div>
+                </div>
+
+                <h4 class="sub-title">S — الحالة (State)</h4>
+                <div class="definition-box">
+                    <div class="df-title"><i class="fas fa-layer-group"></i> التعريف</div>
+                    <p><code class="inline" style="background:rgba(0,173,239,0.15);color:#7dd3fc;">dp[s]</code> = عدد الطرق (مع اعتبار الترتيب) لتكوين المبلغ <code class="inline">s</code> بالضبط باستخدام العملات المتاحة. المطلوب في النهاية هو <code class="inline">dp[x]</code>.</p>
+                </div>
+
+                <h4 class="sub-title">R — علاقة التكرار (Recurrence)</h4>
+                <p>لتكوين المبلغ <code class="inline">s</code>، آخر عملة مُستخدَمة كانت لا بد إحدى العملات <code class="inline">c_1..c_n</code>. إن كانت آخر عملة تساوي <code class="inline">c_i</code>، فإن المبلغ قبلها كان <code class="inline">s - c_i</code>:</p>
+                <div class="definition-box">
+                    <p style="direction:ltr; text-align:left; font-family:'Consolas',monospace;">dp[s] = &Sigma; dp[s - c_i]   لكل عملة c_i بحيث s - c_i &ge; 0   (mod 10^9+7)</p>
+                </div>
+
+                <h4 class="sub-title">T — الانتقالات (Transitions)</h4>
+                <p>من المبالغ الأصغر إلى الأكبر: لكل <code class="inline">s</code>، ننظر إلى ما يصل إلى <code class="inline">n</code> حالة سابقة: <code class="inline">dp[s-c_1], dp[s-c_2], ..., dp[s-c_n]</code> (نتجاهل أي منها يكون أصغر من صفر). الفرق الوحيد عن Dice Combinations أن عدد الحالات السابقة هنا <code class="inline">n</code> (قد يصل إلى 100) بدل 6 ثابتة، والقيم <code class="inline">c_i</code> عامة بدل 1..6.</p>
+
+                <h4 class="sub-title">B — الحالات الأساسية (Base cases)</h4>
+                <ul class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p><code class="inline">dp[0] = 1</code> — طريقة واحدة لتكوين المبلغ صفر: عدم استخدام أي عملة (تسلسل فارغ).</p></li>
+                    <li class="step-item"><span class="step-num"></span><p>لأي <code class="inline">s &lt; 0</code>، نعامل <code class="inline">dp[s] = 0</code> (لا توجد طرق لمبلغ سالب) — تُغطّى تلقائيًا بفحص <code class="inline">s - c_i &ge; 0</code>.</p></li>
+                </ul>
+
+                <h4 class="sub-title">O — ترتيب الحساب (Order of computation)</h4>
+                <p>يجب حساب <code class="inline">dp[s]</code> بترتيب تصاعدي في <code class="inline">s</code> من 0 إلى x، لأن <code class="inline">dp[s]</code> يعتمد فقط على مبالغ أصغر منه.</p>
+
+                <h4 class="sub-title">T — التعقيد الزمني والمكاني</h4>
+                <p>لكل مبلغ <code class="inline">s</code> من 1 إلى <code class="inline">x</code>، نمرّ على كل العملات الـ<code class="inline">n</code>. الزمن الكلي: <code class="inline">O(n&middot;x)</code>. الذاكرة: <code class="inline">O(x)</code> لمصفوفة dp.</p>
+
+                <div class="tip-box">
+                    <i class="fas fa-graduation-cap"></i>
+                    <p><strong>لماذا الحلقتان بهذا الترتيب تحديدًا (s في الخارج، ثم العملات في الداخل)؟</strong> هذا الترتيب تحديدًا هو ما يجعل الترتيب "مهمًا" في العدّ (permutations). لو بدّلنا الحلقتين (العملات في الخارج، والمبلغ في الداخل)، لحصلنا على مسألة مختلفة تمامًا: عدّ التركيبات (combinations) حيث الترتيب لا يهم — وهذا بالضبط الفرق بين Coin Combinations I وCoin Combinations II.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 3: CODE ============ -->
+        <div class="tab-panel" id="tabCode">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">3</span>
+                    <h3>💻 الكود الكامل مع شرح كل جزء</h3>
+                </div>
+
+                <div class="code-box">
+                    <div class="code-head"><span>C++ — حل مقترح</span></div>
+                    <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+const long long MOD = 1000000007LL;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n;
+    long long x;
+    cin &gt;&gt; n &gt;&gt; x;
+
+    vector&lt;long long&gt; coins(n);
+    for (int i = 0; i &lt; n; i++) cin &gt;&gt; coins[i];
+
+    vector&lt;long long&gt; dp(x + 1, 0);
+    dp[0] = 1;  <span class="cmt">// طريقة واحدة لتكوين المبلغ صفر: لا شيء</span>
+
+    for (long long s = 1; s &lt;= x; s++) {
+        long long ways = 0;
+        for (int i = 0; i &lt; n; i++) {
+            if (s - coins[i] &gt;= 0) {
+                ways += dp[s - coins[i]];
+                if (ways &gt;= MOD) ways -= MOD;  <span class="cmt">// تفادي الفيضان</span>
+            }
+        }
+        dp[s] = ways;
+    }
+
+    cout &lt;&lt; dp[x] &lt;&lt; "\n";
+    return 0;
+}</pre>
+                </div>
+
+                <h4 class="sub-title">🔍 شرح مفصّل لكل جزء</h4>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <tbody>
+                            <tr><td style="width:26%"><strong>vector&lt;long long&gt; coins(n);</strong></td><td>نخزّن قيم العملات كما وردت في الإدخال — لا حاجة لترتيبها، لأن الجمع تراكمي (commutative) بغضّ النظر عن ترتيب فحص العملات داخل الحلقة الداخلية.</td></tr>
+                            <tr><td><strong>vector&lt;long long&gt; dp(x + 1, 0);</strong></td><td>مصفوفة بحجم x+1 (من 0 إلى x)، بنفس فلسفة Dice Combinations تمامًا، لكن بحجم x بدل n.</td></tr>
+                            <tr><td><strong>for (long long s = 1; s &lt;= x; s++)</strong></td><td>الحلقة الخارجية على المبلغ — هذا الترتيب (المبلغ في الخارج) هو ما يجعل النتيجة تعدّ التسلسلات (الترتيب مهم)، وليس التركيبات.</td></tr>
+                            <tr><td><strong>for (int i = 0; i &lt; n; i++)</strong></td><td>الحلقة الداخلية على كل عملة متاحة — نفحص كل عملة كـ"آخر عملة مُستخدَمة" محتملة للوصول إلى s.</td></tr>
+                            <tr><td><strong>if (s - coins[i] &gt;= 0)</strong></td><td>تفادي الفهرسة السالبة في dp — تمامًا كما في فحص <code class="inline">x - k &ge; 0</code> في Dice Combinations.</td></tr>
+                            <tr><td><strong>ways += dp[...]; if (ways &gt;= MOD) ways -= MOD;</strong></td><td>نفس أسلوب "الطرح اليدوي" لتطبيق الباقي بدل عامل % في كل خطوة — أسرع قليلًا وله نفس الأثر بالضبط.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="warn-box">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    <p><strong>تعقيد الزمن الفعلي:</strong> بأقصى قيود <code class="inline">n=100</code> و<code class="inline">x=10^6</code>، فإن <code class="inline">O(n&middot;x)</code> يصل إلى <code class="inline">10^8</code> عملية تقريبًا — سريع بما يكفي ضمن حد الثانية الواحدة بلغة ++C مع عمليات بسيطة كهذه، لكنه أبطأ بكثير من Dice Combinations (حيث كان n=6 ثابتًا).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 4: LAB ============ -->
+        <div class="tab-panel" id="tabLab">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">4</span>
+                    <h3>⚗️ المختبر التفاعلي — بناء جدول dp خطوة بخطوة</h3>
+                </div>
+                <p>أدخل مجموعة العملات (مفصولة بمسافات) والمبلغ المطلوب x، ثم شاهد مصفوفة <code class="inline">dp</code> تُبنى فعليًا خلية بخلية أمامك: الخلايا الصفراء هي المبالغ السابقة <code class="inline">s - c_i</code> التي تُجمع لحساب الخلية الزرقاء الحالية <code class="inline">s</code>.</p>
+
+                <div class="tip-box">
+                    <i class="fas fa-circle-info"></i>
+                    <p>القيد الحقيقي على المنصة يصل إلى x ≤ 10^6 وn ≤ 100، ونفس بالضبط الخوارزمية <code class="inline">O(n&middot;x)</code> تعمل عليه — نُحدّد هنا x بحد أقصى 40 فقط لوضوح العرض التفاعلي البصري.</p>
+                </div>
+
+                <div class="nt-lab-dark">
+                    <div class="nt-input-row">
+                        <div class="nt-input-group">
+                            <label>قيم العملات (مفصولة بمسافات)</label>
+                            <input type="text" id="ccCoins" value="2 3 5">
+                        </div>
+                        <div class="nt-input-group narrow">
+                            <label>x</label>
+                            <input type="number" id="ccX" value="9" min="1" max="40">
+                        </div>
+                        <button class="nt-btn nt-btn-outline" onclick="ccResetProgress()"><i class="fas fa-rotate"></i> ابدأ من جديد</button>
+                    </div>
+
+                    <div class="coin-chip-row" id="ccCoinChips"></div>
+                    <div class="mini-stats-row" id="ccStats"></div>
+                    <div class="cc-array-wrap"><div class="cc-array-row" id="ccArrayRow"></div></div>
+
+                    <div class="nt-input-row" style="margin-top:4px;">
+                        <button class="nt-btn nt-btn-primary" onclick="ccStep()"><i class="fas fa-forward-step"></i> الخطوة التالية</button>
+                        <button class="nt-btn nt-btn-secondary" onclick="ccAutoPlay()"><i class="fas fa-play"></i> تشغيل تلقائي</button>
+                    </div>
+
+                    <div class="nt-console" id="ccConsole">اضغط «الخطوة التالية» أو «تشغيل تلقائي» للبدء.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 5: ANALYSIS ============ -->
+        <div class="tab-panel" id="tabAnalysis">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">5</span>
+                    <h3>📊 تحليل التعقيد ونصائح الحل</h3>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>الجانب</th><th class="ltr">التعقيد</th><th>لماذا</th></tr></thead>
+                        <tbody>
+                            <tr><td>الزمن</td><td class="ltr">O(n&middot;x)</td><td>لكل مبلغ من 1 إلى x، نفحص كل عملة من العملات الـn.</td></tr>
+                            <tr><td>الذاكرة</td><td class="ltr">O(x)</td><td>مصفوفة dp بحجم x+1 فقط — لا حاجة لتخزين شيء عن كل عملة سوى قيمتها.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="sub-title">⚠️ أخطاء شائعة عند الحل على المنصة</h4>
+                <ol class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">الخلط بين Coin Combinations I وII:</strong> النسخة الأولى (هذه) تعدّ الترتيب (permutations)، وترتيب الحلقتين هو <strong>المبلغ في الخارج، العملات في الداخل</strong>. أما Coin Combinations II فتعدّ التركيبات فقط (لا يهم الترتيب)، ويتطلّب ذلك عكس ترتيب الحلقتين (العملات في الخارج، المبلغ في الداخل) — خطأ شائع جدًا هو استخدام نفس بنية الحلقات للمسألتين.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">نسيان تطبيق الباقي (modulo):</strong> بالضبط كما في Dice Combinations، عدد الطرق الحقيقي ينمو بسرعة كبيرة جدًا — يجب تطبيق الباقي على 10^9+7 بعد كل عملية جمع.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">افتراض أن العملات مرتّبة أو صغيرة:</strong> القيود تسمح بعملات تصل قيمتها إلى 10^6 (قد تكون أكبر من x نفسه) — يجب دائمًا فحص <code class="inline">s - c_i &ge; 0</code> قبل الوصول إلى dp، وليس افتراض ترتيب معيّن للعملات.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">حجز مصفوفة dp بحجم n بدل x:</strong> خطأ سهل الوقوع فيه قادمًا من Dice Combinations حيث كان الحجمان متشابهين أحيانًا — الحجم الصحيح هنا هو <code class="inline">x + 1</code>، بغضّ النظر عن عدد العملات n.</p></li>
+                </ol>
+
+                <details class="details-bonus">
+                    <summary>🚀 الخطوة التالية: Coin Combinations II</summary>
+                    <div class="bonus-body">
+                        <p>بعد إتقان هذا النمط، الخطوة الطبيعية التالية هي <strong>Coin Combinations II</strong> من نفس قسم CSES: نفس المسألة تمامًا في الصياغة، لكن المطلوب عدّ <strong>التركيبات</strong> بدل التسلسلات (أي <code class="inline">2+2+5</code> و<code class="inline">2+5+2</code> و<code class="inline">5+2+2</code> تُحسب كطريقة واحدة فقط، لا ثلاث). الحل يحتاج فقط عكس ترتيب الحلقتين المتداخلتين (العملات في الخارج هذه المرة)، وهذا مثال ممتاز على كيف يُغيّر تفصيل بسيط جدًا في بنية الحلقات معنى الإجابة بالكامل رغم تطابق الكود شبه الكامل ظاهريًا.</p>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — مسائل تطبيقية: Coin Combinations I (CSES 1635)</footer>
+
+    <script>
+        // ===================================================================
+        // Tab navigation
+        // ===================================================================
+        function showTab(tabId, btn) {
+            document.querySelectorAll('.tab-panel').forEach(function (el) { el.classList.remove('active'); });
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+        }
+
+        function line(text, cls) { return '<span class="' + (cls || 'step-line') + '">' + text + '</span>'; }
+        function statChip(label, val) { return '<div class="mini-stat">' + label + ': <b>' + val + '</b></div>'; }
+
+        // ===================================================================
+        // Real DP computation (mirrors the C++ exactly), event-stepped.
+        // ===================================================================
+        const CC_MOD = 1000000007;
+
+        function ccComputeEvents(coins, x) {
+            const dp = new Array(x + 1).fill(0);
+            dp[0] = 1;
+            const events = [];
+            for (let s = 1; s <= x; s++) {
+                const sources = [];
+                let ways = 0;
+                for (let i = 0; i < coins.length; i++) {
+                    const c = coins[i];
+                    if (s - c >= 0) {
+                        sources.push(s - c);
+                        ways += dp[s - c];
+                        if (ways >= CC_MOD) ways -= CC_MOD;
+                    }
+                }
+                dp[s] = ways;
+                events.push({ s: s, sources: sources, value: ways });
+            }
+            return { dp: dp, events: events };
+        }
+
+        let ccCoins = [2, 3, 5];
+        let ccX = 9;
+        let ccDp = [];
+        let ccEvents = [];
+        let ccIndex = 0;
+        let ccAutoTimer = false;
+
+        function ccRenderArray(activeS, doneUpTo, sourceSet) {
+            const row = document.getElementById('ccArrayRow');
+            let html = '';
+            for (let s = 0; s <= ccX; s++) {
+                let cls = 'cc-cell';
+                if (s === activeS) cls += ' active';
+                else if (sourceSet && sourceSet.has(s)) cls += ' source';
+                else if (s <= doneUpTo) cls += ' done';
+                const val = (s <= doneUpTo || s === 0) ? ccDp[s] : '?';
+                html += '<div class="' + cls + '"><div class="cc-idx">dp[' + s + ']</div><div class="cc-box">' + val + '</div></div>';
+            }
+            row.innerHTML = html;
+        }
+
+        function ccStep() {
+            const consoleEl = document.getElementById('ccConsole');
+            if (ccIndex >= ccEvents.length) {
+                consoleEl.innerHTML += line('اكتملت المحاكاة! dp[' + ccX + '] = ' + ccDp[ccX], 'final-line');
+                return;
+            }
+            const ev = ccEvents[ccIndex];
+            ccIndex++;
+            const sourceSet = new Set(ev.sources);
+            ccRenderArray(ev.s, ev.s - 1, sourceSet);
+
+            const terms = ev.sources.map(function (s) { return 'dp[' + s + ']=' + ccDp[s]; }).join(' + ');
+            consoleEl.innerHTML += line('s=' + ev.s + ':  dp[' + ev.s + '] = ' + (terms || '0') + '  =  ' + ev.value);
+
+            document.getElementById('ccStats').innerHTML =
+                statChip('x', ccX) + statChip('s الحالي', ev.s) + statChip('dp[' + ev.s + ']', ev.value);
+
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+
+            if (ccIndex === ccEvents.length) {
+                ccRenderArray(-1, ccX, null);
+                consoleEl.innerHTML += line('✓ اكتمل بناء الجدول بالكامل. الإجابة النهائية: dp[' + ccX + '] = ' + ccDp[ccX], 'ok-line');
+                consoleEl.scrollTop = consoleEl.scrollHeight;
+            }
+        }
+
+        function ccAutoPlay() {
+            if (ccAutoTimer) return;
+            ccAutoTimer = true;
+            function tick() {
+                if (ccIndex >= ccEvents.length) { ccAutoTimer = false; return; }
+                ccStep();
+                setTimeout(tick, 450);
+            }
+            tick();
+        }
+
+        function ccResetProgress() {
+            const rawCoins = document.getElementById('ccCoins').value.trim();
+            const parsedCoins = rawCoins.split(/\s+/).map(Number).filter(function (v) { return !isNaN(v) && v > 0; });
+            const consoleEl = document.getElementById('ccConsole');
+
+            if (parsedCoins.length === 0) {
+                consoleEl.innerHTML = line('⚠️ أدخل قيمة عملة واحدة على الأقل (أعداد صحيحة موجبة مفصولة بمسافات).', 'error-line');
+                return;
+            }
+
+            ccX = Math.max(1, Math.min(40, parseInt(document.getElementById('ccX').value, 10) || 1));
+            document.getElementById('ccX').value = ccX;
+            ccCoins = parsedCoins;
+
+            const res = ccComputeEvents(ccCoins, ccX);
+            ccDp = res.dp;
+            ccEvents = res.events;
+            ccIndex = 0;
+            ccAutoTimer = false;
+
+            document.getElementById('ccCoinChips').innerHTML = ccCoins.map(function (c) { return '<span class="coin-chip">' + c + '</span>'; }).join('');
+            ccRenderArray(0, 0, null);
+            document.getElementById('ccStats').innerHTML = statChip('x', ccX) + statChip('dp[0]', 1);
+            consoleEl.innerHTML = line('dp[0] = 1  (طريقة واحدة: عدم استخدام أي عملة)') + line('اضغط «الخطوة التالية» أو «تشغيل تلقائي» للمتابعة.');
+        }
+
+        // Init
+        ccResetProgress();
+    </script>
+</body>
+</html>

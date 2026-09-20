@@ -33,6 +33,9 @@ Each entry walks through a real [CSES](https://cses.fi/problemset/list/) problem
 | 03 | [Counting Rooms](./Problems/03-CountingRooms/CountingRooms.html) | [1192](https://cses.fi/problemset/task/1192) | Easy |
 | 04 | [Subordinates](./Problems/04-Subordinates/Subordinates.html) | [1674](https://cses.fi/problemset/task/1674) | Easy |
 | 05 | [Dice Combinations](./Problems/05-DiceCombinations/DiceCombinations.html) | [1633](https://cses.fi/problemset/task/1633) | Easy |
+| 06 | [Grid Paths I](./Problems/06-GridPathsI/GridPathsI.html) | [1638](https://cses.fi/problemset/task/1638) | Easy |
+| 07 | [AtotheNmodM](./Problems/07-AtotheNmodM/AtotheNmodM.html) | no online-judge link — [Mawhiba Booklets](https://nsmobooklets.mawhiba.sa/en/learn/part-d/problems/atothenmodm.html) | Medium |
+| 08 | [Coin Combinations I](./Problems/08-CoinCombinationsI/CoinCombinationsI.html) | [1635](https://cses.fi/problemset/task/1635) | Medium |
 
 ## Raw source material
 

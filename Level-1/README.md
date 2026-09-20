@@ -22,6 +22,7 @@ Core C++ syntax and programming logic, for students starting from zero. Each cha
 | 16 | [Problems](./16-Problems/Problems.html) | Practice problem set |
 | 17 | [ContestsAndPlatforms](./17-ContestsAndPlatforms/ContestsAndPlatforms.html) | Introduction to competitive programming judges and platforms |
 | 18 | [ProblemsWithSubproblems](./18-ProblemsWithSubproblems/ProblemsWithSubproblems.html) | Multi-part problems combining several concepts |
+| 19 | [Debugging](./19-Debugging/Debugging.html) | Code style, print-debugging, `assert`, and a practical debugging checklist |
 
 ## Extras
 

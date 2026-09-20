@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | التصحيح — Debugging</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15);
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+        .title-section { text-align: center; margin-bottom: 50px; }
+        .title-section h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 5px; }
+        .attribution { color: var(--primary-blue); font-size: 1.1rem; font-weight: 600; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-right-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula { direction: ltr; display: inline-block; font-family: 'Consolas', monospace; font-weight: 800; background: #eef2f7; padding: 3px 10px; border-radius: 8px; color: var(--dark-navy); }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        .code-head.bad-head span { color: #fca5a5; }
+        .code-head.good-head span { color: #86efac; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.88rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+            white-space: pre-wrap; font-size: 0.85rem; line-height: 1.7;
+        }
+        .output-box.bad-output { color: #fca5a5; }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .important-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px solid #ef4444;
+            border-radius: 18px; padding: 22px 26px; margin: 24px 0; display: flex; gap: 16px; align-items: flex-start;
+        }
+        .important-box i { color: #ef4444; font-size: 1.6rem; margin-top: 2px; }
+        .important-box p { margin: 0; font-size: 0.95rem; color: var(--dark-navy); font-weight: 700; }
+
+        .style-rules { margin: 16px 0 0; padding-right: 22px; }
+        .style-rules li { color: var(--text-body); margin-bottom: 10px; font-size: 0.95rem; }
+
+        .tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .tip-card { background: var(--bg-main); border-radius: 16px; padding: 18px 20px; border: 1px solid #e2e8f0; }
+        .tip-card h4 { margin: 0 0 10px; color: var(--primary-blue); font-size: 0.98rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .tip-card ul { margin: 0; padding-right: 18px; }
+        .tip-card li { font-size: 0.86rem; color: var(--text-body); margin-bottom: 7px; }
+        .tip-card.danger h4 { color: #ef4444; }
+        .tip-card.warn h4 { color: #d67d00; }
+
+        /* interactive lab: reverse-array walker */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-controls { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; direction: ltr; }
+        .lab-field { display: flex; flex-direction: column; gap: 6px; }
+        .lab-field label { font-size: 0.76rem; color: #94a3b8; font-weight: 700; }
+        .lab-field input, .lab-field select {
+            padding: 9px 12px; border-radius: 10px; border: 2px solid #e2e8f0;
+            font-family: 'Consolas', monospace; font-size: 0.85rem; min-width: 160px;
+        }
+        .lab-btn {
+            background: var(--blue-gradient); color: white; border: none; padding: 10px 22px;
+            border-radius: 10px; font-weight: 800; cursor: pointer; font-family: 'Tajawal'; font-size: 0.9rem;
+        }
+        .lab-btn:hover { filter: brightness(1.05); }
+        .lab-btn.danger { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+
+        .trace-table { width: 100%; border-collapse: collapse; margin-top: 16px; direction: ltr; font-size: 0.85rem; }
+        .trace-table th { text-align: left; padding: 8px 10px; color: #94a3b8; font-size: 0.72rem; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; }
+        .trace-table td { padding: 9px 10px; border-bottom: 1px solid #f1f5f9; color: var(--dark-navy); font-family: 'Consolas', monospace; }
+        .trace-table tr.oob td { color: #b91c1c; background: rgba(239,68,68,0.06); }
+        .trace-table tr.ok td { color: #15803d; }
+
+        .verdict-badge { display: inline-block; padding: 6px 16px; border-radius: 8px; font-weight: 800; font-size: 0.85rem; direction: ltr; }
+        .verdict-accepted { background: #dcfce7; color: #15803d; }
+        .verdict-wrong { background: #fee2e2; color: #b91c1c; }
+        .verdict-tle { background: #fef3c7; color: #b45309; }
+        .verdict-re { background: #ede9fe; color: #6d28d9; }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="level-badge"><i class="fas fa-bug"></i> التصحيح — Debugging</span>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>للتعلم البرمجي التفاعلي</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="title-section">
+            <h1>التصحيح (Debugging)</h1>
+            <p class="attribution">إيجاد الأخطاء وإصلاحها بسرعة وذكاء</p>
+        </div>
+
+        <!-- Intro -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-bug"></i>
+                <h3>ما هو التصحيح؟</h3>
+            </div>
+            <p>من الشائع جدًا عند حل مسألة أن لا يتصرّف برنامجك تمامًا كما توقعت. عملية اكتشاف ما الذي حدث خطأً وإصلاحه تُسمّى <strong>التصحيح (Debugging)</strong>.</p>
+            <p>لا توجد طريقة واحدة "مثالية" لتصحيح برنامج، لكن توجد تقنيات تساعدك على إيجاد الخطأ بسرعة أكبر بدلًا من قراءة الكود سطرًا سطرًا بلا خطة. في هذا الفصل سنستعرض أهم هذه التقنيات: كتابة كود نظيف من البداية، استخدام <code class="inline">cout</code> لتتبّع القيم، استخدام <code class="inline">assert</code> لاكتشاف الأخطاء المنطقية تلقائيًا، بالإضافة إلى قائمة شاملة من النصائح العملية.</p>
+        </div>
+
+        <!-- Code Style -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-code"></i>
+                <h3>أسلوب كتابة الكود (Code Style)</h3>
+            </div>
+            <p>الكود الأنظف أقلّ عرضة لاحتواء أخطاء من الأساس. تأكّد من تسمية متغيّراتك بشكل واضح حتى لا تخلط بينها، واستخدم مسافات بادئة (indentation) وتباعدًا منتظمًا لتحسين قابلية القراءة عند التصحيح لاحقًا.</p>
+
+            <h4 class="sub-title">مثال: كود سيئ</h4>
+            <div class="code-box">
+                <div class="code-head bad-head"><span><i class="fas fa-xmark"></i> bad.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+#include &lt;cassert&gt;
+#include &lt;iomanip&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+int main() {
+int a, b;
+cin &gt;&gt; a &gt;&gt; b;
+int n[a];
+for (int m=a-1; m&gt;-1; m-=1) {
+cin &gt;&gt; n[m];
+}
+    cout &lt;&lt; n[b]; }</pre>
+            </div>
+
+            <h4 class="sub-title">مثال: كود جيد</h4>
+            <div class="code-box">
+                <div class="code-head good-head"><span><i class="fas fa-check"></i> good.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+
+    int a[n];
+
+    for (int i = n - 1; i &gt;= 0; i--) {   <span class="cmt">// inputting the array from right to left</span>
+        cin &gt;&gt; a[i];
+    }
+
+    cout &lt;&lt; a[m];
+}</pre>
+            </div>
+
+            <ul class="style-rules">
+                <li>ضمّن فقط المكتبات (<code class="inline">#include</code>) التي تحتاجها فعليًا، ولا تستخدم قوالب ضخمة (massive templates) لا داعي لها.</li>
+                <li>استخدم <code class="inline">n</code> و <code class="inline">m</code> للتعبير عن الأحجام أو العدّادات — هذا هو المتعارف عليه في أغلب مسائل البرمجة، مما يجعل كودك أسهل للقراءة والفهم.</li>
+                <li>استخدم <code class="inline">i</code> و <code class="inline">j</code> و <code class="inline">k</code> كأسماء لمتغيّرات التكرار (loop) — هذه أسماء قياسية شائعة داخل الحلقات.</li>
+                <li>حافظ على مسافة بادئة ثابتة: كل مستوى تعشيش (nesting) يجب أن يُزاح بمقدار تاب واحد (أو 4 مسافات).</li>
+                <li>أزل الإزاحة عند إغلاق أي كتلة (block) — هذا يساعدك على تمييز مكان انتهاء الحلقة أو الشرط بصريًا.</li>
+                <li>اترك تعليقات عند الحاجة لتوضيح ما كنت تنوي فعله، ومقارنته بما فعلته فعليًا.</li>
+            </ul>
+        </div>
+
+        <!-- Printing -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-print"></i>
+                <h3>الطباعة (Printing)</h3>
+            </div>
+            <p>الفكرة هي استخدام <code class="inline">cout</code> لتتبّع قيم متغيّراتنا. إذا لاحظنا أن متغيّرًا يحمل قيمة غير متوقعة، فقد يعطينا ذلك دليلًا على سبب حدوث الخطأ.</p>
+            <p>لنفترض أننا نحاول طباعة مصفوفة بترتيب معكوس:</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>reverse_v1.cpp</span></div>
+                <pre>int a[5] = {1, 2, 3, 4, 5};
+
+for (int i = 4; i &gt;= 0; i++) {
+    cout &lt;&lt; a[i] &lt;&lt; ' ';
+}</pre>
+            </div>
+            <div class="output-box bad-output">Output:
+5 0 -1150222592 1577706123 1165962832 32767 126...</div>
+
+            <p>هذا لا يبدو صحيحًا... لنطبع قيمة <code class="inline">i</code> قبل كل عملية طباعة لنرى ما هو الفهرس الذي تتم طباعته فعليًا.</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>reverse_v2.cpp</span></div>
+                <pre>int a[5] = {1, 2, 3, 4, 5};
+
+for (int i = 4; i &gt;= 0; i++) {
+    cout &lt;&lt; "index 'i' is: " &lt;&lt; i &lt;&lt; '\n';
+    cout &lt;&lt; a[i] &lt;&lt; '\n';  <span class="cmt">// change this to \n to make the output more readable</span>
+}</pre>
+            </div>
+            <div class="output-box bad-output">Output:
+index 'i' is: 4
+5
+index 'i' is: 5
+0
+index 'i' is: 6
+1781710592
+index 'i' is: 7
+1056066187...</div>
+
+            <p>نتوقّع أن تكون قيمة <code class="inline">i</code> هي <span class="formula">4, 3, 2, 1, 0</span> لكنها بدلًا من ذلك في ازدياد. تعبير تحديث <code class="inline">i</code> هو تعبير الزيادة (increment expression) في حلقة الـ for. يجب أن يكون <code class="inline">i--</code> لكنه بدلًا من ذلك <code class="inline">i++</code>، وهذا كان الخطأ.</p>
+
+            <div class="code-box">
+                <div class="code-head good-head"><span><i class="fas fa-check"></i> reverse_fixed.cpp</span></div>
+                <pre>int a[5] = {1, 2, 3, 4, 5};
+
+for (int i = 4; i &gt;= 0; i--) {
+    cout &lt;&lt; a[i] &lt;&lt; ' ';
+}</pre>
+            </div>
+            <div class="output-box">Output:
+5 4 3 2 1</div>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> المختبر التفاعلي: تتبّع حلقة التكرار خطوة بخطوة</p>
+                <p style="margin:0 0 14px;font-size:0.88rem;">أدخل حجم المصفوفة، واختر اتجاه التحديث (<code class="inline">i++</code> الخاطئ أو <code class="inline">i--</code> الصحيح)، وشاهد كل خطوة فعلية للحلقة: هل الفهرس داخل حدود المصفوفة أم خارجها.</p>
+                <div class="lab-controls">
+                    <div class="lab-field">
+                        <label>Array size (n)</label>
+                        <input type="number" id="dbgArrSize" value="5" min="1" max="10">
+                    </div>
+                    <div class="lab-field">
+                        <label>Loop update</label>
+                        <select id="dbgDirection">
+                            <option value="buggy">i++ (buggy)</option>
+                            <option value="fixed">i-- (fixed)</option>
+                        </select>
+                    </div>
+                    <button class="lab-btn" onclick="dbgRunTrace()"><i class="fas fa-play"></i> Trace</button>
+                </div>
+                <div id="dbgTraceOut"></div>
+            </div>
+        </div>
+
+        <!-- Assert -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-exclamation"></i>
+                <h3>Assert</h3>
+            </div>
+            <p>الدالة <code class="inline">assert</code> تقبل تعبيرًا منطقيًا (boolean expression) كمعامل، وإذا كانت قيمة هذا التعبير <code class="inline">false</code> فإن البرنامج يتوقف فورًا. في أغلب المُقيّمات الإلكترونية، هذا التوقف ينتج عنه الحكم <strong>Runtime Error</strong>. هذا مفيد جدًا عندما يحتوي البرنامج على عدة مسارات (branches) وينتج عنه حكم آخر لا نفهم سببه.</p>
+            <p>لاستخدام هذه الدالة يجب تضمين مكتبة <code class="inline">cassert</code>.</p>
+
+            <p>على سبيل المثال، لدينا مسألة تقول: بمعطى عدد صحيح <code class="inline">n</code>، احسب <span class="formula">1 + 2 + ... + n</span>.</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>fast_only.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int fast(int n) {
+    return n * (n + 1) / 2;
+}
+
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    cout &lt;&lt; fast(n);
+}</pre>
+            </div>
+
+            <p>عند إرسال هذا البرنامج نحصل على <strong>Wrong Answer</strong>. قد يكون لدينا حل آخر أبطأ لكننا أكثر ثقة بصحته — مثل حلقة تكرارية تجمع القيم واحدة تلو الأخرى. عندها يمكننا استخدام <code class="inline">assert</code> للتحقق من أن الحل البطيء (<code class="inline">slow</code>) والحل السريع (<code class="inline">fast</code>) ينتجان نفس القيمة:</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>with_assert.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;cassert&gt;
+
+using namespace std;
+
+int slow(int n) {
+    int ans = 0;
+    for (int i = 1; i &lt;= n; i++) ans += i;
+    return ans;
+}
+
+int fast(int n) {
+    return n * (n + 1) / 2;
+}
+
+int main() {
+    int n;
+    cin &gt;&gt; n;
+
+    assert(fast(n) == slow(n));
+
+    cout &lt;&lt; fast(n);
+}</pre>
+            </div>
+
+            <p>لهذا نتيجتان محتملتان: إمّا أن نحصل على <strong>Time Limit Exceeded</strong>، مما يعني أننا على الأرجح ننجح في الاختبارات الصغيرة (والصيغة الرياضية صحيحة)، أو نحصل على <strong>Runtime Error</strong> بسبب فشل الـ <code class="inline">assert</code>، مما يعني أن الحلّين ينتجان نتائج مختلفة.</p>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>إذا حصلنا على Runtime Error يمكننا مراجعة الصيغة والتأكد من صحّتها، أما إذا حصلنا على Time Limit Exceeded فيمكننا استنتاج أن الصيغة تفشل على الأعداد الكبيرة، مما يعني على الأرجح مشكلة <strong>Overflow</strong> (تجاوز سعة النوع).</p>
+            </div>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> المختبر التفاعلي: قارن الحل البطيء بالحل السريع باستخدام assert</p>
+                <p style="margin:0 0 14px;font-size:0.88rem;">أدخل قيمة <code class="inline">n</code> وشاهد <code class="inline">slow(n)</code> و <code class="inline">fast(n)</code> يُحسبان فعليًا في المتصفح، ثم راقب نتيجة الـ assert. يمكنك أيضًا "كسر" الصيغة السريعة عمدًا لترى كيف يبدو فشل الـ assert.</p>
+                <div class="lab-controls">
+                    <div class="lab-field">
+                        <label>n</label>
+                        <input type="number" id="dbgAssertN" value="6" min="0" max="1000000">
+                    </div>
+                    <div class="lab-field">
+                        <label>fast(n) formula</label>
+                        <select id="dbgFormula">
+                            <option value="correct">n * (n + 1) / 2 (صحيحة)</option>
+                            <option value="buggy">n * (n + 1) / 2 - 1 (مكسورة عمدًا)</option>
+                        </select>
+                    </div>
+                    <button class="lab-btn" onclick="dbgRunAssert()"><i class="fas fa-play"></i> Run</button>
+                </div>
+                <div id="dbgAssertOut" style="margin-top:16px;"></div>
+            </div>
+        </div>
+
+        <!-- Other tips -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>نصائح إضافية</h3>
+            </div>
+
+            <div class="tips-grid">
+                <div class="tip-card">
+                    <h4><i class="fas fa-align-left"></i> الإخراج والتنسيق</h4>
+                    <ul>
+                        <li>تأكّد من أن تنسيق الإخراج يطابق نص المسألة تمامًا (بدون مسافات أو أسطر زائدة).</li>
+                        <li>أزل جميع مخرجات التصحيح (debug prints) قبل الإرسال.</li>
+                    </ul>
+                </div>
+                <div class="tip-card">
+                    <h4><i class="fas fa-sliders"></i> الإدخال والحالات الحدّية</h4>
+                    <ul>
+                        <li>عالج جميع الحالات الحدّية (مثل <code class="inline">N = 0</code>، <code class="inline">N = 1</code>، إدخال فارغ، الحدود القصوى).</li>
+                        <li>في المسائل متعددة الاختبارات، أعد ضبط جميع المتغيّرات والحاويات بين كل اختبار.</li>
+                        <li style="margin-right:16px;">غالبًا ما تظهر الأخطاء عندما يأتي اختبار صغير بعد اختبار كبير.</li>
+                    </ul>
+                </div>
+                <div class="tip-card">
+                    <h4><i class="fas fa-magnifying-glass"></i> مراجعة المسألة والكود</h4>
+                    <ul>
+                        <li>أعد قراءة نص المسألة بعناية.</li>
+                        <li>أعد قراءة كودك — الأخطاء الشائعة: الخلط بين <code class="inline">N</code>/<code class="inline">M</code>، <code class="inline">i</code>/<code class="inline">j</code>، إلخ.</li>
+                        <li>انتبه للمتغيّرات المُظلَّلة (shadowed)، غير المستخدَمة، أو غير المُهيّأة (uninitialized).</li>
+                    </ul>
+                </div>
+                <div class="tip-card danger">
+                    <h4><i class="fas fa-triangle-exclamation"></i> السلوك غير المُعرَّف (Undefined Behavior)</h4>
+                    <ul>
+                        <li>متغيّرات غير مُهيّأة (uninitialized).</li>
+                        <li>الوصول خارج حدود المصفوفة/المتّجه (out-of-bounds).</li>
+                        <li>نسيان <code class="inline">return</code> في دالة غير <code class="inline">void</code>.</li>
+                        <li>تجاوز سعة الأعداد الصحيحة الموقّعة (signed overflow) — استخدم <code class="inline">long long</code>.</li>
+                        <li>إزاحة بتّية (bit-shifting) بمقدار ≥ 32 على أعداد 32-بت.</li>
+                    </ul>
+                </div>
+                <div class="tip-card">
+                    <h4><i class="fas fa-wave-square"></i> الأعداد العشرية (Floating Point)</h4>
+                    <ul>
+                        <li>تحقّق من قيم <code class="inline">NaN</code> (مثل <code class="inline">sqrt</code> لعدد سالب).</li>
+                        <li>استخدم <code class="inline">long double</code> لدقّة إضافية عند الحاجة.</li>
+                        <li>طابق الدقّة المطلوبة في الإخراج باستخدام <code class="inline">setprecision()</code>.</li>
+                    </ul>
+                </div>
+                <div class="tip-card">
+                    <h4><i class="fas fa-vial"></i> الاختبار (Testing)</h4>
+                    <ul>
+                        <li>نفّذ تتبّعًا يدويًا (manual walkthrough) على حالات بسيطة.</li>
+                        <li>اختبر بضغط (stress test): قارن نتائج حلّك السريع بحلّ بطيء وموثوق (brute-force).</li>
+                    </ul>
+                </div>
+                <div class="tip-card warn">
+                    <h4><i class="fas fa-bomb"></i> Runtime Error</h4>
+                    <ul>
+                        <li>هل يوجد سلوك غير معرَّف؟</li>
+                        <li>هل توجد assertions قد تفشل؟</li>
+                        <li>هل يوجد احتمال قسمة على صفر؟ (أو mod 0)</li>
+                        <li>هل يوجد احتمال استدعاء ذاتي (recursion) لا نهائي؟</li>
+                        <li>مؤشّرات (pointers) أو مكرّرات (iterators) غير صالحة؟</li>
+                        <li>هل تستهلك ذاكرة أكبر من اللازم؟</li>
+                    </ul>
+                </div>
+                <div class="tip-card warn">
+                    <h4><i class="fas fa-hourglass-half"></i> Time Limit Exceeded</h4>
+                    <ul>
+                        <li>هل توجد حلقات لا نهائية محتملة؟</li>
+                        <li>ما هي التعقيد الزمني (complexity) لخوارزميتك؟</li>
+                        <li>هل أزلت مخرجات التصحيح قبل الإرسال (مثل الطباعة الكثيرة إلى stderr)؟</li>
+                        <li>هل يوجد نسخ غير ضروري للبيانات؟ فكّر بتمرير المتغيّرات بالمرجع (by reference).</li>
+                        <li>جرّب استبدال المتّجهات (vectors) بمصفوفات عادية (arrays).</li>
+                    </ul>
+                </div>
+                <div class="tip-card">
+                    <h4><i class="fas fa-rotate-left"></i> الملاذ الأخير</h4>
+                    <ul>
+                        <li>أعد كتابة حلّك من الصفر.</li>
+                        <li>احرص على حفظ نسخة من حلّك الأصلي — من الممكن دائمًا أن تُدخل أخطاءً جديدة في حلّك الجديد.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>تحقق من فهمك</h3>
+            </div>
+
+            <div class="quiz-q" id="q1">
+                <h4>١. ما هي أفضل طريقة لتصحيح أي برنامج؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">توجد طريقة واحدة "مثالية" يجب اتّباعها دائمًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, true)">لا توجد طريقة واحدة "مثالية"، لكن توجد تقنيات تساعد على إيجاد الخطأ بشكل أسرع</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">إعادة كتابة البرنامج بالكامل هي الحل الوحيد دائمًا</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q2">
+                <h4>٢. لماذا يُعتبر كتابة كود نظيف ومنظّم جزءًا من التصحيح؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, true)">لأن الكود الأنظف أقلّ عرضة لإنتاج أخطاء، ويسهّل ملاحظة الأخطاء عند حدوثها</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">لأنه يجعل البرنامج يعمل أسرع تلقائيًا</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">لا علاقة بينهما إطلاقًا</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q3">
+                <h4>٣. في مثال طباعة المصفوفة بترتيب معكوس، ما كان الخطأ الفعلي؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">القيمة الابتدائية لِـ i كانت خاطئة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, true)">تعبير تحديث الحلقة كان i++ بدلًا من i--</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">حجم المصفوفة كان خاطئًا</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q4">
+                <h4>٤. ما وظيفة الدالة assert؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, true)">تتحقق من تعبير منطقي، وتوقف البرنامج فورًا إذا كانت قيمته false</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">تطبع رسالة تحذير فقط دون إيقاف البرنامج</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">تُصلح الأخطاء تلقائيًا في الكود</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q5">
+                <h4>٥. أي مكتبة يجب تضمينها لاستخدام assert؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, false)">iomanip</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, true)">cassert</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, false)">algorithm</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q6">
+                <h4>٦. في مثال مقارنة slow و fast، ماذا يعني الحصول على Time Limit Exceeded؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, true)">على الأرجح أن الصيغة السريعة صحيحة، لكن الحل البطيء يستهلك وقتًا طويلًا على المدخلات الكبيرة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, false)">أن هناك بالتأكيد خطأً في الصيغة السريعة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, false)">أن البرنامج لن يترجَم (compile) إطلاقًا</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q7">
+                <h4>٧. أي مما يلي يُعتبر سلوكًا غير معرَّف (Undefined Behavior)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q7', this, true)">الوصول إلى عنصر خارج حدود مصفوفة</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q7', this, false)">استخدام long long بدلًا من int</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q7', this, false)">استخدام setprecision لتنسيق الإخراج</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q8">
+                <h4>٨. ما الفائدة من "اختبار الضغط" (Stress Testing)؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q8', this, true)">مقارنة نتائج حلّك السريع بحلّ بطيء وموثوق للكشف عن اختلافات في النتائج</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q8', this, false)">قياس استهلاك الذاكرة فقط</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q8', this, false)">تسريع البرنامج تلقائيًا</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q9">
+                <h4>٩. عند حل مسألة متعددة الاختبارات (multiple test cases)، ما الخطأ الشائع الذي يجب الانتباه له؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q9', this, true)">نسيان إعادة ضبط المتغيّرات والحاويات بين كل اختبار</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q9', this, false)">استخدام أسماء متغيّرات قصيرة مثل i و j</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q9', this, false)">تضمين مكتبة iostream</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q10">
+                <h4>١٠. متى يكون "إعادة كتابة الحل من الصفر" خيارًا مناسبًا؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q10', this, true)">كملاذ أخير بعد تجربة جميع تقنيات التصحيح الأخرى دون نجاح، مع الاحتفاظ بنسخة من الحل الأصلي</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q10', this, false)">كأول خطوة تُجرّب عند ظهور أي خطأ بسيط</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q10', this, false)">لا يُنصح بها إطلاقًا مهما كانت الظروف</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>قاموس المصطلحات</h3>
+            </div>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Debugging</span><span class="term-ar">التصحيح</span><p class="term-desc">عملية اكتشاف سبب سلوك البرنامج غير المتوقع وإصلاحه.</p></div>
+                <div class="term-card"><span class="term-en">Assertion</span><span class="term-ar">تأكيد منطقي</span><p class="term-desc">شرط يجب أن يكون صحيحًا؛ إن لم يكن كذلك يتوقف البرنامج فورًا (assert).</p></div>
+                <div class="term-card"><span class="term-en">Undefined Behavior</span><span class="term-ar">سلوك غير معرَّف</span><p class="term-desc">حالة لا تُحدّد لغة C++ نتيجتها بدقّة، مثل الوصول خارج حدود مصفوفة.</p></div>
+                <div class="term-card"><span class="term-en">Overflow</span><span class="term-ar">تجاوز السعة</span><p class="term-desc">تجاوز قيمة متغيّر للحدّ الأقصى الذي يستطيع نوعه تخزينه.</p></div>
+                <div class="term-card"><span class="term-en">Stress Testing</span><span class="term-ar">اختبار الضغط</span><p class="term-desc">مقارنة حل سريع بحل بطيء وموثوق على مدخلات عشوائية كثيرة لإيجاد اختلاف.</p></div>
+                <div class="term-card"><span class="term-en">Edge Case</span><span class="term-ar">حالة حدّية</span><p class="term-desc">مدخل غير اعتيادي (كالقيم الصفرية أو القصوى) قد يكشف خللًا في المنطق.</p></div>
+                <div class="term-card"><span class="term-en">Runtime Error</span><span class="term-ar">خطأ أثناء التنفيذ</span><p class="term-desc">توقّف البرنامج بشكل غير طبيعي أثناء التشغيل، كفشل assert أو القسمة على صفر.</p></div>
+                <div class="term-card"><span class="term-en">Time Limit Exceeded</span><span class="term-ar">تجاوز الحد الزمني</span><p class="term-desc">الحل صحيح منطقيًا لكنه أبطأ من الحد الزمني المسموح.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — التصحيح (Debugging)</footer>
+
+    <script>
+        function dbgRunTrace() {
+            const n = Math.max(1, Math.min(10, parseInt(document.getElementById('dbgArrSize').value) || 5));
+            const buggy = document.getElementById('dbgDirection').value === 'buggy';
+            const arr = [];
+            for (let k = 0; k < n; k++) arr.push(k + 1);
+
+            let rows = '';
+            let i = n - 1;
+            const maxSteps = 8;
+            let steps = 0;
+
+            // Mirrors the real for-loop: condition "i >= 0" is checked BEFORE
+            // each iteration's body runs, exactly like the C++ for-loop above.
+            while (i >= 0 && steps < maxSteps) {
+                const inBounds = i < n;
+                if (inBounds) {
+                    rows += `<tr class="ok"><td>${i}</td><td>yes</td><td>a[${i}] = ${arr[i]}</td></tr>`;
+                } else {
+                    rows += `<tr class="oob"><td>${i}</td><td>no</td><td>undefined behavior (out of range)</td></tr>`;
+                }
+                steps++;
+                i = buggy ? i + 1 : i - 1;
+            }
+
+            const verdict = buggy
+                ? '<span class="verdict-badge verdict-re">Undefined Behavior</span> — الحلقة تخرج عن حدود المصفوفة فورًا لأن الشرط i &gt;= 0 يبقى صحيحًا مع ازدياد i.'
+                : '<span class="verdict-badge verdict-accepted">Correct</span> — الحلقة تتوقف بشكل صحيح عند i = -1، وتطبع كل عنصر مرة واحدة بترتيب معكوس.';
+
+            document.getElementById('dbgTraceOut').innerHTML =
+                `<table class="trace-table"><tr><th>i</th><th>in bounds?</th><th>access</th></tr>${rows}</table>` +
+                `<div style="margin-top:14px;">${verdict}</div>`;
+        }
+
+        function dbgSlow(n) {
+            let ans = 0;
+            for (let i = 1; i <= n; i++) ans += i;
+            return ans;
+        }
+
+        function dbgFast(n, buggy) {
+            const val = n * (n + 1) / 2;
+            return buggy ? val - 1 : val;
+        }
+
+        function dbgRunAssert() {
+            const n = Math.max(0, Math.min(1000000, parseInt(document.getElementById('dbgAssertN').value) || 0));
+            const buggyFormula = document.getElementById('dbgFormula').value === 'buggy';
+
+            const slowVal = dbgSlow(n);
+            const fastVal = dbgFast(n, buggyFormula);
+            const passed = slowVal === fastVal;
+
+            let html = `<div class="output-box" style="color:#e2e8f0;">slow(${n}) = ${slowVal}\nfast(${n}) = ${fastVal}</div>`;
+            if (passed) {
+                html += `<div style="margin-top:14px;"><span class="verdict-badge verdict-accepted">assert passed</span> <span style="font-size:0.85rem;color:var(--text-body);">— القيمتان متطابقتان، البرنامج يكمل التنفيذ ويطبع fast(n).</span></div>`;
+            } else {
+                html += `<div style="margin-top:14px;"><span class="verdict-badge verdict-re">Runtime Error</span> <span style="font-size:0.85rem;color:var(--text-body);">— فشل assert(fast(n) == slow(n)) لأن ${fastVal} ≠ ${slowVal}، والبرنامج يتوقف فورًا.</span></div>`;
+            }
+            document.getElementById('dbgAssertOut').innerHTML = html;
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> إجابة صحيحة! أحسنت.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> إجابة غير صحيحة، حاول مرة أخرى في المرة القادمة.</span>';
+            }
+        }
+    </script>
+</body>
+</html>

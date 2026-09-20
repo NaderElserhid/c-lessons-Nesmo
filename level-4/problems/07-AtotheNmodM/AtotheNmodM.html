@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | مسألة: A^N mod M — هل M تقسم A^N؟</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.15); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 55px; height: 55px; border-radius: 12px; object-fit: contain; }
+        .brand-info h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--dark-navy); }
+        .brand-info p { margin: 0; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+        .adv-badge {
+            background: #fef3c7; color: #b45309; border: none;
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .hero-banner { background: var(--blue-gradient); padding: 60px 6% 40px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 14px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 10px; }
+        .hero-desc { max-width: 780px; margin: 0 auto 22px; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+        .hero-stats-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+        .hero-stat { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 16px; padding: 10px 22px; text-align: center; }
+        .hero-stat .hs-label { display: block; font-size: 0.72rem; color: rgba(255,255,255,0.8); font-weight: 700; }
+        .hero-stat .hs-value { display: block; font-size: 1rem; font-weight: 800; color: white; margin-top: 2px; }
+        .hero-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; background: white; color: var(--primary-blue); padding: 10px 24px; border-radius: 50px; font-weight: 800; font-size: 0.88rem; text-decoration: none; }
+        .hero-cta:hover { background: #eef2f7; }
+
+        .tab-nav {
+            display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+            background: white; padding: 14px 6%; position: sticky; top: 87px; z-index: 900;
+            border-bottom: 1px solid #e2e8f0; box-shadow: 0 4px 14px -8px rgba(0,0,0,0.08);
+        }
+        .tab-btn {
+            border: 2px solid #e2e8f0; background: white; color: var(--text-body);
+            padding: 10px 18px; border-radius: 50px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.82rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .tab-btn:hover { border-color: var(--primary-blue); }
+        .tab-btn.active { background: var(--blue-gradient); border-color: transparent; color: white; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeIn 0.35s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-right: 8px solid var(--primary-blue);
+        }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header .section-num {
+            width: 34px; height: 34px; border-radius: 50%; background: var(--yellow-gradient); color: white;
+            display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;
+        }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.82rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.08); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #dc2626; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .definition-box { background: var(--dark-navy); color: white; border-radius: 18px; padding: 22px 24px; margin: 16px 0; }
+        .definition-box .df-title { color: #facc15; font-weight: 800; font-size: 0.88rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .definition-box p { color: #e2e8f0; margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: right; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        .original-statement { background: #0f172a; border-radius: 18px; padding: 4px 0 20px; margin: 16px 0; overflow: hidden; }
+        .original-statement .os-head { background: #1e293b; padding: 12px 22px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .original-statement .os-head span { color: #94a3b8; font-size: 0.8rem; font-weight: 700; }
+        .original-statement .os-head a { color: #7dd3fc; font-size: 0.8rem; font-weight: 800; text-decoration: none; }
+        .original-statement .os-body { padding: 0 24px; direction: ltr; text-align: left; color: #e2e8f0; font-size: 0.92rem; line-height: 1.85; }
+        .original-statement .os-body h5 { color: #facc15; font-size: 0.85rem; margin: 16px 0 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+        .original-statement .os-body code { background: rgba(0,173,239,0.15); color: #7dd3fc; padding: 1px 6px; border-radius: 4px; font-family: 'Consolas', monospace; }
+        .original-statement .os-body pre { padding: 12px 16px; background: #080c14; border-radius: 10px; font-size: 0.85rem; }
+        .original-statement .os-body ul { margin: 6px 0; padding-right: 20px; }
+
+        .formula-block { direction: ltr; text-align: center; font-family: 'Consolas', monospace; font-weight: 800; background: #eef2f7; padding: 14px; border-radius: 10px; margin: 12px 0; font-size: 1rem; color: var(--dark-navy); }
+
+        .nt-lab-dark { background: #0b1220; border-radius: 20px; padding: 26px; margin: 16px 0; border: 1px solid #1e293b; }
+        .nt-input-row { display: flex; gap: 14px; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+        .nt-input-group { display: flex; flex-direction: column; gap: 6px; align-items: center; flex: 1 1 auto; max-width: 420px; }
+        .nt-input-group.narrow input { width: 110px; }
+        .nt-input-group label { color: #94a3b8; font-size: 0.78rem; font-weight: 700; }
+        .nt-input-group input {
+            width: 100%; text-align: center; background: #1e293b; border: 2px solid #334155; color: #e2e8f0;
+            border-radius: 12px; padding: 10px; font-family: 'Consolas', monospace; font-size: 1rem; font-weight: 700;
+            box-sizing: border-box;
+        }
+        .nt-input-group input:focus { outline: none; border-color: var(--primary-blue); }
+        .nt-btn {
+            border-radius: 14px; padding: 11px 22px; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 2px solid transparent; transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .nt-btn-primary { background: var(--blue-gradient); color: white; }
+        .nt-btn-secondary { background: var(--yellow-gradient); color: white; }
+        .nt-btn-outline { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+        .nt-btn-outline:hover { border-color: #64748b; }
+        .nt-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .nt-console { background: #0f172a; border-radius: 14px; padding: 16px 20px; margin: 14px 0; min-height: 40px; font-family: 'Consolas', monospace; color: #cbd5e1; direction: ltr; text-align: left; font-size: 0.83rem; line-height: 1.9; max-height: 300px; overflow-y: auto; border: 1px solid #1e293b; }
+        .nt-console .step-line { display: block; }
+        .nt-console .ok-line { color: #4ade80; display: block; font-weight: 800; }
+        .nt-console .final-line { color: #facc15; font-weight: 800; margin-top: 8px; display: block; }
+        .nt-console .error-line { color: #f87171; font-weight: 700; display: block; }
+        .mini-stats-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; justify-content: center; }
+        .mini-stat { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 6px 14px; font-size: 0.8rem; color: #94a3b8; }
+        .mini-stat b { color: #00adef; font-family: 'Consolas', monospace; }
+        .mini-stat.verdict-yes b { color: #4ade80; }
+        .mini-stat.verdict-no b { color: #f87171; }
+
+        .details-bonus { background: #0f172a; border: 1px dashed #334155; border-radius: 16px; padding: 4px 0; margin: 16px 0; }
+        .details-bonus summary { cursor: pointer; padding: 14px 20px; font-weight: 800; color: #facc15; font-size: 0.9rem; list-style: none; display: flex; align-items: center; gap: 10px; }
+        .details-bonus summary::-webkit-details-marker { display: none; }
+        .details-bonus summary::before { content: '▶'; font-size: 0.7rem; transition: transform 0.2s; }
+        .details-bonus[open] summary::before { transform: rotate(90deg); }
+        .details-bonus .bonus-body { padding: 0 20px 20px; color: #cbd5e1; font-size: 0.88rem; line-height: 1.9; }
+        .details-bonus .bonus-body p { color: #cbd5e1; }
+        .details-bonus .bonus-body code.inline { background: rgba(0,173,239,0.12); color: #7dd3fc; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">++C</span>
+            <span class="chapter-badge"><i class="fas fa-superscript"></i> مسألة: A^N mod M</span>
+            <span class="level-badge"><i class="fas fa-diagram-project"></i> نظرية أعداد</span>
+            <span class="adv-badge"><i class="fas fa-fire"></i> متوسط</span>
+        </div>
+        <div class="header-right">
+            <div class="brand-info">
+                <h3>منصة TweetKod</h3>
+                <p>مسائل تطبيقية — حلول ومختبرات</p>
+            </div>
+            <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-superscript"></i>
+        <h1>AtotheNmodM — هل M تقسم A^N؟</h1>
+        <p class="hero-desc">مسألة نظرية أعداد: بأعداد طبيعية A وN وM، حدّد هل العدد A^N (الذي قد يكون ضخمًا بشكل فلكي) قابل للقسمة على M بالتمام. المفتاح: لا نحسب A^N إطلاقًا — بل نحلّل M إلى عوامله الأوّلية ونقارن أُسّ كل عامل أوّلي في A^N (محسوبًا بالضرب لا بالحساب المباشر) بأُسّه المطلوب في M.</p>
+        <div class="hero-stats-row">
+            <div class="hero-stat"><span class="hs-label">الصعوبة</span><span class="hs-value">متوسط</span></div>
+            <div class="hero-stat"><span class="hs-label">القيود</span><span class="hs-value">1 ≤ A,N,M ≤ 10^9</span></div>
+            <div class="hero-stat"><span class="hs-label">التعقيد</span><span class="hs-value">O(√M + log A)</span></div>
+        </div>
+        <a class="hero-cta" href="https://nsmobooklets.mawhiba.sa/en/learn/part-d/problems/atothenmodm.html" target="_blank" rel="noopener"><i class="fas fa-up-right-from-square"></i> مصدر المسألة (Mawhiba Booklets)</a>
+    </div>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="showTab('tabProblem', this)"><i class="fas fa-file-lines"></i> المسألة</button>
+        <button class="tab-btn" onclick="showTab('tabIdea', this)"><i class="fas fa-lightbulb"></i> الفكرة</button>
+        <button class="tab-btn" onclick="showTab('tabCode', this)"><i class="fas fa-code"></i> الكود</button>
+        <button class="tab-btn" onclick="showTab('tabLab', this)"><i class="fas fa-flask"></i> المختبر</button>
+        <button class="tab-btn" onclick="showTab('tabAnalysis', this)"><i class="fas fa-chart-line"></i> التحليل</button>
+    </div>
+
+    <div class="container">
+
+        <!-- ============ TAB 1: PROBLEM STATEMENT ============ -->
+        <div class="tab-panel active" id="tabProblem">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">1</span>
+                    <h3>📄 نص المسألة</h3>
+                </div>
+                <p>هذه المسألة ليست من CSES أو Codeforces، بل من دفاتر Mawhiba التدريبية (لا يوجد لها رابط حكم إلكتروني مباشر للإرسال) — لكننا وثّقناها هنا بنفس منهجية التحقّق المتّبعة في هذه السلسلة. هذا هو النص كما ورد:</p>
+
+                <div class="original-statement">
+                    <div class="os-head">
+                        <span><i class="fas fa-lock-open"></i> AtotheNmodM (Mawhiba Booklets — Number Theory)</span>
+                        <a href="https://nsmobooklets.mawhiba.sa/en/learn/part-d/problems/atothenmodm.html" target="_blank" rel="noopener">mawhiba booklet ↗</a>
+                    </div>
+                    <div class="os-body">
+                        <p>Given natural numbers A, N, and M. Determine whether the number A^N is divisible by M.</p>
+                        <p><strong>Note:</strong> Pay attention that the number A^N can be extremely large - it is recommended to factorize numbers A and M and analyze their prime factors!</p>
+                        <h5>Input</h5>
+                        <p>The first and only line of standard input contains, in order, the natural numbers A, N, and M.</p>
+                        <h5>Output</h5>
+                        <p>Print "YES" if the number A^N is divisible by M, otherwise print "NO".</p>
+                        <h5>Constraints</h5>
+                        <p>1 ≤ A, N, M ≤ 10^9</p>
+                        <p>If this task is too hard for you, try solving it when A and M are both powers of two. Or, if it's still too hard, try solving it when 1 ≤ N ≤ 2.</p>
+                        <h5>Example</h5>
+                        <pre>Input:
+10 2 50
+
+Output:
+YES</pre>
+                    </div>
+                </div>
+
+                <h4 class="sub-title">🗣️ بالعربية — ماذا يعني هذا فعليًا؟</h4>
+                <p>نُعطى ثلاثة أعداد طبيعية A وN وM، والمطلوب فقط الإجابة بـ"نعم" أو "لا" عن سؤال واحد: هل <code class="inline">M</code> يقسم <code class="inline">A^N</code> بالتمام (بدون باقٍ)؟ التحدّي الحقيقي هنا ليس رياضيًا معقّدًا، بل <strong>حجميًا</strong>: <code class="inline">A^N</code> يمكن أن يكون رقمًا بمليارات الخانات (تخيّل <code class="inline">A=10^9</code> و<code class="inline">N=10^9</code>) — لا يمكن تخزينه ولا حسابه مباشرة بأي نوع بيانات مهما كان، ولا حتى بمكتبات الأعداد الكبيرة ضمن حدود الوقت المعطاة.</p>
+
+                <div class="definition-box">
+                    <div class="df-title"><i class="fas fa-thumbtack"></i> ترجمة المثال المعطى</div>
+                    <p><code class="inline">A=10, N=2, M=50</code>: هنا <code class="inline">A^N = 10^2 = 100</code>، وهو رقم صغير يمكن حسابه مباشرة للتحقّق: <code class="inline">100 &divide; 50 = 2</code> بالضبط (بدون باقٍ) &rarr; <code class="inline">YES</code>. لكن هذا الحساب المباشر لن يعمل إطلاقًا لو كان N كبيرًا — وهنا يأتي دور تحليل الأعداد الأوّلية.</p>
+                </div>
+
+                <div class="tip-box">
+                    <i class="fas fa-lightbulb"></i>
+                    <p><strong>تدرّج في الصعوبة:</strong> تقترح المسألة نفسها حلّ نسخة أسهل أولًا: جرّب افتراض أن A وM كلاهما قوى للعدد 2 (فيصبح تحليلهما فوريًا)، ثم إن كانت لا تزال صعبة جرّب افتراض <code class="inline">N &le; 2</code> (فيصبح A^N صغيرًا نسبيًا لبعض الحالات). هذا نفس أسلوب "ابدأ بنسخة مبسّطة من القيود" الذي رأيناه في Product of Squares.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 2: IDEA ============ -->
+        <div class="tab-panel" id="tabIdea">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">2</span>
+                    <h3>💡 فكرة الحل: قارن الأُسّ الأوّلي، لا الرقم نفسه</h3>
+                </div>
+                <p><code class="inline">A^N</code> قد يكون فلكيًا، لكن لا نحتاج لمعرفة قيمته الفعلية — نحتاج فقط لمعرفة: <strong>هل هو "مركّب بما يكفي" من عوامل M الأوّلية؟</strong> وهذا سؤال عن الأُسس الأوّلية فقط، لا عن القيمة الكاملة.</p>
+
+                <h4 class="sub-title">الخطوة 1: حلّل M إلى عوامله الأوّلية</h4>
+                <div class="formula-block">M = p<sub>1</sub><sup>e<sub>1</sub></sup> &times; p<sub>2</sub><sup>e<sub>2</sub></sup> &times; ... &times; p<sub>k</sub><sup>e<sub>k</sub></sup></div>
+
+                <h4 class="sub-title">الخطوة 2: احسب أُسّ كل عامل أوّلي داخل A</h4>
+                <p>ليكن <code class="inline">v_p(x)</code> هو أُسّ العامل الأوّلي <code class="inline">p</code> داخل تحليل <code class="inline">x</code> (كم مرة يقسم <code class="inline">p</code> العدد <code class="inline">x</code>). المفتاح الرياضي: عندما نرفع <code class="inline">A</code> للقوة <code class="inline">N</code>، فإن أُسّ كل عامل أوّلي يُضرب في <code class="inline">N</code> ببساطة:</p>
+                <div class="formula-block">v<sub>p</sub>(A<sup>N</sup>) = N &times; v<sub>p</sub>(A)</div>
+                <p style="font-size:0.85rem;">هذا لأن <code class="inline">A^N</code> يعني ضرب <code class="inline">A</code> في نفسه N مرة، فكل عامل <code class="inline">p</code> موجود في A يتكرر N مرة أيضًا.</p>
+
+                <h4 class="sub-title">الخطوة 3: الشرط الكامل للقسمة</h4>
+                <p><code class="inline">M</code> تقسم <code class="inline">A^N</code> بالتمام إذا وفقط إذا كان أُسّ <strong>كل</strong> عامل أوّلي من عوامل M موجودًا بكمية كافية داخل <code class="inline">A^N</code>:</p>
+                <div class="formula-block">M | A<sup>N</sup>  &nbsp;&hArr;&nbsp;  لكل i:  N &times; v<sub>p<sub>i</sub></sub>(A)  &ge;  e<sub>i</sub></div>
+
+                <h4 class="sub-title">الخوارزمية النهائية</h4>
+                <ol class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p>إذا كان <code class="inline">M = 1</code>: الإجابة <code class="inline">YES</code> فورًا (أي عدد يقبل القسمة على 1).</p></li>
+                    <li class="step-item"><span class="step-num"></span><p>حلّل <code class="inline">M</code> إلى عوامل أوّلية <code class="inline">p^e</code> (بالقسمة التجريبية، تمامًا كما في فصل Prime Factorization).</p></li>
+                    <li class="step-item"><span class="step-num"></span><p>لكل عامل أوّلي <code class="inline">p</code> من عوامل M: احسب <code class="inline">v = v_p(A)</code>. إن كان <code class="inline">v = 0</code>، فإن <code class="inline">A^N</code> لا يحتوي هذا العامل إطلاقًا &rarr; الإجابة <code class="inline">NO</code> فورًا.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p>وإلا، تحقّق من الشرط <code class="inline">N &times; v &ge; e</code>. لتفادي ضرب N في v (قد يكون كبيرًا)، نُعيد كتابة الشرط كـ<code class="inline">N &ge; &lceil; e / v &rceil;</code> — قسمة بدل ضرب، بلا أي خطر فيضان (overflow).</p></li>
+                    <li class="step-item"><span class="step-num"></span><p>إذا نجحت كل العوامل الأوّلية في الاختبار، الإجابة <code class="inline">YES</code>؛ وإلا <code class="inline">NO</code> عند أول فشل.</p></li>
+                </ol>
+
+                <div class="tip-box">
+                    <i class="fas fa-graduation-cap"></i>
+                    <p><strong>لماذا <code class="inline">N &ge; &lceil;e/v&rceil;</code> بدل <code class="inline">N&times;v &ge; e</code> مباشرة؟</strong> رياضيًا الشرطان متكافئان تمامًا لو استخدمنا أعدادًا حقيقية، لكن <code class="inline">N&times;v</code> قد يكبر (حتى 10^9 &times; 30 &asymp; 3&times;10^10) بينما <code class="inline">&lceil;e/v&rceil;</code> يبقى صغيرًا جدًا (أقل من 31 دائمًا، لأن <code class="inline">e &le; log&#8322;(10^9) &asymp; 30</code>). إعادة كتابة الشرط بهذا الشكل ليست ضرورية هنا لتفادي فيضان فعلي (فـ<code class="inline">long long</code> يتّسع لذلك بسهولة)، لكنها عادة ممتازة: قسّم بدل أن تضرب كلما أمكن ذلك دون تغيير المعنى.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 3: CODE ============ -->
+        <div class="tab-panel" id="tabCode">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">3</span>
+                    <h3>💻 الكود الكامل مع شرح كل جزء</h3>
+                </div>
+
+                <div class="code-box">
+                    <div class="code-head"><span>C++ — الحل الكامل</span></div>
+                    <pre>#include &lt;iostream&gt;
+using namespace std;
+
+long long ceil_div(long long a, long long b) {
+    <span class="cmt">// b &gt; 0</span>
+    return (a + b - 1) / b;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    long long A, N, M;
+    cin &gt;&gt; A &gt;&gt; N &gt;&gt; M;
+
+    if (M == 1) {
+        cout &lt;&lt; "YES\n";
+        return 0;
+    }
+
+    long long m = M;
+
+    <span class="cmt">// حلّل M: m = حاصل ضرب p^e</span>
+    for (long long p = 2; p * p &lt;= m; ++p) {
+        if (m % p != 0)
+            continue;
+
+        long long e = 0;
+        while (m % p == 0) {
+            m /= p;
+            e++;
+        }
+
+        <span class="cmt">// احسب v_p(A)</span>
+        long long v = 0;
+        long long tempA = A;
+        while (tempA % p == 0) {
+            tempA /= p;
+            v++;
+        }
+
+        if (v == 0) {
+            cout &lt;&lt; "NO\n";
+            return 0;
+        }
+
+        <span class="cmt">// نحتاج N * v &gt;= e  &lt;=&gt;  N &gt;= ceil(e / v)</span>
+        long long need = ceil_div(e, v);
+        if (N &lt; need) {
+            cout &lt;&lt; "NO\n";
+            return 0;
+        }
+    }
+
+    <span class="cmt">// إن تبقّى m &gt; 1، فهو عامل أوّلي بأُسّ 1</span>
+    if (m &gt; 1) {
+        long long p = m;
+        long long e = 1;
+
+        long long v = 0;
+        long long tempA = A;
+        while (tempA % p == 0) {
+            tempA /= p;
+            v++;
+        }
+
+        if (v == 0) {
+            cout &lt;&lt; "NO\n";
+            return 0;
+        }
+
+        long long need = ceil_div(e, v);  <span class="cmt">// e=1 => need=1 دائمًا لو v&gt;=1</span>
+        if (N &lt; need) {
+            cout &lt;&lt; "NO\n";
+            return 0;
+        }
+    }
+
+    cout &lt;&lt; "YES\n";
+    return 0;
+}</pre>
+                </div>
+
+                <h4 class="sub-title">🔍 شرح مفصّل لكل جزء</h4>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <tbody>
+                            <tr><td style="width:26%"><strong>ceil_div(a, b)</strong></td><td>تحسب <code class="inline">&lceil;a/b&rceil;</code> بأعداد صحيحة فقط دون أي أعداد عشرية، عبر الحيلة الكلاسيكية <code class="inline">(a + b - 1) / b</code> (تعمل بشرط <code class="inline">b &gt; 0</code>، وهو محقَّق دائمًا هنا لأن v &ge; 1 عند هذه النقطة من الكود).</td></tr>
+                            <tr><td><strong>if (M == 1) { ... }</strong></td><td>حالة خاصة صريحة: أي عدد يقبل القسمة على 1، وحلقة تحليل M إلى عوامل ستفشل بلا معنى لو تركناها تعمل على <code class="inline">m=1</code> (فلن يوجد أي <code class="inline">p</code> يقسمها).</td></tr>
+                            <tr><td><strong>for (long long p = 2; p * p &lt;= m; ++p)</strong></td><td>القسمة التجريبية القياسية لتحليل m إلى عوامل أوّلية بتعقيد <code class="inline">O(&radic;M)</code> — نفس الأسلوب تمامًا من فصل Prime Factorization، لكن مطبَّقًا هنا على M بدل عدد عام.</td></tr>
+                            <tr><td><strong>while (m % p == 0) { m /= p; e++; }</strong></td><td>نستخرج الأُسّ الكامل e لهذا العامل الأوّلي من M (وليس فقط التحقّق من وجوده)، تمامًا كما في التحليل الأوّلي الكامل.</td></tr>
+                            <tr><td><strong>حساب v بنفس الطريقة لكن على A</strong></td><td>نفس منطق استخراج الأُسّ، لكن مطبَّق على <code class="inline">tempA</code> (نسخة من A) بدل m — نحرص على عدم تعديل A الأصلي لأننا سنحتاجه لكل عامل أوّلي لاحق.</td></tr>
+                            <tr><td><strong>if (v == 0) { NO }</strong></td><td>إن لم يقسم p العدد A إطلاقًا، فمهما رفعنا A للقوة N فلن يظهر p فيه أبدًا — النتيجة NO فورية دون أي حاجة لحساب N.</td></tr>
+                            <tr><td><strong>if (m &gt; 1) { ... } بعد الحلقة</strong></td><td>القسمة التجريبية تتوقف عند <code class="inline">p*p &gt; m</code>؛ إن تبقّى <code class="inline">m &gt; 1</code> بعدها، فهذا يعني أن m نفسها عامل أوّلي واحد متبقٍّ بأُسّ 1 (نفس النمط المستخدم في فصل Prime Factorization بالضبط).</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="warn-box">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    <p><strong>لماذا لا نحسب A^N مباشرة أبدًا؟</strong> حتى لو استخدمنا <code class="inline">long long</code> أو أعدادًا كبيرة (big integers)، فإن A^N بقيم A,N حتى 10^9 قد يحتوي على مليارات الخانات العشرية — تخزين هذا الرقم وحده يحتاج ذاكرة تفوق أي حاسوب عادي بكثير، ناهيك عن الوقت اللازم لحسابه. هذا مثال جوهري على أهمية "إعادة صياغة المسألة رياضيًا" بدل محاولة الحساب المباشر (Brute Force) عندما تكون الأرقام المتوقّعة ضخمة بشكل غير عملي.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 4: LAB ============ -->
+        <div class="tab-panel" id="tabLab">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">4</span>
+                    <h3>⚗️ المختبر التفاعلي — تحقّق خطوة بخطوة</h3>
+                </div>
+                <p>أدخل A وN وM (حتى القيمة الحقيقية القصوى 10^9)، ثم شغّل الخوارزمية الحقيقية خطوة بخطوة لمشاهدة كل عامل أوّلي من عوامل M يُستخرَج، وحساب v وneed له، والتحقّق من الشرط — تمامًا مثل الكود أعلاه، دون حساب A^N إطلاقًا في أي لحظة.</p>
+
+                <div class="nt-lab-dark">
+                    <div class="nt-input-row">
+                        <div class="nt-input-group narrow">
+                            <label>A</label>
+                            <input type="number" id="atmA" value="10" min="1" max="1000000000">
+                        </div>
+                        <div class="nt-input-group narrow">
+                            <label>N</label>
+                            <input type="number" id="atmN" value="2" min="1" max="1000000000">
+                        </div>
+                        <div class="nt-input-group narrow">
+                            <label>M</label>
+                            <input type="number" id="atmM" value="50" min="1" max="1000000000">
+                        </div>
+                        <button class="nt-btn nt-btn-outline" onclick="atmResetProgress()"><i class="fas fa-rotate"></i> ابدأ من جديد</button>
+                    </div>
+
+                    <div class="nt-input-row" style="margin-top:-8px;">
+                        <button class="nt-btn nt-btn-primary" onclick="atmStep()"><i class="fas fa-forward-step"></i> الخطوة التالية</button>
+                        <button class="nt-btn nt-btn-secondary" onclick="atmAutoPlay()"><i class="fas fa-play"></i> تشغيل تلقائي</button>
+                    </div>
+
+                    <div class="mini-stats-row" id="atmStats"></div>
+                    <div class="nt-console" id="atmConsole">اضغط «الخطوة التالية» أو «تشغيل تلقائي» للبدء.</div>
+                </div>
+
+                <div class="tip-box">
+                    <i class="fas fa-circle-info"></i>
+                    <p>لاحظ أن هذا المختبر يعمل بأمان على القيم القصوى الحقيقية (حتى 10^9) دون أي مشاكل أداء، لأن الخوارزمية بأكملها تعتمد على التحليل الأوّلي والقسمة فقط — ولا تحاول أبدًا حساب A^N الفعلي مهما كبرت القيم.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAB 5: ANALYSIS ============ -->
+        <div class="tab-panel" id="tabAnalysis">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-num">5</span>
+                    <h3>📊 تحليل التعقيد ونصائح الحل</h3>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>الجزء</th><th class="ltr">التعقيد</th><th>لماذا</th></tr></thead>
+                        <tbody>
+                            <tr><td>تحليل M إلى عوامل أوّلية</td><td class="ltr">O(&radic;M)</td><td>قسمة تجريبية قياسية حتى &radic;M &asymp; 31,623 عند M=10^9.</td></tr>
+                            <tr><td>حساب v_p(A) لكل عامل</td><td class="ltr">O(log A)</td><td>عدد مرات القسمة على p محدود بعدد عوامل p في A، وهو على الأكثر <code class="inline">log&#8322;(10^9) &asymp; 30</code>.</td></tr>
+                            <tr><td>الإجمالي</td><td class="ltr">O(&radic;M + log A)</td><td>سريع جدًا حتى للقيم القصوى — لا علاقة إطلاقًا بحجم N نفسه، رغم أنه يظهر في الشرط الرياضي.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="sub-title">⚠️ أخطاء شائعة عند الحل</h4>
+                <ol class="steps-list">
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">محاولة حساب A^N فعليًا (ولو جزئيًا):</strong> حتى تجربة حسابه بـ<code class="inline">long long</code> أو <code class="inline">double</code> ستفشل أو تُنتج نتائج غير دقيقة لقيم كبيرة نسبيًا من N — يجب الانتقال مباشرة لتحليل الأُسس الأوّلية دون أي محاولة حساب وسيطة للقيمة الفعلية.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">ضرب N&times;v مباشرة دون احتياط:</strong> رغم أن <code class="inline">long long</code> يتّسع لـ<code class="inline">10^9 &times; 30</code> بأمان هنا، إلا أنه من العادات الجيدة استخدام <code class="inline">ceil_div</code> لتفادي أي مفاجآت في مسائل مشابهة بقيود أكبر.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">نسيان حالة M=1:</strong> إغفال هذه الحالة الخاصة يجعل حلقة تحليل M تبدأ بـ<code class="inline">m=1</code>، فلن تجد أي عامل أوّلي يقسمها (لأن 1 ليس له عوامل أوّلية)، وسينتهي البرنامج بإجابة NO خاطئة تمامًا رغم أن الإجابة الصحيحة هي YES دائمًا.</p></li>
+                    <li class="step-item"><span class="step-num"></span><p><strong style="color:var(--dark-navy)">نسيان العامل الأوّلي المتبقّي بعد الحلقة:</strong> إذا كان لـM عامل أوّلي كبير (أكبر من &radic;M الأصلي)، فلن تكتشفه حلقة القسمة التجريبية — يجب دائمًا فحص <code class="inline">m &gt; 1</code> بعد انتهاء الحلقة، تمامًا كما في التحليل الأوّلي القياسي.</p></li>
+                </ol>
+
+                <details class="details-bonus">
+                    <summary>🚀 لماذا هذه المسألة "متوسطة" رغم أن الكود قصير نسبيًا؟</summary>
+                    <div class="bonus-body">
+                        <p>طول الكود لا يعكس دائمًا صعوبة المسألة. الصعوبة الحقيقية هنا هي <strong>الملاحظة الرياضية</strong> نفسها: أن رفع عدد لقوة يُترجم إلى ضرب أُسّ كل عامل أوّلي فيه بنفس القوة (<code class="inline">v_p(A^N) = N&middot;v_p(A)</code>)، وأن هذا يحوّل سؤالًا عن عدد فلكي الحجم إلى مجرّد مقارنة بين أعداد صغيرة جدًا (الأُسس نفسها، التي لا تتجاوز 30 تقريبًا). إيجاد هذا التحويل هو ما يجعل المسألة "متوسطة" وليس مجرّد كتابة كود تحليل أوّلي عادي.</p>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="page-footer">منصة TweetKod — مسائل تطبيقية: AtotheNmodM</footer>
+
+    <script>
+        // ===================================================================
+        // Tab navigation
+        // ===================================================================
+        function showTab(tabId, btn) {
+            document.querySelectorAll('.tab-panel').forEach(function (el) { el.classList.remove('active'); });
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+        }
+
+        function line(text, cls) { return '<span class="' + (cls || 'step-line') + '">' + text + '</span>'; }
+        function statChip(label, val, cls) { return '<div class="mini-stat' + (cls ? ' ' + cls : '') + '">' + label + ': <b>' + val + '</b></div>'; }
+
+        // ===================================================================
+        // Real algorithm (mirrors the C++ exactly), event-stepped.
+        // Never computes A^N directly — only factorization + exponent counts.
+        // ===================================================================
+        function atmCeilDiv(a, b) { return Math.floor((a + b - 1) / b); }
+
+        function atmComputeEvents(A, N, M) {
+            const events = [];
+            if (M === 1) {
+                events.push({ type: 'trivialM1' });
+                return { events: events, verdict: 'YES' };
+            }
+
+            let m = M;
+            let verdict = 'YES';
+
+            function checkPrime(p, e) {
+                let v = 0;
+                let tempA = A;
+                while (tempA % p === 0) { tempA = Math.floor(tempA / p); v++; }
+                events.push({ type: 'factor', p: p, e: e, v: v });
+                if (v === 0) {
+                    events.push({ type: 'fail', p: p, reason: 'v0' });
+                    verdict = 'NO';
+                    return false;
+                }
+                const need = atmCeilDiv(e, v);
+                events.push({ type: 'check', p: p, e: e, v: v, need: need });
+                if (N < need) {
+                    events.push({ type: 'fail', p: p, reason: 'need', need: need });
+                    verdict = 'NO';
+                    return false;
+                }
+                return true;
+            }
+
+            for (let p = 2; p * p <= m; p++) {
+                if (m % p !== 0) continue;
+                let e = 0;
+                while (m % p === 0) { m = Math.floor(m / p); e++; }
+                if (!checkPrime(p, e)) { return { events: events, verdict: verdict }; }
+            }
+
+            if (verdict === 'YES' && m > 1) {
+                checkPrime(m, 1);
+            }
+
+            if (verdict === 'YES') events.push({ type: 'success' });
+            return { events: events, verdict: verdict };
+        }
+
+        let atmEvents = [];
+        let atmIndex = 0;
+        let atmAutoTimer = false;
+        let atmA = 10, atmN = 2, atmM = 50;
+
+        function atmStep() {
+            const consoleEl = document.getElementById('atmConsole');
+            if (atmIndex >= atmEvents.length) return;
+            const ev = atmEvents[atmIndex];
+            atmIndex++;
+
+            if (ev.type === 'trivialM1') {
+                consoleEl.innerHTML += line('M = 1  →  أي عدد يقبل القسمة على 1  →  الإجابة فورًا: YES', 'ok-line');
+            } else if (ev.type === 'factor') {
+                consoleEl.innerHTML += line('عامل أوّلي p=' + ev.p + ' في M بأُسّ e=' + ev.e + '  |  v_' + ev.p + '(A) = ' + ev.v);
+            } else if (ev.type === 'check') {
+                consoleEl.innerHTML += line('نحتاج N ≥ ⌈e/v⌉ = ⌈' + ev.e + '/' + ev.v + '⌉ = ' + ev.need + '  |  N=' + atmN + ' ≥ ' + ev.need + ' → يجتاز');
+            } else if (ev.type === 'fail') {
+                if (ev.reason === 'v0') {
+                    consoleEl.innerHTML += line('v_' + ev.p + '(A) = 0  →  A^N لا يحتوي العامل ' + ev.p + ' إطلاقًا  →  الإجابة: NO', 'error-line');
+                } else {
+                    consoleEl.innerHTML += line('N=' + atmN + ' < ' + ev.need + '  →  لا يوجد ما يكفي من العامل ' + ev.p + '  →  الإجابة: NO', 'error-line');
+                }
+            } else if (ev.type === 'success') {
+                consoleEl.innerHTML += line('✓ كل العوامل الأوّلية اجتازت الاختبار  →  الإجابة النهائية: YES', 'ok-line');
+            }
+
+            document.getElementById('atmStats').innerHTML =
+                statChip('A', atmA) + statChip('N', atmN) + statChip('M', atmM);
+
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        function atmAutoPlay() {
+            if (atmAutoTimer) return;
+            atmAutoTimer = true;
+            function tick() {
+                if (atmIndex >= atmEvents.length) { atmAutoTimer = false; return; }
+                atmStep();
+                setTimeout(tick, 550);
+            }
+            tick();
+        }
+
+        function atmResetProgress() {
+            const A = parseInt(document.getElementById('atmA').value, 10);
+            const N = parseInt(document.getElementById('atmN').value, 10);
+            const M = parseInt(document.getElementById('atmM').value, 10);
+            const consoleEl = document.getElementById('atmConsole');
+
+            if ([A, N, M].some(function (v) { return isNaN(v) || v < 1 || v > 1000000000; })) {
+                consoleEl.innerHTML = line('⚠️ أدخل قيمًا صحيحة بين 1 و10^9 لكل من A وN وM.', 'error-line');
+                atmEvents = [];
+                document.getElementById('atmStats').innerHTML = '';
+                return;
+            }
+
+            atmA = A; atmN = N; atmM = M;
+            const res = atmComputeEvents(A, N, M);
+            atmEvents = res.events;
+            atmIndex = 0;
+            atmAutoTimer = false;
+
+            document.getElementById('atmStats').innerHTML = statChip('A', A) + statChip('N', N) + statChip('M', M);
+            consoleEl.innerHTML = line('A=' + A + ', N=' + N + ', M=' + M + '  —  اضغط «الخطوة التالية» أو «تشغيل تلقائي» للبدء.');
+        }
+
+        // Init
+        atmResetProgress();
+    </script>
+</body>
+</html>
