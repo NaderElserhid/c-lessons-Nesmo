@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | Problem: Digit Queries</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', 'Segoe UI', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.12); box-shadow: 0 6px 24px -16px rgba(15, 23, 42, 0.3); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+        .brand-info { order: -1; }
+        .logo-img { order: 1; }
+        .logo-img { width: 60px; height: 60px; border-radius: 16px; object-fit: contain; padding: 6px; background: #ffffff; box-shadow: 0 6px 18px -6px rgba(0, 173, 239, 0.4), 0 0 0 1px rgba(0, 173, 239, 0.14); }
+        .brand-info h3 { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--dark-navy); letter-spacing: -0.01em; }
+        .brand-info p { margin: 2px 0 0; font-size: 0.85rem; color: var(--primary-blue); font-weight: 600; letter-spacing: 0.01em; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        /* hero banner */
+        .hero-banner { background: var(--blue-gradient); padding: 60px 6% 50px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 720px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+        .hero-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 22px; }
+        .diff-badge { padding: 7px 18px; border-radius: 50px; font-weight: 800; font-size: 0.82rem; }
+        .diff-easy { background: #dcfce7; color: #15803d; }
+        .diff-medium { background: #fef3c7; color: #b45309; }
+        .diff-hard { background: #fee2e2; color: #b91c1c; }
+        .source-badge {
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.4); color: white;
+            padding: 7px 18px; border-radius: 50px; font-size: 0.82rem; font-weight: 700; text-decoration: none;
+            direction: ltr; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .source-badge:hover { background: rgba(255,255,255,0.28); }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-left: 8px solid var(--primary-blue);
+        }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula { direction: ltr; display: inline-block; font-family: 'Consolas', monospace; font-weight: 800; background: #eef2f7; padding: 3px 10px; border-radius: 8px; color: var(--dark-navy); }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: left; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td code.inline, .data-table th code.inline { white-space: nowrap; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+
+        /* numbered steps */
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        /* interactive lab */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 14px 0 6px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+
+        /* digit queries lab */
+        .digitq-blocks { display: flex; flex-direction: column; gap: 10px; margin-bottom: 6px; }
+        .digitq-block {
+            display: flex; justify-content: space-between; align-items: center; gap: 10px;
+            background: var(--bg-main); border: 2px solid #cbd5e1; border-radius: 12px; padding: 10px 16px;
+            font-size: 0.85rem; font-weight: 700; color: var(--text-body); transition: all 0.3s ease;
+            animation: chipPop 0.3s ease;
+        }
+        .digitq-block .digitq-block-label { color: var(--dark-navy); }
+        .digitq-block .digitq-block-len { font-family: 'Consolas', monospace; direction: ltr; }
+        .digitq-block.skipped { opacity: 0.5; text-decoration: line-through; }
+        .digitq-block.current { border-color: #22c55e; background: rgba(34,197,94,0.08); color: #15803d; }
+        @keyframes chipPop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        .digitq-number-boxes { display: flex; gap: 8px; justify-content: center; direction: ltr; margin-top: 14px; min-height: 52px; }
+        .digitq-digit-box {
+            width: 42px; height: 50px; border-radius: 10px; background: var(--bg-main); border: 2px solid #cbd5e1;
+            display: flex; align-items: center; justify-content: center; font-family: 'Consolas', monospace;
+            font-weight: 800; font-size: 1.2rem; color: var(--dark-navy);
+        }
+        .digitq-digit-box.target { border-color: #22c55e; background: rgba(34,197,94,0.15); color: #15803d; transform: scale(1.15); }
+
+        .digitq-result-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 16px; text-align: center; direction: ltr;
+            display: none;
+        }
+        .digitq-result-box.show { display: block; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">C++</span>
+            <span class="chapter-badge">Problems: Digit Queries</span>
+        </div>
+        <div class="brand-info">
+                <h3>TweetKod Platform</h3>
+                <p>Interactive Programming Education</p>
+            </div>
+        <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-hashtag"></i>
+        <h1>Digit Queries</h1>
+        <p class="hero-desc">An infinite sequence made of every positive integer glued together, and you must find the digit at a position that can reach <span class="formula">10&#185;&#8312;</span> — without building the sequence itself, of course! The solution relies on grouping numbers by their digit count and jumping between the blocks directly.</p>
+        <div class="hero-badges">
+            <span class="diff-badge diff-medium">Medium</span>
+            <a class="source-badge" href="https://cses.fi/problemset/task/2431" target="_blank" rel="noopener"><i class="fas fa-up-right-from-square"></i> CSES 2431</a>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- Problem statement -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-file-lines"></i>
+                <h3>Problem Statement</h3>
+            </div>
+            <p>Consider the infinite sequence formed by gluing together all positive integers in order:</p>
+            <div class="output-box">1234567891011121314151617181920212223...</div>
+            <p style="margin-top: 14px;">We have <code class="inline">q</code> queries. In each query, you are given a position <code class="inline">k</code> (1-indexed) inside this infinite sequence. Your task is to print the digit located at position <code class="inline">k</code>.</p>
+
+            <h4 class="sub-title">Constraints</h4>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p><code class="inline">1 &le; q &le; 1000</code></p></li>
+                <li class="step-item"><span class="step-num"></span><p><code class="inline">1 &le; k &le; 10&#185;&#8312;</code></p></li>
+            </ul>
+
+            <h4 class="sub-title">Example</h4>
+            <div class="output-box">Input:<br>3<br>7<br>19<br>12</div>
+            <div class="output-box" style="margin-top: 10px;">Output:<br>7<br>4<br>1</div>
+        </div>
+
+        <!-- Interactive lab -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>Interactive Lab: Skip Blocks Until You Reach the Target Digit</h3>
+            </div>
+            <p>Run the simulation to find the digit at position <code class="inline">k = 200</code>: we'll subtract the block lengths (one digit, two digits, three digits...) one after another until we reach the right block, then pinpoint the exact number and digit inside it:</p>
+
+            <div class="lab-box">
+                <div class="digitq-blocks" id="digitqBlocks"></div>
+                <div class="digitq-number-boxes" id="digitqNumberBoxes"></div>
+                <div class="lab-step-hint" id="digitqHint">Click "Run the Simulation" to find the digit at position k = 200.</div>
+                <div class="digitq-result-box" id="digitqResultBox"></div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runDigitLab()">Run the Simulation</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CP methodology -->
+        <div class="card" style="border-left-color: var(--primary-yellow);">
+            <div class="card-header" style="color: var(--primary-yellow);">
+                <i class="fas fa-map-signs"></i>
+                <h3>Solving Methodology: How Do We Think About This Problem?</h3>
+            </div>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p><strong>Understand the problem:</strong> we want digit number k in an infinite sequence without actually building the sequence.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>Try small examples by hand:</strong> compute the digit at k=7, k=19, and k=12 by hand and check against the example.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>Look for a pattern:</strong> group the numbers by their digit count (one digit, two digits, three...) and you'll find each group contributes a fixed number of digits.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>Break into cases:</strong> use this grouping to jump directly to the correct block instead of scanning digit by digit.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>Write the code and verify:</strong> test it against the problem's three examples.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>Check the edge cases:</strong> what happens at the largest possible value of k? Could any variable overflow?</p></li>
+            </ul>
+        </div>
+
+        <!-- Step 1: why brute force fails -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-magnifying-glass"></i>
+                <h3>Step 1: Why Can't We Actually Build the Sequence?</h3>
+            </div>
+            <p>Since <code class="inline">k</code> can reach <code class="inline">10&#185;&#8312;</code>, building the sequence up to that position would require enormous time and space — we couldn't even store a prefix that long. We need a mathematical approach that computes the requested digit directly, without scanning every number before it.</p>
+        </div>
+
+        <!-- Step 2: grouping by digit length -->
+        <div class="card steps-card" style="border-left-color: var(--primary-yellow);">
+            <div class="card-header" style="color: var(--primary-yellow);">
+                <i class="fas fa-lightbulb"></i>
+                <h3>Step 2: Grouping Numbers by Digit Count</h3>
+            </div>
+            <p>Notice that the numbers naturally split into blocks based on their digit count:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>Digit Count</th><th>Range</th><th class="center">Count of Numbers</th><th class="center">Total Digits</th></tr></thead>
+                    <tbody>
+                        <tr><td>1</td><td class="formula">1 &ndash; 9</td><td class="center">9</td><td class="center">9</td></tr>
+                        <tr><td>2</td><td class="formula">10 &ndash; 99</td><td class="center">90</td><td class="center">180</td></tr>
+                        <tr><td>3</td><td class="formula">100 &ndash; 999</td><td class="center">900</td><td class="center">2700</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>In general, for the block of numbers with <code class="inline">d</code> digits: the first number in it is <code class="inline">base = 10^(d-1)</code>, it contains <code class="inline">9 &times; base</code> numbers, and it contributes a total of <span class="formula">9 &times; base &times; d</span> digits.</p>
+            <p>For any position <code class="inline">k</code>: we start with <code class="inline">d=1</code> and <code class="inline">base=1</code>, and compute the current block's length. If <code class="inline">k</code> is greater than the block length, we subtract it and move to the next block (<code class="inline">d++</code>, <code class="inline">base *= 10</code>). We stop once <code class="inline">k</code> falls inside the current block.</p>
+            <p>After finding the right block, we number within it starting from zero: <code class="inline">k0 = k - 1</code>, so <code class="inline">index_of_number = k0 / d</code> (which number inside the block) and <code class="inline">index_in_number = k0 % d</code> (which digit inside that number), and the actual number is <code class="inline">num = base + index_of_number</code>.</p>
+        </div>
+
+        <!-- Step 3: full solution -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-code"></i>
+                <h3>Step 3: The Full Solution</h3>
+            </div>
+            <div class="code-box">
+                <div class="code-head"><span>digit_queries.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int q;
+    cin &gt;&gt; q;
+
+    while (q--) {
+        long long k;
+        cin &gt;&gt; k;
+
+        long long d = 1;       <span class="cmt">// current digit length</span>
+        long long base = 1;    <span class="cmt">// 10^(d-1)</span>
+
+        <span class="cmt">// Step 1: find the block (digit length d) that contains position k</span>
+        while (true) {
+            long long count_numbers = 9 * base;
+            long long block_len = count_numbers * d;
+
+            if (k &gt; block_len) {
+                k -= block_len;
+                d++;
+                base *= 10;
+            } else {
+                break;
+            }
+        }
+
+        <span class="cmt">// Step 2: find the exact number and digit within this d-digit block</span>
+        long long k0 = k - 1;
+        long long index_of_number = k0 / d;
+        long long index_in_number = k0 % d;
+
+        long long num = base + index_of_number;
+
+        string s = to_string(num);
+        char answer_digit = s[index_in_number];
+
+        cout &lt;&lt; answer_digit &lt;&lt; endl;
+    }
+
+    return 0;
+}</pre>
+            </div>
+            <div class="output-box">Input: 3 / 7 19 12  &rarr;  Output: 7, 4, 1</div>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>For each query, the block-search loop is very short: <code class="inline">d</code> will not exceed roughly 18, since <code class="inline">k &le; 10&#185;&#8312;</code>. So each query's runtime is close to constant, and the total complexity is <span class="formula">O(q log k)</span>.</p>
+            </div>
+        </div>
+
+        <!-- Step 4: edge cases -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-shield-halved"></i>
+                <h3>Step 4: Watch Out for Overflow</h3>
+            </div>
+            <p>Use <code class="inline">long long</code> for <code class="inline">k</code>, <code class="inline">base</code>, and <code class="inline">block_len</code>, since these values can reach into the quintillions with <code class="inline">k</code> up to <code class="inline">10&#185;&#8312;</code>.</p>
+            <p>Within these constraints, <code class="inline">d</code> will not exceed roughly 18, so the product <code class="inline">9 * base * d</code> stays within the <code class="inline">long long</code> type's limits without any overflow.</p>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>Always try the largest possible value (<code class="inline">k = 10&#185;&#8312;</code>) as a key edge case — the solution above gives the answer <code class="inline">3</code> for it.</p>
+            </div>
+        </div>
+
+        <div class="good-box">
+            <i class="fas fa-circle-check"></i>
+            <p>This pattern — splitting a large problem into "blocks" with uniform properties, then jumping between them instead of scanning element by element — shows up often in problems dealing with a huge range of numbers. Remember this idea whenever you see a massive constraint like <code class="inline">10&#185;&#8312;</code>.</p>
+        </div>
+
+    </div>
+
+    <footer class="page-footer">TweetKod Platform — Level 2: Problems — Digit Queries</footer>
+
+    <script>
+        // ===== Digit Queries block-skip visualizer =====
+        function buildDigitFrames(kStart) {
+            const frames = [];
+            let k = kStart;
+            let d = 1;
+            let base = 1;
+
+            while (true) {
+                const countNumbers = 9 * base;
+                const blockLen = countNumbers * d;
+                const skip = k > blockLen;
+                frames.push({ type: 'block', d: d, base: base, blockLen: blockLen, kBefore: k, skip: skip });
+
+                if (skip) {
+                    k -= blockLen;
+                    d++;
+                    base *= 10;
+                } else {
+                    break;
+                }
+            }
+
+            const k0 = k - 1;
+            const indexOfNumber = Math.floor(k0 / d);
+            const indexInNumber = k0 % d;
+            const num = base + indexOfNumber;
+            const numStr = String(num);
+            const digit = numStr[indexInNumber];
+
+            frames.push({
+                type: 'result', k0: k0, indexOfNumber: indexOfNumber, indexInNumber: indexInNumber,
+                num: num, numStr: numStr, digit: digit
+            });
+
+            return frames;
+        }
+
+        function runDigitLab() {
+            const frames = buildDigitFrames(200);
+            const blocksBox = document.getElementById('digitqBlocks');
+            const hint = document.getElementById('digitqHint');
+            const numberBox = document.getElementById('digitqNumberBoxes');
+            const resultBox = document.getElementById('digitqResultBox');
+            blocksBox.innerHTML = '';
+            numberBox.innerHTML = '';
+            resultBox.classList.remove('show');
+
+            let f = 0;
+
+            function playNext() {
+                if (f >= frames.length) return;
+                const frame = frames[f];
+
+                if (frame.type === 'block') {
+                    const chip = document.createElement('div');
+                    chip.className = 'digitq-block';
+                    const rangeEnd = frame.base * 10 - 1;
+                    chip.innerHTML = '<span class="digitq-block-label">' + frame.d + '-digit numbers (from ' + frame.base + ' to ' + rangeEnd + ')</span><span class="digitq-block-len">' + frame.blockLen + ' digits</span>';
+                    blocksBox.appendChild(chip);
+
+                    if (frame.skip) {
+                        hint.innerText = 'k = ' + frame.kBefore + ' is greater than ' + frame.blockLen + ' → subtract and move to the next block.';
+                        setTimeout(function () {
+                            chip.classList.add('skipped');
+                            f++;
+                            setTimeout(playNext, 500);
+                        }, 800);
+                    } else {
+                        chip.classList.add('current');
+                        hint.innerText = 'k = ' + frame.kBefore + ' does not exceed ' + frame.blockLen + ' → the position is inside this block!';
+                        f++;
+                        setTimeout(playNext, 1000);
+                    }
+                } else {
+                    const chars = frame.numStr.split('');
+                    chars.forEach(function (ch, idx) {
+                        const box = document.createElement('div');
+                        box.className = 'digitq-digit-box' + (idx === frame.indexInNumber ? ' target' : '');
+                        box.innerText = ch;
+                        numberBox.appendChild(box);
+                    });
+                    hint.innerText = 'k0 = ' + frame.k0 + ', index_of_number = ' + frame.indexOfNumber + ', index_in_number = ' + frame.indexInNumber + ' → number = ' + frame.num;
+                    resultBox.innerText = 'Digit number ' + frame.indexInNumber + ' of the number ' + frame.num + ' is: ' + frame.digit;
+                    resultBox.classList.add('show');
+                }
+            }
+
+            playNext();
+        }
+    </script>
+</body>
+</html>

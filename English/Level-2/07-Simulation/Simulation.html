@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | Simulation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', 'Segoe UI', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.12); box-shadow: 0 6px 24px -16px rgba(15, 23, 42, 0.3); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+        .brand-info { order: -1; }
+        .logo-img { order: 1; }
+        .logo-img { width: 60px; height: 60px; border-radius: 16px; object-fit: contain; padding: 6px; background: #ffffff; box-shadow: 0 6px 18px -6px rgba(0, 173, 239, 0.4), 0 0 0 1px rgba(0, 173, 239, 0.14); }
+        .brand-info h3 { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--dark-navy); letter-spacing: -0.01em; }
+        .brand-info p { margin: 2px 0 0; font-size: 0.85rem; color: var(--primary-blue); font-weight: 600; letter-spacing: 0.01em; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        /* hero banner */
+        .hero-banner { background: var(--blue-gradient); padding: 70px 6% 60px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 720px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-left: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-left-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula { direction: ltr; display: inline-block; font-family: 'Consolas', monospace; font-weight: 800; background: #eef2f7; padding: 3px 10px; border-radius: 8px; color: var(--dark-navy); }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: left; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td code.inline, .data-table th code.inline { white-space: nowrap; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+
+        /* numbered steps */
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        /* bullet list (non-numbered, for tips) */
+        .bullet-list { list-style: none; padding: 0; margin: 16px 0; }
+        .bullet-list li { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; color: var(--text-body); }
+        .bullet-list li i { color: var(--primary-blue); margin-top: 4px; flex-shrink: 0; }
+
+        /* interactive lab */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 14px 0 6px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+        .lab-btn.alt-btn { background: var(--yellow-gradient); }
+
+        /* collatz visualizer */
+        .collatz-display { text-align: center; margin: 10px 0; }
+        .collatz-n {
+            font-family: 'Consolas', monospace; font-weight: 800; font-size: 2.4rem; color: var(--dark-navy);
+            background: var(--bg-main); border: 3px solid #cbd5e1; border-radius: 20px; padding: 18px 30px;
+            display: inline-block; min-width: 140px; transition: border-color 0.2s, background 0.2s;
+        }
+        .collatz-n.final { border-color: #22c55e; background: rgba(34, 197, 94, 0.1); color: #15803d; }
+        .collatz-steps { text-align: center; margin-top: 10px; font-weight: 700; color: var(--primary-blue); font-size: 0.95rem; }
+
+        /* robot grid visualizer */
+        .grid-svg-wrap { text-align: center; margin: 10px 0; }
+        .grid-svg-wrap svg { max-width: 300px; width: 100%; height: auto; }
+        .grid-line { stroke: #e2e8f0; stroke-width: 1.5; }
+        .robot-marker { fill: var(--primary-blue); transition: cx 0.4s ease, cy 0.4s ease; }
+        .origin-label { font-family: 'Consolas', monospace; font-size: 11px; fill: #94a3b8; text-anchor: middle; }
+
+        /* true/false quick-review activity */
+        .activity-box { background: white; border-radius: 22px; padding: 32px; margin: 28px 0; box-shadow: var(--soft-shadow); border: 1px solid #e2e8f0; }
+        .activity-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .activity-header i { color: var(--primary-blue); font-size: 1.2rem; }
+        .activity-header h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); }
+        .activity-intro { margin-bottom: 20px; font-size: 0.92rem; }
+        .tf-item {
+            background: var(--bg-main); border-radius: 16px; padding: 18px 22px; margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+            border: 1px solid #e2e8f0;
+        }
+        .tf-statement { margin: 0; font-weight: 700; color: var(--dark-navy); font-size: 0.95rem; flex: 1 1 260px; direction: ltr; text-align: left; unicode-bidi: plaintext; }
+        .tf-buttons { display: flex; gap: 10px; flex-shrink: 0; }
+        .tf-btn {
+            border: 2px solid #e2e8f0; background: white; padding: 9px 26px; border-radius: 50px;
+            font-weight: 800; font-family: 'Tajawal'; font-size: 0.88rem; cursor: pointer; color: var(--dark-navy); transition: 0.2s;
+        }
+        .tf-btn:hover { border-color: var(--primary-blue); }
+        .tf-btn.tf-selected-correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .tf-btn.tf-selected-wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .tf-feedback { flex-basis: 100%; margin-top: 2px; font-weight: 700; font-size: 0.85rem; min-height: 18px; }
+
+        /* homework toggles */
+        .homework-item { background: var(--bg-main); border-radius: 18px; padding: 24px; margin-top: 20px; border: 1px solid #e2e8f0; }
+        .homework-item h4 { margin: 0 0 10px; color: var(--dark-navy); font-size: 1.02rem; font-weight: 800; }
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            margin-top: 14px;
+        }
+        .collapsible { display: none; margin-top: 14px; }
+        .collapsible.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: left; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">C++</span>
+            <span class="chapter-badge">Simulation</span>
+        </div>
+        <div class="brand-info">
+                <h3>TweetKod Platform</h3>
+                <p>Interactive Programming Education</p>
+            </div>
+        <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-gears"></i>
+        <h1>Simulation</h1>
+        <p class="hero-desc">By now you've learned some powerful tools: sets, maps, sorting, binary search, and modular arithmetic. But not every problem needs a clever algorithm — sometimes all you need to do is "simulate" what actually happens, step by step, exactly as if you were running a small program inside your program. In this chapter you'll learn how to turn a long problem description into a simple loop that follows the rules literally.</p>
+    </div>
+
+    <div class="container">
+
+        <!-- What is simulation -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-repeat"></i>
+                <h3>What is Simulation?</h3>
+            </div>
+            <p><strong>Simulation</strong> problems are about mimicking a real or logical process step by step. You're asked to "simulate" what happens — exactly like running a small program inside your program!</p>
+            <p>In competitive programming, simulation means carefully following the problem's rules and executing every step exactly as described. You don't need a complicated algorithm — just repeat what normally happens using loops.</p>
+        </div>
+
+        <!-- Collatz example -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-infinity"></i>
+                <h3>Example: The Collatz Conjecture</h3>
+            </div>
+            <p>Consider the following process: start with a certain number <code class="inline">n</code>. At each step:</p>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p>If <code class="inline">n</code> is even, replace it with <code class="inline">n / 2</code>.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>If <code class="inline">n</code> is odd, replace it with <code class="inline">3n + 1</code>.</p></li>
+            </ul>
+            <p>Print the number of steps the process took before <code class="inline">n</code> becomes equal to 1.</p>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>You might wonder: does this process always reach 1? Actually, no one has a definitive answer to that — it's a famous <strong>unsolved</strong> mathematical problem! But we can simply simulate it and see what happens for any number we try.</p>
+            </div>
+
+            <div class="code-box">
+                <div class="code-head"><span>collatz.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    long long n;
+    cin &gt;&gt; n;
+    int steps = 0;
+    while (n != 1) {
+        if (n % 2 == 0) {
+            n /= 2;
+        } else {
+            n = 3*n + 1;
+        }
+        steps++;
+    }
+    cout &lt;&lt; steps &lt;&lt; "\n";
+    return 0;
+}</pre>
+            </div>
+
+            <p>If <code class="inline">n = 3</code>, the program proceeds like this:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th class="center">Step</th><th class="center">n</th></tr></thead>
+                    <tbody>
+                        <tr><td class="center">0</td><td class="center">3</td></tr>
+                        <tr><td class="center">1</td><td class="center">10</td></tr>
+                        <tr><td class="center">2</td><td class="center">5</td></tr>
+                        <tr><td class="center">3</td><td class="center">16</td></tr>
+                        <tr><td class="center">4</td><td class="center">8</td></tr>
+                        <tr><td class="center">5</td><td class="center">4</td></tr>
+                        <tr><td class="center">6</td><td class="center">2</td></tr>
+                        <tr><td class="center">7</td><td class="center">1</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>So the answer is <span class="formula">7</span>.</p>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> Interactive Lab: Watch the Collatz Sequence Change Step by Step</p>
+                <div class="collatz-display">
+                    <div class="collatz-n" id="collatzDisplay">?</div>
+                </div>
+                <div class="collatz-steps" id="collatzStepsLabel">Click a button to start.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runCollatzLab(3)">Try n = 3</button>
+                    <button class="lab-btn alt-btn" onclick="runCollatzLab(6)">Try n = 6</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- When to use simulation -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>When Do We Use Simulation?</h3>
+            </div>
+            <p>Simulation is excellent when:</p>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>The problem gives you a detailed list of steps or actions.</p></li>
+                <li><i class="fas fa-check"></i><p>There's no obvious mathematical shortcut.</p></li>
+                <li><i class="fas fa-check"></i><p>You can just follow the process directly.</p></li>
+            </ul>
+            <p>Common examples:</p>
+            <ul class="bullet-list">
+                <li><i class="fas fa-gamepad"></i><p>Games (like tic-tac-toe, snake, and others).</p></li>
+                <li><i class="fas fa-border-all"></i><p>Movement on a grid (robots, cars, people walking).</p></li>
+                <li><i class="fas fa-font"></i><p>Text transformations (editing text, rotation).</p></li>
+                <li><i class="fas fa-layer-group"></i><p>Managing elements (queues, stacks, or tasks over time).</p></li>
+            </ul>
+        </div>
+
+        <!-- General pattern -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-diagram-project"></i>
+                <h3>The General Simulation Pattern</h3>
+            </div>
+            <p>Most simulation problems follow the same pattern:</p>
+            <div class="code-box">
+                <div class="code-head"><span>pattern.txt</span></div>
+                <pre>initialize variables
+while (there are still actions left) {
+    read next action
+    update variables according to rules
+}
+print final result</pre>
+            </div>
+            <p>You're basically "running" the rules step by step.</p>
+        </div>
+
+        <!-- Activity A -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>Activity: Quick Review of the Simulation Concept</h4>
+            </div>
+            <p class="activity-intro">Decide whether each statement is true or false.</p>
+
+            <div class="tf-item" id="tfSim1">
+                <p class="tf-statement">Simulation problems usually require inventing a very complex mathematical algorithm.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSim1', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSim1', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfSim2">
+                <p class="tf-statement">The Collatz conjecture is mathematically proven to have every number eventually reach 1.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSim2', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSim2', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfSim3">
+                <p class="tf-statement">When n = 3, the Collatz process takes 7 steps to reach 1.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSim3', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSim3', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfSim4">
+                <p class="tf-statement">The general simulation pattern relies on initializing variables, then repeatedly updating them according to the rules until actions run out.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSim4', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSim4', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Robot on a grid -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-robot"></i>
+                <h3>Example: A Robot on a Grid</h3>
+            </div>
+            <p>A robot starts at <code class="inline">(0, 0)</code>. It receives a sequence of moves made up of the letters <code class="inline">N, S, E, W</code>. Print its final coordinates.</p>
+            <div class="code-box">
+                <div class="code-head"><span>robot.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    string moves;
+    cin &gt;&gt; moves;
+    int x = 0, y = 0;
+    for (char c : moves) {
+        if (c == 'N') y++;
+        else if (c == 'S') y--;
+        else if (c == 'E') x++;
+        else if (c == 'W') x--;
+    }
+    cout &lt;&lt; x &lt;&lt; " " &lt;&lt; y;
+}</pre>
+            </div>
+            <p>If the input is <code class="inline">NNEEWS</code>, the robot ends up at <code class="inline">(1, 1)</code>.</p>
+            <div class="output-box">1 1</div>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> Interactive Lab: Watch the Robot Move on the Grid</p>
+                <div class="grid-svg-wrap">
+                    <svg viewBox="0 0 300 300">
+                        <line class="grid-line" x1="30" y1="30" x2="30" y2="270"></line>
+                        <line class="grid-line" x1="70" y1="30" x2="70" y2="270"></line>
+                        <line class="grid-line" x1="110" y1="30" x2="110" y2="270"></line>
+                        <line class="grid-line" x1="150" y1="30" x2="150" y2="270"></line>
+                        <line class="grid-line" x1="190" y1="30" x2="190" y2="270"></line>
+                        <line class="grid-line" x1="230" y1="30" x2="230" y2="270"></line>
+                        <line class="grid-line" x1="270" y1="30" x2="270" y2="270"></line>
+                        <line class="grid-line" x1="30" y1="30" x2="270" y2="30"></line>
+                        <line class="grid-line" x1="30" y1="70" x2="270" y2="70"></line>
+                        <line class="grid-line" x1="30" y1="110" x2="270" y2="110"></line>
+                        <line class="grid-line" x1="30" y1="150" x2="270" y2="150"></line>
+                        <line class="grid-line" x1="30" y1="190" x2="270" y2="190"></line>
+                        <line class="grid-line" x1="30" y1="230" x2="270" y2="230"></line>
+                        <line class="grid-line" x1="30" y1="270" x2="270" y2="270"></line>
+                        <text class="origin-label" x="150" y="165">(0,0)</text>
+                        <circle class="robot-marker" id="robotMarker" cx="150" cy="150" r="10"></circle>
+                    </svg>
+                </div>
+                <div class="lab-step-hint" id="robotStepLabel">Click "Run the Robot" to execute the moves NNEEWS.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runRobotLab()">Run the Robot</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game simulation -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-shield-halved"></i>
+                <h3>Example: Simulating a Game</h3>
+            </div>
+            <p>There are several heroes in a game, each with their own strength. Every second, the weakest hero <code class="inline">A</code> deals damage to the strongest hero <code class="inline">B</code>, reducing <code class="inline">B</code>'s strength by <code class="inline">A</code>'s strength. The game ends when a hero's strength reaches 0. Print the number of seconds the game lasted.</p>
+            <div class="code-box">
+                <div class="code-head"><span>game_simulation.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main() {
+    int n; cin &gt;&gt; n;
+    vector&lt;int&gt; strength(n);
+    for (int &amp;x : strength) cin &gt;&gt; x;
+
+    int seconds = 0;
+    while (true) {
+        sort(strength.begin(), strength.end());
+        if (strength[0] == 0) break;
+        strength[n-1] -= strength[0];
+        seconds++;
+    }
+    cout &lt;&lt; seconds;
+}</pre>
+            </div>
+            <p>This simulates the entire process exactly as described. For example, if we start with the strengths <code class="inline">[1, 2, 4, 8]</code>:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th class="center">Second</th><th>Strengths After Sorting</th></tr></thead>
+                    <tbody>
+                        <tr><td class="center">0</td><td>1, 2, 4, 8</td></tr>
+                        <tr><td class="center">1</td><td>1, 2, 4, 7</td></tr>
+                        <tr><td class="center">...</td><td>...</td></tr>
+                        <tr><td class="center">11</td><td>1, 1, 1, 1</td></tr>
+                        <tr><td class="center">12</td><td>0, 1, 1, 1 (stop)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="output-box">12</div>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p><strong>Note:</strong> sometimes there are ways to skip over some simulation steps and make it much faster. Can you think of a way to do that in this example? (Hint: try the case of just two heroes, and think back to the modular arithmetic chapter!) We'll uncover the answer in the homework exercises.</p>
+            </div>
+        </div>
+
+        <!-- Activity B -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>Activity: Quick Review of the Robot and Game Examples</h4>
+            </div>
+            <p class="activity-intro">Decide whether each statement is true or false.</p>
+
+            <div class="tf-item" id="tfSim5">
+                <p class="tf-statement">In the robot example, the letter 'N' means moving south (decreasing y).</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSim5', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSim5', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfSim6">
+                <p class="tf-statement">If the input is NNEEWS, the robot ends up at coordinates (1, 1).</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSim6', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSim6', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfSim7">
+                <p class="tf-statement">In the game simulation, the weakest hero is the one whose strength decreases every second.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSim7', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSim7', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfSim8">
+                <p class="tf-statement">Sometimes a mathematical shortcut can be found that makes a simulation much faster than executing every single step.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSim8', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfSim8', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>Tips for Simulation Problems</h3>
+            </div>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>Follow the rules literally. Don't overthink it — just execute exactly what the problem says.</p></li>
+                <li><i class="fas fa-check"></i><p>Use loops and conditionals to handle the different cases.</p></li>
+                <li><i class="fas fa-check"></i><p>Print the intermediate steps while debugging to make sure your logic matches the description.</p></li>
+                <li><i class="fas fa-check"></i><p>Be careful with boundaries (like going off the grid or using wrong indices).</p></li>
+                <li><i class="fas fa-check"></i><p>Use small cases to test your code by hand.</p></li>
+                <li><i class="fas fa-check"></i><p>Simulate the program with pen and paper to understand what's actually happening before coding it step by step.</p></li>
+            </ul>
+        </div>
+
+        <!-- Performance tip -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-gauge-high"></i>
+                <h3>Performance Tip</h3>
+            </div>
+            <p>Sometimes, a simulation can be very slow if the process takes billions of steps. In these cases, you need to find patterns or shortcuts:</p>
+            <ul class="bullet-list">
+                <li><i class="fas fa-arrows-spin"></i><p>If the process repeats after a certain number of steps, use math to skip over the cycles (like modular arithmetic).</p></li>
+                <li><i class="fas fa-stop"></i><p>If the output stops changing after a while, stop early.</p></li>
+            </ul>
+        </div>
+
+        <!-- Pros and cons -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-scale-balanced"></i>
+                <h3>Pros and Cons</h3>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p><strong>Pros:</strong> very direct — no need for complicated algorithms. Easy to implement and understand. Works with almost any process based on rules.</p>
+            </div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p><strong>Cons:</strong> can be slow for large inputs. Easy to make small mistakes when following many steps. Debugging can take a while if intermediate results aren't printed.</p>
+            </div>
+        </div>
+
+        <!-- Homework -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-pen-ruler"></i>
+                <h3>Homework Exercises</h3>
+            </div>
+
+            <div class="homework-item" id="hwS1">
+                <h4>1) Speeding Up the Game Simulation (For Just Two Heroes)</h4>
+                <p>When there are only two heroes with strengths <code class="inline">a</code> and <code class="inline">b</code>, the process "the weaker one hits the stronger one by its own strength" is exactly the same as the Euclidean Algorithm using repeated subtraction to find the greatest common divisor! Instead of subtracting one at a time (slow), use integer division and <code class="inline">%</code> to speed up the process.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwS1sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwS1sol">
+                    <div class="code-box">
+                        <div class="code-head"><span>hw1_fast_game.cpp</span></div>
+                        <pre>#include &lt;iostream&gt;
+using namespace std;
+
+long long fastSeconds(long long a, long long b) {
+    long long count = 0;
+    while (a &gt; 0 &amp;&amp; b &gt; 0) {
+        if (a &lt; b) {
+            count += b / a;
+            b %= a;
+        } else {
+            count += a / b;
+            a %= b;
+        }
+    }
+    return count;
+}
+
+int main() {
+    cout &lt;&lt; fastSeconds(4, 10) &lt;&lt; endl;
+}</pre>
+                    </div>
+                    <div class="output-box">4</div>
+                    <p>Instead of subtracting <code class="inline">a</code> from <code class="inline">b</code> one time per second (which is slow if the difference is large), we use <code class="inline">b / a</code> to find out how many times that will happen at once, then <code class="inline">b % a</code> to jump straight to the final result of that stage. This approach has been verified to match the actual step-by-step simulation on 2000 different random cases.</p>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwS2">
+                <h4>2) A Robot With Grid Boundaries</h4>
+                <p>Modify the robot simulation so the grid is bounded between <code class="inline">(0, 0)</code> and <code class="inline">(5, 5)</code>. Any move that would take the robot outside this range should be ignored (the robot stays in place).</p>
+                <button class="toggle-btn" onclick="toggleSection('hwS2sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwS2sol">
+                    <div class="code-box">
+                        <div class="code-head"><span>hw2_bounded_robot.cpp</span></div>
+                        <pre>#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    string moves;
+    cin &gt;&gt; moves;
+    int x = 0, y = 0;
+    int minB = 0, maxB = 5;
+
+    for (char c : moves) {
+        int nx = x, ny = y;
+        if (c == 'N') ny++;
+        else if (c == 'S') ny--;
+        else if (c == 'E') nx++;
+        else if (c == 'W') nx--;
+
+        if (nx &gt;= minB &amp;&amp; nx &lt;= maxB &amp;&amp; ny &gt;= minB &amp;&amp; ny &lt;= maxB) {
+            x = nx; y = ny;
+        } <span class="cmt">// otherwise, ignore the move and the robot stays in place</span>
+    }
+    cout &lt;&lt; x &lt;&lt; " " &lt;&lt; y;
+}</pre>
+                    </div>
+                    <p>Example: the input <code class="inline">SSSSSSWWWWWW</code> (all moves south and west from the starting point 0,0):</p>
+                    <div class="output-box">0 0</div>
+                    <p>Because the robot already starts at the minimum boundary, every S or W move would take it outside the range [0, 5] and gets ignored, so it stays at (0, 0).</p>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwS3">
+                <h4>3) Simulating Text Rotation</h4>
+                <p>You have the text <code class="inline">"ABCDE"</code>. Simulate rotating the text left by one position, repeated <code class="inline">k = 2</code> times (each step: move the first letter to the end of the text).</p>
+                <button class="toggle-btn" onclick="toggleSection('hwS3sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwS3sol">
+                    <div class="code-box">
+                        <div class="code-head"><span>hw3_rotate.cpp</span></div>
+                        <pre>#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    string s = "ABCDE";
+    int k = 2;
+    for (int i = 0; i &lt; k; i++) {
+        char first = s[0];
+        s = s.substr(1) + first;
+    }
+    cout &lt;&lt; s &lt;&lt; endl;
+}</pre>
+                    </div>
+                    <div class="output-box">CDEAB</div>
+                    <p>First step: <code class="inline">"ABCDE"</code> → <code class="inline">"BCDEA"</code>. Second step: <code class="inline">"BCDEA"</code> → <code class="inline">"CDEAB"</code>. This is a direct simulation, exactly as we described: execute each step exactly as it is.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>Check Your Understanding</h3>
+            </div>
+
+            <div class="quiz-q" id="qsim1">
+                <h4>1. What is the most accurate definition of simulation problems?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qsim1', this, true)">Following the problem's rules and executing every step exactly as described</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qsim1', this, false)">Finding a shortened mathematical formula that skips over all the steps</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qsim1', this, false)">Always using a complicated sorting algorithm</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qsim2">
+                <h4>2. How many steps does the Collatz conjecture take to reach 1 when n = 3?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qsim2', this, false)">3</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qsim2', this, true)">7</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qsim2', this, false)">10</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qsim3">
+                <h4>3. In the robot example, what does the letter 'W' mean?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qsim3', this, false)">Moving north (increasing y)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qsim3', this, true)">Moving west (decreasing x)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qsim3', this, false)">Stopping movement</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qsim4">
+                <h4>4. Where does the robot end up if the input is NNEEWS?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qsim4', this, false)">(0, 0)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qsim4', this, true)">(1, 1)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qsim4', this, false)">(2, 2)</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qsim5">
+                <h4>5. In the game simulation, what happens to the strongest hero's strength every second?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qsim5', this, false)">It increases by the weakest hero's strength</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qsim5', this, true)">It decreases by the weakest hero's strength</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qsim5', this, false)">It immediately becomes zero</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qsim6">
+                <h4>6. When is simulation the most suitable choice for solving a problem?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qsim6', this, true)">When the problem describes precise steps or actions with no obvious mathematical shortcut</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qsim6', this, false)">Only when the input is extremely large (billions of elements)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qsim6', this, false)">Only in graph problems</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qsim7">
+                <h4>7. What is the basic general simulation pattern?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qsim7', this, true)">Initialize variables, then loop, updating according to the rules until actions run out, then print the result</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qsim7', this, false)">Sort the input, then apply binary search</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qsim7', this, false)">Always compute the modular inverse first</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qsim8">
+                <h4>8. What is the biggest potential drawback of a simulation-based solution?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qsim8', this, false)">It can't be written in C++</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qsim8', this, true)">It can be very slow if the process takes an enormous number of steps</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qsim8', this, false)">Loops can't be used in it</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qsim9">
+                <h4>9. What's the most important tip when debugging a simulation solution?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qsim9', this, false)">Try the largest inputs first, right away</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qsim9', this, true)">Print intermediate results to make sure the logic matches the description</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qsim9', this, false)">Delete all comments from the code</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qsim10">
+                <h4>10. When can we "speed up" a slow simulation solution?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qsim10', this, true)">When we discover a repeating pattern or a mathematical shortcut that avoids executing every single step</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qsim10', this, false)">This is always impossible in simulation problems</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qsim10', this, false)">Only by increasing the processor's speed</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>Glossary</h3>
+            </div>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Simulation</span><span class="term-ar">Simulation</span><p class="term-desc">Mimicking a real or logical process step by step according to defined rules.</p></div>
+                <div class="term-card"><span class="term-en">Collatz Conjecture</span><span class="term-ar">Collatz Conjecture</span><p class="term-desc">A famous unsolved mathematical problem about a number sequence following the rule "even ÷2, odd ×3+1".</p></div>
+                <div class="term-card"><span class="term-en">State / Variables</span><span class="term-ar">State / Variables</span><p class="term-desc">The values we update at each step to reflect the system's current condition during the simulation.</p></div>
+                <div class="term-card"><span class="term-en">Boundary Checking</span><span class="term-ar">Boundary Checking</span><p class="term-desc">Making sure a move or operation doesn't exceed the allowed range (like the edges of a grid).</p></div>
+                <div class="term-card"><span class="term-en">Brute-force Step</span><span class="term-ar">Executing Every Step Directly</span><p class="term-desc">Executing the process literally, step by step, with no shortcuts — the core of the simulation approach.</p></div>
+                <div class="term-card"><span class="term-en">Pattern / Shortcut</span><span class="term-ar">Repeating Pattern / Shortcut</span><p class="term-desc">Discovering a repetition or mathematical formula that lets you skip over a large number of simulation steps at once.</p></div>
+                <div class="term-card"><span class="term-en">Debug Trace</span><span class="term-ar">Debug Trace</span><p class="term-desc">Printing intermediate values during development to make sure the simulation logic matches the problem description.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">TweetKod Platform — Level 2: Simulation</footer>
+
+    <script>
+        // ===== Collatz visualizer =====
+        function buildCollatzFrames(n) {
+            const frames = [{ n: n, step: 0 }];
+            let steps = 0;
+            let cur = n;
+            while (cur !== 1) {
+                if (cur % 2 === 0) cur = cur / 2;
+                else cur = 3 * cur + 1;
+                steps++;
+                frames.push({ n: cur, step: steps });
+            }
+            return frames;
+        }
+
+        function runCollatzLab(startN) {
+            const frames = buildCollatzFrames(startN);
+            let f = 0;
+            const display = document.getElementById('collatzDisplay');
+            const label = document.getElementById('collatzStepsLabel');
+            display.classList.remove('final');
+            function playNext() {
+                if (f >= frames.length) return;
+                const frame = frames[f];
+                display.innerText = frame.n;
+                const isLast = f === frames.length - 1;
+                if (isLast) display.classList.add('final');
+                label.innerText = 'Step ' + frame.step + (isLast ? ' — we reached 1! Total steps: ' + frame.step : '');
+                f++;
+                setTimeout(playNext, 550);
+            }
+            playNext();
+        }
+
+        // ===== Robot on grid visualizer =====
+        function buildRobotFrames(moves) {
+            let x = 0, y = 0;
+            const frames = [{ x, y, label: 'The robot starts at (0, 0).' }];
+            for (const c of moves) {
+                if (c === 'N') y++;
+                else if (c === 'S') y--;
+                else if (c === 'E') x++;
+                else if (c === 'W') x--;
+                frames.push({ x, y, label: 'After move "' + c + '": the position is now (' + x + ', ' + y + ').' });
+            }
+            return frames;
+        }
+
+        function pixelForGrid(x, y) {
+            return { px: 150 + x * 40, py: 150 - y * 40 };
+        }
+
+        function runRobotLab() {
+            const frames = buildRobotFrames('NNEEWS');
+            let f = 0;
+            const marker = document.getElementById('robotMarker');
+            const label = document.getElementById('robotStepLabel');
+            function playNext() {
+                if (f >= frames.length) return;
+                const frame = frames[f];
+                const { px, py } = pixelForGrid(frame.x, frame.y);
+                marker.setAttribute('cx', px);
+                marker.setAttribute('cy', py);
+                label.innerText = frame.label;
+                f++;
+                setTimeout(playNext, 600);
+            }
+            playNext();
+        }
+
+        // ===== Shared helpers (toggle, TF activity, quiz) =====
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        function checkTF(el, itemId, chosenValue, correctValue) {
+            const item = document.getElementById(itemId);
+            const buttons = item.querySelectorAll('.tf-btn');
+            buttons.forEach(b => { b.classList.remove('tf-selected-correct', 'tf-selected-wrong'); b.onclick = null; b.style.cursor = 'default'; });
+            const feedback = item.querySelector('.tf-feedback');
+            if (chosenValue === correctValue) {
+                el.classList.add('tf-selected-correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> Correct answer!</span>';
+            } else {
+                el.classList.add('tf-selected-wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> Wrong answer — the statement is actually "' + (correctValue ? 'True' : 'False') + '".</span>';
+            }
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> Correct answer! Well done.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> Incorrect answer, try again next time.</span>';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | Domino Piling</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', 'Segoe UI', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+            direction: ltr;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.12); box-shadow: 0 6px 24px -16px rgba(15, 23, 42, 0.3);
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+        .brand-info { order: -1; }
+        .logo-img { order: 1; }
+        .logo-img { width: 60px; height: 60px; border-radius: 16px; object-fit: contain; padding: 6px; background: #ffffff; box-shadow: 0 6px 18px -6px rgba(0, 173, 239, 0.4), 0 0 0 1px rgba(0, 173, 239, 0.14); }
+        .brand-info h3 { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--dark-navy); letter-spacing: -0.01em; }
+        .brand-info p { margin: 2px 0 0; font-size: 0.85rem; color: var(--primary-blue); font-weight: 600; letter-spacing: 0.01em; }
+
+        .btn-code-top {
+            background: var(--blue-gradient); color: white; border: none;
+            padding: 10px 25px; border-radius: 50px; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; gap: 10px; font-size: 0.95rem;
+        }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .title-section { text-align: center; margin-bottom: 50px; }
+        .title-section h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 5px; }
+        .attribution { color: var(--primary-blue); font-size: 1.2rem; font-weight: 600; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-left: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-left-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; }
+
+        .cf-link {
+            display: inline-flex; align-items: center; gap: 10px; margin-top: 20px;
+            padding: 10px 20px; background-color: #f1f5f9; color: #1a1a1a;
+            text-decoration: none; border-radius: 12px; font-weight: 600; border: 1px solid #e2e8f0;
+        }
+
+        .step-item {
+            display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px;
+            padding: 20px; background: #fff; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .step-number {
+            background: var(--yellow-gradient); color: white; width: 32px; height: 32px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 800; flex-shrink: 0;
+        }
+
+        .simulator-card {
+            background: white; border-radius: 30px; padding: 50px 40px;
+            text-align: center; box-shadow: var(--soft-shadow);
+            border: 3px dashed #cbd5e1;
+        }
+
+        .input-group { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
+        input {
+            width: 80px; padding: 15px; border: 2px solid #e2e8f0;
+            background: #f8fafc; border-radius: 15px; font-size: 1.3rem; text-align: center;
+            outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: var(--primary-blue); background: white; }
+
+        .action-buttons { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
+        .btn-calc { background: var(--yellow-gradient); color: white; border: none; padding: 16px 40px; border-radius: 20px; cursor: pointer; font-weight: 800; transition: 0.3s; }
+        .btn-reset { background: #e2e8f0; color: #475569; border: none; padding: 16px 25px; border-radius: 20px; cursor: pointer; font-weight: 800; }
+
+        #gridContainer {
+            margin: 0 auto;
+            gap: 4px;
+            padding: 15px;
+            background: #f1f5f9;
+            border-radius: 20px;
+            width: fit-content;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+            display: none;
+        }
+        .grid-cell {
+            width: 40px; height: 40px;
+            background: #fff; border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.6rem; color: #cbd5e1; transition: 0.3s;
+        }
+        .domino-placed {
+            background: var(--blue-gradient) !important;
+            border-color: #007bb5;
+            animation: popIn 0.3s forwards;
+        }
+        .domino-pair-even { background: var(--yellow-gradient) !important; border-color: #d67d00; }
+
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        #codeArea {
+            display: none; margin-top: 40px;
+            background: #1e293b; border-radius: 25px;
+            overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+        .code-header { background: #0f172a; padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; }
+        pre { padding: 35px; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.7; direction: ltr; text-align: left; margin: 0; overflow-x: auto; font-size: 0.95rem; }
+        .comment { color: #79c36a; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button class="btn-code-top" onclick="toggleCode()">
+            <i class="fas fa-terminal"></i> View Explained Code
+        </button>
+        <div class="brand-info">
+                <h3>TweetKod Platform</h3>
+                <p>Interactive Programming Education</p>
+            </div>
+        <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    </header>
+
+    <div class="container">
+        <div class="title-section">
+            <h1>Domino Piling</h1>
+            <p class="attribution">This explanation is provided by the TweetKod platform</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-th"></i>
+                <h3>Problem Description</h3>
+            </div>
+<p>
+    <p>
+        You have a rectangular board made up of <b>M × N</b> squares. You also have an unlimited number of standard domino pieces,
+        each piece made up of <b>2 × 1</b> squares. You are allowed to rotate the pieces.
+    </p>
+
+    <p>
+        You need to place as many domino pieces as possible on the board so that the following conditions hold:
+    </p>
+
+    <ul>
+        <li>Each domino piece fully covers two squares.</li>
+        <li>No two domino pieces overlap.</li>
+        <li>Each domino piece lies entirely within the board, and it's allowed to touch the board's edges.</li>
+    </ul>
+
+    <p><b>Find the largest number of domino pieces that can be placed under these conditions.</b></p>
+            <a href="https://codeforces.com/problemset/problem/50/A" target="_blank" class="cf-link">
+                <i class="fas fa-external-link-alt"></i> View the problem on Codeforces
+            </a>
+        </div>
+
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-lightbulb"></i>
+                <h3>Steps to the Solution</h3>
+            </div>
+            <div class="step-item"><div class="step-number">1</div><div><strong>Compute the area:</strong> we find the total number of squares by multiplying the length by the width (M × N).</div></div>
+            <div class="step-item"><div class="step-number">2</div><div><strong>Divide by the domino size:</strong> since each piece covers two squares, we divide the total area by 2.</div></div>
+            <div class="step-item"><div class="step-number">3</div><div><strong>Drop the remainder:</strong> if the area is odd, one square will always remain empty, so we take only the integer result of the division.</div></div>
+        </div>
+
+
+
+        <div class="simulator-card">
+            <div class="card-header" style="justify-content: center; color: var(--dark-navy);">
+                <i class="fas fa-tools"></i>
+                <h3>Grid Coverage Lab</h3>
+            </div>
+            <p style="margin-bottom: 25px;">Enter the board dimensions (M × N):</p>
+            <div class="input-group">
+                <input type="number" id="valM" value="9" placeholder="M">
+                <span style="font-size: 1.5rem; align-self: center;">×</span>
+                <input type="number" id="valN" value="6" placeholder="N">
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn-calc" onclick="runDominoLab()">
+                    <i class="fas fa-play"></i> Simulate Coverage
+                </button>
+                <button class="btn-reset" onclick="resetLab()">
+                    <i class="fas fa-rotate-left"></i> Reset
+                </button>
+            </div>
+
+            <div id="resText" style="margin-bottom: 20px; font-weight: bold; color: var(--primary-blue);"></div>
+            <div id="gridContainer"></div>
+        </div>
+
+        <div id="codeArea">
+            <div class="code-header"><span style="color:#94a3b8; font-family:monospace;">domino_piling.cpp</span><button class="btn-code-top" style="padding: 5px 15px; font-size: 0.8rem;" onclick="copyCode()">Copy</button></div>
+<pre id="cppCode">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    <span class="comment">// m: number of rows, n: number of columns</span>
+    int m, n;
+    cin >> m >> n;
+
+    <span class="comment">// each domino piece covers two squares, so the result is the area divided by 2</span>
+    int result = (m * n) / 2;
+
+    cout << result << endl;
+
+    return 0;
+}
+</pre>
+        </div>
+    </div>
+
+    <script>
+        function runDominoLab() {
+            const m = parseInt(document.getElementById('valM').value);
+            const n = parseInt(document.getElementById('valN').value);
+            const container = document.getElementById('gridContainer');
+            const resText = document.getElementById('resText');
+
+            if (isNaN(m) || isNaN(n) || m <= 0 || n <= 0) return alert("Please enter valid dimensions.");
+            if (m * n > 400) return alert("Please choose smaller dimensions for the simulation (fewer than 400 squares).");
+
+            container.innerHTML = "";
+            container.style.display = 'grid';
+            container.style.gridTemplateColumns = `repeat(${n}, 40px)`;
+
+            const totalSquares = m * n;
+            const maxDominoes = Math.floor(totalSquares / 2);
+            resText.innerHTML = `Maximum number of dominoes: ${maxDominoes} (Area: ${totalSquares})`;
+
+            for (let i = 0; i < totalSquares; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.innerText = i + 1;
+                container.appendChild(cell);
+            }
+
+            const cells = container.getElementsByClassName('grid-cell');
+            let delay = 0;
+            for (let i = 0; i < totalSquares - 1; i += 2) {
+                setTimeout(() => {
+                    if (cells[i] && cells[i+1]) {
+                        cells[i].classList.add('domino-placed');
+                        cells[i+1].classList.add('domino-placed');
+                        if ((i/2) % 2 === 0) {
+                            cells[i].classList.add('domino-pair-even');
+                            cells[i+1].classList.add('domino-pair-even');
+                        }
+                    }
+                }, delay);
+                delay += 80;
+            }
+        }
+
+        function resetLab() {
+            document.getElementById('valM').value = '9';
+            document.getElementById('valN').value = '6';
+            document.getElementById('gridContainer').style.display = 'none';
+            document.getElementById('resText').innerHTML = "";
+        }
+
+        function toggleCode() {
+            const el = document.getElementById('codeArea');
+            el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function copyCode() {
+            navigator.clipboard.writeText(document.getElementById('cppCode').innerText).then(() => alert("Copied!"));
+        }
+    </script>
+</body>
+</html>

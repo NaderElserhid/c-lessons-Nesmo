@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | Greedy Algorithms</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', 'Segoe UI', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.12); box-shadow: 0 6px 24px -16px rgba(15, 23, 42, 0.3); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+        .brand-info { order: -1; }
+        .logo-img { order: 1; }
+        .logo-img { width: 60px; height: 60px; border-radius: 16px; object-fit: contain; padding: 6px; background: #ffffff; box-shadow: 0 6px 18px -6px rgba(0, 173, 239, 0.4), 0 0 0 1px rgba(0, 173, 239, 0.14); }
+        .brand-info h3 { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--dark-navy); letter-spacing: -0.01em; }
+        .brand-info p { margin: 2px 0 0; font-size: 0.85rem; color: var(--primary-blue); font-weight: 600; letter-spacing: 0.01em; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        /* hero banner */
+        .hero-banner { background: var(--blue-gradient); padding: 70px 6% 60px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 720px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-left: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-left-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula { direction: ltr; display: inline-block; font-family: 'Consolas', monospace; font-weight: 800; background: #eef2f7; padding: 3px 10px; border-radius: 8px; color: var(--dark-navy); }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: left; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td code.inline, .data-table th code.inline { white-space: nowrap; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+
+        /* numbered steps */
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        /* bullet list (non-numbered, for tips) */
+        .bullet-list { list-style: none; padding: 0; margin: 16px 0; }
+        .bullet-list li { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; color: var(--text-body); }
+        .bullet-list li i { color: var(--primary-blue); margin-top: 4px; flex-shrink: 0; }
+
+        /* interactive lab */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 14px 0 6px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+
+        /* coin change lab */
+        .coin-amount-display { text-align: center; margin: 6px 0 16px; }
+        .coin-amount-value {
+            font-family: 'Consolas', monospace; font-weight: 800; font-size: 2.2rem; color: var(--dark-navy);
+            background: var(--bg-main); border: 3px solid #cbd5e1; border-radius: 20px; padding: 14px 28px;
+            display: inline-block; min-width: 120px; transition: border-color 0.2s, background 0.2s;
+        }
+        .coin-amount-value.final { border-color: #22c55e; background: rgba(34, 197, 94, 0.1); color: #15803d; }
+        .coin-amount-label { text-align: center; font-size: 0.75rem; color: #94a3b8; margin-top: 6px; }
+        .coin-slots { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; direction: ltr; margin: 10px 0; }
+        .coin-slot { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .coin-circle {
+            width: 62px; height: 62px; border-radius: 50%; border: 3px solid #cbd5e1; background: var(--bg-main);
+            display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: 'Consolas', monospace;
+            font-size: 1rem; color: var(--dark-navy); transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .coin-circle.active { border-color: var(--primary-yellow); box-shadow: 0 0 0 4px rgba(247, 148, 30, 0.18); }
+        .coin-count { font-size: 0.8rem; font-weight: 800; color: var(--primary-blue); font-family: 'Consolas', monospace; }
+
+        /* activity selection timeline */
+        .timeline-svg-wrap { text-align: center; margin: 10px 0; }
+        .timeline-svg-wrap svg { max-width: 100%; height: auto; }
+        .activity-bar { fill: var(--bg-main); stroke: #cbd5e1; stroke-width: 2; rx: 6; transition: fill 0.2s, stroke 0.2s, opacity 0.2s; }
+        .activity-bar.checking { fill: rgba(247, 148, 30, 0.25); stroke: var(--primary-yellow); }
+        .activity-bar.selected { fill: rgba(34, 197, 94, 0.2); stroke: #22c55e; }
+        .activity-bar.skipped { fill: rgba(239, 68, 68, 0.08); stroke: #ef4444; opacity: 0.55; }
+        .activity-label { font-family: 'Consolas', monospace; font-size: 12px; fill: var(--dark-navy); }
+        .timeline-legend { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; font-size: 0.78rem; color: var(--text-body); margin-bottom: 10px; }
+        .timeline-legend span { display: inline-flex; align-items: center; gap: 6px; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+        .legend-dot.dot-check { background: var(--primary-yellow); }
+        .legend-dot.dot-sel { background: #22c55e; }
+        .legend-dot.dot-skip { background: #ef4444; opacity: 0.55; }
+
+        /* true/false quick-review activity */
+        .activity-box { background: white; border-radius: 22px; padding: 32px; margin: 28px 0; box-shadow: var(--soft-shadow); border: 1px solid #e2e8f0; }
+        .activity-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .activity-header i { color: var(--primary-blue); font-size: 1.2rem; }
+        .activity-header h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); }
+        .activity-intro { margin-bottom: 20px; font-size: 0.92rem; }
+        .tf-item {
+            background: var(--bg-main); border-radius: 16px; padding: 18px 22px; margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+            border: 1px solid #e2e8f0;
+        }
+        .tf-statement { margin: 0; font-weight: 700; color: var(--dark-navy); font-size: 0.95rem; flex: 1 1 260px; direction: ltr; text-align: left; unicode-bidi: plaintext; }
+        .tf-buttons { display: flex; gap: 10px; flex-shrink: 0; }
+        .tf-btn {
+            border: 2px solid #e2e8f0; background: white; padding: 9px 26px; border-radius: 50px;
+            font-weight: 800; font-family: 'Tajawal'; font-size: 0.88rem; cursor: pointer; color: var(--dark-navy); transition: 0.2s;
+        }
+        .tf-btn:hover { border-color: var(--primary-blue); }
+        .tf-btn.tf-selected-correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .tf-btn.tf-selected-wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .tf-feedback { flex-basis: 100%; margin-top: 2px; font-weight: 700; font-size: 0.85rem; min-height: 18px; }
+
+        /* homework toggles */
+        .homework-item { background: var(--bg-main); border-radius: 18px; padding: 24px; margin-top: 20px; border: 1px solid #e2e8f0; }
+        .homework-item h4 { margin: 0 0 10px; color: var(--dark-navy); font-size: 1.02rem; font-weight: 800; }
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            margin-top: 14px;
+        }
+        .collapsible { display: none; margin-top: 14px; }
+        .collapsible.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: left; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">C++</span>
+            <span class="chapter-badge">Greedy Algorithms</span>
+        </div>
+        <div class="brand-info">
+                <h3>TweetKod Platform</h3>
+                <p>Interactive Programming Education</p>
+            </div>
+        <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-coins"></i>
+        <h1>Greedy Algorithms</h1>
+        <p class="hero-desc">In the casework chapter you learned to split a problem into different situations. Now we'll learn a completely different solving strategy: instead of trying every possibility, at each step you pick whichever option looks best right now, never going back. This approach — greedy algorithms — is fast and simple, but it's a double-edged sword: sometimes it gives you the exact optimal solution, and sometimes it leads you into a trap. The most important part of this chapter is learning how to tell the two cases apart.</p>
+    </div>
+
+    <div class="container">
+
+        <!-- What does greedy mean -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-hand-point-up"></i>
+                <h3>What Does "Greedy" Mean?</h3>
+            </div>
+            <p>A greedy algorithm builds the solution step by step, and at each step it chooses <strong>the best option currently available</strong>, without thinking about future consequences.</p>
+            <p>Imagine you always take the biggest cookie first — hoping that will lead you to the best possible outcome in the end.</p>
+            <p>The word "Greedy" means <strong>locally optimal</strong> — that is, at each step you choose the decision that looks best at the current moment. Sometimes this reaches the optimal solution (the best possible solution), and sometimes it fails. The secret is knowing when the greedy strategy works and when it doesn't — and that's exactly what this chapter is about.</p>
+        </div>
+
+        <!-- General idea -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-lightbulb"></i>
+                <h3>The General Idea</h3>
+            </div>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p>You have a goal (like minimizing cost or maximizing value).</p></li>
+                <li class="step-item"><span class="step-num"></span><p>At each step you take the option that looks best right now.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>You continue until the solution is complete.</p></li>
+            </ul>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>The golden rule: <strong>never go back and revise your earlier decisions</strong> in a greedy algorithm.</p>
+            </div>
+            <p>The general pattern:</p>
+            <div class="code-box">
+                <div class="code-head"><span>pattern.txt</span></div>
+                <pre>while (problem is not solved) {
+    pick the best option available right now;
+    update the state of the problem;
+}</pre>
+            </div>
+        </div>
+
+        <!-- Coin change -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-coins"></i>
+                <h3>Example: Coin Change</h3>
+            </div>
+            <p>You have coins: <code class="inline">1, 5, 10, 25</code>. Find the minimum number of coins to make the amount <code class="inline">63</code>.</p>
+            <p><strong>The greedy idea:</strong> always take the largest possible coin.</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>coin_change.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    int amount = 63;
+    vector&lt;int&gt; coins = {25, 10, 5, 1};
+    int count = 0;
+
+    for (int c : coins) {
+        count += amount / c;
+        amount %= c;
+    }
+    cout &lt;&lt; count; <span class="cmt">// 6 coins</span>
+}</pre>
+            </div>
+            <p>The choices: <span class="formula">25 + 25 + 10 + 1 + 1 + 1 = 63</span>. Result = 6 coins.</p>
+            <div class="output-box">6</div>
+            <p>This method works for most real-world coin systems.</p>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> Interactive Lab: Watch the Greedy Algorithm Choose Coins</p>
+                <div class="coin-amount-display">
+                    <div class="coin-amount-value" id="coinAmountDisplay">63</div>
+                </div>
+                <div class="coin-amount-label">Remaining Amount</div>
+                <div class="coin-slots">
+                    <div class="coin-slot"><div class="coin-circle" id="coinCircle25">25</div><div class="coin-count" id="coinCount25">×0</div></div>
+                    <div class="coin-slot"><div class="coin-circle" id="coinCircle10">10</div><div class="coin-count" id="coinCount10">×0</div></div>
+                    <div class="coin-slot"><div class="coin-circle" id="coinCircle5">5</div><div class="coin-count" id="coinCount5">×0</div></div>
+                    <div class="coin-slot"><div class="coin-circle" id="coinCircle1">1</div><div class="coin-count" id="coinCount1">×0</div></div>
+                </div>
+                <div class="lab-step-hint" id="coinStepLabel">Click "Run the Visualizer" to begin.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runCoinLab()">Run the Visualizer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity A -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>Activity: Quick Review of Coin Change</h4>
+            </div>
+            <p class="activity-intro">Decide whether each statement is true or false.</p>
+
+            <div class="tf-item" id="tfGr1">
+                <p class="tf-statement">A greedy algorithm goes back and revises its earlier decisions if it discovers they weren't the best.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr1', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr1', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfGr2">
+                <p class="tf-statement">In the coin change example with coins 1, 5, 10, 25 and amount 63, the greedy solution uses 6 coins.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr2', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr2', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfGr3">
+                <p class="tf-statement">A greedy algorithm examines every possible solution before choosing the best one among them.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr3', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr3', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfGr4">
+                <p class="tf-statement">The greedy strategy for coins 1, 5, 10, 25 always gives the optimal solution (the minimum possible number of coins).</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr4', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr4', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Activity selection -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-calendar-check"></i>
+                <h3>Example: Activity Selection</h3>
+            </div>
+            <p>You have a set of activities, each with a start time and an end time, and you can only do one activity at a time. What's the maximum number of activities you can finish?</p>
+            <p><strong>The greedy idea:</strong> choose the activity that finishes first.</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>activity_selection.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main() {
+    vector&lt;pair&lt;int, int&gt;&gt; act = {{1, 3}, {2, 5}, {4, 6}, {6, 8}, {5, 7}};
+    sort(act.begin(), act.end(), [](auto &amp;a, auto &amp;b){ return a.second &lt; b.second; });
+
+    int count = 0, end = 0;
+    for (auto &amp;p : act) {
+        if (p.first &gt;= end) {
+            count++;
+            end = p.second;
+        }
+    }
+    cout &lt;&lt; count; <span class="cmt">// 3</span>
+}</pre>
+            </div>
+            <p>We always choose the activity that finishes earliest — because it leaves the largest possible room for other activities.</p>
+            <div class="output-box">3</div>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> Interactive Lab: A Timeline for Activity Selection</p>
+                <div class="timeline-legend">
+                    <span><span class="legend-dot dot-check"></span> Being checked</span>
+                    <span><span class="legend-dot dot-sel"></span> Accepted</span>
+                    <span><span class="legend-dot dot-skip"></span> Rejected (conflict)</span>
+                </div>
+                <div class="timeline-svg-wrap">
+                    <svg viewBox="0 0 360 220">
+                        <rect class="activity-bar" id="actBar0" x="60" y="20" width="80" height="24" rx="6"></rect>
+                        <text class="activity-label" x="70" y="36">(1,3)</text>
+                        <rect class="activity-bar" id="actBar1" x="100" y="58" width="120" height="24" rx="6"></rect>
+                        <text class="activity-label" x="110" y="74">(2,5)</text>
+                        <rect class="activity-bar" id="actBar2" x="180" y="96" width="80" height="24" rx="6"></rect>
+                        <text class="activity-label" x="190" y="112">(4,6)</text>
+                        <rect class="activity-bar" id="actBar3" x="220" y="134" width="80" height="24" rx="6"></rect>
+                        <text class="activity-label" x="230" y="150">(5,7)</text>
+                        <rect class="activity-bar" id="actBar4" x="260" y="172" width="80" height="24" rx="6"></rect>
+                        <text class="activity-label" x="270" y="188">(6,8)</text>
+                    </svg>
+                </div>
+                <div class="lab-step-hint" id="activityStepLabel">Click "Run the Visualizer" to start sorting and selecting activities.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runActivityLab()">Run the Visualizer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- When greedy works -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-check"></i>
+                <h3>When Do Greedy Algorithms Succeed?</h3>
+            </div>
+            <p>They succeed when the best local choice always leads to the best global solution. This happens when the problem has:</p>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p><strong>The Greedy Choice Property.</strong></p></li>
+                <li><i class="fas fa-check"></i><p><strong>Optimal Substructure.</strong></p></li>
+            </ul>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>You don't need to memorize these terms precisely — just practically test whether the greedy strategy works in every case before relying on it.</p>
+            </div>
+            <p>Examples where greedy works:</p>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>A coin system (1, 2, 5) → taking the largest first always gives the minimum count.</p></li>
+                <li><i class="fas fa-check"></i><p>Scheduling the shortest tasks first — lets you finish the largest number of them.</p></li>
+                <li><i class="fas fa-check"></i><p>Choosing the largest values when certain limits exist.</p></li>
+            </ul>
+        </div>
+
+        <!-- When greedy fails -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>Examples Where Greedy Fails</h3>
+            </div>
+            <p>The coins <code class="inline">{1, 3, 4}</code> and the amount <code class="inline">6</code>:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>Strategy</th><th>Choice</th><th class="center">Number of Coins</th></tr></thead>
+                    <tbody>
+                        <tr><td>Greedy (largest first)</td><td><code class="inline">4 + 1 + 1</code></td><td class="center">3</td></tr>
+                        <tr><td>Actually best</td><td><code class="inline">3 + 3</code></td><td class="center">2</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>Greedy fails here! Because taking the larger coin (4) first prevents us from reaching the better solution (3+3). This is a classic example showing that greedy is <strong>not a guarantee</strong> — its success depends on the nature of the specific coin system.</p>
+            </div>
+            <p>Another example: sorting large items first when trying to fill a bag (the Knapsack problem) — this can rule out better solutions, because a large item might occupy space that could have been filled with smaller items worth a higher total value.</p>
+        </div>
+
+        <!-- Activity B -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>Activity: Quick Review of When Greedy Succeeds and Fails</h4>
+            </div>
+            <p class="activity-intro">Decide whether each statement is true or false.</p>
+
+            <div class="tf-item" id="tfGr5">
+                <p class="tf-statement">A greedy algorithm always succeeds, regardless of the type of problem.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr5', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr5', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfGr6">
+                <p class="tf-statement">For coins {1, 3, 4} and the amount 6, the greedy solution gives 3 coins while the best solution is just two coins.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr6', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr6', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfGr7">
+                <p class="tf-statement">In the activity selection example, we always choose the activity that starts first.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr7', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr7', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfGr8">
+                <p class="tf-statement">The "greedy choice" property and the "optimal substructure" property are what theoretically determine whether a greedy strategy succeeds.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr8', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfGr8', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Design steps -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-list-ol"></i>
+                <h3>Steps for Designing a Greedy Algorithm</h3>
+            </div>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p>Sort something (by value, time, ratio, ...).</p></li>
+                <li class="step-item"><span class="step-num"></span><p>Go through the elements in order.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>Choose the best valid option each time.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>Update the state (remaining time, remaining capacity, ...).</p></li>
+            </ul>
+            <p>A common pattern:</p>
+            <div class="code-box">
+                <div class="code-head"><span>greedy_pattern.cpp</span></div>
+                <pre>sort(items.begin(), items.end(), rule);
+for (auto &amp;item : items) {
+    if (can_take(item)) take(item);
+}</pre>
+            </div>
+        </div>
+
+        <!-- Pros and cons -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-scale-balanced"></i>
+                <h3>Pros and Cons</h3>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p><strong>Pros:</strong> very fast and simple. Often easy to understand and implement. Suitable for scheduling and selection problems.</p>
+            </div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p><strong>Cons:</strong> doesn't always give the optimal solution. Early decisions can ruin the solution later on. Must be carefully tested or proven before relying on it.</p>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>Tips</h3>
+            </div>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>Always ask: could this choice prevent better solutions later?</p></li>
+                <li><i class="fas fa-check"></i><p>Try building counterexamples to test the strategy.</p></li>
+                <li><i class="fas fa-check"></i><p>Many greedy problems rely on a "sort + select" pattern.</p></li>
+            </ul>
+        </div>
+
+        <!-- Quick summary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>Quick Summary</h3>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>
+                    Greedy = choosing the best local decision at each step.<br>
+                    It only works when these decisions guarantee the globally optimal solution.<br>
+                    Common in scheduling, graphs, and resource allocation.<br>
+                    Simple and fast to implement and code.
+                </p>
+            </div>
+        </div>
+
+        <!-- Homework -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-pen-ruler"></i>
+                <h3>Homework Exercises</h3>
+            </div>
+
+            <div class="homework-item" id="hwG1">
+                <h4>1) Coin Change With a Different Amount</h4>
+                <p>Using the same coins <code class="inline">{25, 10, 5, 1}</code>, find the minimum number of coins to make the amount <code class="inline">87</code> using the greedy strategy.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwG1sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwG1sol">
+                    <p><span class="formula">87 &divide; 25 = 3</span> (remainder 12) → <span class="formula">12 &divide; 10 = 1</span> (remainder 2) → <span class="formula">2 &divide; 5 = 0</span> (remainder 2) → <span class="formula">2 &divide; 1 = 2</span>.</p>
+                    <div class="output-box">3 + 1 + 0 + 2 = 6 coins</div>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwG2">
+                <h4>2) Activity Selection With a Different Set</h4>
+                <p>You have the following activities (start, end): <code class="inline">{(1,2), (3,4), (0,6), (5,7), (8,9), (5,9)}</code>. Apply the "earliest finish time first" strategy to find the maximum number of activities that can be selected.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwG2sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwG2sol">
+                    <p>After sorting by finish time: <code class="inline">(1,2), (3,4), (5,7), (0,6), (8,9), (5,9)</code> — in order of end times: 2, 4, 6, 7, 9, 9.</p>
+                    <p>Going through: we select (1,2) [end=2]. We select (3,4) [end=4]. We check (0,6): its start 0 &lt; 4 → rejected. We select (5,7) [end=7] because 5 &ge; 4. We select (8,9) [end=9] because 8 &ge; 7. We check (5,9): its start 5 &lt; 9 → rejected.</p>
+                    <div class="output-box">Selected activities: (1,2), (3,4), (5,7), (8,9)
+Total count = 4</div>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwG3">
+                <h4>3) Discovering Where Greedy Fails for Coins {1, 3, 4}</h4>
+                <p>Using coins <code class="inline">{1, 3, 4}</code>, try the amounts from 1 to 30 and compare the greedy strategy's result with the true optimal solution (which can be computed with simple dynamic programming). How many amounts does greedy fail on?</p>
+                <button class="toggle-btn" onclick="toggleSection('hwG3sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwG3sol">
+                    <div class="code-box">
+                        <div class="code-head"><span>hw3_stress.cpp</span></div>
+                        <pre>int greedyCoins(int amount, vector&lt;int&gt; coins) {
+    int count = 0;
+    for (int c : coins) {
+        count += amount / c;
+        amount %= c;
+    }
+    return count;
+}
+
+int optimalCoins(int amount, vector&lt;int&gt;&amp; coins) {
+    vector&lt;int&gt; dp(amount+1, INT_MAX);
+    dp[0] = 0;
+    for (int i = 1; i &lt;= amount; i++)
+        for (int c : coins)
+            if (c &lt;= i &amp;&amp; dp[i-c] != INT_MAX)
+                dp[i] = min(dp[i], dp[i-c]+1);
+    return dp[amount];
+}</pre>
+                    </div>
+                    <div class="output-box">Greedy fails at the amounts: 6, 10, 14, 18, 22, 26, 30
+(7 failing cases out of 30 amounts tested)</div>
+                    <p>Notice the pattern: all the failing cases are numbers increasing by 4 starting from 6 (that is, amounts congruent to 2 mod 4). In all these cases, greedy uses one extra coin of 4 that it shouldn't, instead of replacing it with two coins of 3 — exactly the kind of "testing with counterexamples" this chapter's tips recommended.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>Check Your Understanding</h3>
+            </div>
+
+            <div class="quiz-q" id="qg1">
+                <h4>1. What does it mean for an algorithm to be "Greedy"?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qg1', this, true)">It chooses, at each step, the option that currently looks best, without looking ahead to the future</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg1', this, false)">It tries every possible solution and compares them at the end</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg1', this, false)">It relies only on a random ordering of the elements</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qg2">
+                <h4>2. In the coin change example (1, 5, 10, 25) and amount 63, how many coins does the greedy solution use?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qg2', this, false)">4</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg2', this, true)">6</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg2', this, false)">63</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qg3">
+                <h4>3. In the activity selection example, what's the greedy selection criterion?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qg3', this, false)">Choosing the activity that starts first</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg3', this, true)">Choosing the activity that finishes first</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg3', this, false)">Choosing the longest-duration activity</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qg4">
+                <h4>4. For the activities {(1,3), (2,5), (4,6), (6,8), (5,7)}, what's the maximum number of activities that can be selected?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qg4', this, false)">2</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg4', this, true)">3</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg4', this, false)">5</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qg5">
+                <h4>5. For coins {1, 3, 4} and the amount 6, what happens?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qg5', this, true)">The greedy solution (3 coins) is worse than the best solution (two coins: 3+3)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg5', this, false)">The greedy solution always gives the same number of coins as the optimal solution</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg5', this, false)">The amount 6 cannot be formed with these coins at all</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qg6">
+                <h4>6. When is a greedy algorithm theoretically guaranteed to reach the optimal solution?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qg6', this, false)">Only when the input is small</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg6', this, true)">When the problem has both the greedy choice property and optimal substructure</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg6', this, false)">Only when it's used with a map data structure</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qg7">
+                <h4>7. What's a common pattern in designing a greedy algorithm?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qg7', this, true)">Sorting the elements first by some rule, then going through them and selecting the valid ones</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg7', this, false)">Trying elements randomly with no order at all</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg7', this, false)">Always calling the same function recursively</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qg8">
+                <h4>8. What's the biggest potential drawback of greedy algorithms?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qg8', this, false)">They're very slow compared to other solutions</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg8', this, true)">They don't always give the optimal solution, and early decisions can ruin the solution later</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg8', this, false)">They can only be written in certain programming languages</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qg9">
+                <h4>9. What's a practical way to check whether a greedy strategy is correct for a new problem?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qg9', this, false)">Assuming it's always correct because it's simple</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg9', this, true)">Trying to build a counterexample that shows it might fail</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg9', this, false)">Running it on a single input and stopping there</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qg10">
+                <h4>10. What's the main advantage of greedy algorithms?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qg10', this, true)">They're fast and simple to implement and understand</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg10', this, false)">They guarantee the optimal solution for every problem without exception</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qg10', this, false)">They never need to sort the data</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>Glossary</h3>
+            </div>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Greedy Algorithm</span><span class="term-ar">Greedy Algorithm</span><p class="term-desc">A strategy that builds the solution step by step, choosing the best local option each time with no backtracking.</p></div>
+                <div class="term-card"><span class="term-en">Local Optimum</span><span class="term-ar">Local Optimum</span><p class="term-desc">The best option available at the current moment, which may not be the best for the problem as a whole.</p></div>
+                <div class="term-card"><span class="term-en">Global Optimum</span><span class="term-ar">Global Optimum</span><p class="term-desc">The best possible solution for the entire problem, which is what we're actually trying to reach.</p></div>
+                <div class="term-card"><span class="term-en">Greedy Choice Property</span><span class="term-ar">Greedy Choice Property</span><p class="term-desc">A property guaranteeing that the best local choice always leads to the globally optimal solution.</p></div>
+                <div class="term-card"><span class="term-en">Optimal Substructure</span><span class="term-ar">Optimal Substructure</span><p class="term-desc">A property meaning the optimal solution to the big problem is made up of optimal solutions to smaller subproblems.</p></div>
+                <div class="term-card"><span class="term-en">Counterexample</span><span class="term-ar">Counterexample</span><p class="term-desc">A specific test case that shows a given greedy strategy fails and doesn't give the optimal solution.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">TweetKod Platform — Level 2: Greedy Algorithms</footer>
+
+    <script>
+        // ===== Coin change visualizer =====
+        function buildCoinFrames(amount, coins) {
+            const frames = [];
+            let remaining = amount;
+            let totalCount = 0;
+            for (const c of coins) {
+                const take = Math.floor(remaining / c);
+                remaining = remaining % c;
+                totalCount += take;
+                frames.push({ c, take, remaining, label: 'We take coin ' + c + ' a total of ' + take + ' times → remaining now: ' + remaining });
+            }
+            frames.push({ c: -1, take: -1, remaining, totalCount, label: 'Done! Minimum number of coins = ' + totalCount, isFinal: true });
+            return frames;
+        }
+
+        function runCoinLab() {
+            const coins = [25, 10, 5, 1];
+            const amount = 63;
+            const frames = buildCoinFrames(amount, coins);
+            let totalCount = 0;
+            let f = 0;
+            const display = document.getElementById('coinAmountDisplay');
+            const label = document.getElementById('coinStepLabel');
+            display.classList.remove('final');
+            document.getElementById('coinCircle25').classList.remove('active');
+            document.getElementById('coinCircle10').classList.remove('active');
+            document.getElementById('coinCircle5').classList.remove('active');
+            document.getElementById('coinCircle1').classList.remove('active');
+            function playNext() {
+                if (f >= frames.length) return;
+                const frame = frames[f];
+                if (!frame.isFinal) {
+                    totalCount += frame.take;
+                    document.getElementById('coinCircle25').classList.remove('active');
+                    document.getElementById('coinCircle10').classList.remove('active');
+                    document.getElementById('coinCircle5').classList.remove('active');
+                    document.getElementById('coinCircle1').classList.remove('active');
+                    document.getElementById('coinCircle' + frame.c).classList.add('active');
+                    document.getElementById('coinCount' + frame.c).innerText = '×' + frame.take;
+                    display.innerText = frame.remaining;
+                    label.innerText = frame.label;
+                } else {
+                    display.classList.add('final');
+                    label.innerText = 'Done! Minimum number of coins = ' + totalCount;
+                }
+                f++;
+                setTimeout(playNext, 800);
+            }
+            playNext();
+        }
+
+        // ===== Activity selection visualizer =====
+        function buildActivityFrames() {
+            const acts = [{ s: 1, e: 3, row: 0 }, { s: 2, e: 5, row: 1 }, { s: 4, e: 6, row: 2 }, { s: 5, e: 7, row: 3 }, { s: 6, e: 8, row: 4 }];
+            const frames = [];
+            const decisions = { 0: 'pending', 1: 'pending', 2: 'pending', 3: 'pending', 4: 'pending' };
+            let end = 0, count = 0;
+            for (const act of acts) {
+                frames.push({ decisions: Object.assign({}, decisions), checkingRow: act.row, label: 'Checking activity (' + act.s + ',' + act.e + '): is ' + act.s + ' >= ' + end + '?' });
+                if (act.s >= end) {
+                    decisions[act.row] = 'selected';
+                    count++;
+                    end = act.e;
+                    frames.push({ decisions: Object.assign({}, decisions), checkingRow: -1, label: 'Accepted! Count is now: ' + count + '. End of the last selected activity = ' + end + '.' });
+                } else {
+                    decisions[act.row] = 'skipped';
+                    frames.push({ decisions: Object.assign({}, decisions), checkingRow: -1, label: 'Rejected — conflicts with a previously selected activity.' });
+                }
+            }
+            frames.push({ decisions: Object.assign({}, decisions), checkingRow: -1, label: 'Done! Maximum number of activities that can be completed = ' + count + '.', isFinal: true });
+            return frames;
+        }
+
+        function renderActivityFrame(frame) {
+            for (let r = 0; r < 5; r++) {
+                const bar = document.getElementById('actBar' + r);
+                bar.classList.remove('checking', 'selected', 'skipped');
+                if (r === frame.checkingRow) {
+                    bar.classList.add('checking');
+                } else if (frame.decisions[r] === 'selected') {
+                    bar.classList.add('selected');
+                } else if (frame.decisions[r] === 'skipped') {
+                    bar.classList.add('skipped');
+                }
+            }
+            document.getElementById('activityStepLabel').innerText = frame.label;
+        }
+
+        function runActivityLab() {
+            const frames = buildActivityFrames();
+            let f = 0;
+            function playNext() {
+                if (f >= frames.length) return;
+                renderActivityFrame(frames[f]);
+                f++;
+                setTimeout(playNext, 700);
+            }
+            playNext();
+        }
+
+        // ===== Shared helpers (toggle, TF activity, quiz) =====
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        function checkTF(el, itemId, chosenValue, correctValue) {
+            const item = document.getElementById(itemId);
+            const buttons = item.querySelectorAll('.tf-btn');
+            buttons.forEach(b => { b.classList.remove('tf-selected-correct', 'tf-selected-wrong'); b.onclick = null; b.style.cursor = 'default'; });
+            const feedback = item.querySelector('.tf-feedback');
+            if (chosenValue === correctValue) {
+                el.classList.add('tf-selected-correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> Correct answer!</span>';
+            } else {
+                el.classList.add('tf-selected-wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> Wrong answer — the statement is actually "' + (correctValue ? 'True' : 'False') + '".</span>';
+            }
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> Correct answer! Well done.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> Incorrect answer, try again next time.</span>';
+            }
+        }
+    </script>
+</body>
+</html>

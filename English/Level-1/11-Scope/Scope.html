@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | Name Visibility (Scope)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', 'Segoe UI', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.12); box-shadow: 0 6px 24px -16px rgba(15, 23, 42, 0.3);
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+        .brand-info { order: -1; }
+        .logo-img { order: 1; }
+        .logo-img { width: 60px; height: 60px; border-radius: 16px; object-fit: contain; padding: 6px; background: #ffffff; box-shadow: 0 6px 18px -6px rgba(0, 173, 239, 0.4), 0 0 0 1px rgba(0, 173, 239, 0.14); }
+        .brand-info h3 { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--dark-navy); letter-spacing: -0.01em; }
+        .brand-info p { margin: 2px 0 0; font-size: 0.85rem; color: var(--primary-blue); font-weight: 600; letter-spacing: 0.01em; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+        .title-section { text-align: center; margin-bottom: 50px; }
+        .title-section h1 { font-size: 2.4rem; font-weight: 800; margin-bottom: 5px; }
+        .attribution { color: var(--primary-blue); font-size: 1.2rem; font-weight: 600; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-left: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-left-color: var(--primary-yellow); }
+        .danger-card { border-left-color: #ef4444; }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .danger-card .card-header { color: #ef4444; }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 20px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        .copy-btn { color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+        pre { padding: 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.92rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .code-line { cursor: pointer; display: block; border-radius: 6px; padding: 2px 6px; margin: 0 -6px; transition: 0.2s; }
+        .code-line:hover { background: rgba(0, 173, 239, 0.15); }
+        .code-line.active { background: rgba(247, 148, 30, 0.25); outline: 1px dashed var(--primary-yellow); }
+        .code-line.scope-hit { background: rgba(56, 189, 248, 0.22); outline: 1px dashed #38bdf8; }
+
+        .explain-box {
+            margin-top: 18px; background: var(--bg-main); border: 2px dashed #cbd5e1;
+            border-radius: 16px; padding: 18px 22px; font-weight: 600; color: var(--dark-navy);
+            min-height: 30px; transition: 0.2s;
+        }
+        .explain-box .hint { color: #94a3b8; font-weight: 500; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 16px 22px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        .error-console {
+            background: #1e1013; color: #f87171; font-family: 'Consolas', monospace;
+            padding: 18px 22px; border-radius: 14px; margin-top: 16px; direction: ltr; text-align: left;
+            border: 1px solid #7f1d1d; font-size: 0.85rem; display: none; line-height: 1.7;
+        }
+        .error-console.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .try-btn {
+            background: var(--yellow-gradient); color: white; border: none; padding: 12px 28px;
+            border-radius: 16px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.9rem; margin-top: 14px;
+        }
+
+        .table-wrap { overflow-x: auto; margin: 15px 0; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
+        table.data-table { width: 100%; border-collapse: collapse; background: white; }
+        table.data-table th { background: var(--blue-gradient); color: white; padding: 12px 18px; font-size: 0.85rem; text-align: left; white-space: nowrap; }
+        table.data-table td { padding: 12px 18px; font-size: 0.88rem; border-bottom: 1px solid #eef2f7; color: var(--text-body); }
+        table.data-table tr:last-child td { border-bottom: none; }
+        table.data-table td code, table.data-table th code { direction: ltr; display: inline-block; }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.08); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        /* nested scope diagram */
+        .scope-diagram { margin-top: 20px; }
+        .scope-box {
+            border: 2px solid #cbd5e1; border-radius: 16px; padding: 22px 18px 18px 18px;
+            position: relative; margin-top: 14px; transition: 0.3s; background: white;
+        }
+        .scope-box.highlight { border-color: var(--primary-blue); background: rgba(0,173,239,0.06); box-shadow: 0 0 0 3px rgba(0,173,239,0.15); }
+        .scope-label {
+            position: absolute; top: -12px; left: 16px; background: var(--dark-navy); color: white;
+            font-size: 0.72rem; font-weight: 800; padding: 3px 12px; border-radius: 20px;
+        }
+        .scope-box.highlight .scope-label { background: var(--blue-gradient); }
+        .scope-code { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-size: 0.85rem; color: var(--dark-navy); margin: 6px 0; }
+        .scope-row { display: flex; gap: 14px; flex-wrap: wrap; }
+        .scope-row .scope-box { flex: 1; min-width: 200px; }
+        .var-chips { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+        .var-chip {
+            background: var(--bg-main); border: 2px solid #e2e8f0; border-radius: 12px; padding: 10px 20px;
+            cursor: pointer; font-family: 'Consolas', monospace; font-weight: 800; direction: ltr; transition: 0.2s;
+        }
+        .var-chip:hover { border-color: var(--primary-blue); }
+        .var-chip.active { background: var(--yellow-gradient); color: white; border-color: transparent; }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: left; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand-info">
+                <h3>TweetKod Platform</h3>
+                <p>Interactive Programming Education</p>
+            </div>
+        <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    </header>
+
+    <div class="container">
+        <div class="title-section">
+            <h1>Name Visibility (Scope)</h1>
+            <p class="attribution">This lesson is brought to you by the TweetKod platform</p>
+        </div>
+
+        <!-- Intro -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-eye"></i>
+                <h3>What Is Scope?</h3>
+            </div>
+            <p>In C++, where a variable is defined affects where it can be used. <strong>Scope</strong> is the part of a program where a variable can be defined and accessed directly using its name. If a variable is defined in a certain scope, we say the name is <strong>visible</strong> in that scope.</p>
+            <p style="margin-top: 10px;">Most scopes are regions surrounded by curly braces <code class="inline">{ }</code>. The area outside any scope is called <strong>global scope</strong>, and any other area is called a <strong>local scope</strong>.</p>
+        </div>
+
+        <!-- Main example -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-diagram-project"></i>
+                <h3>A Complete Example of Scopes</h3>
+            </div>
+            <p style="font-size: 0.9rem;">Click on any variable definition line to see which scope it belongs to:</p>
+
+            <div class="code-box">
+                <div class="code-head">
+                    <span>scope_example.cpp</span>
+                    <button class="copy-btn" onclick="copyCode('mainCode')">Copy Code</button>
+                </div>
+                <pre id="mainCode"><span class="cmt">#include&lt;iostream&gt;</span>
+using namespace std;
+
+<span class="code-line" onclick="explainLine(this,'main',0)">int x = 5;</span> <span class="cmt">// global scope</span>
+<span class="code-line" onclick="explainLine(this,'main',1)">int main() {</span>
+    <span class="code-line" onclick="explainLine(this,'main',2)">int y = 4;</span> <span class="cmt">// local scope 1</span>
+
+    <span class="code-line" onclick="explainLine(this,'main',3)">for (int i = 0; i &lt; 5; i++) {</span>
+        <span class="code-line" onclick="explainLine(this,'main',4)">int z = 20;</span> <span class="cmt">// local scope 2</span>
+        <span class="code-line" onclick="explainLine(this,'main',5)">if (i % 2 == 0) {</span>
+            <span class="cmt">// local scope 3</span>
+            cout &lt;&lt; z + x &lt;&lt; ' ' &lt;&lt; z + y &lt;&lt; endl;
+        }
+        else {
+            <span class="cmt">// local scope 4</span>
+            cout &lt;&lt; z - y &lt;&lt; ' ' &lt;&lt; z - x &lt;&lt; endl;
+        }
+    }
+}</pre>
+                <div class="explain-box" id="explainBox"><span class="hint">Click on a variable definition line to see an explanation of its scope here...</span></div>
+            </div>
+
+            <p style="margin-top: 20px;">Output:</p>
+            <div class="output-box">25 24<br>16 15<br>25 24<br>16 15<br>25 24</div>
+
+            <p style="font-size: 0.9rem; margin-top: 15px;">In this example we have one global scope and four local scopes. Notice that scope 1 spans the entire <code class="inline">main()</code> function, scope 2 is the region inside the <code class="inline">for</code> loop, and scopes 3 and 4 are the regions inside <code class="inline">if</code> and <code class="inline">else</code> respectively.</p>
+
+            <p style="margin-top: 25px; font-weight: 700; color: var(--dark-navy);">Where is a variable visible?</p>
+            <p style="font-size: 0.9rem;">Variables defined globally (global variables) are visible in every scope after their definition. Variables defined locally (local variables) are visible only within the scope they were defined in, including any inner scopes within it.</p>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <tr><th>Variable name</th><th>Scope defined in</th><th>Scopes that can see the variable</th></tr>
+                    <tr><td><code class="inline">x</code></td><td>Global scope</td><td>Every scope</td></tr>
+                    <tr><td><code class="inline">y</code></td><td>Scope 1 (inside main())</td><td>All local scopes</td></tr>
+                    <tr><td><code class="inline">i</code></td><td>The for loop that starts scope 2</td><td>Scopes 2, 3, and 4</td></tr>
+                    <tr><td><code class="inline">z</code></td><td>Scope 2 (inside for)</td><td>Scopes 2, 3, and 4</td></tr>
+                </table>
+            </div>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>Notice that variables defined inside a <code class="inline">for</code> loop's header (like <code class="inline">i</code>) belong to the loop's own scope, even though the definition comes right before the curly brace.</p>
+            </div>
+
+            <p style="margin-top: 25px; font-size: 0.9rem;"><i class="fas fa-hand-pointer" style="color: var(--primary-blue);"></i> Try it yourself: click on any variable to see which scopes it's visible in:</p>
+            <div class="scope-diagram">
+                <div class="scope-box" id="box-global" data-scope="global">
+                    <span class="scope-label">Global Scope</span>
+                    <div class="scope-code">int x = 5;</div>
+                    <div class="scope-box" id="box-local1" data-scope="local1">
+                        <span class="scope-label">Local Scope 1 — main()</span>
+                        <div class="scope-code">int y = 4;</div>
+                        <div class="scope-box" id="box-local2" data-scope="local2">
+                            <span class="scope-label">Local Scope 2 — for</span>
+                            <div class="scope-code">int i, z = 20;</div>
+                            <div class="scope-row">
+                                <div class="scope-box" id="box-local3" data-scope="local3">
+                                    <span class="scope-label">Local Scope 3 — if</span>
+                                </div>
+                                <div class="scope-box" id="box-local4" data-scope="local4">
+                                    <span class="scope-label">Local Scope 4 — else</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="var-chips">
+                <div class="var-chip" onclick="showVisibility('x', this)">x</div>
+                <div class="var-chip" onclick="showVisibility('y', this)">y</div>
+                <div class="var-chip" onclick="showVisibility('i', this)">i</div>
+                <div class="var-chip" onclick="showVisibility('z', this)">z</div>
+            </div>
+        </div>
+
+        <!-- Warning: use outside scope -->
+        <div class="card danger-card">
+            <div class="card-header">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>Warning: Using a Variable Outside Its Scope</h3>
+            </div>
+            <div class="warn-box">
+                <i class="fas fa-circle-exclamation"></i>
+                <p>Using a variable outside the scope it was defined in leads to a <strong>compilation error</strong>. As soon as you leave the scope (i.e. after the closing curly brace), the variable stops existing.</p>
+            </div>
+
+            <p style="margin-top: 20px; font-size: 0.9rem;">Example: trying to use <code class="inline">z</code> after the end of the <code class="inline">for</code> loop it was defined inside:</p>
+            <div class="code-box">
+                <div class="code-head"><span>scope_error.cpp</span></div>
+                <pre>for (int i = 0; i &lt; 5; i++) {
+    int z = 20;
+    <span class="cmt">// ...</span>
+}
+cout &lt;&lt; z; <span class="cmt">// z doesn't exist here, outside its scope</span></pre>
+            </div>
+            <button class="try-btn" onclick="tryScopeError()"><i class="fas fa-play"></i> Run This Code</button>
+            <div class="error-console" id="scopeErrConsole"></div>
+        </div>
+
+        <!-- Naming within a scope -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-tag"></i>
+                <h3>Naming Within a Scope</h3>
+            </div>
+            <p>Within a single scope, a name can represent only one variable:</p>
+            <div class="code-box">
+                <div class="code-head"><span>duplicate_name.cpp</span></div>
+                <pre>int main() {
+    int x = 5;
+    string x = "Hello world"; <span class="cmt">// compile error! x was already defined in the same scope</span>
+}</pre>
+            </div>
+            <button class="try-btn" onclick="tryDuplicateName()"><i class="fas fa-play"></i> Run This Code</button>
+            <div class="error-console" id="dupErrConsole"></div>
+
+            <p style="margin-top: 25px; font-size: 0.9rem;">But we can define a variable in one scope, then define another variable with <strong>the exact same name</strong> in a different, inner scope. In this case, when that name is used inside the inner scope, the inner variable is the one used (this is called <strong>name shadowing</strong>):</p>
+            <div class="code-box">
+                <div class="code-group" id="grpShadow">
+                <div class="code-head"><span>name_shadowing.cpp</span></div>
+                <pre><span class="code-line" onclick="explainLine(this,'shadow',0)">int x = 5;</span>
+<span class="code-line" onclick="explainLine(this,'shadow',1)">int main() {</span>
+    <span class="code-line" onclick="explainLine(this,'shadow',2)">int x;</span>
+    cin &gt;&gt; x;
+
+    <span class="code-line" onclick="explainLine(this,'shadow',3)">if (x == 5) {</span>
+        <span class="code-line" onclick="explainLine(this,'shadow',4)">string x = "Hello world";</span>
+        cout &lt;&lt; x &lt;&lt; endl;
+    }
+    else {
+        cout &lt;&lt; x &lt;&lt; endl;
+    }
+}</pre>
+                <div class="explain-box"><span class="hint">Click on any line to see its explanation here...</span></div>
+                </div>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>This is allowed because each definition sits in a different scope: <code class="inline">int x;</code> inside <code class="inline">main()</code>'s scope, and <code class="inline">string x</code> inside the inner <code class="inline">if</code> scope.</p>
+            </div>
+        </div>
+
+        <!-- Extra examples -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>More Examples</h3>
+            </div>
+
+            <p style="font-weight: 700; color: var(--dark-navy);">Example 1 — the same name in two different functions causes no conflict at all:</p>
+            <p style="font-size: 0.9rem;">Each function has its own local scope, even if the variable names are identical:</p>
+            <div class="code-box">
+                <div class="code-head"><span>two_functions.cpp</span></div>
+                <pre>void printSquare() {
+    int result = 4 * 4; <span class="cmt">// result here is local to this function only</span>
+    cout &lt;&lt; result &lt;&lt; endl;
+}
+
+void printCube() {
+    int result = 3 * 3 * 3; <span class="cmt">// a completely different result, a different scope</span>
+    cout &lt;&lt; result &lt;&lt; endl;
+}</pre>
+            </div>
+            <div class="output-box">16<br>27</div>
+            <p style="font-size: 0.88rem;">Both variables share the name <code class="inline">result</code>, but each one exists only within its own function's scope, so there's no conflict and no compile error.</p>
+
+            <p style="margin-top: 30px; font-weight: 700; color: var(--dark-navy);">Example 2 — reusing a loop counter's name in another loop:</p>
+            <p style="font-size: 0.9rem;">Since every <code class="inline">for</code> loop opens its own scope, <code class="inline">i</code> can safely be used in more than one loop as long as they don't overlap:</p>
+            <div class="code-box">
+                <div class="code-head"><span>two_loops.cpp</span></div>
+                <pre>for (int i = 0; i &lt; 3; i++) {
+    cout &lt;&lt; "A" &lt;&lt; i << ' ';
+}
+<span class="cmt">// the first i's scope ends here</span>
+for (int i = 0; i &lt; 3; i++) {
+    cout &lt;&lt; "B" &lt;&lt; i << ' ';
+}</pre>
+            </div>
+            <div class="output-box">A0 A1 A2 B0 B1 B2</div>
+
+            <p style="margin-top: 30px; font-weight: 700; color: var(--dark-navy);">Example 3 — a global variable used inside several functions:</p>
+            <div class="code-box">
+                <div class="code-head"><span>global_counter.cpp</span></div>
+                <pre>int counter = 0; <span class="cmt">// global scope</span>
+
+void increment() {
+    counter = counter + 1; <span class="cmt">// counter is visible here because it's global</span>
+}
+
+int main() {
+    increment();
+    increment();
+    cout &lt;&lt; counter << endl;
+}</pre>
+            </div>
+            <div class="output-box">2</div>
+            <p style="font-size: 0.88rem;">Since <code class="inline">counter</code> is global, it's visible inside both the <code class="inline">increment()</code> function and the <code class="inline">main()</code> function without needing to pass it as a parameter.</p>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>Check Your Understanding</h3>
+            </div>
+
+            <div class="quiz-q" id="q1">
+                <h4>1. What is meant by scope?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, true)">The part of the program where a variable can be defined and accessed by its name</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">A special kind of data type</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">Another name for the main() function</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q2">
+                <h4>2. Where are global variables visible?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, true)">In every scope after they're defined</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">Only inside the scope they were defined in</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">They can never be used</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q3">
+                <h4>3. What happens when you use a variable outside its scope?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, true)">A compilation error</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">The variable automatically takes the value zero</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">The program runs normally with no issues</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q4">
+                <h4>4. Can two different names in the same scope represent the same variable? And can the same name represent two variables in the same scope?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, true)">The same name cannot represent more than one variable in the same scope</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">The same name can represent several variables in the same scope with no issues</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">This is never allowed, even in different scopes</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q5">
+                <h4>5. What is the name of the phenomenon where the same name is used for a variable in an inner scope, and the closer one is used when there's a conflict?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, true)">Name shadowing</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, false)">Type casting</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, false)">Pass by reference</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q6">
+                <h4>6. Which scope does a for loop's counter variable defined in its header belong to, like i in for (int i = 0; ...)?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, true)">The loop's own scope, even though the definition comes before the curly brace</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, false)">Always the global scope</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, false)">It doesn't belong to any scope</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>Glossary of Terms</h3>
+            </div>
+            <p>The most important terms from this lesson, along with a short gloss:</p>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Scope</span><span class="term-ar">Where a name works</span><p class="term-desc">The part of the program where a variable can be accessed directly by its name.</p></div>
+                <div class="term-card"><span class="term-en">Visibility</span><span class="term-ar">Can be reached by name</span><p class="term-desc">The ability to access a variable by its name from a given point in the code.</p></div>
+                <div class="term-card"><span class="term-en">Global scope</span><span class="term-ar">Visible everywhere</span><p class="term-desc">The area outside any function or block; variables here are visible everywhere after them.</p></div>
+                <div class="term-card"><span class="term-en">Local scope</span><span class="term-ar">Visible in one block</span><p class="term-desc">Any region surrounded by curly braces inside a function or block; its variables are only visible within it.</p></div>
+                <div class="term-card"><span class="term-en">Block</span><span class="term-ar">Code between { }</span><p class="term-desc">A group of statements surrounded by { }, which often forms a new local scope.</p></div>
+                <div class="term-card"><span class="term-en">Name shadowing</span><span class="term-ar">Inner name wins</span><p class="term-desc">Using the same name for a variable in an inner scope, so the closer one is used when there's a conflict.</p></div>
+                <div class="term-card"><span class="term-en">Compilation error</span><span class="term-ar">Fails to compile</span><p class="term-desc">An error that prevents the compiler from producing a runnable program, such as using a variable outside its scope.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">TweetKod Platform — Level One: C++ for Olympiad</footer>
+
+    <script>
+        const EXPLANATIONS = {
+            main: {
+                0: '<strong>int x = 5;</strong> — a global variable, defined outside any function, so it\'s visible in every scope after it.',
+                1: '<strong>int main() {</strong> — the start of local scope 1, which spans the entire main() function.',
+                2: '<strong>int y = 4;</strong> — a local variable belonging to scope 1 (main()), visible in this scope and everything inside it.',
+                3: '<strong>for (int i = 0; i &lt; 5; i++) {</strong> — the start of local scope 2; notice that i belongs to this scope even though it\'s defined in the loop\'s header.',
+                4: '<strong>int z = 20;</strong> — a local variable belonging to scope 2 (inside for), visible here and in the inner scopes 3 and 4.',
+                5: '<strong>if (i % 2 == 0) {</strong> — the start of local scope 3; it can see x, y, i, and z because they\'re all in scopes surrounding it.'
+            },
+            shadow: {
+                0: '<strong>int x = 5;</strong> — global variable x, visible everywhere unless shadowed by an identical name in an inner scope.',
+                1: '<strong>int main() {</strong> — the start of main()\'s local scope.',
+                2: '<strong>int x;</strong> — a new local variable named x inside main(). This is allowed because we\'re in a different, inner scope from the global x; from now on inside main(), the name x refers to this local variable.',
+                3: '<strong>if (x == 5) {</strong> — the start of a new inner local scope, which can still see the local x coming from main().',
+                4: '<strong>string x = "Hello world";</strong> — a third definition of the name x, but this time in the inner if scope (name shadowing). Within this scope only, x now refers to this text.'
+            }
+        };
+
+        function explainLine(el, setName, key) {
+            const group = el.closest('.code-group') || el.closest('.code-box');
+            group.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+            el.classList.add('active');
+            group.querySelector('.explain-box').innerHTML = EXPLANATIONS[setName][key];
+        }
+
+        function copyCode(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(() => alert('Code copied!'));
+        }
+
+        const VISIBILITY = {
+            x: ['global', 'local1', 'local2', 'local3', 'local4'],
+            y: ['local1', 'local2', 'local3', 'local4'],
+            i: ['local2', 'local3', 'local4'],
+            z: ['local2', 'local3', 'local4']
+        };
+
+        function showVisibility(varName, chipEl) {
+            document.querySelectorAll('.var-chip').forEach(c => c.classList.remove('active'));
+            chipEl.classList.add('active');
+            document.querySelectorAll('.scope-box').forEach(b => b.classList.remove('highlight'));
+            VISIBILITY[varName].forEach(scopeId => {
+                const box = document.getElementById('box-' + scopeId);
+                if (box) box.classList.add('highlight');
+            });
+        }
+
+        function tryScopeError() {
+            const box = document.getElementById('scopeErrConsole');
+            box.innerHTML =
+                "main.cpp: In function 'int main()':<br>" +
+                "main.cpp:6:11: <span style='color:#fca5a5;'>error:</span> 'z' was not declared in this scope<br>" +
+                "&nbsp;&nbsp;&nbsp;&nbsp;cout &lt;&lt; z;<br>" +
+                "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;~^<br>" +
+                "compilation terminated due to -Wfatal-errors.";
+            box.classList.add('show');
+        }
+
+        function tryDuplicateName() {
+            const box = document.getElementById('dupErrConsole');
+            box.innerHTML =
+                "main.cpp: In function 'int main()':<br>" +
+                "main.cpp:4:12: <span style='color:#fca5a5;'>error:</span> conflicting declaration 'std::string x'<br>" +
+                "&nbsp;&nbsp;&nbsp;&nbsp;string x = \"Hello world\";<br>" +
+                "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;~~^~~~~~~~~~~~~~~~~~~~~~~<br>" +
+                "main.cpp:3:9: note: previous declaration 'int x'<br>" +
+                "compilation terminated due to -Wfatal-errors.";
+            box.classList.add('show');
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> Correct answer! Well done.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> Incorrect answer, try again next time.</span>';
+            }
+        }
+
+        document.querySelectorAll('#mainCode .code-line').forEach(line => {
+            // lines inside main example already wired via inline onclick to explainLine
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | Binary Search</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', 'Segoe UI', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.12); box-shadow: 0 6px 24px -16px rgba(15, 23, 42, 0.3); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+        .brand-info { order: -1; }
+        .logo-img { order: 1; }
+        .logo-img { width: 60px; height: 60px; border-radius: 16px; object-fit: contain; padding: 6px; background: #ffffff; box-shadow: 0 6px 18px -6px rgba(0, 173, 239, 0.4), 0 0 0 1px rgba(0, 173, 239, 0.14); }
+        .brand-info h3 { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--dark-navy); letter-spacing: -0.01em; }
+        .brand-info p { margin: 2px 0 0; font-size: 0.85rem; color: var(--primary-blue); font-weight: 600; letter-spacing: 0.01em; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        /* hero banner */
+        .hero-banner { background: var(--blue-gradient); padding: 70px 6% 60px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 720px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-left: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-left-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula { direction: ltr; display: inline-block; font-family: 'Consolas', monospace; font-weight: 800; background: #eef2f7; padding: 3px 10px; border-radius: 8px; color: var(--dark-navy); }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: left; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td code.inline, .data-table th code.inline { white-space: nowrap; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+
+        /* numbered steps */
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        /* interactive lab (visualizers) */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-slots { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; direction: ltr; margin-bottom: 10px; }
+        .lab-slot-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .lab-slot {
+            width: 56px; height: 56px; border-radius: 12px; border: 3px solid #cbd5e1; background: var(--bg-main);
+            display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.15rem;
+            color: var(--dark-navy); transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+        }
+        .lab-slot.highlight { border-color: var(--primary-yellow); box-shadow: 0 0 0 4px rgba(247, 148, 30, 0.18); animation: slotPop 0.3s ease; }
+        .lab-slot.settled { border-color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+        .lab-slot.min-tracker { border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.18); }
+        .lab-slot.eliminated { opacity: 0.3; }
+        @keyframes slotPop { 0% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        .lab-slot-label { font-size: 0.72rem; color: #94a3b8; text-align: center; }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 10px 0; }
+        .lab-legend { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; font-size: 0.78rem; color: var(--text-body); margin-bottom: 12px; }
+        .lab-legend span { display: inline-flex; align-items: center; gap: 6px; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+        .legend-dot.dot-min { background: #3b82f6; }
+        .legend-dot.dot-cmp { background: var(--primary-yellow); }
+        .legend-dot.dot-done { background: #22c55e; }
+        .legend-dot.dot-elim { background: #94a3b8; opacity: 0.6; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+
+        /* true/false quick-review activity */
+        .activity-box { background: white; border-radius: 22px; padding: 32px; margin: 28px 0; box-shadow: var(--soft-shadow); border: 1px solid #e2e8f0; }
+        .activity-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .activity-header i { color: var(--primary-blue); font-size: 1.2rem; }
+        .activity-header h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); }
+        .activity-intro { margin-bottom: 20px; font-size: 0.92rem; }
+        .tf-item {
+            background: var(--bg-main); border-radius: 16px; padding: 18px 22px; margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+            border: 1px solid #e2e8f0;
+        }
+        .tf-statement { margin: 0; font-weight: 700; color: var(--dark-navy); font-size: 0.95rem; flex: 1 1 260px; direction: ltr; text-align: left; unicode-bidi: plaintext; }
+        .tf-buttons { display: flex; gap: 10px; flex-shrink: 0; }
+        .tf-btn {
+            border: 2px solid #e2e8f0; background: white; padding: 9px 26px; border-radius: 50px;
+            font-weight: 800; font-family: 'Tajawal'; font-size: 0.88rem; cursor: pointer; color: var(--dark-navy); transition: 0.2s;
+        }
+        .tf-btn:hover { border-color: var(--primary-blue); }
+        .tf-btn.tf-selected-correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .tf-btn.tf-selected-wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .tf-feedback { flex-basis: 100%; margin-top: 2px; font-weight: 700; font-size: 0.85rem; min-height: 18px; }
+
+        /* homework toggles */
+        .homework-item { background: var(--bg-main); border-radius: 18px; padding: 24px; margin-top: 20px; border: 1px solid #e2e8f0; }
+        .homework-item h4 { margin: 0 0 10px; color: var(--dark-navy); font-size: 1.02rem; font-weight: 800; }
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            margin-top: 14px;
+        }
+        .collapsible { display: none; margin-top: 14px; }
+        .collapsible.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: left; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">C++</span>
+            <span class="chapter-badge">Binary Search</span>
+        </div>
+        <div class="brand-info">
+                <h3>TweetKod Platform</h3>
+                <p>Interactive Programming Education</p>
+            </div>
+        <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-magnifying-glass-chart"></i>
+        <h1>Binary Search</h1>
+        <p class="hero-desc">In the last chapter you learned how to sort data using the sort function with O(n log n) complexity. Now we'll put that sorted data to work for us: instead of checking every element one by one, we'll learn how to "guess smartly" and reach the answer in very few steps — even if the data has a million elements. This is the idea behind binary search, one of the most important tools in competitive programming.</p>
+    </div>
+
+    <div class="container">
+
+        <!-- Linear search -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-arrow-right-long"></i>
+                <h3>Linear Search</h3>
+            </div>
+            <p>Imagine you have a list of numbers and want to check whether a specific number exists in it. The simplest way is to go through the list element by element:</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>linear_search.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    vector&lt;int&gt; arr = {4, 8, 15, 16, 23, 42};
+    int target = 15;
+
+    for (int i = 0; i &lt; arr.size(); i++) {
+        if (arr[i] == target) {
+            cout &lt;&lt; "Found at index " &lt;&lt; i;
+            return 0;
+        }
+    }
+    cout &lt;&lt; "Not found";
+}</pre>
+            </div>
+            <div class="output-box">Found at index 2</div>
+            <p>This is called <strong>Linear Search</strong> because you move through the list linearly, element after element. It always works correctly, but it can be slow if the list is long — you might need to check every single element.</p>
+
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>If there are a million numbers, that means up to a million checks in the worst case. Recall from the third chapter that this means a time complexity of <span class="formula">O(n)</span>.</p>
+            </div>
+
+            <p>Now imagine you're looking for a name in a printed phone book. You wouldn't start from page one and read name by name. You'd open the book to the middle, check whether you're in the right alphabetical section, and then discard half the pages at once. This is exactly what <strong>Binary Search</strong> does.</p>
+        </div>
+
+        <!-- The idea -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-lightbulb"></i>
+                <h3>The Idea Behind Binary Search</h3>
+            </div>
+            <p>Binary search is like a "guess the number" game. Each time you pick the middle value and ask:</p>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p>Is this value too small?</p></li>
+                <li class="step-item"><span class="step-num"></span><p>Is it too large?</p></li>
+                <li class="step-item"><span class="step-num"></span><p>Or is it exactly right?</p></li>
+            </ul>
+            <p>Based on the answer, the search space is cut in half every time. This makes the search much faster than linear search — but it <strong>only works if the data is already sorted</strong> (which is exactly why we studied sorting in the last chapter first!).</p>
+        </div>
+
+        <!-- Classic binary search -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-bullseye"></i>
+                <h3>Classic Binary Search</h3>
+            </div>
+            <p><strong>Example:</strong> We have the sorted array <code class="inline">[1, 3, 5, 6, 7, 9, 11]</code>. Search for the number <code class="inline">7</code> and print its position if found.</p>
+
+            <h4 class="sub-title">Step-by-Step Solution</h4>
+            <p>We start with the full range, then gradually narrow the search.</p>
+            <p>First, we find the middle element, which is <code class="inline">6</code>. We ask: is <code class="inline">7</code> smaller or larger than <code class="inline">6</code>? It's larger, and since the array is sorted, this means <code class="inline">7</code> will be after <code class="inline">6</code>. We can discard the entire first half.</p>
+            <p>The logically remaining array is <code class="inline">[7, 9, 11]</code>. The middle element is <code class="inline">9</code>. The number <code class="inline">7</code> is smaller than <code class="inline">9</code>, meaning it comes before it. We discard <code class="inline">9</code> and everything after it.</p>
+            <p>Finally, only <code class="inline">[7]</code> remains. The middle element is exactly <code class="inline">7</code> — that's what we were looking for!</p>
+            <p>We only did three comparisons: we compared <code class="inline">6</code> with <code class="inline">7</code>, then <code class="inline">9</code> with <code class="inline">7</code>, then <code class="inline">7</code> with <code class="inline">7</code>.</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>binary_search.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    vector&lt;int&gt; arr = {1, 3, 5, 6, 7, 9, 11};
+    int target = 7;
+    int left = 0, right = arr.size() - 1;
+
+    while (left &lt;= right) {
+        int mid = (left + right) / 2;
+        if (arr[mid] == target) {
+            cout &lt;&lt; "Found at index " &lt;&lt; mid;
+            return 0;
+        } else if (arr[mid] &lt; target)
+            left = mid + 1;
+        else
+            right = mid - 1;
+    }
+
+    cout &lt;&lt; "Not found";
+}</pre>
+            </div>
+            <div class="output-box">Found at index 4</div>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> Interactive Lab: Watch Binary Search Step by Step</p>
+                <div class="lab-legend">
+                    <span><span class="legend-dot dot-cmp"></span> Being compared (mid)</span>
+                    <span><span class="legend-dot dot-elim"></span> Excluded from the search range</span>
+                    <span><span class="legend-dot dot-done"></span> Found</span>
+                </div>
+                <div class="lab-slots">
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="bsSlot0">1</div><div class="lab-slot-label">0</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="bsSlot1">3</div><div class="lab-slot-label">1</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="bsSlot2">5</div><div class="lab-slot-label">2</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="bsSlot3">6</div><div class="lab-slot-label">3</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="bsSlot4">7</div><div class="lab-slot-label">4</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="bsSlot5">9</div><div class="lab-slot-label">5</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="bsSlot6">11</div><div class="lab-slot-label">6</div></div>
+                </div>
+                <div class="lab-step-hint" id="bsStepLabel">Click "Run the Visualizer" to start searching for the number 7.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runBinarySearchLab()">Run the Visualizer</button>
+                </div>
+            </div>
+
+            <h4 class="sub-title">Time Complexity</h4>
+            <p>Each step cuts the range in half. If there are <code class="inline">n</code> elements, binary search needs only about <span class="formula">log&#8322;(n)</span> steps — that is, <span class="formula">O(log n)</span> complexity. Even with <strong>a million</strong> numbers, that means only about <span class="formula">20</span> checks instead of a million checks with linear search!</p>
+        </div>
+
+        <!-- Activity A -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>Activity: Quick Review of Binary Search</h4>
+            </div>
+            <p class="activity-intro">Decide whether each statement is true or false.</p>
+
+            <div class="tf-item" id="tfBs1">
+                <p class="tf-statement">Binary search works correctly on any array, whether sorted or not.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBs1', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBs1', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBs2">
+                <p class="tf-statement">At each step, binary search compares the target with the element in the middle of the current range.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBs2', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBs2', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBs3">
+                <p class="tf-statement">The complexity of binary search is O(log n), while the complexity of linear search is O(n).</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBs3', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBs3', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- First >= X -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-crosshairs"></i>
+                <h3>Finding the First Element Greater Than or Equal to X</h3>
+            </div>
+            <p>Binary search can do more than just find a specific number — it can also be used to find <strong>positions or boundaries</strong> in a sorted array.</p>
+            <p><strong>Example:</strong> You have the array <code class="inline">[2, 4, 6, 8, 10]</code>. Find the first element greater than or equal to <code class="inline">7</code>.</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>first_geq.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    vector&lt;int&gt; arr = {2, 4, 6, 8, 10};
+    int x = 7;
+
+    int left = 0, right = arr.size() - 1;
+    int ans = -1;
+
+    while (left &lt;= right) {
+        int mid = (left + right) / 2;
+        if (arr[mid] &gt;= x) {
+            ans = mid;
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+    if (ans == -1) cout &lt;&lt; "No element found";
+    else cout &lt;&lt; "First element &gt;= " &lt;&lt; x &lt;&lt; " is at index " &lt;&lt; ans;
+}</pre>
+            </div>
+            <div class="output-box">First element >= 7 is at index 3</div>
+            <p>That is, <code class="inline">arr[3] = 8</code> is the first element greater than or equal to <code class="inline">7</code>. Notice the difference from classic search: instead of stopping as soon as we find a valid value, we save it in <code class="inline">ans</code> and then <strong>keep searching to the left</strong> (<code class="inline">right = mid - 1</code>) in case we find a better candidate (a smaller index).</p>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> Interactive Lab: First Element Greater Than or Equal to 7</p>
+                <div class="lab-legend">
+                    <span><span class="legend-dot dot-cmp"></span> Being compared (mid)</span>
+                    <span><span class="legend-dot dot-min"></span> Best candidate saved so far</span>
+                    <span><span class="legend-dot dot-elim"></span> Excluded from the search range</span>
+                    <span><span class="legend-dot dot-done"></span> Final answer</span>
+                </div>
+                <div class="lab-slots">
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="geqSlot0">2</div><div class="lab-slot-label">0</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="geqSlot1">4</div><div class="lab-slot-label">1</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="geqSlot2">6</div><div class="lab-slot-label">2</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="geqSlot3">8</div><div class="lab-slot-label">3</div></div>
+                    <div class="lab-slot-wrap"><div class="lab-slot" id="geqSlot4">10</div><div class="lab-slot-label">4</div></div>
+                </div>
+                <div class="lab-step-hint" id="geqStepLabel">Click "Run the Visualizer" to start searching for the first element ≥ 7.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runFirstGeqLab()">Run the Visualizer</button>
+                </div>
+            </div>
+
+            <h4 class="sub-title">The General Algorithm</h4>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p>Start with two pointers, <code class="inline">left</code> and <code class="inline">right</code>.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>Compute the middle of the range, <code class="inline">mid</code>.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>If the middle value is the answer (or a candidate for it), record it.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>If it's too small, move <code class="inline">left</code> to <code class="inline">mid + 1</code>.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>If it's too large (or a candidate that could be improved), move <code class="inline">right</code> to <code class="inline">mid - 1</code>.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>Repeat until <code class="inline">left &gt; right</code>.</p></li>
+            </ul>
+        </div>
+
+        <!-- Activity B -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>Activity: Quick Review of Finding Positions and Boundaries</h4>
+            </div>
+            <p class="activity-intro">Decide whether each statement is true or false.</p>
+
+            <div class="tf-item" id="tfBs4">
+                <p class="tf-statement">In the "first element ≥ X" problem, when arr[mid] ≥ X, we save mid as a candidate and keep searching in the left half for a smaller index.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBs4', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBs4', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBs5">
+                <p class="tf-statement">Binary search can only be used to find an exact matching value, and cannot be used to find positions or boundaries.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBs5', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBs5', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Complexity comparison -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-gauge-high"></i>
+                <h3>Linear Search vs. Binary Search</h3>
+            </div>
+            <p>Let's compare the number of operations each search needs to reach the answer, as the array size <code class="inline">n</code> increases:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>n</th><th class="center">Linear Search O(n)</th><th class="center">Binary Search O(log n)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="center">10</td><td class="center">≤ 10</td><td class="center">≤ 4</td></tr>
+                        <tr><td class="center">1,000</td><td class="center">≤ 1,000</td><td class="center">≤ 10</td></tr>
+                        <tr><td class="center">1,000,000</td><td class="center">≤ 1,000,000</td><td class="center">≤ 20</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>With a million elements, binary search needs only about 20 checks compared to a million for linear search — an enormous difference, thanks to cutting the range in half every step. But it always requires the data to be sorted first (which is exactly why we studied sorting right before this chapter).</p>
+            </div>
+        </div>
+
+        <!-- Homework -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-pen-ruler"></i>
+                <h3>Homework Exercises</h3>
+            </div>
+
+            <div class="homework-item" id="hwB1">
+                <h4>1) Trace Through Binary Search</h4>
+                <p>You have the sorted array <code class="inline">[2, 5, 8, 12, 16, 23, 38, 45, 56, 72, 91]</code> (11 elements, indices 0 to 10). Apply classic binary search to look for the target <code class="inline">72</code>. Determine the final index and the number of comparisons.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwB1sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwB1sol">
+                    <p><strong>First comparison:</strong> left=0, right=10 → mid=5 → arr[5]=23. Since 23 &lt; 72, we move right: left = 6.</p>
+                    <p><strong>Second comparison:</strong> left=6, right=10 → mid=8 → arr[8]=56. Since 56 &lt; 72, we move right: left = 9.</p>
+                    <p><strong>Third comparison:</strong> left=9, right=10 → mid=9 → arr[9]=72. Match! We stop.</p>
+                    <div class="output-box">Found at index 9 after 3 comparisons</div>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwB2">
+                <h4>2) First Element Strictly Greater Than X</h4>
+                <p>Modify the "first element ≥ X" algorithm to become "first element strictly greater (&gt;) than X". Apply it to the array <code class="inline">[2, 4, 6, 8, 10]</code> to find the first element greater than <code class="inline">6</code>.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwB2sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwB2sol">
+                    <div class="code-box">
+                        <div class="code-head"><span>hw2.cpp</span></div>
+                        <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    vector&lt;int&gt; arr = {2, 4, 6, 8, 10};
+    int x = 6;
+
+    int left = 0, right = arr.size() - 1;
+    int ans = -1;
+
+    while (left &lt;= right) {
+        int mid = (left + right) / 2;
+        if (arr[mid] &gt; x) {
+            ans = mid;
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+    if (ans == -1) cout &lt;&lt; "No element found";
+    else cout &lt;&lt; "First element &gt; " &lt;&lt; x &lt;&lt; " is at index " &lt;&lt; ans;
+}</pre>
+                    </div>
+                    <div class="output-box">First element > 6 is at index 3</div>
+                    <p>The only difference from "first element ≥ X" is using <code class="inline">&gt;</code> instead of <code class="inline">&gt;=</code> in the condition.</p>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwB3">
+                <h4>3) Count Elements Smaller Than X</h4>
+                <p>You have the sorted array <code class="inline">[1, 3, 5, 7, 9, 11]</code>. Use binary search to compute the <strong>number of elements smaller than</strong> <code class="inline">6</code> (without going through every element).</p>
+                <button class="toggle-btn" onclick="toggleSection('hwB3sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwB3sol">
+                    <div class="code-box">
+                        <div class="code-head"><span>hw3.cpp</span></div>
+                        <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    vector&lt;int&gt; arr = {1, 3, 5, 7, 9, 11};
+    int x = 6;
+    int n = arr.size();
+
+    int left = 0, right = n - 1;
+    int ans = n; <span class="cmt">// if we never find an element >= x, all elements are smaller than x</span>
+
+    while (left &lt;= right) {
+        int mid = (left + right) / 2;
+        if (arr[mid] &gt;= x) {
+            ans = mid;
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+    cout &lt;&lt; "Count of elements less than " &lt;&lt; x &lt;&lt; " = " &lt;&lt; ans;
+}</pre>
+                    </div>
+                    <div class="output-box">Count of elements less than 6 = 3</div>
+                    <p>The clever idea: the index of the first element ≥ <code class="inline">x</code> is exactly equal to <strong>the number of elements smaller than</strong> <code class="inline">x</code> (because everything before it in a sorted array is smaller than it). The elements <code class="inline">1, 3, 5</code> are smaller than 6, and there are 3 of them — exactly what the algorithm gave us!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>Check Your Understanding</h3>
+            </div>
+
+            <div class="quiz-q" id="qb1">
+                <h4>1. What is the essential condition for binary search to work correctly?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb1', this, false)">The array must be short (fewer than 10 elements)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb1', this, true)">The data must already be sorted</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb1', this, false)">The array must not contain negative numbers</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb2">
+                <h4>2. What is the time complexity of linear search?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb2', this, false)">O(log n)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb2', this, true)">O(n)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb2', this, false)">O(n²)</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb3">
+                <h4>3. What is the time complexity of binary search?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb3', this, false)">O(n)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb3', this, true)">O(log n)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb3', this, false)">O(n log n)</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb4">
+                <h4>4. In binary search, if arr[mid] &lt; target, what do we do?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb4', this, false)">Move right to mid - 1</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb4', this, true)">Move left to mid + 1</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb4', this, false)">Stop immediately because the element doesn't exist</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb5">
+                <h4>5. Roughly how many comparisons does binary search need to search among a million elements?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb5', this, false)">About 1,000,000</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb5', this, false)">About 1,000</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb5', this, true)">About 20</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb6">
+                <h4>6. In the "first element ≥ X" problem, what do we do when we find arr[mid] ≥ X?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb6', this, true)">Save it as a candidate (ans = mid), then search left (right = mid - 1) for a better candidate</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb6', this, false)">Stop immediately because it must be the final answer</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb6', this, false)">Ignore it and only search right</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb7">
+                <h4>7. Why can't binary search be applied directly to an unsorted array?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb7', this, true)">Because discarding half the array depends on knowing that everything after mid is larger (or smaller) than it, which only holds true for sorted data</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb7', this, false)">Because unsorted arrays don't support the division operation</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb7', this, false)">It can actually be applied directly with the same efficiency, with no issue</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb8">
+                <h4>8. When does the binary search while-loop stop in the classic code?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb8', this, false)">Always after 10 iterations</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb8', this, true)">When left &gt; right</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb8', this, false)">When mid = 0</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb9">
+                <h4>9. How can we compute the count of elements smaller than a given value using the "first element ≥ X" result?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb9', this, false)">There is no relationship between the two</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb9', this, true)">That same index equals the number of elements smaller than X in a sorted array</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb9', this, false)">We must always subtract one from the index</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qb10">
+                <h4>10. Which of the following correctly describes the relationship between sorting and binary search?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qb10', this, true)">Sorting is often a necessary preparation step before using binary search effectively</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb10', this, false)">Binary search automatically sorts the array as it runs</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qb10', this, false)">There is no relationship at all between sorting and binary search</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>Glossary</h3>
+            </div>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Linear Search</span><span class="term-ar">Linear Search</span><p class="term-desc">Checking the array's elements one after another, with O(n) complexity.</p></div>
+                <div class="term-card"><span class="term-en">Binary Search</span><span class="term-ar">Binary Search</span><p class="term-desc">An algorithm that cuts the search range in half at each step on sorted data, with O(log n) complexity.</p></div>
+                <div class="term-card"><span class="term-en">Sorted Array</span><span class="term-ar">Sorted Array</span><p class="term-desc">A fundamental requirement for binary search to work correctly.</p></div>
+                <div class="term-card"><span class="term-en">left / right / mid</span><span class="term-ar">Range and midpoint pointers</span><p class="term-desc">The variables that define the current search range and the comparison point.</p></div>
+                <div class="term-card"><span class="term-en">Search Space</span><span class="term-ar">Search Space</span><p class="term-desc">The remaining portion of the array that might contain the answer.</p></div>
+                <div class="term-card"><span class="term-en">Lower Bound (First &ge; X)</span><span class="term-ar">First element ≥ X</span><p class="term-desc">An advanced use of binary search to find the first position where a given condition holds.</p></div>
+                <div class="term-card"><span class="term-en">Time Complexity O(log n)</span><span class="term-ar">Logarithmic Complexity</span><p class="term-desc">Very slow growth in the number of steps, resulting from splitting the problem in half each time.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">TweetKod Platform — Level 2: Binary Search</footer>
+
+    <script>
+        // ===== Classic binary search visualizer =====
+        const bsArray = [1, 3, 5, 6, 7, 9, 11];
+        const bsSlotIds = ['bsSlot0', 'bsSlot1', 'bsSlot2', 'bsSlot3', 'bsSlot4', 'bsSlot5', 'bsSlot6'];
+
+        function buildBinarySearchFrames(arr, target) {
+            let left = 0, right = arr.length - 1;
+            const frames = [];
+            frames.push({ left, right, mid: -1, found: -1, label: 'We start with the full range: from index ' + left + ' to ' + right + '.' });
+            while (left <= right) {
+                const mid = Math.floor((left + right) / 2);
+                frames.push({ left, right, mid, found: -1, label: 'We check arr[' + mid + ']=' + arr[mid] + '. We compare it with the target ' + target + '.' });
+                if (arr[mid] === target) {
+                    frames.push({ left, right, mid, found: mid, label: 'Match! We found the target at index ' + mid + '.' });
+                    return frames;
+                } else if (arr[mid] < target) {
+                    left = mid + 1;
+                    frames.push({ left, right, mid: -1, found: -1, label: arr[mid] + ' is smaller than ' + target + ', so we discard the first half and continue to the right.' });
+                } else {
+                    right = mid - 1;
+                    frames.push({ left, right, mid: -1, found: -1, label: arr[mid] + ' is larger than ' + target + ', so we discard the second half and continue to the left.' });
+                }
+            }
+            frames.push({ left, right, mid: -1, found: -1, label: 'The target was not found.' });
+            return frames;
+        }
+
+        function renderBinarySearchFrame(frame) {
+            bsSlotIds.forEach((id, idx) => {
+                const el = document.getElementById(id);
+                el.classList.remove('highlight', 'settled', 'eliminated', 'min-tracker');
+                if (idx === frame.found) {
+                    el.classList.add('settled');
+                } else if (idx === frame.mid) {
+                    el.classList.add('highlight');
+                } else if (idx < frame.left || idx > frame.right) {
+                    el.classList.add('eliminated');
+                }
+            });
+            document.getElementById('bsStepLabel').innerText = frame.label;
+        }
+
+        function runBinarySearchLab() {
+            const frames = buildBinarySearchFrames(bsArray, 7);
+            let f = 0;
+            function playNext() {
+                if (f >= frames.length) return;
+                renderBinarySearchFrame(frames[f]);
+                f++;
+                setTimeout(playNext, 750);
+            }
+            playNext();
+        }
+
+        // ===== First >= X visualizer =====
+        const geqArray = [2, 4, 6, 8, 10];
+        const geqSlotIds = ['geqSlot0', 'geqSlot1', 'geqSlot2', 'geqSlot3', 'geqSlot4'];
+
+        function buildFirstGeqFrames(arr, x) {
+            let left = 0, right = arr.length - 1;
+            let ans = -1;
+            const frames = [];
+            frames.push({ left, right, mid: -1, ans, done: false, label: 'We start with the full range: from index ' + left + ' to ' + right + '.' });
+            while (left <= right) {
+                const mid = Math.floor((left + right) / 2);
+                frames.push({ left, right, mid, ans, done: false, label: 'We check arr[' + mid + ']=' + arr[mid] + '. Is it ≥ ' + x + '?' });
+                if (arr[mid] >= x) {
+                    ans = mid;
+                    right = mid - 1;
+                    frames.push({ left, right, mid: -1, ans, done: false, label: 'arr[' + mid + ']=' + arr[mid] + ' ≥ ' + x + ': a new candidate! We save it and search left for a smaller index.' });
+                } else {
+                    left = mid + 1;
+                    frames.push({ left, right, mid: -1, ans, done: false, label: 'arr[' + mid + ']=' + arr[mid] + ' < ' + x + ': not a candidate. We search right.' });
+                }
+            }
+            frames.push({
+                left, right, mid: -1, ans, done: true,
+                label: ans === -1 ? 'No suitable element found.' : 'Done! The final answer is at index ' + ans + ' with value ' + arr[ans] + '.'
+            });
+            return frames;
+        }
+
+        function renderFirstGeqFrame(frame) {
+            geqSlotIds.forEach((id, idx) => {
+                const el = document.getElementById(id);
+                el.classList.remove('highlight', 'settled', 'eliminated', 'min-tracker');
+                if (frame.done && idx === frame.ans) {
+                    el.classList.add('settled');
+                } else if (idx === frame.mid) {
+                    el.classList.add('highlight');
+                } else if (idx === frame.ans) {
+                    el.classList.add('min-tracker');
+                } else if (idx < frame.left || idx > frame.right) {
+                    el.classList.add('eliminated');
+                }
+            });
+            document.getElementById('geqStepLabel').innerText = frame.label;
+        }
+
+        function runFirstGeqLab() {
+            const frames = buildFirstGeqFrames(geqArray, 7);
+            let f = 0;
+            function playNext() {
+                if (f >= frames.length) return;
+                renderFirstGeqFrame(frames[f]);
+                f++;
+                setTimeout(playNext, 750);
+            }
+            playNext();
+        }
+
+        // ===== Shared helpers (toggle, TF activity, quiz) =====
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        function checkTF(el, itemId, chosenValue, correctValue) {
+            const item = document.getElementById(itemId);
+            const buttons = item.querySelectorAll('.tf-btn');
+            buttons.forEach(b => { b.classList.remove('tf-selected-correct', 'tf-selected-wrong'); b.onclick = null; b.style.cursor = 'default'; });
+            const feedback = item.querySelector('.tf-feedback');
+            if (chosenValue === correctValue) {
+                el.classList.add('tf-selected-correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> Correct answer!</span>';
+            } else {
+                el.classList.add('tf-selected-wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> Wrong answer — the statement is actually "' + (correctValue ? 'True' : 'False') + '".</span>';
+            }
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> Correct answer! Well done.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> Incorrect answer, try again next time.</span>';
+            }
+        }
+    </script>
+</body>
+</html>

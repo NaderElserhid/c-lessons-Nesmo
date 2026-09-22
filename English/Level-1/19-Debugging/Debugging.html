@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | Debugging</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', 'Segoe UI', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.12); box-shadow: 0 6px 24px -16px rgba(15, 23, 42, 0.3);
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+        .brand-info { order: -1; }
+        .logo-img { order: 1; }
+        .logo-img { width: 60px; height: 60px; border-radius: 16px; object-fit: contain; padding: 6px; background: #ffffff; box-shadow: 0 6px 18px -6px rgba(0, 173, 239, 0.4), 0 0 0 1px rgba(0, 173, 239, 0.14); }
+        .brand-info h3 { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--dark-navy); letter-spacing: -0.01em; }
+        .brand-info p { margin: 2px 0 0; font-size: 0.85rem; color: var(--primary-blue); font-weight: 600; letter-spacing: 0.01em; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+        .title-section { text-align: center; margin-bottom: 50px; }
+        .title-section h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 5px; }
+        .attribution { color: var(--primary-blue); font-size: 1.1rem; font-weight: 600; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-left: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-left-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula { direction: ltr; display: inline-block; font-family: 'Consolas', monospace; font-weight: 800; background: #eef2f7; padding: 3px 10px; border-radius: 8px; color: var(--dark-navy); }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        .code-head.bad-head span { color: #fca5a5; }
+        .code-head.good-head span { color: #86efac; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.88rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+            white-space: pre-wrap; font-size: 0.85rem; line-height: 1.7;
+        }
+        .output-box.bad-output { color: #fca5a5; }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .important-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px solid #ef4444;
+            border-radius: 18px; padding: 22px 26px; margin: 24px 0; display: flex; gap: 16px; align-items: flex-start;
+        }
+        .important-box i { color: #ef4444; font-size: 1.6rem; margin-top: 2px; }
+        .important-box p { margin: 0; font-size: 0.95rem; color: var(--dark-navy); font-weight: 700; }
+
+        .style-rules { margin: 16px 0 0; padding-left: 22px; }
+        .style-rules li { color: var(--text-body); margin-bottom: 10px; font-size: 0.95rem; }
+
+        .tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .tip-card { background: var(--bg-main); border-radius: 16px; padding: 18px 20px; border: 1px solid #e2e8f0; }
+        .tip-card h4 { margin: 0 0 10px; color: var(--primary-blue); font-size: 0.98rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .tip-card ul { margin: 0; padding-left: 18px; }
+        .tip-card li { font-size: 0.86rem; color: var(--text-body); margin-bottom: 7px; }
+        .tip-card.danger h4 { color: #ef4444; }
+        .tip-card.warn h4 { color: #d67d00; }
+
+        /* interactive lab: reverse-array walker */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-controls { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; direction: ltr; }
+        .lab-field { display: flex; flex-direction: column; gap: 6px; }
+        .lab-field label { font-size: 0.76rem; color: #94a3b8; font-weight: 700; }
+        .lab-field input, .lab-field select {
+            padding: 9px 12px; border-radius: 10px; border: 2px solid #e2e8f0;
+            font-family: 'Consolas', monospace; font-size: 0.85rem; min-width: 160px;
+        }
+        .lab-btn {
+            background: var(--blue-gradient); color: white; border: none; padding: 10px 22px;
+            border-radius: 10px; font-weight: 800; cursor: pointer; font-family: 'Tajawal'; font-size: 0.9rem;
+        }
+        .lab-btn:hover { filter: brightness(1.05); }
+        .lab-btn.danger { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+
+        .trace-table { width: 100%; border-collapse: collapse; margin-top: 16px; direction: ltr; font-size: 0.85rem; }
+        .trace-table th { text-align: left; padding: 8px 10px; color: #94a3b8; font-size: 0.72rem; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; }
+        .trace-table td { padding: 9px 10px; border-bottom: 1px solid #f1f5f9; color: var(--dark-navy); font-family: 'Consolas', monospace; }
+        .trace-table tr.oob td { color: #b91c1c; background: rgba(239,68,68,0.06); }
+        .trace-table tr.ok td { color: #15803d; }
+
+        .verdict-badge { display: inline-block; padding: 6px 16px; border-radius: 8px; font-weight: 800; font-size: 0.85rem; direction: ltr; }
+        .verdict-accepted { background: #dcfce7; color: #15803d; }
+        .verdict-wrong { background: #fee2e2; color: #b91c1c; }
+        .verdict-tle { background: #fef3c7; color: #b45309; }
+        .verdict-re { background: #ede9fe; color: #6d28d9; }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: left; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="level-badge"><i class="fas fa-bug"></i> Debugging</span>
+        <div class="brand-info">
+                <h3>TweetKod Platform</h3>
+                <p>Interactive Programming Education</p>
+            </div>
+        <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    </header>
+
+    <div class="container">
+        <div class="title-section">
+            <h1>Debugging</h1>
+            <p class="attribution">Finding and Fixing Bugs Quickly and Smartly</p>
+        </div>
+
+        <!-- Intro -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-bug"></i>
+                <h3>What Is Debugging?</h3>
+            </div>
+            <p>It's very common, when solving a problem, for your program to not behave exactly as you expected. The process of discovering what went wrong and fixing it is called <strong>Debugging</strong>.</p>
+            <p>There's no single "perfect" way to debug a program, but there are techniques that help you find the bug faster instead of reading the code line by line with no plan. In this chapter we'll go over the most important of these techniques: writing clean code from the start, using <code class="inline">cout</code> to trace values, using <code class="inline">assert</code> to catch logical errors automatically, plus a comprehensive list of practical tips.</p>
+        </div>
+
+        <!-- Code Style -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-code"></i>
+                <h3>Code Style</h3>
+            </div>
+            <p>Cleaner code is less likely to contain bugs in the first place. Make sure to name your variables clearly so you don't mix them up, and use consistent indentation and spacing to improve readability when you debug later.</p>
+
+            <h4 class="sub-title">Example: Bad Code</h4>
+            <div class="code-box">
+                <div class="code-head bad-head"><span><i class="fas fa-xmark"></i> bad.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+#include &lt;cassert&gt;
+#include &lt;iomanip&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+int main() {
+int a, b;
+cin &gt;&gt; a &gt;&gt; b;
+int n[a];
+for (int m=a-1; m&gt;-1; m-=1) {
+cin &gt;&gt; n[m];
+}
+    cout &lt;&lt; n[b]; }</pre>
+            </div>
+
+            <h4 class="sub-title">Example: Good Code</h4>
+            <div class="code-box">
+                <div class="code-head good-head"><span><i class="fas fa-check"></i> good.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+
+    int a[n];
+
+    for (int i = n - 1; i &gt;= 0; i--) {   <span class="cmt">// inputting the array from right to left</span>
+        cin &gt;&gt; a[i];
+    }
+
+    cout &lt;&lt; a[m];
+}</pre>
+            </div>
+
+            <ul class="style-rules">
+                <li>Only include (<code class="inline">#include</code>) the libraries you actually need, and don't use massive templates you don't need.</li>
+                <li>Use <code class="inline">n</code> and <code class="inline">m</code> to express sizes or counts — this is the convention in most programming problems, which makes your code easier to read and understand.</li>
+                <li>Use <code class="inline">i</code>, <code class="inline">j</code>, and <code class="inline">k</code> as loop variable names — these are common standard names inside loops.</li>
+                <li>Keep consistent indentation: each nesting level should be shifted by one tab (or 4 spaces).</li>
+                <li>Remove the indentation when closing any block — this helps you visually spot where a loop or condition ends.</li>
+                <li>Leave comments when needed to clarify what you intended to do, and compare it to what you actually did.</li>
+            </ul>
+        </div>
+
+        <!-- Printing -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-print"></i>
+                <h3>Printing</h3>
+            </div>
+            <p>The idea is to use <code class="inline">cout</code> to trace the values of our variables. If we notice that a variable holds an unexpected value, that can give us a clue as to why the bug is happening.</p>
+            <p>Suppose we're trying to print an array in reverse order:</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>reverse_v1.cpp</span></div>
+                <pre>int a[5] = {1, 2, 3, 4, 5};
+
+for (int i = 4; i &gt;= 0; i++) {
+    cout &lt;&lt; a[i] &lt;&lt; ' ';
+}</pre>
+            </div>
+            <div class="output-box bad-output">Output:
+5 0 -1150222592 1577706123 1165962832 32767 126...</div>
+
+            <p>This doesn't look right... let's print the value of <code class="inline">i</code> before every print to see which index is actually being printed.</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>reverse_v2.cpp</span></div>
+                <pre>int a[5] = {1, 2, 3, 4, 5};
+
+for (int i = 4; i &gt;= 0; i++) {
+    cout &lt;&lt; "index 'i' is: " &lt;&lt; i &lt;&lt; '\n';
+    cout &lt;&lt; a[i] &lt;&lt; '\n';  <span class="cmt">// change this to \n to make the output more readable</span>
+}</pre>
+            </div>
+            <div class="output-box bad-output">Output:
+index 'i' is: 4
+5
+index 'i' is: 5
+0
+index 'i' is: 6
+1781710592
+index 'i' is: 7
+1056066187...</div>
+
+            <p>We expect the value of <code class="inline">i</code> to be <span class="formula">4, 3, 2, 1, 0</span> but instead it's increasing. The update expression for <code class="inline">i</code> is the increment expression in the for-loop. It should be <code class="inline">i--</code>, but instead it's <code class="inline">i++</code>, and that was the bug.</p>
+
+            <div class="code-box">
+                <div class="code-head good-head"><span><i class="fas fa-check"></i> reverse_fixed.cpp</span></div>
+                <pre>int a[5] = {1, 2, 3, 4, 5};
+
+for (int i = 4; i &gt;= 0; i--) {
+    cout &lt;&lt; a[i] &lt;&lt; ' ';
+}</pre>
+            </div>
+            <div class="output-box">Output:
+5 4 3 2 1</div>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> Interactive Lab: Trace the Loop Step by Step</p>
+                <p style="margin:0 0 14px;font-size:0.88rem;">Enter the array size, choose the update direction (buggy <code class="inline">i++</code> or fixed <code class="inline">i--</code>), and watch every actual step of the loop: whether the index is inside or outside the array's bounds.</p>
+                <div class="lab-controls">
+                    <div class="lab-field">
+                        <label>Array size (n)</label>
+                        <input type="number" id="dbgArrSize" value="5" min="1" max="10">
+                    </div>
+                    <div class="lab-field">
+                        <label>Loop update</label>
+                        <select id="dbgDirection">
+                            <option value="buggy">i++ (buggy)</option>
+                            <option value="fixed">i-- (fixed)</option>
+                        </select>
+                    </div>
+                    <button class="lab-btn" onclick="dbgRunTrace()"><i class="fas fa-play"></i> Trace</button>
+                </div>
+                <div id="dbgTraceOut"></div>
+            </div>
+        </div>
+
+        <!-- Assert -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-exclamation"></i>
+                <h3>Assert</h3>
+            </div>
+            <p>The <code class="inline">assert</code> function takes a boolean expression as its argument, and if that expression evaluates to <code class="inline">false</code>, the program stops immediately. On most online judges, this stop results in a <strong>Runtime Error</strong> verdict. This is very useful when a program has several branches and produces a different verdict we can't explain.</p>
+            <p>To use this function you must include the <code class="inline">cassert</code> library.</p>
+
+            <p>For example, suppose we have a problem that says: given an integer <code class="inline">n</code>, compute <span class="formula">1 + 2 + ... + n</span>.</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>fast_only.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int fast(int n) {
+    return n * (n + 1) / 2;
+}
+
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    cout &lt;&lt; fast(n);
+}</pre>
+            </div>
+
+            <p>Submitting this program gives us <strong>Wrong Answer</strong>. We might have another, slower solution that we're more confident is correct — like a loop that adds up the values one by one. In that case, we can use <code class="inline">assert</code> to check that the slow solution (<code class="inline">slow</code>) and the fast solution (<code class="inline">fast</code>) produce the same value:</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>with_assert.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;cassert&gt;
+
+using namespace std;
+
+int slow(int n) {
+    int ans = 0;
+    for (int i = 1; i &lt;= n; i++) ans += i;
+    return ans;
+}
+
+int fast(int n) {
+    return n * (n + 1) / 2;
+}
+
+int main() {
+    int n;
+    cin &gt;&gt; n;
+
+    assert(fast(n) == slow(n));
+
+    cout &lt;&lt; fast(n);
+}</pre>
+            </div>
+
+            <p>This has two possible outcomes: either we get <strong>Time Limit Exceeded</strong>, which means we're likely passing the small tests (and the mathematical formula is correct), or we get <strong>Runtime Error</strong> because the <code class="inline">assert</code> failed, meaning the two solutions produce different results.</p>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>If we get a Runtime Error we can review the formula and confirm its correctness, whereas if we get Time Limit Exceeded we can conclude that the formula fails on large numbers, which most likely means an <strong>Overflow</strong> issue (the type's capacity being exceeded).</p>
+            </div>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> Interactive Lab: Compare the Slow Solution to the Fast Solution Using assert</p>
+                <p style="margin:0 0 14px;font-size:0.88rem;">Enter a value for <code class="inline">n</code> and watch <code class="inline">slow(n)</code> and <code class="inline">fast(n)</code> actually get computed in the browser, then observe the assert's result. You can also deliberately "break" the fast formula to see what an assert failure looks like.</p>
+                <div class="lab-controls">
+                    <div class="lab-field">
+                        <label>n</label>
+                        <input type="number" id="dbgAssertN" value="6" min="0" max="1000000">
+                    </div>
+                    <div class="lab-field">
+                        <label>fast(n) formula</label>
+                        <select id="dbgFormula">
+                            <option value="correct">n * (n + 1) / 2 (correct)</option>
+                            <option value="buggy">n * (n + 1) / 2 - 1 (deliberately broken)</option>
+                        </select>
+                    </div>
+                    <button class="lab-btn" onclick="dbgRunAssert()"><i class="fas fa-play"></i> Run</button>
+                </div>
+                <div id="dbgAssertOut" style="margin-top:16px;"></div>
+            </div>
+        </div>
+
+        <!-- Other tips -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>Additional Tips</h3>
+            </div>
+
+            <div class="tips-grid">
+                <div class="tip-card">
+                    <h4><i class="fas fa-align-left"></i> Output and Formatting</h4>
+                    <ul>
+                        <li>Make sure the output format matches the problem statement exactly (no extra spaces or lines).</li>
+                        <li>Remove all debug prints before submitting.</li>
+                    </ul>
+                </div>
+                <div class="tip-card">
+                    <h4><i class="fas fa-sliders"></i> Input and Edge Cases</h4>
+                    <ul>
+                        <li>Handle all edge cases (such as <code class="inline">N = 0</code>, <code class="inline">N = 1</code>, empty input, maximum limits).</li>
+                        <li>In problems with multiple test cases, reset all variables and containers between each test.</li>
+                        <li style="margin-left:16px;">Bugs often show up when a small test comes right after a large one.</li>
+                    </ul>
+                </div>
+                <div class="tip-card">
+                    <h4><i class="fas fa-magnifying-glass"></i> Reviewing the Problem and the Code</h4>
+                    <ul>
+                        <li>Re-read the problem statement carefully.</li>
+                        <li>Re-read your code — common mistakes: mixing up <code class="inline">N</code>/<code class="inline">M</code>, <code class="inline">i</code>/<code class="inline">j</code>, etc.</li>
+                        <li>Watch out for shadowed, unused, or uninitialized variables.</li>
+                    </ul>
+                </div>
+                <div class="tip-card danger">
+                    <h4><i class="fas fa-triangle-exclamation"></i> Undefined Behavior</h4>
+                    <ul>
+                        <li>Uninitialized variables.</li>
+                        <li>Out-of-bounds access on an array/vector.</li>
+                        <li>Forgetting <code class="inline">return</code> in a non-<code class="inline">void</code> function.</li>
+                        <li>Signed integer overflow — use <code class="inline">long long</code>.</li>
+                        <li>Bit-shifting by ≥ 32 on 32-bit numbers.</li>
+                    </ul>
+                </div>
+                <div class="tip-card">
+                    <h4><i class="fas fa-wave-square"></i> Floating Point</h4>
+                    <ul>
+                        <li>Check for <code class="inline">NaN</code> values (such as <code class="inline">sqrt</code> of a negative number).</li>
+                        <li>Use <code class="inline">long double</code> for extra precision when needed.</li>
+                        <li>Match the required output precision using <code class="inline">setprecision()</code>.</li>
+                    </ul>
+                </div>
+                <div class="tip-card">
+                    <h4><i class="fas fa-vial"></i> Testing</h4>
+                    <ul>
+                        <li>Do a manual walkthrough on simple cases.</li>
+                        <li>Stress test: compare your fast solution's results against a slow, reliable brute-force solution.</li>
+                    </ul>
+                </div>
+                <div class="tip-card warn">
+                    <h4><i class="fas fa-bomb"></i> Runtime Error</h4>
+                    <ul>
+                        <li>Is there any undefined behavior?</li>
+                        <li>Are there assertions that might fail?</li>
+                        <li>Is there a possible division by zero? (or mod 0)</li>
+                        <li>Is there a possible infinite recursion?</li>
+                        <li>Invalid pointers or iterators?</li>
+                        <li>Are you using more memory than necessary?</li>
+                    </ul>
+                </div>
+                <div class="tip-card warn">
+                    <h4><i class="fas fa-hourglass-half"></i> Time Limit Exceeded</h4>
+                    <ul>
+                        <li>Are there any possible infinite loops?</li>
+                        <li>What is your algorithm's time complexity?</li>
+                        <li>Did you remove debug output before submitting (like heavy printing to stderr)?</li>
+                        <li>Is there unnecessary copying of data? Consider passing variables by reference.</li>
+                        <li>Try replacing vectors with plain arrays.</li>
+                    </ul>
+                </div>
+                <div class="tip-card">
+                    <h4><i class="fas fa-rotate-left"></i> Last Resort</h4>
+                    <ul>
+                        <li>Rewrite your solution from scratch.</li>
+                        <li>Make sure to keep a copy of your original solution — it's always possible to introduce new bugs into your new solution.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>Check Your Understanding</h3>
+            </div>
+
+            <div class="quiz-q" id="q1">
+                <h4>1. What is the best way to debug any program?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">There's one "perfect" method that should always be followed</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, true)">There's no single "perfect" method, but there are techniques that help you find the bug faster</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">Rewriting the whole program is always the only solution</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q2">
+                <h4>2. Why is writing clean, organized code considered part of debugging?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, true)">Because cleaner code is less likely to produce bugs, and makes it easier to spot bugs when they happen</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">Because it automatically makes the program run faster</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">There's no relationship between them at all</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q3">
+                <h4>3. In the example of printing an array in reverse order, what was the actual bug?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">The initial value of i was wrong</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, true)">The loop's update expression was i++ instead of i--</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">The array size was wrong</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q4">
+                <h4>4. What does the assert function do?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, true)">It checks a boolean expression, and stops the program immediately if its value is false</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">It only prints a warning message without stopping the program</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">It automatically fixes bugs in the code</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q5">
+                <h4>5. Which library must be included to use assert?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, false)">iomanip</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, true)">cassert</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, false)">algorithm</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q6">
+                <h4>6. In the slow vs. fast comparison example, what does getting Time Limit Exceeded mean?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, true)">The fast formula is likely correct, but the slow solution takes too long on large inputs</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, false)">There's definitely a bug in the fast formula</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, false)">The program won't compile at all</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q7">
+                <h4>7. Which of the following counts as Undefined Behavior?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q7', this, true)">Accessing an element outside an array's bounds</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q7', this, false)">Using long long instead of int</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q7', this, false)">Using setprecision to format output</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q8">
+                <h4>8. What's the benefit of "Stress Testing"?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q8', this, true)">Comparing your fast solution's results against a slow, reliable one to detect differences in results</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q8', this, false)">Measuring memory usage only</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q8', this, false)">Automatically speeding up the program</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q9">
+                <h4>9. When solving a problem with multiple test cases, what's the common mistake to watch out for?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q9', this, true)">Forgetting to reset variables and containers between each test</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q9', this, false)">Using short variable names like i and j</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q9', this, false)">Including the iostream library</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q10">
+                <h4>10. When is "rewriting the solution from scratch" a suitable option?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q10', this, true)">As a last resort after trying every other debugging technique without success, while keeping a copy of the original solution</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q10', this, false)">As the first step to try whenever any small bug appears</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q10', this, false)">It's never recommended under any circumstances</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>Glossary of Terms</h3>
+            </div>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Debugging</span><span class="term-ar">Bug fixing</span><p class="term-desc">The process of discovering why a program behaves unexpectedly and fixing it.</p></div>
+                <div class="term-card"><span class="term-en">Assertion</span><span class="term-ar">A required check</span><p class="term-desc">A condition that must be true; if it isn't, the program stops immediately (assert).</p></div>
+                <div class="term-card"><span class="term-en">Undefined Behavior</span><span class="term-ar">Unspecified outcome</span><p class="term-desc">A situation whose outcome C++ doesn't precisely define, such as accessing outside an array's bounds.</p></div>
+                <div class="term-card"><span class="term-en">Overflow</span><span class="term-ar">Capacity exceeded</span><p class="term-desc">A variable's value exceeding the maximum its type can store.</p></div>
+                <div class="term-card"><span class="term-en">Stress Testing</span><span class="term-ar">Randomized comparison</span><p class="term-desc">Comparing a fast solution to a slow, reliable one on many random inputs to find a discrepancy.</p></div>
+                <div class="term-card"><span class="term-en">Edge Case</span><span class="term-ar">A boundary input</span><p class="term-desc">An unusual input (like zero or maximum values) that might expose a flaw in the logic.</p></div>
+                <div class="term-card"><span class="term-en">Runtime Error</span><span class="term-ar">Crash during execution</span><p class="term-desc">The program stopping abnormally while running, such as a failed assert or division by zero.</p></div>
+                <div class="term-card"><span class="term-en">Time Limit Exceeded</span><span class="term-ar">Too slow</span><p class="term-desc">The solution is logically correct but slower than the allowed time limit.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">TweetKod Platform — Debugging</footer>
+
+    <script>
+        function dbgRunTrace() {
+            const n = Math.max(1, Math.min(10, parseInt(document.getElementById('dbgArrSize').value) || 5));
+            const buggy = document.getElementById('dbgDirection').value === 'buggy';
+            const arr = [];
+            for (let k = 0; k < n; k++) arr.push(k + 1);
+
+            let rows = '';
+            let i = n - 1;
+            const maxSteps = 8;
+            let steps = 0;
+
+            // Mirrors the real for-loop: condition "i >= 0" is checked BEFORE
+            // each iteration's body runs, exactly like the C++ for-loop above.
+            while (i >= 0 && steps < maxSteps) {
+                const inBounds = i < n;
+                if (inBounds) {
+                    rows += `<tr class="ok"><td>${i}</td><td>yes</td><td>a[${i}] = ${arr[i]}</td></tr>`;
+                } else {
+                    rows += `<tr class="oob"><td>${i}</td><td>no</td><td>undefined behavior (out of range)</td></tr>`;
+                }
+                steps++;
+                i = buggy ? i + 1 : i - 1;
+            }
+
+            const verdict = buggy
+                ? '<span class="verdict-badge verdict-re">Undefined Behavior</span> — the loop immediately goes out of the array\'s bounds because the condition i &gt;= 0 stays true as i keeps increasing.'
+                : '<span class="verdict-badge verdict-accepted">Correct</span> — the loop stops correctly at i = -1, printing each element exactly once in reverse order.';
+
+            document.getElementById('dbgTraceOut').innerHTML =
+                `<table class="trace-table"><tr><th>i</th><th>in bounds?</th><th>access</th></tr>${rows}</table>` +
+                `<div style="margin-top:14px;">${verdict}</div>`;
+        }
+
+        function dbgSlow(n) {
+            let ans = 0;
+            for (let i = 1; i <= n; i++) ans += i;
+            return ans;
+        }
+
+        function dbgFast(n, buggy) {
+            const val = n * (n + 1) / 2;
+            return buggy ? val - 1 : val;
+        }
+
+        function dbgRunAssert() {
+            const n = Math.max(0, Math.min(1000000, parseInt(document.getElementById('dbgAssertN').value) || 0));
+            const buggyFormula = document.getElementById('dbgFormula').value === 'buggy';
+
+            const slowVal = dbgSlow(n);
+            const fastVal = dbgFast(n, buggyFormula);
+            const passed = slowVal === fastVal;
+
+            let html = `<div class="output-box" style="color:#e2e8f0;">slow(${n}) = ${slowVal}\nfast(${n}) = ${fastVal}</div>`;
+            if (passed) {
+                html += `<div style="margin-top:14px;"><span class="verdict-badge verdict-accepted">assert passed</span> <span style="font-size:0.85rem;color:var(--text-body);">— the two values match, the program continues execution and prints fast(n).</span></div>`;
+            } else {
+                html += `<div style="margin-top:14px;"><span class="verdict-badge verdict-re">Runtime Error</span> <span style="font-size:0.85rem;color:var(--text-body);">— assert(fast(n) == slow(n)) failed because ${fastVal} ≠ ${slowVal}, and the program stops immediately.</span></div>`;
+            }
+            document.getElementById('dbgAssertOut').innerHTML = html;
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> Correct answer! Well done.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> Incorrect answer, try again next time.</span>';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | The while Loop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', 'Segoe UI', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.12); box-shadow: 0 6px 24px -16px rgba(15, 23, 42, 0.3);
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+        .brand-info { order: -1; }
+        .logo-img { order: 1; }
+        .logo-img { width: 60px; height: 60px; border-radius: 16px; object-fit: contain; padding: 6px; background: #ffffff; box-shadow: 0 6px 18px -6px rgba(0, 173, 239, 0.4), 0 0 0 1px rgba(0, 173, 239, 0.14); }
+        .brand-info h3 { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--dark-navy); letter-spacing: -0.01em; }
+        .brand-info p { margin: 2px 0 0; font-size: 0.85rem; color: var(--primary-blue); font-weight: 600; letter-spacing: 0.01em; }
+
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .title-section { text-align: center; margin-bottom: 50px; }
+        .title-section h1 { font-size: 2.4rem; font-weight: 800; margin-bottom: 5px; }
+        .attribution { color: var(--primary-blue); font-size: 1.2rem; font-weight: 600; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-left: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-left-color: var(--primary-yellow); }
+        .danger-card { border-left-color: #ef4444; }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .danger-card .card-header { color: #ef4444; }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        /* Code blocks */
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 20px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        .copy-btn { color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+        pre { padding: 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.95rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        /* interactive line */
+        .code-line { cursor: pointer; display: block; border-radius: 6px; padding: 2px 6px; margin: 0 -6px; transition: 0.2s; position: relative; }
+        .code-line:hover { background: rgba(0, 173, 239, 0.15); }
+        .code-line.active { background: rgba(247, 148, 30, 0.25); outline: 1px dashed var(--primary-yellow); }
+        .code-line.hit { background: rgba(74, 222, 128, 0.25); outline: 1px dashed #4ade80; }
+        .step-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: var(--primary-yellow); color: white; width: 20px; height: 20px;
+            border-radius: 50%; font-size: 0.7rem; font-weight: 800; margin-left: 10px;
+        }
+
+        .explain-box {
+            margin-top: 18px; background: var(--bg-main); border: 2px dashed #cbd5e1;
+            border-radius: 16px; padding: 18px 22px; font-weight: 600; color: var(--dark-navy);
+            min-height: 30px; transition: 0.2s;
+        }
+        .explain-box .hint { color: #94a3b8; font-weight: 500; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 16px 22px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        /* step items (how the loop works) */
+        .step-item {
+            display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px;
+            padding: 20px; background: #fff; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .step-number {
+            background: var(--yellow-gradient); color: white; width: 32px; height: 32px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 800; flex-shrink: 0;
+        }
+        .step-item h4 { margin: 0 0 6px 0; font-size: 1.02rem; color: var(--dark-navy); }
+        .step-item p { margin: 0; font-size: 0.92rem; }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.08); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        /* simulators */
+        .sim-box { background: var(--bg-main); border: 3px dashed #cbd5e1; border-radius: 20px; padding: 28px; margin-top: 18px; }
+        .sim-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .sim-label { font-weight: 700; font-size: 0.9rem; color: var(--dark-navy); }
+        .sim-input {
+            border: 2px solid #cbd5e1; border-radius: 10px; padding: 10px 14px; font-family: 'Consolas', monospace;
+            font-size: 0.95rem; width: 110px; direction: ltr; text-align: center;
+        }
+        .sim-input:focus { outline: none; border-color: var(--primary-blue); }
+        .sim-btn { background: var(--yellow-gradient); color: white; border: none; padding: 10px 24px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.9rem; }
+        .sim-btn.alt { background: var(--blue-gradient); }
+        .sim-btn.danger { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+        .sim-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .sim-result { margin-top: 16px; font-size: 0.85rem; color: var(--text-body); min-height: 20px; font-weight: 600; }
+        .sim-console { background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace; padding: 14px 20px; border-radius: 12px; margin-top: 12px; direction: ltr; text-align: left; min-height: 24px; word-break: break-word; }
+        .state-row { display: flex; gap: 30px; margin-top: 14px; flex-wrap: wrap; font-family: 'Consolas', monospace; font-size: 0.9rem; direction: ltr; text-align: left; }
+        .state-chip { background: white; border: 2px solid #e2e8f0; border-radius: 10px; padding: 8px 16px; }
+        .state-chip b { color: var(--primary-blue); }
+        .state-chip.cond-true { border-color: #22c55e; color: #15803d; }
+        .state-chip.cond-false { border-color: #ef4444; color: #b91c1c; }
+
+        .counter-display { font-family: 'Consolas', monospace; font-size: 2.2rem; font-weight: 800; color: #ef4444; text-align: center; margin: 10px 0; direction: ltr; }
+
+        /* example subsection */
+        .example-block { margin-top: 30px; padding-top: 30px; border-top: 2px dashed #e2e8f0; }
+        .example-num {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: var(--blue-gradient); color: white; width: 30px; height: 30px;
+            border-radius: 10px; font-weight: 800; margin-left: 10px; font-size: 0.95rem;
+        }
+        .example-title { display: flex; align-items: center; gap: 4px; margin-bottom: 10px; font-size: 1.1rem; font-weight: 800; color: var(--dark-navy); }
+
+        /* glossary */
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        /* quiz */
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: left; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand-info">
+                <h3>TweetKod Platform</h3>
+                <p>Interactive Programming Education</p>
+            </div>
+        <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    </header>
+
+    <div class="container">
+        <div class="title-section">
+            <h1>The while Loop</h1>
+            <p class="attribution">This lesson is brought to you by the TweetKod platform</p>
+        </div>
+
+        <!-- Intro -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-rotate"></i>
+                <h3>while — the Simplest Loop</h3>
+            </div>
+            <p>The <code class="inline">while</code> loop is the simplest loop in C++. It executes a statement or block of statements repeatedly as long as a condition is true.</p>
+
+            <p style="margin-top: 20px; font-weight: 700; color: var(--dark-navy);">Syntax:</p>
+            <div class="code-box">
+                <div class="code-group" id="grpSyntax">
+                <div class="code-head"><span>while_syntax.cpp</span></div>
+                <pre><span class="code-line" onclick="explainLine(this,'syn',0)">while (expression)</span>
+<span class="code-line" onclick="explainLine(this,'syn',1)">    statement;</span></pre>
+                <div class="explain-box"><span class="hint">Click on any line to see its explanation here...</span></div>
+                </div>
+            </div>
+
+            <ul style="color: var(--text-body); font-size: 0.92rem; padding-left: 20px;">
+                <li>The <code class="inline">expression</code> is evaluated before every iteration.</li>
+                <li>If the expression's value is <code class="inline">true</code>, the statement inside the loop runs.</li>
+                <li>If it's <code class="inline">false</code>, the loop stops, and the program continues executing after it.</li>
+            </ul>
+        </div>
+
+        <!-- Main example: countdown -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-hourglass-half"></i>
+                <h3>Example: Countdown</h3>
+            </div>
+
+            <div class="code-box">
+                <div class="code-group" id="grpMain">
+                <div class="code-head">
+                    <span>countdown.cpp</span>
+                    <button class="copy-btn" onclick="copyCode('mainCode')">Copy Code</button>
+                </div>
+                <pre id="mainCode"><span class="code-line cmt" onclick="explainLine(this,'main',0)">// custom countdown using while</span>
+<span class="code-line" onclick="explainLine(this,'main',1)">#include &lt;iostream&gt;</span>
+<span class="code-line" onclick="explainLine(this,'main',2)">using namespace std;</span>
+
+<span class="code-line" onclick="explainLine(this,'main',3)">int main() {</span>
+<span class="code-line" onclick="explainLine(this,'main',4)">    int n = 10;</span>
+
+<span class="code-line" onclick="explainLine(this,'main',5)">    while (n &gt; 0) {</span>
+<span class="code-line" onclick="explainLine(this,'main',6)">        cout &lt;&lt; n &lt;&lt; ", ";</span>
+<span class="code-line" onclick="explainLine(this,'main',7)">        --n;</span>
+<span class="code-line" onclick="explainLine(this,'main',8)">    }</span>
+
+<span class="code-line" onclick="explainLine(this,'main',9)">    cout &lt;&lt; "liftoff!\n";</span>
+<span class="code-line" onclick="explainLine(this,'main',10)">}</span></pre>
+                <div class="explain-box"><span class="hint">Click on any line to see its explanation here...</span></div>
+                </div>
+            </div>
+
+            <p style="margin-top: 20px;">Output:</p>
+            <div class="output-box">10, 9, 8, 7, 6, 5, 4, 3, 2, 1, liftoff!</div>
+
+            <p style="margin-top: 25px; font-weight: 700; color: var(--dark-navy);">How does the loop work?</p>
+            <div class="step-item">
+                <div class="step-number">1</div>
+                <div><h4>Start</h4><p>n starts at 10.</p></div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">2</div>
+                <div><h4>Check the condition</h4><p>The condition n &gt; 0 is checked.</p></div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">3</div>
+                <div><h4>Execute</h4><p>If the condition is true → n's value is printed, then decreased by one.</p></div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">4</div>
+                <div><h4>Stop</h4><p>When n reaches 0 → the condition becomes false → the loop stops.</p></div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">5</div>
+                <div><h4>Continue</h4><p>The program keeps running after the loop ends.</p></div>
+            </div>
+
+            <p style="margin-top: 25px; font-size: 0.9rem;"><i class="fas fa-flask" style="color: var(--primary-yellow);"></i> Try it step by step yourself — click "Next Step" to see how n changes and the output builds up gradually:</p>
+            <div class="sim-box" id="simWhile">
+                <div class="state-row">
+                    <div class="state-chip" id="stateN">n = <b>10</b></div>
+                    <div class="state-chip cond-true" id="stateCond">n &gt; 0 → <b>true</b></div>
+                </div>
+                <div class="sim-console" id="whileConsole">Waiting to run...</div>
+                <div class="sim-row" style="margin-top: 16px;">
+                    <button class="sim-btn" onclick="stepWhile()" id="stepBtn"><i class="fas fa-forward-step"></i> Next Step</button>
+                    <button class="sim-btn alt" onclick="resetWhile()"><i class="fas fa-rotate-left"></i> Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Infinite loop warning -->
+        <div class="card danger-card">
+            <div class="card-header">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>Warning: the Infinite Loop</h3>
+            </div>
+            <div class="warn-box">
+                <i class="fas fa-circle-exclamation"></i>
+                <p>An infinite loop happens when the loop's condition always stays true. For example, if we forget to update n's value inside the loop (removing <code class="inline">--n</code>), or write a condition like <code class="inline">while (true)</code> with no way to break out, it will never end. So you must make sure the condition will eventually become false.</p>
+            </div>
+
+            <p style="margin-top: 20px; font-size: 0.9rem;"><strong>A common bug example</strong> — code that looks correct but is infinite because n never changes:</p>
+            <div class="code-box">
+                <div class="code-head"><span>infinite_bug.cpp — don't actually run this code!</span></div>
+                <pre>int n = 10;
+while (n &gt; 0) {
+    cout &lt;&lt; n &lt;&lt; ", ";
+    <span class="cmt">// we forgot --n here! so n stays 10 forever</span>
+}</pre>
+            </div>
+
+            <p style="margin-top: 25px; font-size: 0.9rem;"><i class="fas fa-flask" style="color: #ef4444;"></i> Watch safely how the counter "won't stop" on its own (a safe simulation inside the browser only, not actual unbounded code):</p>
+            <div class="sim-box" id="simInfinite">
+                <div class="counter-display" id="infCounter">0</div>
+                <div class="sim-row" style="justify-content: center;">
+                    <button class="sim-btn danger" onclick="startInfinite()" id="infStartBtn"><i class="fas fa-play"></i> Run the loop</button>
+                    <button class="sim-btn alt" onclick="stopInfinite()" id="infStopBtn" disabled><i class="fas fa-stop"></i> Manual stop</button>
+                </div>
+                <div class="sim-result" id="infResult" style="text-align: center;">Notice: the loop will never stop on its own — it must be stopped manually, exactly like a real program stuck in an infinite loop (it would freeze or need to be force-closed).</div>
+            </div>
+        </div>
+
+        <!-- Extra examples -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>More while Examples</h3>
+            </div>
+            <p>Two more examples showing other common uses of the while loop:</p>
+
+            <!-- Example 1: sum -->
+            <div class="example-block">
+                <div class="example-title"><span class="example-num">1</span> Sum of Numbers from 1 to n</div>
+                <p style="font-size: 0.9rem;">A program that computes the sum of all whole numbers from 1 to n using while:</p>
+                <div class="code-box">
+                    <div class="code-head"><span>sum_to_n.cpp</span></div>
+                    <pre>int n = 5;
+int i = 1;
+int sum = 0;
+
+while (i &lt;= n) {
+    sum = sum + i;
+    ++i;
+}
+
+cout &lt;&lt; "Sum: " &lt;&lt; sum;</pre>
+                </div>
+                <div class="sim-box" id="simSum">
+                    <div class="sim-row">
+                        <span class="sim-label">n =</span>
+                        <input type="number" class="sim-input" id="sumInput" value="5" min="1" max="30">
+                        <button class="sim-btn" onclick="runSum()"><i class="fas fa-play"></i> Run</button>
+                    </div>
+                    <div class="sim-console" id="sumConsole">Waiting to run...</div>
+                </div>
+            </div>
+
+            <!-- Example 2: multiplication table -->
+            <div class="example-block">
+                <div class="example-title"><span class="example-num">2</span> Multiplication Table for a Number</div>
+                <p style="font-size: 0.9rem;">A program that prints the multiplication table of x from 1 to 10 using while:</p>
+                <div class="code-box">
+                    <div class="code-head"><span>times_table.cpp</span></div>
+                    <pre>int x = 4;
+int i = 1;
+
+while (i &lt;= 10) {
+    cout &lt;&lt; x &lt;&lt; " x " &lt;&lt; i &lt;&lt; " = " &lt;&lt; (x * i) &lt;&lt; "\n";
+    ++i;
+}</pre>
+                </div>
+                <div class="sim-box" id="simTable">
+                    <div class="sim-row">
+                        <span class="sim-label">x =</span>
+                        <input type="number" class="sim-input" id="tableInput" value="4" min="1" max="20">
+                        <button class="sim-btn" onclick="runTable()"><i class="fas fa-play"></i> Run</button>
+                    </div>
+                    <div class="sim-console" id="tableConsole" style="white-space: pre-line;">Waiting to run...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>Check Your Understanding</h3>
+            </div>
+
+            <div class="quiz-q" id="q1">
+                <h4>1. When does the statement inside a while loop execute?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, true)">As long as the expression's value is true</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">Only once, regardless of the condition</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">Only when the expression is false</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q2">
+                <h4>2. When is a while condition evaluated?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, true)">Before every iteration of the loop</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">Only once, at the start of the program</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">Only after the loop ends</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q3">
+                <h4>3. In the countdown example, what happens when n reaches 0?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, true)">The condition n &gt; 0 becomes false, so the loop stops</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">The loop continues forever</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">The whole program stops running</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q4">
+                <h4>4. When does an infinite loop occur?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, true)">When the loop's condition always stays true</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">When the message "liftoff" is printed at the end</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">When the variable starts at zero</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q5">
+                <h4>5. In the countdown code, why would removing --n cause an infinite loop?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, true)">Because n's value would never change, so the condition n &gt; 0 stays true forever</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, false)">Because cout would stop printing</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, false)">Because the program wouldn't start running at all</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>Glossary of Terms</h3>
+            </div>
+            <p>The most important terms from this lesson, along with a short gloss:</p>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">while</span><span class="term-ar">Repeats while true</span><p class="term-desc">Executes a statement or block of statements repeatedly as long as the condition is true.</p></div>
+                <div class="term-card"><span class="term-en">Iteration</span><span class="term-ar">One pass through the loop</span><p class="term-desc">One single execution of the loop's body.</p></div>
+                <div class="term-card"><span class="term-en">Loop body</span><span class="term-ar">What runs each time</span><p class="term-desc">The statement or block that executes on every pass of the loop.</p></div>
+                <div class="term-card"><span class="term-en">Infinite loop</span><span class="term-ar">Never stops</span><p class="term-desc">A loop whose condition never becomes false, so it runs forever.</p></div>
+                <div class="term-card"><span class="term-en">Decrement</span><span class="term-ar">Subtract one</span><p class="term-desc">Decreasing a variable's value by one, like --n.</p></div>
+                <div class="term-card"><span class="term-en">Increment</span><span class="term-ar">Add one</span><p class="term-desc">Increasing a variable's value by one, like ++i.</p></div>
+                <div class="term-card"><span class="term-en">Counter variable</span><span class="term-ar">Tracks progress</span><p class="term-desc">A variable used to track the number of iterations or a value that changes with each pass.</p></div>
+                <div class="term-card"><span class="term-en">Expression</span><span class="term-ar">Checked each pass</span><p class="term-desc">The condition that's evaluated to true or false before every iteration.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">TweetKod Platform — Level One: C++ for Olympiad</footer>
+
+    <script>
+        const EXPLANATIONS = {
+            syn: {
+                0: '<strong>while (expression)</strong> — the start of the loop, followed by the condition checked before each pass, in parentheses. <span class="step-badge">1</span>',
+                1: '<strong>statement;</strong> — the instruction that repeats as long as the condition is true. <span class="step-badge">2</span>'
+            },
+            main: {
+                0: 'A comment explaining the purpose of the code — it doesn\'t actually execute.',
+                1: '<strong>#include &lt;iostream&gt;</strong> — includes the input/output library so we can use cout.',
+                2: '<strong>using namespace std;</strong> — lets us use cout directly without writing std:: before it.',
+                3: '<strong>int main() {</strong> — the start of the main function, where the program\'s execution begins. <span class="step-badge">1</span>',
+                4: '<strong>int n = 10;</strong> — defines a variable n and gives it the starting value 10. <span class="step-badge">2</span>',
+                5: '<strong>while (n &gt; 0) {</strong> — checks the condition before every pass; as long as n is greater than zero, the loop continues. <span class="step-badge">3</span>',
+                6: '<strong>cout &lt;&lt; n &lt;&lt; ", ";</strong> — prints n\'s current value followed by a comma and a space. <span class="step-badge">4</span>',
+                7: '<strong>--n;</strong> — decreases n\'s value by one; this line is essential so the condition eventually becomes false. <span class="step-badge">5</span>',
+                8: '<strong>}</strong> — the end of the loop body; execution goes back to check the condition again. <span class="step-badge">6</span>',
+                9: '<strong>cout &lt;&lt; "liftoff!\\n";</strong> — runs exactly once, after the loop has completely finished. <span class="step-badge">7</span>',
+                10: '<strong>}</strong> — the end of the main function and the end of the program.'
+            }
+        };
+
+        function explainLine(el, setName, key) {
+            const group = el.closest('.code-group');
+            group.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+            el.classList.add('active');
+            group.querySelector('.explain-box').innerHTML = EXPLANATIONS[setName][key];
+        }
+
+        function copyCode(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(() => alert('Code copied!'));
+        }
+
+        /* step-by-step countdown simulator */
+        let simN = 10;
+        let simConsoleText = '';
+        let simFinished = false;
+
+        function highlightMain(idx) {
+            const group = document.getElementById('grpMain');
+            group.querySelectorAll('.code-line').forEach(l => l.classList.remove('hit'));
+            const lines = group.querySelectorAll('.code-line');
+            if (lines[idx]) lines[idx].classList.add('hit');
+        }
+
+        function updateWhileDisplay() {
+            document.getElementById('stateN').innerHTML = 'n = <b>' + simN + '</b>';
+            const condEl = document.getElementById('stateCond');
+            const condTrue = simN > 0;
+            condEl.innerHTML = 'n &gt; 0 → <b>' + (condTrue ? 'true' : 'false') + '</b>';
+            condEl.classList.toggle('cond-true', condTrue);
+            condEl.classList.toggle('cond-false', !condTrue);
+            document.getElementById('whileConsole').textContent = simConsoleText || 'Waiting to run...';
+        }
+
+        function stepWhile() {
+            if (simFinished) return;
+            if (simN > 0) {
+                highlightMain(5); // while condition line
+                simConsoleText += simN + ', ';
+                highlightMain(6); // cout line
+                simN--;
+                highlightMain(7); // --n line
+            } else {
+                simConsoleText += 'liftoff!';
+                highlightMain(9); // final cout line
+                simFinished = true;
+                document.getElementById('stepBtn').disabled = true;
+            }
+            updateWhileDisplay();
+        }
+
+        function resetWhile() {
+            simN = 10;
+            simConsoleText = '';
+            simFinished = false;
+            document.getElementById('stepBtn').disabled = false;
+            document.getElementById('grpMain').querySelectorAll('.code-line').forEach(l => l.classList.remove('hit'));
+            updateWhileDisplay();
+        }
+
+        /* infinite loop safe demo */
+        let infCount = 0;
+        let infTimer = null;
+
+        function startInfinite() {
+            if (infTimer) return;
+            document.getElementById('infStartBtn').disabled = true;
+            document.getElementById('infStopBtn').disabled = false;
+            document.getElementById('infResult').textContent = 'The loop is running now... notice it will not stop on its own.';
+            infTimer = setInterval(() => {
+                infCount++;
+                document.getElementById('infCounter').textContent = infCount;
+            }, 40);
+        }
+
+        function stopInfinite() {
+            if (infTimer) {
+                clearInterval(infTimer);
+                infTimer = null;
+            }
+            document.getElementById('infStartBtn').disabled = false;
+            document.getElementById('infStopBtn').disabled = true;
+            document.getElementById('infResult').textContent = 'Manually stopped after ' + infCount + ' iterations. This is exactly what you would do for a real program stuck in an infinite loop: stop it, then fix the condition in the code.';
+            infCount = 0;
+        }
+
+        /* extra example 1: sum */
+        function runSum() {
+            const n = Number(document.getElementById('sumInput').value);
+            let i = 1, sum = 0, lines = [];
+            while (i <= n) {
+                sum = sum + i;
+                lines.push('i=' + i + ' → sum=' + sum);
+                i++;
+            }
+            lines.push('Sum: ' + sum);
+            document.getElementById('sumConsole').textContent = lines.join('  |  ');
+        }
+
+        /* extra example 2: multiplication table */
+        function runTable() {
+            const x = Number(document.getElementById('tableInput').value);
+            let i = 1, lines = [];
+            while (i <= 10) {
+                lines.push(x + ' x ' + i + ' = ' + (x * i));
+                i++;
+            }
+            document.getElementById('tableConsole').textContent = lines.join('\n');
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> Correct answer! Well done.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> Incorrect answer, try again next time.</span>';
+            }
+        }
+
+        updateWhileDisplay();
+    </script>
+</body>
+</html>

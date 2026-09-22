@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | Modular Arithmetic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', 'Segoe UI', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.12); box-shadow: 0 6px 24px -16px rgba(15, 23, 42, 0.3); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+        .brand-info { order: -1; }
+        .logo-img { order: 1; }
+        .logo-img { width: 60px; height: 60px; border-radius: 16px; object-fit: contain; padding: 6px; background: #ffffff; box-shadow: 0 6px 18px -6px rgba(0, 173, 239, 0.4), 0 0 0 1px rgba(0, 173, 239, 0.14); }
+        .brand-info h3 { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--dark-navy); letter-spacing: -0.01em; }
+        .brand-info p { margin: 2px 0 0; font-size: 0.85rem; color: var(--primary-blue); font-weight: 600; letter-spacing: 0.01em; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        /* hero banner */
+        .hero-banner { background: var(--blue-gradient); padding: 70px 6% 60px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 720px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-left: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-left-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula { direction: ltr; display: inline-block; font-family: 'Consolas', monospace; font-weight: 800; background: #eef2f7; padding: 3px 10px; border-radius: 8px; color: var(--dark-navy); }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: left; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td code.inline, .data-table th code.inline { white-space: nowrap; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+
+        /* numbered steps */
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        /* interactive lab */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 14px 0 6px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+
+        /* clock visualizer */
+        .clock-svg-wrap { text-align: center; margin: 10px 0; }
+        .clock-svg-wrap svg { max-width: 320px; width: 100%; height: auto; }
+        .clock-node { fill: var(--bg-main); stroke: #cbd5e1; stroke-width: 3; transition: fill 0.2s, stroke 0.2s; }
+        .clock-node.active { fill: rgba(247, 148, 30, 0.25); stroke: var(--primary-yellow); }
+        .clock-node.final { fill: rgba(34, 197, 94, 0.2); stroke: #22c55e; }
+        .clock-label { font-family: 'Consolas', monospace; font-weight: 800; font-size: 15px; fill: var(--dark-navy); text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+
+        /* modpow trace */
+        .trace-lines { margin-top: 14px; }
+        .trace-line { padding: 10px 14px; border-radius: 10px; margin-bottom: 8px; font-family: 'Consolas', monospace; font-size: 0.82rem; direction: ltr; text-align: left; }
+        .trace-call { background: #eef2f7; color: var(--dark-navy); border-right: 4px solid var(--primary-blue); }
+        .trace-return { background: #fef3c7; color: #78350f; border-right: 4px solid var(--primary-yellow); }
+
+        /* true/false quick-review activity */
+        .activity-box { background: white; border-radius: 22px; padding: 32px; margin: 28px 0; box-shadow: var(--soft-shadow); border: 1px solid #e2e8f0; }
+        .activity-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .activity-header i { color: var(--primary-blue); font-size: 1.2rem; }
+        .activity-header h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); }
+        .activity-intro { margin-bottom: 20px; font-size: 0.92rem; }
+        .tf-item {
+            background: var(--bg-main); border-radius: 16px; padding: 18px 22px; margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+            border: 1px solid #e2e8f0;
+        }
+        .tf-statement { margin: 0; font-weight: 700; color: var(--dark-navy); font-size: 0.95rem; flex: 1 1 260px; direction: ltr; text-align: left; unicode-bidi: plaintext; }
+        .tf-buttons { display: flex; gap: 10px; flex-shrink: 0; }
+        .tf-btn {
+            border: 2px solid #e2e8f0; background: white; padding: 9px 26px; border-radius: 50px;
+            font-weight: 800; font-family: 'Tajawal'; font-size: 0.88rem; cursor: pointer; color: var(--dark-navy); transition: 0.2s;
+        }
+        .tf-btn:hover { border-color: var(--primary-blue); }
+        .tf-btn.tf-selected-correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .tf-btn.tf-selected-wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .tf-feedback { flex-basis: 100%; margin-top: 2px; font-weight: 700; font-size: 0.85rem; min-height: 18px; }
+
+        /* homework toggles */
+        .homework-item { background: var(--bg-main); border-radius: 18px; padding: 24px; margin-top: 20px; border: 1px solid #e2e8f0; }
+        .homework-item h4 { margin: 0 0 10px; color: var(--dark-navy); font-size: 1.02rem; font-weight: 800; }
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            margin-top: 14px;
+        }
+        .collapsible { display: none; margin-top: 14px; }
+        .collapsible.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: left; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">C++</span>
+            <span class="chapter-badge">Modular Arithmetic</span>
+        </div>
+        <div class="brand-info">
+                <h3>TweetKod Platform</h3>
+                <p>Interactive Programming Education</p>
+            </div>
+        <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-clock-rotate-left"></i>
+        <h1>Modular Arithmetic</h1>
+        <p class="hero-desc">Throughout this level you've worked with arrays, sorted them, and searched them quickly. But what happens when the numbers in a problem become so huge that they don't even fit in a long long variable? In this chapter you'll learn "modular arithmetic" — an essential tool in competitive programming that keeps numbers small and manageable by always taking the remainder when dividing by a certain number, exactly like the hands of a clock cycling every 12 or 24 hours.</p>
+    </div>
+
+    <div class="container">
+
+        <!-- Intro: what is mod -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-arrows-rotate"></i>
+                <h3>What Does mod Mean?</h3>
+            </div>
+            <p><strong>Modular Arithmetic</strong> is a way of doing arithmetic where numbers "wrap around" after reaching a certain value called the <strong>modulus</strong>.</p>
+            <p>Think of it like a clock: after 24 hours pass, the clock returns to the same time again. That's exactly the operation <span class="formula">mod 24</span>!</p>
+            <p>When we say <span class="formula">a mod m</span>, we mean the <strong>remainder</strong> when dividing <code class="inline">a</code> by <code class="inline">m</code>.</p>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Expression</th><th>Meaning</th><th class="center">Result</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><span class="formula">7 mod 3</span></td><td>7 ÷ 3 → remainder</td><td class="center">1</td></tr>
+                        <tr><td><span class="formula">10 mod 4</span></td><td>10 ÷ 4 → remainder</td><td class="center">2</td></tr>
+                        <tr><td><span class="formula">15 mod 6</span></td><td>15 ÷ 6 → remainder</td><td class="center">3</td></tr>
+                        <tr><td><span class="formula">12 mod 12</span></td><td>12 ÷ 12 → remainder</td><td class="center">0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>In C++ we use the <code class="inline">%</code> operator to compute the remainder:</p>
+            <div class="code-box">
+                <div class="code-head"><span>basic_mod.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; 7 % 3 &lt;&lt; endl;    <span class="cmt">// 1</span>
+    cout &lt;&lt; 10 % 4 &lt;&lt; endl;   <span class="cmt">// 2</span>
+    cout &lt;&lt; 10 % 5 &lt;&lt; endl;   <span class="cmt">// 0</span>
+}</pre>
+            </div>
+            <div class="output-box">1
+2
+0</div>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> Interactive Lab: The Counting Clock (Clock of mod 12)</p>
+                <p style="text-align:center; font-size:0.85rem; color:var(--text-body); margin-bottom: 10px;">Watch how numbers "wrap around" the clock when counting forward 15 steps starting from 0 — exactly like mod 12.</p>
+                <div class="clock-svg-wrap">
+                    <svg viewBox="0 0 300 300">
+                        <circle cx="150" cy="150" r="140" fill="none" stroke="#e2e8f0" stroke-width="2"></circle>
+                        <circle class="clock-node" id="clockNode0" cx="150.0" cy="40.0" r="22"></circle>
+                        <text class="clock-label" x="150.0" y="40.0">0</text>
+                        <circle class="clock-node" id="clockNode1" cx="205.0" cy="54.7" r="22"></circle>
+                        <text class="clock-label" x="205.0" y="54.7">1</text>
+                        <circle class="clock-node" id="clockNode2" cx="245.3" cy="95.0" r="22"></circle>
+                        <text class="clock-label" x="245.3" y="95.0">2</text>
+                        <circle class="clock-node" id="clockNode3" cx="260.0" cy="150.0" r="22"></circle>
+                        <text class="clock-label" x="260.0" y="150.0">3</text>
+                        <circle class="clock-node" id="clockNode4" cx="245.3" cy="205.0" r="22"></circle>
+                        <text class="clock-label" x="245.3" y="205.0">4</text>
+                        <circle class="clock-node" id="clockNode5" cx="205.0" cy="245.3" r="22"></circle>
+                        <text class="clock-label" x="205.0" y="245.3">5</text>
+                        <circle class="clock-node" id="clockNode6" cx="150.0" cy="260.0" r="22"></circle>
+                        <text class="clock-label" x="150.0" y="260.0">6</text>
+                        <circle class="clock-node" id="clockNode7" cx="95.0" cy="245.3" r="22"></circle>
+                        <text class="clock-label" x="95.0" y="245.3">7</text>
+                        <circle class="clock-node" id="clockNode8" cx="54.7" cy="205.0" r="22"></circle>
+                        <text class="clock-label" x="54.7" y="205.0">8</text>
+                        <circle class="clock-node" id="clockNode9" cx="40.0" cy="150.0" r="22"></circle>
+                        <text class="clock-label" x="40.0" y="150.0">9</text>
+                        <circle class="clock-node" id="clockNode10" cx="54.7" cy="95.0" r="22"></circle>
+                        <text class="clock-label" x="54.7" y="95.0">10</text>
+                        <circle class="clock-node" id="clockNode11" cx="95.0" cy="54.7" r="22"></circle>
+                        <text class="clock-label" x="95.0" y="54.7">11</text>
+                    </svg>
+                </div>
+                <div class="lab-step-hint" id="clockStepLabel">Click "Start Counting" to count forward 15 steps starting from 0.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runClockLab()">Start Counting</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Why use it in programming -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-shield-halved"></i>
+                <h3>Why Do We Use Modular Arithmetic in Programming?</h3>
+            </div>
+            <p>When dealing with very large numbers (for example, in combinatorics or cryptography), results can become too big to fit in regular data types, or even in <code class="inline">long long</code>. The solution: we take the remainder (<code class="inline">mod</code>) after every operation to keep the numbers small the whole time.</p>
+
+            <p>A common modulus in competitive programming:</p>
+            <div class="code-box">
+                <div class="code-head"><span>constant.cpp</span></div>
+                <pre>const int MOD = 1'000'000'007; <span class="cmt">// a large prime number</span></pre>
+            </div>
+            <p>Why do we specifically use this value?</p>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p>It fits safely within 64-bit numbers (it doesn't cause overflow when multiplying two numbers smaller than it).</p></li>
+                <li class="step-item"><span class="step-num"></span><p>It avoids overflow during repeated addition or multiplication.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>Because it's prime, it has useful mathematical properties (such as making it possible to compute a modular inverse, as we'll see later).</p></li>
+            </ul>
+
+            <h4 class="sub-title">Example: Adding Large Numbers</h4>
+            <div class="code-box">
+                <div class="code-head"><span>big_sum.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    const int MOD = 1'000'000'007;
+    long long a = 1e12, b = 1e12;
+    cout &lt;&lt; (a + b) % MOD &lt;&lt; endl;
+}</pre>
+            </div>
+            <div class="output-box">999986007</div>
+            <p>Without taking mod, the result would have been <span class="formula">2,000,000,000,000</span> — an enormous number that could cause problems in later operations. By taking mod, we kept the result within a small, safe range.</p>
+        </div>
+
+        <!-- Basic rules -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-square-root-variable"></i>
+                <h3>Basic Rules</h3>
+            </div>
+
+            <h4 class="sub-title">Addition</h4>
+            <p class="formula" style="display:block; text-align:center; padding:14px;">(a + b) % m = (a % m + b % m) % m</p>
+
+            <h4 class="sub-title">Subtraction</h4>
+            <p class="formula" style="display:block; text-align:center; padding:14px;">(a - b) % m = ((a % m - b % m) + m) % m</p>
+            <p>We add <code class="inline">+ m</code> to guarantee we don't get a negative result (we'll see why in more detail shortly).</p>
+
+            <h4 class="sub-title">Multiplication</h4>
+            <p class="formula" style="display:block; text-align:center; padding:14px;">(a * b) % m = (a % m * b % m) % m</p>
+
+            <h4 class="sub-title">Example</h4>
+            <div class="code-box">
+                <div class="code-head"><span>rules_example.cpp</span></div>
+                <pre>int a = 7, b = 5, m = 3;
+cout &lt;&lt; (a + b) % m &lt;&lt; endl;   <span class="cmt">// 0</span>
+cout &lt;&lt; (a * b) % m &lt;&lt; endl;   <span class="cmt">// 2</span></pre>
+            </div>
+            <div class="output-box">0
+2</div>
+        </div>
+
+        <!-- Activity A -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>Activity: Quick Review of the mod Concept and Basic Rules</h4>
+            </div>
+            <p class="activity-intro">Decide whether each statement is true or false.</p>
+
+            <div class="tf-item" id="tfMod1">
+                <p class="tf-statement">12 mod 12 equals 12.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod1', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod1', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfMod2">
+                <p class="tf-statement">A clock (wrapping around every 12 or 24 hours) is a good example of the mod concept.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod2', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod2', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfMod3">
+                <p class="tf-statement">We use the modulus 1,000,000,007 because it's a large prime number that fits well within 64-bit numbers and helps avoid overflow.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod3', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod3', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfMod4">
+                <p class="tf-statement">(a * b) % m always equals (a % m * b % m) % m.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod4', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod4', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Negative numbers -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-minus"></i>
+                <h3>Handling Negative Numbers</h3>
+            </div>
+            <p>In C++, the <code class="inline">%</code> operator can give a negative result when one of the operands is negative:</p>
+            <div class="code-box">
+                <div class="code-head"><span>negative_mod.cpp</span></div>
+                <pre>cout &lt;&lt; (-5) % 3; <span class="cmt">// -2</span></pre>
+            </div>
+            <div class="output-box">-2</div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>This contradicts the usual mathematical definition of mod, which assumes the result is always between 0 and m-1. This can cause subtle bugs when using the result as an array index, for example.</p>
+            </div>
+            <p>To fix this problem, we add <code class="inline">m</code> and then take mod again:</p>
+            <p class="formula" style="display:block; text-align:center; padding:14px;">((a % m) + m) % m</p>
+            <div class="code-box">
+                <div class="code-head"><span>fixed_negative_mod.cpp</span></div>
+                <pre>int a = -5, m = 3;
+cout &lt;&lt; ((a % m) + m) % m; <span class="cmt">// 1</span></pre>
+            </div>
+            <div class="output-box">1</div>
+        </div>
+
+        <!-- Modular exponentiation -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-bolt"></i>
+                <h3>Modular Exponentiation</h3>
+            </div>
+            <p>To quickly compute <span class="formula">(a^b) mod m</span>, we don't multiply <code class="inline">a</code> by itself <code class="inline">b</code> times (that would be O(b) complexity and far too slow for large numbers). Instead, we use <strong>Fast/Binary Exponentiation</strong>:</p>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p>If <code class="inline">b</code> is even: <span class="formula">a^b = (a^(b/2))&sup2;</span></p></li>
+                <li class="step-item"><span class="step-num"></span><p>If <code class="inline">b</code> is odd: <span class="formula">a^b = (a^(b/2))&sup2; &times; a</span></p></li>
+            </ul>
+
+            <div class="code-box">
+                <div class="code-head"><span>modpow.cpp</span></div>
+                <pre>long long modpow(long long a, long long b, long long m) {
+    if (b == 0) return 1;
+    long long half = modpow(a, b / 2, m);
+    long long res = (half * half) % m;
+    if (b % 2 == 1)
+        res = (res * (a % m)) % m;
+
+    return res;
+}</pre>
+            </div>
+            <p>Since <code class="inline">b</code> is halved every time the recursion is called, the total number of recursive calls is roughly <span class="formula">log&#8322;(b)</span> — exactly like the doubling loop we studied in the time complexity chapter. So this function's complexity is <span class="formula">O(log b)</span>.</p>
+
+            <div class="output-box">modpow(2, 10, 1000) → 24</div>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> Interactive Lab: Trace the Calls of modpow(3, 13, 17)</p>
+                <p style="text-align:center; font-size:0.85rem; color:var(--text-body); margin-bottom: 6px;">Click the button several times to reveal the descent steps (the calls) and then the ascent (the results), one after another.</p>
+                <div class="trace-lines" id="modpowTraceLines"></div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" id="modpowStepBtn" onclick="revealNextModpowStep()">Next Step</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity B -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>Activity: Quick Review of Fast Exponentiation and Modular Inverse</h4>
+            </div>
+            <p class="activity-intro">Decide whether each statement is true or false.</p>
+
+            <div class="tf-item" id="tfMod5">
+                <p class="tf-statement">The time complexity of the fast modpow function is O(log b).</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod5', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod5', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfMod6">
+                <p class="tf-statement">To compute a^b mod m using fast exponentiation, we repeatedly multiply a by itself b times.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod6', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod6', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfMod7">
+                <p class="tf-statement">You can compute the modular inverse of a using modpow(a, MOD-2, MOD) only if MOD is a prime number.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod7', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfMod7', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Modular inverse -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-divide"></i>
+                <h3>Modular Inverse</h3>
+            </div>
+            <p>When we need to perform a <strong>division</strong> operation under a modulus, we can't just write <code class="inline">(a / b) % m</code> — regular division doesn't align with the properties of modular arithmetic. Instead, we use the <strong>modular inverse</strong>.</p>
+            <p>If <code class="inline">MOD</code> is a prime number, the inverse of <code class="inline">a</code> is computed with:</p>
+            <div class="code-box">
+                <div class="code-head"><span>modular_inverse.cpp</span></div>
+                <pre>long long inverse = modpow(a, MOD - 2, MOD);</pre>
+            </div>
+            <p>So the division <span class="formula">a / b mod m</span> becomes:</p>
+            <div class="code-box">
+                <div class="code-head"><span>modular_division.cpp</span></div>
+                <pre>(a * modpow(b, MOD - 2, MOD)) % MOD</pre>
+            </div>
+            <p><strong>Verification example:</strong> the inverse of 5 with respect to <code class="inline">MOD = 1,000,000,007</code> is <code class="inline">400,000,003</code>. We can confirm this is correct because:</p>
+            <div class="output-box">(5 * 400000003) % 1000000007 = 1</div>
+            <p>And that's exactly the definition of a modular inverse: a number that, when multiplied by the original number under the same modulus, gives 1.</p>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>This method (using <code class="inline">modpow(a, MOD-2, MOD)</code>) relies on a small theorem called "Fermat's Little Theorem", and works only when <code class="inline">MOD</code> is a prime number and <code class="inline">a</code> is not divisible by <code class="inline">MOD</code>.</p>
+            </div>
+        </div>
+
+        <!-- Quick summary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>Quick Summary</h3>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>
+                    <code class="inline">%</code> gives the remainder of division.<br>
+                    Use <code class="inline">(a + b) % MOD</code>, <code class="inline">(a * b) % MOD</code>, and <code class="inline">((a - b) % MOD + MOD) % MOD</code>.<br>
+                    For large exponents, use fast exponentiation (modular exponentiation) with O(log b) complexity.<br>
+                    For division, use the modular inverse if the modulus is a prime number.
+                </p>
+            </div>
+        </div>
+
+        <!-- Homework -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-pen-ruler"></i>
+                <h3>Homework Exercises</h3>
+            </div>
+
+            <div class="homework-item" id="hwM1">
+                <h4>1) Safe Subtraction Under a Modulus</h4>
+                <p>You have <code class="inline">a = 3</code>, <code class="inline">b = 8</code>, <code class="inline">m = 7</code>. Compute <code class="inline">(a - b) % m</code> the regular way, then compute it the safe way that never gives a negative result.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwM1sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwM1sol">
+                    <div class="code-box">
+                        <div class="code-head"><span>hw1.cpp</span></div>
+                        <pre>int a = 3, b = 8, m = 7;
+cout &lt;&lt; (a - b) % m &lt;&lt; endl;             <span class="cmt">// -5</span>
+cout &lt;&lt; ((a - b) % m + m) % m &lt;&lt; endl;    <span class="cmt">// 2</span></pre>
+                    </div>
+                    <div class="output-box">-5
+2</div>
+                    <p>The regular way gives <code class="inline">-5</code> because <code class="inline">3 - 8 = -5</code>, and the result is already negative. By adding <code class="inline">m</code> before taking mod a second time, we get the correct result, <code class="inline">2</code>.</p>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwM2">
+                <h4>2) Using Fast Exponentiation</h4>
+                <p>Compute <span class="formula">3^13 mod 17</span> using the <code class="inline">modpow</code> function.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwM2sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwM2sol">
+                    <div class="code-box">
+                        <div class="code-head"><span>hw2.cpp</span></div>
+                        <pre>cout &lt;&lt; modpow(3, 13, 17) &lt;&lt; endl;</pre>
+                    </div>
+                    <div class="output-box">12</div>
+                    <p>You can check this by hand: <code class="inline">3^13 = 1,594,323</code>, and <code class="inline">1,594,323 mod 17 = 12</code>. Fast exponentiation reaches the same result in far fewer steps (roughly log&#8322;(13) ≈ 4 calls only, instead of 13 multiplications).</p>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwM3">
+                <h4>3) Division Using the Modular Inverse</h4>
+                <p>Compute <span class="formula">(10 / 3) mod 1,000,000,007</span> using the modular inverse.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwM3sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwM3sol">
+                    <div class="code-box">
+                        <div class="code-head"><span>hw3.cpp</span></div>
+                        <pre>long long MOD = 1000000007;
+long long a = 10, b = 3;
+long long result = (a % MOD * modpow(b, MOD - 2, MOD)) % MOD;
+cout &lt;&lt; result &lt;&lt; endl;</pre>
+                    </div>
+                    <div class="output-box">333333339</div>
+                    <p>To verify: <code class="inline">(333,333,339 * 3) % 1,000,000,007 = 10</code> — meaning the division correctly returned to the original number, exactly as you'd expect from a proper division.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>Check Your Understanding</h3>
+            </div>
+
+            <div class="quiz-q" id="qm1">
+                <h4>1. What does "a mod m" mean?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qm1', this, false)">The result of dividing a by m</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm1', this, true)">The remainder when dividing a by m</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm1', this, false)">The product of a and m</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qm2">
+                <h4>2. What is the result of 15 mod 6?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qm2', this, false)">2</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm2', this, true)">3</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm2', this, false)">15</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qm3">
+                <h4>3. What is the result of 12 mod 12?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qm3', this, false)">12</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm3', this, false)">1</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm3', this, true)">0</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qm4">
+                <h4>4. What value is commonly used as the modulus (MOD) in competitive programming?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qm4', this, false)">100</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm4', this, true)">1,000,000,007</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm4', this, false)">2</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qm5">
+                <h4>5. Why is 1e9+7 specifically chosen as the modulus?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qm5', this, true)">Because it's a large prime number that fits well within 64-bit numbers and helps avoid overflow</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm5', this, false)">Because it's the smallest number that could be used</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm5', this, false)">Because it's an even number, which makes division easier</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qm6">
+                <h4>6. What is the correct formula for computing (a - b) % m without a negative result?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qm6', this, false)">(a - b) % m</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm6', this, true)">((a - b) % m + m) % m</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm6', this, false)">(a % m) - (b % m)</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qm7">
+                <h4>7. What is the time complexity of fast (modular) exponentiation?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qm7', this, false)">O(b)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm7', this, true)">O(log b)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm7', this, false)">O(b²)</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qm8">
+                <h4>8. When can modpow(a, MOD-2, MOD) be used to compute the inverse of a?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qm8', this, false)">In any case, regardless of the value of MOD</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm8', this, true)">Only when MOD is a prime number</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm8', this, false)">Only when a = 0</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qm9">
+                <h4>9. What is the result of modpow(2, 10, 1000)?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qm9', this, false)">1024</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm9', this, true)">24</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm9', this, false)">0</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qm10">
+                <h4>10. What is the correct formula for multiplying two numbers under a modulus?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qm10', this, false)">a * b % m, with no important parentheses needed at all</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm10', this, true)">(a % m * b % m) % m</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qm10', this, false)">(a * b) / m</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>Glossary</h3>
+            </div>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Modular Arithmetic</span><span class="term-ar">Modular Arithmetic</span><p class="term-desc">Arithmetic that keeps numbers within a small range by taking the remainder when dividing by a fixed modulus.</p></div>
+                <div class="term-card"><span class="term-en">Modulus</span><span class="term-ar">Modulus</span><p class="term-desc">The number we take the remainder with respect to, often 1,000,000,007 in competitive programming.</p></div>
+                <div class="term-card"><span class="term-en">% (mod operator)</span><span class="term-ar">Remainder Operator</span><p class="term-desc">The C++ operator that computes the remainder of division between two integers.</p></div>
+                <div class="term-card"><span class="term-en">Overflow</span><span class="term-ar">Overflow</span><p class="term-desc">A result too large to fit within the data type being used.</p></div>
+                <div class="term-card"><span class="term-en">Modular Exponentiation</span><span class="term-ar">Modular (Fast) Exponentiation</span><p class="term-desc">Computing a^b mod m with O(log b) complexity by repeatedly halving the exponent.</p></div>
+                <div class="term-card"><span class="term-en">Modular Inverse</span><span class="term-ar">Modular Inverse</span><p class="term-desc">A number that, when multiplied by the original number under the same modulus, gives 1; used to simulate division.</p></div>
+                <div class="term-card"><span class="term-en">Prime Modulus</span><span class="term-ar">Prime Modulus</span><p class="term-desc">Choosing a prime number as the modulus allows using Fermat's Little Theorem to easily compute the modular inverse.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">TweetKod Platform — Level 2: Modular Arithmetic</footer>
+
+    <script>
+        // ===== Clock (mod 12) visualizer =====
+        function buildClockFrames(totalSteps, modBase) {
+            const frames = [];
+            for (let s = 0; s <= totalSteps; s++) {
+                frames.push({ step: s, pos: s % modBase, isLast: s === totalSteps });
+            }
+            return frames;
+        }
+
+        function renderClockFrame(frame) {
+            for (let i = 0; i < 12; i++) {
+                const el = document.getElementById('clockNode' + i);
+                el.classList.remove('active', 'final');
+                if (i === frame.pos) {
+                    el.classList.add(frame.isLast ? 'final' : 'active');
+                }
+            }
+            document.getElementById('clockStepLabel').innerText =
+                'Step ' + frame.step + ': we land on position ' + frame.pos + ' (because ' + frame.step + ' mod 12 = ' + frame.pos + ')' + (frame.isLast ? ' — counting finished!' : '');
+        }
+
+        function runClockLab() {
+            const frames = buildClockFrames(15, 12);
+            let f = 0;
+            function playNext() {
+                if (f >= frames.length) return;
+                renderClockFrame(frames[f]);
+                f++;
+                setTimeout(playNext, 350);
+            }
+            playNext();
+        }
+
+        // ===== modpow recursion trace =====
+        const modpowTrace = [
+            { type: 'call', text: 'Call modpow(3, 13, 17) → b=13 is odd' },
+            { type: 'call', text: 'Call modpow(3, 6, 17) → b=6 is even' },
+            { type: 'call', text: 'Call modpow(3, 3, 17) → b=3 is odd' },
+            { type: 'call', text: 'Call modpow(3, 1, 17) → b=1 is odd' },
+            { type: 'call', text: 'Call modpow(3, 0, 17) → base case: return 1' },
+            { type: 'return', text: 'Return from b=1: half=1 → res=(1×1)%17=1 → odd: res=(1×3)%17=3' },
+            { type: 'return', text: 'Return from b=3: half=3 → res=(3×3)%17=9 → odd: res=(9×3)%17=10' },
+            { type: 'return', text: 'Return from b=6: half=10 → res=(10×10)%17=15 → even: result 15' },
+            { type: 'return', text: 'Return from b=13: half=15 → res=(15×15)%17=4 → odd: res=(4×3)%17=12 (final answer)' }
+        ];
+        let modpowTraceIndex = 0;
+
+        function revealNextModpowStep() {
+            if (modpowTraceIndex >= modpowTrace.length) return;
+            const step = modpowTrace[modpowTraceIndex];
+            const container = document.getElementById('modpowTraceLines');
+            const line = document.createElement('div');
+            line.className = step.type === 'call' ? 'trace-line trace-call' : 'trace-line trace-return';
+            line.innerText = (modpowTraceIndex + 1) + '. ' + step.text;
+            container.appendChild(line);
+            modpowTraceIndex++;
+            if (modpowTraceIndex >= modpowTrace.length) {
+                document.getElementById('modpowStepBtn').innerText = 'All steps complete ✓';
+            }
+        }
+
+        // ===== Shared helpers (toggle, TF activity, quiz) =====
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        function checkTF(el, itemId, chosenValue, correctValue) {
+            const item = document.getElementById(itemId);
+            const buttons = item.querySelectorAll('.tf-btn');
+            buttons.forEach(b => { b.classList.remove('tf-selected-correct', 'tf-selected-wrong'); b.onclick = null; b.style.cursor = 'default'; });
+            const feedback = item.querySelector('.tf-feedback');
+            if (chosenValue === correctValue) {
+                el.classList.add('tf-selected-correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> Correct answer!</span>';
+            } else {
+                el.classList.add('tf-selected-wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> Wrong answer — the statement is actually "' + (correctValue ? 'True' : 'False') + '".</span>';
+            }
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> Correct answer! Well done.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> Incorrect answer, try again next time.</span>';
+            }
+        }
+    </script>
+</body>
+</html>

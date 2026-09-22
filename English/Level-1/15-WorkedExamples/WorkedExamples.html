@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | Worked Examples — Basic Counting</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', 'Segoe UI', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.12); box-shadow: 0 6px 24px -16px rgba(15, 23, 42, 0.3);
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+        .brand-info { order: -1; }
+        .logo-img { order: 1; }
+        .logo-img { width: 60px; height: 60px; border-radius: 16px; object-fit: contain; padding: 6px; background: #ffffff; box-shadow: 0 6px 18px -6px rgba(0, 173, 239, 0.4), 0 0 0 1px rgba(0, 173, 239, 0.14); }
+        .brand-info h3 { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--dark-navy); letter-spacing: -0.01em; }
+        .brand-info p { margin: 2px 0 0; font-size: 0.85rem; color: var(--primary-blue); font-weight: 600; letter-spacing: 0.01em; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+        .title-section { text-align: center; margin-bottom: 50px; }
+        .title-section h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 5px; }
+        .attribution { color: var(--primary-blue); font-size: 1.1rem; font-weight: 600; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-left: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-left-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula { direction: ltr; display: inline-block; font-family: 'Consolas', monospace; font-weight: 800; background: #eef2f7; padding: 3px 10px; border-radius: 8px; color: var(--dark-navy); }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.88rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        /* worked example card */
+        .example-card { background: var(--bg-main); border-radius: 18px; padding: 26px; margin-top: 22px; border: 1px solid #e2e8f0; }
+        .example-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+        .diff-badge { padding: 4px 14px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; }
+        .diff-easy { background: #dcfce7; color: #15803d; }
+        .diff-medium { background: #fef3c7; color: #b45309; }
+        .diff-hard { background: #fee2e2; color: #b91c1c; }
+        .example-header h4 { margin: 0; color: var(--dark-navy); font-size: 1.1rem; font-weight: 800; }
+        .solution-box { background: white; border-radius: 14px; padding: 18px 22px; margin-top: 12px; border: 1px dashed #cbd5e1; }
+        .solution-box p { margin: 0 0 8px 0; font-size: 0.92rem; }
+        .solution-box ul { margin: 8px 0; padding-left: 20px; font-size: 0.9rem; color: var(--text-body); }
+
+        /* interactive lab */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin-top: 14px; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-slots { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; direction: ltr; margin-bottom: 10px; }
+        .lab-slot-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .lab-slot {
+            width: 58px; height: 58px; border-radius: 12px; border: 3px solid #cbd5e1; background: var(--bg-main);
+            display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem;
+            color: var(--dark-navy); transition: border-color 0.2s;
+        }
+        .lab-slot.settled { border-color: var(--primary-blue); background: white; animation: slotPop 0.35s ease; }
+        @keyframes slotPop { 0% { transform: scale(1.25); } 100% { transform: scale(1); } }
+        .lab-slot-label { font-size: 0.72rem; color: #94a3b8; text-align: center; max-width: 90px; }
+        .lab-slot-count { font-size: 0.76rem; font-weight: 800; color: var(--primary-yellow); min-height: 16px; text-align: center; }
+        .lab-case-row { border: 1px dashed #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+        .lab-case-title { font-size: 0.82rem; font-weight: 800; color: var(--text-body); margin-bottom: 10px; text-align: center; }
+        .lab-used-tracker { font-family: 'Consolas', monospace; font-size: 0.8rem; color: #94a3b8; text-align: center; margin-bottom: 10px; direction: ltr; min-height: 18px; }
+        .lab-btn {
+            background: var(--blue-gradient); color: white; border: none; padding: 10px 26px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.88rem;
+            display: block; margin: 6px auto 0;
+        }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin-bottom: 10px; }
+        .lab-formula-result { text-align: center; margin-top: 14px; font-weight: 700; font-size: 0.92rem; min-height: 24px; }
+
+        /* flag preview for stripes example */
+        .flag-preview { display: flex; flex-direction: column; width: 130px; height: 96px; margin: 0 auto 16px; border: 2px solid #94a3b8; border-radius: 8px; overflow: hidden; }
+        .flag-stripe { flex: 1; background: #e2e8f0; transition: background 0.15s; }
+
+        /* show/hide toggles */
+        .toggle-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 10px 20px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+        }
+        .toggle-btn.answer-toggle { border-color: #22c55e; color: #15803d; }
+        .collapsible { display: none; margin-top: 14px; }
+        .collapsible.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .steps-list { display: flex; flex-direction: column; gap: 10px; }
+        .step-item { display: flex; gap: 12px; align-items: flex-start; background: white; border-radius: 12px; padding: 12px 16px; border: 1px solid #e2e8f0; }
+        .step-num {
+            flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem;
+        }
+        .step-item p { margin: 0; font-size: 0.88rem; }
+
+        /* circular seat diagram */
+        .circle-wrap { position: relative; width: 260px; height: 260px; margin: 20px auto; direction: ltr; }
+        .center-circle {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 170px; height: 170px; border: 3px solid #64748b; border-radius: 50%;
+        }
+        .seat {
+            position: absolute; width: 56px; height: 56px; border-radius: 50%;
+            background: white; border: 3px solid #94a3b8; display: flex; align-items: center;
+            justify-content: center; font-weight: 800; font-size: 1.1rem; cursor: pointer; transition: 0.25s;
+            color: var(--dark-navy);
+        }
+        .seat.s1 { left: 0; top: 50%; transform: translateY(-50%); }
+        .seat.s2 { top: 0; left: 50%; transform: translateX(-50%); }
+        .seat.s3 { right: 0; top: 50%; transform: translateY(-50%); }
+        .seat.s4 { bottom: 0; left: 50%; transform: translateX(-50%); }
+        .seat.color-red { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .seat.color-green { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .seat.color-blue { background: #dbeafe; border-color: #3b82f6; color: #1d4ed8; }
+        .seat.conflict { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.35); }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: left; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="level-badge"><i class="fas fa-calculator"></i> Basic Counting Principles</span>
+        <div class="brand-info">
+                <h3>TweetKod Platform</h3>
+                <p>Interactive Programming Education</p>
+            </div>
+        <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    </header>
+
+    <div class="container">
+        <div class="title-section">
+            <h1>Worked Examples</h1>
+            <p class="attribution">Worked Examples — Applying the Sum and Product Rules</p>
+        </div>
+
+        <!-- Intro -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-lightbulb"></i>
+                <h3>How Do We Use This Lesson?</h3>
+            </div>
+            <p>In the previous lesson we learned the <strong>Sum Rule</strong> and the <strong>Product Rule</strong>. In this lesson we'll apply both rules together to seven worked problems, ranging in difficulty from <span class="diff-badge diff-easy">Easy</span> to <span class="diff-badge diff-medium">Medium</span> to <span class="diff-badge diff-hard">Hard</span>. Each problem has an <strong>interactive lab</strong> that animates how the possibilities are built step by step, then two separate buttons to reveal the <strong>solution steps</strong> and the <strong>final answer</strong> whenever you're ready.</p>
+        </div>
+
+        <!-- Examples group -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-list-ol"></i>
+                <h3>The Worked Problems</h3>
+            </div>
+
+            <!-- Example 1 -->
+            <div class="example-card">
+                <div class="example-header">
+                    <span class="diff-badge diff-easy">Easy</span>
+                    <h4>Three-Digit Codes</h4>
+                </div>
+                <p>A code consists of three digits. The first digit cannot be zero, and digits may repeat. How many different codes can be formed?</p>
+
+                <div class="lab-box">
+                    <p class="lab-title"><i class="fas fa-flask"></i> Interactive Lab: Watch How the Code Is Built</p>
+                    <div class="lab-slots">
+                        <div class="lab-slot-wrap"><div class="lab-slot" id="lab1-s1">?</div><div class="lab-slot-label">First digit</div><div class="lab-slot-count" id="lab1-c1"></div></div>
+                        <div class="lab-slot-wrap"><div class="lab-slot" id="lab1-s2">?</div><div class="lab-slot-label">Second digit</div><div class="lab-slot-count" id="lab1-c2"></div></div>
+                        <div class="lab-slot-wrap"><div class="lab-slot" id="lab1-s3">?</div><div class="lab-slot-label">Third digit</div><div class="lab-slot-count" id="lab1-c3"></div></div>
+                    </div>
+                    <button class="lab-btn" onclick="runLab1()"><i class="fas fa-play"></i> Run the Simulation</button>
+                    <div class="lab-formula-result" id="lab1-result"></div>
+                </div>
+
+                <div class="toggle-row">
+                    <button class="toggle-btn" onclick="toggleSection('steps1')"><i class="fas fa-list-check"></i> Show / Hide Solution Steps</button>
+                    <button class="toggle-btn answer-toggle" onclick="toggleSection('answer1')"><i class="fas fa-check"></i> Show / Hide Final Answer</button>
+                </div>
+
+                <div class="collapsible" id="steps1">
+                    <div class="steps-list">
+                        <div class="step-item"><span class="step-num">1</span><p>We determine the choices for the first digit: it can't be zero, so we have 9 choices (1 to 9).</p></div>
+                        <div class="step-item"><span class="step-num">2</span><p>We determine the choices for the second digit: no restriction and repetition is allowed, so we have 10 choices (0 to 9).</p></div>
+                        <div class="step-item"><span class="step-num">3</span><p>We determine the choices for the third digit: exactly the same, 10 choices.</p></div>
+                        <div class="step-item"><span class="step-num">4</span><p>The choices are successive (we choose the first, then the second, then the third), so we apply the Product Rule and multiply the three numbers together.</p></div>
+                    </div>
+                </div>
+
+                <div class="collapsible" id="answer1">
+                    <p style="text-align: center;"><span class="formula">9 &middot; 10 &middot; 10 = 900</span></p>
+                    <div class="code-box">
+                        <div class="code-head"><span>verify_ex1.cpp</span></div>
+                        <pre>long long count = 0;
+for(int d1 = 1; d1 &lt;= 9; d1++)
+for(int d2 = 0; d2 &lt;= 9; d2++)
+for(int d3 = 0; d3 &lt;= 9; d3++)
+    count++;
+cout &lt;&lt; count;</pre>
+                    </div>
+                    <div class="output-box">900</div>
+                </div>
+            </div>
+
+            <!-- Example 2 -->
+            <div class="example-card">
+                <div class="example-header">
+                    <span class="diff-badge diff-easy">Easy</span>
+                    <h4>Codes With No Repeated Digits</h4>
+                </div>
+                <p>How many four-digit codes start with a nonzero digit and contain no repeated digits?</p>
+
+                <div class="lab-box">
+                    <p class="lab-title"><i class="fas fa-flask"></i> Interactive Lab: Watch the Used Digits Accumulate</p>
+                    <div class="lab-slots">
+                        <div class="lab-slot-wrap"><div class="lab-slot" id="lab2-s1">?</div><div class="lab-slot-label">First</div><div class="lab-slot-count" id="lab2-c1"></div></div>
+                        <div class="lab-slot-wrap"><div class="lab-slot" id="lab2-s2">?</div><div class="lab-slot-label">Second</div><div class="lab-slot-count" id="lab2-c2"></div></div>
+                        <div class="lab-slot-wrap"><div class="lab-slot" id="lab2-s3">?</div><div class="lab-slot-label">Third</div><div class="lab-slot-count" id="lab2-c3"></div></div>
+                        <div class="lab-slot-wrap"><div class="lab-slot" id="lab2-s4">?</div><div class="lab-slot-label">Fourth</div><div class="lab-slot-count" id="lab2-c4"></div></div>
+                    </div>
+                    <div class="lab-used-tracker" id="lab2-used">Digits used: —</div>
+                    <button class="lab-btn" onclick="runLab2()"><i class="fas fa-play"></i> Run the Simulation</button>
+                    <div class="lab-formula-result" id="lab2-result"></div>
+                </div>
+
+                <div class="toggle-row">
+                    <button class="toggle-btn" onclick="toggleSection('steps2')"><i class="fas fa-list-check"></i> Show / Hide Solution Steps</button>
+                    <button class="toggle-btn answer-toggle" onclick="toggleSection('answer2')"><i class="fas fa-check"></i> Show / Hide Final Answer</button>
+                </div>
+
+                <div class="collapsible" id="steps2">
+                    <div class="steps-list">
+                        <div class="step-item"><span class="step-num">1</span><p>First digit: 9 choices (1 to 9, it can't be zero).</p></div>
+                        <div class="step-item"><span class="step-num">2</span><p>Second digit: 9 choices; zero has now become available, but the digit used in the first position is now forbidden.</p></div>
+                        <div class="step-item"><span class="step-num">3</span><p>Third digit: 8 choices; two digits are now used.</p></div>
+                        <div class="step-item"><span class="step-num">4</span><p>Fourth digit: 7 choices; three digits are used.</p></div>
+                        <div class="step-item"><span class="step-num">5</span><p>We multiply the four numbers per the Product Rule, because each choice depends on the ones before it in sequence.</p></div>
+                    </div>
+                </div>
+
+                <div class="collapsible" id="answer2">
+                    <p style="text-align: center;"><span class="formula">9 &middot; 9 &middot; 8 &middot; 7 = 4536</span></p>
+                    <div class="code-box">
+                        <div class="code-head"><span>verify_ex2.cpp</span></div>
+                        <pre>long long count = 0;
+for(int d1 = 1; d1 &lt;= 9; d1++)
+for(int d2 = 0; d2 &lt;= 9; d2++) if(d2 != d1)
+for(int d3 = 0; d3 &lt;= 9; d3++) if(d3 != d1 &amp;&amp; d3 != d2)
+for(int d4 = 0; d4 &lt;= 9; d4++) if(d4 != d1 &amp;&amp; d4 != d2 &amp;&amp; d4 != d3)
+    count++;
+cout &lt;&lt; count;</pre>
+                    </div>
+                    <div class="output-box">4536</div>
+                </div>
+            </div>
+
+            <!-- Example 3 -->
+            <div class="example-card">
+                <div class="example-header">
+                    <span class="diff-badge diff-medium">Medium</span>
+                    <h4>Exactly One Digit</h4>
+                </div>
+                <p>A password consists of three symbols. Each symbol is either an uppercase English letter or a digit. How many passwords contain exactly one digit?</p>
+
+                <div class="lab-box">
+                    <p class="lab-title"><i class="fas fa-flask"></i> Interactive Lab: Watch the Three Separate Cases</p>
+                    <div id="lab3-cases"></div>
+                    <button class="lab-btn" onclick="runLab3()"><i class="fas fa-play"></i> Run the Simulation</button>
+                    <div class="lab-formula-result" id="lab3-result"></div>
+                </div>
+
+                <div class="toggle-row">
+                    <button class="toggle-btn" onclick="toggleSection('steps3')"><i class="fas fa-list-check"></i> Show / Hide Solution Steps</button>
+                    <button class="toggle-btn answer-toggle" onclick="toggleSection('answer3')"><i class="fas fa-check"></i> Show / Hide Final Answer</button>
+                </div>
+
+                <div class="collapsible" id="steps3">
+                    <div class="steps-list">
+                        <div class="step-item"><span class="step-num">1</span><p>We notice the single digit can fall in one of three positions: first, second, or third.</p></div>
+                        <div class="step-item"><span class="step-num">2</span><p>We count the number of passwords for each case: the position with the digit has 10 choices, and the other two positions (letters) have 26 choices each.</p></div>
+                        <div class="step-item"><span class="step-num">3</span><p>The three cases are completely separate; each password belongs to exactly one case, based on its single digit's position.</p></div>
+                        <div class="step-item"><span class="step-num">4</span><p>Since the cases don't overlap, we add them per the Sum Rule. And since each case gives the same value (10×26×26), the total is 3 × (10×26×26).</p></div>
+                    </div>
+                </div>
+
+                <div class="collapsible" id="answer3">
+                    <p style="text-align: center;"><span class="formula">3 &middot; 10 &middot; 26&sup2; = 20280</span></p>
+                    <div class="code-box">
+                        <div class="code-head"><span>verify_ex3.cpp</span></div>
+                        <pre>bool isDigit(int s) { return s &lt; 10; } <span class="cmt">// 0-9 are digits, 10-35 are letters</span>
+
+long long count = 0;
+for(int s1 = 0; s1 &lt; 36; s1++)
+for(int s2 = 0; s2 &lt; 36; s2++)
+for(int s3 = 0; s3 &lt; 36; s3++) {
+    int digits = isDigit(s1) + isDigit(s2) + isDigit(s3);
+    if(digits == 1) count++;
+}
+cout &lt;&lt; count;</pre>
+                    </div>
+                    <div class="output-box">20280</div>
+                </div>
+            </div>
+
+            <!-- Example 4 -->
+            <div class="example-card">
+                <div class="example-header">
+                    <span class="diff-badge diff-medium">Medium</span>
+                    <h4>Different Colors for Adjacent Stripes</h4>
+                </div>
+                <p>A flag consists of four horizontal stripes. Each stripe is red, green, or blue, and each stripe's color must differ from the color of the stripe next to it. How many different flags can be formed?</p>
+
+                <div class="lab-box">
+                    <p class="lab-title"><i class="fas fa-flask"></i> Interactive Lab: Watch the Flag Get Colored Stripe by Stripe</p>
+                    <div class="flag-preview">
+                        <div class="flag-stripe" id="lab4-st1"></div>
+                        <div class="flag-stripe" id="lab4-st2"></div>
+                        <div class="flag-stripe" id="lab4-st3"></div>
+                        <div class="flag-stripe" id="lab4-st4"></div>
+                    </div>
+                    <div class="lab-slots" style="direction: ltr;">
+                        <div class="lab-slot-wrap"><div class="lab-slot-count" id="lab4-c1"></div></div>
+                        <div class="lab-slot-wrap"><div class="lab-slot-count" id="lab4-c2"></div></div>
+                        <div class="lab-slot-wrap"><div class="lab-slot-count" id="lab4-c3"></div></div>
+                        <div class="lab-slot-wrap"><div class="lab-slot-count" id="lab4-c4"></div></div>
+                    </div>
+                    <button class="lab-btn" onclick="runLab4()"><i class="fas fa-play"></i> Run the Simulation</button>
+                    <div class="lab-formula-result" id="lab4-result"></div>
+                </div>
+
+                <div class="toggle-row">
+                    <button class="toggle-btn" onclick="toggleSection('steps4')"><i class="fas fa-list-check"></i> Show / Hide Solution Steps</button>
+                    <button class="toggle-btn answer-toggle" onclick="toggleSection('answer4')"><i class="fas fa-check"></i> Show / Hide Final Answer</button>
+                </div>
+
+                <div class="collapsible" id="steps4">
+                    <div class="steps-list">
+                        <div class="step-item"><span class="step-num">1</span><p>First stripe: 3 choices (any of the three colors).</p></div>
+                        <div class="step-item"><span class="step-num">2</span><p>Second stripe: only 2 choices (any color different from the first stripe's).</p></div>
+                        <div class="step-item"><span class="step-num">3</span><p>Third stripe: only 2 choices (different from the second stripe).</p></div>
+                        <div class="step-item"><span class="step-num">4</span><p>Fourth stripe: only 2 choices (different from the third stripe).</p></div>
+                        <div class="step-item"><span class="step-num">5</span><p>The choices are successive (each stripe is chosen after the one before it), so we multiply the four numbers per the Product Rule.</p></div>
+                    </div>
+                </div>
+
+                <div class="collapsible" id="answer4">
+                    <p style="text-align: center;"><span class="formula">3 &middot; 2 &middot; 2 &middot; 2 = 24</span></p>
+                    <div class="code-box">
+                        <div class="code-head"><span>verify_ex4.cpp</span></div>
+                        <pre>long long count = 0;
+for(int a = 0; a &lt; 3; a++)
+for(int b = 0; b &lt; 3; b++) if(b != a)
+for(int c = 0; c &lt; 3; c++) if(c != b)
+for(int d = 0; d &lt; 3; d++) if(d != c)
+    count++;
+cout &lt;&lt; count;</pre>
+                    </div>
+                    <div class="output-box">24</div>
+                </div>
+            </div>
+
+            <!-- Example 5 -->
+            <div class="example-card">
+                <div class="example-header">
+                    <span class="diff-badge diff-medium">Medium</span>
+                    <h4>Exactly Two Equal Symbols</h4>
+                </div>
+                <p>A string of three symbols is formed using the symbols <code class="inline">A</code>, <code class="inline">B</code>, <code class="inline">C</code>, and <code class="inline">D</code>. How many strings contain exactly two equal symbols?</p>
+
+                <div class="lab-box">
+                    <p class="lab-title"><i class="fas fa-flask"></i> Interactive Lab: Follow the Choice of the Different Position, Then the Symbols</p>
+                    <div class="lab-slots">
+                        <div class="lab-slot-wrap"><div class="lab-slot" id="lab5-p1">?</div><div class="lab-slot-label">Position 1</div></div>
+                        <div class="lab-slot-wrap"><div class="lab-slot" id="lab5-p2">?</div><div class="lab-slot-label">Position 2</div></div>
+                        <div class="lab-slot-wrap"><div class="lab-slot" id="lab5-p3">?</div><div class="lab-slot-label">Position 3</div></div>
+                    </div>
+                    <div class="lab-step-hint" id="lab5-step"></div>
+                    <button class="lab-btn" onclick="runLab5()"><i class="fas fa-play"></i> Run the Simulation</button>
+                    <div class="lab-formula-result" id="lab5-result"></div>
+                </div>
+
+                <div class="toggle-row">
+                    <button class="toggle-btn" onclick="toggleSection('steps5')"><i class="fas fa-list-check"></i> Show / Hide Solution Steps</button>
+                    <button class="toggle-btn answer-toggle" onclick="toggleSection('answer5')"><i class="fas fa-check"></i> Show / Hide Final Answer</button>
+                </div>
+
+                <div class="collapsible" id="steps5">
+                    <div class="steps-list">
+                        <div class="step-item"><span class="step-num">1</span><p>We choose which of the three positions will be the "different" one from the rest: 3 choices.</p></div>
+                        <div class="step-item"><span class="step-num">2</span><p>We choose the symbol that will repeat in the other two positions: 4 choices (from A, B, C, D).</p></div>
+                        <div class="step-item"><span class="step-num">3</span><p>We choose a symbol different from the repeated one to place in the distinct position: 3 choices.</p></div>
+                        <div class="step-item"><span class="step-num">4</span><p>The three choices are successive, so we multiply them together per the Product Rule.</p></div>
+                    </div>
+                </div>
+
+                <div class="collapsible" id="answer5">
+                    <p style="text-align: center;"><span class="formula">3 &middot; 4 &middot; 3 = 36</span></p>
+                    <div class="code-box">
+                        <div class="code-head"><span>verify_ex5.cpp</span></div>
+                        <pre>long long count = 0;
+for(int a = 0; a &lt; 4; a++)
+for(int b = 0; b &lt; 4; b++)
+for(int c = 0; c &lt; 4; c++) {
+    int pairs = (a==b) + (b==c) + (a==c);
+    if(pairs == 1) count++;  <span class="cmt">// exactly one matching pair</span>
+}
+cout &lt;&lt; count;</pre>
+                    </div>
+                    <div class="output-box">36</div>
+                </div>
+            </div>
+
+            <!-- Example 6 -->
+            <div class="example-card">
+                <div class="example-header">
+                    <span class="diff-badge diff-hard">Hard</span>
+                    <h4>A PIN With Conditions</h4>
+                </div>
+                <p>A PIN consists of four digits, and contains exactly one zero and exactly one other even digit, with no digit repeated. How many PINs satisfy these conditions?</p>
+
+                <div class="lab-box">
+                    <p class="lab-title"><i class="fas fa-flask"></i> Interactive Lab: Follow the PIN Being Built Step by Step</p>
+                    <div class="lab-slots">
+                        <div class="lab-slot-wrap"><div class="lab-slot" id="lab6-p1">?</div><div class="lab-slot-label">Position 1</div></div>
+                        <div class="lab-slot-wrap"><div class="lab-slot" id="lab6-p2">?</div><div class="lab-slot-label">Position 2</div></div>
+                        <div class="lab-slot-wrap"><div class="lab-slot" id="lab6-p3">?</div><div class="lab-slot-label">Position 3</div></div>
+                        <div class="lab-slot-wrap"><div class="lab-slot" id="lab6-p4">?</div><div class="lab-slot-label">Position 4</div></div>
+                    </div>
+                    <div class="lab-step-hint" id="lab6-step"></div>
+                    <button class="lab-btn" onclick="runLab6()"><i class="fas fa-play"></i> Run the Simulation</button>
+                    <div class="lab-formula-result" id="lab6-result"></div>
+                </div>
+
+                <div class="toggle-row">
+                    <button class="toggle-btn" onclick="toggleSection('steps6')"><i class="fas fa-list-check"></i> Show / Hide Solution Steps</button>
+                    <button class="toggle-btn answer-toggle" onclick="toggleSection('answer6')"><i class="fas fa-check"></i> Show / Hide Final Answer</button>
+                </div>
+
+                <div class="collapsible" id="steps6">
+                    <div class="steps-list">
+                        <div class="step-item"><span class="step-num">1</span><p>We choose the zero's position among the four positions: 4 choices.</p></div>
+                        <div class="step-item"><span class="step-num">2</span><p>We choose the value of the other even digit from the set {2,4,6,8}: 4 choices.</p></div>
+                        <div class="step-item"><span class="step-num">3</span><p>We choose its position among the three remaining positions: 3 choices.</p></div>
+                        <div class="step-item"><span class="step-num">4</span><p>We fill the first remaining odd position with an odd digit from {1,3,5,7,9}: 5 choices.</p></div>
+                        <div class="step-item"><span class="step-num">5</span><p>We fill the last odd position with an odd digit different from the previous one: 4 choices.</p></div>
+                        <div class="step-item"><span class="step-num">6</span><p>All the choices are successive (each step depends on what came before it), so we multiply them all together.</p></div>
+                    </div>
+                </div>
+
+                <div class="collapsible" id="answer6">
+                    <p style="text-align: center;"><span class="formula">4 &middot; 4 &middot; 3 &middot; 5 &middot; 4 = 960</span></p>
+                    <div class="code-box">
+                        <div class="code-head"><span>verify_ex6.cpp</span></div>
+                        <pre>long long count = 0;
+for(int d1 = 0; d1 &lt;= 9; d1++)
+for(int d2 = 0; d2 &lt;= 9; d2++) if(d2 != d1)
+for(int d3 = 0; d3 &lt;= 9; d3++) if(d3 != d1 &amp;&amp; d3 != d2)
+for(int d4 = 0; d4 &lt;= 9; d4++) if(d4 != d1 &amp;&amp; d4 != d2 &amp;&amp; d4 != d3) {
+    int digs[4] = {d1, d2, d3, d4};
+    int zeroCount = 0, evenNonZeroCount = 0;
+    for(int x : digs) {
+        if(x == 0) zeroCount++;
+        else if(x % 2 == 0) evenNonZeroCount++;
+    }
+    if(zeroCount == 1 &amp;&amp; evenNonZeroCount == 1) count++;
+}
+cout &lt;&lt; count;</pre>
+                    </div>
+                    <div class="output-box">960</div>
+                </div>
+            </div>
+
+            <!-- Example 7 -->
+            <div class="example-card">
+                <div class="example-header">
+                    <span class="diff-badge diff-hard">Hard</span>
+                    <h4>Circular Coloring</h4>
+                </div>
+                <p>There are four numbered seats around a circular table. Each seat is colored red, green, or blue, and each seat's color must differ from the colors of the two seats next to it. How many valid colorings exist?</p>
+
+                <div class="lab-box">
+                    <p class="lab-title"><i class="fas fa-flask"></i> Interactive Lab: Try Coloring the Seats Yourself</p>
+                    <div class="circle-wrap">
+                        <div class="center-circle"></div>
+                        <div class="seat s2" onclick="cycleSeat(this)">2</div>
+                        <div class="seat s1" onclick="cycleSeat(this)">1</div>
+                        <div class="seat s3" onclick="cycleSeat(this)">3</div>
+                        <div class="seat s4" onclick="cycleSeat(this)">4</div>
+                    </div>
+                    <p style="text-align: center; font-size: 0.85rem;"><i class="fas fa-hand-pointer" style="color: var(--primary-blue);"></i> Click on any seat to change its color, and try to find a valid coloring yourself!</p>
+                    <div class="output-box" id="circleStatus" style="text-align: center;">Color all four seats to start checking...</div>
+                </div>
+
+                <div class="toggle-row">
+                    <button class="toggle-btn" onclick="toggleSection('steps7')"><i class="fas fa-list-check"></i> Show / Hide Solution Steps</button>
+                    <button class="toggle-btn answer-toggle" onclick="toggleSection('answer7')"><i class="fas fa-check"></i> Show / Hide Final Answer</button>
+                </div>
+
+                <div class="collapsible" id="steps7">
+                    <div class="steps-list">
+                        <div class="step-item"><span class="step-num">1</span><p>We choose the color of the first seat: 3 choices.</p></div>
+                        <div class="step-item"><span class="step-num">2</span><p>We choose the color of the second seat so it differs from the first: 2 choices.</p></div>
+                        <div class="step-item"><span class="step-num">3</span><p>We look at the third seat by splitting into cases: if its color matches the first, it has 1 choice, and the fourth then has 2 choices. If it differs from both the first and second, it has 1 choice, and the fourth's color becomes fixed (1 choice).</p></div>
+                        <div class="step-item"><span class="step-num">4</span><p>We add the results of the two cases: 1×2 + 1×1 = 3 ways to color the third and fourth seats.</p></div>
+                        <div class="step-item"><span class="step-num">5</span><p>We multiply that by the number of ways to choose the first and second seats: 3 × 2 × 3 = 18.</p></div>
+                    </div>
+                </div>
+
+                <div class="collapsible" id="answer7">
+                    <p style="text-align: center;"><span class="formula">1&middot;2 + 1&middot;1 = 3</span></p>
+                    <p style="text-align: center;"><span class="formula">3 &middot; 2 &middot; 3 = 18</span></p>
+                    <div class="code-box">
+                        <div class="code-head"><span>verify_ex7.cpp</span></div>
+                        <pre>long long count = 0;
+for(int s1 = 0; s1 &lt; 3; s1++)
+for(int s2 = 0; s2 &lt; 3; s2++) if(s2 != s1)
+for(int s3 = 0; s3 &lt; 3; s3++) if(s3 != s2)
+for(int s4 = 0; s4 &lt; 3; s4++) if(s4 != s3 &amp;&amp; s4 != s1)  <span class="cmt">// s4 is adjacent to s3 and also to s1 (circular)</span>
+    count++;
+cout &lt;&lt; count;</pre>
+                    </div>
+                    <div class="output-box">18</div>
+                </div>
+            </div>
+
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>Notice the shared technique across the harder problems: when we can't write a direct product formula, we split the problem into <strong>separate cases (casework)</strong>, compute the number of ways within each case by multiplying, then add the cases' results. This is exactly the Sum and Product Rules combined.</p>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>Check Your Understanding</h3>
+            </div>
+
+            <div class="quiz-q" id="q1">
+                <h4>1. Why do we multiply 9 × 10 × 10 in the "three-digit codes" example?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, true)">Because choosing each digit is a successive step independent of the others (Product Rule)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">Because the three digits are separate cases from which only one digit is chosen</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q1', this, false)">There's no specific mathematical reason</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q2">
+                <h4>2. In the "codes without repeated digits" example, why did the second digit end up with 9 choices instead of 10?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, true)">Because one digit (the one used in the first position) is no longer available</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">Because zero is forbidden in every position</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q2', this, false)">Because the second digit must be even</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q3">
+                <h4>3. In the "exactly one digit" example, why did we add the three cases instead of multiplying them?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, true)">Because they're completely separate cases; the digit falls in only one of the three positions, so they don't overlap</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">Because addition always gives a larger result than multiplication</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q3', this, false)">Because the password contains only one letter</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q4">
+                <h4>4. In the four-stripes example, why did every stripe after the first have only 2 choices instead of three?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, true)">Because its color must differ from the stripe directly before it, ruling out one color</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">Because there are actually only two allowed colors to begin with</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q4', this, false)">Because the first stripe is always reused</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q5">
+                <h4>5. What is the name of the technique we used in the "PIN" and "circular coloring" problems when a direct product formula wasn't possible?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, true)">Casework</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, false)">Random sampling</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q5', this, false)">Sorting</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="q6">
+                <h4>6. In the circular coloring example, why did the fourth seat sometimes have two choices and sometimes only one?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, true)">Because the number of colors available to it depends on the third seat's color relative to the previous two seats</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, false)">Because the fourth seat is always completely free to choose any color</div>
+                    <div class="quiz-opt" onclick="checkAnswer('q6', this, false)">Because the seat numbering changes between attempts</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>Glossary of Terms</h3>
+            </div>
+            <p>The most important terms from this lesson, along with a short gloss:</p>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Casework</span><span class="term-ar">Split into cases</span><p class="term-desc">A method for solving counting problems by splitting them into separate cases, then adding each case's result.</p></div>
+                <div class="term-card"><span class="term-en">Brute force</span><span class="term-ar">Try everything</span><p class="term-desc">Actually trying every possibility through code to verify a mathematical formula.</p></div>
+                <div class="term-card"><span class="term-en">Constraint</span><span class="term-ar">A restriction</span><p class="term-desc">A condition that limits the allowed choices, like forbidding repeated digits.</p></div>
+                <div class="term-card"><span class="term-en">Adjacent</span><span class="term-ar">Right next to</span><p class="term-desc">Two elements immediately next to each other, like two neighboring stripes on a flag or two neighboring seats around a table.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">TweetKod Platform — Basic Counting: Worked Examples</footer>
+
+    <script>
+        /* ---------- shared helpers ---------- */
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        function resetLabSlots(ids) {
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                el.textContent = '?';
+                el.classList.remove('settled');
+            });
+        }
+
+        function cycleAndSettle(el, pool, settleValue, duration, callback) {
+            let elapsed = 0;
+            const stepMs = 70;
+            const timer = setInterval(() => {
+                el.textContent = pool[Math.floor(Math.random() * pool.length)];
+                elapsed += stepMs;
+                if (elapsed >= duration) {
+                    clearInterval(timer);
+                    el.textContent = settleValue;
+                    el.classList.add('settled');
+                    if (callback) callback();
+                }
+            }, stepMs);
+        }
+
+        /* ---------- Lab 1: three-digit codes ---------- */
+        function runLab1() {
+            resetLabSlots(['lab1-s1', 'lab1-s2', 'lab1-s3']);
+            ['lab1-c1', 'lab1-c2', 'lab1-c3'].forEach(id => document.getElementById(id).innerText = '');
+            document.getElementById('lab1-result').innerText = '';
+
+            const pool9 = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            const pool10 = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            const d1 = pool9[Math.floor(Math.random() * 9)];
+            const d2 = pool10[Math.floor(Math.random() * 10)];
+            const d3 = pool10[Math.floor(Math.random() * 10)];
+
+            cycleAndSettle(document.getElementById('lab1-s1'), pool9, d1, 700, () => {
+                document.getElementById('lab1-c1').innerText = '9 choices';
+                cycleAndSettle(document.getElementById('lab1-s2'), pool10, d2, 700, () => {
+                    document.getElementById('lab1-c2').innerText = '10 choices';
+                    cycleAndSettle(document.getElementById('lab1-s3'), pool10, d3, 700, () => {
+                        document.getElementById('lab1-c3').innerText = '10 choices';
+                        document.getElementById('lab1-result').innerHTML =
+                            'Code: <span class="formula">' + d1 + d2 + d3 + '</span> — Total count: <span class="formula">9 &times; 10 &times; 10 = 900</span>';
+                    });
+                });
+            });
+        }
+
+        /* ---------- Lab 2: codes without repeated digits ---------- */
+        function runLab2() {
+            resetLabSlots(['lab2-s1', 'lab2-s2', 'lab2-s3', 'lab2-s4']);
+            ['lab2-c1', 'lab2-c2', 'lab2-c3', 'lab2-c4'].forEach(id => document.getElementById(id).innerText = '');
+            document.getElementById('lab2-used').innerText = 'Digits used: —';
+            document.getElementById('lab2-result').innerText = '';
+
+            const full = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            let digits = [];
+            digits.push(String(1 + Math.floor(Math.random() * 9)));
+            while (digits.length < 4) {
+                const d = String(Math.floor(Math.random() * 10));
+                if (!digits.includes(d)) digits.push(d);
+            }
+            const pool9a = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            const usedSoFar = [];
+            const counts = ['9 choices', '9 choices', '8 choices', '7 choices'];
+            const slotIds = ['lab2-s1', 'lab2-s2', 'lab2-s3', 'lab2-s4'];
+            const countIds = ['lab2-c1', 'lab2-c2', 'lab2-c3', 'lab2-c4'];
+
+            function poolExcluding(used) { return full.filter(x => !used.includes(x)); }
+
+            function step(i) {
+                if (i >= 4) {
+                    document.getElementById('lab2-result').innerHTML =
+                        'Code: <span class="formula">' + digits.join('') + '</span> — Total count: <span class="formula">9 &times; 9 &times; 8 &times; 7 = 4536</span>';
+                    return;
+                }
+                const pool = i === 0 ? pool9a : poolExcluding(usedSoFar);
+                cycleAndSettle(document.getElementById(slotIds[i]), pool, digits[i], 700, () => {
+                    usedSoFar.push(digits[i]);
+                    document.getElementById(countIds[i]).innerText = counts[i];
+                    document.getElementById('lab2-used').innerText = 'Digits used: ' + usedSoFar.join(', ');
+                    step(i + 1);
+                });
+            }
+            step(0);
+        }
+
+        /* ---------- Lab 3: exactly one digit password (3 disjoint cases) ---------- */
+        const LAB3_CASES = [
+            { label: 'Case 1: the digit is in the first position', types: ['digit', 'letter', 'letter'], formula: '10 &times; 26 &times; 26' },
+            { label: 'Case 2: the digit is in the second position', types: ['letter', 'digit', 'letter'], formula: '26 &times; 10 &times; 26' },
+            { label: 'Case 3: the digit is in the third position', types: ['letter', 'letter', 'digit'], formula: '26 &times; 26 &times; 10' }
+        ];
+        const DIGIT_POOL = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        const LETTER_POOL = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+
+        function runLab3() {
+            const container = document.getElementById('lab3-cases');
+            container.innerHTML = '';
+            document.getElementById('lab3-result').innerText = '';
+
+            function nextCase(idx) {
+                if (idx >= LAB3_CASES.length) {
+                    document.getElementById('lab3-result').innerHTML = 'Total: <span class="formula">3 &times; 10 &times; 26&sup2; = 20280</span>';
+                    return;
+                }
+                const c = LAB3_CASES[idx];
+                const row = document.createElement('div');
+                row.className = 'lab-case-row';
+                row.innerHTML = '<div class="lab-case-title">' + c.label + '</div><div class="lab-slots" id="lab3-row' + idx + '"></div><div class="lab-formula-result" id="lab3-sub' + idx + '"></div>';
+                container.appendChild(row);
+                const rowWrap = document.getElementById('lab3-row' + idx);
+                c.types.forEach((t, i) => {
+                    const wrap = document.createElement('div');
+                    wrap.className = 'lab-slot-wrap';
+                    wrap.innerHTML = '<div class="lab-slot" id="lab3-r' + idx + '-' + i + '">?</div><div class="lab-slot-label">' + (t === 'digit' ? 'digit' : 'letter') + '</div>';
+                    rowWrap.appendChild(wrap);
+                });
+
+                let settledCount = 0;
+                c.types.forEach((t, i) => {
+                    setTimeout(() => {
+                        const el = document.getElementById('lab3-r' + idx + '-' + i);
+                        const pool = t === 'digit' ? DIGIT_POOL : LETTER_POOL;
+                        const settle = pool[Math.floor(Math.random() * pool.length)];
+                        cycleAndSettle(el, pool, settle, 500, () => {
+                            settledCount++;
+                            if (settledCount === 3) {
+                                document.getElementById('lab3-sub' + idx).innerHTML = '<span class="formula" style="font-size:0.85rem;">' + c.formula + '</span>';
+                                setTimeout(() => nextCase(idx + 1), 500);
+                            }
+                        });
+                    }, i * 550);
+                });
+            }
+            nextCase(0);
+        }
+
+        /* ---------- Lab 4: flag stripes ---------- */
+        const COLOR_MAP = { red: '#ef4444', green: '#22c55e', blue: '#3b82f6' };
+        const COLOR_NAMES = ['red', 'green', 'blue'];
+
+        function flashColorCycle(el, settleColor, duration, callback) {
+            let elapsed = 0;
+            const stepMs = 80;
+            const timer = setInterval(() => {
+                const rc = COLOR_NAMES[Math.floor(Math.random() * 3)];
+                el.style.background = COLOR_MAP[rc];
+                elapsed += stepMs;
+                if (elapsed >= duration) {
+                    clearInterval(timer);
+                    el.style.background = COLOR_MAP[settleColor];
+                    if (callback) callback();
+                }
+            }, stepMs);
+        }
+
+        function runLab4() {
+            document.getElementById('lab4-result').innerText = '';
+            ['lab4-c1', 'lab4-c2', 'lab4-c3', 'lab4-c4'].forEach(id => document.getElementById(id).innerText = '');
+            ['lab4-st1', 'lab4-st2', 'lab4-st3', 'lab4-st4'].forEach(id => document.getElementById(id).style.background = '#e2e8f0');
+
+            function pickColor(exclude) {
+                const options = COLOR_NAMES.filter(c => c !== exclude);
+                return options[Math.floor(Math.random() * options.length)];
+            }
+            const c1 = COLOR_NAMES[Math.floor(Math.random() * 3)];
+            const c2 = pickColor(c1);
+            const c3 = pickColor(c2);
+            const c4 = pickColor(c3);
+            const colors = [c1, c2, c3, c4];
+            const counts = ['3 choices', '2 choices', '2 choices', '2 choices'];
+
+            function step(i) {
+                if (i >= 4) {
+                    document.getElementById('lab4-result').innerHTML = 'Total count: <span class="formula">3 &times; 2 &times; 2 &times; 2 = 24</span>';
+                    return;
+                }
+                flashColorCycle(document.getElementById('lab4-st' + (i + 1)), colors[i], 600, () => {
+                    document.getElementById('lab4-c' + (i + 1)).innerText = counts[i];
+                    setTimeout(() => step(i + 1), 300);
+                });
+            }
+            step(0);
+        }
+
+        /* ---------- Lab 5: exactly two equal symbols ---------- */
+        function runLab5() {
+            resetLabSlots(['lab5-p1', 'lab5-p2', 'lab5-p3']);
+            document.getElementById('lab5-step').innerText = '';
+            document.getElementById('lab5-result').innerText = '';
+            ['lab5-p1', 'lab5-p2', 'lab5-p3'].forEach(id => document.getElementById(id).style.borderColor = '#cbd5e1');
+
+            const symbols = ['A', 'B', 'C', 'D'];
+            const uniquePos = 1 + Math.floor(Math.random() * 3);
+            const repeated = symbols[Math.floor(Math.random() * 4)];
+            const differentOptions = symbols.filter(s => s !== repeated);
+            const different = differentOptions[Math.floor(Math.random() * differentOptions.length)];
+            const otherPositions = [1, 2, 3].filter(p => p !== uniquePos);
+
+            document.getElementById('lab5-step').innerHTML = 'Step 1: choosing the different position — <span class="formula" style="font-size:0.85rem;">3 choices</span>';
+            setTimeout(() => {
+                document.getElementById('lab5-p' + uniquePos).style.borderColor = 'var(--primary-yellow)';
+                setTimeout(() => {
+                    document.getElementById('lab5-step').innerHTML = 'Step 2: choosing the repeated symbol — <span class="formula" style="font-size:0.85rem;">4 choices</span>';
+                    let done = 0;
+                    otherPositions.forEach(p => {
+                        cycleAndSettle(document.getElementById('lab5-p' + p), symbols, repeated, 600, () => {
+                            done++;
+                            if (done === otherPositions.length) {
+                                document.getElementById('lab5-step').innerHTML = 'Step 3: choosing a different symbol for the distinct position — <span class="formula" style="font-size:0.85rem;">3 choices</span>';
+                                cycleAndSettle(document.getElementById('lab5-p' + uniquePos), differentOptions, different, 600, () => {
+                                    const finalStr = [1, 2, 3].map(p => p === uniquePos ? different : repeated).join('');
+                                    document.getElementById('lab5-result').innerHTML =
+                                        'The string: <span class="formula">' + finalStr + '</span> — Total count: <span class="formula">3 &times; 4 &times; 3 = 36</span>';
+                                });
+                            }
+                        });
+                    });
+                }, 500);
+            }, 400);
+        }
+
+        /* ---------- Lab 6: PIN with conditions ---------- */
+        function runLab6() {
+            resetLabSlots(['lab6-p1', 'lab6-p2', 'lab6-p3', 'lab6-p4']);
+            document.getElementById('lab6-step').innerText = '';
+            document.getElementById('lab6-result').innerText = '';
+
+            const positions = [1, 2, 3, 4];
+            const zeroPos = positions[Math.floor(Math.random() * 4)];
+            const remainingAfterZero = positions.filter(p => p !== zeroPos);
+            const evenDigits = ['2', '4', '6', '8'];
+            const evenVal = evenDigits[Math.floor(Math.random() * 4)];
+            const evenPos = remainingAfterZero[Math.floor(Math.random() * 3)];
+            const remainingAfterEven = remainingAfterZero.filter(p => p !== evenPos);
+            const oddDigits = ['1', '3', '5', '7', '9'];
+            const odd1 = oddDigits[Math.floor(Math.random() * 5)];
+            const odd2options = oddDigits.filter(d => d !== odd1);
+            const odd2 = odd2options[Math.floor(Math.random() * odd2options.length)];
+
+            document.getElementById('lab6-step').innerHTML = 'Step 1: choosing the zero\'s position — <span class="formula" style="font-size:0.85rem;">4 choices</span>';
+            setTimeout(() => {
+                cycleAndSettle(document.getElementById('lab6-p' + zeroPos), ['0'], '0', 500, () => {
+                    document.getElementById('lab6-step').innerHTML = 'Step 2: the even digit\'s value (4 choices) then its position — <span class="formula" style="font-size:0.85rem;">3 choices</span>';
+                    cycleAndSettle(document.getElementById('lab6-p' + evenPos), evenDigits, evenVal, 600, () => {
+                        document.getElementById('lab6-step').innerHTML = 'Step 3: filling the two remaining positions with two different odd digits — <span class="formula" style="font-size:0.85rem;">5 &times; 4</span>';
+                        cycleAndSettle(document.getElementById('lab6-p' + remainingAfterEven[0]), oddDigits, odd1, 600, () => {
+                            cycleAndSettle(document.getElementById('lab6-p' + remainingAfterEven[1]), oddDigits, odd2, 600, () => {
+                                const pin = [1, 2, 3, 4].map(p => {
+                                    if (p === zeroPos) return '0';
+                                    if (p === evenPos) return evenVal;
+                                    if (p === remainingAfterEven[0]) return odd1;
+                                    return odd2;
+                                }).join('');
+                                document.getElementById('lab6-result').innerHTML =
+                                    'The PIN: <span class="formula">' + pin + '</span> — Total count: <span class="formula">4 &times; 4 &times; 3 &times; 5 &times; 4 = 960</span>';
+                            });
+                        });
+                    });
+                });
+            }, 400);
+        }
+
+        /* ---------- Lab 7: circular seat coloring (free interactive play) ---------- */
+        const SEAT_COLORS = ['red', 'green', 'blue'];
+
+        function cycleSeat(el) {
+            let current = SEAT_COLORS.findIndex(c => el.classList.contains('color-' + c));
+            SEAT_COLORS.forEach(c => el.classList.remove('color-' + c));
+            const next = (current + 1) % SEAT_COLORS.length;
+            el.classList.add('color-' + SEAT_COLORS[next]);
+            checkCircle();
+        }
+
+        function getSeatColor(seatClass) {
+            const el = document.querySelector('.seat.' + seatClass);
+            for (const c of SEAT_COLORS) {
+                if (el.classList.contains('color-' + c)) return c;
+            }
+            return null;
+        }
+
+        function checkCircle() {
+            const status = document.getElementById('circleStatus');
+            const c1 = getSeatColor('s1'), c2 = getSeatColor('s2'), c3 = getSeatColor('s3'), c4 = getSeatColor('s4');
+            document.querySelectorAll('.seat').forEach(s => s.classList.remove('conflict'));
+
+            if (!c1 || !c2 || !c3 || !c4) {
+                status.innerText = 'Color all four seats to start checking...';
+                return;
+            }
+
+            const pairs = [['s1', 's2', c1, c2], ['s2', 's3', c2, c3], ['s3', 's4', c3, c4], ['s4', 's1', c4, c1]];
+            let hasConflict = false;
+            pairs.forEach(([a, b, ca, cb]) => {
+                if (ca === cb) {
+                    hasConflict = true;
+                    document.querySelector('.seat.' + a).classList.add('conflict');
+                    document.querySelector('.seat.' + b).classList.add('conflict');
+                }
+            });
+
+            status.innerText = hasConflict
+                ? '✗ Two adjacent seats have the same color — try again'
+                : '✓ Valid coloring! Every seat differs from its neighbors';
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> Correct answer! Well done.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> Incorrect answer, try again next time.</span>';
+            }
+        }
+    </script>
+</body>
+</html>

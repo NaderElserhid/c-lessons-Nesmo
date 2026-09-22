@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | Problem: Domino Piling</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', 'Segoe UI', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.12); box-shadow: 0 6px 24px -16px rgba(15, 23, 42, 0.3); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+        .brand-info { order: -1; }
+        .logo-img { order: 1; }
+        .logo-img { width: 60px; height: 60px; border-radius: 16px; object-fit: contain; padding: 6px; background: #ffffff; box-shadow: 0 6px 18px -6px rgba(0, 173, 239, 0.4), 0 0 0 1px rgba(0, 173, 239, 0.14); }
+        .brand-info h3 { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--dark-navy); letter-spacing: -0.01em; }
+        .brand-info p { margin: 2px 0 0; font-size: 0.85rem; color: var(--primary-blue); font-weight: 600; letter-spacing: 0.01em; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+        /* hero banner */
+        .hero-banner { background: var(--blue-gradient); padding: 60px 6% 50px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 720px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+        .hero-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 22px; }
+        .diff-badge { padding: 7px 18px; border-radius: 50px; font-weight: 800; font-size: 0.82rem; }
+        .diff-easy { background: #dcfce7; color: #15803d; }
+        .diff-medium { background: #fef3c7; color: #b45309; }
+        .diff-hard { background: #fee2e2; color: #b91c1c; }
+        .source-badge {
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.4); color: white;
+            padding: 7px 18px; border-radius: 50px; font-size: 0.82rem; font-weight: 700; text-decoration: none;
+            direction: ltr; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .source-badge:hover { background: rgba(255,255,255,0.28); }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-left: 8px solid var(--primary-blue);
+        }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula { direction: ltr; display: inline-block; font-family: 'Consolas', monospace; font-weight: 800; background: #eef2f7; padding: 3px 10px; border-radius: 8px; color: var(--dark-navy); }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: left; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td code.inline, .data-table th code.inline { white-space: nowrap; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+
+        /* numbered steps */
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            margin-top: 14px;
+        }
+        .collapsible { display: none; margin-top: 14px; }
+        .collapsible.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* interactive lab */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 14px 0 6px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+
+        /* domino grid visualizer */
+        .domino-grid { display: grid; grid-auto-rows: 54px; gap: 4px; justify-content: center; direction: ltr; margin: 14px 0; }
+        .domino-cell {
+            border: 2px solid #cbd5e1; border-radius: 8px; background: var(--bg-main);
+            transition: background 0.25s, border-color 0.25s;
+        }
+        .domino-cell.domino-1 { background: rgba(0, 173, 239, 0.25); border-color: var(--primary-blue); }
+        .domino-cell.domino-2 { background: rgba(247, 148, 30, 0.25); border-color: var(--primary-yellow); }
+        .domino-cell.domino-3 { background: rgba(34, 197, 94, 0.25); border-color: #22c55e; }
+        .domino-cell.domino-4 { background: rgba(168, 85, 247, 0.25); border-color: #a855f7; }
+        .domino-cell.uncovered { background: repeating-linear-gradient(45deg, #fee2e2, #fee2e2 5px, #fecaca 5px, #fecaca 10px); border-color: #ef4444; }
+        .domino-counter { text-align: center; font-weight: 800; color: var(--primary-blue); font-size: 1rem; margin-top: 8px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">C++</span>
+            <span class="chapter-badge">Problems: Domino Piling</span>
+        </div>
+        <div class="brand-info">
+                <h3>TweetKod Platform</h3>
+                <p>Interactive Programming Education</p>
+            </div>
+        <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-th-large"></i>
+        <h1>Domino Piling</h1>
+        <p class="hero-desc">A classic easy problem from Codeforces that directly applies the "casework" approach we learned: we split the problem based on the parity of the grid's dimensions, and solve each case separately before merging them into one simple, fast piece of code.</p>
+        <div class="hero-badges">
+            <span class="diff-badge diff-easy">Easy</span>
+            <a class="source-badge" href="https://codeforces.com/problemset/problem/50/A" target="_blank" rel="noopener"><i class="fas fa-up-right-from-square"></i> Codeforces 50A</a>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- Problem statement -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-file-lines"></i>
+                <h3>Problem Statement</h3>
+            </div>
+            <p>There is a two-dimensional grid made of <code class="inline">N</code> rows and <code class="inline">M</code> columns. You have an unlimited number of dominoes of size <code class="inline">2 &times; 1</code>, and you want to place as many of these pieces as possible on the grid such that:</p>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p>Each piece covers two full cells.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>No pieces overlap.</p></li>
+                <li class="step-item"><span class="step-num"></span><p>All pieces stay entirely within the grid.</p></li>
+            </ul>
+        </div>
+
+        <!-- Interactive labs -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>Interactive Lab: Watch the Solution Build Itself</h3>
+            </div>
+            <p>Before we explain the solution, watch the three cases visually, each on its own example grid — click each button to watch the pieces get placed step by step exactly like the code does:</p>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> Case One: N is Even (example 4&times;3) — Full Vertical Coverage</p>
+                <div class="domino-grid" id="dominoGridA" style="grid-template-columns: repeat(3, 54px);">
+                    <div class="domino-cell" id="dcellA_0_0"></div>
+                    <div class="domino-cell" id="dcellA_0_1"></div>
+                    <div class="domino-cell" id="dcellA_0_2"></div>
+                    <div class="domino-cell" id="dcellA_1_0"></div>
+                    <div class="domino-cell" id="dcellA_1_1"></div>
+                    <div class="domino-cell" id="dcellA_1_2"></div>
+                    <div class="domino-cell" id="dcellA_2_0"></div>
+                    <div class="domino-cell" id="dcellA_2_1"></div>
+                    <div class="domino-cell" id="dcellA_2_2"></div>
+                    <div class="domino-cell" id="dcellA_3_0"></div>
+                    <div class="domino-cell" id="dcellA_3_1"></div>
+                    <div class="domino-cell" id="dcellA_3_2"></div>
+                </div>
+                <div class="lab-step-hint" id="dominoStepLabelA">Click "Start Covering" to watch a grid of N=4 (even), M=3 get fully covered vertically.</div>
+                <div class="domino-counter" id="dominoCounterA"></div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runDominoLab('A')">Start Covering</button>
+                </div>
+            </div>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> Case Two: M is Even (example 3&times;4) — Full Horizontal Coverage</p>
+                <div class="domino-grid" id="dominoGridB" style="grid-template-columns: repeat(4, 54px);">
+                    <div class="domino-cell" id="dcellB_0_0"></div>
+                    <div class="domino-cell" id="dcellB_0_1"></div>
+                    <div class="domino-cell" id="dcellB_0_2"></div>
+                    <div class="domino-cell" id="dcellB_0_3"></div>
+                    <div class="domino-cell" id="dcellB_1_0"></div>
+                    <div class="domino-cell" id="dcellB_1_1"></div>
+                    <div class="domino-cell" id="dcellB_1_2"></div>
+                    <div class="domino-cell" id="dcellB_1_3"></div>
+                    <div class="domino-cell" id="dcellB_2_0"></div>
+                    <div class="domino-cell" id="dcellB_2_1"></div>
+                    <div class="domino-cell" id="dcellB_2_2"></div>
+                    <div class="domino-cell" id="dcellB_2_3"></div>
+                </div>
+                <div class="lab-step-hint" id="dominoStepLabelB">Click "Start Covering" to watch a grid of N=3, M=4 (even) get fully covered horizontally.</div>
+                <div class="domino-counter" id="dominoCounterB"></div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runDominoLab('B')">Start Covering</button>
+                </div>
+            </div>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> Case Three: Both Odd (example 3&times;3) — A Mixed Approach and One Remaining Cell</p>
+                <div class="domino-grid" id="dominoGridC" style="grid-template-columns: repeat(3, 54px);">
+                    <div class="domino-cell" id="dcellC_0_0"></div>
+                    <div class="domino-cell" id="dcellC_0_1"></div>
+                    <div class="domino-cell" id="dcellC_0_2"></div>
+                    <div class="domino-cell" id="dcellC_1_0"></div>
+                    <div class="domino-cell" id="dcellC_1_1"></div>
+                    <div class="domino-cell" id="dcellC_1_2"></div>
+                    <div class="domino-cell" id="dcellC_2_0"></div>
+                    <div class="domino-cell" id="dcellC_2_1"></div>
+                    <div class="domino-cell" id="dcellC_2_2"></div>
+                </div>
+                <div class="lab-step-hint" id="dominoStepLabelC">Click "Start Covering" to watch how we place pieces on a 3×3 grid when both dimensions are odd.</div>
+                <div class="domino-counter" id="dominoCounterC"></div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runDominoLab('C')">Start Covering</button>
+                </div>
+            </div>
+
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>Notice how each lab matches exactly what the code does, line by line: in the first and second cases the grid is fully covered, while in the third case exactly one cell remains impossible to cover. Now let's move on to understanding why this happens mathematically.</p>
+            </div>
+        </div>
+
+        <!-- CP methodology -->
+        <div class="card" style="border-left-color: var(--primary-yellow);">
+            <div class="card-header" style="color: var(--primary-yellow);">
+                <i class="fas fa-map-signs"></i>
+                <h3>Solving Methodology: How Do We Think About This Problem?</h3>
+            </div>
+            <p>Before looking at the solution, let's follow the same methodology we use for every competitive programming problem:</p>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p><strong>Understand the problem:</strong> we want the largest number of 2&times;1 pieces we can place on an N&times;M grid without overlapping or going out of bounds.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>Try small examples by hand:</strong> what if the grid is 1&times;1? Or 2&times;2? Or 2&times;3?</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>Look for a pattern:</strong> compare the results and try to relate them to the total number of cells <code class="inline">N &times; M</code>.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>Split into cases:</strong> does the pattern change depending on whether N or M is even?</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>Write the code and verify:</strong> try the code on all the examples.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>Check the edge cases:</strong> what happens when N=1 and M=1?</p></li>
+            </ul>
+        </div>
+
+        <!-- Step: try small examples -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-magnifying-glass"></i>
+                <h3>Step 1: Try Small Examples</h3>
+            </div>
+            <p>Before thinking of a general formula, let's compute the answer by hand for a few small grids:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th class="center">N</th><th class="center">M</th><th>Why?</th><th class="center">Answer</th></tr></thead>
+                    <tbody>
+                        <tr><td class="center">1</td><td class="center">1</td><td>Just one cell, not enough for any piece</td><td class="center">0</td></tr>
+                        <tr><td class="center">1</td><td class="center">2</td><td>One horizontal piece covers both cells</td><td class="center">1</td></tr>
+                        <tr><td class="center">2</td><td class="center">2</td><td>Two pieces (either vertical or horizontal)</td><td class="center">2</td></tr>
+                        <tr><td class="center">2</td><td class="center">3</td><td>6 cells ÷ 2 = 3 complete pieces</td><td class="center">3</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>We notice a pattern: the answer is very close to <span class="formula">(N &times; M) / 2</span> — but what if <code class="inline">N &times; M</code> is odd (as in the 1&times;1 case)? Then the number of pieces can't be a fraction, so we need to round down, and this is exactly where the reason for splitting the problem into cases shows up.</p>
+        </div>
+
+        <!-- Step: casework analysis -->
+        <div class="card steps-card" style="border-left-color: var(--primary-yellow);">
+            <div class="card-header" style="color: var(--primary-yellow);">
+                <i class="fas fa-code-branch"></i>
+                <h3>Step 2: Analysis Using Casework</h3>
+            </div>
+            <p>In this problem we have 3 cases, and we analyze them using the "casework" approach we learned earlier:</p>
+
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p><strong>If N is an even number</strong> (<code class="inline">N % 2 == 0</code>): we can cover the entire grid by placing the pieces vertically. The number of pieces used will be <span class="formula">(N &times; M) / 2</span>, because the grid has <code class="inline">N &times; M</code> cells, and each piece covers two cells.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>If M is an even number</strong> (<code class="inline">M % 2 == 0</code>): we can cover the entire grid by placing the pieces horizontally. The number of pieces will also be <span class="formula">(N &times; M) / 2</span>.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>If both N and M are odd numbers</strong>: first we place pieces vertically starting from the first row, which leaves one full row uncovered (because N is odd). In that row we place pieces horizontally, leaving exactly one cell uncovered (because M is odd). So the number of pieces used will be <span class="formula">(N &times; M - 1) / 2</span>.</p></li>
+            </ul>
+
+            <div class="code-box">
+                <div class="code-head"><span>domino_piling.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int N, M;
+    cin &gt;&gt; N &gt;&gt; M;
+
+    if (N % 2 == 0) {
+        cout &lt;&lt; (N * M) / 2 &lt;&lt; endl;
+    }
+    else if (M % 2 == 0) {
+        cout &lt;&lt; (N * M) / 2 &lt;&lt; endl;
+    }
+    else {
+        cout &lt;&lt; (N * M - 1) / 2 &lt;&lt; endl;
+    }
+}</pre>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th class="center">N</th><th class="center">M</th><th class="center">Case</th><th class="center">Output</th></tr></thead>
+                    <tbody>
+                        <tr><td class="center">2</td><td class="center">3</td><td class="center">N even</td><td class="center">3</td></tr>
+                        <tr><td class="center">3</td><td class="center">4</td><td class="center">M even</td><td class="center">6</td></tr>
+                        <tr><td class="center">3</td><td class="center">5</td><td class="center">Both odd</td><td class="center">7</td></tr>
+                        <tr><td class="center">3</td><td class="center">3</td><td class="center">Both odd</td><td class="center">4</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>Notice that the first and second formulas are identical (<span class="formula">(N &times; M) / 2</span>) — the first two cases could actually be merged into a single case, "if N &times; M is even", but analyzing them separately (vertical or horizontal) helps you understand <strong>why</strong> the formula works, not just memorize it.</p>
+            </div>
+        </div>
+
+        <!-- Step: edge cases -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-shield-halved"></i>
+                <h3>Step 3: Check the Edge Cases</h3>
+            </div>
+            <p>What happens at the smallest possible value? If <code class="inline">N = 1</code> and <code class="inline">M = 1</code>, the code enters the third case (both odd), computing <span class="formula">(1 &times; 1 - 1) / 2 = 0</span> — which is exactly correct, since a single cell isn't enough for any piece. This confirms that our solution correctly handles the smallest possible cases without needing any extra special handling.</p>
+        </div>
+
+    </div>
+
+    <footer class="page-footer">TweetKod Platform — Level 2: Problems — Domino Piling</footer>
+
+    <script>
+        // ===== Domino piling visualizer (3 cases: A = N even, B = M even, C = both odd) =====
+        function buildDominoFramesA() {
+            // 4x3 grid, N=4 (even): pure vertical tiling, fully covered
+            return [
+                { cells: [[0,0],[1,0]], cls: 'domino-1', count: 1, label: 'Piece 1 (vertical): covers (0,0) and (1,0) in the first column.' },
+                { cells: [[2,0],[3,0]], cls: 'domino-2', count: 2, label: 'Piece 2 (vertical): covers (2,0) and (3,0), completing the first column.' },
+                { cells: [[0,1],[1,1]], cls: 'domino-3', count: 3, label: 'Piece 3 (vertical): covers (0,1) and (1,1) in the second column.' },
+                { cells: [[2,1],[3,1]], cls: 'domino-4', count: 4, label: 'Piece 4 (vertical): covers (2,1) and (3,1), completing the second column.' },
+                { cells: [[0,2],[1,2]], cls: 'domino-1', count: 5, label: 'Piece 5 (vertical): covers (0,2) and (1,2) in the third column.' },
+                { cells: [[2,2],[3,2]], cls: 'domino-2', count: 6, label: 'Piece 6 (vertical): covers (2,2) and (3,2). The grid is fully covered — no cells remaining!', isFinal: true }
+            ];
+        }
+
+        function buildDominoFramesB() {
+            // 3x4 grid, M=4 (even): pure horizontal tiling, fully covered
+            return [
+                { cells: [[0,0],[0,1]], cls: 'domino-1', count: 1, label: 'Piece 1 (horizontal): covers (0,0) and (0,1) in the first row.' },
+                { cells: [[0,2],[0,3]], cls: 'domino-2', count: 2, label: 'Piece 2 (horizontal): covers (0,2) and (0,3), completing the first row.' },
+                { cells: [[1,0],[1,1]], cls: 'domino-3', count: 3, label: 'Piece 3 (horizontal): covers (1,0) and (1,1) in the second row.' },
+                { cells: [[1,2],[1,3]], cls: 'domino-4', count: 4, label: 'Piece 4 (horizontal): covers (1,2) and (1,3), completing the second row.' },
+                { cells: [[2,0],[2,1]], cls: 'domino-1', count: 5, label: 'Piece 5 (horizontal): covers (2,0) and (2,1) in the third row.' },
+                { cells: [[2,2],[2,3]], cls: 'domino-2', count: 6, label: 'Piece 6 (horizontal): covers (2,2) and (2,3). The grid is fully covered — no cells remaining!', isFinal: true }
+            ];
+        }
+
+        function buildDominoFramesC() {
+            // 3x3 grid, both odd: mixed approach, one cell left uncovered
+            return [
+                { cells: [[0,0],[1,0]], cls: 'domino-1', count: 1, label: 'Piece 1 (vertical): covers cells (0,0) and (1,0).' },
+                { cells: [[0,1],[1,1]], cls: 'domino-2', count: 2, label: 'Piece 2 (vertical): covers cells (0,1) and (1,1).' },
+                { cells: [[0,2],[1,2]], cls: 'domino-3', count: 3, label: 'Piece 3 (vertical): covers cells (0,2) and (1,2). The first and second rows are now fully covered.' },
+                { cells: [[2,0],[2,1]], cls: 'domino-4', count: 4, label: 'Piece 4 (horizontal): covers cells (2,0) and (2,1) in the remaining last row.' },
+                { cells: [[2,2]], cls: 'uncovered', count: 4, label: 'The single cell (2,2) remains uncovered — no additional piece can fit there. Final total = 4 pieces, matching the formula (3×3-1)/2 = 4.', isFinal: true }
+            ];
+        }
+
+        const DOMINO_BUILDERS = { A: buildDominoFramesA, B: buildDominoFramesB, C: buildDominoFramesC };
+        const DOMINO_CELL_PREFIX = { A: 'dcellA_', B: 'dcellB_', C: 'dcellC_' };
+
+        function runDominoLab(caseKey) {
+            const frames = DOMINO_BUILDERS[caseKey]();
+            const prefix = DOMINO_CELL_PREFIX[caseKey];
+            let f = 0;
+            const label = document.getElementById('dominoStepLabel' + caseKey);
+            const counter = document.getElementById('dominoCounter' + caseKey);
+            function playNext() {
+                if (f >= frames.length) return;
+                const frame = frames[f];
+                frame.cells.forEach(([r, c]) => {
+                    document.getElementById(prefix + r + '_' + c).classList.add(frame.cls);
+                });
+                label.innerText = frame.label;
+                counter.innerText = 'Pieces placed so far: ' + frame.count;
+                f++;
+                setTimeout(playNext, 750);
+            }
+            playNext();
+        }
+    </script>
+</body>
+</html>

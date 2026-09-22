@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | Problem: Stick Lengths</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', 'Segoe UI', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.12); box-shadow: 0 6px 24px -16px rgba(15, 23, 42, 0.3); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+        .brand-info { order: -1; }
+        .logo-img { order: 1; }
+        .logo-img { width: 60px; height: 60px; border-radius: 16px; object-fit: contain; padding: 6px; background: #ffffff; box-shadow: 0 6px 18px -6px rgba(0, 173, 239, 0.4), 0 0 0 1px rgba(0, 173, 239, 0.14); }
+        .brand-info h3 { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--dark-navy); letter-spacing: -0.01em; }
+        .brand-info p { margin: 2px 0 0; font-size: 0.85rem; color: var(--primary-blue); font-weight: 600; letter-spacing: 0.01em; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+        /* hero banner */
+        .hero-banner { background: var(--blue-gradient); padding: 60px 6% 50px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 720px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+        .hero-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 22px; }
+        .diff-badge { padding: 7px 18px; border-radius: 50px; font-weight: 800; font-size: 0.82rem; }
+        .diff-easy { background: #dcfce7; color: #15803d; }
+        .diff-medium { background: #fef3c7; color: #b45309; }
+        .diff-hard { background: #fee2e2; color: #b91c1c; }
+        .source-badge {
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.4); color: white;
+            padding: 7px 18px; border-radius: 50px; font-size: 0.82rem; font-weight: 700; text-decoration: none;
+            direction: ltr; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .source-badge:hover { background: rgba(255,255,255,0.28); }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-left: 8px solid var(--primary-blue);
+        }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula { direction: ltr; display: inline-block; font-family: 'Consolas', monospace; font-weight: 800; background: #eef2f7; padding: 3px 10px; border-radius: 8px; color: var(--dark-navy); }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: left; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td code.inline, .data-table th code.inline { white-space: nowrap; }
+        .data-table td.center, .data-table th.center { text-align: center; }
+
+        /* numbered steps */
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        /* interactive lab */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 14px 0 6px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+
+        /* stick lengths lab */
+        .stick-chart {
+            position: relative; display: flex; align-items: flex-end; justify-content: center;
+            gap: 18px; height: 190px; padding: 0 10px; border-bottom: 3px solid #e2e8f0; margin-top: 10px;
+            transition: box-shadow 0.3s ease; border-radius: 12px;
+        }
+        .stick-chart.is-final-best { box-shadow: 0 0 0 3px rgba(34,197,94,0.35); }
+        .stick-bar {
+            width: 40px; border-radius: 8px 8px 0 0; background: var(--blue-gradient);
+            transition: box-shadow 0.3s ease;
+        }
+        .stick-bar.is-target { box-shadow: 0 0 0 3px var(--primary-yellow) inset, 0 0 14px rgba(247,148,30,0.5); }
+        .stick-target-line {
+            position: absolute; left: 0; right: 0; border-top: 3px dashed var(--primary-yellow);
+            opacity: 0; transition: bottom 0.4s ease, opacity 0.3s ease; pointer-events: none;
+        }
+        .stick-target-tag {
+            position: absolute; left: 0; transform: translateY(-100%);
+            background: var(--yellow-gradient); color: white; font-size: 0.7rem; font-weight: 800;
+            padding: 3px 10px; border-radius: 8px 8px 8px 0; opacity: 0; white-space: nowrap;
+            transition: bottom 0.4s ease, opacity 0.3s ease;
+        }
+        .stick-labels-row { display: flex; justify-content: center; gap: 18px; padding: 0 10px; margin-top: 10px; }
+        .stick-label-col { width: 40px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .stick-value-label { font-size: 0.8rem; font-weight: 800; color: var(--dark-navy); }
+        .stick-cost-label { font-size: 0.78rem; font-weight: 700; color: #b91c1c; font-family: 'Consolas', monospace; }
+        .stick-cost-label.zero-cost { color: #16a34a; }
+        .stick-total-badge { text-align: center; font-weight: 800; font-size: 1.05rem; color: var(--dark-navy); margin-top: 18px; }
+        .stick-total-badge .cost-num { color: var(--primary-blue); font-family: 'Consolas', monospace; }
+        .stick-total-badge.is-best { color: #16a34a; }
+        .stick-total-badge.is-best .cost-num { color: #16a34a; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">C++</span>
+            <span class="chapter-badge">Problems: Stick Lengths</span>
+        </div>
+        <div class="brand-info">
+                <h3>TweetKod Platform</h3>
+                <p>Interactive Programming Education</p>
+            </div>
+        <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-ruler-combined"></i>
+        <h1>Stick Lengths</h1>
+        <p class="hero-desc">A famous CSES problem whose statement is very simple, but reaching the optimal solution requires a clever mathematical observation. We'll use the sorting technique you learned in chapter four to discover that the ideal value is always the array's median.</p>
+        <div class="hero-badges">
+            <span class="diff-badge diff-medium">Medium</span>
+            <a class="source-badge" href="https://cses.fi/problemset/task/1074" target="_blank" rel="noopener"><i class="fas fa-up-right-from-square"></i> CSES 1074</a>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- Problem statement -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-file-lines"></i>
+                <h3>Problem Statement</h3>
+            </div>
+            <p>You are given <code class="inline">n</code> sticks with certain lengths. You want to make all the sticks the same length.</p>
+            <p>You can increase or decrease the length of each stick. Changing a stick's length from <code class="inline">x</code> to <code class="inline">y</code> costs <code class="inline">|x - y|</code>.</p>
+            <p><strong>Task:</strong> find the minimum possible total cost to make all the sticks the same length.</p>
+
+            <h4 class="sub-title">Constraints</h4>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p><code class="inline">1 &le; n &le; 2 &times; 10&#8309;</code></p></li>
+                <li class="step-item"><span class="step-num"></span><p><code class="inline">1 &le; </code>each stick's length<code class="inline"> &le; 10&#8313;</code></p></li>
+            </ul>
+
+            <h4 class="sub-title">Input</h4>
+            <p>First line: an integer <code class="inline">n</code> — the number of sticks.<br>Second line: <code class="inline">n</code> integers — the lengths of the sticks.</p>
+
+            <h4 class="sub-title">Output</h4>
+            <p>A single integer — the minimum possible total cost.</p>
+
+            <h4 class="sub-title">Example</h4>
+            <div class="output-box">Input:<br>5<br>2 3 1 5 2</div>
+            <div class="output-box" style="margin-top: 10px;">Output:<br>5</div>
+        </div>
+
+        <!-- Interactive lab -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>Interactive Lab: Try Different Lengths and Watch the Cost</h3>
+            </div>
+            <p>Before we explain the solution, try it yourself: the sticks (after sorting) have lengths <code class="inline">1, 2, 2, 3, 5</code>. What if we picked a different target length for all the sticks? Run the simulation to see how the total cost changes with every target we try, and where it's at its lowest.</p>
+
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-flask"></i> Simulation: Trying Every Possible Target From 1 to 5</p>
+
+                <div class="stick-chart" id="stickChart">
+                    <div class="stick-target-line" id="stickTargetLine"></div>
+                    <div class="stick-target-tag" id="stickTargetTag"></div>
+                    <div class="stick-bar" id="stickBar_0" style="height:30px;"></div>
+                    <div class="stick-bar" id="stickBar_1" style="height:60px;"></div>
+                    <div class="stick-bar" id="stickBar_2" style="height:60px;"></div>
+                    <div class="stick-bar" id="stickBar_3" style="height:90px;"></div>
+                    <div class="stick-bar" id="stickBar_4" style="height:150px;"></div>
+                </div>
+                <div class="stick-labels-row">
+                    <div class="stick-label-col"><span class="stick-value-label">1</span><span class="stick-cost-label" id="stickCost_0">-</span></div>
+                    <div class="stick-label-col"><span class="stick-value-label">2</span><span class="stick-cost-label" id="stickCost_1">-</span></div>
+                    <div class="stick-label-col"><span class="stick-value-label">2</span><span class="stick-cost-label" id="stickCost_2">-</span></div>
+                    <div class="stick-label-col"><span class="stick-value-label">3</span><span class="stick-cost-label" id="stickCost_3">-</span></div>
+                    <div class="stick-label-col"><span class="stick-value-label">5</span><span class="stick-cost-label" id="stickCost_4">-</span></div>
+                </div>
+
+                <div class="stick-total-badge" id="stickTotalBadge">Total Cost: <span class="cost-num">-</span></div>
+                <div class="lab-step-hint" id="stickStepHint">Click "Run the Simulation" to try every possible target and watch the total cost for each one.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runStickLab()">Run the Simulation</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CP methodology -->
+        <div class="card" style="border-left-color: var(--primary-yellow);">
+            <div class="card-header" style="color: var(--primary-yellow);">
+                <i class="fas fa-map-signs"></i>
+                <h3>Solving Methodology: How Do We Think About This Problem?</h3>
+            </div>
+            <ul class="steps-list">
+                <li class="step-item"><span class="step-num"></span><p><strong>Understand the problem:</strong> we want to choose a single target length that minimizes the sum of <code class="inline">|stick length - target|</code> over all sticks.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>Try small examples by hand:</strong> take 3 or 4 sticks and compute the cost for every possible target yourself.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>Look for a pattern:</strong> where does the value that always gives the minimum cost lie?</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>Why does this hold true?</strong> think of the sticks as pairs (the smallest value with the largest value) and what happens to the cost as the target moves.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>Write the code and verify:</strong> sort the array, take the middle element (the median), and compute the cost.</p></li>
+                <li class="step-item"><span class="step-num"></span><p><strong>Check the edge cases:</strong> what happens when n=1? What if n is even? And could the sum overflow the <code class="inline">int</code> type?</p></li>
+            </ul>
+        </div>
+
+        <!-- Step 1: try small examples -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-magnifying-glass"></i>
+                <h3>Step 1: Try Small Examples by Hand</h3>
+            </div>
+            <p>Let's take a very small example: sticks with lengths <code class="inline">1, 2, 3</code>. Let's compute the total cost for every possible target:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th class="center">Target</th><th>Cost per Stick</th><th class="center">Total</th></tr></thead>
+                    <tbody>
+                        <tr><td class="center">1</td><td><code class="inline">|1-1|+|2-1|+|3-1| = 0+1+2</code></td><td class="center">3</td></tr>
+                        <tr><td class="center">2</td><td><code class="inline">|1-2|+|2-2|+|3-2| = 1+0+1</code></td><td class="center">2</td></tr>
+                        <tr><td class="center">3</td><td><code class="inline">|1-3|+|2-3|+|3-3| = 2+1+0</code></td><td class="center">3</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>The minimum cost happened at target <code class="inline">2</code> — which is exactly the middle element (the median) after sorting! Try the same thing on the original example <code class="inline">1, 2, 2, 3, 5</code> in the lab above and you'll notice the minimum cost (5) also occurs at the median <code class="inline">2</code>.</p>
+        </div>
+
+        <!-- Step 2: why the median works -->
+        <div class="card steps-card" style="border-left-color: var(--primary-yellow);">
+            <div class="card-header" style="color: var(--primary-yellow);">
+                <i class="fas fa-lightbulb"></i>
+                <h3>Step 2: Why Is the Optimal Solution the Median?</h3>
+            </div>
+            <p>After sorting the sticks in ascending order, picture them as pairs: the smallest stick with the largest, the second smallest with the second largest, and so on:</p>
+            <p>For any target <code class="inline">t</code> that falls between the two ends of a pair <code class="inline">(min, max)</code>, the cost from that pair is always <code class="inline">|min - t| + |max - t| = max - min</code> — meaning it's <strong>fixed and doesn't change</strong> as long as <code class="inline">t</code> stays between the two ends! But as soon as <code class="inline">t</code> steps outside that range (becomes smaller or larger than both ends), the cost starts to increase.</p>
+            <p>So: the best target is the value that falls inside <strong>all the overlapping pairs at once</strong> — and that is exactly the median of the sorted array. If <code class="inline">n</code> is odd, that's precisely the middle element; if it's even, any value between the two middle elements (including either one) gives the same optimal cost.</p>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>This is exactly the idea you saw in the interactive lab above: the cost drops the closer the target gets to the middle, and starts rising again as soon as it passes it.</p>
+            </div>
+        </div>
+
+        <!-- Step 3: full solution -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-code"></i>
+                <h3>Step 3: The Full Solution (Sort + Median)</h3>
+            </div>
+            <p>The algorithm is simple now that we understand why it works: sort the array (using the sorting algorithms from chapter four), take the middle element as the target, then sum the absolute distances between it and every stick:</p>
+
+            <div class="code-box">
+                <div class="code-head"><span>stick_lengths.cpp</span></div>
+                <pre>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n;
+    cin &gt;&gt; n;
+    vector&lt;long long&gt; a(n);
+    for (auto &amp;x : a) cin &gt;&gt; x;
+
+    sort(a.begin(), a.end());
+    long long median = a[n / 2];
+
+    long long cost = 0;
+    for (long long x : a) cost += abs(x - median);
+
+    cout &lt;&lt; cost &lt;&lt; "\n";
+    return 0;
+}</pre>
+            </div>
+            <p>After sorting, the array becomes <code class="inline">1, 2, 2, 3, 5</code>, and the median is <code class="inline">a[5/2] = a[2] = 2</code>. Total cost: <code class="inline">|1-2|+|2-2|+|2-2|+|3-2|+|5-2| = 1+0+0+1+3 = 5</code>.</p>
+            <div class="output-box">Input: 5 / 2 3 1 5 2  &rarr;  Output: 5</div>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>The running time here is <code class="inline">O(n log n)</code> because of the sorting step — fast enough even with <code class="inline">n</code> up to <code class="inline">2 &times; 10&#8309;</code>.</p>
+            </div>
+        </div>
+
+        <!-- Step 4: edge cases -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-shield-halved"></i>
+                <h3>Step 4: Check the Edge Cases</h3>
+            </div>
+            <p><strong>A single stick (n=1):</strong> the median is the stick itself, so the cost is <code class="inline">0</code> with no need to change anything.</p>
+            <p><strong>All sticks the same length:</strong> every difference equals zero, so the total cost is <code class="inline">0</code> — the solution handles this automatically with no special case.</p>
+            <p><strong>n is even:</strong> there are two elements in the middle instead of one. Try <code class="inline">1, 2, 3, 4</code>: at target <code class="inline">2</code> the cost is <code class="inline">1+0+1+2=4</code>, and at target <code class="inline">3</code> the cost is <code class="inline">2+1+0+1=4</code> — exactly the same result! So choosing either of the two middle elements is correct.</p>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>Watch out for a common trap: stick lengths can go up to <code class="inline">10&#8313;</code>, and there can be up to <code class="inline">2 &times; 10&#8309;</code> of them, so the total cost sum could reach roughly <code class="inline">2 &times; 10&#185;&#8308;</code> — which far exceeds the range of the <code class="inline">int</code> type! That's why we used <code class="inline">long long</code> for both the lengths and the sum in the code above.</p>
+            </div>
+        </div>
+
+        <div class="good-box">
+            <i class="fas fa-circle-check"></i>
+            <p>Notice how everything you've learned comes together here: sorting from chapter four gave us a fast way to find the median, while a simple mathematical observation about overlapping pairs turned a problem that looked complicated into a two-line solution. This pattern — "sort, then use the median" — will show up often in problems about minimizing absolute distances.</p>
+        </div>
+
+    </div>
+
+    <footer class="page-footer">TweetKod Platform — Level 2: Problems — Stick Lengths</footer>
+
+    <script>
+        // ===== Stick Lengths target-cost visualizer =====
+        const STICK_VALUES = [1, 2, 2, 3, 5];
+        const STICK_UNIT = 30;
+
+        function buildStickFrames() {
+            const targets = [1, 2, 3, 4, 5];
+            const bestTarget = 2;
+            const frames = targets.map(t => {
+                const costs = STICK_VALUES.map(v => Math.abs(v - t));
+                const total = costs.reduce((a, b) => a + b, 0);
+                return {
+                    target: t,
+                    costs: costs,
+                    total: total,
+                    isFinal: false,
+                    label: 'Trying target = ' + t + ' → total cost = ' + total
+                };
+            });
+            const bestCosts = STICK_VALUES.map(v => Math.abs(v - bestTarget));
+            const bestTotal = bestCosts.reduce((a, b) => a + b, 0);
+            frames.push({
+                target: bestTarget,
+                costs: bestCosts,
+                total: bestTotal,
+                isFinal: true,
+                label: 'The best target is the median = ' + bestTarget + ' with total cost = ' + bestTotal + ' — no target beats it!'
+            });
+            return frames;
+        }
+
+        function runStickLab() {
+            const frames = buildStickFrames();
+            let f = 0;
+            const line = document.getElementById('stickTargetLine');
+            const tag = document.getElementById('stickTargetTag');
+            const hint = document.getElementById('stickStepHint');
+            const totalBadge = document.getElementById('stickTotalBadge');
+            const chart = document.getElementById('stickChart');
+
+            function playNext() {
+                if (f >= frames.length) return;
+                const frame = frames[f];
+                const px = (frame.target * STICK_UNIT) + 'px';
+
+                line.style.opacity = '1';
+                line.style.bottom = px;
+                tag.style.opacity = '1';
+                tag.style.bottom = px;
+                tag.innerText = 'Target = ' + frame.target;
+
+                for (let i = 0; i < STICK_VALUES.length; i++) {
+                    const costEl = document.getElementById('stickCost_' + i);
+                    const barEl = document.getElementById('stickBar_' + i);
+                    const c = frame.costs[i];
+                    costEl.innerText = c === 0 ? '0 ✓' : String(c);
+                    if (c === 0) {
+                        costEl.classList.add('zero-cost');
+                        barEl.classList.add('is-target');
+                    } else {
+                        costEl.classList.remove('zero-cost');
+                        barEl.classList.remove('is-target');
+                    }
+                }
+
+                totalBadge.innerHTML = 'Total cost at target ' + frame.target + ': <span class="cost-num">' + frame.total + '</span>';
+                if (frame.isFinal) {
+                    totalBadge.classList.add('is-best');
+                    chart.classList.add('is-final-best');
+                } else {
+                    totalBadge.classList.remove('is-best');
+                    chart.classList.remove('is-final-best');
+                }
+
+                hint.innerText = frame.label;
+
+                f++;
+                setTimeout(playNext, 1200);
+            }
+
+            playNext();
+        }
+    </script>
+</body>
+</html>
