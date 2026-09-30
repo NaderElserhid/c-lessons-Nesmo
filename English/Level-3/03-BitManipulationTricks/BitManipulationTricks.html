@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | Bit Manipulation Tricks</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', 'Segoe UI', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.12); box-shadow: 0 6px 24px -16px rgba(15, 23, 42, 0.3); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+        .logo-img { order: 1; }
+        .brand-info { order: -1; }
+        .logo-img { width: 60px; height: 60px; border-radius: 16px; object-fit: contain; padding: 6px; background: #ffffff; box-shadow: 0 6px 18px -6px rgba(0, 173, 239, 0.4), 0 0 0 1px rgba(0, 173, 239, 0.14); }
+        .brand-info h3 { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--dark-navy); letter-spacing: -0.01em; }
+        .brand-info p { margin: 2px 0 0; font-size: 0.85rem; color: var(--primary-blue); font-weight: 600; letter-spacing: 0.01em; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .hero-banner { background: var(--blue-gradient); padding: 70px 6% 60px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 720px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-left: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-left-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+        .formula-box {
+            background: #0f172a; color: #facc15; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin: 14px 0; direction: ltr; text-align: center;
+            font-size: 1.05rem; font-weight: 700; letter-spacing: 0.5px;
+        }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+            white-space: pre-line;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: left; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td code.inline, .data-table th code.inline { white-space: nowrap; }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+
+        .bullet-list { list-style: none; padding: 0; margin: 16px 0; }
+        .bullet-list li { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; color: var(--text-body); }
+        .bullet-list li i { color: var(--primary-blue); margin-top: 4px; flex-shrink: 0; }
+
+        /* interactive lab */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 6px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-sub { text-align: center; font-size: 0.85rem; color: var(--text-body); margin-bottom: 14px; }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 14px 0 6px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+        .lab-btn.ghost { background: white; border: 2px solid #cbd5e1; color: var(--text-body); }
+        .lab-btn.yellow { background: var(--yellow-gradient); }
+
+        /* bit rows */
+        .bits-row-label { text-align: center; font-family: 'Consolas', monospace; font-size: 0.8rem; color: var(--text-body); margin-bottom: 4px; direction: ltr; }
+        .bits-row { display: flex; gap: 6px; justify-content: center; direction: ltr; margin: 0 0 16px; }
+        .bit-cell {
+            width: 34px; height: 34px; border-radius: 8px; background: var(--bg-main);
+            border: 2px solid #cbd5e1; display: flex; align-items: center; justify-content: center;
+            font-family: 'Consolas', monospace; font-weight: 800; font-size: 1rem; color: var(--dark-navy);
+            transition: all 0.3s ease;
+        }
+        .bit-cell.clickable { cursor: pointer; }
+        .bit-cell.clickable:hover { border-color: var(--primary-blue); }
+        .bit-cell.selected { border-color: var(--primary-blue); background: rgba(0,173,239,0.12); }
+        .bit-cell.flag-borrow { border-color: var(--primary-yellow); background: rgba(247,148,30,0.14); }
+        .bit-cell.flag-result { border-color: #22c55e; background: rgba(34,197,94,0.14); color: #15803d; }
+        .bit-cell.flag-flip { border-color: #ef4444; background: rgba(239,68,68,0.1); }
+        .bit-k-labels { display: flex; gap: 6px; justify-content: center; direction: ltr; margin-bottom: 10px; }
+        .bit-k-label { width: 34px; text-align: center; font-size: 0.7rem; color: #94a3b8; font-family: 'Consolas', monospace; }
+
+        .playground-readout { text-align: center; margin: 14px 0; }
+        .playground-decimal { font-family: 'Consolas', monospace; font-weight: 800; font-size: 1.4rem; color: var(--dark-navy); }
+        .playground-formula { font-family: 'Consolas', monospace; direction: ltr; text-align: center; color: var(--primary-blue); font-weight: 700; min-height: 20px; margin-top: 6px; font-size: 0.9rem; }
+
+        /* true/false activity */
+        .activity-box { background: white; border-radius: 22px; padding: 32px; margin: 28px 0; box-shadow: var(--soft-shadow); border: 1px solid #e2e8f0; }
+        .activity-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .activity-header i { color: var(--primary-blue); font-size: 1.2rem; }
+        .activity-header h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); }
+        .activity-intro { margin-bottom: 20px; font-size: 0.92rem; }
+        .tf-item {
+            background: var(--bg-main); border-radius: 16px; padding: 18px 22px; margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+            border: 1px solid #e2e8f0;
+        }
+        .tf-statement { margin: 0; font-weight: 700; color: var(--dark-navy); font-size: 0.95rem; flex: 1 1 260px; direction: ltr; text-align: left; unicode-bidi: plaintext; }
+        .tf-buttons { display: flex; gap: 10px; flex-shrink: 0; }
+        .tf-btn {
+            border: 2px solid #e2e8f0; background: white; padding: 9px 26px; border-radius: 50px;
+            font-weight: 800; font-family: 'Tajawal'; font-size: 0.88rem; cursor: pointer; color: var(--dark-navy); transition: 0.2s;
+        }
+        .tf-btn:hover { border-color: var(--primary-blue); }
+        .tf-btn.tf-selected-correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .tf-btn.tf-selected-wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .tf-feedback { flex-basis: 100%; margin-top: 2px; font-weight: 700; font-size: 0.85rem; min-height: 18px; }
+
+        .homework-item { background: var(--bg-main); border-radius: 18px; padding: 24px; margin-top: 20px; border: 1px solid #e2e8f0; }
+        .homework-item h4 { margin: 0 0 10px; color: var(--dark-navy); font-size: 1.02rem; font-weight: 800; }
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            margin-top: 14px;
+        }
+        .collapsible { display: none; margin-top: 14px; }
+        .collapsible.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: left; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">C++</span>
+            <span class="chapter-badge">Bit Manipulation Tricks</span>
+        </div>
+        <div class="brand-info">
+                <h3>TweetKod Platform</h3>
+                <p>Interactive Programming Education</p>
+            </div>
+        <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-wand-magic-sparkles"></i>
+        <h1>Bit Manipulation Tricks</h1>
+        <p class="hero-desc">In the previous chapter you learned the fundamental bitwise operations: <code style="direction:ltr; display:inline-block; background:rgba(255,255,255,0.15); color:white; padding:2px 8px; border-radius:6px;">&amp; | ^ ~ &lt;&lt; &gt;&gt;</code>. Now we'll combine these operations to build ready-made, very fast tricks: how to check a single bit, how to change it, and how to take advantage of a curious property of subtraction to remove or isolate a specific bit in one shot.</p>
+    </div>
+
+    <div class="container">
+
+        <!-- Intro -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-info"></i>
+                <h3>Setup: Variables and Masks</h3>
+            </div>
+            <p>Throughout this chapter we'll assume we have two variables:</p>
+            <div class="code-box">
+                <div class="code-head"><span>setup.cpp</span></div>
+                <pre>int x;       <span class="cmt">// a non-negative integer</span>
+int k;       <span class="cmt">// the bit number (0-based), where k=0 is the least significant bit (LSB)</span></pre>
+            </div>
+            <p>We'll rely heavily on the mask <code class="inline">1 &lt;&lt; k</code>, a number in which only bit number <code class="inline">k</code> equals 1 and everything else is zero. All the tricks in this chapter are simply different combinations of this mask with the operators <code class="inline">&amp;</code>, <code class="inline">|</code>, <code class="inline">^</code>, <code class="inline">~</code>.</p>
+        </div>
+
+        <!-- 1. Check bit -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-magnifying-glass"></i>
+                <h3>Checking Whether Bit k Equals 1</h3>
+            </div>
+            <div class="formula-box">bool isSet = (x &gt;&gt; k) &amp; 1;</div>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p><code class="inline">x >> k</code> → a right shift so that bit number <code class="inline">k</code> moves all the way to the rightmost position.</p></li>
+                <li><i class="fas fa-check"></i><p><code class="inline">(x >> k) & 1</code> → keeps only the rightmost bit and clears all the rest.</p></li>
+                <li><i class="fas fa-check"></i><p>The result is <code class="inline">0</code> or <code class="inline">1</code>, equivalent logically to <code class="inline">false</code> or <code class="inline">true</code>.</p></li>
+            </ul>
+            <h4 style="color:var(--dark-navy); font-weight:800; margin-top:24px;">Example</h4>
+            <div class="code-box">
+                <div class="code-head"><span>check_bit.cpp</span></div>
+                <pre>int x = 10;     <span class="cmt">// 10 = 1010 (in binary)</span>
+int k = 1;
+
+bool isSet = (x >> 1) & 1; <span class="cmt">// 1010 >> 1 = 101;  101 & 1 = 1 (true)</span></pre>
+            </div>
+            <div class="output-box">isSet = 1 (true)</div>
+        </div>
+
+        <!-- 2. Set bit -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-toggle-on"></i>
+                <h3>Setting Bit k to 1</h3>
+            </div>
+            <div class="formula-box">x |= (1 &lt;&lt; k);</div>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>The <code class="inline">|</code> operator sets a bit to 1 if at least one of the two sides has a 1.</p></li>
+                <li><i class="fas fa-check"></i><p>This forces bit number <code class="inline">k</code> to become 1, while all other bits stay unchanged.</p></li>
+            </ul>
+            <h4 style="color:var(--dark-navy); font-weight:800; margin-top:24px;">Example</h4>
+            <div class="code-box">
+                <div class="code-head"><span>set_bit.cpp</span></div>
+                <pre>int x = 4;      <span class="cmt">// 0100</span>
+x |= (1 << 0);  <span class="cmt">// 0100 | 0001 = 0101 (5)</span></pre>
+            </div>
+            <div class="output-box">x = 5</div>
+        </div>
+
+        <!-- 3. Clear bit -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-toggle-off"></i>
+                <h3>Clearing Bit k (Setting It to 0)</h3>
+            </div>
+            <div class="formula-box">x &amp;= ~(1 &lt;&lt; k);</div>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p><code class="inline">1 << k</code> → a mask where bit number <code class="inline">k</code> equals 1.</p></li>
+                <li><i class="fas fa-check"></i><p><code class="inline">~(1 << k)</code> → a mask where bit number <code class="inline">k</code> equals 0, and every other bit equals 1.</p></li>
+                <li><i class="fas fa-check"></i><p>Performing <code class="inline">&amp;</code> with this mask clears only bit number <code class="inline">k</code>, leaving everything else unchanged.</p></li>
+            </ul>
+            <h4 style="color:var(--dark-navy); font-weight:800; margin-top:24px;">Example</h4>
+            <div class="code-box">
+                <div class="code-head"><span>clear_bit.cpp</span></div>
+                <pre>int x = 13;         <span class="cmt">// 1101</span>
+x &= ~(1 << 2);     <span class="cmt">// ~(0100) = ...11111011</span>
+                    <span class="cmt">// 1101 & 1011 = 1001 (9)</span></pre>
+            </div>
+            <div class="output-box">x = 9</div>
+        </div>
+
+        <!-- 4. Toggle bit -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-rotate"></i>
+                <h3>Toggling (Flipping) Bit k</h3>
+            </div>
+            <div class="formula-box">x ^= (1 &lt;&lt; k);</div>
+            <p>The <code class="inline">^</code> (XOR) operator flips a bit wherever the mask has a 1:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th class="ltr">Original bit</th><th class="ltr">XOR 1</th><th class="ltr">Result</th></tr></thead>
+                    <tbody>
+                        <tr><td class="ltr">0</td><td class="ltr">1</td><td class="ltr">1</td></tr>
+                        <tr><td class="ltr">1</td><td class="ltr">1</td><td class="ltr">0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <h4 style="color:var(--dark-navy); font-weight:800; margin-top:24px;">Example</h4>
+            <div class="code-box">
+                <div class="code-head"><span>toggle_bit.cpp</span></div>
+                <pre>int x = 5;     <span class="cmt">// 0101</span>
+x ^= (1 << 2); <span class="cmt">// 0101 ^ 0100 = 0001 (1)</span></pre>
+            </div>
+            <div class="output-box">x = 1</div>
+        </div>
+
+        <!-- Lab 1: playground -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>Interactive Lab: The Bit Tricks Playground</h3>
+            </div>
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-gamepad"></i> Try All Four Tricks Yourself</p>
+                <p class="lab-sub">We start with x = 10 (00001010). Click any bit cell to select its number k, then click the operation you want to apply.</p>
+
+                <div class="bit-k-labels" id="playKLabels"></div>
+                <div class="bits-row" id="playBitsRow"></div>
+
+                <div class="playground-readout">
+                    <span class="playground-decimal" id="bitplayDecimal">10</span>
+                    <div class="playground-formula" id="bitplayFormula"></div>
+                </div>
+
+                <div class="lab-step-hint" id="bitplayHint">Click any bit to select it, then pick an operation.</div>
+
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="applyPlayOp('check')">Check</button>
+                    <button class="lab-btn" onclick="applyPlayOp('set')">Set</button>
+                    <button class="lab-btn" onclick="applyPlayOp('clear')">Clear</button>
+                    <button class="lab-btn" onclick="applyPlayOp('toggle')">Toggle</button>
+                    <button class="lab-btn ghost" onclick="resetPlayground()">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity A -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>Activity: Quick Review of the Four Tricks</h4>
+            </div>
+            <p class="activity-intro">Determine whether each statement is true or false.</p>
+
+            <div class="tf-item" id="tfBt1">
+                <p class="tf-statement">The expression (x >> k) & 1 gives 1 if bit number k equals 1.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBt1', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBt1', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBt2">
+                <p class="tf-statement">x |= (1 << k) might clear some of the other bits in x.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBt2', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBt2', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBt3">
+                <p class="tf-statement">To clear bit number k we use x &= ~(1 << k).</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBt3', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBt3', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBt4">
+                <p class="tf-statement">Applying x ^= (1 << k) twice in a row on the same k restores x to its original value.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBt4', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBt4', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- 5. Remove lowest set bit -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-eraser"></i>
+                <h3>Removing the Lowest Set Bit</h3>
+            </div>
+            <p>This is a very famous trick:</p>
+            <div class="formula-box">x = x &amp; (x - 1);</div>
+            <p>This line removes (clears) the lowest set bit — that is, the first 1 from the right — in <code class="inline">x</code>.</p>
+
+            <h4 style="color:var(--dark-navy); font-weight:800; margin-top:24px;">Why Does This Trick Work?</h4>
+            <p>Think about what happens to the bits when we subtract 1:</p>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>When we perform <code class="inline">x - 1</code>, we walk from the right until we find the first bit whose value is 1.</p></li>
+                <li><i class="fas fa-check"></i><p>This lowest set bit (the closest 1 to the right) flips to 0.</p></li>
+                <li><i class="fas fa-check"></i><p>Every bit to its right (which was 0) flips to 1 (because of the borrowing in subtraction).</p></li>
+            </ul>
+            <p>So around the lowest set bit, the pattern looks like this:</p>
+            <div class="code-box">
+                <div class="code-head"><span>pattern</span></div>
+                <pre>x:       .... 1 0 0 0 0
+x - 1:   .... 0 1 1 1 1</pre>
+            </div>
+            <p>When we perform AND:</p>
+            <div class="code-box">
+                <div class="code-head"><span>and_pattern</span></div>
+                <pre>x        = .... 1 0 0 0 0
+x - 1    = .... 0 1 1 1 1
+-------------------------
+x&(x-1)  = .... 0 0 0 0 0</pre>
+            </div>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>The lowest set bit becomes 0 because <code class="inline">1 & 0</code>.</p></li>
+                <li><i class="fas fa-check"></i><p>Every bit to its right was 0 in <code class="inline">x</code>, so it gives <code class="inline">0 & anything = 0</code> regardless of x-1.</p></li>
+                <li><i class="fas fa-check"></i><p>Every bit to its left is unaffected, since the subtraction never changed it; it stays the same after AND.</p></li>
+            </ul>
+            <h4 style="color:var(--dark-navy); font-weight:800; margin-top:24px;">Example</h4>
+            <div class="code-box">
+                <div class="code-head"><span>remove_lowest.cpp</span></div>
+                <pre>x           = 12 = 1100
+x - 1       = 11 = 1011
+x & (x - 1) =  8 = 1000</pre>
+            </div>
+            <div class="output-box">The lowest set bit (bit number 2) was removed, and the result = 8</div>
+        </div>
+
+        <!-- Lab 2: remove lowest set bit animation -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>Interactive Lab: Watch the Borrowing and Removal Step by Step</h3>
+            </div>
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-eraser"></i> x &amp; (x - 1) with x = 12</p>
+                <p class="lab-sub">Run the simulation to see how x turns into x-1 (notice the bits colored by the borrowing), then how the AND operation produces the removal.</p>
+
+                <div class="bits-row-label">x = 12</div>
+                <div class="bits-row" id="rlsRowX"></div>
+                <div class="bits-row-label">x - 1 = 11</div>
+                <div class="bits-row" id="rlsRowX1"></div>
+                <div class="bits-row-label">x & (x - 1)</div>
+                <div class="bits-row" id="rlsRowResult"></div>
+
+                <div class="lab-step-hint" id="rlsHint">Click "Run the Simulation" to begin.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runRemoveLowestLab()">Run the Simulation</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Power of two -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-superscript"></i>
+                <h3>Checking Whether x Is a Power of Two</h3>
+            </div>
+            <p>Assuming <code class="inline">x</code> is a positive number, we use the previous trick directly:</p>
+            <div class="formula-box">bool isPowerOfTwo = (x &amp; (x - 1)) == 0;</div>
+            <h4 style="color:var(--dark-navy); font-weight:800; margin-top:24px;">Why Does This Trick Work?</h4>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>A number that is a power of two in binary (<code class="inline">1</code>, <code class="inline">10</code>, <code class="inline">100</code>, <code class="inline">1000</code>, …) has exactly one bit set.</p></li>
+                <li><i class="fas fa-check"></i><p>Performing <code class="inline">x & (x - 1)</code> removes the lowest set bit.</p></li>
+                <li><i class="fas fa-check"></i><p>If there was only one bit set, removing it makes the value 0.</p></li>
+            </ul>
+            <p>So: <code class="inline">x & (x - 1) == 0</code> ⇔ <code class="inline">x</code> has exactly one bit set (i.e. is a power of two).</p>
+            <h4 style="color:var(--dark-navy); font-weight:800; margin-top:24px;">Examples</h4>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th class="ltr">x</th><th class="ltr">binary</th><th class="ltr">x & (x-1)</th><th>Result</th></tr></thead>
+                    <tbody>
+                        <tr><td class="ltr">8</td><td class="ltr">1000</td><td class="ltr">0000</td><td>Power of two ✓</td></tr>
+                        <tr><td class="ltr">12</td><td class="ltr">1100</td><td class="ltr">1000</td><td>Not 0 → not a power of two</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 7. Isolate lowest set bit -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-crosshairs"></i>
+                <h3>Getting Only the Lowest Set Bit</h3>
+            </div>
+            <div class="formula-box">int lowest = x &amp; -x;</div>
+            <p>Here <code class="inline">-x</code> is the two's complement of <code class="inline">x</code> — exactly what we learned in the previous chapter (flip all the bits, then add 1).</p>
+            <p>The idea: the expression <code class="inline">x & -x</code> isolates the lowest set bit (the first 1 from the right) and clears every other bit.</p>
+            <h4 style="color:var(--dark-navy); font-weight:800; margin-top:24px;">Example</h4>
+            <div class="code-box">
+                <div class="code-head"><span>isolate_lowest.cpp</span></div>
+                <pre>x                      = 12 = ...00001100
+-x (two's complement)      = ...11110100
+x & -x                     = ...00000100 = 4</pre>
+            </div>
+            <div class="output-box">The lowest set bit in x represents the value 4 (i.e. bit number 2)</div>
+        </div>
+
+        <!-- Lab 3: isolate lowest set bit -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>Interactive Lab: Isolate the Lowest Set Bit via Two's Complement</h3>
+            </div>
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-crosshairs"></i> x &amp; -x with x = 12 (on 8 bits)</p>
+                <p class="lab-sub">Watch how -x is built by flipping the bits then adding 1 (exactly as in the previous chapter), then how the AND operation isolates the lowest set bit.</p>
+
+                <div class="bits-row-label">x = 12</div>
+                <div class="bits-row" id="isoRowX"></div>
+                <div class="bits-row-label">flip(x)</div>
+                <div class="bits-row" id="isoRowFlip"></div>
+                <div class="bits-row-label">-x = flip(x) + 1</div>
+                <div class="bits-row" id="isoRowNeg"></div>
+                <div class="bits-row-label">x & -x</div>
+                <div class="bits-row" id="isoRowResult"></div>
+
+                <div class="lab-step-hint" id="isoHint">Click "Run the Simulation" to begin.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="runIsolateLab()">Run the Simulation</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity B -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>Activity: Quick Review of the Advanced Tricks</h4>
+            </div>
+            <p class="activity-intro">Determine whether each statement is true or false.</p>
+
+            <div class="tf-item" id="tfBt5">
+                <p class="tf-statement">x & (x - 1) removes the lowest set bit in x.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBt5', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBt5', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBt6">
+                <p class="tf-statement">If x is a power of two, then x & (x - 1) won't necessarily equal 0.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBt6', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBt6', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBt7">
+                <p class="tf-statement">x & -x isolates only the lowest set bit and clears every other bit.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBt7', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBt7', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBt8">
+                <p class="tf-statement">To isolate the lowest set bit we need -x, which equals flip(x) + 1.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBt8', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBt8', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Common pitfalls / spot the bug -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>Find the Bug: && Is Not & !</h3>
+            </div>
+            <p>Look at this function, which is supposed to check whether bit number <code class="inline">k</code> in <code class="inline">n</code> equals 1:</p>
+            <div class="code-box">
+                <div class="code-head"><span>buggy_kth_bit.cpp</span></div>
+                <pre>bool kthBitIsSet(int n, int k) {
+    return (n >> k) && 1;   <span class="cmt">// !! this is a bug !!</span>
+}</pre>
+            </div>
+            <p>This code <strong>does not work correctly</strong>. Try it with <code class="inline">n = 10</code> (i.e. <code class="inline">1010</code>):</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th class="ltr">k</th><th>Actual bit number k in 1010</th><th class="ltr">(n >> k) && 1</th></tr></thead>
+                    <tbody>
+                        <tr><td class="ltr">0</td><td>0</td><td class="ltr">true (wrong!)</td></tr>
+                        <tr><td class="ltr">1</td><td>1</td><td class="ltr">true</td></tr>
+                        <tr><td class="ltr">2</td><td>0</td><td class="ltr">true (wrong!)</td></tr>
+                        <tr><td class="ltr">3</td><td>1</td><td class="ltr">true</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Why? Because <code class="inline">&&</code> is a logical operator (logical AND), not a bitwise operator (bitwise AND). The expression <code class="inline">(n >> k) && 1</code> means: "is <code class="inline">n >> k</code> nonzero?" — and this is true as long as any bit anywhere in <code class="inline">n >> k</code> is set, not necessarily just the last bit.</p>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>The fix: use <code class="inline">&</code> (a single bitwise operator) instead of <code class="inline">&&</code>: <code class="inline">return (n >> k) & 1;</code></p>
+            </div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>Confusing <code class="inline">&</code> with <code class="inline">&&</code> (and likewise <code class="inline">|</code> with <code class="inline">||</code>) is one of the most common mistakes when starting out with bit tricks — always make sure to use the bitwise operator when working with individual bits.</p>
+            </div>
+        </div>
+
+        <!-- Quick summary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>Quick Summary</h3>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>Trick</th><th class="ltr">Formula</th></tr></thead>
+                    <tbody>
+                        <tr><td>Check bit number k</td><td class="ltr">isSet = (x >> k) & 1;</td></tr>
+                        <tr><td>Set bit number k to 1</td><td class="ltr">x |= (1 << k);</td></tr>
+                        <tr><td>Clear bit number k</td><td class="ltr">x &= ~(1 << k);</td></tr>
+                        <tr><td>Toggle (flip) bit number k</td><td class="ltr">x ^= (1 << k);</td></tr>
+                        <tr><td>Remove the lowest set bit</td><td class="ltr">x &= (x - 1);</td></tr>
+                        <tr><td>Check whether x is a power of two</td><td class="ltr">x > 0 && (x & (x-1)) == 0</td></tr>
+                        <tr><td>Get only the lowest set bit</td><td class="ltr">lowest = x & -x;</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>These are the most important and famous bit manipulation tricks in competitive programming — memorize them well, since they will be used often in upcoming bitmask problems.</p>
+            </div>
+        </div>
+
+        <!-- Homework -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-pen-ruler"></i>
+                <h3>Homework</h3>
+            </div>
+
+            <div class="homework-item" id="hwBt1">
+                <h4>1) Trace a Sequence</h4>
+                <p>We have <code class="inline">x = 6</code> (i.e. <code class="inline">0110</code>). Apply the following sequence in order and determine the value of x after each step: (a) set bit number 0, (b) clear bit number 1, (c) toggle bit number 2.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwBt1sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwBt1sol">
+                    <div class="code-box">
+                        <div class="code-head"><span>trace.cpp</span></div>
+                        <pre>int x = 6;          <span class="cmt">// 0110</span>
+x |= (1 << 0);      <span class="cmt">// 0110 | 0001 = 0111 = 7</span>
+x &= ~(1 << 1);     <span class="cmt">// 0111 & 1101 = 0101 = 5</span>
+x ^= (1 << 2);      <span class="cmt">// 0101 ^ 0100 = 0001 = 1</span></pre>
+                    </div>
+                    <div class="output-box">After (a): x = 7 (0111)
+After (b): x = 5 (0101)
+After (c): x = 1 (0001)</div>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwBt2">
+                <h4>2) Find the Bug in the Removal Trick</h4>
+                <p>A classmate wrote the following code to remove the lowest set bit from <code class="inline">y = 12</code>, but picked the wrong operator:</p>
+                <div class="code-box">
+                    <div class="code-head"><span>find_error2.cpp</span></div>
+                    <pre>int y = 12;
+y = y | (y - 1);   <span class="cmt">// supposed to remove the lowest set bit</span></pre>
+                </div>
+                <p>What's wrong? And what is the actual result compared to the correct result?</p>
+                <button class="toggle-btn" onclick="toggleSection('hwBt2sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwBt2sol">
+                    <p>The mistake is using <code class="inline">|</code> (OR) instead of <code class="inline">&</code> (AND). The OR operation removes no bits at all — on the contrary, it may add new bits.</p>
+                    <div class="output-box">y | (y - 1) = 1100 | 1011 = 1111 = 15   (incorrect)
+y & (y - 1) = 1100 & 1011 = 1000 = 8    (correct)</div>
+                    <p>The fix: use <code class="inline">y = y & (y - 1);</code></p>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwBt3">
+                <h4>3) Checking Powers of Two</h4>
+                <p>Using the trick <code class="inline">x > 0 && (x & (x - 1)) == 0</code>, determine which of the following numbers are powers of two: <code class="inline">16, 18, 32, 33, 64</code>.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwBt3sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwBt3sol">
+                    <div class="output-box">16 → power of two (10000)
+18 → not a power of two (10010)
+32 → power of two (100000)
+33 → not a power of two (100001)
+64 → power of two (1000000)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>Check Your Understanding</h3>
+            </div>
+
+            <div class="quiz-q" id="qbt1">
+                <h4>1. What is the result of (x >> k) & 1 when bit number k in x equals 0?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbt1', this, true)">0</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbt1', this, false)">1</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbt1', this, false)">x itself</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbt2">
+                <h4>2. Which statement sets bit number k in x to 1?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbt2', this, false)">x &= (1 << k);</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbt2', this, true)">x |= (1 << k);</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbt2', this, false)">x ^= (1 << k);</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbt3">
+                <h4>3. Which statement clears bit number k in x without affecting any other bits?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbt3', this, false)">x |= ~(1 << k);</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbt3', this, true)">x &= ~(1 << k);</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbt3', this, false)">x ^= ~(1 << k);</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbt4">
+                <h4>4. If we apply x ^= (1 << k) on the same k twice in a row, what happens?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbt4', this, false)">The bit always becomes 0</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbt4', this, false)">The bit always becomes 1</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbt4', this, true)">x returns to its original value</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbt5">
+                <h4>5. What does x & (x - 1) do?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbt5', this, false)">Isolates the lowest set bit</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbt5', this, true)">Removes (clears) the lowest set bit</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbt5', this, false)">Flips every bit</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbt6">
+                <h4>6. What is the result of 12 & (12 - 1)?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbt6', this, false)">4</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbt6', this, true)">8</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbt6', this, false)">0</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbt7">
+                <h4>7. Why does the "power of two" check (x & (x-1)) == 0 work?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbt7', this, true)">Because powers of two have exactly one bit set, and removing it gives zero</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbt7', this, false)">Because x - 1 always equals zero for powers of two</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbt7', this, false)">Because AND always gives zero with any even number</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbt8">
+                <h4>8. What does the expression x & -x isolate?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbt8', this, false)">The highest set bit in x</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbt8', this, true)">The lowest set bit in x</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbt8', this, false)">All the set bits in x</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbt9">
+                <h4>9. What's wrong with bool kthBitIsSet(int n, int k) { return (n >> k) && 1; }?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbt9', this, false)">Nothing is wrong, the code is completely correct</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbt9', this, true)">It uses && (a logical operator) instead of & (a bitwise operator), so it checks whether any bit is set at all rather than specifically bit k</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbt9', this, false)">It's missing a parenthesis after return</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbt10">
+                <h4>10. Which of the following numbers is a power of two?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbt10', this, false)">18</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbt10', this, true)">32</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbt10', this, false)">33</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>Glossary</h3>
+            </div>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Mask</span><span class="term-ar">Mask</span><p class="term-desc">A binary number specially designed to isolate or modify specific bits when combined with a bitwise operator.</p></div>
+                <div class="term-card"><span class="term-en">LSB (Least Significant Bit)</span><span class="term-ar">LSB (Least Significant Bit)</span><p class="term-desc">The rightmost bit in a binary representation, representing the value 2^0.</p></div>
+                <div class="term-card"><span class="term-en">Set a bit</span><span class="term-ar">Set a bit</span><p class="term-desc">Making a specific bit's value equal 1 using | with an appropriate mask.</p></div>
+                <div class="term-card"><span class="term-en">Clear a bit</span><span class="term-ar">Clear a bit</span><p class="term-desc">Making a specific bit's value equal 0 using & with an inverted mask (~).</p></div>
+                <div class="term-card"><span class="term-en">Toggle a bit</span><span class="term-ar">Toggle a bit</span><p class="term-desc">Flipping a specific bit's value (from 0 to 1 or vice versa) using ^.</p></div>
+                <div class="term-card"><span class="term-en">Lowest set bit</span><span class="term-ar">Lowest set bit</span><p class="term-desc">The first bit from the right whose value is 1 in a number's binary representation.</p></div>
+                <div class="term-card"><span class="term-en">Power of two</span><span class="term-ar">Power of two</span><p class="term-desc">A number that has exactly one bit set in its binary representation, such as 1, 2, 4, 8, 16.</p></div>
+                <div class="term-card"><span class="term-en">Logical AND (&&) vs Bitwise AND (&)</span><span class="term-ar">Logical AND (&&) vs Bitwise AND (&)</span><p class="term-desc">&& checks "zero or not" for the entire value, while & operates bit by bit — confusing the two is a common and dangerous mistake.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">TweetKod Platform — Level Three: Bit Manipulation Tricks</footer>
+
+    <script>
+        // ===== Lab 1: Bit Operations Playground =====
+        let playX = 10; // 00001010
+        let playSelectedK = null;
+        const PLAY_BITS = 8;
+
+        function initPlayground() {
+            const labelsRow = document.getElementById('playKLabels');
+            const bitsRow = document.getElementById('playBitsRow');
+            labelsRow.innerHTML = '';
+            bitsRow.innerHTML = '';
+            for (let i = PLAY_BITS - 1; i >= 0; i--) {
+                const lbl = document.createElement('div');
+                lbl.className = 'bit-k-label';
+                lbl.innerText = i;
+                labelsRow.appendChild(lbl);
+
+                const cell = document.createElement('div');
+                cell.className = 'bit-cell clickable';
+                cell.id = 'bitplayCell_' + i;
+                cell.onclick = (function (k) { return function () { selectPlayBit(k); }; })(i);
+                bitsRow.appendChild(cell);
+            }
+            renderPlayground();
+        }
+
+        function renderPlayground() {
+            for (let k = 0; k < PLAY_BITS; k++) {
+                const bit = (playX >> k) & 1;
+                const cell = document.getElementById('bitplayCell_' + k);
+                cell.innerText = bit;
+                cell.classList.toggle('selected', playSelectedK === k);
+            }
+            document.getElementById('bitplayDecimal').innerText = playX;
+        }
+
+        function selectPlayBit(k) {
+            playSelectedK = k;
+            renderPlayground();
+            document.getElementById('bitplayHint').innerText = 'You selected bit number ' + k + '. Now pick an operation to apply.';
+        }
+
+        function applyPlayOp(op) {
+            if (playSelectedK === null) {
+                document.getElementById('bitplayHint').innerText = 'Select a bit first by clicking it.';
+                return;
+            }
+            const k = playSelectedK;
+            let formula = '', resultMsg = '';
+            if (op === 'check') {
+                const isSet = (playX >> k) & 1;
+                formula = '(x >> ' + k + ') & 1';
+                resultMsg = 'Check result: bit number ' + k + ' = ' + isSet + ' (' + (isSet ? 'set' : 'not set') + ')';
+            } else if (op === 'set') {
+                playX |= (1 << k);
+                formula = 'x |= (1 << ' + k + ')';
+                resultMsg = 'Bit number ' + k + ' has been set to 1. New value = ' + playX;
+            } else if (op === 'clear') {
+                playX &= ~(1 << k);
+                formula = 'x &= ~(1 << ' + k + ')';
+                resultMsg = 'Bit number ' + k + ' has been cleared. New value = ' + playX;
+            } else if (op === 'toggle') {
+                playX ^= (1 << k);
+                formula = 'x ^= (1 << ' + k + ')';
+                resultMsg = 'Bit number ' + k + ' has been toggled. New value = ' + playX;
+            }
+            renderPlayground();
+            document.getElementById('bitplayFormula').innerText = formula;
+            document.getElementById('bitplayHint').innerText = resultMsg;
+        }
+
+        function resetPlayground() {
+            playX = 10;
+            playSelectedK = null;
+            document.getElementById('bitplayFormula').innerText = '';
+            document.getElementById('bitplayHint').innerText = 'Click any bit to select it, then pick an operation.';
+            renderPlayground();
+        }
+
+        // ===== Lab 2: Remove lowest set bit =====
+        function makeBitsRowCells(containerId, prefix) {
+            const row = document.getElementById(containerId);
+            row.innerHTML = '';
+            for (let i = PLAY_BITS - 1; i >= 0; i--) {
+                const cell = document.createElement('div');
+                cell.className = 'bit-cell';
+                cell.id = prefix + '_' + i;
+                cell.innerText = '';
+                row.appendChild(cell);
+            }
+        }
+
+        function setRowBits(prefix, value, flagClass, flagBits) {
+            for (let i = 0; i < PLAY_BITS; i++) {
+                const cell = document.getElementById(prefix + '_' + i);
+                const bit = (value >> i) & 1;
+                cell.innerText = bit;
+                cell.classList.remove('flag-borrow', 'flag-result', 'flag-flip', 'selected');
+                if (flagClass && flagBits && flagBits.indexOf(i) !== -1) {
+                    cell.classList.add(flagClass);
+                }
+            }
+        }
+
+        function runRemoveLowestLab() {
+            makeBitsRowCells('rlsRowX', 'rlsX');
+            makeBitsRowCells('rlsRowX1', 'rlsX1');
+            makeBitsRowCells('rlsRowResult', 'rlsRes');
+
+            const x = 12;
+            const x1 = x - 1; // 11
+            const result = x & x1; // 8
+            const hint = document.getElementById('rlsHint');
+
+            // bits that changed due to borrow: positions where x had 0 and x-1 has 1, up to and including the lowest set bit of x
+            const borrowBits = [];
+            for (let i = 0; i < PLAY_BITS; i++) {
+                if (((x >> i) & 1) === 0 && ((x1 >> i) & 1) === 1) borrowBits.push(i);
+                if (((x >> i) & 1) === 1) { borrowBits.push(i); break; }
+            }
+
+            const frames = [
+                function () { setRowBits('rlsX', x, null, null); hint.innerText = 'Step 1: x = 12 in binary.'; },
+                function () { setRowBits('rlsX1', x1, 'flag-borrow', borrowBits); hint.innerText = 'Step 2: x - 1 = 11. The highlighted bits changed because of the borrowing.'; },
+                function () { setRowBits('rlsRes', result, 'flag-result', [0,1,2,3,4,5,6,7].filter(function(i){ return ((result>>i)&1)===1; })); hint.innerText = 'Step 3: x & (x-1) = 8. The lowest set bit (number 2) became 0.'; }
+            ];
+
+            let f = 0;
+            function playNext() {
+                if (f >= frames.length) return;
+                frames[f]();
+                f++;
+                setTimeout(playNext, 1100);
+            }
+            playNext();
+        }
+
+        // ===== Lab 3: Isolate lowest set bit via two's complement =====
+        function runIsolateLab() {
+            makeBitsRowCells('isoRowX', 'isoX');
+            makeBitsRowCells('isoRowFlip', 'isoFlip');
+            makeBitsRowCells('isoRowNeg', 'isoNeg');
+            makeBitsRowCells('isoRowResult', 'isoRes');
+
+            const x = 12;
+            const flip = (~x) & 0xFF;
+            const neg = (flip + 1) & 0xFF;
+            const result = x & neg;
+            const hint = document.getElementById('isoHint');
+
+            const frames = [
+                function () { setRowBits('isoX', x, null, null); hint.innerText = 'Step 1: x = 12 in binary (on 8 bits).'; },
+                function () { setRowBits('isoFlip', flip, 'flag-flip', [0,1,2,3,4,5,6,7]); hint.innerText = 'Step 2: flip every bit → flip(x).'; },
+                function () { setRowBits('isoNeg', neg, null, null); hint.innerText = 'Step 3: add 1 to flip(x) → we get -x (in two’s complement representation).'; },
+                function () { setRowBits('isoRes', result, 'flag-result', [0,1,2,3,4,5,6,7].filter(function(i){ return ((result>>i)&1)===1; })); hint.innerText = 'Step 4: x & -x = 4. Only the lowest set bit (number 2) has been isolated.'; }
+            ];
+
+            let f = 0;
+            function playNext() {
+                if (f >= frames.length) return;
+                frames[f]();
+                f++;
+                setTimeout(playNext, 1100);
+            }
+            playNext();
+        }
+
+        // ===== Shared helpers (toggle, TF activity, quiz) =====
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        function checkTF(el, itemId, chosenValue, correctValue) {
+            const item = document.getElementById(itemId);
+            const buttons = item.querySelectorAll('.tf-btn');
+            buttons.forEach(function (b) { b.classList.remove('tf-selected-correct', 'tf-selected-wrong'); b.onclick = null; b.style.cursor = 'default'; });
+            const feedback = item.querySelector('.tf-feedback');
+            if (chosenValue === correctValue) {
+                el.classList.add('tf-selected-correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> Correct answer!</span>';
+            } else {
+                el.classList.add('tf-selected-wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> Incorrect answer — the statement is actually "' + (correctValue ? 'True' : 'False') + '".</span>';
+            }
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(function (o) { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> Correct answer! Well done.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> Incorrect answer, try again next time.</span>';
+            }
+        }
+
+        initPlayground();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | Dynamic Programming</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', 'Segoe UI', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.12); box-shadow: 0 6px 24px -16px rgba(15, 23, 42, 0.3); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+        .logo-img { order: 1; }
+        .brand-info { order: -1; }
+        .logo-img { width: 60px; height: 60px; border-radius: 16px; object-fit: contain; padding: 6px; background: #ffffff; box-shadow: 0 6px 18px -6px rgba(0, 173, 239, 0.4), 0 0 0 1px rgba(0, 173, 239, 0.14); }
+        .brand-info h3 { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--dark-navy); letter-spacing: -0.01em; }
+        .brand-info p { margin: 2px 0 0; font-size: 0.85rem; color: var(--primary-blue); font-weight: 600; letter-spacing: 0.01em; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+        .exam-badge {
+            background: rgba(239, 68, 68, 0.1); border: 2px solid #ef4444; color: #b91c1c;
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .hero-banner { background: var(--blue-gradient); padding: 70px 6% 60px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 760px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        .container { max-width: 920px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-left: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-left-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+        .card h4.sub-title { color: var(--dark-navy); font-size: 1.05rem; font-weight: 800; margin: 26px 0 10px; }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+            white-space: pre-line;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: left; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        .bullet-list { list-style: none; padding: 0; margin: 16px 0; }
+        .bullet-list li { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; color: var(--text-body); }
+        .bullet-list li i { color: var(--primary-blue); margin-top: 4px; flex-shrink: 0; }
+
+        /* interactive lab */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 6px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-sub { text-align: center; font-size: 0.85rem; color: var(--text-body); margin-bottom: 14px; }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 14px 0 6px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+        .lab-btn.ghost { background: white; border: 2px solid #cbd5e1; color: var(--text-body); }
+        .lab-btn.yellow { background: var(--yellow-gradient); }
+        .lab-btn.purple { background: linear-gradient(135deg, #a855f7, #7e22ce); }
+        .lab-mode-toggle { display: flex; gap: 8px; justify-content: center; margin-bottom: 14px; }
+        .lab-mode-btn {
+            border: 2px solid #cbd5e1; background: white; padding: 8px 20px; border-radius: 50px;
+            font-weight: 800; font-family: 'Tajawal'; font-size: 0.82rem; cursor: pointer; color: var(--text-body);
+        }
+        .lab-mode-btn.active { border-color: var(--primary-blue); background: rgba(0,173,239,0.1); color: var(--primary-blue); }
+
+        /* fibonacci recursion tree (indented rows) */
+        .fib-tree-box { background: #0f172a; border-radius: 14px; padding: 16px 20px; direction: ltr; overflow-x: auto; }
+        .fib-row { font-family: 'Consolas', monospace; font-size: 0.82rem; padding: 4px 0; white-space: nowrap; color: #475569; opacity: 0.35; transition: all 0.3s ease; }
+        .fib-row .fib-branch { color: #334155; }
+        .fib-row.state-active { color: #38bdf8; opacity: 1; font-weight: 700; }
+        .fib-row.state-base { color: #4ade80; opacity: 1; font-weight: 700; }
+        .fib-row.state-computed { color: #facc15; opacity: 1; font-weight: 700; }
+        .fib-row.state-cache { color: #c084fc; opacity: 1; font-weight: 700; }
+        .fib-summary-box { text-align: center; margin-top: 12px; font-weight: 800; color: var(--dark-navy); }
+
+        /* dp table cells (fibonacci table + min-cost table) */
+        .dp-row-label { text-align: center; font-family: 'Consolas', monospace; font-size: 0.8rem; color: var(--text-body); margin-bottom: 4px; direction: ltr; }
+        .dp-cells-row { display: flex; gap: 8px; justify-content: center; direction: ltr; margin: 0 0 16px; flex-wrap: wrap; }
+        .dp-cell {
+            min-width: 48px; padding: 8px 6px; border-radius: 10px; background: var(--bg-main);
+            border: 2px solid #cbd5e1; text-align: center; transition: all 0.3s ease;
+        }
+        .dp-cell-index { font-size: 0.65rem; color: #94a3b8; font-family: 'Consolas', monospace; }
+        .dp-cell-value { font-family: 'Consolas', monospace; font-weight: 800; font-size: 0.95rem; color: var(--dark-navy); margin-top: 2px; min-height: 1.1em; }
+        .dp-cell.active { border-color: var(--primary-blue); background: rgba(0,173,239,0.14); }
+        .dp-cell.source { border-color: var(--primary-yellow); background: rgba(247,148,30,0.14); }
+        .dp-cell.done { border-color: #22c55e; }
+        .dp-cell.path { border-color: #a855f7; background: rgba(168,85,247,0.16); }
+        .dp-cell.boundary { border-style: dashed; opacity: 0.7; }
+
+        .subset-console {
+            background: #0f172a; border-radius: 14px; padding: 16px 20px; margin: 14px 0; min-height: 40px;
+            font-family: 'Consolas', monospace; color: #4ade80; direction: ltr; text-align: left; font-size: 0.85rem; line-height: 1.8;
+            max-height: 220px; overflow-y: auto;
+        }
+        .subset-console .highlight-line { color: #facc15; font-weight: 700; }
+
+        /* true/false activity */
+        .activity-box { background: white; border-radius: 22px; padding: 32px; margin: 28px 0; box-shadow: var(--soft-shadow); border: 1px solid #e2e8f0; }
+        .activity-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .activity-header i { color: var(--primary-blue); font-size: 1.2rem; }
+        .activity-header h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); }
+        .activity-intro { margin-bottom: 20px; font-size: 0.92rem; }
+        .tf-item {
+            background: var(--bg-main); border-radius: 16px; padding: 18px 22px; margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+            border: 1px solid #e2e8f0;
+        }
+        .tf-statement { margin: 0; font-weight: 700; color: var(--dark-navy); font-size: 0.95rem; flex: 1 1 260px; direction: ltr; text-align: left; unicode-bidi: plaintext; }
+        .tf-buttons { display: flex; gap: 10px; flex-shrink: 0; }
+        .tf-btn {
+            border: 2px solid #e2e8f0; background: white; padding: 9px 26px; border-radius: 50px;
+            font-weight: 800; font-family: 'Tajawal'; font-size: 0.88rem; cursor: pointer; color: var(--dark-navy); transition: 0.2s;
+        }
+        .tf-btn:hover { border-color: var(--primary-blue); }
+        .tf-btn.tf-selected-correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .tf-btn.tf-selected-wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .tf-feedback { flex-basis: 100%; margin-top: 2px; font-weight: 700; font-size: 0.85rem; min-height: 18px; }
+
+        .homework-item { background: var(--bg-main); border-radius: 18px; padding: 24px; margin-top: 20px; border: 1px solid #e2e8f0; }
+        .homework-item h4 { margin: 0 0 10px; color: var(--dark-navy); font-size: 1.02rem; font-weight: 800; }
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            margin-top: 14px;
+        }
+        .collapsible { display: none; margin-top: 14px; }
+        .collapsible.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: left; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">C++</span>
+            <span class="chapter-badge">Dynamic Programming</span>
+            <span class="exam-badge"><i class="fas fa-star"></i> Essential for the exam</span>
+        </div>
+        <div class="brand-info">
+                <h3>TweetKod Platform</h3>
+                <p>Interactive Programming Education</p>
+            </div>
+        <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-layer-group"></i>
+        <h1>Dynamic Programming (DP)</h1>
+        <p class="hero-desc">This is one of the most important chapters in the entire curriculum. Almost every hard problem you'll face in an exam will either be direct dynamic programming, or built on the same way of thinking. Take your time with this chapter, try every interactive lab more than once, and make sure you understand <strong>why</strong> each solution works before moving to the next.</p>
+    </div>
+
+    <div class="container">
+
+        <!-- What is DP -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-info"></i>
+                <h3>What Is Dynamic Programming?</h3>
+            </div>
+            <p>Dynamic Programming (DP) is a method for solving problems that:</p>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>have the same subproblems repeated many times (formally called <strong>Overlapping Subproblems</strong>), and</p></li>
+                <li><i class="fas fa-check"></i><p>can build the solution to the big problem from the solutions of smaller problems (called <strong>Optimal Substructure</strong>).</p></li>
+            </ul>
+            <p><strong>The core idea:</strong> don't recompute the same thing over and over. Instead, store (memoize) the results in an array or map, and reuse them.</p>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>Remember these two terms well (Overlapping Subproblems and Optimal Substructure) — any theoretical exam question about "when do we use DP?" will expect you to name them specifically.</p>
+            </div>
+        </div>
+
+        <!-- Fibonacci intro -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-code-branch"></i>
+                <h3>An Introductory Example: Fibonacci Numbers</h3>
+            </div>
+            <p>We define the Fibonacci sequence as follows:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>Definition</th><th class="ltr">Formula</th></tr></thead>
+                    <tbody>
+                        <tr><td>First base case</td><td class="ltr">F(0) = 0</td></tr>
+                        <tr><td>Second base case</td><td class="ltr">F(1) = 1</td></tr>
+                        <tr><td>Recurrence relation</td><td class="ltr">F(n) = F(n-1) + F(n-2), n ≥ 2</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 class="sub-title">The Naive (Slow) Recursive Solution</h4>
+            <div class="code-box">
+                <div class="code-head"><span>fib_naive.cpp</span></div>
+                <pre>int fib(int n) {
+    if (n == 0) return 0;
+    if (n == 1) return 1;
+    return fib(n - 1) + fib(n - 2);
+}</pre>
+            </div>
+            <div class="output-box">F(0)=0 F(1)=1 F(2)=1 F(3)=2 F(4)=3 F(5)=5 F(6)=8 F(7)=13 F(8)=21 F(9)=34 F(10)=55</div>
+        </div>
+
+        <!-- Why slow -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>What's the Problem Here?</h3>
+            </div>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p><code class="inline">fib(5)</code> calls <code class="inline">fib(4)</code> and <code class="inline">fib(3)</code>.</p></li>
+                <li><i class="fas fa-check"></i><p><code class="inline">fib(4)</code> calls <code class="inline">fib(3)</code> and <code class="inline">fib(2)</code>.</p></li>
+                <li><i class="fas fa-check"></i><p><code class="inline">fib(3)</code>, for example, gets called many, many repeated times — this is exactly the definition of "overlapping subproblems".</p></li>
+            </ul>
+            <p>The number of calls becomes roughly exponential (each call branches into two calls, to a depth of about <code class="inline">n</code>), so the time is ≈ <code class="inline">O(2ⁿ)</code>. The actual numbers show the scale of the problem:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th class="ltr">n</th><th class="ltr">Actual number of calls (measured directly)</th></tr></thead>
+                    <tbody>
+                        <tr><td class="ltr">5</td><td class="ltr">15</td></tr>
+                        <tr><td class="ltr">10</td><td class="ltr">177</td></tr>
+                        <tr><td class="ltr">30</td><td class="ltr">2,692,537</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>Notice the jump: from n=10 to just n=30 (roughly 3 times bigger), the number of calls jumped from 177 to over 2.6 million! This is exponential growth in action, and it's exactly what makes the naive solution completely impractical for large values of n (imagine n=50 or more).</p>
+            </div>
+        </div>
+
+        <!-- Lab 1: recursion tree -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>Interactive Lab: Watch the Recursive Call Tree for fib(5)</h3>
+            </div>
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-sitemap"></i> Without Memoization vs. With Memoization</p>
+                <p class="lab-sub">Pick a mode, then run the simulation to see every call appear in its actual order. Notice how entire branches of the tree disappear once memoization is turned on.</p>
+
+                <div class="lab-mode-toggle">
+                    <button class="lab-mode-btn active" id="fibModeNaiveBtn" onclick="setFibMode(false)">Without Memoization</button>
+                    <button class="lab-mode-btn" id="fibModeMemoBtn" onclick="setFibMode(true)">With Memoization</button>
+                </div>
+
+                <div class="fib-tree-box">
+                    <div id="fibTreeRows"></div>
+                </div>
+
+                <div class="fib-summary-box" id="fibTreeSummary">Actual number of calls so far: 0</div>
+                <div class="lab-step-hint" id="fibTreeHint">Click "Auto Play" to begin.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="fibTreeStep()">Next Step</button>
+                    <button class="lab-btn yellow" onclick="fibTreeAutoPlay()">Auto Play</button>
+                    <button class="lab-btn ghost" onclick="fibTreeReset()">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top-down memoization -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-database"></i>
+                <h3>Fixing It with Memoization — a Top-Down DP Approach</h3>
+            </div>
+            <p>We create an array <code class="inline">dp[]</code> such that <code class="inline">dp[n]</code> stores the value of <code class="inline">fib(n)</code> after computing it once. Before computing <code class="inline">fib(n)</code>, we first check: has <code class="inline">dp[n]</code> already been computed or not.</p>
+            <div class="code-box">
+                <div class="code-head"><span>fib_memo.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+vector&lt;long long&gt; dp;
+
+long long fib(int n) {
+    if (n == 0) return 0;
+    if (n == 1) return 1;
+
+    if (dp[n] != -1) return dp[n]; <span class="cmt">// already computed</span>
+
+    dp[n] = fib(n - 1) + fib(n - 2);
+    return dp[n];
+}
+
+int main() {
+    int n = 50;
+    dp.assign(n + 1, -1);
+
+    cout << "F(" << n << ") = " << fib(n) << "\n";
+}</pre>
+            </div>
+            <div class="output-box">F(50) = 12586269025</div>
+            <p>This way, each <code class="inline">fib(k)</code> is computed exactly once, and any later call for the same <code class="inline">k</code> returns the stored value instead of recomputing, making the time <code class="inline">O(n)</code> instead of <code class="inline">O(2ⁿ)</code>. The practical difference is stunning:</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>Approach</th><th class="ltr">n</th><th class="ltr">Number of calls</th></tr></thead>
+                    <tbody>
+                        <tr><td>Naive recursive</td><td class="ltr">30</td><td class="ltr">2,692,537</td></tr>
+                        <tr><td>With memoization (Top-Down)</td><td class="ltr">50</td><td class="ltr">99</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p><strong>Why the value -1 specifically?</strong> We use it as a "sentinel" meaning "not computed yet", because real Fibonacci values can never be negative. This pattern (picking an impossible value as a "not computed" signal) is very common in DP problems.</p>
+            </div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p><strong>Be careful:</strong> this trick only works because correct Fibonacci answers are never -1. In other problems the correct answer itself might be -1 or negative (such as "maximum profit" problems where the best solution might be a loss). In that case, -1 is not a valid sentinel; instead we use a separate array of type <code class="inline">bool</code>, usually called <code class="inline">visited[]</code>, to track whether a state has been computed.</p>
+            </div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p><strong>Also watch out for overflow:</strong> notice that the type of <code class="inline">dp</code> here is <code class="inline">long long</code>, not <code class="inline">int</code>. Fibonacci values grow very fast: <code class="inline">F(47) = 2,971,215,073</code> already exceeds the largest value <code class="inline">int</code> can store (about 2.147 billion). If you used <code class="inline">int</code> instead of <code class="inline">long long</code>, you'd get <code class="inline">F(50) = -298632863</code> — a completely wrong negative number, silently and with no warning from the compiler!</p>
+            </div>
+        </div>
+
+        <!-- SRTBOT for fibonacci -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-diagram-project"></i>
+                <h3>The SRTBOT Framework for Fibonacci</h3>
+            </div>
+            <p>We use the <strong>SRTBOT</strong> framework to organize our thinking for any dynamic programming problem: <code class="inline">State → Recurrence → Transitions → Base cases → Order of computation → Time/space complexity</code>.</p>
+
+            <h4 class="sub-title">S — State</h4>
+            <p>What does <code class="inline">dp[i]</code> represent? &nbsp; <code class="inline">dp[i] = F(i)</code>, i.e. Fibonacci number number <code class="inline">i</code>. Defining the state precisely is the most important step in any DP problem — everything else is built on it.</p>
+
+            <h4 class="sub-title">R — Recurrence</h4>
+            <p>How do we build the big state from smaller states? &nbsp; <code class="inline">dp[i] = dp[i-1] + dp[i-2]</code> when <code class="inline">i ≥ 2</code>.</p>
+
+            <h4 class="sub-title">T — Transitions</h4>
+            <p>To reach <code class="inline">dp[i]</code> we transition from the two states <code class="inline">dp[i-1]</code> and <code class="inline">dp[i-2]</code>. That is, <code class="inline">dp[i]</code> depends only on these two states, nothing else.</p>
+
+            <h4 class="sub-title">B — Base Cases</h4>
+            <p>We fix the first two values: <code class="inline">dp[0] = 0</code> and <code class="inline">dp[1] = 1</code>. Without these values we could never start the computation at all — every recurrence needs a known starting point.</p>
+
+            <h4 class="sub-title">O — Order of Computation</h4>
+            <p>In the Bottom-Up approach, we compute values from smallest to largest:</p>
+            <div class="code-box">
+                <div class="code-head"><span>fib_bottomup.cpp</span></div>
+                <pre>for (int i = 2; i <= n; i++) {
+    dp[i] = dp[i - 1] + dp[i - 2];
+}</pre>
+            </div>
+            <p>That is, in order: <code class="inline">0 ← 1 ← 2 ← ... ← n</code>. This order isn't optional: <code class="inline">dp[i-1]</code> and <code class="inline">dp[i-2]</code> must be ready before computing <code class="inline">dp[i]</code>.</p>
+
+            <h4 class="sub-title">T — Time & Space Complexity</h4>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>Time: we compute each <code class="inline">dp[i]</code> once → <code class="inline">O(n)</code>.</p></li>
+                <li><i class="fas fa-check"></i><p>Space: we store <code class="inline">dp[0..n]</code> → <code class="inline">O(n)</code>, which can be reduced to <code class="inline">O(1)</code> if we keep only the last two values instead of the whole array.</p></li>
+            </ul>
+        </div>
+
+        <!-- Lab 2: fibonacci bottom-up table fill -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>Interactive Lab: Watch a Bottom-Up Table Get Filled Step by Step</h3>
+            </div>
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-table-cells"></i> Filling dp[0..10] for Fibonacci</p>
+                <p class="lab-sub">At each step, the two states dp[i-1] and dp[i-2] (the sources) will be highlighted before dp[i] is computed and filled in.</p>
+
+                <div class="dp-row-label">dp[i]</div>
+                <div class="dp-cells-row" id="fibDpRow"></div>
+
+                <div class="lab-step-hint" id="fibDpHint">Click "Next Step" or "Auto Play" to begin.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="fibDpStep()">Next Step</button>
+                    <button class="lab-btn yellow" onclick="fibDpAutoPlay()">Auto Play</button>
+                    <button class="lab-btn ghost" onclick="fibDpReset()">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity A -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>Activity: Quick Review of DP Basics and Fibonacci</h4>
+            </div>
+            <p class="activity-intro">Determine whether each statement is true or false.</p>
+
+            <div class="tf-item" id="tfDp1">
+                <p class="tf-statement">DP is useful when there are overlapping subproblems.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp1', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp1', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfDp2">
+                <p class="tf-statement">The naive recursive solution for Fibonacci recomputes the same values many times.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp2', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp2', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfDp3">
+                <p class="tf-statement">Using -1 as a "not computed yet" sentinel works for every DP problem without exception.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp3', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp3', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfDp4">
+                <p class="tf-statement">In Bottom-Up for Fibonacci, dp[i-1] and dp[i-2] must be computed before dp[i].</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp4', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp4', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Second problem: min cost to reach the end -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-road"></i>
+                <h3>The Second Problem: Minimum Cost to Reach the End of an Array</h3>
+            </div>
+            <p>You're given an array <code class="inline">cost[0..n-1]</code> where <code class="inline">cost[i]</code> is the cost you pay for standing on position <code class="inline">i</code>. You start before the array and want to reach past the last element (position <code class="inline">n</code>). From position <code class="inline">i</code> you can move to <code class="inline">i+1</code> or <code class="inline">i+2</code>, and you can start from either <code class="inline">0</code> or <code class="inline">1</code>.</p>
+            <p><strong>Goal:</strong> find the minimum total cost to reach position <code class="inline">n</code>.</p>
+
+            <h4 class="sub-title">Example</h4>
+            <div class="code-box">
+                <div class="code-head"><span>example</span></div>
+                <pre>cost = [1, 100, 1, 1]
+
+Start at 0:
+  0 -> 2 -> n
+  cost = cost[0] + cost[2] = 1 + 1 = 2
+
+Start at 1:
+  1 -> 3 -> n
+  cost = 100 + 1 = 101
+
+Answer = 2</pre>
+            </div>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>Notice how starting from position 1 forces you to pay the steep cost <code class="inline">cost[1] = 100</code>, while starting from 0 and jumping straight to 2 (skipping position 1 entirely) avoids it completely. This is exactly why the "jump two steps" option exists in this problem.</p>
+            </div>
+        </div>
+
+        <!-- Naive recursive -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>The Naive Recursive Solution</h3>
+            </div>
+            <p>We define a function <code class="inline">solve(i)</code> = minimum cost to get from position <code class="inline">i</code> to the end (position <code class="inline">n</code>). From <code class="inline">i</code>: we pay <code class="inline">cost[i]</code>, then choose to go to <code class="inline">i+1</code> or <code class="inline">i+2</code> (whichever is cheaper).</p>
+            <div class="code-box">
+                <div class="code-head"><span>mincost_naive.cpp</span></div>
+                <pre>int n;
+vector&lt;int&gt; cost;
+
+int solve(int i) {
+    if (i >= n) return 0;
+
+    int take1 = solve(i + 1);
+    int take2 = solve(i + 2);
+    return cost[i] + min(take1, take2);
+}
+
+int main() {
+    cost = {1, 100, 1, 1};
+    n = cost.size();
+
+    int ans = min(solve(0), solve(1)); <span class="cmt">// we can start at 0 or 1</span>
+    cout << ans << "\n";
+}</pre>
+            </div>
+            <div class="output-box">2</div>
+            <p><strong>Why is this solution slow?</strong> <code class="inline">solve(i)</code> calls <code class="inline">solve(i+1)</code> and <code class="inline">solve(i+2)</code>, and the same value of <code class="inline">i</code> gets computed many times (exactly the same problem as Fibonacci: overlapping, repeated subproblems). The time becomes roughly <code class="inline">O(2ⁿ)</code>.</p>
+        </div>
+
+        <!-- Top-down memo -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-database"></i>
+                <h3>Adding Memoization — Top-Down DP</h3>
+            </div>
+            <p>We use an array <code class="inline">dp[i]</code> to store the minimum cost from position <code class="inline">i</code> to the end:</p>
+            <div class="code-box">
+                <div class="code-head"><span>mincost_memo.cpp</span></div>
+                <pre>int n;
+vector&lt;int&gt; cost;
+vector&lt;int&gt; dp;
+
+int solve(int i) {
+    if (i >= n) return 0;
+
+    if (dp[i] != -1) return dp[i]; <span class="cmt">// already computed</span>
+
+    int take1 = solve(i + 1);
+    int take2 = solve(i + 2);
+    dp[i] = cost[i] + min(take1, take2);
+    return dp[i];
+}
+
+int main() {
+    cost = {1, 100, 1, 1};
+    n = cost.size();
+    dp.assign(n, -1);
+
+    int ans = min(solve(0), solve(1));
+    cout << "Minimum cost = " << ans << "\n";
+}</pre>
+            </div>
+            <div class="output-box">Minimum cost = 2</div>
+            <p>Now each <code class="inline">solve(i)</code> is computed exactly once, and the total time becomes <code class="inline">O(n)</code> instead of exponential — exactly as happened with Fibonacci.</p>
+        </div>
+
+        <!-- Bottom-up -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-table-cells"></i>
+                <h3>A Bottom-Up Version</h3>
+            </div>
+            <p>We can also solve the same problem iteratively from the end back to the start. We define <code class="inline">dp[i]</code> = minimum cost to move from position <code class="inline">i</code> to the end. The rules:</p>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>If <code class="inline">i >= n</code> → cost <code class="inline">0</code>.</p></li>
+                <li><i class="fas fa-check"></i><p>If <code class="inline">i < n</code> → <code class="inline">dp[i] = cost[i] + min(dp[i+1], dp[i+2])</code>.</p></li>
+            </ul>
+            <p>We usually use an array of size <code class="inline">n+2</code> to avoid out-of-bounds issues.</p>
+            <div class="code-box">
+                <div class="code-head"><span>mincost_bottomup.cpp</span></div>
+                <pre>vector&lt;int&gt; cost = {1, 100, 1, 1};
+int n = cost.size();
+
+vector&lt;int&gt; dp(n + 2, 0); <span class="cmt">// dp[n] and dp[n+1] = 0 by default</span>
+
+for (int i = n - 1; i >= 0; i--) {
+    dp[i] = cost[i] + min(dp[i + 1], dp[i + 2]);
+}
+
+int ans = min(dp[0], dp[1]); <span class="cmt">// we can start from position 0 or 1</span>
+cout << "Minimum cost = " << ans << "\n";</pre>
+            </div>
+            <div class="output-box">Minimum cost = 2
+dp = [2, 101, 1, 1, 0, 0]   (dp[4]=dp[n] and dp[5]=dp[n+1] are the two boundary values)</div>
+        </div>
+
+        <!-- Lab 3: flagship dp table + traceback -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>Interactive Lab: Fill the Table, Then Reconstruct the Optimal Path</h3>
+            </div>
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-table-cells-large"></i> cost = [1, 100, 1, 1]</p>
+                <p class="lab-sub">Phase one: we fill dp from right to left (from n-1 down to 0). Phase two: we reconstruct the actual path that gives the minimum cost.</p>
+
+                <div class="dp-row-label">cost[i]</div>
+                <div class="dp-cells-row" id="mcCostRow"></div>
+
+                <div class="dp-row-label">dp[i]</div>
+                <div class="dp-cells-row" id="mcDpRow"></div>
+
+                <div class="subset-console" id="mcConsole"></div>
+                <div class="lab-step-hint" id="mcHint">Click "Next Step" or "Auto Play" to start filling the table.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="mcStep()">Next Step</button>
+                    <button class="lab-btn yellow" onclick="mcAutoPlay()">Auto Play</button>
+                    <button class="lab-btn purple" onclick="mcAutoPlayAll()">Fill + Reconstruct Path Automatically</button>
+                    <button class="lab-btn ghost" onclick="mcReset()">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SRTBOT for min cost -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-diagram-project"></i>
+                <h3>The SRTBOT Framework for the Minimum-Cost Problem</h3>
+            </div>
+
+            <h4 class="sub-title">S — State</h4>
+            <p><code class="inline">dp[i]</code> = the minimum total cost to move from position <code class="inline">i</code> to position <code class="inline">n</code> (i.e. reaching or passing the end of the array).</p>
+
+            <h4 class="sub-title">R — Recurrence</h4>
+            <p>From <code class="inline">i</code>: we pay <code class="inline">cost[i]</code> then jump to <code class="inline">i+1</code> or <code class="inline">i+2</code>. So: <code class="inline">dp[i] = cost[i] + min(dp[i+1], dp[i+2])</code>.</p>
+
+            <h4 class="sub-title">T — Transitions</h4>
+            <p>From state <code class="inline">i</code>, the possible transitions are <code class="inline">i → i+1</code> and <code class="inline">i → i+2</code>. These are all the edges in the DP diagram for this problem.</p>
+
+            <h4 class="sub-title">B — Base Cases</h4>
+            <p>We set <code class="inline">dp[n] = 0</code> (we've reached/passed the end, no additional cost) and <code class="inline">dp[n+1] = 0</code> (protection for when using <code class="inline">dp[i+2]</code> when <code class="inline">i = n-1</code>). And in the recursive version: if <code class="inline">i >= n</code> we return <code class="inline">0</code>.</p>
+
+            <h4 class="sub-title">O — Order of Computation</h4>
+            <p>In Bottom-Up, we process <code class="inline">i</code> from <code class="inline">n-1</code> down to <code class="inline">0</code>, so that <code class="inline">dp[i+1]</code> and <code class="inline">dp[i+2]</code> are already computed when computing <code class="inline">dp[i]</code>.</p>
+            <div class="code-box">
+                <div class="code-head"><span>order.cpp</span></div>
+                <pre>for (int i = n - 1; i >= 0; i--) {
+    dp[i] = cost[i] + min(dp[i + 1], dp[i + 2]);
+}</pre>
+            </div>
+
+            <h4 class="sub-title">T — Time & Space Complexity</h4>
+            <ul class="bullet-list">
+                <li><i class="fas fa-check"></i><p>Time: we compute <code class="inline">dp[i]</code> once for each <code class="inline">i</code> in <code class="inline">[0..n-1]</code>, and each step is <code class="inline">O(1)</code> → total <code class="inline">O(n)</code>.</p></li>
+                <li><i class="fas fa-check"></i><p>Space: we use an array <code class="inline">dp</code> of size <code class="inline">n+2</code> → <code class="inline">O(n)</code> (which can be reduced to <code class="inline">O(1)</code> by keeping only the last two values).</p></li>
+            </ul>
+        </div>
+
+        <!-- Alternate common formulation -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-shuffle"></i>
+                <h3>A Common Alternate Formulation of the Same Problem (Exam Prep)</h3>
+            </div>
+            <p>You'll sometimes encounter the same idea for this problem defined in the opposite direction: instead of "minimum cost from position i to the end", the state is defined as "minimum cost to reach position i from the start". Both formulations are entirely valid and give the same answer — just pay attention to which formulation you're dealing with in each question.</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>Formulation</th><th>Definition of dp[i]</th><th class="ltr">Recurrence</th><th>Final answer</th></tr></thead>
+                    <tbody>
+                        <tr><td>Textbook formulation (suffix)</td><td>minimum cost from i to the end</td><td class="ltr">dp[i] = cost[i] + min(dp[i+1], dp[i+2])</td><td>min(dp[0], dp[1])</td></tr>
+                        <tr><td>Alternate formulation (prefix)</td><td>minimum cost to reach i</td><td class="ltr">dp[i] = cost[i] + min(dp[i-1], dp[i-2])</td><td>min(dp[n-1], dp[n-2])</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="code-box">
+                <div class="code-head"><span>mincost_prefix.cpp</span></div>
+                <pre>vector&lt;int&gt; cost = {1, 100, 1, 1};
+int n = cost.size();
+vector&lt;int&gt; dp(n);
+
+dp[0] = cost[0]; <span class="cmt">// we can start directly from 0</span>
+dp[1] = cost[1]; <span class="cmt">// we can start directly from 1</span>
+
+for (int i = 2; i < n; i++) {
+    dp[i] = cost[i] + min(dp[i - 1], dp[i - 2]);
+}
+
+int ans = min(dp[n - 1], dp[n - 2]); <span class="cmt">// we can finish by jumping from either of the last two positions</span>
+cout << "Minimum cost = " << ans << "\n";</pre>
+            </div>
+            <div class="output-box">Minimum cost = 2
+dp = [1, 100, 2, 3]</div>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>We verified programmatically that both formulations give the same answer across thousands of different random cases — if you encounter this problem in either direction on the exam, the core idea (choosing i+1 or i+2 with the lower cost) is exactly the same.</p>
+            </div>
+        </div>
+
+        <!-- Common pitfalls -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>Common DP Mistakes (Read Carefully Before the Exam)</h3>
+            </div>
+
+            <h4 class="sub-title" style="margin-top:0;">1) Wrong Order of Computation in Bottom-Up</h4>
+            <p>If you fill the table in the wrong direction, you'll depend on values that haven't been computed yet (staying at their default zero), so you get a wrong answer <strong>silently</strong>, with no compile error at all:</p>
+            <div class="code-box">
+                <div class="code-head"><span>wrong_direction.cpp</span></div>
+                <pre>vector&lt;int&gt; dp(n + 2, 0);
+<span class="cmt">// wrong: filling left to right instead of right to left</span>
+for (int i = 0; i < n; i++) {
+    dp[i] = cost[i] + min(dp[i + 1], dp[i + 2]); <span class="cmt">// dp[i+1], dp[i+2] haven't been computed yet!</span>
+}</pre>
+            </div>
+            <div class="output-box">Minimum cost (wrong direction) = 1   (correct: 2)</div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>This is the most common mistake in Bottom-Up DP. The golden rule: <strong>before computing dp[i], make sure every state dp[i] depends on has already been computed</strong> — and this is exactly what the "O" (Order of Computation) step in the SRTBOT framework determines.</p>
+            </div>
+
+            <h4 class="sub-title">2) Forgetting to Initialize the Memoization Array</h4>
+            <p>In Top-Down, if you forget <code class="inline">dp.assign(n+1, -1)</code> and used the default value (0) instead of -1, the code will wrongly think every state is already computed (because 0 ≠ -1 is always true), and will immediately return 0 for everything:</p>
+            <div class="output-box">F(0)=0 F(1)=1 F(2)=0 F(3)=0 F(4)=0 F(5)=0 ...   (wrong! correct: 0 1 1 2 3 5 8 13 21 34 55)</div>
+
+            <h4 class="sub-title">3) Choosing an Unsafe "Sentinel" Value (-1)</h4>
+            <p>As mentioned earlier: -1 only works if the real answers can never equal -1. Always check the range of possible values before choosing a sentinel value.</p>
+
+            <h4 class="sub-title">4) Numeric Type Overflow</h4>
+            <p>Use <code class="inline">long long</code> instead of <code class="inline">int</code> if the values might grow quickly (as with Fibonacci) or if a cumulative sum might exceed the limit of <code class="inline">int</code> (about 2.1 billion).</p>
+
+            <h4 class="sub-title">5) Not Defining the State Clearly Enough Before Starting to Code</h4>
+            <p>The most common "conceptual" mistake: starting to write DP code before pinning down the meaning of <code class="inline">dp[i]</code> in a single clear sentence. If you can't say in one sentence "dp[i] represents...", rework your thinking first before writing any line of code.</p>
+        </div>
+
+        <!-- Activity B -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>Activity: Quick Review of the Minimum-Cost Problem and Common Mistakes</h4>
+            </div>
+            <p class="activity-intro">Determine whether each statement is true or false.</p>
+
+            <div class="tf-item" id="tfDp5">
+                <p class="tf-statement">In the suffix formulation, the table must be filled from i=n-1 down to i=0.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp5', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp5', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfDp6">
+                <p class="tf-statement">Filling the table in the wrong direction always causes an easy-to-spot compile error.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp6', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp6', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfDp7">
+                <p class="tf-statement">The two formulations (suffix and prefix) of this problem always give the same final answer.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp7', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp7', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfDp8">
+                <p class="tf-statement">You can always use -1 as a "not computed" sentinel regardless of the problem type.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp8', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfDp8', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Quick summary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>Quick Summary</h3>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>
+                    Use DP when there are overlapping subproblems and optimal substructure.<br>
+                    Top-Down = recursion + memoization (store each state's result after its first computation).<br>
+                    Bottom-Up = a table filled in an order that guarantees everything the current state depends on is already computed.<br>
+                    Always use the SRTBOT framework: State → Recurrence → Transitions → Base cases → Order → Time/space.<br>
+                    Before writing any code, make sure you can define dp[i] in a single clear sentence.
+                </p>
+            </div>
+        </div>
+
+        <!-- Homework -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-pen-ruler"></i>
+                <h3>Homework</h3>
+            </div>
+
+            <div class="homework-item" id="hwDp1">
+                <h4>1) Manually Trace a Fibonacci Table</h4>
+                <p>Manually fill in the values <code class="inline">dp[0]</code> through <code class="inline">dp[7]</code> for the Fibonacci sequence using Bottom-Up.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwDp1sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwDp1sol">
+                    <div class="output-box">dp[0]=0  dp[1]=1  dp[2]=1  dp[3]=2  dp[4]=3  dp[5]=5  dp[6]=8  dp[7]=13</div>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwDp2">
+                <h4>2) Apply Bottom-Up to a New Cost Array</h4>
+                <p>You have <code class="inline">cost = {10, 15, 20}</code>. Using the same suffix formulation (<code class="inline">dp[i] = cost[i] + min(dp[i+1], dp[i+2])</code>), compute the entire <code class="inline">dp[]</code> array and find the final answer.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwDp2sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwDp2sol">
+                    <p><code class="inline">n = 3</code>, so <code class="inline">dp[3] = dp[4] = 0</code> (boundary values).</p>
+                    <div class="output-box">dp[2] = cost[2] + min(dp[3], dp[4]) = 20 + min(0, 0) = 20
+dp[1] = cost[1] + min(dp[2], dp[3]) = 15 + min(20, 0) = 15
+dp[0] = cost[0] + min(dp[1], dp[2]) = 10 + min(15, 20) = 25
+
+Answer = min(dp[0], dp[1]) = min(25, 15) = 15</div>
+                    <p>Note: the best path here is starting directly from position 1 and jumping two steps to the end (skipping position 2 entirely), at a cost of just 15.</p>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwDp3">
+                <h4>3) Find the Bug</h4>
+                <p>A classmate wrote a Bottom-Up solution for the minimum-cost problem, but the result was wrong (1 instead of 2 for the same textbook example):</p>
+                <div class="code-box">
+                    <div class="code-head"><span>find_error5.cpp</span></div>
+                    <pre>vector&lt;int&gt; dp(n + 2, 0);
+for (int i = 0; i < n; i++) {
+    dp[i] = cost[i] + min(dp[i + 1], dp[i + 2]);
+}</pre>
+                </div>
+                <p>What exactly is the bug?</p>
+                <button class="toggle-btn" onclick="toggleSection('hwDp3sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwDp3sol">
+                    <p>The loop moves upward from <code class="inline">i=0</code>, but <code class="inline">dp[i]</code> depends on <code class="inline">dp[i+1]</code> and <code class="inline">dp[i+2]</code> — values that haven't been computed yet in this direction (they stay at their default 0 for almost the entire run). The result is computed with wrong numbers and no compile error at all.</p>
+                    <p>The fix: reverse the loop's direction to move from <code class="inline">i = n-1</code> down to <code class="inline">0</code>, so <code class="inline">dp[i+1]</code> and <code class="inline">dp[i+2]</code> are always ready before they're needed.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>Check Your Understanding</h3>
+            </div>
+
+            <div class="quiz-q" id="qdp1">
+                <h4>1. When do we typically use DP?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdp1', this, true)">When there are overlapping subproblems and optimal substructure</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp1', this, false)">Only when dealing with strings</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp1', this, false)">Only when we need to sort an array</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdp2">
+                <h4>2. What is the core difference between Top-Down and Bottom-Up?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdp2', this, true)">Top-Down = recursion + memoization, Bottom-Up = iteratively filling a table in a specific order</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp2', this, false)">Top-Down is always faster than Bottom-Up</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp2', this, false)">There's no real difference between them at all</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdp3">
+                <h4>3. Why is the naive recursive Fibonacci solution slow?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdp3', this, false)">Because C++ is slow at performing addition</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp3', this, true)">Because it recomputes the same values (like fib(3)) many, many repeated times</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp3', this, false)">Because it uses vector instead of a plain array</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdp4">
+                <h4>4. In the Fibonacci memoization code, what does the condition dp[n] != -1 mean?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdp4', this, true)">This state has already been computed, so return the stored value directly without recomputing</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp4', this, false)">This state contains a bug that needs fixing</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp4', this, false)">This value must be deleted from memory</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdp5">
+                <h4>5. Why do we use long long instead of int in fib_memo.cpp?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdp5', this, false)">long long compiles faster than int</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp5', this, true)">Because F(47) and beyond exceed the largest value int can store</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp5', this, false)">Because vector doesn't accept the type int at all</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdp6">
+                <h4>6. In the minimum-cost-to-reach-the-end problem, what is dp[i] (in the suffix formulation)?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdp6', this, false)">The number of steps from i to the end</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp6', this, true)">The minimum total cost to move from position i to position n</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp6', this, false)">Just the value cost[i]</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdp7">
+                <h4>7. What is the correct order to fill dp[] in Bottom-Up for the minimum-cost problem (suffix formulation)?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdp7', this, false)">From i=0 upward to n-1</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp7', this, true)">From i=n-1 downward to 0</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp7', this, false)">The order doesn't matter at all</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdp8">
+                <h4>8. For the example cost = [1, 100, 1, 1], which path gives the minimum cost?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdp8', this, false)">1 → 3 → end (cost 101)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp8', this, true)">0 → 2 → end (cost 2)</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp8', this, false)">0 → 1 → 2 → 3 → end (cost 103)</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdp9">
+                <h4>9. What happens if we fill the table in the wrong direction (left to right) in the minimum-cost problem?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdp9', this, false)">An immediate compile error</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp9', this, true)">A silently wrong answer, because dp[i+1] and dp[i+2] haven't been computed yet</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp9', this, false)">Exactly the same correct answer</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qdp10">
+                <h4>10. What's the very first step you should take before writing any DP code?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qdp10', this, true)">Clearly define the State: exactly what does dp[i] represent?</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp10', this, false)">Pick the variable name dp right away</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qdp10', this, false)">Pick a random memory size without thinking</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>Glossary</h3>
+            </div>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Dynamic Programming (DP)</span><span class="term-ar">Dynamic Programming (DP)</span><p class="term-desc">A technique for solving problems with overlapping subproblems by storing results instead of recomputing them.</p></div>
+                <div class="term-card"><span class="term-en">Overlapping Subproblems</span><span class="term-ar">Overlapping Subproblems</span><p class="term-desc">The phenomenon where the same subproblem repeats many times during a recursive solution.</p></div>
+                <div class="term-card"><span class="term-en">Optimal Substructure</span><span class="term-ar">Optimal Substructure</span><p class="term-desc">A property that lets the optimal solution to a big problem be built from optimal solutions of smaller problems.</p></div>
+                <div class="term-card"><span class="term-en">Memoization</span><span class="term-ar">Memoization</span><p class="term-desc">Storing the result of each call after computing it for the first time, so it can be reused without recomputation.</p></div>
+                <div class="term-card"><span class="term-en">Top-Down DP</span><span class="term-ar">Top-Down DP</span><p class="term-desc">A recursive solution with memoization: we start from the big problem and gradually descend to smaller problems.</p></div>
+                <div class="term-card"><span class="term-en">Bottom-Up DP</span><span class="term-ar">Bottom-Up DP</span><p class="term-desc">Iteratively filling a table starting from the smallest states up to the desired big state.</p></div>
+                <div class="term-card"><span class="term-en">State</span><span class="term-ar">State</span><p class="term-desc">What dp[...] represents: a precise description of the subproblem we're solving.</p></div>
+                <div class="term-card"><span class="term-en">Recurrence Relation</span><span class="term-ar">Recurrence Relation</span><p class="term-desc">The formula that links the current state to smaller states already solved.</p></div>
+                <div class="term-card"><span class="term-en">Base Case</span><span class="term-ar">Base Case</span><p class="term-desc">The known values that every other computation starts from.</p></div>
+                <div class="term-card"><span class="term-en">SRTBOT</span><span class="term-ar">SRTBOT</span><p class="term-desc">An abbreviation for the steps that organize thinking about DP: State, Recurrence, Transitions, Base cases, Order, Time/space.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">TweetKod Platform — Level Three: Dynamic Programming</footer>
+
+    <script>
+        // ===== Lab 1: Fibonacci recursion tree (naive vs memoized) =====
+        function simulateFibTree(useMemo) {
+            const frames = [];
+            const instanceCounters = {};
+            const memo = {};
+
+            function nextId(n) {
+                instanceCounters[n] = (instanceCounters[n] || 0) + 1;
+                return n + '_' + instanceCounters[n];
+            }
+
+            function rec(n, depth) {
+                const id = nextId(n);
+                frames.push({ type: 'enter', n: n, id: id, depth: depth });
+
+                if (n === 0) { frames.push({ type: 'base', id: id, value: 0 }); return 0; }
+                if (n === 1) { frames.push({ type: 'base', id: id, value: 1 }); return 1; }
+
+                if (useMemo && memo.hasOwnProperty(n)) {
+                    frames.push({ type: 'cacheHit', id: id, value: memo[n] });
+                    return memo[n];
+                }
+
+                const a = rec(n - 1, depth + 1);
+                const b = rec(n - 2, depth + 1);
+                const val = a + b;
+                frames.push({ type: 'computed', id: id, value: val });
+                if (useMemo) memo[n] = val;
+                return val;
+            }
+
+            rec(5, 0);
+            return frames;
+        }
+
+        // Fixed tree structure (depth for indentation), derived from the DFS order above.
+        const FIB_TREE_NODES = [
+            { id: '5_1', n: 5, depth: 0 },
+            { id: '4_1', n: 4, depth: 1 },
+            { id: '3_1', n: 3, depth: 2 },
+            { id: '2_1', n: 2, depth: 3 },
+            { id: '1_1', n: 1, depth: 4 },
+            { id: '0_1', n: 0, depth: 4 },
+            { id: '1_2', n: 1, depth: 3 },
+            { id: '2_2', n: 2, depth: 2 },
+            { id: '1_3', n: 1, depth: 3 },
+            { id: '0_2', n: 0, depth: 3 },
+            { id: '3_2', n: 3, depth: 1 },
+            { id: '2_3', n: 2, depth: 2 },
+            { id: '1_4', n: 1, depth: 3 },
+            { id: '0_3', n: 0, depth: 3 },
+            { id: '1_5', n: 1, depth: 2 }
+        ];
+
+        let fibUseMemo = false;
+        let fibFrames = [];
+        let fibIndex = 0;
+        let fibAutoTimer = false;
+        let fibCallCount = 0;
+
+        function setFibMode(useMemo) {
+            fibUseMemo = useMemo;
+            document.getElementById('fibModeNaiveBtn').classList.toggle('active', !useMemo);
+            document.getElementById('fibModeMemoBtn').classList.toggle('active', useMemo);
+            fibTreeReset();
+        }
+
+        function fibTreeInitRows() {
+            const container = document.getElementById('fibTreeRows');
+            container.innerHTML = '';
+            FIB_TREE_NODES.forEach(function (node) {
+                const row = document.createElement('div');
+                row.className = 'fib-row';
+                row.id = 'fibRow_' + node.id;
+                const indent = '&nbsp;&nbsp;'.repeat ? '' : '';
+                row.innerHTML = '<span class="fib-branch">' + '&nbsp;'.repeat(node.depth * 4) + (node.depth > 0 ? '&#8627; ' : '') + '</span>' + 'fib(' + node.n + ')';
+                container.appendChild(row);
+            });
+        }
+
+        function fibTreeApplyFrame(frame) {
+            const hint = document.getElementById('fibTreeHint');
+            const row = document.getElementById('fibRow_' + frame.id);
+            const node = FIB_TREE_NODES.filter(function (x) { return x.id === frame.id; })[0];
+
+            if (frame.type === 'enter') {
+                row.className = 'fib-row state-active';
+                row.innerHTML = '<span class="fib-branch">' + '&nbsp;'.repeat(node.depth * 4) + (node.depth > 0 ? '&#8627; ' : '') + '</span>' + 'fib(' + frame.n + ') ...';
+                hint.innerText = 'Entered call fib(' + frame.n + ')';
+                fibCallCount++;
+            } else if (frame.type === 'base') {
+                row.className = 'fib-row state-base';
+                row.innerHTML = '<span class="fib-branch">' + '&nbsp;'.repeat(node.depth * 4) + (node.depth > 0 ? '&#8627; ' : '') + '</span>' + 'fib(' + node.n + ') = ' + frame.value + '  (base case)';
+                hint.innerText = 'fib(' + node.n + ') is a base case, returning ' + frame.value + ' directly.';
+            } else if (frame.type === 'cacheHit') {
+                row.className = 'fib-row state-cache';
+                row.innerHTML = '<span class="fib-branch">' + '&nbsp;'.repeat(node.depth * 4) + (node.depth > 0 ? '&#8627; ' : '') + '</span>' + 'fib(' + node.n + ') = ' + frame.value + '  (from cache! no recomputation)';
+                hint.innerText = 'fib(' + node.n + ') was already computed, we returned the value from dp[] directly without entering new branches.';
+            } else if (frame.type === 'computed') {
+                row.className = 'fib-row state-computed';
+                row.innerHTML = '<span class="fib-branch">' + '&nbsp;'.repeat(node.depth * 4) + (node.depth > 0 ? '&#8627; ' : '') + '</span>' + 'fib(' + node.n + ') = ' + frame.value + '  (just computed)';
+                hint.innerText = 'Finished computing fib(' + node.n + ') = ' + frame.value + '.';
+            }
+
+            document.getElementById('fibTreeSummary').innerText = 'Actual number of calls so far: ' + fibCallCount;
+        }
+
+        function fibTreeStep() {
+            if (fibIndex >= fibFrames.length) {
+                document.getElementById('fibTreeHint').innerText = 'Simulation complete! fib(5) = 5. Total calls: ' + fibCallCount + (fibUseMemo ? ' (instead of 15 without memoization)' : '.');
+                return;
+            }
+            fibTreeApplyFrame(fibFrames[fibIndex]);
+            fibIndex++;
+        }
+
+        function fibTreeAutoPlay() {
+            if (fibAutoTimer) return;
+            fibAutoTimer = true;
+            function tick() {
+                if (fibIndex >= fibFrames.length) {
+                    fibAutoTimer = false;
+                    document.getElementById('fibTreeHint').innerText = 'Simulation complete! fib(5) = 5. Total calls: ' + fibCallCount + (fibUseMemo ? ' (instead of 15 without memoization)' : '.');
+                    return;
+                }
+                fibTreeApplyFrame(fibFrames[fibIndex]);
+                fibIndex++;
+                setTimeout(tick, 380);
+            }
+            tick();
+        }
+
+        function fibTreeReset() {
+            fibFrames = simulateFibTree(fibUseMemo);
+            fibIndex = 0;
+            fibAutoTimer = false;
+            fibCallCount = 0;
+            fibTreeInitRows();
+            document.getElementById('fibTreeSummary').innerText = 'Actual number of calls so far: 0';
+            document.getElementById('fibTreeHint').innerText = 'Click "Next Step" or "Auto Play" to begin.';
+        }
+
+        // ===== Lab 2: Fibonacci bottom-up table fill =====
+        const FIB_N = 10;
+
+        function fibDpInit() {
+            const row = document.getElementById('fibDpRow');
+            row.innerHTML = '';
+            for (let i = 0; i <= FIB_N; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'dp-cell';
+                cell.id = 'fibDpCell_' + i;
+                const idx = document.createElement('div');
+                idx.className = 'dp-cell-index';
+                idx.innerText = 'dp[' + i + ']';
+                const val = document.createElement('div');
+                val.className = 'dp-cell-value';
+                val.id = 'fibDpVal_' + i;
+                val.innerText = (i <= 1) ? String(i) : '?';
+                cell.appendChild(idx);
+                cell.appendChild(val);
+                if (i <= 1) cell.classList.add('done');
+                row.appendChild(cell);
+            }
+        }
+
+        let fibDpIndex = 2;
+        let fibDpAutoTimer = false;
+        let fibDpValues = [0, 1];
+
+        function fibDpClearHighlights() {
+            for (let i = 0; i <= FIB_N; i++) {
+                const cell = document.getElementById('fibDpCell_' + i);
+                cell.classList.remove('active', 'source');
+            }
+        }
+
+        function fibDpStep() {
+            const hint = document.getElementById('fibDpHint');
+            if (fibDpIndex > FIB_N) {
+                hint.innerText = 'The table is fully complete! dp[10] = ' + fibDpValues[10] + '.';
+                return;
+            }
+            fibDpClearHighlights();
+            const i = fibDpIndex;
+            document.getElementById('fibDpCell_' + (i - 1)).classList.add('source');
+            document.getElementById('fibDpCell_' + (i - 2)).classList.add('source');
+            document.getElementById('fibDpCell_' + i).classList.add('active');
+            const value = fibDpValues[i - 1] + fibDpValues[i - 2];
+            fibDpValues[i] = value;
+            document.getElementById('fibDpVal_' + i).innerText = value;
+            document.getElementById('fibDpCell_' + i).classList.add('done');
+            hint.innerText = 'dp[' + i + '] = dp[' + (i - 1) + '] + dp[' + (i - 2) + '] = ' + fibDpValues[i-1] + ' + ' + fibDpValues[i-2] + ' = ' + value;
+            fibDpIndex++;
+        }
+
+        function fibDpAutoPlay() {
+            if (fibDpAutoTimer) return;
+            fibDpAutoTimer = true;
+            function tick() {
+                if (fibDpIndex > FIB_N) {
+                    fibDpAutoTimer = false;
+                    document.getElementById('fibDpHint').innerText = 'The table is fully complete! dp[10] = ' + fibDpValues[10] + '.';
+                    return;
+                }
+                fibDpStep();
+                setTimeout(tick, 550);
+            }
+            tick();
+        }
+
+        function fibDpReset() {
+            fibDpIndex = 2;
+            fibDpAutoTimer = false;
+            fibDpValues = [0, 1];
+            fibDpInit();
+            document.getElementById('fibDpHint').innerText = 'Click "Next Step" or "Auto Play" to begin.';
+        }
+
+        // ===== Lab 3: Min-cost DP table + path reconstruction =====
+        const MC_COST = [1, 100, 1, 1];
+        const MC_N = MC_COST.length;
+
+        function mcInit() {
+            const costRow = document.getElementById('mcCostRow');
+            costRow.innerHTML = '';
+            for (let i = 0; i < MC_N; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'dp-cell';
+                cell.id = 'mcCostCell_' + i;
+                const idx = document.createElement('div');
+                idx.className = 'dp-cell-index';
+                idx.innerText = 'i=' + i;
+                const val = document.createElement('div');
+                val.className = 'dp-cell-value';
+                val.innerText = MC_COST[i];
+                cell.appendChild(idx);
+                cell.appendChild(val);
+                costRow.appendChild(cell);
+            }
+
+            const dpRow = document.getElementById('mcDpRow');
+            dpRow.innerHTML = '';
+            for (let i = 0; i <= MC_N + 1; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'dp-cell';
+                cell.id = 'mcDpCell_' + i;
+                if (i >= MC_N) cell.classList.add('boundary', 'done');
+                const idx = document.createElement('div');
+                idx.className = 'dp-cell-index';
+                idx.innerText = (i === MC_N) ? 'dp[n]' : (i === MC_N + 1 ? 'dp[n+1]' : 'dp[' + i + ']');
+                const val = document.createElement('div');
+                val.className = 'dp-cell-value';
+                val.id = 'mcDpVal_' + i;
+                val.innerText = (i >= MC_N) ? '0' : '?';
+                cell.appendChild(idx);
+                cell.appendChild(val);
+                dpRow.appendChild(cell);
+            }
+        }
+
+        let mcDpValues = [];
+        let mcFillIndex = MC_N - 1;
+        let mcPhase = 'fill'; // 'fill' | 'chooseStart' | 'trace' | 'done'
+        let mcTraceCur = 0;
+        let mcTracePath = [];
+        let mcTraceTotal = 0;
+        let mcAutoTimer = false;
+
+        function mcClearHighlights() {
+            for (let i = 0; i <= MC_N + 1; i++) {
+                document.getElementById('mcDpCell_' + i).classList.remove('active', 'source', 'path');
+            }
+            for (let i = 0; i < MC_N; i++) {
+                document.getElementById('mcCostCell_' + i).classList.remove('active', 'path');
+            }
+        }
+
+        function mcLog(text, highlight) {
+            const box = document.getElementById('mcConsole');
+            const line = document.createElement('div');
+            if (highlight) line.className = 'highlight-line';
+            line.innerText = text;
+            box.appendChild(line);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function mcStep() {
+            const hint = document.getElementById('mcHint');
+            mcClearHighlights();
+
+            if (mcPhase === 'fill') {
+                if (mcFillIndex < 0) {
+                    mcPhase = 'chooseStart';
+                    hint.innerText = 'The table is fully filled! Now we choose: the best starting point is min(dp[0], dp[1]).';
+                    return;
+                }
+                const i = mcFillIndex;
+                document.getElementById('mcDpCell_' + (i + 1)).classList.add('source');
+                document.getElementById('mcDpCell_' + (i + 2)).classList.add('source');
+                document.getElementById('mcDpCell_' + i).classList.add('active');
+                document.getElementById('mcCostCell_' + i).classList.add('active');
+                const value = MC_COST[i] + Math.min(mcDpValues[i + 1], mcDpValues[i + 2]);
+                mcDpValues[i] = value;
+                document.getElementById('mcDpVal_' + i).innerText = value;
+                document.getElementById('mcDpCell_' + i).classList.add('done');
+                hint.innerText = 'dp[' + i + '] = cost[' + i + '] + min(dp[' + (i+1) + '], dp[' + (i+2) + ']) = ' + MC_COST[i] + ' + min(' + mcDpValues[i+1] + ', ' + mcDpValues[i+2] + ') = ' + value;
+                mcLog('dp[' + i + '] = ' + value);
+                mcFillIndex--;
+                return;
+            }
+
+            if (mcPhase === 'chooseStart') {
+                document.getElementById('mcDpCell_0').classList.add('source');
+                document.getElementById('mcDpCell_1').classList.add('source');
+                mcTraceCur = (mcDpValues[0] <= mcDpValues[1]) ? 0 : 1;
+                document.getElementById('mcDpCell_' + mcTraceCur).classList.add('path');
+                hint.innerText = 'dp[0]=' + mcDpValues[0] + ' vs dp[1]=' + mcDpValues[1] + ' → best starting point: position ' + mcTraceCur + ' (final answer = ' + Math.min(mcDpValues[0], mcDpValues[1]) + ')';
+                mcLog('Best overall answer = ' + Math.min(mcDpValues[0], mcDpValues[1]), true);
+                mcPhase = 'trace';
+                mcTracePath = [];
+                mcTraceTotal = 0;
+                return;
+            }
+
+            if (mcPhase === 'trace') {
+                if (mcTraceCur >= MC_N) {
+                    mcPhase = 'done';
+                    hint.innerText = 'Path reconstruction complete! Path: ' + mcTracePath.join(' → ') + ' → end, with total cost = ' + mcTraceTotal + '.';
+                    mcLog('Optimal path: ' + mcTracePath.join(' → ') + ' → end  |  Cost = ' + mcTraceTotal, true);
+                    return;
+                }
+                const i = mcTraceCur;
+                document.getElementById('mcCostCell_' + i).classList.add('path');
+                mcTracePath.push(i);
+                mcTraceTotal += MC_COST[i];
+                const nextI = (mcDpValues[i + 1] <= mcDpValues[i + 2]) ? i + 1 : i + 2;
+                hint.innerText = 'At position ' + i + ': we pay cost[' + i + ']=' + MC_COST[i] + '. dp[' + (i+1) + ']=' + mcDpValues[i+1] + ' vs dp[' + (i+2) + ']=' + mcDpValues[i+2] + ' → we move to ' + nextI + '.';
+                mcTraceCur = nextI;
+                return;
+            }
+
+            hint.innerText = 'Simulation fully complete! Optimal path: ' + mcTracePath.join(' → ') + ' → end, with cost = ' + mcTraceTotal + '.';
+        }
+
+        function mcAutoPlay() {
+            if (mcAutoTimer) return;
+            mcAutoTimer = true;
+            function tick() {
+                if (mcPhase === 'done') { mcAutoTimer = false; return; }
+                mcStep();
+                setTimeout(tick, 550);
+            }
+            tick();
+        }
+
+        function mcAutoPlayAll() {
+            mcReset();
+            mcAutoPlay();
+        }
+
+        function mcReset() {
+            mcDpValues = new Array(MC_N + 2).fill(0);
+            mcFillIndex = MC_N - 1;
+            mcPhase = 'fill';
+            mcTraceCur = 0;
+            mcTracePath = [];
+            mcTraceTotal = 0;
+            mcAutoTimer = false;
+            mcInit();
+            document.getElementById('mcConsole').innerHTML = '';
+            document.getElementById('mcHint').innerText = 'Click "Next Step" or "Auto Play" to start filling the table.';
+        }
+
+        // ===== Shared helpers (toggle, TF activity, quiz) =====
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        function checkTF(el, itemId, chosenValue, correctValue) {
+            const item = document.getElementById(itemId);
+            const buttons = item.querySelectorAll('.tf-btn');
+            buttons.forEach(function (b) { b.classList.remove('tf-selected-correct', 'tf-selected-wrong'); b.onclick = null; b.style.cursor = 'default'; });
+            const feedback = item.querySelector('.tf-feedback');
+            if (chosenValue === correctValue) {
+                el.classList.add('tf-selected-correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> Correct answer!</span>';
+            } else {
+                el.classList.add('tf-selected-wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> Incorrect answer — the statement is actually "' + (correctValue ? 'True' : 'False') + '".</span>';
+            }
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(function (o) { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> Correct answer! Well done.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> Incorrect answer, try again next time.</span>';
+            }
+        }
+
+        fibTreeReset();
+        fibDpReset();
+        mcReset();
+    </script>
+</body>
+</html>

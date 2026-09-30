@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetKod | Backtracking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #00adef;
+            --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+            --primary-yellow: #f7941e;
+            --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+            --dark-navy: #0f172a;
+            --text-body: #475569;
+            --bg-main: #f8fafc;
+            --soft-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Tajawal', 'Segoe UI', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            margin: 0; padding: 0; color: var(--dark-navy);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0, 173, 239, 0.12); box-shadow: 0 6px 24px -16px rgba(15, 23, 42, 0.3); flex-wrap: wrap; gap: 12px;
+        }
+        .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+        .logo-img { order: 1; }
+        .brand-info { order: -1; }
+        .logo-img { width: 60px; height: 60px; border-radius: 16px; object-fit: contain; padding: 6px; background: #ffffff; box-shadow: 0 6px 18px -6px rgba(0, 173, 239, 0.4), 0 0 0 1px rgba(0, 173, 239, 0.14); }
+        .brand-info h3 { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--dark-navy); letter-spacing: -0.01em; }
+        .brand-info p { margin: 2px 0 0; font-size: 0.85rem; color: var(--primary-blue); font-weight: 600; letter-spacing: 0.01em; }
+        .level-badge {
+            background: var(--yellow-gradient); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .header-badges { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subject-badge {
+            background: white; border: 2px solid #e2e8f0; color: var(--dark-navy);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; direction: ltr;
+        }
+        .chapter-badge {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem;
+        }
+
+        .hero-banner { background: var(--blue-gradient); padding: 70px 6% 60px; text-align: center; color: white; }
+        .hero-icon { font-size: 2.6rem; margin-bottom: 18px; opacity: 0.95; display: block; }
+        .hero-banner h1 { font-size: 2.1rem; font-weight: 800; margin: 0 0 20px; }
+        .hero-desc { max-width: 720px; margin: 0 auto; font-size: 1rem; line-height: 2; color: rgba(255, 255, 255, 0.92); }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 25px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px;
+            margin-bottom: 30px; box-shadow: var(--soft-shadow);
+            border-left: 8px solid var(--primary-blue);
+        }
+        .steps-card { border-left-color: var(--primary-yellow); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+        .steps-card .card-header { color: var(--primary-yellow); }
+        .card-header i { font-size: 1.8rem; }
+        .card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+
+        p { color: var(--text-body); }
+        code.inline { background: #eef2f7; padding: 2px 8px; border-radius: 6px; direction: ltr; display: inline-block; color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; }
+
+        .code-box {
+            background: #1e293b; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin: 16px 0;
+        }
+        .code-head {
+            background: #0f172a; padding: 12px 25px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;
+        }
+        .code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; }
+        pre { padding: 24px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.85; direction: ltr; text-align: left; overflow-x: auto; font-size: 0.86rem; }
+        .cmt { color: #79c36a; font-style: italic; }
+
+        .output-box {
+            background: #0f172a; color: #4ade80; font-family: 'Consolas', monospace;
+            padding: 14px 20px; border-radius: 14px; margin-top: 10px; direction: ltr; text-align: left;
+            white-space: pre-line;
+        }
+
+        .tip-box {
+            background: rgba(247, 148, 30, 0.08); border: 2px dashed var(--primary-yellow);
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 2px; }
+        .tip-box p { margin: 0; font-size: 0.9rem; }
+
+        .warn-box {
+            background: rgba(239, 68, 68, 0.06); border: 2px dashed #ef4444;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 2px; }
+        .warn-box p { margin: 0; font-size: 0.9rem; }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.08); border: 2px dashed #22c55e;
+            border-radius: 16px; padding: 18px 22px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start;
+        }
+        .good-box i { color: #16a34a; font-size: 1.4rem; margin-top: 2px; }
+        .good-box p { margin: 0; font-size: 0.9rem; }
+
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th { background: var(--bg-main); padding: 12px 14px; text-align: left; color: var(--dark-navy); font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-body); }
+        .data-table td.ltr, .data-table th.ltr { direction: ltr; text-align: center; font-family: 'Consolas', monospace; }
+
+        .steps-list { list-style: none; padding: 0; margin: 16px 0; counter-reset: step-counter; }
+        .step-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .step-num {
+            counter-increment: step-counter;
+            width: 32px; height: 32px; border-radius: 50%; background: var(--yellow-gradient);
+            color: white; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.9rem;
+        }
+        .step-num::before { content: counter(step-counter); }
+        .step-item p { margin: 0; padding-top: 5px; }
+
+        .bullet-list { list-style: none; padding: 0; margin: 16px 0; }
+        .bullet-list li { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; color: var(--text-body); }
+        .bullet-list li i { color: var(--primary-blue); margin-top: 4px; flex-shrink: 0; }
+
+        /* interactive lab */
+        .lab-box { background: white; border-radius: 16px; padding: 22px; margin: 16px 0; border: 1px dashed #cbd5e1; }
+        .lab-title { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; margin: 0 0 6px 0; display: flex; align-items: center; gap: 8px; }
+        .lab-title i { color: var(--primary-blue); }
+        .lab-sub { text-align: center; font-size: 0.85rem; color: var(--text-body); margin-bottom: 14px; }
+        .lab-step-hint { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-body); min-height: 22px; margin: 14px 0 6px; }
+        .lab-buttons-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .lab-btn {
+            border: none; padding: 10px 22px;
+            border-radius: 14px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem; color: white;
+            background: var(--blue-gradient);
+        }
+        .lab-btn.ghost { background: white; border: 2px solid #cbd5e1; color: var(--text-body); }
+        .lab-btn.yellow { background: var(--yellow-gradient); }
+
+        /* backtracking visual panels */
+        .bt-visual-row { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin: 16px 0; }
+        .bt-panel { flex: 1 1 220px; background: var(--bg-main); border-radius: 14px; padding: 16px; border: 1px solid #e2e8f0; min-width: 200px; }
+        .bt-panel-title { font-weight: 800; font-size: 0.8rem; color: var(--dark-navy); margin-bottom: 10px; text-align: center; }
+        .bt-stack-list { display: flex; flex-direction: column-reverse; gap: 6px; align-items: center; min-height: 70px; justify-content: flex-start; }
+        .bt-stack-frame { background: white; border: 2px solid var(--primary-blue); border-radius: 10px; padding: 6px 16px; font-family: 'Consolas', monospace; font-weight: 800; font-size: 0.85rem; color: var(--dark-navy); direction: ltr; }
+        .bt-v-list { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; min-height: 44px; align-items: center; direction: ltr; }
+        .bt-v-slot { width: 40px; height: 40px; border-radius: 10px; background: white; border: 2px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-family: 'Consolas', monospace; font-weight: 800; color: var(--dark-navy); }
+        .bt-sums-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+        .bt-sum-box { background: white; border-radius: 12px; border: 2px solid #cbd5e1; padding: 10px 18px; text-align: center; min-width: 90px; }
+        .bt-sum-label { font-size: 0.72rem; color: #94a3b8; }
+        .bt-sum-value { font-family: 'Consolas', monospace; font-weight: 800; font-size: 1.05rem; color: var(--dark-navy); }
+        .bt-ans-box { text-align: center; margin: 12px 0 0; font-weight: 800; color: var(--primary-blue); font-family: 'Consolas', monospace; font-size: 1rem; }
+
+        .subset-console {
+            background: #0f172a; border-radius: 14px; padding: 16px 20px; margin: 14px 0; min-height: 40px;
+            font-family: 'Consolas', monospace; color: #4ade80; direction: ltr; text-align: left; font-size: 0.85rem; line-height: 1.8;
+            max-height: 220px; overflow-y: auto;
+        }
+        .subset-console .improved-line { color: #facc15; font-weight: 700; }
+
+        /* true/false activity */
+        .activity-box { background: white; border-radius: 22px; padding: 32px; margin: 28px 0; box-shadow: var(--soft-shadow); border: 1px solid #e2e8f0; }
+        .activity-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .activity-header i { color: var(--primary-blue); font-size: 1.2rem; }
+        .activity-header h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); }
+        .activity-intro { margin-bottom: 20px; font-size: 0.92rem; }
+        .tf-item {
+            background: var(--bg-main); border-radius: 16px; padding: 18px 22px; margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+            border: 1px solid #e2e8f0;
+        }
+        .tf-statement { margin: 0; font-weight: 700; color: var(--dark-navy); font-size: 0.95rem; flex: 1 1 260px; direction: ltr; text-align: left; unicode-bidi: plaintext; }
+        .tf-buttons { display: flex; gap: 10px; flex-shrink: 0; }
+        .tf-btn {
+            border: 2px solid #e2e8f0; background: white; padding: 9px 26px; border-radius: 50px;
+            font-weight: 800; font-family: 'Tajawal'; font-size: 0.88rem; cursor: pointer; color: var(--dark-navy); transition: 0.2s;
+        }
+        .tf-btn:hover { border-color: var(--primary-blue); }
+        .tf-btn.tf-selected-correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .tf-btn.tf-selected-wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .tf-feedback { flex-basis: 100%; margin-top: 2px; font-weight: 700; font-size: 0.85rem; min-height: 18px; }
+
+        .homework-item { background: var(--bg-main); border-radius: 18px; padding: 24px; margin-top: 20px; border: 1px solid #e2e8f0; }
+        .homework-item h4 { margin: 0 0 10px; color: var(--dark-navy); font-size: 1.02rem; font-weight: 800; }
+        .toggle-btn {
+            background: white; border: 2px solid var(--primary-blue); color: var(--primary-blue);
+            padding: 9px 18px; border-radius: 12px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.85rem;
+            margin-top: 14px;
+        }
+        .collapsible { display: none; margin-top: 14px; }
+        .collapsible.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+        .term-card { background: var(--bg-main); border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; }
+        .term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+        .term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+        .term-desc { font-size: 0.82rem; color: var(--text-body); margin: 0; }
+
+        .quiz-q { margin-bottom: 25px; }
+        .quiz-q h4 { margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; font-weight: 600; text-align: left; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--primary-blue); }
+        .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+        .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 20px; }
+
+        footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-badges">
+            <span class="subject-badge">C++</span>
+            <span class="chapter-badge">Backtracking</span>
+        </div>
+        <div class="brand-info">
+                <h3>TweetKod Platform</h3>
+                <p>Interactive Programming Education</p>
+            </div>
+        <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    </header>
+
+    <div class="hero-banner">
+        <i class="hero-icon fas fa-route"></i>
+        <h1>Backtracking</h1>
+        <p class="hero-desc">In the fourth chapter we generated every subset by looping through numbers from 0 to 2ⁿ-1. Now we'll see another, more general and more powerful approach: <strong>Backtracking</strong> — we build the solution decision by decision, and backtrack (undo the decision) whenever we've explored every possibility in a given direction. This technique will become your core tool for solving problems far bigger than just generating subsets.</p>
+    </div>
+
+    <div class="container">
+
+        <!-- What is backtracking -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-info"></i>
+                <h3>What Is Backtracking?</h3>
+            </div>
+            <p><strong>Backtracking</strong> is a technique that explores all possible solutions to a given problem. Backtracking builds solutions step by step, and backtracks over the steps whenever it finishes exploring a given direction.</p>
+        </div>
+
+        <!-- How it works -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-gears"></i>
+                <h3>How Does It Work?</h3>
+            </div>
+            <p>A backtracking algorithm starts with an empty solution. At each step, the algorithm tries every possible way forward. After exploring all the ways, the algorithm backtracks to the previous step by undoing the last step. The algorithm can be summarized as follows:</p>
+            <ul class="steps-list">
+                <li class="step-item"><div class="step-num"></div><p>Start with an empty solution.</p></li>
+                <li class="step-item"><div class="step-num"></div><p>Extend the solution step by step.</p></li>
+                <li class="step-item"><div class="step-num"></div><p>Recursively explore every different way the solution could be built.</p></li>
+                <li class="step-item"><div class="step-num"></div><p>Backtrack over the last step taken.</p></li>
+            </ul>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>Notice that this description is very general — Backtracking is not one specific algorithm, but a <strong>general framework</strong> we apply in different ways depending on the problem. We'll see two different examples in this chapter.</p>
+            </div>
+        </div>
+
+        <!-- Generating subsets via backtracking -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-diagram-project"></i>
+                <h3>Generating Subsets via Backtracking</h3>
+            </div>
+            <p>To generate all subsets of an array using Backtracking, start with an empty solution. At each step, you have a position <code class="inline">i</code>; try both possibilities: adding <code class="inline">a[i]</code> to the subset or excluding it. After exploring each way, backtrack over the last change. When <code class="inline">i</code> goes beyond the array (<code class="inline">i == n</code>), print the current subset.</p>
+            <div class="code-box">
+                <div class="code-head"><span>subsets_backtracking.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int n = 3;
+int a[3] = {5, 3, 1};
+vector&lt;int&gt; v;
+
+void backtracking(int i) {
+
+    <span class="cmt">// If i == n, we've gone through every element, print the current subset</span>
+    if (i == n) {
+        cout &lt;&lt; "subset: ";
+        for (int j = 0; j &lt; v.size(); j++) {
+            cout &lt;&lt; v[j] &lt;&lt; ' ';
+        }
+        cout &lt;&lt; "\n";
+        return;
+    }
+
+    <span class="cmt">// Try adding a[i] to the subset</span>
+    v.push_back(a[i]);   <span class="cmt">// add it to v</span>
+    backtracking(i + 1); <span class="cmt">// try every solution where a[i] is present in v</span>
+
+    <span class="cmt">// Try excluding a[i] from the subset</span>
+    v.pop_back();        <span class="cmt">// undo adding a[i]</span>
+    backtracking(i + 1); <span class="cmt">// try every solution where a[i] is not present in v</span>
+
+    <span class="cmt">// no undo needed here since we didn't change anything in the last step</span>
+}
+
+int main() {
+    backtracking(0);
+}</pre>
+            </div>
+            <div class="output-box">subset: 5 3 1
+subset: 5 3
+subset: 5 1
+subset: 5
+subset: 3 1
+subset: 3
+subset: 1
+subset: </div>
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                <p>Notice this is the same eight subsets we saw in the previous chapter using bitmasks — but here we arrived at them in a completely different order, because Backtracking explores them through a recursive decision tree instead of direct numeric counting from 0 to 2ⁿ-1.</p>
+            </div>
+        </div>
+
+        <!-- Lab 1: recursion tree visualizer -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>Interactive Lab: Watch the Recursive Call Tree</h3>
+            </div>
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-sitemap"></i> Trace backtracking(i) Step by Step</p>
+                <p class="lab-sub">Use "Next Step" to advance manually, or "Auto Play" to watch the full execution for the array {5, 3, 1}.</p>
+
+                <div class="bt-visual-row">
+                    <div class="bt-panel">
+                        <div class="bt-panel-title">Call Stack</div>
+                        <div class="bt-stack-list" id="btStackList"></div>
+                    </div>
+                    <div class="bt-panel">
+                        <div class="bt-panel-title">Current Subset (v)</div>
+                        <div class="bt-v-list" id="btVList"></div>
+                    </div>
+                </div>
+
+                <div class="subset-console" id="btConsole"></div>
+                <div class="lab-step-hint" id="btHint">Click "Next Step" or "Auto Play" to begin.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="btStep()">Next Step</button>
+                    <button class="lab-btn yellow" onclick="btAutoPlay()">Auto Play</button>
+                    <button class="lab-btn ghost" onclick="btResetLab()">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity A -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>Activity: Quick Review of the Backtracking Idea</h4>
+            </div>
+            <p class="activity-intro">Determine whether each statement is true or false.</p>
+
+            <div class="tf-item" id="tfBk1">
+                <p class="tf-statement">Backtracking builds the solution step by step and backtracks after exploring each direction.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk1', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk1', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBk2">
+                <p class="tf-statement">In the subset example, at each position i we try only one possibility.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk2', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk2', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBk3">
+                <p class="tf-statement">v.pop_back() in the code represents the "backtrack" step (undoing the last decision).</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk3', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk3', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBk4">
+                <p class="tf-statement">The order in which subsets are printed via Backtracking exactly matches their order via bitmasks.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk4', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk4', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Apple Division problem -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-apple-whole"></i>
+                <h3>Example Problem: Apple Division</h3>
+            </div>
+            <p><a href="https://cses.fi/problemset/task/1623" target="_blank" rel="noopener" style="color:var(--primary-blue); font-weight:700; text-decoration:none;">CSES 1623</a> — you have an array <code class="inline">p</code> of <code class="inline">n</code> apples with known weights. You want to split the apples into two groups so that the difference between each group's total weight is as small as possible. You need to print the smallest possible difference.</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>Constraint</th><th class="ltr">Range</th></tr></thead>
+                    <tbody>
+                        <tr><td>Number of apples n</td><td class="ltr">1 ≤ n ≤ 20</td></tr>
+                        <tr><td>Weight of each apple p_i</td><td class="ltr">1 ≤ p_i ≤ 10⁹</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <h4 style="color:var(--dark-navy); font-weight:800; margin-top:24px;">Example (from the official site)</h4>
+            <div class="code-box">
+                <div class="code-head"><span>input</span></div>
+                <pre>5
+3 2 7 4 1</pre>
+            </div>
+            <div class="output-box">1</div>
+            <p>Explanation: the first group has weights 2, 3, 4 (sum 9), and the second group has weights 1, 7 (sum 8). Difference = |9 - 8| = 1, which is the smallest possible difference.</p>
+
+            <h4 style="color:var(--dark-navy); font-weight:800; margin-top:24px;">The Solution</h4>
+            <p>We'll use Backtracking to try every possible split: at each apple <code class="inline">i</code>, we try putting it in the first group, then try putting it in the second group. When we finish all the apples (<code class="inline">i == n</code>), we compare the current difference against the best difference found so far.</p>
+            <div class="code-box">
+                <div class="code-head"><span>apple_division.cpp</span></div>
+                <pre>#include &lt;iostream&gt;
+using namespace std;
+
+int n;
+int a[20];
+long long sum1 = 0;         <span class="cmt">// total of the first group</span>
+long long sum2 = 0;         <span class="cmt">// total of the second group</span>
+long long ans = 2000000000; <span class="cmt">// the answer, a very large number initially</span>
+
+void backtracking(int i) {
+    <span class="cmt">// If i == n, update the current answer</span>
+    if (i == n) {
+        ans = min(ans, abs(sum1 - sum2));
+        return;
+    }
+    <span class="cmt">// try every possible choice</span>
+
+    <span class="cmt">// try adding a[i] to the first group</span>
+    sum1 += a[i];
+    backtracking(i + 1);
+    sum1 -= a[i];
+
+    <span class="cmt">// try adding a[i] to the second group</span>
+    sum2 += a[i];
+    backtracking(i + 1);
+    sum2 -= a[i];
+}
+
+int main() {
+    cin &gt;&gt; n;
+    for (int i = 0; i &lt; n; i++) {
+        cin &gt;&gt; a[i];
+    }
+
+    backtracking(0);
+
+    cout &lt;&lt; ans &lt;&lt; "\n";
+}</pre>
+            </div>
+            <div class="output-box">1</div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>Notice the use of <code class="inline">long long</code> for the totals, not <code class="inline">int</code>. Since each weight can reach up to <code class="inline">10⁹</code> and there can be up to 20 apples, the largest possible total reaches around <code class="inline">2×10¹⁰</code> — which far exceeds the limit of <code class="inline">int</code> (about 2.1×10⁹).</p>
+            </div>
+        </div>
+
+        <!-- Lab 2: apple division visualizer -->
+        <div class="card steps-card">
+            <div class="card-header">
+                <i class="fas fa-flask"></i>
+                <h3>Interactive Lab: Watch the Search for the Best Split</h3>
+            </div>
+            <div class="lab-box">
+                <p class="lab-title"><i class="fas fa-scale-balanced"></i> Simplified example: weights {4, 2, 3}</p>
+                <p class="lab-sub">To make this easier to follow, we use just 3 apples instead of the official example (only 8 combinations instead of 32).</p>
+
+                <div class="bt-visual-row">
+                    <div class="bt-panel">
+                        <div class="bt-panel-title">Call Stack</div>
+                        <div class="bt-stack-list" id="adStackList"></div>
+                    </div>
+                    <div class="bt-panel">
+                        <div class="bt-panel-title">Each Group's Total</div>
+                        <div class="bt-sums-row">
+                            <div class="bt-sum-box"><div class="bt-sum-label">sum1</div><div class="bt-sum-value" id="adSum1">0</div></div>
+                            <div class="bt-sum-box"><div class="bt-sum-label">sum2</div><div class="bt-sum-value" id="adSum2">0</div></div>
+                        </div>
+                        <div class="bt-ans-box" id="adAns">Best difference so far: —</div>
+                    </div>
+                </div>
+
+                <div class="subset-console" id="adConsole"></div>
+                <div class="lab-step-hint" id="adHint">Click "Next Step" or "Auto Play" to begin.</div>
+                <div class="lab-buttons-row">
+                    <button class="lab-btn" onclick="adStep()">Next Step</button>
+                    <button class="lab-btn yellow" onclick="adAutoPlay()">Auto Play</button>
+                    <button class="lab-btn ghost" onclick="adResetLab()">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Common pitfalls -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>Common Mistakes</h3>
+            </div>
+
+            <h4 style="color:var(--dark-navy); font-weight:800; margin-top:0;">1) Forgetting the Undo Step</h4>
+            <p>Look at this modified subset-generation code — its author forgot the line <code class="inline">v.pop_back();</code>:</p>
+            <div class="code-box">
+                <div class="code-head"><span>missing_undo.cpp</span></div>
+                <pre>void backtracking(int i) {
+    if (i == n) {
+        cout << "subset: ";
+        for (int j = 0; j < (int)v.size(); j++) cout << v[j] << ' ';
+        cout << "\n";
+        return;
+    }
+    v.push_back(a[i]);
+    backtracking(i + 1);
+
+    <span class="cmt">// !! we forgot v.pop_back(); here !!</span>
+    backtracking(i + 1);
+}</pre>
+            </div>
+            <div class="output-box">subset: 5 3 1
+subset: 5 3 1
+subset: 5 3 1 1
+subset: 5 3 1 1
+subset: 5 3 1 1 3 1
+subset: 5 3 1 1 3 1
+subset: 5 3 1 1 3 1 1
+subset: 5 3 1 1 3 1 1</div>
+            <div class="warn-box">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>Without the undo, elements keep piling up in <code class="inline">v</code> forever, giving you wrong, bloated subsets instead of 8 correct, distinct ones. <strong>Every step that changes shared state (such as v or sum) must be undone after exploring that direction</strong> — this is the essence of "backtracking" in Backtracking.</p>
+            </div>
+
+            <h4 style="color:var(--dark-navy); font-weight:800;">2) Using int Instead of long long for Large Totals</h4>
+            <p>In the Apple Division problem, if you used <code class="inline">int</code> instead of <code class="inline">long long</code> to store <code class="inline">sum1</code> and <code class="inline">sum2</code>, a silent overflow could happen when the weights are large:</p>
+            <div class="output-box">1500000000 + 1500000000 as int      = -1294967296  (wrong!)
+1500000000 + 1500000000 as long long =  3000000000  (correct)</div>
+
+            <h4 style="color:var(--dark-navy); font-weight:800;">3) Exploring Only One Direction</h4>
+            <p>If you forget one of the two branches (for example only exploring "add the element" without "excluding it"), the algorithm won't explore every possible solution, and you may miss the correct answer entirely.</p>
+        </div>
+
+        <!-- Activity B -->
+        <div class="activity-box">
+            <div class="activity-header">
+                <i class="fas fa-rotate-left"></i>
+                <h4>Activity: Quick Review of Apple Division and Common Mistakes</h4>
+            </div>
+            <p class="activity-intro">Determine whether each statement is true or false.</p>
+
+            <div class="tf-item" id="tfBk5">
+                <p class="tf-statement">In Apple Division, we must use long long for the totals since weights can reach 10⁹ and there can be up to 20 weights.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk5', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk5', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBk6">
+                <p class="tf-statement">Forgetting v.pop_back() (or its equivalent) doesn't affect the correctness of the results.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk6', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk6', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBk7">
+                <p class="tf-statement">Since n ≤ 20 in this problem, trying all 2ⁿ possible splits (up to 2²⁰ ≈ a million) remains fast enough.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk7', true, true)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk7', false, true)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="tf-item" id="tfBk8">
+                <p class="tf-statement">It's always enough to explore only one branch (adding the element) to get every possible solution.</p>
+                <div class="tf-buttons">
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk8', true, false)">True</button>
+                    <button class="tf-btn" onclick="checkTF(this, 'tfBk8', false, false)">False</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Quick summary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list-check"></i>
+                <h3>Quick Summary</h3>
+            </div>
+            <div class="good-box">
+                <i class="fas fa-circle-check"></i>
+                <p>
+                    Backtracking builds the solution step by step, recursively explores every possibility, then backtracks after each exploration.<br>
+                    To generate subsets: at each element, try including it then excluding it, and undo between the two attempts.<br>
+                    In Apple Division: at each apple, try putting it in the first group then the second, and update the best difference once a split is complete.<br>
+                    Never forget the undo step, and use the appropriate type (long long) to avoid overflow.
+                </p>
+            </div>
+        </div>
+
+        <!-- Homework -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-pen-ruler"></i>
+                <h3>Homework</h3>
+            </div>
+
+            <div class="homework-item" id="hwBk1">
+                <h4>1) Manually Trace a Smaller Array</h4>
+                <p>Using the same subset-generation backtracking code, but with the array <code class="inline">a = {2, 4}</code> (i.e. n=2), write out in order every line the program will print.</p>
+                <button class="toggle-btn" onclick="toggleSection('hwBk1sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwBk1sol">
+                    <div class="output-box">subset: 2 4
+subset: 2
+subset: 4
+subset: </div>
+                    <p>The order: we add 2, then add 4 on top of it (prints "2 4"), backtrack over 4 (prints "2"), backtrack over 2, add only 4 (prints "4"), backtrack over 4 (prints the empty subset).</p>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwBk2">
+                <h4>2) Apply Apple Division by Hand</h4>
+                <p>You have 4 apples with weights <code class="inline">{10, 10, 10, 7}</code>. What is the smallest possible difference between two groups?</p>
+                <button class="toggle-btn" onclick="toggleSection('hwBk2sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwBk2sol">
+                    <p>The total sum = 37. Best split: the first group {10, 7} = 17, and the second group {10, 10} = 20.</p>
+                    <div class="output-box">|17 - 20| = 3</div>
+                    <p>This is indeed the smallest possible difference (you can verify by trying the remaining eight splits).</p>
+                </div>
+            </div>
+
+            <div class="homework-item" id="hwBk3">
+                <h4>3) Find the Bug</h4>
+                <p>A classmate modified the Apple Division code so it explores only one branch per apple (placing it in the first group only):</p>
+                <div class="code-box">
+                    <div class="code-head"><span>find_error4.cpp</span></div>
+                    <pre>void backtracking(int i) {
+    if (i == n) {
+        ans = min(ans, abs(sum1 - sum2));
+        return;
+    }
+    sum1 += a[i];
+    backtracking(i + 1);
+    sum1 -= a[i];
+    <span class="cmt">// !! completely forgot the "add a[i] to the second group" branch !!</span>
+}</pre>
+                </div>
+                <p>What's wrong with this code? And what will it always print?</p>
+                <button class="toggle-btn" onclick="toggleSection('hwBk3sol')"><i class="fas fa-check"></i> Show / Hide Solution</button>
+                <div class="collapsible" id="hwBk3sol">
+                    <p>The code explores only one branch (every apple always goes into the first group), and never tries putting any apple in the second group. Since <code class="inline">sum2</code> always stays 0, the result will always be <code class="inline">|sum of all weights - 0|</code>, i.e. the sum of all weights — nearly the worst possible answer, not the optimal one.</p>
+                    <p>The fix: add the second branch (<code class="inline">sum2 += a[i]; backtracking(i+1); sum2 -= a[i];</code>) to explore both possibilities.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-circle-question"></i>
+                <h3>Check Your Understanding</h3>
+            </div>
+
+            <div class="quiz-q" id="qbk1">
+                <h4>1. What is the most accurate definition of Backtracking?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbk1', this, true)">A technique that builds the solution step by step and explores every possibility, then backtracks after each exploration</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk1', this, false)">A sorting algorithm that relies only on comparisons</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk1', this, false)">A way to speed up binary search</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbk2">
+                <h4>2. In the subset-generation code, what does the condition i == n represent?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbk2', this, false)">The start of a new call</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk2', this, true)">The base case: we've finished all the elements, so we print the current solution</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk2', this, false)">A bug in the code that needs fixing</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbk3">
+                <h4>3. What is the purpose of v.pop_back() in the subset code?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbk3', this, false)">Adding a new element to v</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk3', this, true)">Backtracking over the last element added, to explore the other possibility</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk3', this, false)">Printing the contents of v</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbk4">
+                <h4>4. In the Apple Division problem, why do we use long long instead of int for the totals?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbk4', this, false)">Because long long is always faster than int</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk4', this, true)">Because the sum of weights can reach about 2×10¹⁰, which exceeds int's limit</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk4', this, false)">Because C++ doesn't allow int with recursive functions</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbk5">
+                <h4>5. How many possible splits does Backtracking explore in Apple Division for an array of n apples?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbk5', this, false)">n</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk5', this, false)">n²</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk5', this, true)">2ⁿ</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbk6">
+                <h4>6. What happens if we forget the line v.pop_back() in the subset-generation code?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbk6', this, false)">Nothing, the result stays correct</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk6', this, true)">Elements keep piling up in v without being removed, producing wrong, bloated subsets</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk6', this, false)">The program stops compiling</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbk7">
+                <h4>7. In the Apple Division example with weights {3, 2, 7, 4, 1}, what is the smallest possible difference?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbk7', this, false)">0</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk7', this, true)">1</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk7', this, false)">3</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbk8">
+                <h4>8. What is the most important step that distinguishes Backtracking from mere random trial and error?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbk8', this, true)">The organized undo step after each exploration, returning to a known state before trying the next possibility</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk8', this, false)">Using only for loops instead of recursion</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk8', this, false)">Storing every solution in a two-dimensional array</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbk9">
+                <h4>9. If in Apple Division we explored only one branch (every apple in the first group), what happens?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbk9', this, false)">We always get the same correct answer, just faster</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk9', this, true)">We won't explore every possible solution, and may miss the optimal answer</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk9', this, false)">The compiler will reject the program</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+
+            <div class="quiz-q" id="qbk10">
+                <h4>10. What is the relationship between the Backtracking algorithm and the recursion tree?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer('qbk10', this, true)">Every path in Backtracking corresponds to a path from the root to a leaf in the call tree</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk10', this, false)">There's no relationship between them at all</div>
+                    <div class="quiz-opt" onclick="checkAnswer('qbk10', this, false)">Backtracking works with no recursive calls at all</div>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+        <!-- Glossary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-book"></i>
+                <h3>Glossary</h3>
+            </div>
+            <div class="glossary-grid">
+                <div class="term-card"><span class="term-en">Backtracking</span><span class="term-ar">Backtracking</span><p class="term-desc">A technique for exploring every possible solution by gradually building the solution and backtracking after each exploration.</p></div>
+                <div class="term-card"><span class="term-en">Recursion</span><span class="term-ar">Recursion</span><p class="term-desc">A function calling itself to solve a smaller instance of the same problem.</p></div>
+                <div class="term-card"><span class="term-en">Base Case</span><span class="term-ar">Base Case</span><p class="term-desc">The condition that stops the recursive call (such as i == n), preventing the function from calling itself forever.</p></div>
+                <div class="term-card"><span class="term-en">Undo Step</span><span class="term-ar">Undo Step</span><p class="term-desc">Reverting the last change to shared state (such as pop_back or subtracting a value) after exploring a given direction.</p></div>
+                <div class="term-card"><span class="term-en">Call Stack</span><span class="term-ar">Call Stack</span><p class="term-desc">The structure the language uses to remember the currently active chain of recursive calls.</p></div>
+                <div class="term-card"><span class="term-en">Brute Force</span><span class="term-ar">Brute Force</span><p class="term-desc">Solving a problem by trying every possible option without clever shortcuts.</p></div>
+                <div class="term-card"><span class="term-en">State Space</span><span class="term-ar">State Space</span><p class="term-desc">The total of all partial and complete solutions the algorithm might explore.</p></div>
+                <div class="term-card"><span class="term-en">Overflow</span><span class="term-ar">Overflow</span><p class="term-desc">A value exceeding the limit a data type can store, producing an incorrect result without a compile error.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">TweetKod Platform — Level Three: Backtracking</footer>
+
+    <script>
+        // ===== Lab 1: subset backtracking recursion visualizer =====
+        const BT_ARR = [5, 3, 1];
+        const BT_N = 3;
+
+        function buildBacktrackFrames() {
+            const frames = [];
+            const v = [];
+            function rec(i, depth) {
+                frames.push({ type: 'call', i: i, depth: depth });
+                if (i === BT_N) {
+                    frames.push({ type: 'print', line: v.slice() });
+                    frames.push({ type: 'return', i: i, depth: depth });
+                    return;
+                }
+                v.push(BT_ARR[i]);
+                frames.push({ type: 'push', value: BT_ARR[i], v: v.slice() });
+                rec(i + 1, depth + 1);
+
+                v.pop();
+                frames.push({ type: 'pop', v: v.slice() });
+                rec(i + 1, depth + 1);
+
+                frames.push({ type: 'return', i: i, depth: depth });
+            }
+            rec(0, 0);
+            return frames;
+        }
+
+        let btFrames = [];
+        let btIndex = 0;
+        let btStack = [];
+        let btAutoTimer = false;
+
+        function btRenderStack() {
+            const list = document.getElementById('btStackList');
+            list.innerHTML = '';
+            btStack.forEach(function (i) {
+                const frame = document.createElement('div');
+                frame.className = 'bt-stack-frame';
+                frame.innerText = 'i = ' + i;
+                list.appendChild(frame);
+            });
+        }
+
+        function btRenderV(vArr) {
+            const list = document.getElementById('btVList');
+            list.innerHTML = '';
+            vArr.forEach(function (val) {
+                const slot = document.createElement('div');
+                slot.className = 'bt-v-slot';
+                slot.innerText = val;
+                list.appendChild(slot);
+            });
+        }
+
+        function btApplyFrame(frame) {
+            const hint = document.getElementById('btHint');
+            const consoleBox = document.getElementById('btConsole');
+
+            if (frame.type === 'call') {
+                btStack.push(frame.i);
+                btRenderStack();
+                hint.innerText = 'Entered backtracking(i=' + frame.i + ')';
+            } else if (frame.type === 'push') {
+                btRenderV(frame.v);
+                hint.innerText = 'Added a[' + (frame.v.length - 1) + ']=' + frame.value + ' to v';
+            } else if (frame.type === 'pop') {
+                btRenderV(frame.v);
+                hint.innerText = 'Backtracked: removed the last element from v';
+            } else if (frame.type === 'print') {
+                const line = document.createElement('div');
+                line.innerText = 'subset: ' + frame.line.join(' ');
+                consoleBox.appendChild(line);
+                hint.innerText = 'Reached i == n, so we printed the current subset.';
+            } else if (frame.type === 'return') {
+                btStack.pop();
+                btRenderStack();
+                hint.innerText = 'Returned from backtracking(i=' + frame.i + ')';
+            }
+        }
+
+        function btStep() {
+            if (btIndex >= btFrames.length) {
+                document.getElementById('btHint').innerText = 'Simulation complete! Check all eight lines in the output.';
+                return;
+            }
+            btApplyFrame(btFrames[btIndex]);
+            btIndex++;
+        }
+
+        function btAutoPlay() {
+            if (btAutoTimer) return;
+            btAutoTimer = true;
+            function tick() {
+                if (btIndex >= btFrames.length) {
+                    btAutoTimer = false;
+                    document.getElementById('btHint').innerText = 'Simulation complete! Check all eight lines in the output.';
+                    return;
+                }
+                btApplyFrame(btFrames[btIndex]);
+                btIndex++;
+                setTimeout(tick, 260);
+            }
+            tick();
+        }
+
+        function btResetLab() {
+            btFrames = buildBacktrackFrames();
+            btIndex = 0;
+            btStack = [];
+            btAutoTimer = false;
+            btRenderStack();
+            btRenderV([]);
+            document.getElementById('btConsole').innerHTML = '';
+            document.getElementById('btHint').innerText = 'Click "Next Step" or "Auto Play" to begin.';
+        }
+
+        // ===== Lab 2: Apple Division visualizer =====
+        const AD_ARR = [4, 2, 3];
+        const AD_N = 3;
+
+        function buildAppleFrames() {
+            const frames = [];
+            let sum1 = 0, sum2 = 0;
+            let ans = Infinity;
+            function rec(i, depth) {
+                frames.push({ type: 'call', i: i, depth: depth });
+                if (i === AD_N) {
+                    const diff = Math.abs(sum1 - sum2);
+                    const improved = diff < ans;
+                    if (improved) ans = diff;
+                    frames.push({ type: 'complete', sum1: sum1, sum2: sum2, diff: diff, improved: improved, ans: ans });
+                    frames.push({ type: 'return', i: i, depth: depth });
+                    return;
+                }
+                sum1 += AD_ARR[i];
+                frames.push({ type: 'addg1', value: AD_ARR[i], sum1: sum1, sum2: sum2 });
+                rec(i + 1, depth + 1);
+                sum1 -= AD_ARR[i];
+                frames.push({ type: 'undo1', value: AD_ARR[i], sum1: sum1, sum2: sum2 });
+
+                sum2 += AD_ARR[i];
+                frames.push({ type: 'addg2', value: AD_ARR[i], sum1: sum1, sum2: sum2 });
+                rec(i + 1, depth + 1);
+                sum2 -= AD_ARR[i];
+                frames.push({ type: 'undo2', value: AD_ARR[i], sum1: sum1, sum2: sum2 });
+
+                frames.push({ type: 'return', i: i, depth: depth });
+            }
+            rec(0, 0);
+            return frames;
+        }
+
+        let adFrames = [];
+        let adIndex = 0;
+        let adStack = [];
+        let adAutoTimer = false;
+
+        function adRenderStack() {
+            const list = document.getElementById('adStackList');
+            list.innerHTML = '';
+            adStack.forEach(function (i) {
+                const frame = document.createElement('div');
+                frame.className = 'bt-stack-frame';
+                frame.innerText = 'i = ' + i;
+                list.appendChild(frame);
+            });
+        }
+
+        function adApplyFrame(frame) {
+            const hint = document.getElementById('adHint');
+            const consoleBox = document.getElementById('adConsole');
+            const sum1El = document.getElementById('adSum1');
+            const sum2El = document.getElementById('adSum2');
+            const ansEl = document.getElementById('adAns');
+
+            if (frame.type === 'call') {
+                adStack.push(frame.i);
+                adRenderStack();
+                hint.innerText = 'Entered backtracking(i=' + frame.i + ')';
+            } else if (frame.type === 'addg1') {
+                sum1El.innerText = frame.sum1;
+                hint.innerText = 'Placed the apple weighing ' + frame.value + ' in the first group → sum1 = ' + frame.sum1;
+            } else if (frame.type === 'undo1') {
+                sum1El.innerText = frame.sum1;
+                hint.innerText = 'Backtracked: removed the apple weighing ' + frame.value + ' from the first group';
+            } else if (frame.type === 'addg2') {
+                sum2El.innerText = frame.sum2;
+                hint.innerText = 'Placed the apple weighing ' + frame.value + ' in the second group → sum2 = ' + frame.sum2;
+            } else if (frame.type === 'undo2') {
+                sum2El.innerText = frame.sum2;
+                hint.innerText = 'Backtracked: removed the apple weighing ' + frame.value + ' from the second group';
+            } else if (frame.type === 'complete') {
+                const line = document.createElement('div');
+                if (frame.improved) line.className = 'improved-line';
+                line.innerText = 'sum1=' + frame.sum1 + ', sum2=' + frame.sum2 + ' -> diff=' + frame.diff + (frame.improved ? '  (new best!)' : '');
+                consoleBox.appendChild(line);
+                ansEl.innerText = 'Best difference so far: ' + frame.ans;
+                hint.innerText = 'A full split is complete: sum1=' + frame.sum1 + ', sum2=' + frame.sum2 + '.';
+            } else if (frame.type === 'return') {
+                adStack.pop();
+                adRenderStack();
+                hint.innerText = 'Returned from backtracking(i=' + frame.i + ')';
+            }
+        }
+
+        function adStep() {
+            if (adIndex >= adFrames.length) {
+                document.getElementById('adHint').innerText = 'Simulation complete! The best difference found is 1.';
+                return;
+            }
+            adApplyFrame(adFrames[adIndex]);
+            adIndex++;
+        }
+
+        function adAutoPlay() {
+            if (adAutoTimer) return;
+            adAutoTimer = true;
+            function tick() {
+                if (adIndex >= adFrames.length) {
+                    adAutoTimer = false;
+                    document.getElementById('adHint').innerText = 'Simulation complete! The best difference found is 1.';
+                    return;
+                }
+                adApplyFrame(adFrames[adIndex]);
+                adIndex++;
+                setTimeout(tick, 260);
+            }
+            tick();
+        }
+
+        function adResetLab() {
+            adFrames = buildAppleFrames();
+            adIndex = 0;
+            adStack = [];
+            adAutoTimer = false;
+            adRenderStack();
+            document.getElementById('adSum1').innerText = '0';
+            document.getElementById('adSum2').innerText = '0';
+            document.getElementById('adAns').innerText = 'Best difference so far: —';
+            document.getElementById('adConsole').innerHTML = '';
+            document.getElementById('adHint').innerText = 'Click "Next Step" or "Auto Play" to begin.';
+        }
+
+        // ===== Shared helpers (toggle, TF activity, quiz) =====
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        function checkTF(el, itemId, chosenValue, correctValue) {
+            const item = document.getElementById(itemId);
+            const buttons = item.querySelectorAll('.tf-btn');
+            buttons.forEach(function (b) { b.classList.remove('tf-selected-correct', 'tf-selected-wrong'); b.onclick = null; b.style.cursor = 'default'; });
+            const feedback = item.querySelector('.tf-feedback');
+            if (chosenValue === correctValue) {
+                el.classList.add('tf-selected-correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> Correct answer!</span>';
+            } else {
+                el.classList.add('tf-selected-wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> Incorrect answer — the statement is actually "' + (correctValue ? 'True' : 'False') + '".</span>';
+            }
+        }
+
+        function checkAnswer(qId, el, isCorrect) {
+            const q = document.getElementById(qId);
+            const opts = q.querySelectorAll('.quiz-opt');
+            const feedback = q.querySelector('.quiz-feedback');
+            opts.forEach(function (o) { o.classList.remove('correct', 'wrong'); o.onclick = null; });
+            if (isCorrect) {
+                el.classList.add('correct');
+                feedback.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> Correct answer! Well done.</span>';
+            } else {
+                el.classList.add('wrong');
+                feedback.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-times-circle"></i> Incorrect answer, try again next time.</span>';
+            }
+        }
+
+        btResetLab();
+        adResetLab();
+    </script>
+</body>
+</html>
