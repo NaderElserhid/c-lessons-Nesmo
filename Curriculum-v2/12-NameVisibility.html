@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TweetKod | ظهور الأسماء (النطاق)</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --primary-blue: #00adef;
+  --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+  --primary-yellow: #f7941e;
+  --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+  --dark-navy: #0f172a;
+  --text-body: #475569;
+  --bg-main: #f4f9fd;
+  --surface: #f1f6fb;
+  --card-bg: #ffffff;
+  --border: #e2e8f0;
+  --chip-bg: #eef2f7;
+  --soft-shadow: 0 14px 34px -14px rgba(15,23,42,0.14);
+  --header-bg: rgba(255,255,255,0.82);
+  --code-size: 0.95rem;
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2300adef' fill-opacity='0.075'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+html[data-theme="dark"] {
+  --dark-navy: #e6edf7;
+  --text-body: #a9b6cc;
+  --bg-main: #0a1120;
+  --surface: #16213a;
+  --card-bg: #111a2e;
+  --border: #243049;
+  --chip-bg: #1d2a45;
+  --soft-shadow: 0 14px 34px -14px rgba(0,0,0,0.6);
+  --header-bg: rgba(10,17,32,0.82);
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2338bdf8' fill-opacity='0.06'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+body {
+  font-family: 'Tajawal', 'Segoe UI', sans-serif;
+  background-color: var(--bg-main);
+  margin: 0; padding: 0; color: var(--dark-navy);
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color .3s, color .3s;
+  position: relative;
+}
+/* decorative background */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.20), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.17), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.06), transparent 70%);
+}
+html[data-theme="dark"] body::before {
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.22), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.12), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.10), transparent 70%);
+}
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: var(--pattern); background-size: 260px 260px;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+          mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+}
+.bg-deco { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .35; animation: floaty 18s ease-in-out infinite; }
+.b1 { width: 340px; height: 340px; background: #00adef; top: 12%; right: -90px; }
+.b2 { width: 280px; height: 280px; background: #f7941e; bottom: 6%; left: -80px; animation-delay: -6s; }
+.b3 { width: 220px; height: 220px; background: #8b5cf6; top: 55%; right: 18%; opacity: .16; animation-delay: -11s; }
+html[data-theme="dark"] .blob { opacity: .2; }
+@keyframes floaty { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(26px,-34px) scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .blob { animation: none; } html { scroll-behavior: auto; } }
+
+/* header */
+header {
+  background: var(--header-bg); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  padding: 10px 4%; display: flex; justify-content: space-between; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 1000;
+  border-bottom: 1px solid rgba(0,173,239,0.16); box-shadow: 0 8px 28px -18px rgba(15,23,42,0.45);
+}
+.hdr-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.logo-img { width: 52px; height: 52px; border-radius: 15px; object-fit: contain; padding: 6px; background: #fff;
+  box-shadow: 0 6px 18px -6px rgba(0,173,239,0.45), 0 0 0 1px rgba(0,173,239,0.16); }
+.brand-info h3 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); line-height: 1.3; }
+.brand-info p { margin: 0; font-size: 0.78rem; color: var(--primary-blue); font-weight: 700; }
+.hdr-tools { display: flex; align-items: center; gap: 8px; position: relative; }
+.tool-btn { height: 38px; min-width: 38px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy);
+  cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: .85rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: .2s; }
+.tool-btn:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+.toc-panel { position: absolute; top: 48px; left: 0; width: 290px; max-height: 60vh; overflow-y: auto; background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 16px; box-shadow: var(--soft-shadow); padding: 8px; display: none; }
+.toc-panel.open { display: block; }
+.toc-panel a { display: flex; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 10px; color: var(--dark-navy); text-decoration: none; font-weight: 700; font-size: .88rem; }
+.toc-panel a:hover { background: var(--surface); color: var(--primary-blue); }
+.toc-panel a span { width: 22px; height: 22px; border-radius: 50%; background: var(--chip-bg); color: var(--text-body); font-size: .72rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.read-progress { position: absolute; bottom: -1px; right: 0; left: 0; height: 3px; background: transparent; }
+.read-progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #00adef, #f7941e); transition: width .1s; }
+.to-top { position: fixed; bottom: 22px; left: 22px; z-index: 900; width: 46px; height: 46px; border-radius: 50%; border: none; background: var(--blue-gradient); color: #fff;
+  cursor: pointer; box-shadow: 0 10px 24px -8px rgba(0,173,239,.7); font-size: 1.1rem; opacity: 0; pointer-events: none; transition: .25s; }
+.to-top.show { opacity: 1; pointer-events: auto; }
+@media (max-width: 980px) { .brand-info p { display: none; } }
+@media (max-width: 720px) { .brand-info h3 { font-size: 1rem; } }
+
+.container { max-width: 900px; margin: 44px auto; padding: 0 25px; }
+.title-section { text-align: center; margin-bottom: 40px; }
+.title-section h1 { font-size: 2.7rem; font-weight: 800; margin: 12px 0 6px; background: linear-gradient(135deg, var(--dark-navy), #007bb5 80%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+html[data-theme="dark"] .title-section h1 { background: linear-gradient(135deg, #fff, #38bdf8 80%); -webkit-background-clip: text; background-clip: text; }
+.attribution { color: var(--primary-blue); font-size: 1.15rem; font-weight: 600; }
+.lesson-chip { display: inline-block; background: var(--yellow-gradient); color: #fff; padding: 6px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; box-shadow: 0 8px 18px -8px rgba(247,148,30,.8); }
+
+.card { background: var(--card-bg); border-radius: 25px; padding: 40px; margin-bottom: 30px; box-shadow: var(--soft-shadow); border-right: 8px solid var(--primary-blue);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); transition: background-color .3s; }
+.steps-card { border-right-color: var(--primary-yellow); }
+.card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+.card-header i { font-size: 1.8rem; }
+.card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+h4 { margin: 18px 0 8px; font-size: 1.05rem; color: var(--dark-navy); }
+p { color: var(--text-body); margin: 0 0 14px; }
+a { color: var(--primary-blue); }
+strong { color: var(--dark-navy); }
+
+.en { direction: ltr; unicode-bidi: isolate; font-weight: 700; color: var(--dark-navy); }
+/* every code chip is an isolated LTR island: fixes ; ( ) = placement inside Arabic text */
+code, code.inline { background: var(--chip-bg); padding: 2px 8px; border-radius: 6px; direction: ltr; unicode-bidi: isolate; display: inline-block; text-align: left;
+  color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; line-height: 1.6; }
+html[data-theme="dark"] code, html[data-theme="dark"] code.inline { color: #f9a8d4; }
+
+.obj-list { list-style: none; padding: 0; margin: 0; }
+.obj-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.obj-list i { color: #22c55e; margin-top: 6px; }
+
+/* code */
+.code-box { background: #1e293b; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.35); margin: 20px 0; border: 1px solid rgba(255,255,255,.04); }
+.code-head { background: #0f172a; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+.code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; direction: ltr; }
+.copy-btn { color: #38bdf8; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; font-family: 'Tajawal'; }
+pre { padding: 26px 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: var(--code-size); tab-size: 8; }
+.cmt { color: #79c36a; font-style: italic; }
+.kw { color: #7dd3fc; }
+.str { color: #fbbf77; }
+.num { color: #c4b5fd; }
+.pp { color: #f9a8d4; }
+.code-line, .code-plain { display: block; border-radius: 6px; padding: 0 6px; margin: 0 -6px; }
+.code-line { cursor: pointer; transition: 0.2s; background: rgba(0,173,239,0.07); }
+.code-line:hover { background: rgba(0,173,239,0.22); }
+.code-line.active { background: rgba(247,148,30,0.28); outline: 1px dashed var(--primary-yellow); }
+.explain-box { margin-top: 14px; background: var(--surface); border: 2px dashed var(--border); border-radius: 16px; padding: 16px 22px; font-weight: 600; color: var(--dark-navy); min-height: 30px; }
+.explain-box .hint { color: #94a3b8; font-weight: 500; }
+.output-box, .input-box { font-family: 'Consolas', monospace; padding: 16px 22px; border-radius: 14px; margin: 10px 0 18px; direction: ltr; text-align: left; white-space: pre-wrap; tab-size: 8; font-size: var(--code-size); }
+.output-box { background: #0f172a; color: #4ade80; }
+.input-box { background: #0c2233; color: #7dd3fc; margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.input-box + .output-box { margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; border-top: 1px dashed #1e3a52; }
+.output-box::before, .input-box::before { display: block; font-size: 0.72rem; letter-spacing: 0.08em; margin-bottom: 6px; text-transform: uppercase; color: #64748b; }
+.output-box::before { content: 'Output'; }
+.input-box::before { content: 'Input (typed by the user)'; }
+.error-box { background: #1f1317; border: 1px solid #7f1d1d; border-radius: 14px; margin: 10px 0 18px; overflow: hidden; }
+.error-head { background: #450a0a; color: #fca5a5; padding: 8px 18px; font-weight: 700; font-size: 0.85rem; }
+.error-box pre { color: #fecaca; font-size: 0.8rem; padding: 14px 20px; line-height: 1.7; }
+
+/* steps */
+.step-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 14px; padding: 18px 20px; background: var(--card-bg); border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+.step-number { background: var(--yellow-gradient); color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+.step-item h4 { margin: 0 0 4px; font-size: 1rem; }
+.step-item p { margin: 0; font-size: 0.92rem; }
+
+/* tables */
+.table-wrap { overflow-x: auto; margin: 15px 0; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+table.data-table { width: 100%; border-collapse: collapse; background: var(--card-bg); }
+table.data-table th { background: var(--blue-gradient); color: #fff; padding: 12px 18px; font-size: 0.85rem; text-align: right; white-space: nowrap; }
+table.data-table td { padding: 12px 18px; font-size: 0.9rem; border-bottom: 1px solid var(--border); color: var(--text-body); }
+table.data-table tr:last-child td { border-bottom: none; }
+
+/* comparison / rules */
+.compare-grid, .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+@media (max-width: 700px) { .compare-grid, .rule-grid { grid-template-columns: 1fr; } .card { padding: 24px; } .title-section h1 { font-size: 2rem; } }
+.compare-card { border-radius: 16px; overflow: hidden; background: #1e293b; }
+.compare-title { padding: 10px 18px; font-weight: 800; font-size: 0.9rem; }
+.good .compare-title { background: #dcfce7; color: #15803d; }
+.bad .compare-title { background: #fee2e2; color: #b91c1c; }
+.compare-card pre { padding: 18px 20px; font-size: 0.83rem; }
+.rule-list { background: var(--surface); border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
+.rule-list h5 { margin: 0 0 12px; font-size: 0.95rem; }
+.rule-list.yes h5 { color: #16a34a; } .rule-list.no h5 { color: #dc2626; }
+.rule-list ul { list-style: none; padding: 0; margin: 0; }
+.rule-list li { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 0.9rem; color: var(--text-body); }
+.rule-list.yes li i { color: #22c55e; } .rule-list.no li i { color: #ef4444; }
+
+.tip-box { background: rgba(247,148,30,0.09); border: 2px dashed var(--primary-yellow); border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 4px; }
+.tip-box p { margin: 0; font-size: 0.93rem; }
+
+/* project */
+.project-banner { background: var(--blue-gradient); color: #fff; border-radius: 18px; padding: 16px 22px; margin-bottom: 18px; display: flex; gap: 14px; align-items: center; }
+.project-banner i { font-size: 1.6rem; }
+.project-banner strong { font-size: 1.05rem; color: #fff; }
+.project-banner p { color: #e0f4ff; margin: 0; font-size: 0.9rem; }
+.brief { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 18px 22px; margin: 14px 0; }
+.brief h5 { margin: 0 0 8px; font-size: 1rem; color: var(--primary-blue); display: flex; align-items: center; gap: 8px; }
+.brief ul, .brief ol { margin: 0; padding-right: 22px; color: var(--text-body); }
+.brief li { margin-bottom: 6px; }
+details.reveal { border: 2px dashed var(--border); border-radius: 16px; padding: 4px 16px; margin: 14px 0; background: var(--card-bg); }
+details.reveal > summary { cursor: pointer; font-weight: 800; padding: 10px 0; color: var(--primary-blue); list-style: none; display: flex; align-items: center; gap: 8px; }
+details.reveal > summary::-webkit-details-marker { display: none; }
+details.reveal[open] { border-style: solid; border-color: var(--primary-blue); }
+
+/* challenges */
+.challenge-card { border-right-color: #8b5cf6; }
+.challenge-card .card-header { color: #8b5cf6; }
+.challenge { border: 1px solid var(--border); border-radius: 20px; padding: 22px 24px; margin-bottom: 20px; background: var(--surface); }
+.ch-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+.ch-head h4 { margin: 0; flex: 1; }
+.ch-num { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
+.badge { font-size: .75rem; font-weight: 800; padding: 4px 12px; border-radius: 50px; }
+.badge.easy { background: #dcfce7; color: #15803d; }
+.badge.medium { background: #fef3c7; color: #b45309; }
+.challenge h5 { margin: 14px 0 6px; font-size: .9rem; color: var(--dark-navy); }
+.challenge ul { margin: 0 0 6px; padding-right: 22px; color: var(--text-body); }
+.challenge li { margin-bottom: 4px; }
+
+/* simulators */
+.sim-box { background: var(--surface); border: 3px dashed var(--border); border-radius: 20px; padding: 28px; text-align: center; margin-top: 15px; }
+.sim-inputs { display: flex; justify-content: center; gap: 18px; margin-bottom: 18px; flex-wrap: wrap; }
+.sim-inputs .field { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.sim-inputs label { font-size: 0.82rem; color: var(--text-body); font-weight: 700; }
+.sim-inputs input[type=text], .sim-inputs input[type=number] { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1.05rem; text-align: center; font-family: 'Consolas', monospace; outline: none; direction: ltr; }
+.sim-inputs input[type=number] { width: 110px; }
+.sim-inputs input:focus { border-color: var(--primary-blue); }
+.btn-run { background: var(--yellow-gradient); color: #fff; border: none; padding: 13px 32px; border-radius: 18px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.95rem; box-shadow: 0 10px 20px -10px rgba(247,148,30,.9); }
+.sim-console { margin-top: 18px; background: #0f172a; border-radius: 14px; padding: 18px 20px; text-align: left; direction: ltr; font-family: 'Consolas', monospace; color: #4ade80; min-height: 26px; white-space: pre-wrap; font-size: 0.92rem; }
+.sim-console .line { color: #94a3b8; }
+.result-line { margin-top: 14px; font-weight: 700; color: var(--dark-navy); }
+.reorder-list { max-width: 460px; margin: 0 auto 10px; direction: ltr; }
+.reorder-item { display: flex; align-items: center; gap: 10px; background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 8px 12px; margin-bottom: 8px; font-family: 'Consolas', monospace; font-size: 0.88rem; text-align: left; }
+.reorder-item code { flex: 1; background: transparent; padding: 0; }
+.rbtn { border: none; background: #e0f2fe; color: #0369a1; border-radius: 8px; width: 30px; height: 30px; cursor: pointer; font-weight: 800; }
+.rbtn:disabled { opacity: 0.35; cursor: default; }
+.bug-list { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.bug-btn { background: var(--card-bg); color: var(--dark-navy); border: 2px solid var(--border); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Tajawal'; font-weight: 700; }
+.bug-btn.found { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.hidden { display: none; }
+.op-table { width: 100%; border-collapse: collapse; margin-top: 16px; direction: ltr; font-family: 'Consolas', monospace; font-size: .88rem; }
+.op-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--dark-navy); text-align: left; }
+.op-table td:last-child { color: var(--primary-blue); font-weight: 800; }
+
+/* glossary */
+.glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+.term-card { background: var(--surface); border-radius: 16px; padding: 18px; border: 1px solid var(--border); }
+.term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+.term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+.term-desc { font-size: 0.85rem; color: var(--text-body); margin: 0; }
+
+/* tf + quiz */
+.tf-item { border: 2px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 14px; background: var(--surface); }
+.tf-item .stmt { font-weight: 700; margin-bottom: 12px; color: var(--dark-navy); }
+.tf-btns { display: flex; gap: 10px; }
+.tf-btn { flex: 1; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 10px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: 0.95rem; }
+.tf-btn:hover { border-color: var(--primary-blue); }
+.tf-btn.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.tf-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.feedback { margin-top: 10px; font-size: 0.9rem; font-weight: 600; }
+.feedback.ok { color: #16a34a; } .feedback.no { color: #dc2626; }
+.quiz-q { margin-bottom: 26px; padding-bottom: 8px; }
+.quiz-q h4 { margin-bottom: 12px; line-height: 1.9; }
+.qnum { display: inline-flex; align-items: center; justify-content: center; background: var(--yellow-gradient); color: #fff; width: 28px; height: 28px; border-radius: 50%; font-size: 0.85rem; margin-left: 8px; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-opt { background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 12px 18px; cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s; color: var(--dark-navy); }
+.quiz-opt:hover { border-color: var(--primary-blue); }
+.quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.quiz-opt:disabled { cursor: default; }
+.quiz-opt.correct code, .quiz-opt.wrong code { background: rgba(255,255,255,.7); }
+.progress { height: 10px; background: var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 22px; }
+.progress-bar { height: 100%; width: 0; background: var(--yellow-gradient); transition: width 0.3s; }
+.score-box { text-align: center; background: var(--surface); border: 2px solid var(--border); border-radius: 18px; padding: 22px; margin-top: 10px; }
+.score-box .big { font-size: 2.2rem; font-weight: 800; color: var(--primary-blue); }
+.retry-btn { margin-top: 10px; background: var(--blue-gradient); color: #fff; border: none; border-radius: 14px; padding: 10px 26px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; }
+
+.refs-card { border-right-color: #94a3b8; }
+.ref-list { margin: 0; padding-right: 22px; }
+.ref-list li { margin-bottom: 6px; font-size: 0.9rem; }
+footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+
+/* ---------- tracer ---------- */
+.tracer { background: var(--surface); border: 2px solid var(--border); border-radius: 20px; padding: 18px; margin: 22px 0; }
+.tr-head { font-weight: 800; color: var(--primary-blue); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.tr-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .tr-grid { grid-template-columns: 1fr; } }
+.tr-code { background: #1e293b; border-radius: 14px; padding: 12px 0; direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: var(--code-size); overflow-x: auto; }
+.tr-line { display: flex; gap: 12px; padding: 1px 14px; color: #e2e8f0; white-space: pre; border-left: 4px solid transparent; transition: .15s; }
+.tr-line .ln { color: #64748b; min-width: 22px; text-align: right; user-select: none; }
+.tr-line.active { background: rgba(247,148,30,.28); border-left-color: var(--primary-yellow); }
+.tr-side { display: flex; flex-direction: column; gap: 12px; }
+.tr-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; flex: 1; }
+.tr-title { font-size: .78rem; font-weight: 800; color: var(--text-body); margin-bottom: 6px; }
+.tr-vars { direction: ltr; font-family: 'Consolas', monospace; font-size: .9rem; min-height: 28px; }
+.tr-var { display: flex; justify-content: space-between; padding: 3px 8px; border-radius: 8px; color: var(--dark-navy); }
+.tr-var b { color: var(--primary-blue); }
+.tr-var.changed { background: rgba(247,148,30,.22); }
+.tr-out { direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: .88rem; background: #0f172a; color: #4ade80; border-radius: 10px; padding: 8px 12px; min-height: 40px; white-space: pre-wrap; }
+.tr-note { margin-top: 12px; background: var(--card-bg); border: 1px dashed var(--primary-blue); border-radius: 12px; padding: 10px 16px; font-weight: 600; color: var(--dark-navy); min-height: 24px; }
+.tr-ctrl { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.tr-btn { border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 14px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: .85rem; }
+.tr-btn.primary { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.tr-btn:disabled { opacity: .4; cursor: default; }
+.tr-count { margin-right: auto; font-size: .8rem; color: var(--text-body); font-weight: 700; }
+
+/* ---------- predict ---------- */
+.predict { border: 2px solid #8b5cf6; border-radius: 20px; padding: 16px 18px; margin: 22px 0; background: var(--surface); }
+.predict-head { font-weight: 800; color: #8b5cf6; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+.predict .code-box { margin: 12px 0; }
+.pd-q { font-weight: 700; color: var(--dark-navy); margin-bottom: 10px; }
+.pd-opts { display: flex; flex-wrap: wrap; gap: 10px; }
+.pd-opt { background: var(--card-bg); border: 2px solid var(--border); color: var(--dark-navy); border-radius: 12px; padding: 9px 16px; cursor: pointer; font-family: 'Tajawal'; font-weight: 700; font-size: .92rem; }
+.pd-opt:hover { border-color: #8b5cf6; }
+.pd-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.pd-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.pd-opt:disabled { cursor: default; }
+.pd-result { margin-top: 12px; }
+.pd-msg { font-weight: 800; margin-bottom: 8px; }
+.pd-why { margin: 8px 0 0; font-size: .93rem; }
+
+/* ---------- misc ---------- */
+.summary-card { border-right-color: #22c55e; }
+.summary-card .card-header { color: #16a34a; }
+.sum-list { list-style: none; padding: 0; margin: 0; }
+.sum-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.sum-list i { color: #22c55e; margin-top: 6px; }
+.warn-box { background: rgba(239,68,68,.08); border: 2px dashed #ef4444; border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 4px; }
+.warn-box p { margin: 0; font-size: .93rem; }
+.analogy { background: linear-gradient(135deg, rgba(0,173,239,.1), rgba(139,92,246,.1)); border-radius: 18px; padding: 16px 22px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; border: 1px solid var(--border); }
+.analogy i { color: var(--primary-blue); font-size: 1.5rem; margin-top: 4px; }
+.analogy p { margin: 0; }
+.flow { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin: 18px 0; direction: rtl; }
+.flow-node { background: var(--card-bg); border: 2px solid var(--primary-blue); border-radius: 14px; padding: 10px 18px; font-weight: 800; color: var(--dark-navy); text-align: center; }
+.flow-node.decision { border-color: var(--primary-yellow); border-radius: 30px; }
+.flow-node.end { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.flow-arrow { color: var(--primary-blue); font-size: 1.2rem; }
+.flow-branch { display: flex; flex-direction: column; gap: 8px; }
+.cell-row { display: flex; direction: ltr; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 12px 0; }
+.cell { min-width: 54px; text-align: center; border: 2px solid var(--primary-blue); border-radius: 10px; background: var(--card-bg); font-family: 'Consolas', monospace; font-weight: 800; color: var(--dark-navy); padding: 6px 4px; cursor: pointer; }
+.cell small { display: block; font-size: .68rem; color: var(--text-body); font-weight: 700; }
+.cell.sel { background: rgba(247,148,30,.25); border-color: var(--primary-yellow); }
+.vis-line { display: block; padding: 0 6px; margin: 0 -6px; border-radius: 6px; opacity: .35; transition: .15s; }
+.vis-line.on { opacity: 1; background: rgba(34,197,94,.22); }
+.vis-btns { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+.vis-btn { border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Consolas', monospace; font-weight: 800; }
+.vis-btn.on { border-color: #22c55e; background: #dcfce7; color: #15803d; }
+
+.cell.ghost { opacity: .55; border-style: dashed; background: transparent; }
+
+</style>
+</head>
+<body>
+<div class="bg-deco"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+<header>
+  <div class="hdr-brand">
+    <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    <div class="brand-info"><h3>منصة TweetKod</h3><p>للتعلم البرمجي التفاعلي</p></div>
+  </div>
+  <div class="hdr-tools">
+    <button class="tool-btn" id="tocBtn" title="فهرس الدرس"><i class="fas fa-list-ul"></i> الفهرس</button>
+    <button class="tool-btn" id="fontDec" title="تصغير خط الكود">A-</button>
+    <button class="tool-btn" id="fontInc" title="تكبير خط الكود">A+</button>
+    <button class="tool-btn" id="themeBtn" title="الوضع الليلي"><i class="fas fa-moon"></i></button>
+    <div class="toc-panel" id="tocPanel"></div>
+  </div>
+  <div class="read-progress"><span id="readBar"></span></div>
+</header>
+<div class="container">
+  <div class="title-section">
+    <span class="lesson-chip">الدرس 12</span>
+    <h1>ظهور الأسماء (النطاق)</h1>
+    <p class="attribution"><span class="en">Name Visibility</span> &mdash; أين يعيش كل متغير ومن يستطيع رؤيته</p>
+  </div>
+  <div class="card goals-card">
+    <div class="card-header"><i class="fas fa-bullseye"></i><h3>ماذا ستتعلم في هذا الدرس؟</h3></div>
+    <ul class="obj-list"><li><i class="fas fa-check-circle"></i><span>تفهم النطاق وتحدد أين يُرى كل اسم في البرنامج</span></li><li><i class="fas fa-check-circle"></i><span>تفرّق بين المتغيرات المحلية والعامة وتعرف متى تتجنب العامة</span></li><li><i class="fas fa-check-circle"></i><span>تفهم التظليل وتتجنب الأخطاء الناتجة عنه</span></li><li><i class="fas fa-check-circle"></i><span>تعرف عمر المتغير وتستخدم <code class="inline">static</code> عند الحاجة</span></li><li><i class="fas fa-check-circle"></i><span>تبني برنامجًا يوزّع الأسماء على نطاقاتها بشكل صحيح</span></li></ul>
+  </div>
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-school"></i><h3>من يرى من؟</h3></div>
+  <p>في مدرستك، السبورة يراها كل من في الفصل، لكن دفتر زميلك داخل حقيبته لا يراه أحد غيره. وكذلك الأسماء في البرنامج: لكل اسم <strong>منطقة</strong> يُرى فيها، وخارجها يكون كأنه غير موجود. هذه المنطقة تُسمى <strong>النطاق</strong> (<span class="en">scope</span>)، ودرسنا اليوم يُسمى «ظهور الأسماء» (<span class="en">name visibility</span>).</p>
+  <div class="analogy"><i class="fas fa-lightbulb"></i><p>القاعدة الذهبية: <strong>الاسم يُرى من لحظة التصريح عنه حتى نهاية الكتلة <code>{ }</code> التي صُرّح عنه داخلها.</strong> إن كان خارج كل الدوال فهو يُرى حتى نهاية الملف.</p></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-lock"></i><h3>المتغيرات المحلية: كل دالة لها عالمها</h3></div>
+  <p>المتغير الذي تصرّح عنه داخل دالة يسمى متغيرًا <strong>محليًا</strong> (<span class="en">local variable</span>). لا يراه إلا كود تلك الدالة، ولذلك يمكن لدالتين أن تستعملا الاسم نفسه دون أي تعارض:</p>
+  <div class="code-box"><div class="code-head"><span>separate_locals.cpp</span><button class="copy-btn" onclick="copyCode('code_locals')">نسخ الكود</button></div><pre id="code_locals"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">void</span> first() {
+    <span class="kw">int</span> count = <span class="num">10</span>;
+    cout &lt;&lt; <span class="str">"first: "</span> &lt;&lt; count &lt;&lt; endl;
+}
+
+<span class="kw">void</span> second() {
+    <span class="kw">int</span> count = <span class="num">99</span>;
+    cout &lt;&lt; <span class="str">"second: "</span> &lt;&lt; count &lt;&lt; endl;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    first();
+    second();
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="output-box">first: 10
+second: 99</div>
+  <p>المتغيران <code>count</code> منفصلان تمامًا، كأنهما في غرفتين مختلفتين. أما محاولة قراءة متغير محلي من دالة أخرى فيرفضها المترجم:</p>
+  <div class="code-box"><div class="code-head"><span>local_error.cpp</span><button class="copy-btn" onclick="copyCode('code_err_local')">نسخ الكود</button></div><pre id="code_err_local"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">void</span> secret() {
+    <span class="kw">int</span> code = <span class="num">1234</span>;
+    cout &lt;&lt; <span class="str">"Secret code set: "</span> &lt;&lt; code &lt;&lt; endl;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    secret();
+    cout &lt;&lt; code &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="error-box"><div class="error-head"><i class="fas fa-bug"></i> ما يعرضه المترجم (<span class="en">g++</span>)</div><pre>main.cpp: In function ‘int main()’:
+main.cpp:11:13: error: ‘code’ was not declared in this scope
+   11 |     cout &lt;&lt; code &lt;&lt; endl;
+      |             ^~~~</pre></div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-x-ray"></i><h3>الأشعة السينية للنطاق</h3></div>
+  <p>هذا برنامج فيه خمسة أسماء في مواضع مختلفة: <code>g</code> عام، و<code>s</code> داخل دالة، و<code>a</code> داخل <code>main</code>، و<code>b</code> داخل كتلة، و<code>i</code> في رأس حلقة. اضغط على اسم لترى الأسطر التي يُرى فيها (الأسطر المضيئة):</p>
+  <div class="vis-btns">
+    <button class="vis-btn" onclick="visShow('g', this)">g</button>
+    <button class="vis-btn" onclick="visShow('s', this)">s</button>
+    <button class="vis-btn" onclick="visShow('a', this)">a</button>
+    <button class="vis-btn" onclick="visShow('b', this)">b</button>
+    <button class="vis-btn" onclick="visShow('i', this)">i</button>
+  </div>
+  <div class="code-box"><div class="code-head"><span>scope_xray.cpp</span></div><pre id="visCode"><span class="vis-line" data-v=""><span class="pp">#include &lt;iostream&gt;</span></span><span class="vis-line" data-v=""><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="vis-line" data-v=""> </span><span class="vis-line" data-v="g"><span class="kw">int</span> g = <span class="num">1</span>;</span><span class="vis-line" data-v=""> </span><span class="vis-line" data-v="g"><span class="kw">void</span> show() {</span><span class="vis-line" data-v="g s">    <span class="kw">int</span> s = <span class="num">2</span>;</span><span class="vis-line" data-v="g s">    cout &lt;&lt; g + s &lt;&lt; endl;</span><span class="vis-line" data-v="g s">}</span><span class="vis-line" data-v=""> </span><span class="vis-line" data-v="g"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="vis-line" data-v="g a">    <span class="kw">int</span> a = <span class="num">10</span>;</span><span class="vis-line" data-v="g a">    {</span><span class="vis-line" data-v="g a b">        <span class="kw">int</span> b = <span class="num">20</span>;</span><span class="vis-line" data-v="g a b">        cout &lt;&lt; a + b &lt;&lt; endl;</span><span class="vis-line" data-v="g a b">    }</span><span class="vis-line" data-v="g a i">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">2</span>; i++) {</span><span class="vis-line" data-v="g a i">        cout &lt;&lt; a + i &lt;&lt; endl;</span><span class="vis-line" data-v="g a i">    }</span><span class="vis-line" data-v="g a">    show();</span><span class="vis-line" data-v="g a">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="vis-line" data-v="g a">}</span></pre></div>
+  <div class="explain-box" id="visDesc"><span class="hint">اختر اسمًا من الأزرار أعلاه...</span></div>
+  <p>ولكي تتأكد أن البرنامج يعمل فعلًا، هذا ناتجه (الأعداد: <code>a + b</code> ثم <code>a + i</code> مرتين ثم <code>g + s</code>):</p>
+  <div class="output-box">30
+10
+11
+3</div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-earth-asia"></i><h3>المتغيرات العامة</h3></div>
+  <p>المتغير الذي يُصرَّح عنه <strong>خارج كل الدوال</strong> يسمى <strong>عامًّا</strong> (<span class="en">global variable</span>)، ويراه كل ما يأتي بعده في الملف:</p>
+  <div class="code-box"><div class="code-head"><span>global_score.cpp</span><button class="copy-btn" onclick="copyCode('code_global')">نسخ الكود</button></div><pre id="code_global"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> score = <span class="num">0</span>;
+
+<span class="kw">void</span> addPoints(<span class="kw">int</span> points) {
+    score = score + points;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    cout &lt;&lt; <span class="str">"Start: "</span> &lt;&lt; score &lt;&lt; endl;
+    addPoints(<span class="num">10</span>);
+    addPoints(<span class="num">25</span>);
+    cout &lt;&lt; <span class="str">"Now: "</span> &lt;&lt; score &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="output-box">Start: 0
+Now: 35</div>
+  <div class="warn-box"><i class="fas fa-triangle-exclamation"></i><p><strong>لماذا يتجنبها المحترفون؟</strong> لأن أي دالة تستطيع أن تغيّر المتغير العام دون علمك. وعندما تكبر البرامج يصبح الكشف عن «من غيّر القيمة؟» كابوسًا. الأفضل أن تمرّر القيم عبر المعاملات وتستقبل النتائج عبر <code>return</code>. أما <strong>الثوابت العامة</strong> (<code>const</code>) فلا مشكلة فيها لأن قيمتها لا تتغير.</p></div>
+  <h4>معلومة غريبة: القيمة الافتراضية</h4>
+  <p>المتغيرات العامة غير المهيّأة تبدأ بالقيمة <strong>صفر</strong> تلقائيًا. أما المتغيرات المحلية غير المهيّأة فتحمل قيمة عشوائية لا يُعتمد عليها:</p>
+  <div class="code-box"><div class="code-head"><span>global_default.cpp</span><button class="copy-btn" onclick="copyCode('code_zeroinit')">نسخ الكود</button></div><pre id="code_zeroinit"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> globalNumber;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    cout &lt;&lt; <span class="str">"global: "</span> &lt;&lt; globalNumber &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="output-box">global: 0</div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-mask"></i><h3>التخفّي: عندما يحجب اسمٌ اسمًا</h3></div>
+  <p>ماذا لو صرّحت داخل كتلة عن متغير له اسم متغير خارجي؟ تنشأ ظاهرة تسمى <strong>التظليل</strong> (<span class="en">shadowing</span>): المتغير الداخلي «يحجب» الخارجي داخل الكتلة، ثم يعود الخارجي للظهور بعد انتهائها:</p>
+  <div class="code-box"><div class="code-head"><span>shadowing.cpp</span><button class="copy-btn" onclick="copyCode('code_shadow')">نسخ الكود</button></div><pre id="code_shadow"><span class="kw">int</span> x = <span class="num">5</span>;
+{
+    <span class="kw">int</span> x = <span class="num">99</span>;
+    cout &lt;&lt; <span class="str">"inner x: "</span> &lt;&lt; x &lt;&lt; endl;
+}
+cout &lt;&lt; <span class="str">"outer x: "</span> &lt;&lt; x &lt;&lt; endl;</pre></div>
+  <div class="output-box">inner x: 99
+outer x: 5</div>
+  <div class="predict"><div class="predict-head"><i class="fas fa-brain"></i> توقّع قبل أن تشغّل</div><div class="code-box"><div class="code-head"><span>shadow_quiz.cpp</span><button class="copy-btn" onclick="copyCode('code_p_shadow')">نسخ الكود</button></div><pre id="code_p_shadow"><span class="kw">int</span> x = <span class="num">5</span>;
+{
+    <span class="kw">int</span> x = <span class="num">99</span>;
+    x = x + <span class="num">1</span>;
+}
+cout &lt;&lt; x &lt;&lt; endl;</pre></div><p class="pd-q">ما الذي سيطبعه هذا الكود؟</p><div class="pd-opts"><button class="pd-opt" data-ok="0">6</button><button class="pd-opt" data-ok="1">5</button><button class="pd-opt" data-ok="0">99</button><button class="pd-opt" data-ok="0">100</button></div><div class="pd-result hidden"><div class="pd-msg"></div><div class="output-box">5</div><p class="pd-why">داخل الكتلة نشأ متغير جديد اسمه x يخفي الأصلي. زدناه إلى 100، لكنه اختفى عند إغلاق الكتلة. أما x الخارجية فلم يلمسها أحد، فبقيت 5.</p></div></div>
+  <p>وإذا حجب متغير محلي متغيرًا عامًا بالاسم نفسه، فيمكنك الوصول للعام بالعامل <code>::</code> قبل الاسم:</p>
+  <div class="code-box"><div class="code-head"><span>scope_operator.cpp</span><button class="copy-btn" onclick="copyCode('code_scopeop')">نسخ الكود</button></div><pre id="code_scopeop"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> score = <span class="num">100</span>;
+
+<span class="kw">void</span> show() {
+    <span class="kw">int</span> score = <span class="num">5</span>;
+    cout &lt;&lt; <span class="str">"local: "</span> &lt;&lt; score &lt;&lt; <span class="str">", global: "</span> &lt;&lt; ::score &lt;&lt; endl;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    show();
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="output-box">local: 5, global: 100</div>
+  <div class="warn-box"><i class="fas fa-triangle-exclamation"></i><p>التظليل مسموح لكنه يسبب أخطاء مربكة لأن القارئ يظن أنه يعدّل المتغير الخارجي. تجنّبه بإعطاء المتغيرات أسماء مختلفة.</p></div>
+  <h4>الخطأ الأشهر مع التظليل</h4>
+  <p>نريد جمع الأعداد 1 و2 و3 في <code>total</code>، لكن ارتكبنا خطأ دقيقًا. جرّب أن تكتشفه:</p>
+  <div class="predict"><div class="predict-head"><i class="fas fa-brain"></i> توقّع قبل أن تشغّل</div><div class="code-box"><div class="code-head"><span>shadow_loop_bug.cpp</span><button class="copy-btn" onclick="copyCode('code_p_bug')">نسخ الكود</button></div><pre id="code_p_bug"><span class="kw">int</span> total = <span class="num">0</span>;
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">1</span>; i &lt;= <span class="num">3</span>; i++) {
+    <span class="kw">int</span> total = i;
+}
+cout &lt;&lt; total &lt;&lt; endl;</pre></div><p class="pd-q">ما الذي سيطبعه هذا الكود؟ (المطلوب أصلًا كان جمع الأعداد)</p><div class="pd-opts"><button class="pd-opt" data-ok="1">0</button><button class="pd-opt" data-ok="0">6</button><button class="pd-opt" data-ok="0">3</button><button class="pd-opt" data-ok="0">1</button></div><div class="pd-result hidden"><div class="pd-msg"></div><div class="output-box">0</div><p class="pd-why">الكلمة int داخل الحلقة صنعت متغيرًا جديدًا اسمه total في كل دورة، فاختفى مع نهايتها، وبقيت total الخارجية على 0. لو أردنا تعديل الأصل لكتبنا total = total + i; بلا كلمة int.</p></div></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-hourglass-half"></i><h3>عمر المتغير: يُولد ويموت</h3></div>
+  <p>المتغير المحلي يُنشأ عند الوصول إلى سطر تصريحه، ويُدمَّر عند الخروج من كتلته. ولذلك فكل استدعاء للدالة يبدأ بمتغيراتها <strong>من جديد</strong>:</p>
+  <div class="code-box"><div class="code-head"><span>fresh_local.cpp</span><button class="copy-btn" onclick="copyCode('code_fresh')">نسخ الكود</button></div><pre id="code_fresh"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">void</span> tick() {
+    <span class="kw">int</span> count = <span class="num">0</span>;
+    count++;
+    cout &lt;&lt; count &lt;&lt; <span class="str">" "</span>;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    tick();
+    tick();
+    tick();
+    cout &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="output-box">1 1 1 </div>
+  <p>في كل استدعاء وُلد <code>count</code> جديد بقيمة 0، فزاد إلى 1 ثم مات. وإذا أردت متغيرًا محليًا <strong>يتذكر</strong> قيمته بين الاستدعاءات فاكتب قبله الكلمة <code>static</code>، فيُنشأ مرة واحدة فقط:</p>
+  <div class="code-box"><div class="code-head"><span>static_local.cpp</span><button class="copy-btn" onclick="copyCode('code_static')">نسخ الكود</button></div><pre id="code_static"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">void</span> tick() {
+    <span class="kw">static</span> <span class="kw">int</span> count = <span class="num">0</span>;
+    count++;
+    cout &lt;&lt; count &lt;&lt; <span class="str">" "</span>;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    tick();
+    tick();
+    tick();
+    cout &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="output-box">1 2 3 </div>
+  <p>هو ما زال محليًا (لا يراه إلا كود <code>tick</code>)، لكن عمره صار أطول من الاستدعاء الواحد. وهذا بديل آمن للمتغير العام عندما تحتاج دالة إلى ذاكرة.</p>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-bug"></i><h3>أخطاء النطاق الشائعة</h3></div>
+  <h4>1) تصريح الاسم مرتين في النطاق نفسه</h4>
+  <div class="code-box"><div class="code-head"><span>redeclare_error.cpp</span><button class="copy-btn" onclick="copyCode('code_err_redecl')">نسخ الكود</button></div><pre id="code_err_redecl"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> lives = <span class="num">3</span>;
+    <span class="kw">int</span> lives = <span class="num">5</span>;
+    cout &lt;&lt; lives &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="error-box"><div class="error-head"><i class="fas fa-bug"></i> ما يعرضه المترجم (<span class="en">g++</span>)</div><pre>main.cpp: In function ‘int main()’:
+main.cpp:6:9: error: redeclaration of ‘int lives’
+    6 |     int lives = 5;
+      |         ^~~~~
+main.cpp:5:9: note: ‘int lives’ previously declared here
+    5 |     int lives = 3;
+      |         ^~~~~</pre></div>
+  <p>التظليل يكون بين نطاقين مختلفين (داخلي وخارجي). أما في النطاق الواحد فلا يسمح المترجم بالاسم نفسه مرتين.</p>
+  <h4>2) استخدام اسم قبل تصريحه</h4>
+  <p>الاسم يُرى بعد التصريح فقط. لا يمكنك قراءة <code>int total = total + 1;</code> داخل نطاق لم تُنشئ فيه <code>total</code> قبلها.</p>
+  <h4>3) الاعتماد على متغير عام للتواصل بين الدوال</h4>
+  <p>جرّب أن تستبدله بمعامل ونتيجة <code>return</code>، ستجد أن الكود يصير أوضح وأسهل في الاختبار.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-gamepad"></i><h3>مشروع الدرس: جامع العملات</h3></div>
+  <div class="project-banner" style="margin-top:0"><i class="fas fa-coins"></i><div><strong>لعبة صغيرة تستخدم النطاقات بشكل صحيح</strong><p>ثابت عام، ومتغيرات محلية، ودالة تعدّل الأصل.</p></div></div>
+  <div class="brief"><h5><i class="fas fa-lightbulb"></i> الفكرة</h5>
+    <p style="margin:0">لاعب في المستوى الثاني من لعبة يجمع عملات ويصطدم بعقبات. يبدأ بثلاث حيوات. كل عملة تعطيه نقاطًا بحسب المستوى، وكل اصطدام يُنقص حياة. تنتهي اللعبة عندما تنفد الحيوات.</p></div>
+  <div class="brief"><h5><i class="fas fa-list-check"></i> المطلوب منك</h5>
+    <ol>
+      <li>عرّف ثابتًا عامًا <code>MAX_LIVES</code> بقيمة 3 (الثوابت العامة آمنة).</li>
+      <li>اكتب دالة <code>levelBonus(level)</code> تعيد <code>level * 10</code>، ودالة <code>hit(lives)</code> تُنقص الحياة بمقدار 1 <strong>في المتغير الأصلي</strong> (فكّر: أي نوع تمرير تحتاج؟).</li>
+      <li>في <code>main</code> اجعل <code>level</code> و<code>lives</code> و<code>score</code> متغيرات محلية.</li>
+      <li>اقرأ أحداث اللعبة حرفًا حرفًا: الحرف <code>c</code> يعني عملة، والحرف <code>h</code> يعني اصطدامًا. استمر في القراءة ما دامت الحيوات أكبر من صفر.</li>
+      <li>اطبع بعد كل حدث <code>Coin! Score: ...</code> أو <code>Hit! Lives: ...</code>، وفي النهاية <code>Game over. Final score: ...</code></li>
+    </ol></div>
+  <div class="brief"><h5><i class="fas fa-bullseye"></i> مثال على التشغيل</h5>
+    <div class="input-box">c c h c h h c</div><div class="output-box">Coin! Score: 20
+Coin! Score: 40
+Hit! Lives: 2
+Coin! Score: 60
+Hit! Lives: 1
+Hit! Lives: 0
+Game over. Final score: 60</div>
+    <p style="margin:8px 0 0">لاحظ أن آخر حدث (<code>c</code>) لم يُقرأ لأن الحيوات نفدت قبل الوصول إليه.</p></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p><strong>قبل أن تكتب:</strong> أين يعيش كل اسم؟ <code>MAX_LIVES</code> عام. <code>lives</code> في <code>main</code>. فكيف تستطيع <code>hit</code> أن تغيّر <code>lives</code> دون أن تراه؟ الجواب في التمرير بالمرجع.</p></div>
+  <details class="reveal"><summary><i class="fas fa-eye"></i> بعد أن تجرّب بنفسك: اعرض الحل</summary>
+    <div class="code-box"><div class="code-head"><span>coin_game.cpp</span><button class="copy-btn" onclick="copyCode('code_project')">نسخ الكود</button></div><pre id="code_project"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">const</span> <span class="kw">int</span> MAX_LIVES = <span class="num">3</span>;
+
+<span class="kw">int</span> levelBonus(<span class="kw">int</span> level) {
+    <span class="kw">return</span> level * <span class="num">10</span>;
+}
+
+<span class="kw">void</span> hit(<span class="kw">int</span>&amp; lives) {
+    lives = lives - <span class="num">1</span>;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> level = <span class="num">2</span>;
+    <span class="kw">int</span> lives = MAX_LIVES;
+    <span class="kw">int</span> score = <span class="num">0</span>;
+    <span class="kw">char</span> event;
+
+    <span class="kw">while</span> (lives &gt; <span class="num">0</span> &amp;&amp; cin &gt;&gt; event) {
+        <span class="kw">if</span> (event == <span class="str">'c'</span>) {
+            score = score + levelBonus(level);
+            cout &lt;&lt; <span class="str">"Coin! Score: "</span> &lt;&lt; score &lt;&lt; endl;
+        } <span class="kw">else</span> <span class="kw">if</span> (event == <span class="str">'h'</span>) {
+            hit(lives);
+            cout &lt;&lt; <span class="str">"Hit! Lives: "</span> &lt;&lt; lives &lt;&lt; endl;
+        }
+    }
+    cout &lt;&lt; <span class="str">"Game over. Final score: "</span> &lt;&lt; score &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  </details>
+</div>
+
+
+<div class="card challenge-card"><div class="card-header"><i class="fas fa-dumbbell"></i><h3>واجبات بعد الدرس</h3></div><p>تحديان بسيطان تحلّهما بنفسك بعد انتهاء الدرس. اكتب الحل في ملف <code>.cpp</code>، ثم ترجمه وشغّله وقارن ناتجك بالناتج المتوقع. جرّب أولًا، ثم افتح التلميح إن علقت، ولا تفتح نموذج الحل إلا بعد المحاولة الجادة.</p><div class="challenge"><div class="ch-head"><span class="ch-num">1</span><h4>أصلح مجموع الأعداد الزوجية</h4><span class="badge easy">سهل</span></div><p>كتب زميلك برنامجًا يجمع الأعداد 2 و4 و6 و8 (أي <code>i * 2</code> لـ <code>i</code> من 1 إلى 4)، لكنه يطبع صفرًا بدل 20! هذا كوده:<div class="code-box"><div class="code-head"><span>buggy_sum.cpp</span></div><pre><span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> sum = <span class="num">0</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">1</span>; i &lt;= <span class="num">4</span>; i++) {
+        <span class="kw">int</span> sum = i * <span class="num">2</span>;
+    }
+    cout &lt;&lt; <span class="str">"Sum: "</span> &lt;&lt; sum &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></p><h5>المطلوب</h5><ul><li>ابحث عن سبب ظهور الصفر (تلميح: كم متغيرًا اسمه <code>sum</code> في البرنامج؟).</li><li>أصلح الكود ليجمع القيم فعلًا ويطبع <code>Sum: 20</code>.</li><li>اشرح بجملة في تعليق ما كان الخطأ.</li></ul><h5>الناتج المتوقع</h5><div class="output-box">Sum: 20</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> تلميحات</summary><ul><li>الكلمة <code>int</code> داخل الحلقة صنعت متغيرًا جديدًا يحجب <code>sum</code> الخارجي.</li><li>احذف <code>int</code> واجعل السطر <code>sum = sum + i * 2;</code> ليتغير المتغير الأصلي.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> نموذج الحل (بعد المحاولة)</summary><div class="code-box"><div class="code-head"><span>fixed_sum.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_fix')">نسخ الكود</button></div><pre id="code_ch_fix"><span class="cmt">// Challenge 1: fixed version</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> sum = <span class="num">0</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">1</span>; i &lt;= <span class="num">4</span>; i++) {
+        sum = sum + i * <span class="num">2</span>;
+    }
+    cout &lt;&lt; <span class="str">"Sum: "</span> &lt;&lt; sum &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div><div class="challenge"><div class="ch-head"><span class="ch-num">2</span><h4>مولّد الأرقام التسلسلية</h4><span class="badge medium">متوسط</span></div><p>أنت تبرمج نظام تذاكر. كل مرة تُستدعى الدالة <code>nextId()</code> يجب أن تعيد رقمًا جديدًا يزيد عن السابق: 1 ثم 2 ثم 3. الدالة يجب أن «تتذكر» آخر رقم أعطته.</p><h5>المطلوب</h5><ul><li>اكتب الدالة <code>int nextId()</code> دون استخدام متغير عام.</li><li>في <code>main</code> استدعِها ثلاث مرات واطبع النتائج في سطر واحد تفصل بينها مسافات.</li></ul><h5>الناتج المتوقع</h5><div class="output-box">1 2 3</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> تلميحات</summary><ul><li>متغير محلي عادي سيبدأ من جديد في كل استدعاء، فتحتاج إلى متغير يحتفظ بقيمته.</li><li>عرّف داخل الدالة <code>static int id = 0;</code> ثم زده بمقدار 1 وأعده.</li><li>تذكّر أن سطر <code>static</code> يُنفَّذ مرة واحدة فقط عند أول استدعاء.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> نموذج الحل (بعد المحاولة)</summary><div class="code-box"><div class="code-head"><span>next_id.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_id')">نسخ الكود</button></div><pre id="code_ch_id"><span class="cmt">// Challenge 2: ID generator</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> nextId() {
+    <span class="kw">static</span> <span class="kw">int</span> id = <span class="num">0</span>;
+    id++;
+    <span class="kw">return</span> id;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    cout &lt;&lt; nextId() &lt;&lt; <span class="str">" "</span> &lt;&lt; nextId() &lt;&lt; <span class="str">" "</span> &lt;&lt; nextId() &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div></div>
+
+<div class="card summary-card"><div class="card-header"><i class="fas fa-clipboard-list"></i><h3>ملخص سريع</h3></div><ul class="sum-list"><li><i class="fas fa-circle-check"></i><span>النطاق هو المنطقة التي يُرى فيها الاسم: من تصريحه حتى نهاية الكتلة التي صُرّح عنه داخلها.</span></li><li><i class="fas fa-circle-check"></i><span>المتغير المحلي لا يراه إلا كود دالته أو كتلته، ويُدمَّر عند الخروج منها.</span></li><li><i class="fas fa-circle-check"></i><span>المتغير العام يُصرَّح عنه خارج كل الدوال ويراه كل ما بعده، لكننا نتجنبه ونفضّل المعاملات و<code class="inline">return</code>، أما الثوابت العامة فمقبولة.</span></li><li><i class="fas fa-circle-check"></i><span>التظليل: متغير داخلي بالاسم نفسه يحجب الخارجي. لا يسمح بتكرار الاسم في النطاق الواحد.</span></li><li><i class="fas fa-circle-check"></i><span>المتغيرات العامة تبدأ بصفر، أما المحلية غير المهيّأة فعشوائية.</span></li><li><i class="fas fa-circle-check"></i><span><code class="inline">static</code> داخل دالة تجعل المتغير يحتفظ بقيمته بين الاستدعاءات.</span></li></ul></div>
+  <div class="card steps-card" id="tfCard">
+    <div class="card-header"><i class="fas fa-clipboard-check"></i><h3>تحقق من فهمك</h3></div>
+    <p>اقرأ كل عبارة ثم اختر <strong>صحيح</strong> أو <strong>خطأ</strong>. سيظهر التفسير مباشرة بعد إجابتك.</p>
+    <div id="tfList"></div>
+    <div class="score-box" id="tfScore" style="display:none"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><i class="fas fa-book"></i><h3>قاموس المصطلحات</h3></div>
+    <p>المصطلحات الإنجليزية الأهم في هذا الدرس ومقابلها بالعربية:</p>
+    <div class="glossary-grid"><div class="term-card"><span class="term-en">Scope</span><span class="term-ar">نطاق</span><p class="term-desc">المنطقة من الكود التي يُرى فيها اسم معيّن.</p></div><div class="term-card"><span class="term-en">Name visibility</span><span class="term-ar">ظهور الأسماء</span><p class="term-desc">أين يمكن استخدام الاسم داخل البرنامج.</p></div><div class="term-card"><span class="term-en">Local variable</span><span class="term-ar">متغير محلي</span><p class="term-desc">متغير يُصرَّح عنه داخل دالة أو كتلة ولا يُرى خارجها.</p></div><div class="term-card"><span class="term-en">Global variable</span><span class="term-ar">متغير عام</span><p class="term-desc">متغير يُصرَّح عنه خارج كل الدوال ويراه كل ما بعده.</p></div><div class="term-card"><span class="term-en">Block scope</span><span class="term-ar">نطاق الكتلة</span><p class="term-desc">نطاق المتغير المصرَّح عنه داخل <code class="inline">{ }</code>.</p></div><div class="term-card"><span class="term-en">Shadowing</span><span class="term-ar">تظليل</span><p class="term-desc">متغير داخلي يحجب متغيرًا خارجيًا بالاسم نفسه.</p></div><div class="term-card"><span class="term-en">Scope operator</span><span class="term-ar">عامل النطاق</span><p class="term-desc">الرمز <code class="inline">::</code> للوصول إلى اسم عام محجوب.</p></div><div class="term-card"><span class="term-en">Lifetime</span><span class="term-ar">عمر المتغير</span><p class="term-desc">المدة بين إنشاء المتغير وتدميره.</p></div><div class="term-card"><span class="term-en">static</span><span class="term-ar">ساكن</span><p class="term-desc">كلمة تجعل المتغير المحلي يعيش طوال البرنامج.</p></div><div class="term-card"><span class="term-en">Redeclaration</span><span class="term-ar">إعادة تصريح</span><p class="term-desc">تصريح اسم موجود في النطاق نفسه، وهو ممنوع.</p></div><div class="term-card"><span class="term-en">Initialization</span><span class="term-ar">تهيئة</span><p class="term-desc">إعطاء المتغير قيمته الأولى عند إنشائه.</p></div><div class="term-card"><span class="term-en">Side effect</span><span class="term-ar">أثر جانبي</span><p class="term-desc">تغيير غير ظاهر في الحالة، مثل تعديل متغير عام من داخل دالة.</p></div></div>
+  </div>
+  <div class="card steps-card" id="quizCard">
+    <div class="card-header"><i class="fas fa-circle-question"></i><h3>الاختبار النهائي</h3></div>
+    <p>عشرة أسئلة بين السهلة والمتوسطة. اختر إجابة واحدة لكل سؤال.</p>
+    <div class="progress"><div class="progress-bar" id="quizBar"></div></div>
+    <div id="quizList"></div>
+    <div class="score-box" id="quizScore" style="display:none"></div>
+  </div>
+  <div class="card refs-card">
+    <div class="card-header"><i class="fas fa-link"></i><h3>للاستزادة</h3></div>
+    <p>الحقائق التقنية في هذا الدرس موثّقة في المراجع التالية، أما الشرح والأمثلة والتمارين فمكتوبة خصيصًا لمنصة TweetKod:</p>
+    <ul class="ref-list"><li><a href="https://github.com/federico-busato/Modern-CPP-Programming" target="_blank" rel="noopener"><span class="en">Modern C++ Programming &mdash; Federico Busato (CC BY 4.0)</span></a></li><li><a href="https://www.learn-cpp.org/" target="_blank" rel="noopener"><span class="en">Learn C++ (Apache 2.0)</span></a></li><li><a href="https://en.cppreference.com/w/cpp/language/scope" target="_blank" rel="noopener"><span class="en">Scope &mdash; cppreference</span></a></li></ul>
+  </div>
+</div>
+<button class="to-top" id="toTop" title="إلى الأعلى"><i class="fas fa-arrow-up"></i></button>
+<footer class="page-footer">منصة TweetKod</footer>
+<script>
+const LESSON_NUM = 12;
+const TF = [{"s": "يمكن لدالتين أن يكون لكل منهما متغير محلي بالاسم نفسه دون تعارض.", "a": true, "why": "كل متغير محلي يعيش في نطاق دالته فقط."}, {"s": "المتغير المحلي المصرَّح عنه داخل دالة يمكن استخدامه في <code class=\"inline\">main</code>.", "a": false, "why": "لا يُرى خارج دالته، والمترجم يعطي خطأً."}, {"s": "المتغير العام يُصرَّح عنه خارج كل الدوال.", "a": true, "why": "ولذلك يراه كل ما يأتي بعده في الملف."}, {"s": "التظليل يعني أن متغيرًا داخليًا يحجب متغيرًا خارجيًا بالاسم نفسه.", "a": true, "why": "ويعود الخارجي للظهور عند انتهاء الكتلة الداخلية."}, {"s": "يجوز تصريح متغيرين بالاسم نفسه في الكتلة نفسها.", "a": false, "why": "هذا إعادة تصريح ويرفضها المترجم."}, {"s": "المتغير المحلي غير المهيّأ يبدأ بالقيمة صفر دائمًا.", "a": false, "why": "قيمته عشوائية. الصفر الافتراضي للمتغيرات العامة فقط."}, {"s": "المتغير المصرَّح عنه في رأس <code class=\"inline\">for</code> يُرى داخل الحلقة فقط.", "a": true, "why": "ينتهي نطاقه مع الحلقة."}, {"s": "الكلمة <code class=\"inline\">static</code> تجعل المتغير المحلي يحتفظ بقيمته بين الاستدعاءات.", "a": true, "why": "يُنشأ مرة واحدة ويبقى حتى نهاية البرنامج، لكنه يظل محليًا من حيث الظهور."}];
+const QUIZ = [{"q": "أين يمكن استخدام متغير محلي صُرّح عنه داخل دالة؟", "o": ["في كل الملفات", "في أي دالة", "داخل هذه الدالة فقط", "في <code class=\"inline\">main</code> فقط"], "a": 2, "why": "نطاقه هو الدالة التي صُرّح عنه فيها."}, {"q": "أين يُصرَّح عن المتغير العام؟", "o": ["داخل حلقة", "خارج كل الدوال", "داخل <code class=\"inline\">if</code>", "داخل <code class=\"inline\">main</code>"], "a": 1, "why": "هذا ما يجعله عامًا."}, {"q": "ماذا يطبع؟ <code class=\"inline\">int x = 5; { int x = 7; } cout &lt;&lt; x;</code>", "o": ["12", "7", "خطأ", "5"], "a": 3, "why": "الكتلة صنعت متغيرًا جديدًا ثم دُمّر. الأصلي لم يتغير."}, {"q": "ما معنى التظليل (<span class=\"en\">shadowing</span>)؟", "o": ["متغير داخلي يحجب خارجيًا بالاسم نفسه", "استدعاء دالة داخل دالة", "حذف متغير", "تغيير نوع المتغير"], "a": 0, "why": "الاسم الداخلي هو الذي يُرى داخل الكتلة."}, {"q": "دالتان فيهما <code class=\"inline\">int count</code> محلي لكل منهما. ما العلاقة؟", "o": ["متغير واحد مشترك", "متغيران مستقلان", "خطأ في الترجمة", "يلغي أحدهما الآخر"], "a": 1, "why": "كل متغير محلي له نطاقه الخاص."}, {"q": "ما قيمة <code class=\"inline\">int g;</code> المصرَّح عنها خارج الدوال إذا لم تُعطَ قيمة؟", "o": ["خطأ", "عشوائية", "صفر", "1"], "a": 2, "why": "المتغيرات العامة تُهيَّأ بالصفر تلقائيًا."}, {"q": "ماذا نتوقع من متغير محلي <code class=\"inline\">int n;</code> لم نعطه قيمة؟", "o": ["يرفض المترجم", "قيمة عشوائية غير موثوقة", "القيمة 1", "صفر دائمًا"], "a": 1, "why": "لذلك نهيّئ المتغيرات المحلية دائمًا."}, {"q": "لماذا نفضّل تمرير المعاملات على استخدام المتغيرات العامة؟", "o": ["لأن العامة لا تعمل", "لأن العامة ممنوعة", "لأن أي دالة قد تغيّر العام دون علمنا", "لأن المعاملات أسرع دائمًا"], "a": 2, "why": "تقليل الآثار الجانبية يجعل البرنامج أوضح وأسهل في الفحص."}, {"q": "ماذا يعني <code class=\"inline\">::score</code> عندما يوجد <code class=\"inline\">score</code> محلي بالاسم نفسه؟", "o": ["المتغير المحلي", "المتغير العام", "ثابت جديد", "خطأ"], "a": 1, "why": "العامل <code class=\"inline\">::</code> يصل إلى الاسم العام المحجوب."}, {"q": "أين يُرى المتغير <code class=\"inline\">i</code> في <code class=\"inline\">for (int i = 0; i &lt; 3; i++) { ... }</code> ؟", "o": ["داخل الحلقة فقط", "قبل الحلقة فقط", "في الدالة كلها", "في كل البرنامج"], "a": 0, "why": "نطاقه هو الحلقة نفسها."}];
+const EXPL = {};
+const TRACES = {};
+function copyCode(id) {
+  const el = document.getElementById(id);
+  const text = el.innerText.replace(/ /g, ' ');
+  const done = () => { const b = el.parentElement.querySelector('.copy-btn'); const t = b.textContent; b.textContent = 'تم النسخ ✓'; setTimeout(() => b.textContent = t, 1400); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(done); else done();
+}
+
+/* click-to-explain code lines */
+document.querySelectorAll('.code-box[data-expl]').forEach(box => {
+  const id = box.getAttribute('data-expl');
+  const out = document.querySelector('.explain-box[data-for="' + id + '"]');
+  box.querySelectorAll('.code-line').forEach(line => {
+    line.addEventListener('click', () => {
+      box.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+      line.classList.add('active');
+      out.innerHTML = EXPL[id][line.getAttribute('data-i')];
+    });
+  });
+});
+
+/* true / false check */
+(function () {
+  const list = document.getElementById('tfList');
+  let answered = 0, right = 0;
+  TF.forEach((it, i) => {
+    const d = document.createElement('div');
+    d.className = 'tf-item';
+    d.innerHTML = '<div class="stmt">' + (i + 1) + '. ' + it.s + '</div>' +
+      '<div class="tf-btns"><button class="tf-btn" data-v="true"><i class="fas fa-check"></i> صحيح</button>' +
+      '<button class="tf-btn" data-v="false"><i class="fas fa-xmark"></i> خطأ</button></div><div class="feedback"></div>';
+    d.querySelectorAll('.tf-btn').forEach(b => b.addEventListener('click', () => {
+      const pick = b.getAttribute('data-v') === 'true';
+      const ok = pick === it.a;
+      d.querySelectorAll('.tf-btn').forEach(x => { x.disabled = true; });
+      b.classList.add(ok ? 'correct' : 'wrong');
+      const fb = d.querySelector('.feedback');
+      fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+      fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> إجابة صحيحة. ' : '<i class="fas fa-circle-xmark"></i> الإجابة الصحيحة: ' + (it.a ? 'صحيح' : 'خطأ') + '. ') + it.why;
+      answered++; if (ok) right++;
+      if (answered === TF.length) {
+        const s = document.getElementById('tfScore');
+        s.style.display = 'block';
+        s.innerHTML = '<div class="big">' + right + ' / ' + TF.length + '</div><div>' + (right === TF.length ? 'ممتاز! فهمت الدرس جيدًا.' : right >= TF.length - 2 ? 'نتيجة جيدة، راجع العبارات التي أخطأت فيها.' : 'أعد قراءة الدرس ثم جرّب مرة أخرى.') + '</div>';
+      }
+    }));
+    list.appendChild(d);
+  });
+})();
+
+/* final quiz */
+(function () {
+  const list = document.getElementById('quizList');
+  const bar = document.getElementById('quizBar');
+  let answered = 0, right = 0;
+  QUIZ.forEach((q, qi) => {
+    const d = document.createElement('div');
+    d.className = 'quiz-q';
+    d.innerHTML = '<h4><span class="qnum">' + (qi + 1) + '</span>' + q.q + '</h4><div class="quiz-options"></div><div class="feedback"></div>';
+    const box = d.querySelector('.quiz-options');
+    q.o.forEach((txt, oi) => {
+      const b = document.createElement('button');
+      b.className = 'quiz-opt'; b.innerHTML = txt;
+      b.addEventListener('click', () => {
+        box.querySelectorAll('.quiz-opt').forEach(x => x.disabled = true);
+        const ok = oi === q.a;
+        b.classList.add(ok ? 'correct' : 'wrong');
+        if (!ok) box.children[q.a].classList.add('correct');
+        const fb = d.querySelector('.feedback');
+        fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+        fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> صحيح! ' : '<i class="fas fa-circle-xmark"></i> ليست الإجابة الصحيحة. ') + q.why;
+        answered++; if (ok) right++;
+        bar.style.width = (answered / QUIZ.length * 100) + '%';
+        if (answered === QUIZ.length) showScore();
+      });
+      box.appendChild(b);
+    });
+    list.appendChild(d);
+  });
+  function showScore() {
+    const s = document.getElementById('quizScore');
+    const pct = right / QUIZ.length;
+    s.style.display = 'block';
+    s.innerHTML = '<div class="big">' + right + ' / ' + QUIZ.length + '</div><div>' +
+      (pct === 1 ? 'نتيجة كاملة! أنت جاهز للدرس التالي.' : pct >= 0.7 ? 'أداء جيد جدًا، راجع الأسئلة التي أخطأت فيها.' : 'راجع الدرس مرة أخرى ثم أعد المحاولة.') +
+      '</div><button class="retry-btn" onclick="location.hash=\'quizCard\';location.reload();">إعادة الاختبار</button>';
+  }
+})();
+
+
+/* ---------------- header tools ---------------- */
+(function () {
+  const root = document.documentElement;
+  const safeGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const safeSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+  /* theme */
+  const themeBtn = document.getElementById('themeBtn');
+  function applyTheme(t) { root.setAttribute('data-theme', t); if (themeBtn) themeBtn.innerHTML = t === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; }
+  applyTheme(safeGet('tk_theme') || 'light');
+  if (themeBtn) themeBtn.addEventListener('click', () => { const t = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; applyTheme(t); safeSet('tk_theme', t); });
+
+  /* code size */
+  let size = parseFloat(safeGet('tk_codesize') || '0.95');
+  function applySize() { root.style.setProperty('--code-size', size + 'rem'); }
+  applySize();
+  const dec = document.getElementById('fontDec'), inc = document.getElementById('fontInc');
+  if (dec) dec.addEventListener('click', () => { size = Math.max(0.75, +(size - 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+  if (inc) inc.addEventListener('click', () => { size = Math.min(1.3, +(size + 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+
+  /* table of contents */
+  const panel = document.getElementById('tocPanel'), tocBtn = document.getElementById('tocBtn');
+  if (panel && tocBtn) {
+    const cards = document.querySelectorAll('.container > .card');
+    let n = 0;
+    cards.forEach((c, i) => {
+      const h = c.querySelector('.card-header h3, .project-banner strong');
+      if (!h) return;
+      n++;
+      c.id = c.id || 'sec-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + c.id;
+      a.innerHTML = '<span>' + n + '</span><bdi>' + h.innerHTML + '</bdi>';
+      a.addEventListener('click', () => panel.classList.remove('open'));
+      panel.appendChild(a);
+    });
+    tocBtn.addEventListener('click', (e) => { e.stopPropagation(); panel.classList.toggle('open'); });
+    document.addEventListener('click', (e) => { if (!panel.contains(e.target)) panel.classList.remove('open'); });
+  }
+
+  /* reading progress + back to top */
+  const bar = document.getElementById('readBar'), top = document.getElementById('toTop');
+  function onScroll() {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+    if (bar) bar.style.width = pct + '%';
+    if (top) top.classList.toggle('show', h.scrollTop > 600);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  if (top) top.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+})();
+
+/* ---------------- step tracer ---------------- */
+document.querySelectorAll('.tracer').forEach(el => {
+  const steps = TRACES[el.getAttribute('data-trace')];
+  const lines = el.querySelectorAll('.tr-line');
+  const varsEl = el.querySelector('.tr-vars'), outEl = el.querySelector('.tr-out'), noteEl = el.querySelector('.tr-note'), cnt = el.querySelector('.tr-count');
+  const btn = (a) => el.querySelector('[data-a="' + a + '"]');
+  let i = 0, timer = null;
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  function draw() {
+    const s = steps[i], prev = i > 0 ? steps[i - 1].vars : {};
+    lines.forEach((l, k) => l.classList.toggle('active', k === s.line));
+    const names = Object.keys(s.vars);
+    varsEl.innerHTML = names.length ? names.map(n => '<div class="tr-var' + (prev[n] !== s.vars[n] ? ' changed' : '') + '"><span>' + esc(n) + '</span><b>' + esc(s.vars[n]) + '</b></div>').join('') : '<span style="color:#94a3b8">لا توجد متغيرات بعد</span>';
+    outEl.textContent = s.out || ' ';
+    noteEl.textContent = s.note || ' ';
+    cnt.textContent = 'الخطوة ' + i + ' من ' + (steps.length - 1);
+    btn('prev').disabled = i === 0; btn('next').disabled = i === steps.length - 1;
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; btn('play').innerHTML = '<i class="fas fa-play"></i> تشغيل تلقائي'; } }
+  btn('next').onclick = () => { stop(); if (i < steps.length - 1) i++; draw(); };
+  btn('prev').onclick = () => { stop(); if (i > 0) i--; draw(); };
+  btn('reset').onclick = () => { stop(); i = 0; draw(); };
+  btn('play').onclick = () => {
+    if (timer) { stop(); return; }
+    if (i >= steps.length - 1) i = 0;
+    btn('play').innerHTML = '<i class="fas fa-pause"></i> إيقاف';
+    timer = setInterval(() => { if (i < steps.length - 1) { i++; draw(); } else stop(); }, 1100);
+    draw();
+  };
+  draw();
+});
+
+/* ---------------- predict the output ---------------- */
+document.querySelectorAll('.predict').forEach(p => {
+  const opts = p.querySelectorAll('.pd-opt');
+  opts.forEach(o => o.addEventListener('click', () => {
+    const ok = o.getAttribute('data-ok') === '1';
+    opts.forEach(x => { x.disabled = true; if (x.getAttribute('data-ok') === '1') x.classList.add('correct'); });
+    if (!ok) o.classList.add('wrong');
+    const res = p.querySelector('.pd-result');
+    res.classList.remove('hidden');
+    const msg = p.querySelector('.pd-msg');
+    msg.innerHTML = ok ? '<span style="color:#16a34a"><i class="fas fa-check-circle"></i> توقّعك صحيح! هذا هو الناتج الحقيقي:</span>' : '<span style="color:#dc2626"><i class="fas fa-circle-xmark"></i> ليس تمامًا. هذا هو الناتج الحقيقي، وتابع التفسير:</span>';
+  }));
+});
+
+
+const VIS_TEXT = {
+  g: 'g متغير عام: يُرى من سطر تصريحه حتى نهاية الملف، فتراه show وmain معًا.',
+  s: 's متغير محلي داخل show: يُرى من تصريحه حتى قوس إغلاق الدالة فقط. لا تراه main.',
+  a: 'a محلي في main: يُرى من تصريحه حتى نهاية main، بما في ذلك الكتلة الداخلية والحلقة. لا تراه show.',
+  b: 'b محلي داخل الكتلة الداخلية فقط: يختفي عند قوسها المغلق، فلا تراه الحلقة ولا بقية main.',
+  i: 'i عدّاد الحلقة: يُرى في رأس for وجسمها فقط، ويختفي عند انتهائها.'
+};
+function visShow(v, btn) {
+  document.querySelectorAll('#visCode .vis-line').forEach(l => {
+    const list = (' ' + l.getAttribute('data-v') + ' ');
+    l.classList.toggle('on', list.indexOf(' ' + v + ' ') >= 0);
+  });
+  document.querySelectorAll('.vis-btn').forEach(b => b.classList.toggle('on', b === btn));
+  document.getElementById('visDesc').textContent = VIS_TEXT[v];
+}
+
+</script>
+</body>
+</html>

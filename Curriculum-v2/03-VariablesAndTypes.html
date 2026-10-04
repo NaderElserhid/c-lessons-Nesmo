@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TweetKod | المتغيرات والأنواع</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --primary-blue: #00adef;
+  --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+  --primary-yellow: #f7941e;
+  --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+  --dark-navy: #0f172a;
+  --text-body: #475569;
+  --bg-main: #f4f9fd;
+  --surface: #f1f6fb;
+  --card-bg: #ffffff;
+  --border: #e2e8f0;
+  --chip-bg: #eef2f7;
+  --soft-shadow: 0 14px 34px -14px rgba(15,23,42,0.14);
+  --header-bg: rgba(255,255,255,0.82);
+  --code-size: 0.95rem;
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2300adef' fill-opacity='0.075'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+html[data-theme="dark"] {
+  --dark-navy: #e6edf7;
+  --text-body: #a9b6cc;
+  --bg-main: #0a1120;
+  --surface: #16213a;
+  --card-bg: #111a2e;
+  --border: #243049;
+  --chip-bg: #1d2a45;
+  --soft-shadow: 0 14px 34px -14px rgba(0,0,0,0.6);
+  --header-bg: rgba(10,17,32,0.82);
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2338bdf8' fill-opacity='0.06'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+body {
+  font-family: 'Tajawal', 'Segoe UI', sans-serif;
+  background-color: var(--bg-main);
+  margin: 0; padding: 0; color: var(--dark-navy);
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color .3s, color .3s;
+  position: relative;
+}
+/* decorative background */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.20), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.17), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.06), transparent 70%);
+}
+html[data-theme="dark"] body::before {
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.22), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.12), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.10), transparent 70%);
+}
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: var(--pattern); background-size: 260px 260px;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+          mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+}
+.bg-deco { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .35; animation: floaty 18s ease-in-out infinite; }
+.b1 { width: 340px; height: 340px; background: #00adef; top: 12%; right: -90px; }
+.b2 { width: 280px; height: 280px; background: #f7941e; bottom: 6%; left: -80px; animation-delay: -6s; }
+.b3 { width: 220px; height: 220px; background: #8b5cf6; top: 55%; right: 18%; opacity: .16; animation-delay: -11s; }
+html[data-theme="dark"] .blob { opacity: .2; }
+@keyframes floaty { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(26px,-34px) scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .blob { animation: none; } html { scroll-behavior: auto; } }
+
+/* header */
+header {
+  background: var(--header-bg); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  padding: 10px 4%; display: flex; justify-content: space-between; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 1000;
+  border-bottom: 1px solid rgba(0,173,239,0.16); box-shadow: 0 8px 28px -18px rgba(15,23,42,0.45);
+}
+.hdr-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.logo-img { width: 52px; height: 52px; border-radius: 15px; object-fit: contain; padding: 6px; background: #fff;
+  box-shadow: 0 6px 18px -6px rgba(0,173,239,0.45), 0 0 0 1px rgba(0,173,239,0.16); }
+.brand-info h3 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); line-height: 1.3; }
+.brand-info p { margin: 0; font-size: 0.78rem; color: var(--primary-blue); font-weight: 700; }
+.hdr-tools { display: flex; align-items: center; gap: 8px; position: relative; }
+.tool-btn { height: 38px; min-width: 38px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy);
+  cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: .85rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: .2s; }
+.tool-btn:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+.toc-panel { position: absolute; top: 48px; left: 0; width: 290px; max-height: 60vh; overflow-y: auto; background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 16px; box-shadow: var(--soft-shadow); padding: 8px; display: none; }
+.toc-panel.open { display: block; }
+.toc-panel a { display: flex; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 10px; color: var(--dark-navy); text-decoration: none; font-weight: 700; font-size: .88rem; }
+.toc-panel a:hover { background: var(--surface); color: var(--primary-blue); }
+.toc-panel a span { width: 22px; height: 22px; border-radius: 50%; background: var(--chip-bg); color: var(--text-body); font-size: .72rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.read-progress { position: absolute; bottom: -1px; right: 0; left: 0; height: 3px; background: transparent; }
+.read-progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #00adef, #f7941e); transition: width .1s; }
+.to-top { position: fixed; bottom: 22px; left: 22px; z-index: 900; width: 46px; height: 46px; border-radius: 50%; border: none; background: var(--blue-gradient); color: #fff;
+  cursor: pointer; box-shadow: 0 10px 24px -8px rgba(0,173,239,.7); font-size: 1.1rem; opacity: 0; pointer-events: none; transition: .25s; }
+.to-top.show { opacity: 1; pointer-events: auto; }
+@media (max-width: 980px) { .brand-info p { display: none; } }
+@media (max-width: 720px) { .brand-info h3 { font-size: 1rem; } }
+
+.container { max-width: 900px; margin: 44px auto; padding: 0 25px; }
+.title-section { text-align: center; margin-bottom: 40px; }
+.title-section h1 { font-size: 2.7rem; font-weight: 800; margin: 12px 0 6px; background: linear-gradient(135deg, var(--dark-navy), #007bb5 80%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+html[data-theme="dark"] .title-section h1 { background: linear-gradient(135deg, #fff, #38bdf8 80%); -webkit-background-clip: text; background-clip: text; }
+.attribution { color: var(--primary-blue); font-size: 1.15rem; font-weight: 600; }
+.lesson-chip { display: inline-block; background: var(--yellow-gradient); color: #fff; padding: 6px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; box-shadow: 0 8px 18px -8px rgba(247,148,30,.8); }
+
+.card { background: var(--card-bg); border-radius: 25px; padding: 40px; margin-bottom: 30px; box-shadow: var(--soft-shadow); border-right: 8px solid var(--primary-blue);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); transition: background-color .3s; }
+.steps-card { border-right-color: var(--primary-yellow); }
+.card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+.card-header i { font-size: 1.8rem; }
+.card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+h4 { margin: 18px 0 8px; font-size: 1.05rem; color: var(--dark-navy); }
+p { color: var(--text-body); margin: 0 0 14px; }
+a { color: var(--primary-blue); }
+strong { color: var(--dark-navy); }
+
+.en { direction: ltr; unicode-bidi: isolate; font-weight: 700; color: var(--dark-navy); }
+/* every code chip is an isolated LTR island: fixes ; ( ) = placement inside Arabic text */
+code, code.inline { background: var(--chip-bg); padding: 2px 8px; border-radius: 6px; direction: ltr; unicode-bidi: isolate; display: inline-block; text-align: left;
+  color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; line-height: 1.6; }
+html[data-theme="dark"] code, html[data-theme="dark"] code.inline { color: #f9a8d4; }
+
+.obj-list { list-style: none; padding: 0; margin: 0; }
+.obj-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.obj-list i { color: #22c55e; margin-top: 6px; }
+
+/* code */
+.code-box { background: #1e293b; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.35); margin: 20px 0; border: 1px solid rgba(255,255,255,.04); }
+.code-head { background: #0f172a; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+.code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; direction: ltr; }
+.copy-btn { color: #38bdf8; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; font-family: 'Tajawal'; }
+pre { padding: 26px 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: var(--code-size); tab-size: 8; }
+.cmt { color: #79c36a; font-style: italic; }
+.kw { color: #7dd3fc; }
+.str { color: #fbbf77; }
+.num { color: #c4b5fd; }
+.pp { color: #f9a8d4; }
+.code-line, .code-plain { display: block; border-radius: 6px; padding: 0 6px; margin: 0 -6px; }
+.code-line { cursor: pointer; transition: 0.2s; background: rgba(0,173,239,0.07); }
+.code-line:hover { background: rgba(0,173,239,0.22); }
+.code-line.active { background: rgba(247,148,30,0.28); outline: 1px dashed var(--primary-yellow); }
+.explain-box { margin-top: 14px; background: var(--surface); border: 2px dashed var(--border); border-radius: 16px; padding: 16px 22px; font-weight: 600; color: var(--dark-navy); min-height: 30px; }
+.explain-box .hint { color: #94a3b8; font-weight: 500; }
+.output-box, .input-box { font-family: 'Consolas', monospace; padding: 16px 22px; border-radius: 14px; margin: 10px 0 18px; direction: ltr; text-align: left; white-space: pre-wrap; tab-size: 8; font-size: var(--code-size); }
+.output-box { background: #0f172a; color: #4ade80; }
+.input-box { background: #0c2233; color: #7dd3fc; margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.input-box + .output-box { margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; border-top: 1px dashed #1e3a52; }
+.output-box::before, .input-box::before { display: block; font-size: 0.72rem; letter-spacing: 0.08em; margin-bottom: 6px; text-transform: uppercase; color: #64748b; }
+.output-box::before { content: 'Output'; }
+.input-box::before { content: 'Input (typed by the user)'; }
+.error-box { background: #1f1317; border: 1px solid #7f1d1d; border-radius: 14px; margin: 10px 0 18px; overflow: hidden; }
+.error-head { background: #450a0a; color: #fca5a5; padding: 8px 18px; font-weight: 700; font-size: 0.85rem; }
+.error-box pre { color: #fecaca; font-size: 0.8rem; padding: 14px 20px; line-height: 1.7; }
+
+/* steps */
+.step-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 14px; padding: 18px 20px; background: var(--card-bg); border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+.step-number { background: var(--yellow-gradient); color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+.step-item h4 { margin: 0 0 4px; font-size: 1rem; }
+.step-item p { margin: 0; font-size: 0.92rem; }
+
+/* tables */
+.table-wrap { overflow-x: auto; margin: 15px 0; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+table.data-table { width: 100%; border-collapse: collapse; background: var(--card-bg); }
+table.data-table th { background: var(--blue-gradient); color: #fff; padding: 12px 18px; font-size: 0.85rem; text-align: right; white-space: nowrap; }
+table.data-table td { padding: 12px 18px; font-size: 0.9rem; border-bottom: 1px solid var(--border); color: var(--text-body); }
+table.data-table tr:last-child td { border-bottom: none; }
+
+/* comparison / rules */
+.compare-grid, .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+@media (max-width: 700px) { .compare-grid, .rule-grid { grid-template-columns: 1fr; } .card { padding: 24px; } .title-section h1 { font-size: 2rem; } }
+.compare-card { border-radius: 16px; overflow: hidden; background: #1e293b; }
+.compare-title { padding: 10px 18px; font-weight: 800; font-size: 0.9rem; }
+.good .compare-title { background: #dcfce7; color: #15803d; }
+.bad .compare-title { background: #fee2e2; color: #b91c1c; }
+.compare-card pre { padding: 18px 20px; font-size: 0.83rem; }
+.rule-list { background: var(--surface); border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
+.rule-list h5 { margin: 0 0 12px; font-size: 0.95rem; }
+.rule-list.yes h5 { color: #16a34a; } .rule-list.no h5 { color: #dc2626; }
+.rule-list ul { list-style: none; padding: 0; margin: 0; }
+.rule-list li { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 0.9rem; color: var(--text-body); }
+.rule-list.yes li i { color: #22c55e; } .rule-list.no li i { color: #ef4444; }
+
+.tip-box { background: rgba(247,148,30,0.09); border: 2px dashed var(--primary-yellow); border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 4px; }
+.tip-box p { margin: 0; font-size: 0.93rem; }
+
+/* project */
+.project-banner { background: var(--blue-gradient); color: #fff; border-radius: 18px; padding: 16px 22px; margin-bottom: 18px; display: flex; gap: 14px; align-items: center; }
+.project-banner i { font-size: 1.6rem; }
+.project-banner strong { font-size: 1.05rem; color: #fff; }
+.project-banner p { color: #e0f4ff; margin: 0; font-size: 0.9rem; }
+.brief { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 18px 22px; margin: 14px 0; }
+.brief h5 { margin: 0 0 8px; font-size: 1rem; color: var(--primary-blue); display: flex; align-items: center; gap: 8px; }
+.brief ul, .brief ol { margin: 0; padding-right: 22px; color: var(--text-body); }
+.brief li { margin-bottom: 6px; }
+details.reveal { border: 2px dashed var(--border); border-radius: 16px; padding: 4px 16px; margin: 14px 0; background: var(--card-bg); }
+details.reveal > summary { cursor: pointer; font-weight: 800; padding: 10px 0; color: var(--primary-blue); list-style: none; display: flex; align-items: center; gap: 8px; }
+details.reveal > summary::-webkit-details-marker { display: none; }
+details.reveal[open] { border-style: solid; border-color: var(--primary-blue); }
+
+/* challenges */
+.challenge-card { border-right-color: #8b5cf6; }
+.challenge-card .card-header { color: #8b5cf6; }
+.challenge { border: 1px solid var(--border); border-radius: 20px; padding: 22px 24px; margin-bottom: 20px; background: var(--surface); }
+.ch-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+.ch-head h4 { margin: 0; flex: 1; }
+.ch-num { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
+.badge { font-size: .75rem; font-weight: 800; padding: 4px 12px; border-radius: 50px; }
+.badge.easy { background: #dcfce7; color: #15803d; }
+.badge.medium { background: #fef3c7; color: #b45309; }
+.challenge h5 { margin: 14px 0 6px; font-size: .9rem; color: var(--dark-navy); }
+.challenge ul { margin: 0 0 6px; padding-right: 22px; color: var(--text-body); }
+.challenge li { margin-bottom: 4px; }
+
+/* simulators */
+.sim-box { background: var(--surface); border: 3px dashed var(--border); border-radius: 20px; padding: 28px; text-align: center; margin-top: 15px; }
+.sim-inputs { display: flex; justify-content: center; gap: 18px; margin-bottom: 18px; flex-wrap: wrap; }
+.sim-inputs .field { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.sim-inputs label { font-size: 0.82rem; color: var(--text-body); font-weight: 700; }
+.sim-inputs input[type=text], .sim-inputs input[type=number] { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1.05rem; text-align: center; font-family: 'Consolas', monospace; outline: none; direction: ltr; }
+.sim-inputs input[type=number] { width: 110px; }
+.sim-inputs input:focus { border-color: var(--primary-blue); }
+.btn-run { background: var(--yellow-gradient); color: #fff; border: none; padding: 13px 32px; border-radius: 18px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.95rem; box-shadow: 0 10px 20px -10px rgba(247,148,30,.9); }
+.sim-console { margin-top: 18px; background: #0f172a; border-radius: 14px; padding: 18px 20px; text-align: left; direction: ltr; font-family: 'Consolas', monospace; color: #4ade80; min-height: 26px; white-space: pre-wrap; font-size: 0.92rem; }
+.sim-console .line { color: #94a3b8; }
+.result-line { margin-top: 14px; font-weight: 700; color: var(--dark-navy); }
+.reorder-list { max-width: 460px; margin: 0 auto 10px; direction: ltr; }
+.reorder-item { display: flex; align-items: center; gap: 10px; background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 8px 12px; margin-bottom: 8px; font-family: 'Consolas', monospace; font-size: 0.88rem; text-align: left; }
+.reorder-item code { flex: 1; background: transparent; padding: 0; }
+.rbtn { border: none; background: #e0f2fe; color: #0369a1; border-radius: 8px; width: 30px; height: 30px; cursor: pointer; font-weight: 800; }
+.rbtn:disabled { opacity: 0.35; cursor: default; }
+.bug-list { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.bug-btn { background: var(--card-bg); color: var(--dark-navy); border: 2px solid var(--border); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Tajawal'; font-weight: 700; }
+.bug-btn.found { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.hidden { display: none; }
+.op-table { width: 100%; border-collapse: collapse; margin-top: 16px; direction: ltr; font-family: 'Consolas', monospace; font-size: .88rem; }
+.op-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--dark-navy); text-align: left; }
+.op-table td:last-child { color: var(--primary-blue); font-weight: 800; }
+
+/* glossary */
+.glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+.term-card { background: var(--surface); border-radius: 16px; padding: 18px; border: 1px solid var(--border); }
+.term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+.term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+.term-desc { font-size: 0.85rem; color: var(--text-body); margin: 0; }
+
+/* tf + quiz */
+.tf-item { border: 2px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 14px; background: var(--surface); }
+.tf-item .stmt { font-weight: 700; margin-bottom: 12px; color: var(--dark-navy); }
+.tf-btns { display: flex; gap: 10px; }
+.tf-btn { flex: 1; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 10px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: 0.95rem; }
+.tf-btn:hover { border-color: var(--primary-blue); }
+.tf-btn.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.tf-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.feedback { margin-top: 10px; font-size: 0.9rem; font-weight: 600; }
+.feedback.ok { color: #16a34a; } .feedback.no { color: #dc2626; }
+.quiz-q { margin-bottom: 26px; padding-bottom: 8px; }
+.quiz-q h4 { margin-bottom: 12px; line-height: 1.9; }
+.qnum { display: inline-flex; align-items: center; justify-content: center; background: var(--yellow-gradient); color: #fff; width: 28px; height: 28px; border-radius: 50%; font-size: 0.85rem; margin-left: 8px; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-opt { background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 12px 18px; cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s; color: var(--dark-navy); }
+.quiz-opt:hover { border-color: var(--primary-blue); }
+.quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.quiz-opt:disabled { cursor: default; }
+.quiz-opt.correct code, .quiz-opt.wrong code { background: rgba(255,255,255,.7); }
+.progress { height: 10px; background: var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 22px; }
+.progress-bar { height: 100%; width: 0; background: var(--yellow-gradient); transition: width 0.3s; }
+.score-box { text-align: center; background: var(--surface); border: 2px solid var(--border); border-radius: 18px; padding: 22px; margin-top: 10px; }
+.score-box .big { font-size: 2.2rem; font-weight: 800; color: var(--primary-blue); }
+.retry-btn { margin-top: 10px; background: var(--blue-gradient); color: #fff; border: none; border-radius: 14px; padding: 10px 26px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; }
+
+.refs-card { border-right-color: #94a3b8; }
+.ref-list { margin: 0; padding-right: 22px; }
+.ref-list li { margin-bottom: 6px; font-size: 0.9rem; }
+footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+
+/* ---------- tracer ---------- */
+.tracer { background: var(--surface); border: 2px solid var(--border); border-radius: 20px; padding: 18px; margin: 22px 0; }
+.tr-head { font-weight: 800; color: var(--primary-blue); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.tr-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .tr-grid { grid-template-columns: 1fr; } }
+.tr-code { background: #1e293b; border-radius: 14px; padding: 12px 0; direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: var(--code-size); overflow-x: auto; }
+.tr-line { display: flex; gap: 12px; padding: 1px 14px; color: #e2e8f0; white-space: pre; border-left: 4px solid transparent; transition: .15s; }
+.tr-line .ln { color: #64748b; min-width: 22px; text-align: right; user-select: none; }
+.tr-line.active { background: rgba(247,148,30,.28); border-left-color: var(--primary-yellow); }
+.tr-side { display: flex; flex-direction: column; gap: 12px; }
+.tr-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; flex: 1; }
+.tr-title { font-size: .78rem; font-weight: 800; color: var(--text-body); margin-bottom: 6px; }
+.tr-vars { direction: ltr; font-family: 'Consolas', monospace; font-size: .9rem; min-height: 28px; }
+.tr-var { display: flex; justify-content: space-between; padding: 3px 8px; border-radius: 8px; color: var(--dark-navy); }
+.tr-var b { color: var(--primary-blue); }
+.tr-var.changed { background: rgba(247,148,30,.22); }
+.tr-out { direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: .88rem; background: #0f172a; color: #4ade80; border-radius: 10px; padding: 8px 12px; min-height: 40px; white-space: pre-wrap; }
+.tr-note { margin-top: 12px; background: var(--card-bg); border: 1px dashed var(--primary-blue); border-radius: 12px; padding: 10px 16px; font-weight: 600; color: var(--dark-navy); min-height: 24px; }
+.tr-ctrl { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.tr-btn { border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 14px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: .85rem; }
+.tr-btn.primary { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.tr-btn:disabled { opacity: .4; cursor: default; }
+.tr-count { margin-right: auto; font-size: .8rem; color: var(--text-body); font-weight: 700; }
+
+/* ---------- predict ---------- */
+.predict { border: 2px solid #8b5cf6; border-radius: 20px; padding: 16px 18px; margin: 22px 0; background: var(--surface); }
+.predict-head { font-weight: 800; color: #8b5cf6; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+.predict .code-box { margin: 12px 0; }
+.pd-q { font-weight: 700; color: var(--dark-navy); margin-bottom: 10px; }
+.pd-opts { display: flex; flex-wrap: wrap; gap: 10px; }
+.pd-opt { background: var(--card-bg); border: 2px solid var(--border); color: var(--dark-navy); border-radius: 12px; padding: 9px 16px; cursor: pointer; font-family: 'Tajawal'; font-weight: 700; font-size: .92rem; }
+.pd-opt:hover { border-color: #8b5cf6; }
+.pd-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.pd-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.pd-opt:disabled { cursor: default; }
+.pd-result { margin-top: 12px; }
+.pd-msg { font-weight: 800; margin-bottom: 8px; }
+.pd-why { margin: 8px 0 0; font-size: .93rem; }
+
+/* ---------- misc ---------- */
+.summary-card { border-right-color: #22c55e; }
+.summary-card .card-header { color: #16a34a; }
+.sum-list { list-style: none; padding: 0; margin: 0; }
+.sum-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.sum-list i { color: #22c55e; margin-top: 6px; }
+.warn-box { background: rgba(239,68,68,.08); border: 2px dashed #ef4444; border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 4px; }
+.warn-box p { margin: 0; font-size: .93rem; }
+.analogy { background: linear-gradient(135deg, rgba(0,173,239,.1), rgba(139,92,246,.1)); border-radius: 18px; padding: 16px 22px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; border: 1px solid var(--border); }
+.analogy i { color: var(--primary-blue); font-size: 1.5rem; margin-top: 4px; }
+.analogy p { margin: 0; }
+.flow { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin: 18px 0; direction: rtl; }
+.flow-node { background: var(--card-bg); border: 2px solid var(--primary-blue); border-radius: 14px; padding: 10px 18px; font-weight: 800; color: var(--dark-navy); text-align: center; }
+.flow-node.decision { border-color: var(--primary-yellow); border-radius: 30px; }
+.flow-node.end { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.flow-arrow { color: var(--primary-blue); font-size: 1.2rem; }
+.flow-branch { display: flex; flex-direction: column; gap: 8px; }
+.cell-row { display: flex; direction: ltr; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 12px 0; }
+.cell { min-width: 54px; text-align: center; border: 2px solid var(--primary-blue); border-radius: 10px; background: var(--card-bg); font-family: 'Consolas', monospace; font-weight: 800; color: var(--dark-navy); padding: 6px 4px; cursor: pointer; }
+.cell small { display: block; font-size: .68rem; color: var(--text-body); font-weight: 700; }
+.cell.sel { background: rgba(247,148,30,.25); border-color: var(--primary-yellow); }
+.vis-line { display: block; padding: 0 6px; margin: 0 -6px; border-radius: 6px; opacity: .35; transition: .15s; }
+.vis-line.on { opacity: 1; background: rgba(34,197,94,.22); }
+.vis-btns { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+.vis-btn { border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Consolas', monospace; font-weight: 800; }
+.vis-btn.on { border-color: #22c55e; background: #dcfce7; color: #15803d; }
+
+.cell.ghost { opacity: .55; border-style: dashed; background: transparent; }
+
+</style>
+</head>
+<body>
+<div class="bg-deco"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+<header>
+  <div class="hdr-brand">
+    <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    <div class="brand-info"><h3>منصة TweetKod</h3><p>للتعلم البرمجي التفاعلي</p></div>
+  </div>
+  <div class="hdr-tools">
+    <button class="tool-btn" id="tocBtn" title="فهرس الدرس"><i class="fas fa-list-ul"></i> الفهرس</button>
+    <button class="tool-btn" id="fontDec" title="تصغير خط الكود">A-</button>
+    <button class="tool-btn" id="fontInc" title="تكبير خط الكود">A+</button>
+    <button class="tool-btn" id="themeBtn" title="الوضع الليلي"><i class="fas fa-moon"></i></button>
+    <div class="toc-panel" id="tocPanel"></div>
+  </div>
+  <div class="read-progress"><span id="readBar"></span></div>
+</header>
+<div class="container">
+  <div class="title-section">
+    <span class="lesson-chip">الدرس 3</span>
+    <h1>المتغيرات والأنواع</h1>
+    <p class="attribution"><span class="en">Variables and Types</span> &mdash; كيف يتذكر البرنامج بياناته</p>
+  </div>
+  <div class="card goals-card">
+    <div class="card-header"><i class="fas fa-bullseye"></i><h3>ماذا ستتعلم في هذا الدرس؟</h3></div>
+    <ul class="obj-list"><li><i class="fas fa-check-circle"></i><span>تفهم ما هو المتغير، وتفرّق بين التصريح والتهيئة والإسناد</span></li><li><i class="fas fa-check-circle"></i><span>تختار النوع المناسب لكل بيان: <code class="inline">int</code> و<code class="inline">long long</code> و<code class="inline">double</code> و<code class="inline">char</code> و<code class="inline">bool</code> و<code class="inline">string</code></span></li><li><i class="fas fa-check-circle"></i><span>تعرف حدود الأعداد الصحيحة ومتى يجب استخدام <code class="inline">long long</code></span></li><li><i class="fas fa-check-circle"></i><span>تفهم لماذا تكون الأعداد العشرية تقريبية وما الفرق بين <code class="inline">float</code> و<code class="inline">double</code></span></li><li><i class="fas fa-check-circle"></i><span>تتعامل بصواب مع القسمة الصحيحة والتحويل بين الأنواع</span></li><li><i class="fas fa-check-circle"></i><span>تسمّي المتغيرات بأسماء صحيحة ومقروءة</span></li></ul>
+  </div>
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-box-open"></i><h3>المتغير: صندوق له اسم ونوع</h3></div>
+  <p>كل برنامج يحتاج أن «يتذكر» معلومات أثناء عمله: درجة الحرارة التي قُرئت، اسم اللاعب، عدد المحاولات المتبقية. الوسيلة لذلك هي <strong>المتغير</strong> (<span class="en">variable</span>): خانة محجوزة في ذاكرة الحاسوب، لها ثلاث خصائص:</p>
+  <div class="step-item"><div class="step-number"><i class="fas fa-tag" style="font-size:.8rem"></i></div><div><h4>اسم</h4><p>نختاره نحن، ونستعمله للوصول إلى الخانة.</p></div></div>
+  <div class="step-item"><div class="step-number"><i class="fas fa-shapes" style="font-size:.8rem"></i></div><div><h4>نوع</h4><p>يحدد ما يمكن تخزينه (عدد صحيح؟ نص؟ كسر؟) وكم من الذاكرة تُحجز.</p></div></div>
+  <div class="step-item"><div class="step-number"><i class="fas fa-database" style="font-size:.8rem"></i></div><div><h4>قيمة</h4><p>المحتوى الحالي للخانة، ويمكن تغييره أثناء تشغيل البرنامج.</p></div></div>
+  <p>انظر إلى هذا المثال الذي يخزّن معلومات عن كوكب المريخ بأربعة أنواع مختلفة:</p>
+  <div class="code-box" data-expl="intro"><div class="code-head"><span>planet.cpp</span><button class="copy-btn" onclick="copyCode('code_intro')">نسخ الكود</button></div><pre id="code_intro"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;string&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-line" data-i="5">    <span class="kw">int</span> moons = <span class="num">2</span>;</span><span class="code-line" data-i="6">    <span class="kw">double</span> gravity = <span class="num">3.71</span>;</span><span class="code-line" data-i="7">    <span class="kw">char</span> symbol = <span class="str">'M'</span>;</span><span class="code-line" data-i="8">    <span class="kw">string</span> planet = <span class="str">"Mars"</span>;</span><span class="code-plain"> </span><span class="code-line" data-i="10">    cout &lt;&lt; planet &lt;&lt; <span class="str">" has "</span> &lt;&lt; moons &lt;&lt; <span class="str">" moons."</span> &lt;&lt; endl;</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="intro"><span class="hint">اضغط على أي سطر مضيء من الكود لقراءة شرحه هنا...</span></div>
+  <p style="font-size:0.9rem"><i class="fas fa-hand-pointer" style="color:var(--primary-blue)"></i> اضغط على الأسطر المضيئة:</p>
+  <div class="output-box">Mars has 2 moons.</div>
+  <p>الصيغة العامة للتصريح مع التهيئة هي: <code>type name = value;</code>. نكتب <strong>النوع</strong> أولًا، ثم <strong>الاسم</strong>، ثم علامة <code>=</code>، ثم <strong>القيمة الأولى</strong>، وتنتهي التعليمة بفاصلة منقوطة.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-pen"></i><h3>التصريح والتهيئة والإسناد</h3></div>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>المصطلح</th><th>مثال</th><th>المعنى</th></tr>
+    <tr><td>تصريح (<span class="en">declaration</span>)</td><td><code>int fuel;</code></td><td>إنشاء المتغير بنوعه واسمه</td></tr>
+    <tr><td>تهيئة (<span class="en">initialization</span>)</td><td><code>int fuel = 100;</code></td><td>إنشاء المتغير مع قيمته الأولى</td></tr>
+    <tr><td>إسناد (<span class="en">assignment</span>)</td><td><code>fuel = 75;</code></td><td>وضع قيمة جديدة في متغير موجود</td></tr>
+  </table></div>
+  <p>العلامة <code>=</code> في البرمجة ليست «يساوي» بالمعنى الرياضي، بل أمر: «احسب ما على اليمين ثم ضعه في المتغير على اليسار». لهذا يصح السطر <code>fuel = fuel - 20;</code> رغم أنه مستحيل رياضيًا:</p>
+  <div class="code-box"><div class="code-head"><span>reassign.cpp</span><button class="copy-btn" onclick="copyCode('code_reassign')">نسخ الكود</button></div><pre id="code_reassign"><span class="kw">int</span> fuel = <span class="num">100</span>;
+cout &lt;&lt; fuel &lt;&lt; endl;
+fuel = <span class="num">75</span>;
+cout &lt;&lt; fuel &lt;&lt; endl;
+fuel = fuel - <span class="num">20</span>;
+cout &lt;&lt; fuel &lt;&lt; endl;</pre></div>
+  <div class="output-box">100
+75
+55</div>
+  <div class="tip-box"><i class="fas fa-triangle-exclamation"></i><p><strong>احذر المتغيرات غير المهيّأة:</strong> إذا صرّحت عن متغير محلي دون قيمة (<code>int x;</code>) ثم قرأته، فستحصل على قيمة عشوائية غير متوقعة. اعتد أن تعطي كل متغير قيمة أولى عند إنشائه.</p></div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-table-list"></i><h3>الأنواع الأساسية</h3></div>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>النوع</th><th>يخزّن</th><th>أمثلة</th><th>الحجم النموذجي</th></tr>
+    <tr><td><code>int</code></td><td>عددًا صحيحًا</td><td><code>0, 42, -17</code></td><td>4 بايت</td></tr>
+    <tr><td><code>long long</code></td><td>عددًا صحيحًا كبيرًا</td><td><code>5000000000</code></td><td>8 بايت</td></tr>
+    <tr><td><code>double</code></td><td>عددًا عشريًا بدقة عالية</td><td><code>0.75, -2.5</code></td><td>8 بايت</td></tr>
+    <tr><td><code>float</code></td><td>عددًا عشريًا بدقة أقل</td><td><code>0.75f</code></td><td>4 بايت</td></tr>
+    <tr><td><code>char</code></td><td>حرفًا واحدًا</td><td><code>'q', '7', '#'</code></td><td>1 بايت</td></tr>
+    <tr><td><code>bool</code></td><td>صح أو خطأ</td><td><code>true, false</code></td><td>1 بايت</td></tr>
+    <tr><td><code>string</code></td><td>نصًا</td><td><code>"Riyadh"</code></td><td>يتغير بطول النص</td></tr>
+  </table></div>
+  <p>الأحجام في الجدول هي القيم المعتادة على الحواسيب الحديثة، لكن المعيار لا يفرضها حرفيًا. لذلك نقيسها بالأداة <code>sizeof</code> بدل أن نفترضها:</p>
+  <div class="code-box"><div class="code-head"><span>sizes.cpp</span><button class="copy-btn" onclick="copyCode('code_sizes')">نسخ الكود</button></div><pre id="code_sizes">cout &lt;&lt; <span class="str">"int:       "</span> &lt;&lt; <span class="kw">sizeof</span>(<span class="kw">int</span>) &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"long long: "</span> &lt;&lt; <span class="kw">sizeof</span>(<span class="kw">long</span> <span class="kw">long</span>) &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"float:     "</span> &lt;&lt; <span class="kw">sizeof</span>(<span class="kw">float</span>) &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"double:    "</span> &lt;&lt; <span class="kw">sizeof</span>(<span class="kw">double</span>) &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"bool:      "</span> &lt;&lt; <span class="kw">sizeof</span>(<span class="kw">bool</span>) &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"char:      "</span> &lt;&lt; <span class="kw">sizeof</span>(<span class="kw">char</span>) &lt;&lt; endl;</pre></div>
+  <div class="output-box">int:       4
+long long: 8
+float:     4
+double:    8
+bool:      1
+char:      1</div>
+  <p>الصورة الذهنية المفيدة: كلما زاد حجم النوع اتسع لقيم أكبر أو لدقة أعلى، لكنه يستهلك ذاكرة أكثر.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-ruler-horizontal"></i><h3>حدود الأعداد الصحيحة: متى نستخدم <span class="en">long long</span>؟</h3></div>
+  <p>خانة <code>int</code> ذات 4 بايت تتسع لقيم تقارب من <code>-2.1</code> مليار إلى <code>+2.1</code> مليار (الحد الأعلى المعتاد <code>2147483647</code>). أما <code>long long</code> فتتسع إلى نحو <code>9.2</code> كوينتيليون (<code>9223372036854775807</code>). إذا كان حاصل عمليتك قد يتجاوز المليارين فاستخدم <code>long long</code> من البداية:</p>
+  <div class="code-box"><div class="code-head"><span>bigint.cpp</span><button class="copy-btn" onclick="copyCode('code_bigint')">نسخ الكود</button></div><pre id="code_bigint"><span class="kw">long</span> <span class="kw">long</span> speed = <span class="num">299792458</span>;          <span class="cmt">// light speed in meters per second</span>
+<span class="kw">long</span> <span class="kw">long</span> perHour = speed * <span class="num">3600</span>;     <span class="cmt">// meters light travels in one hour</span>
+cout &lt;&lt; perHour &lt;&lt; endl;</pre></div>
+  <div class="output-box">1079252848800</div>
+  <p>الناتج أكبر من تريليون، وهو يفوق حد <code>int</code> بمئات المرات.</p>
+  <div class="tip-box"><i class="fas fa-triangle-exclamation"></i><p><strong>الفيضان (<span class="en">overflow</span>):</strong> عندما يتجاوز ناتج عملية على <code>int</code> الحد المسموح به، لا يتوقف البرنامج ولا يعرض تنبيهًا، بل تصبح النتيجة غير موثوقة. وفي التسابق البرمجي يكون هذا أحد أشهر أسباب الإجابات الخاطئة، فاقرأ حدود المسألة أولًا ثم اختر النوع.</p></div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-percent"></i><h3>الأعداد العشرية والدقة</h3></div>
+  <p>يخزّن الحاسوب الأعداد العشرية بصيغة ثنائية تقريبية، ولذلك فكثير من الكسور لا تُمثَّل بدقة كاملة. الفرق بين <code>float</code> و<code>double</code> هو عدد الخانات الموثوقة:</p>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>النوع</th><th>الدقة التقريبية</th></tr>
+    <tr><td><code>float</code></td><td>نحو 6 إلى 7 أرقام معنوية</td></tr>
+    <tr><td><code>double</code></td><td>نحو 15 إلى 16 رقمًا معنويًا</td></tr>
+  </table></div>
+  <p>لنكشف الأرقام المخفية بطباعة عدد كبير من الخانات باستخدام <code>setprecision</code> من الترويسة <code>&lt;iomanip&gt;</code>:</p>
+  <div class="code-box"><div class="code-head"><span>precision.cpp</span><button class="copy-btn" onclick="copyCode('code_precision')">نسخ الكود</button></div><pre id="code_precision">cout &lt;&lt; setprecision(<span class="num">17</span>);
+cout &lt;&lt; <span class="num">0.1</span> + <span class="num">0.2</span> &lt;&lt; endl;
+
+<span class="kw">float</span> pf = <span class="num">3.14159265358979</span>;
+<span class="kw">double</span> pd = <span class="num">3.14159265358979</span>;
+cout &lt;&lt; setprecision(<span class="num">15</span>);
+cout &lt;&lt; pf &lt;&lt; endl;
+cout &lt;&lt; pd &lt;&lt; endl;</pre></div>
+  <div class="output-box">0.30000000000000004
+3.14159274101257
+3.14159265358979</div>
+  <p>الملاحظتان: حاصل <code>0.1 + 0.2</code> ليس <code>0.3</code> تمامًا، ونفس العدد <code>3.14159265358979</code> يخرج من <code>float</code> مشوّهًا بعد الرقم السابع تقريبًا، بينما يحتفظ به <code>double</code> كاملًا.</p>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p>القاعدة العملية: استخدم <code>double</code> افتراضيًا للأعداد العشرية، ولا تعتمد على المقارنة بـ <code>==</code> بين عددين عشريين ناتجين عن عمليات حسابية.</p></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-font"></i><h3>الحروف: <span class="en">char</span> وأرقامها السرية</h3></div>
+  <p>الحاسوب لا يعرف الحروف، بل يخزّن لكل حرف رقمًا (ضمن جدول <span class="en">ASCII</span>). لذلك يمكن التعامل مع <code>char</code> كحرف أو كرقم صغير حسب ما نطلب:</p>
+  <div class="code-box"><div class="code-head"><span>chars.cpp</span><button class="copy-btn" onclick="copyCode('code_chars')">نسخ الكود</button></div><pre id="code_chars"><span class="kw">char</span> letter = <span class="str">'A'</span>;
+cout &lt;&lt; letter &lt;&lt; endl;
+cout &lt;&lt; <span class="kw">static_cast</span>&lt;<span class="kw">int</span>&gt;(letter) &lt;&lt; endl;
+cout &lt;&lt; <span class="kw">char</span>(letter + <span class="num">2</span>) &lt;&lt; endl;</pre></div>
+  <div class="output-box">A
+65
+C</div>
+  <p>الحرف <code>'A'</code> رمزه <code>65</code>، وبإضافة <code>2</code> نصل إلى الحرف الثالث في الأبجدية <code>'C'</code>. ولاحظ الفرق المهم:</p>
+  <div class="compare-grid">
+    <div class="compare-card good"><div class="compare-title"><i class="fas fa-check-circle"></i> صحيح</div><pre><span class="kw">char</span> grade = <span class="str">'B'</span>;
+<span class="kw">string</span> city = <span class="str">"Jeddah"</span>;</pre></div>
+    <div class="compare-card bad"><div class="compare-title"><i class="fas fa-times-circle"></i> خطأ</div><pre><span class="kw">char</span> grade = <span class="str">"B"</span>;
+<span class="kw">string</span> city = <span class="str">'Jeddah'</span>;</pre></div>
+  </div>
+  <p>علامة التنصيص <strong>المفردة</strong> لحرف واحد، و<strong>المزدوجة</strong> لنص كامل.</p>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-divide"></i><h3>القسمة بين الأعداد الصحيحة والعشرية</h3></div>
+  <p>الأمر المربك الأول لكل مبتدئ: ناتج قسمة عددين صحيحين عدد صحيح دائمًا، فيُحذف الكسر. ولحساب الباقي نستخدم العامل <code>%</code>:</p>
+  <div class="code-box"><div class="code-head"><span>division.cpp</span><button class="copy-btn" onclick="copyCode('code_division')">نسخ الكود</button></div><pre id="code_division">cout &lt;&lt; <span class="num">17</span> / <span class="num">5</span> &lt;&lt; endl;
+cout &lt;&lt; <span class="num">17</span> % <span class="num">5</span> &lt;&lt; endl;
+cout &lt;&lt; <span class="num">17</span> / <span class="num">5.0</span> &lt;&lt; endl;</pre></div>
+  <div class="output-box">3
+2
+3.4</div>
+  <p>يكفي أن يكون أحد الطرفين عشريًا (<code>5.0</code>) حتى يصبح الناتج عشريًا. وعندما يكون الطرفان متغيرين صحيحين نحوّل أحدهما صراحةً قبل القسمة:</p>
+  <div class="code-box"><div class="code-head"><span>cast.cpp</span><button class="copy-btn" onclick="copyCode('code_cast')">نسخ الكود</button></div><pre id="code_cast"><span class="kw">int</span> total = <span class="num">17</span>;
+<span class="kw">int</span> people = <span class="num">5</span>;
+<span class="kw">double</span> average = <span class="kw">static_cast</span>&lt;<span class="kw">double</span>&gt;(total) / people;
+cout &lt;&lt; average &lt;&lt; endl;</pre></div>
+  <div class="output-box">3.4</div>
+  <p>التعبير <code>static_cast&lt;double&gt;(total)</code> يُنشئ نسخة عشرية مؤقتة من <code>total</code>، دون أن يغيّر المتغير نفسه.</p>
+  <h4>وماذا عن وضع عدد عشري في متغير صحيح؟</h4>
+  <div class="code-box"><div class="code-head"><span>truncate.cpp</span><button class="copy-btn" onclick="copyCode('code_trunc')">نسخ الكود</button></div><pre id="code_trunc"><span class="kw">int</span> whole = <span class="num">3.9</span>;
+cout &lt;&lt; whole &lt;&lt; endl;</pre></div>
+  <div class="output-box">3</div>
+  <p>يُحذف الجزء الكسري ولا يُقرَّب. فالعدد <code>3.9</code> أصبح <code>3</code>، وهذا يسمى <strong>البتر</strong> (<span class="en">truncation</span>).</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-toggle-on"></i><h3>النوع <span class="en">bool</span>: قرارات صح وخطأ</h3></div>
+  <p>المتغير المنطقي يحمل قيمة واحدة من اثنتين: <code>true</code> أو <code>false</code>، وغالبًا نحصل عليه من مقارنة. وعند الطباعة تظهر <code>1</code> و<code>0</code>، إلا إذا استخدمنا <code>boolalpha</code>:</p>
+  <div class="code-box"><div class="code-head"><span>bools.cpp</span><button class="copy-btn" onclick="copyCode('code_bools')">نسخ الكود</button></div><pre id="code_bools"><span class="kw">int</span> altitude = <span class="num">1200</span>;
+<span class="kw">bool</span> aboveClouds = altitude &gt; <span class="num">2000</span>;
+<span class="kw">bool</span> inRange = altitude &gt;= <span class="num">500</span>;
+cout &lt;&lt; aboveClouds &lt;&lt; <span class="str">" "</span> &lt;&lt; inRange &lt;&lt; endl;
+cout &lt;&lt; boolalpha &lt;&lt; inRange &lt;&lt; endl;</pre></div>
+  <div class="output-box">0 1
+true</div>
+  <p>سنستخدم هذا النوع كثيرًا مع الجمل الشرطية والحلقات في الدروس القادمة.</p>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-tag"></i><h3>تسمية المتغيرات</h3></div>
+  <p>الاسم الجيد يشرح الغرض: <code>batteryLevel</code> أوضح من <code>x</code>. أما القواعد الإلزامية فهي:</p>
+  <div class="rule-grid">
+    <div class="rule-list yes"><h5><i class="fas fa-circle-check"></i> يُسمح</h5><ul>
+      <li><i class="fas fa-check"></i> حروف إنجليزية وأرقام وشرطة سفلية <code>_</code></li>
+      <li><i class="fas fa-check"></i> البدء بحرف أو بشرطة سفلية</li>
+      <li><i class="fas fa-check"></i> الحروف الكبيرة والصغيرة معًا</li>
+    </ul></div>
+    <div class="rule-list no"><h5><i class="fas fa-circle-xmark"></i> يُمنع</h5><ul>
+      <li><i class="fas fa-xmark"></i> البدء برقم مثل <code>2ndPlace</code></li>
+      <li><i class="fas fa-xmark"></i> المسافات مثل <code>best time</code></li>
+      <li><i class="fas fa-xmark"></i> الرموز مثل <code>speed-max</code> أو <code>cost$</code></li>
+      <li><i class="fas fa-xmark"></i> الكلمات المحجوزة مثل <code>double</code> أو <code>return</code></li>
+    </ul></div>
+  </div>
+  <p style="margin-top:16px">وحالة الأحرف مهمة: <code>BestTime</code> و<code>bestTime</code> متغيران مختلفان تمامًا. أما الأسماء التالية فكلها صحيحة (ترجمنا الملف للتأكد):</p>
+  <div class="code-box"><div class="code-head"><span>names.cpp</span><button class="copy-btn" onclick="copyCode('code_names')">نسخ الكود</button></div><pre id="code_names"><span class="kw">int</span> lap2 = <span class="num">1</span>;
+<span class="kw">int</span> _temp = <span class="num">2</span>;
+<span class="kw">int</span> best_time = <span class="num">3</span>;
+<span class="kw">int</span> bestTime = <span class="num">4</span>;
+<span class="kw">int</span> BestTime = <span class="num">5</span>;</pre></div>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>النمط</th><th>الشكل</th><th>ملاحظة</th></tr>
+    <tr><td><span class="en">snake_case</span></td><td><code>best_time</code></td><td>كلمات صغيرة تفصل بينها شرطة سفلية</td></tr>
+    <tr><td><span class="en">camelCase</span></td><td><code>bestTime</code></td><td>الكلمة الأولى صغيرة وكل كلمة بعدها تبدأ بحرف كبير</td></tr>
+    <tr><td><span class="en">PascalCase</span></td><td><code>BestTime</code></td><td>كل كلمة تبدأ بحرف كبير، ويُستخدم عادةً لأسماء الأنواع</td></tr>
+  </table></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p>اختر نمطًا واحدًا والتزم به في المشروع كله. فالاتساق أهم من النمط نفسه.</p></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-wand-magic-sparkles"></i><h3>اختياري: <span class="en">auto</span></h3></div>
+  <p>بدل أن نكتب النوع، نترك المترجم يستنتجه من القيمة الأولى. يفيد في الأنواع الطويلة لاحقًا، أما الآن فالأفضل أن تكتب النوع صراحةً لتتدرب عليه:</p>
+  <div class="code-box"><div class="code-head"><span>auto.cpp</span><button class="copy-btn" onclick="copyCode('code_autos')">نسخ الكود</button></div><pre id="code_autos"><span class="kw">auto</span> a = <span class="num">7</span>;        <span class="cmt">// int</span>
+<span class="kw">auto</span> b = <span class="num">2.5</span>;      <span class="cmt">// double</span>
+<span class="kw">auto</span> c = <span class="str">'x'</span>;      <span class="cmt">// char</span>
+<span class="kw">auto</span> d = <span class="kw">true</span>;     <span class="cmt">// bool</span>
+cout &lt;&lt; a &lt;&lt; <span class="str">" "</span> &lt;&lt; b &lt;&lt; <span class="str">" "</span> &lt;&lt; c &lt;&lt; <span class="str">" "</span> &lt;&lt; d &lt;&lt; endl;</pre></div>
+  <div class="output-box">7 2.5 x 1</div>
+  <p>لا بد من قيمة أولية عند استخدام <code>auto</code>، لأن المترجم يعتمد عليها في الاستنتاج.</p>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-flask"></i><h3>مختبر تفاعلي: أي نوع أختار؟</h3></div>
+  <p>اكتب قيمة كما تكتبها في الكود (مثل <code>42</code> أو <code>3.5</code> أو <code>'k'</code> أو <code>"Hello"</code> أو <code>true</code> أو <code>5000000000</code>)، وسيقترح المحاكي النوع المناسب.</p>
+  <div class="sim-box">
+    <div class="sim-inputs"><div class="field"><label>القيمة</label><input type="text" id="tfValue" value="5000000000" style="width:220px"></div></div>
+    <button class="btn-run" onclick="detectType()"><i class="fas fa-magnifying-glass"></i> اقترح النوع</button>
+    <div class="sim-console" id="tfOut"></div>
+    <div class="result-line" id="tfNote"></div>
+  </div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="project-banner"><i class="fas fa-robot"></i><div><strong>مشروع الدرس: بطاقة حالة الروبوت</strong><p>نجمع الأنواع الخمسة في برنامج واحد يعرض بطاقة منسقة.</p></div></div>
+  <div class="brief"><h5><i class="fas fa-lightbulb"></i> الفكرة</h5>
+    <p style="margin:0">فريق يشغّل روبوت استكشاف عن بُعد، ويريد شاشة صغيرة تعرض حالته بوضوح كلما تغيّرت بياناته. بيانات الروبوت متنوعة: اسمه نص، وبطاريته عدد صحيح، وسرعته عدد عشري، ووضع تشغيله حرف واحد، واتصاله بالشبكة قيمة صح أو خطأ.</p></div>
+  <div class="brief"><h5><i class="fas fa-list-check"></i> المطلوب منك</h5>
+    <ol>
+      <li>أنشئ خمسة متغيرات بالأنواع المناسبة، وأعطِ كلًا منها قيمة أولية: الاسم <code>Rover-7</code>، البطارية <code>82</code>، السرعة <code>1.5</code>، الوضع <code>E</code>، متصل <code>true</code>.</li>
+      <li>اطبع عنوان البطاقة ثم خمسة أسطر، سطر لكل متغير، مع كلمة وصفية قبل كل قيمة.</li>
+      <li>اطبع علامة <code>%</code> بعد البطارية، والوحدة <code>m/s</code> بعد السرعة.</li>
+      <li>اجعل القيمة المنطقية تظهر كلمة <code>true</code> أو <code>false</code> لا رقمًا (تذكّر <code>boolalpha</code>).</li>
+    </ol></div>
+  <div class="brief"><h5><i class="fas fa-bullseye"></i> الشكل المطلوب للناتج</h5>
+    <div class="output-box">=== Rover Status Card ===
+Name:    Rover-7
+Battery: 82%
+Speed:   1.5 m/s
+Mode:    E
+Online:  true</div></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p><strong>قبل أن تكتب:</strong> اسأل نفسك عن كل قيمة: هل هي نص؟ حرف واحد؟ عدد صحيح؟ عدد بكسر؟ صح أو خطأ؟ اختيار النوع الصحيح هو نصف الحل.</p></div>
+  <details class="reveal"><summary><i class="fas fa-eye"></i> بعد أن تجرّب بنفسك: اعرض الحل</summary>
+    <div class="code-box"><div class="code-head"><span>rover.cpp</span><button class="copy-btn" onclick="copyCode('code_project')">نسخ الكود</button></div><pre id="code_project"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;string&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">string</span> name = <span class="str">"Rover-7"</span>;
+    <span class="kw">int</span> battery = <span class="num">82</span>;
+    <span class="kw">double</span> speed = <span class="num">1.5</span>;
+    <span class="kw">char</span> mode = <span class="str">'E'</span>;
+    <span class="kw">bool</span> online = <span class="kw">true</span>;
+
+    cout &lt;&lt; <span class="str">"=== Rover Status Card ==="</span> &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Name:    "</span> &lt;&lt; name &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Battery: "</span> &lt;&lt; battery &lt;&lt; <span class="str">"%"</span> &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Speed:   "</span> &lt;&lt; speed &lt;&lt; <span class="str">" m/s"</span> &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Mode:    "</span> &lt;&lt; mode &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Online:  "</span> &lt;&lt; boolalpha &lt;&lt; online &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  </details>
+</div>
+
+
+<div class="card challenge-card"><div class="card-header"><i class="fas fa-dumbbell"></i><h3>واجبات بعد الدرس</h3></div><p>تحديان بسيطان تحلّهما بنفسك بعد انتهاء الدرس. اكتب الحل في ملف <code>.cpp</code>، ثم ترجمه وشغّله وقارن ناتجك بالناتج المتوقع. جرّب أولًا، ثم افتح التلميح إن علقت، ولا تفتح نموذج الحل إلا بعد المحاولة الجادة.</p><div class="challenge"><div class="ch-head"><span class="ch-num">1</span><h4>متوسط سرعة الرحلة</h4><span class="badge easy">سهل</span></div><p>قطعت سيارة مسافة <code>450</code> كيلومترًا في <code>4</code> ساعات. المسافة والساعات عددان صحيحان، لكن المتوسط قد يحتوي كسرًا. احسب المتوسط واطبعه.</p><h5>المطلوب</h5><ul><li>عرّف متغيرين صحيحين: <code>distance</code> بقيمة 450 و<code>hours</code> بقيمة 4.</li><li>عرّف متغيرًا عشريًا <code>speed</code> يحمل ناتج قسمة المسافة على الساعات.</li><li>اطبع الجملة كما في الناتج المتوقع.</li><li>تحقق أن ناتجك <code>112.5</code> وليس <code>112</code>.</li></ul><h5>الناتج المتوقع</h5><div class="output-box">Average speed: 112.5 km/h</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> تلميحات</summary><ul><li>قسمة عددين صحيحين تحذف الكسر، فحوّل أحدهما إلى <code>double</code> قبل القسمة.</li><li>استخدم <code>static_cast&lt;double&gt;(distance)</code>.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> نموذج الحل (بعد المحاولة)</summary><div class="code-box"><div class="code-head"><span>speed.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_speed')">نسخ الكود</button></div><pre id="code_ch_speed"><span class="cmt">// Challenge 1: average speed</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> distance = <span class="num">450</span>;
+    <span class="kw">int</span> hours = <span class="num">4</span>;
+    <span class="kw">double</span> speed = <span class="kw">static_cast</span>&lt;<span class="kw">double</span>&gt;(distance) / hours;
+    cout &lt;&lt; <span class="str">"Average speed: "</span> &lt;&lt; speed &lt;&lt; <span class="str">" km/h"</span> &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div><div class="challenge"><div class="ch-head"><span class="ch-num">2</span><h4>فاتورة المتجر</h4><span class="badge medium">متوسط</span></div><p>اشترى عميل <code>3</code> قطع من منتج سعر الواحدة <code>24.5</code> ريالًا. يمنح المتجر الشحن المجاني إذا بلغ المجموع <code>70</code> ريالًا فأكثر.</p><h5>المطلوب</h5><ul><li>عرّف <code>price</code> من النوع المناسب لسعر عشري، و<code>quantity</code> للكمية.</li><li>احسب المجموع في متغير <code>total</code>.</li><li>عرّف متغيرًا منطقيًا <code>freeShipping</code> يحمل نتيجة مقارنة المجموع بالعدد 70.</li><li>اطبع المجموع وحالة الشحن المجاني بصيغة <code>true</code> أو <code>false</code>.</li></ul><h5>الناتج المتوقع</h5><div class="output-box">Total: 73.5 SAR
+Free shipping: true</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> تلميحات</summary><ul><li>نتيجة المقارنة <code>total &gt;= 70</code> قيمة من النوع <code>bool</code>.</li><li>اكتب <code>boolalpha</code> قبل طباعة القيمة المنطقية.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> نموذج الحل (بعد المحاولة)</summary><div class="code-box"><div class="code-head"><span>shop.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_shop')">نسخ الكود</button></div><pre id="code_ch_shop"><span class="cmt">// Challenge 2: shop total</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">double</span> price = <span class="num">24.5</span>;
+    <span class="kw">int</span> quantity = <span class="num">3</span>;
+    <span class="kw">double</span> total = price * quantity;
+    <span class="kw">bool</span> freeShipping = total &gt;= <span class="num">70</span>;
+    cout &lt;&lt; <span class="str">"Total: "</span> &lt;&lt; total &lt;&lt; <span class="str">" SAR"</span> &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Free shipping: "</span> &lt;&lt; boolalpha &lt;&lt; freeShipping &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div></div>
+
+<div class="card summary-card"><div class="card-header"><i class="fas fa-clipboard-list"></i><h3>ملخص سريع</h3></div><ul class="sum-list"><li><i class="fas fa-circle-check"></i><span>المتغير صندوق له اسم ونوع يحفظ قيمة قابلة للتغيير.</span></li><li><i class="fas fa-circle-check"></i><span>الأنواع الأساسية: <code class="inline">int</code> و<code class="inline">long long</code> للصحيح، و<code class="inline">double</code> للعشري، و<code class="inline">char</code> للحرف، و<code class="inline">bool</code> لصح/خطأ، و<code class="inline">string</code> للنص.</span></li><li><i class="fas fa-circle-check"></i><span>التصريح هو إنشاء المتغير، والتهيئة هي أول قيمة، والإسناد هو تغيير القيمة لاحقًا.</span></li><li><i class="fas fa-circle-check"></i><span>الأعداد الصحيحة لها حدود، فاستخدم <code class="inline">long long</code> للقيم الكبيرة.</span></li><li><i class="fas fa-circle-check"></i><span>قسمة عددين صحيحين تعطي عددًا صحيحًا؛ حوّل أحدهما إلى <code class="inline">double</code> إن أردت الكسر.</span></li><li><i class="fas fa-circle-check"></i><span>اختر أسماء واضحة تصف القيمة المخزنة.</span></li></ul></div>
+  <div class="card steps-card" id="tfCard">
+    <div class="card-header"><i class="fas fa-clipboard-check"></i><h3>تحقق من فهمك</h3></div>
+    <p>اقرأ كل عبارة ثم اختر <strong>صحيح</strong> أو <strong>خطأ</strong>. سيظهر التفسير مباشرة بعد إجابتك.</p>
+    <div id="tfList"></div>
+    <div class="score-box" id="tfScore" style="display:none"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><i class="fas fa-book"></i><h3>قاموس المصطلحات</h3></div>
+    <p>المصطلحات الإنجليزية الأهم في هذا الدرس ومقابلها بالعربية:</p>
+    <div class="glossary-grid"><div class="term-card"><span class="term-en">Variable</span><span class="term-ar">متغير</span><p class="term-desc">خانة في الذاكرة لها اسم ونوع وقيمة يمكن تغييرها.</p></div><div class="term-card"><span class="term-en">Declaration</span><span class="term-ar">تصريح</span><p class="term-desc">إنشاء متغير بتحديد نوعه واسمه.</p></div><div class="term-card"><span class="term-en">Initialization</span><span class="term-ar">تهيئة</span><p class="term-desc">إعطاء المتغير قيمته الأولى عند إنشائه.</p></div><div class="term-card"><span class="term-en">Assignment</span><span class="term-ar">إسناد</span><p class="term-desc">وضع قيمة جديدة في متغير موجود باستخدام <code class="inline">=</code>.</p></div><div class="term-card"><span class="term-en">Data type</span><span class="term-ar">نوع بيانات</span><p class="term-desc">يحدد ما يمكن تخزينه في المتغير وحجم الذاكرة المحجوزة.</p></div><div class="term-card"><span class="term-en">Integer</span><span class="term-ar">عدد صحيح</span><p class="term-desc">رقم بلا كسور، مثل <code class="inline">int</code> و<code class="inline">long long</code>.</p></div><div class="term-card"><span class="term-en">Floating-point</span><span class="term-ar">عدد عشري</span><p class="term-desc">عدد يحتوي جزءًا كسريًا، مثل <code class="inline">double</code> و<code class="inline">float</code>.</p></div><div class="term-card"><span class="term-en">Precision</span><span class="term-ar">الدقة</span><p class="term-desc">عدد الأرقام المعنوية التي يحتفظ بها النوع بشكل موثوق.</p></div><div class="term-card"><span class="term-en">Character</span><span class="term-ar">حرف</span><p class="term-desc">رمز واحد مخزّن في <code class="inline">char</code> ويُكتب بين علامتي تنصيص مفردتين.</p></div><div class="term-card"><span class="term-en">String</span><span class="term-ar">نص</span><p class="term-desc">تسلسل من الحروف مخزّن في <code class="inline">string</code> ويُكتب بين علامتي تنصيص مزدوجتين.</p></div><div class="term-card"><span class="term-en">Boolean</span><span class="term-ar">منطقي</span><p class="term-desc">قيمة <code class="inline">true</code> أو <code class="inline">false</code> مخزّنة في <code class="inline">bool</code>.</p></div><div class="term-card"><span class="term-en">Overflow</span><span class="term-ar">فيضان</span><p class="term-desc">تجاوز ناتج العملية للحد الأعلى للنوع فتصبح النتيجة غير موثوقة.</p></div><div class="term-card"><span class="term-en">Truncation</span><span class="term-ar">بتر</span><p class="term-desc">حذف الجزء الكسري عند تحويل عدد عشري إلى صحيح.</p></div><div class="term-card"><span class="term-en">Type casting</span><span class="term-ar">تحويل صريح للنوع</span><p class="term-desc">تحويل قيمة من نوع إلى آخر باستخدام <code class="inline">static_cast</code>.</p></div><div class="term-card"><span class="term-en">Identifier</span><span class="term-ar">معرّف</span><p class="term-desc">الاسم الذي نختاره لمتغير أو دالة.</p></div><div class="term-card"><span class="term-en">Keyword</span><span class="term-ar">كلمة محجوزة</span><p class="term-desc">كلمة لها معنى خاص في اللغة ولا تصلح اسمًا لمتغير.</p></div><div class="term-card"><span class="term-en">Case-sensitive</span><span class="term-ar">حسّاس لحالة الأحرف</span><p class="term-desc">يفرّق بين الحرف الكبير والصغير، فـ <code class="inline">Id</code> تختلف عن <code class="inline">id</code>.</p></div><div class="term-card"><span class="term-en">sizeof</span><span class="term-ar">عامل الحجم</span><p class="term-desc">عامل يعيد حجم النوع أو المتغير بالبايت.</p></div></div>
+  </div>
+  <div class="card steps-card" id="quizCard">
+    <div class="card-header"><i class="fas fa-circle-question"></i><h3>الاختبار النهائي</h3></div>
+    <p>عشرة أسئلة بين السهلة والمتوسطة. اختر إجابة واحدة لكل سؤال.</p>
+    <div class="progress"><div class="progress-bar" id="quizBar"></div></div>
+    <div id="quizList"></div>
+    <div class="score-box" id="quizScore" style="display:none"></div>
+  </div>
+  <div class="card refs-card">
+    <div class="card-header"><i class="fas fa-link"></i><h3>للاستزادة</h3></div>
+    <p>الحقائق التقنية في هذا الدرس موثّقة في المراجع التالية، أما الشرح والأمثلة والتمارين فمكتوبة خصيصًا لمنصة TweetKod:</p>
+    <ul class="ref-list"><li><a href="https://github.com/federico-busato/Modern-CPP-Programming" target="_blank" rel="noopener"><span class="en">Modern C++ Programming &mdash; Federico Busato (CC BY 4.0)</span></a></li><li><a href="https://www.learn-cpp.org/" target="_blank" rel="noopener"><span class="en">Learn C++ (Apache 2.0)</span></a></li><li><a href="https://en.cppreference.com/w/cpp/language/types" target="_blank" rel="noopener"><span class="en">Fundamental types &mdash; cppreference</span></a></li></ul>
+  </div>
+</div>
+<button class="to-top" id="toTop" title="إلى الأعلى"><i class="fas fa-arrow-up"></i></button>
+<footer class="page-footer">منصة TweetKod</footer>
+<script>
+const LESSON_NUM = 3;
+const TF = [{"s": "النوع الذي يُعطى للمتغير عند تصريحه لا يتغير بعد ذلك.", "a": true, "why": "<span class=\"en\">C++</span> لغة ذات أنواع ثابتة؛ المتغير من نوع <code class=\"inline\">int</code> يبقى <code class=\"inline\">int</code>."}, {"s": "تنفيذ <code class=\"inline\">int whole = 3.9;</code> يخزّن القيمة <code class=\"inline\">4</code> بعد التقريب.", "a": false, "why": "يُبتر الجزء الكسري فتصبح القيمة <code class=\"inline\">3</code>، ولا يحدث تقريب."}, {"s": "القيمة <code class=\"inline\">true</code> تظهر عند طباعتها بـ <code class=\"inline\">cout</code> كـ <code class=\"inline\">1</code> ما لم نستخدم <code class=\"inline\">boolalpha</code>.", "a": true, "why": "الافتراضي طباعة <code class=\"inline\">1</code> للقيمة <code class=\"inline\">true</code> و<code class=\"inline\">0</code> للقيمة <code class=\"inline\">false</code>."}, {"s": "<code class=\"inline\">Score</code> و<code class=\"inline\">score</code> اسمان لنفس المتغير.", "a": false, "why": "اللغة حسّاسة لحالة الأحرف، فهما متغيران مختلفان."}, {"s": "يجوز أن يبدأ اسم المتغير برقم مثل <code class=\"inline\">3rdTry</code>.", "a": false, "why": "يجب أن يبدأ الاسم بحرف أو بشرطة سفلية."}, {"s": "ناتج التعبير <code class=\"inline\">17 / 5</code> يساوي <code class=\"inline\">3.4</code>.", "a": false, "why": "قسمة عددين صحيحين تعطي عددًا صحيحًا، أي <code class=\"inline\">3</code>."}, {"s": "النوع <code class=\"inline\">double</code> أدق من النوع <code class=\"inline\">float</code> في تخزين الأعداد العشرية.", "a": true, "why": "يوفّر <code class=\"inline\">double</code> نحو 15 رقمًا معنويًا مقابل نحو 6 إلى 7 للـ <code class=\"inline\">float</code>."}, {"s": "المتغير المحلي غير المهيّأ يحمل القيمة <code class=\"inline\">0</code> تلقائيًا.", "a": false, "why": "قيمته غير محددة وعشوائية، ولذلك نهيّئ المتغيرات عند إنشائها."}];
+const QUIZ = [{"q": "أي نوع هو الأنسب لتخزين عدد الطلاب في فصل؟", "o": ["<code class=\"inline\">double</code>", "<code class=\"inline\">bool</code>", "<code class=\"inline\">string</code>", "<code class=\"inline\">int</code>"], "a": 3, "why": "عدد الطلاب عدد صحيح صغير، و<code class=\"inline\">int</code> يكفيه."}, {"q": "أي نوع هو الأنسب لتخزين سعر قدره <code class=\"inline\">19.99</code>؟", "o": ["<code class=\"inline\">char</code>", "<code class=\"inline\">int</code>", "<code class=\"inline\">double</code>", "<code class=\"inline\">bool</code>"], "a": 2, "why": "السعر يحتوي كسرًا عشريًا، لذا نستخدم <code class=\"inline\">double</code>."}, {"q": "أي اسم من الأسماء التالية صالح لمتغير؟", "o": ["<code class=\"inline\">double</code>", "<code class=\"inline\">2nd_place</code>", "<code class=\"inline\">total cost</code>", "<code class=\"inline\">total_cost</code>"], "a": 3, "why": "الاسم الأول يبدأ برقم، والثاني فيه مسافة، والرابع كلمة محجوزة."}, {"q": "ماذا يطبع الكود؟ <code class=\"inline\">int a = 7; a = a + 3; cout &lt;&lt; a;</code>", "o": ["73", "7", "10", "3"], "a": 2, "why": "يُحسب <code class=\"inline\">7 + 3</code> أولًا ثم تُخزَّن النتيجة في <code class=\"inline\">a</code>."}, {"q": "ما ناتج <code class=\"inline\">cout &lt;&lt; 17 % 5;</code> ؟", "o": ["3", "2", "3.4", "85"], "a": 1, "why": "العامل <code class=\"inline\">%</code> يعطي باقي القسمة، و<code class=\"inline\">17 = 3×5 + 2</code>."}, {"q": "أي نوع يخزّن حرفًا واحدًا؟", "o": ["<code class=\"inline\">char</code>", "<code class=\"inline\">string</code>", "<code class=\"inline\">int</code>", "<code class=\"inline\">double</code>"], "a": 0, "why": "النوع <code class=\"inline\">char</code> مخصص لحرف واحد."}, {"q": "أي تصريح مما يلي صحيح؟", "o": ["<code class=\"inline\">bool b = yes;</code>", "<code class=\"inline\">string city = \"Riyadh\";</code>", "<code class=\"inline\">int n = \"5\";</code>", "<code class=\"inline\">char c = \"A\";</code>"], "a": 1, "why": "النص يُكتب بعلامتي تنصيص مزدوجتين ويُخزَّن في <code class=\"inline\">string</code>."}, {"q": "ما ناتج <code class=\"inline\">cout &lt;&lt; 9 / 2;</code> ؟", "o": ["9/2", "5", "4", "4.5"], "a": 2, "why": "قسمة عددين صحيحين تُنتج عددًا صحيحًا ويُحذف الكسر."}, {"q": "أي نوع نستخدمه لتخزين العدد <code class=\"inline\">5000000000</code> ؟", "o": ["<code class=\"inline\">int</code>", "<code class=\"inline\">char</code>", "<code class=\"inline\">bool</code>", "<code class=\"inline\">long long</code>"], "a": 3, "why": "العدد أكبر من حد <code class=\"inline\">int</code> المعتاد (نحو 2.1 مليار)."}, {"q": "ماذا يطبع الكود؟ <code class=\"inline\">bool ok = (3 &gt; 5); cout &lt;&lt; ok;</code>", "o": ["0", "true", "1", "false"], "a": 0, "why": "المقارنة خاطئة فتكون القيمة <code class=\"inline\">false</code>، وتُطبع افتراضيًا <code class=\"inline\">0</code>."}];
+const EXPL = {"intro": {"5": "نصرّح عن متغير اسمه <code class=\"inline\">moons</code> من النوع <code class=\"inline\">int</code> (عدد صحيح) ونعطيه قيمته الأولى 2.", "6": "متغير من النوع <code class=\"inline\">double</code> لأن القيمة تحتوي على كسر عشري (جاذبية سطح المريخ تقريبًا بالمتر/ثانية²).", "7": "متغير من النوع <code class=\"inline\">char</code> يحمل حرفًا واحدًا، ويُكتب بين علامتي تنصيص <strong>مفردتين</strong>.", "8": "متغير من النوع <code class=\"inline\">string</code> يحمل نصًا، ويُكتب بين علامتي تنصيص <strong>مزدوجتين</strong>.", "10": "نطبع قيم متغيرين مع نصوص ثابتة. اسم المتغير بلا علامات تنصيص، فتُطبع قيمته لا اسمه."}};
+const TRACES = {};
+function copyCode(id) {
+  const el = document.getElementById(id);
+  const text = el.innerText.replace(/ /g, ' ');
+  const done = () => { const b = el.parentElement.querySelector('.copy-btn'); const t = b.textContent; b.textContent = 'تم النسخ ✓'; setTimeout(() => b.textContent = t, 1400); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(done); else done();
+}
+
+/* click-to-explain code lines */
+document.querySelectorAll('.code-box[data-expl]').forEach(box => {
+  const id = box.getAttribute('data-expl');
+  const out = document.querySelector('.explain-box[data-for="' + id + '"]');
+  box.querySelectorAll('.code-line').forEach(line => {
+    line.addEventListener('click', () => {
+      box.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+      line.classList.add('active');
+      out.innerHTML = EXPL[id][line.getAttribute('data-i')];
+    });
+  });
+});
+
+/* true / false check */
+(function () {
+  const list = document.getElementById('tfList');
+  let answered = 0, right = 0;
+  TF.forEach((it, i) => {
+    const d = document.createElement('div');
+    d.className = 'tf-item';
+    d.innerHTML = '<div class="stmt">' + (i + 1) + '. ' + it.s + '</div>' +
+      '<div class="tf-btns"><button class="tf-btn" data-v="true"><i class="fas fa-check"></i> صحيح</button>' +
+      '<button class="tf-btn" data-v="false"><i class="fas fa-xmark"></i> خطأ</button></div><div class="feedback"></div>';
+    d.querySelectorAll('.tf-btn').forEach(b => b.addEventListener('click', () => {
+      const pick = b.getAttribute('data-v') === 'true';
+      const ok = pick === it.a;
+      d.querySelectorAll('.tf-btn').forEach(x => { x.disabled = true; });
+      b.classList.add(ok ? 'correct' : 'wrong');
+      const fb = d.querySelector('.feedback');
+      fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+      fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> إجابة صحيحة. ' : '<i class="fas fa-circle-xmark"></i> الإجابة الصحيحة: ' + (it.a ? 'صحيح' : 'خطأ') + '. ') + it.why;
+      answered++; if (ok) right++;
+      if (answered === TF.length) {
+        const s = document.getElementById('tfScore');
+        s.style.display = 'block';
+        s.innerHTML = '<div class="big">' + right + ' / ' + TF.length + '</div><div>' + (right === TF.length ? 'ممتاز! فهمت الدرس جيدًا.' : right >= TF.length - 2 ? 'نتيجة جيدة، راجع العبارات التي أخطأت فيها.' : 'أعد قراءة الدرس ثم جرّب مرة أخرى.') + '</div>';
+      }
+    }));
+    list.appendChild(d);
+  });
+})();
+
+/* final quiz */
+(function () {
+  const list = document.getElementById('quizList');
+  const bar = document.getElementById('quizBar');
+  let answered = 0, right = 0;
+  QUIZ.forEach((q, qi) => {
+    const d = document.createElement('div');
+    d.className = 'quiz-q';
+    d.innerHTML = '<h4><span class="qnum">' + (qi + 1) + '</span>' + q.q + '</h4><div class="quiz-options"></div><div class="feedback"></div>';
+    const box = d.querySelector('.quiz-options');
+    q.o.forEach((txt, oi) => {
+      const b = document.createElement('button');
+      b.className = 'quiz-opt'; b.innerHTML = txt;
+      b.addEventListener('click', () => {
+        box.querySelectorAll('.quiz-opt').forEach(x => x.disabled = true);
+        const ok = oi === q.a;
+        b.classList.add(ok ? 'correct' : 'wrong');
+        if (!ok) box.children[q.a].classList.add('correct');
+        const fb = d.querySelector('.feedback');
+        fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+        fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> صحيح! ' : '<i class="fas fa-circle-xmark"></i> ليست الإجابة الصحيحة. ') + q.why;
+        answered++; if (ok) right++;
+        bar.style.width = (answered / QUIZ.length * 100) + '%';
+        if (answered === QUIZ.length) showScore();
+      });
+      box.appendChild(b);
+    });
+    list.appendChild(d);
+  });
+  function showScore() {
+    const s = document.getElementById('quizScore');
+    const pct = right / QUIZ.length;
+    s.style.display = 'block';
+    s.innerHTML = '<div class="big">' + right + ' / ' + QUIZ.length + '</div><div>' +
+      (pct === 1 ? 'نتيجة كاملة! أنت جاهز للدرس التالي.' : pct >= 0.7 ? 'أداء جيد جدًا، راجع الأسئلة التي أخطأت فيها.' : 'راجع الدرس مرة أخرى ثم أعد المحاولة.') +
+      '</div><button class="retry-btn" onclick="location.hash=\'quizCard\';location.reload();">إعادة الاختبار</button>';
+  }
+})();
+
+
+/* ---------------- header tools ---------------- */
+(function () {
+  const root = document.documentElement;
+  const safeGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const safeSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+  /* theme */
+  const themeBtn = document.getElementById('themeBtn');
+  function applyTheme(t) { root.setAttribute('data-theme', t); if (themeBtn) themeBtn.innerHTML = t === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; }
+  applyTheme(safeGet('tk_theme') || 'light');
+  if (themeBtn) themeBtn.addEventListener('click', () => { const t = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; applyTheme(t); safeSet('tk_theme', t); });
+
+  /* code size */
+  let size = parseFloat(safeGet('tk_codesize') || '0.95');
+  function applySize() { root.style.setProperty('--code-size', size + 'rem'); }
+  applySize();
+  const dec = document.getElementById('fontDec'), inc = document.getElementById('fontInc');
+  if (dec) dec.addEventListener('click', () => { size = Math.max(0.75, +(size - 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+  if (inc) inc.addEventListener('click', () => { size = Math.min(1.3, +(size + 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+
+  /* table of contents */
+  const panel = document.getElementById('tocPanel'), tocBtn = document.getElementById('tocBtn');
+  if (panel && tocBtn) {
+    const cards = document.querySelectorAll('.container > .card');
+    let n = 0;
+    cards.forEach((c, i) => {
+      const h = c.querySelector('.card-header h3, .project-banner strong');
+      if (!h) return;
+      n++;
+      c.id = c.id || 'sec-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + c.id;
+      a.innerHTML = '<span>' + n + '</span><bdi>' + h.innerHTML + '</bdi>';
+      a.addEventListener('click', () => panel.classList.remove('open'));
+      panel.appendChild(a);
+    });
+    tocBtn.addEventListener('click', (e) => { e.stopPropagation(); panel.classList.toggle('open'); });
+    document.addEventListener('click', (e) => { if (!panel.contains(e.target)) panel.classList.remove('open'); });
+  }
+
+  /* reading progress + back to top */
+  const bar = document.getElementById('readBar'), top = document.getElementById('toTop');
+  function onScroll() {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+    if (bar) bar.style.width = pct + '%';
+    if (top) top.classList.toggle('show', h.scrollTop > 600);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  if (top) top.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+})();
+
+/* ---------------- step tracer ---------------- */
+document.querySelectorAll('.tracer').forEach(el => {
+  const steps = TRACES[el.getAttribute('data-trace')];
+  const lines = el.querySelectorAll('.tr-line');
+  const varsEl = el.querySelector('.tr-vars'), outEl = el.querySelector('.tr-out'), noteEl = el.querySelector('.tr-note'), cnt = el.querySelector('.tr-count');
+  const btn = (a) => el.querySelector('[data-a="' + a + '"]');
+  let i = 0, timer = null;
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  function draw() {
+    const s = steps[i], prev = i > 0 ? steps[i - 1].vars : {};
+    lines.forEach((l, k) => l.classList.toggle('active', k === s.line));
+    const names = Object.keys(s.vars);
+    varsEl.innerHTML = names.length ? names.map(n => '<div class="tr-var' + (prev[n] !== s.vars[n] ? ' changed' : '') + '"><span>' + esc(n) + '</span><b>' + esc(s.vars[n]) + '</b></div>').join('') : '<span style="color:#94a3b8">لا توجد متغيرات بعد</span>';
+    outEl.textContent = s.out || ' ';
+    noteEl.textContent = s.note || ' ';
+    cnt.textContent = 'الخطوة ' + i + ' من ' + (steps.length - 1);
+    btn('prev').disabled = i === 0; btn('next').disabled = i === steps.length - 1;
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; btn('play').innerHTML = '<i class="fas fa-play"></i> تشغيل تلقائي'; } }
+  btn('next').onclick = () => { stop(); if (i < steps.length - 1) i++; draw(); };
+  btn('prev').onclick = () => { stop(); if (i > 0) i--; draw(); };
+  btn('reset').onclick = () => { stop(); i = 0; draw(); };
+  btn('play').onclick = () => {
+    if (timer) { stop(); return; }
+    if (i >= steps.length - 1) i = 0;
+    btn('play').innerHTML = '<i class="fas fa-pause"></i> إيقاف';
+    timer = setInterval(() => { if (i < steps.length - 1) { i++; draw(); } else stop(); }, 1100);
+    draw();
+  };
+  draw();
+});
+
+/* ---------------- predict the output ---------------- */
+document.querySelectorAll('.predict').forEach(p => {
+  const opts = p.querySelectorAll('.pd-opt');
+  opts.forEach(o => o.addEventListener('click', () => {
+    const ok = o.getAttribute('data-ok') === '1';
+    opts.forEach(x => { x.disabled = true; if (x.getAttribute('data-ok') === '1') x.classList.add('correct'); });
+    if (!ok) o.classList.add('wrong');
+    const res = p.querySelector('.pd-result');
+    res.classList.remove('hidden');
+    const msg = p.querySelector('.pd-msg');
+    msg.innerHTML = ok ? '<span style="color:#16a34a"><i class="fas fa-check-circle"></i> توقّعك صحيح! هذا هو الناتج الحقيقي:</span>' : '<span style="color:#dc2626"><i class="fas fa-circle-xmark"></i> ليس تمامًا. هذا هو الناتج الحقيقي، وتابع التفسير:</span>';
+  }));
+});
+
+
+function detectType() {
+  const raw = document.getElementById('tfValue').value.trim();
+  const out = document.getElementById('tfOut');
+  const note = document.getElementById('tfNote');
+  const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  let type = '', size = '', decl = '', msg = '';
+  if (raw === '') { out.textContent = ''; note.textContent = 'اكتب قيمة أولًا.'; return; }
+  if (/^-?\d+$/.test(raw)) {
+    const v = BigInt(raw);
+    if (v >= -2147483648n && v <= 2147483647n) { type = 'int'; size = '4 بايت'; decl = 'int value = ' + raw + ';'; msg = 'عدد صحيح يتسع له النوع int.'; }
+    else if (v >= -9223372036854775808n && v <= 9223372036854775807n) { type = 'long long'; size = '8 بايت'; decl = 'long long value = ' + raw + ';'; msg = 'عدد صحيح يتجاوز حد int، فاستخدم long long.'; }
+    else { type = 'خارج النطاق'; size = '-'; decl = '// أكبر من long long'; msg = 'هذا العدد أكبر مما يخزّنه long long، ويحتاج حلولًا متقدمة.'; }
+  } else if (/^-?(\d+\.\d*|\.\d+)$/.test(raw)) {
+    type = 'double'; size = '8 بايت'; decl = 'double value = ' + raw + ';'; msg = 'عدد عشري، والنوع double هو الخيار الافتراضي له.';
+  } else if (/^'(\\.|[^'\\])'$/.test(raw)) {
+    type = 'char'; size = '1 بايت'; decl = 'char value = ' + raw + ';'; msg = 'حرف واحد بين علامتي تنصيص مفردتين.';
+  } else if (raw === 'true' || raw === 'false') {
+    type = 'bool'; size = '1 بايت'; decl = 'bool value = ' + raw + ';'; msg = 'قيمة منطقية.';
+  } else if (/^".*"$/.test(raw)) {
+    type = 'string'; size = 'حسب الطول'; decl = 'string value = ' + raw + ';'; msg = 'نص بين علامتي تنصيص مزدوجتين.';
+  } else if (/^'.+'$/.test(raw)) {
+    type = 'string ؟'; size = '-'; decl = '// استخدم علامات تنصيص مزدوجة'; msg = 'علامة التنصيص المفردة تتسع لحرف واحد فقط، فإن كان لديك أكثر من حرف فاكتبه بين علامتي تنصيص مزدوجتين.';
+  } else {
+    type = 'string ؟'; size = '-'; decl = '// أضف علامات تنصيص مزدوجة'; msg = 'النص يجب أن يكون بين علامتي تنصيص مزدوجتين، وإلا ظنه المترجم اسمًا لمتغير.';
+  }
+  out.innerHTML = '<span class="line">// النوع المقترح:</span>\n' + esc(type) + '\n<span class="line">// الحجم:</span>\n' + esc(size) + '\n<span class="line">// التصريح:</span>\n' + esc(decl);
+  note.textContent = msg;
+}
+detectType();
+
+</script>
+</body>
+</html>
