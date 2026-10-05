@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TweetKod | Variables and Types</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --primary-blue: #00adef;
+  --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+  --primary-yellow: #f7941e;
+  --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+  --dark-navy: #0f172a;
+  --text-body: #475569;
+  --bg-main: #f4f9fd;
+  --surface: #f1f6fb;
+  --card-bg: #ffffff;
+  --border: #e2e8f0;
+  --chip-bg: #eef2f7;
+  --soft-shadow: 0 14px 34px -14px rgba(15,23,42,0.14);
+  --header-bg: rgba(255,255,255,0.82);
+  --code-size: 0.95rem;
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2300adef' fill-opacity='0.075'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+html[data-theme="dark"] {
+  --dark-navy: #e6edf7;
+  --text-body: #a9b6cc;
+  --bg-main: #0a1120;
+  --surface: #16213a;
+  --card-bg: #111a2e;
+  --border: #243049;
+  --chip-bg: #1d2a45;
+  --soft-shadow: 0 14px 34px -14px rgba(0,0,0,0.6);
+  --header-bg: rgba(10,17,32,0.82);
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2338bdf8' fill-opacity='0.06'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+body {
+  font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+  background-color: var(--bg-main);
+  margin: 0; padding: 0; color: var(--dark-navy);
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color .3s, color .3s;
+  position: relative;
+}
+/* decorative background */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.20), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.17), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.06), transparent 70%);
+}
+html[data-theme="dark"] body::before {
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.22), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.12), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.10), transparent 70%);
+}
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: var(--pattern); background-size: 260px 260px;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+          mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+}
+.bg-deco { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .35; animation: floaty 18s ease-in-out infinite; }
+.b1 { width: 340px; height: 340px; background: #00adef; top: 12%; right: -90px; }
+.b2 { width: 280px; height: 280px; background: #f7941e; bottom: 6%; left: -80px; animation-delay: -6s; }
+.b3 { width: 220px; height: 220px; background: #8b5cf6; top: 55%; right: 18%; opacity: .16; animation-delay: -11s; }
+html[data-theme="dark"] .blob { opacity: .2; }
+@keyframes floaty { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(26px,-34px) scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .blob { animation: none; } html { scroll-behavior: auto; } }
+
+/* header */
+header {
+  background: var(--header-bg); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  padding: 10px 4%; display: flex; justify-content: space-between; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 1000;
+  border-bottom: 1px solid rgba(0,173,239,0.16); box-shadow: 0 8px 28px -18px rgba(15,23,42,0.45);
+}
+.hdr-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.logo-img { width: 52px; height: 52px; border-radius: 15px; object-fit: contain; padding: 6px; background: #fff;
+  box-shadow: 0 6px 18px -6px rgba(0,173,239,0.45), 0 0 0 1px rgba(0,173,239,0.16); }
+.brand-info h3 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); line-height: 1.3; }
+.brand-info p { margin: 0; font-size: 0.78rem; color: var(--primary-blue); font-weight: 700; }
+.hdr-tools { display: flex; align-items: center; gap: 8px; position: relative; }
+.tool-btn { height: 38px; min-width: 38px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy);
+  cursor: pointer; font-family: 'Nunito'; font-weight: 800; font-size: .85rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: .2s; }
+.tool-btn:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+.toc-panel { position: absolute; top: 48px; right: 0; width: 290px; max-height: 60vh; overflow-y: auto; background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 16px; box-shadow: var(--soft-shadow); padding: 8px; display: none; }
+.toc-panel.open { display: block; }
+.toc-panel a { display: flex; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 10px; color: var(--dark-navy); text-decoration: none; font-weight: 700; font-size: .88rem; }
+.toc-panel a:hover { background: var(--surface); color: var(--primary-blue); }
+.toc-panel a span { width: 22px; height: 22px; border-radius: 50%; background: var(--chip-bg); color: var(--text-body); font-size: .72rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.read-progress { position: absolute; bottom: -1px; right: 0; left: 0; height: 3px; background: transparent; }
+.read-progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #00adef, #f7941e); transition: width .1s; }
+.to-top { position: fixed; bottom: 22px; right: 22px; z-index: 900; width: 46px; height: 46px; border-radius: 50%; border: none; background: var(--blue-gradient); color: #fff;
+  cursor: pointer; box-shadow: 0 10px 24px -8px rgba(0,173,239,.7); font-size: 1.1rem; opacity: 0; pointer-events: none; transition: .25s; }
+.to-top.show { opacity: 1; pointer-events: auto; }
+@media (max-width: 980px) { .brand-info p { display: none; } }
+@media (max-width: 720px) { .brand-info h3 { font-size: 1rem; } }
+
+.container { max-width: 900px; margin: 44px auto; padding: 0 25px; }
+.title-section { text-align: center; margin-bottom: 40px; }
+.title-section h1 { font-size: 2.7rem; font-weight: 800; margin: 12px 0 6px; background: linear-gradient(135deg, var(--dark-navy), #007bb5 80%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+html[data-theme="dark"] .title-section h1 { background: linear-gradient(135deg, #fff, #38bdf8 80%); -webkit-background-clip: text; background-clip: text; }
+.attribution { color: var(--primary-blue); font-size: 1.15rem; font-weight: 600; }
+.lesson-chip { display: inline-block; background: var(--yellow-gradient); color: #fff; padding: 6px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; box-shadow: 0 8px 18px -8px rgba(247,148,30,.8); }
+
+.card { background: var(--card-bg); border-radius: 25px; padding: 40px; margin-bottom: 30px; box-shadow: var(--soft-shadow); border-left: 8px solid var(--primary-blue);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); transition: background-color .3s; }
+.steps-card { border-left-color: var(--primary-yellow); }
+.card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+.card-header i { font-size: 1.8rem; }
+.card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+h4 { margin: 18px 0 8px; font-size: 1.05rem; color: var(--dark-navy); }
+p { color: var(--text-body); margin: 0 0 14px; }
+a { color: var(--primary-blue); }
+strong { color: var(--dark-navy); }
+
+.en { direction: ltr; unicode-bidi: isolate; font-weight: 700; color: var(--dark-navy); }
+/* every code chip is an isolated LTR island: fixes ; ( ) = placement inside Arabic text */
+code, code.inline { background: var(--chip-bg); padding: 2px 8px; border-radius: 6px; direction: ltr; unicode-bidi: isolate; display: inline-block; text-align: left;
+  color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; line-height: 1.6; }
+html[data-theme="dark"] code, html[data-theme="dark"] code.inline { color: #f9a8d4; }
+
+.obj-list { list-style: none; padding: 0; margin: 0; }
+.obj-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.obj-list i { color: #22c55e; margin-top: 6px; }
+
+/* code */
+.code-box { background: #1e293b; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.35); margin: 20px 0; border: 1px solid rgba(255,255,255,.04); }
+.code-head { background: #0f172a; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+.code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; direction: ltr; }
+.copy-btn { color: #38bdf8; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; font-family: 'Nunito'; }
+pre { padding: 26px 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: var(--code-size); tab-size: 8; }
+.cmt { color: #79c36a; font-style: italic; }
+.kw { color: #7dd3fc; }
+.str { color: #fbbf77; }
+.num { color: #c4b5fd; }
+.pp { color: #f9a8d4; }
+.code-line, .code-plain { display: block; border-radius: 6px; padding: 0 6px; margin: 0 -6px; }
+.code-line { cursor: pointer; transition: 0.2s; background: rgba(0,173,239,0.07); }
+.code-line:hover { background: rgba(0,173,239,0.22); }
+.code-line.active { background: rgba(247,148,30,0.28); outline: 1px dashed var(--primary-yellow); }
+.explain-box { margin-top: 14px; background: var(--surface); border: 2px dashed var(--border); border-radius: 16px; padding: 16px 22px; font-weight: 600; color: var(--dark-navy); min-height: 30px; }
+.explain-box .hint { color: #94a3b8; font-weight: 500; }
+.output-box, .input-box { font-family: 'Consolas', monospace; padding: 16px 22px; border-radius: 14px; margin: 10px 0 18px; direction: ltr; text-align: left; white-space: pre-wrap; tab-size: 8; font-size: var(--code-size); }
+.output-box { background: #0f172a; color: #4ade80; }
+.input-box { background: #0c2233; color: #7dd3fc; margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.input-box + .output-box { margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; border-top: 1px dashed #1e3a52; }
+.output-box::before, .input-box::before { display: block; font-size: 0.72rem; letter-spacing: 0.08em; margin-bottom: 6px; text-transform: uppercase; color: #64748b; }
+.output-box::before { content: 'Output'; }
+.input-box::before { content: 'Input (typed by the user)'; }
+.error-box { background: #1f1317; border: 1px solid #7f1d1d; border-radius: 14px; margin: 10px 0 18px; overflow: hidden; }
+.error-head { background: #450a0a; color: #fca5a5; padding: 8px 18px; font-weight: 700; font-size: 0.85rem; }
+.error-box pre { color: #fecaca; font-size: 0.8rem; padding: 14px 20px; line-height: 1.7; }
+
+/* steps */
+.step-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 14px; padding: 18px 20px; background: var(--card-bg); border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+.step-number { background: var(--yellow-gradient); color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+.step-item h4 { margin: 0 0 4px; font-size: 1rem; }
+.step-item p { margin: 0; font-size: 0.92rem; }
+
+/* tables */
+.table-wrap { overflow-x: auto; margin: 15px 0; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+table.data-table { width: 100%; border-collapse: collapse; background: var(--card-bg); }
+table.data-table th { background: var(--blue-gradient); color: #fff; padding: 12px 18px; font-size: 0.85rem; text-align: left; white-space: nowrap; }
+table.data-table td { padding: 12px 18px; font-size: 0.9rem; border-bottom: 1px solid var(--border); color: var(--text-body); }
+table.data-table tr:last-child td { border-bottom: none; }
+
+/* comparison / rules */
+.compare-grid, .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+@media (max-width: 700px) { .compare-grid, .rule-grid { grid-template-columns: 1fr; } .card { padding: 24px; } .title-section h1 { font-size: 2rem; } }
+.compare-card { border-radius: 16px; overflow: hidden; background: #1e293b; }
+.compare-title { padding: 10px 18px; font-weight: 800; font-size: 0.9rem; }
+.good .compare-title { background: #dcfce7; color: #15803d; }
+.bad .compare-title { background: #fee2e2; color: #b91c1c; }
+.compare-card pre { padding: 18px 20px; font-size: 0.83rem; }
+.rule-list { background: var(--surface); border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
+.rule-list h5 { margin: 0 0 12px; font-size: 0.95rem; }
+.rule-list.yes h5 { color: #16a34a; } .rule-list.no h5 { color: #dc2626; }
+.rule-list ul { list-style: none; padding: 0; margin: 0; }
+.rule-list li { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 0.9rem; color: var(--text-body); }
+.rule-list.yes li i { color: #22c55e; } .rule-list.no li i { color: #ef4444; }
+
+.tip-box { background: rgba(247,148,30,0.09); border: 2px dashed var(--primary-yellow); border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 4px; }
+.tip-box p { margin: 0; font-size: 0.93rem; }
+
+/* project */
+.project-banner { background: var(--blue-gradient); color: #fff; border-radius: 18px; padding: 16px 22px; margin-bottom: 18px; display: flex; gap: 14px; align-items: center; }
+.project-banner i { font-size: 1.6rem; }
+.project-banner strong { font-size: 1.05rem; color: #fff; }
+.project-banner p { color: #e0f4ff; margin: 0; font-size: 0.9rem; }
+.brief { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 18px 22px; margin: 14px 0; }
+.brief h5 { margin: 0 0 8px; font-size: 1rem; color: var(--primary-blue); display: flex; align-items: center; gap: 8px; }
+.brief ul, .brief ol { margin: 0; padding-left: 22px; color: var(--text-body); }
+.brief li { margin-bottom: 6px; }
+details.reveal { border: 2px dashed var(--border); border-radius: 16px; padding: 4px 16px; margin: 14px 0; background: var(--card-bg); }
+details.reveal > summary { cursor: pointer; font-weight: 800; padding: 10px 0; color: var(--primary-blue); list-style: none; display: flex; align-items: center; gap: 8px; }
+details.reveal > summary::-webkit-details-marker { display: none; }
+details.reveal[open] { border-style: solid; border-color: var(--primary-blue); }
+
+/* challenges */
+.challenge-card { border-left-color: #8b5cf6; }
+.challenge-card .card-header { color: #8b5cf6; }
+.challenge { border: 1px solid var(--border); border-radius: 20px; padding: 22px 24px; margin-bottom: 20px; background: var(--surface); }
+.ch-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+.ch-head h4 { margin: 0; flex: 1; }
+.ch-num { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
+.badge { font-size: .75rem; font-weight: 800; padding: 4px 12px; border-radius: 50px; }
+.badge.easy { background: #dcfce7; color: #15803d; }
+.badge.medium { background: #fef3c7; color: #b45309; }
+.challenge h5 { margin: 14px 0 6px; font-size: .9rem; color: var(--dark-navy); }
+.challenge ul { margin: 0 0 6px; padding-left: 22px; color: var(--text-body); }
+.challenge li { margin-bottom: 4px; }
+
+/* simulators */
+.sim-box { background: var(--surface); border: 3px dashed var(--border); border-radius: 20px; padding: 28px; text-align: center; margin-top: 15px; }
+.sim-inputs { display: flex; justify-content: center; gap: 18px; margin-bottom: 18px; flex-wrap: wrap; }
+.sim-inputs .field { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.sim-inputs label { font-size: 0.82rem; color: var(--text-body); font-weight: 700; }
+.sim-inputs input[type=text], .sim-inputs input[type=number] { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1.05rem; text-align: center; font-family: 'Consolas', monospace; outline: none; direction: ltr; }
+.sim-inputs input[type=number] { width: 110px; }
+.sim-inputs input:focus { border-color: var(--primary-blue); }
+.btn-run { background: var(--yellow-gradient); color: #fff; border: none; padding: 13px 32px; border-radius: 18px; cursor: pointer; font-weight: 800; font-family: 'Nunito'; font-size: 0.95rem; box-shadow: 0 10px 20px -10px rgba(247,148,30,.9); }
+.sim-console { margin-top: 18px; background: #0f172a; border-radius: 14px; padding: 18px 20px; text-align: left; direction: ltr; font-family: 'Consolas', monospace; color: #4ade80; min-height: 26px; white-space: pre-wrap; font-size: 0.92rem; }
+.sim-console .line { color: #94a3b8; }
+.result-line { margin-top: 14px; font-weight: 700; color: var(--dark-navy); }
+.reorder-list { max-width: 460px; margin: 0 auto 10px; direction: ltr; }
+.reorder-item { display: flex; align-items: center; gap: 10px; background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 8px 12px; margin-bottom: 8px; font-family: 'Consolas', monospace; font-size: 0.88rem; text-align: left; }
+.reorder-item code { flex: 1; background: transparent; padding: 0; }
+.rbtn { border: none; background: #e0f2fe; color: #0369a1; border-radius: 8px; width: 30px; height: 30px; cursor: pointer; font-weight: 800; }
+.rbtn:disabled { opacity: 0.35; cursor: default; }
+.bug-list { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.bug-btn { background: var(--card-bg); color: var(--dark-navy); border: 2px solid var(--border); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Nunito'; font-weight: 700; }
+.bug-btn.found { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.hidden { display: none; }
+.op-table { width: 100%; border-collapse: collapse; margin-top: 16px; direction: ltr; font-family: 'Consolas', monospace; font-size: .88rem; }
+.op-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--dark-navy); text-align: left; }
+.op-table td:last-child { color: var(--primary-blue); font-weight: 800; }
+
+/* glossary */
+.glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+.term-card { background: var(--surface); border-radius: 16px; padding: 18px; border: 1px solid var(--border); }
+.term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+.term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+.term-desc { font-size: 0.85rem; color: var(--text-body); margin: 0; }
+
+/* tf + quiz */
+.tf-item { border: 2px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 14px; background: var(--surface); }
+.tf-item .stmt { font-weight: 700; margin-bottom: 12px; color: var(--dark-navy); }
+.tf-btns { display: flex; gap: 10px; }
+.tf-btn { flex: 1; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 10px; cursor: pointer; font-family: 'Nunito'; font-weight: 800; font-size: 0.95rem; }
+.tf-btn:hover { border-color: var(--primary-blue); }
+.tf-btn.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.tf-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.feedback { margin-top: 10px; font-size: 0.9rem; font-weight: 600; }
+.feedback.ok { color: #16a34a; } .feedback.no { color: #dc2626; }
+.quiz-q { margin-bottom: 26px; padding-bottom: 8px; }
+.quiz-q h4 { margin-bottom: 12px; line-height: 1.9; }
+.qnum { display: inline-flex; align-items: center; justify-content: center; background: var(--yellow-gradient); color: #fff; width: 28px; height: 28px; border-radius: 50%; font-size: 0.85rem; margin-right: 8px; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-opt { background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 12px 18px; cursor: pointer; font-weight: 600; text-align: left; font-family: 'Nunito'; font-size: 0.95rem; transition: 0.2s; color: var(--dark-navy); }
+.quiz-opt:hover { border-color: var(--primary-blue); }
+.quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.quiz-opt:disabled { cursor: default; }
+.quiz-opt.correct code, .quiz-opt.wrong code { background: rgba(255,255,255,.7); }
+.progress { height: 10px; background: var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 22px; }
+.progress-bar { height: 100%; width: 0; background: var(--yellow-gradient); transition: width 0.3s; }
+.score-box { text-align: center; background: var(--surface); border: 2px solid var(--border); border-radius: 18px; padding: 22px; margin-top: 10px; }
+.score-box .big { font-size: 2.2rem; font-weight: 800; color: var(--primary-blue); }
+.retry-btn { margin-top: 10px; background: var(--blue-gradient); color: #fff; border: none; border-radius: 14px; padding: 10px 26px; cursor: pointer; font-family: 'Nunito'; font-weight: 800; }
+
+.refs-card { border-left-color: #94a3b8; }
+.ref-list { margin: 0; padding-left: 22px; }
+.ref-list li { margin-bottom: 6px; font-size: 0.9rem; }
+footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+
+/* ---------- tracer ---------- */
+.tracer { background: var(--surface); border: 2px solid var(--border); border-radius: 20px; padding: 18px; margin: 22px 0; }
+.tr-head { font-weight: 800; color: var(--primary-blue); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.tr-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .tr-grid { grid-template-columns: 1fr; } }
+.tr-code { background: #1e293b; border-radius: 14px; padding: 12px 0; direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: var(--code-size); overflow-x: auto; }
+.tr-line { display: flex; gap: 12px; padding: 1px 14px; color: #e2e8f0; white-space: pre; border-left: 4px solid transparent; transition: .15s; }
+.tr-line .ln { color: #64748b; min-width: 22px; text-align: right; user-select: none; }
+.tr-line.active { background: rgba(247,148,30,.28); border-left-color: var(--primary-yellow); }
+.tr-side { display: flex; flex-direction: column; gap: 12px; }
+.tr-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; flex: 1; }
+.tr-title { font-size: .78rem; font-weight: 800; color: var(--text-body); margin-bottom: 6px; }
+.tr-vars { direction: ltr; font-family: 'Consolas', monospace; font-size: .9rem; min-height: 28px; }
+.tr-var { display: flex; justify-content: space-between; padding: 3px 8px; border-radius: 8px; color: var(--dark-navy); }
+.tr-var b { color: var(--primary-blue); }
+.tr-var.changed { background: rgba(247,148,30,.22); }
+.tr-out { direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: .88rem; background: #0f172a; color: #4ade80; border-radius: 10px; padding: 8px 12px; min-height: 40px; white-space: pre-wrap; }
+.tr-note { margin-top: 12px; background: var(--card-bg); border: 1px dashed var(--primary-blue); border-radius: 12px; padding: 10px 16px; font-weight: 600; color: var(--dark-navy); min-height: 24px; }
+.tr-ctrl { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.tr-btn { border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 14px; cursor: pointer; font-family: 'Nunito'; font-weight: 800; font-size: .85rem; }
+.tr-btn.primary { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.tr-btn:disabled { opacity: .4; cursor: default; }
+.tr-count { margin-left: auto; font-size: .8rem; color: var(--text-body); font-weight: 700; }
+
+/* ---------- predict ---------- */
+.predict { border: 2px solid #8b5cf6; border-radius: 20px; padding: 16px 18px; margin: 22px 0; background: var(--surface); }
+.predict-head { font-weight: 800; color: #8b5cf6; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+.predict .code-box { margin: 12px 0; }
+.pd-q { font-weight: 700; color: var(--dark-navy); margin-bottom: 10px; }
+.pd-opts { display: flex; flex-wrap: wrap; gap: 10px; }
+.pd-opt { background: var(--card-bg); border: 2px solid var(--border); color: var(--dark-navy); border-radius: 12px; padding: 9px 16px; cursor: pointer; font-family: 'Nunito'; font-weight: 700; font-size: .92rem; }
+.pd-opt:hover { border-color: #8b5cf6; }
+.pd-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.pd-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.pd-opt:disabled { cursor: default; }
+.pd-result { margin-top: 12px; }
+.pd-msg { font-weight: 800; margin-bottom: 8px; }
+.pd-why { margin: 8px 0 0; font-size: .93rem; }
+
+/* ---------- misc ---------- */
+.summary-card { border-left-color: #22c55e; }
+.summary-card .card-header { color: #16a34a; }
+.sum-list { list-style: none; padding: 0; margin: 0; }
+.sum-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.sum-list i { color: #22c55e; margin-top: 6px; }
+.warn-box { background: rgba(239,68,68,.08); border: 2px dashed #ef4444; border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 4px; }
+.warn-box p { margin: 0; font-size: .93rem; }
+.analogy { background: linear-gradient(135deg, rgba(0,173,239,.1), rgba(139,92,246,.1)); border-radius: 18px; padding: 16px 22px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; border: 1px solid var(--border); }
+.analogy i { color: var(--primary-blue); font-size: 1.5rem; margin-top: 4px; }
+.analogy p { margin: 0; }
+.flow { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin: 18px 0; direction: ltr; }
+.flow-node { background: var(--card-bg); border: 2px solid var(--primary-blue); border-radius: 14px; padding: 10px 18px; font-weight: 800; color: var(--dark-navy); text-align: center; }
+.flow-node.decision { border-color: var(--primary-yellow); border-radius: 30px; }
+.flow-node.end { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.flow-arrow { color: var(--primary-blue); font-size: 1.2rem; }
+.flow-branch { display: flex; flex-direction: column; gap: 8px; }
+.cell-row { display: flex; direction: ltr; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 12px 0; }
+.cell { min-width: 54px; text-align: center; border: 2px solid var(--primary-blue); border-radius: 10px; background: var(--card-bg); font-family: 'Consolas', monospace; font-weight: 800; color: var(--dark-navy); padding: 6px 4px; cursor: pointer; }
+.cell small { display: block; font-size: .68rem; color: var(--text-body); font-weight: 700; }
+.cell.sel { background: rgba(247,148,30,.25); border-color: var(--primary-yellow); }
+.vis-line { display: block; padding: 0 6px; margin: 0 -6px; border-radius: 6px; opacity: .35; transition: .15s; }
+.vis-line.on { opacity: 1; background: rgba(34,197,94,.22); }
+.vis-btns { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+.vis-btn { border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Consolas', monospace; font-weight: 800; }
+.vis-btn.on { border-color: #22c55e; background: #dcfce7; color: #15803d; }
+
+.cell.ghost { opacity: .55; border-style: dashed; background: transparent; }
+
+</style>
+</head>
+<body>
+<div class="bg-deco"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+<header>
+  <div class="hdr-brand">
+    <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    <div class="brand-info"><h3>TweetKod Platform</h3><p>Interactive Programming Learning</p></div>
+  </div>
+  <div class="hdr-tools">
+    <button class="tool-btn" id="tocBtn" title="Lesson contents"><i class="fas fa-list-ul"></i> Contents</button>
+    <button class="tool-btn" id="fontDec" title="Smaller code font">A-</button>
+    <button class="tool-btn" id="fontInc" title="Larger code font">A+</button>
+    <button class="tool-btn" id="themeBtn" title="Dark mode"><i class="fas fa-moon"></i></button>
+    <div class="toc-panel" id="tocPanel"></div>
+  </div>
+  <div class="read-progress"><span id="readBar"></span></div>
+</header>
+<div class="container">
+  <div class="title-section">
+    <span class="lesson-chip">Lesson 3</span>
+    <h1>Variables and Types</h1>
+    <p class="attribution">Variables and Types &mdash; how a program remembers its data</p>
+  </div>
+  <div class="card goals-card">
+    <div class="card-header"><i class="fas fa-bullseye"></i><h3>What will you learn in this lesson?</h3></div>
+    <ul class="obj-list"><li><i class="fas fa-check-circle"></i><span>Understand what a variable is, and tell declaration, initialization and assignment apart</span></li><li><i class="fas fa-check-circle"></i><span>Choose the right type for each piece of data: <code class="inline">int</code>, <code class="inline">long long</code>, <code class="inline">double</code>, <code class="inline">char</code>, <code class="inline">bool</code> and <code class="inline">string</code></span></li><li><i class="fas fa-check-circle"></i><span>Know the limits of integers and when <code class="inline">long long</code> is needed</span></li><li><i class="fas fa-check-circle"></i><span>Understand why decimal numbers are approximate and what the difference between <code class="inline">float</code> and <code class="inline">double</code> is</span></li><li><i class="fas fa-check-circle"></i><span>Handle integer division and conversion between types correctly</span></li><li><i class="fas fa-check-circle"></i><span>Name variables with valid and readable names</span></li></ul>
+  </div>
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-box-open"></i><h3>The Variable: A Box with a Name and a Type</h3></div>
+  <p>Every program needs to "remember" information while it works: the temperature that was read, the player's name, the number of attempts left. The tool for this is the <strong>variable</strong>: a slot reserved in the computer's memory, with three properties:</p>
+  <div class="step-item"><div class="step-number"><i class="fas fa-tag" style="font-size:.8rem"></i></div><div><h4>A name</h4><p>We choose it, and we use it to reach the slot.</p></div></div>
+  <div class="step-item"><div class="step-number"><i class="fas fa-shapes" style="font-size:.8rem"></i></div><div><h4>A type</h4><p>It decides what can be stored (a whole number? text? a fraction?) and how much memory is reserved.</p></div></div>
+  <div class="step-item"><div class="step-number"><i class="fas fa-database" style="font-size:.8rem"></i></div><div><h4>A value</h4><p>The current content of the slot, which can be changed while the program runs.</p></div></div>
+  <p>Look at this example, which stores information about the planet Mars using four different types:</p>
+  <div class="code-box" data-expl="intro"><div class="code-head"><span>planet.cpp</span><button class="copy-btn" onclick="copyCode('code_intro')">Copy code</button></div><pre id="code_intro"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;string&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-line" data-i="5">    <span class="kw">int</span> moons = <span class="num">2</span>;</span><span class="code-line" data-i="6">    <span class="kw">double</span> gravity = <span class="num">3.71</span>;</span><span class="code-line" data-i="7">    <span class="kw">char</span> symbol = <span class="str">'M'</span>;</span><span class="code-line" data-i="8">    <span class="kw">string</span> planet = <span class="str">"Mars"</span>;</span><span class="code-plain"> </span><span class="code-line" data-i="10">    cout &lt;&lt; planet &lt;&lt; <span class="str">" has "</span> &lt;&lt; moons &lt;&lt; <span class="str">" moons."</span> &lt;&lt; endl;</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="intro"><span class="hint">Click any highlighted line of code to read its explanation here...</span></div>
+  <p style="font-size:0.9rem"><i class="fas fa-hand-pointer" style="color:var(--primary-blue)"></i> Click the highlighted lines:</p>
+  <div class="output-box">Mars has 2 moons.</div>
+  <p>The general form of a declaration with initialization is: <code>type name = value;</code>. We write the <strong>type</strong> first, then the <strong>name</strong>, then the <code>=</code> sign, then the <strong>first value</strong>, and the statement ends with a semicolon.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-pen"></i><h3>Declaration, Initialization and Assignment</h3></div>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>Term</th><th>Example</th><th>Meaning</th></tr>
+    <tr><td>Declaration</td><td><code>int fuel;</code></td><td>Creating the variable with its type and name</td></tr>
+    <tr><td>Initialization</td><td><code>int fuel = 100;</code></td><td>Creating the variable together with its first value</td></tr>
+    <tr><td>Assignment</td><td><code>fuel = 75;</code></td><td>Putting a new value into an existing variable</td></tr>
+  </table></div>
+  <p>The <code>=</code> sign in programming is not "equals" in the mathematical sense. It is a command: "calculate what is on the right, then put it into the variable on the left". That is why the line <code>fuel = fuel - 20;</code> is valid even though it would be impossible in mathematics:</p>
+  <div class="code-box"><div class="code-head"><span>reassign.cpp</span><button class="copy-btn" onclick="copyCode('code_reassign')">Copy code</button></div><pre id="code_reassign"><span class="kw">int</span> fuel = <span class="num">100</span>;
+cout &lt;&lt; fuel &lt;&lt; endl;
+fuel = <span class="num">75</span>;
+cout &lt;&lt; fuel &lt;&lt; endl;
+fuel = fuel - <span class="num">20</span>;
+cout &lt;&lt; fuel &lt;&lt; endl;</pre></div>
+  <div class="output-box">100
+75
+55</div>
+  <div class="tip-box"><i class="fas fa-triangle-exclamation"></i><p><strong>Beware of uninitialized variables:</strong> if you declare a local variable without a value (<code>int x;</code>) and then read it, you will get an unpredictable random value. Get into the habit of giving every variable a first value when you create it.</p></div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-table-list"></i><h3>The Basic Types</h3></div>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>Type</th><th>Stores</th><th>Examples</th><th>Typical size</th></tr>
+    <tr><td><code>int</code></td><td>A whole number</td><td><code>0, 42, -17</code></td><td>4 bytes</td></tr>
+    <tr><td><code>long long</code></td><td>A large whole number</td><td><code>5000000000</code></td><td>8 bytes</td></tr>
+    <tr><td><code>double</code></td><td>A decimal number with high precision</td><td><code>0.75, -2.5</code></td><td>8 bytes</td></tr>
+    <tr><td><code>float</code></td><td>A decimal number with lower precision</td><td><code>0.75f</code></td><td>4 bytes</td></tr>
+    <tr><td><code>char</code></td><td>A single character</td><td><code>'q', '7', '#'</code></td><td>1 byte</td></tr>
+    <tr><td><code>bool</code></td><td>True or false</td><td><code>true, false</code></td><td>1 byte</td></tr>
+    <tr><td><code>string</code></td><td>Text</td><td><code>"Riyadh"</code></td><td>Varies with the length of the text</td></tr>
+  </table></div>
+  <p>The sizes in the table are the usual values on modern computers, but the standard does not strictly require them. That is why we measure them with the <code>sizeof</code> tool instead of assuming:</p>
+  <div class="code-box"><div class="code-head"><span>sizes.cpp</span><button class="copy-btn" onclick="copyCode('code_sizes')">Copy code</button></div><pre id="code_sizes">cout &lt;&lt; <span class="str">"int:       "</span> &lt;&lt; <span class="kw">sizeof</span>(<span class="kw">int</span>) &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"long long: "</span> &lt;&lt; <span class="kw">sizeof</span>(<span class="kw">long</span> <span class="kw">long</span>) &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"float:     "</span> &lt;&lt; <span class="kw">sizeof</span>(<span class="kw">float</span>) &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"double:    "</span> &lt;&lt; <span class="kw">sizeof</span>(<span class="kw">double</span>) &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"bool:      "</span> &lt;&lt; <span class="kw">sizeof</span>(<span class="kw">bool</span>) &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"char:      "</span> &lt;&lt; <span class="kw">sizeof</span>(<span class="kw">char</span>) &lt;&lt; endl;</pre></div>
+  <div class="output-box">int:       4
+long long: 8
+float:     4
+double:    8
+bool:      1
+char:      1</div>
+  <p>A useful mental picture: the bigger the type, the larger the values or the higher the precision it can hold, but the more memory it uses.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-ruler-horizontal"></i><h3>The Limits of Integers: When Do We Use long long?</h3></div>
+  <p>A 4-byte <code>int</code> slot holds values from about <code>-2.1</code> billion to <code>+2.1</code> billion (the usual upper limit is <code>2147483647</code>). A <code>long long</code>, on the other hand, holds up to about <code>9.2</code> quintillion (<code>9223372036854775807</code>). If the result of your operation might exceed two billion, use <code>long long</code> from the start:</p>
+  <div class="code-box"><div class="code-head"><span>bigint.cpp</span><button class="copy-btn" onclick="copyCode('code_bigint')">Copy code</button></div><pre id="code_bigint"><span class="kw">long</span> <span class="kw">long</span> speed = <span class="num">299792458</span>;          <span class="cmt">// light speed in meters per second</span>
+<span class="kw">long</span> <span class="kw">long</span> perHour = speed * <span class="num">3600</span>;     <span class="cmt">// meters light travels in one hour</span>
+cout &lt;&lt; perHour &lt;&lt; endl;</pre></div>
+  <div class="output-box">1079252848800</div>
+  <p>The result is larger than a trillion, which is hundreds of times beyond the limit of <code>int</code>.</p>
+  <div class="tip-box"><i class="fas fa-triangle-exclamation"></i><p><strong>Overflow:</strong> when the result of an operation on <code>int</code> goes beyond the allowed limit, the program does not stop and does not show a warning. The result simply becomes unreliable. In competitive programming this is one of the most famous causes of wrong answers, so read the limits of the problem first and then choose the type.</p></div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-percent"></i><h3>Decimal Numbers and Precision</h3></div>
+  <p>The computer stores decimal numbers in an approximate binary form, so many fractions cannot be represented with perfect accuracy. The difference between <code>float</code> and <code>double</code> is the number of reliable digits:</p>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>Type</th><th>Approximate precision</th></tr>
+    <tr><td><code>float</code></td><td>About 6 to 7 significant digits</td></tr>
+    <tr><td><code>double</code></td><td>About 15 to 16 significant digits</td></tr>
+  </table></div>
+  <p>Let's reveal the hidden digits by printing many places with <code>setprecision</code> from the <code>&lt;iomanip&gt;</code> header:</p>
+  <div class="code-box"><div class="code-head"><span>precision.cpp</span><button class="copy-btn" onclick="copyCode('code_precision')">Copy code</button></div><pre id="code_precision">cout &lt;&lt; setprecision(<span class="num">17</span>);
+cout &lt;&lt; <span class="num">0.1</span> + <span class="num">0.2</span> &lt;&lt; endl;
+
+<span class="kw">float</span> pf = <span class="num">3.14159265358979</span>;
+<span class="kw">double</span> pd = <span class="num">3.14159265358979</span>;
+cout &lt;&lt; setprecision(<span class="num">15</span>);
+cout &lt;&lt; pf &lt;&lt; endl;
+cout &lt;&lt; pd &lt;&lt; endl;</pre></div>
+  <div class="output-box">0.30000000000000004
+3.14159274101257
+3.14159265358979</div>
+  <p>Two observations: the result of <code>0.1 + 0.2</code> is not exactly <code>0.3</code>, and the same number <code>3.14159265358979</code> comes out of a <code>float</code> distorted after about the seventh digit, while a <code>double</code> keeps it complete.</p>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p>The practical rule: use <code>double</code> by default for decimal numbers, and do not rely on comparing two decimal numbers that came out of calculations with <code>==</code>.</p></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-font"></i><h3>Characters: char and Its Secret Numbers</h3></div>
+  <p>The computer does not know letters. It stores a number for every character (in a table called ASCII). That is why a <code>char</code> can be treated as a letter or as a small number, depending on what we ask for:</p>
+  <div class="code-box"><div class="code-head"><span>chars.cpp</span><button class="copy-btn" onclick="copyCode('code_chars')">Copy code</button></div><pre id="code_chars"><span class="kw">char</span> letter = <span class="str">'A'</span>;
+cout &lt;&lt; letter &lt;&lt; endl;
+cout &lt;&lt; <span class="kw">static_cast</span>&lt;<span class="kw">int</span>&gt;(letter) &lt;&lt; endl;
+cout &lt;&lt; <span class="kw">char</span>(letter + <span class="num">2</span>) &lt;&lt; endl;</pre></div>
+  <div class="output-box">A
+65
+C</div>
+  <p>The character <code>'A'</code> has the code <code>65</code>, and adding <code>2</code> brings us to the third letter of the alphabet, <code>'C'</code>. Notice the important difference:</p>
+  <div class="compare-grid">
+    <div class="compare-card good"><div class="compare-title"><i class="fas fa-check-circle"></i> Correct</div><pre><span class="kw">char</span> grade = <span class="str">'B'</span>;
+<span class="kw">string</span> city = <span class="str">"Jeddah"</span>;</pre></div>
+    <div class="compare-card bad"><div class="compare-title"><i class="fas fa-times-circle"></i> Wrong</div><pre><span class="kw">char</span> grade = <span class="str">"B"</span>;
+<span class="kw">string</span> city = <span class="str">'Jeddah'</span>;</pre></div>
+  </div>
+  <p><strong>Single</strong> quotation marks are for one character, and <strong>double</strong> quotation marks are for complete text.</p>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-divide"></i><h3>Division Between Integers and Decimals</h3></div>
+  <p>The first confusing thing for every beginner: dividing two integers always gives an integer, so the fraction is dropped. To get the remainder we use the <code>%</code> operator:</p>
+  <div class="code-box"><div class="code-head"><span>division.cpp</span><button class="copy-btn" onclick="copyCode('code_division')">Copy code</button></div><pre id="code_division">cout &lt;&lt; <span class="num">17</span> / <span class="num">5</span> &lt;&lt; endl;
+cout &lt;&lt; <span class="num">17</span> % <span class="num">5</span> &lt;&lt; endl;
+cout &lt;&lt; <span class="num">17</span> / <span class="num">5.0</span> &lt;&lt; endl;</pre></div>
+  <div class="output-box">3
+2
+3.4</div>
+  <p>It is enough for one side to be a decimal (<code>5.0</code>) for the result to become a decimal. When both sides are integer variables, we explicitly convert one of them before dividing:</p>
+  <div class="code-box"><div class="code-head"><span>cast.cpp</span><button class="copy-btn" onclick="copyCode('code_cast')">Copy code</button></div><pre id="code_cast"><span class="kw">int</span> total = <span class="num">17</span>;
+<span class="kw">int</span> people = <span class="num">5</span>;
+<span class="kw">double</span> average = <span class="kw">static_cast</span>&lt;<span class="kw">double</span>&gt;(total) / people;
+cout &lt;&lt; average &lt;&lt; endl;</pre></div>
+  <div class="output-box">3.4</div>
+  <p>The expression <code>static_cast&lt;double&gt;(total)</code> creates a temporary decimal copy of <code>total</code> without changing the variable itself.</p>
+  <h4>And what about putting a decimal number into an integer variable?</h4>
+  <div class="code-box"><div class="code-head"><span>truncate.cpp</span><button class="copy-btn" onclick="copyCode('code_trunc')">Copy code</button></div><pre id="code_trunc"><span class="kw">int</span> whole = <span class="num">3.9</span>;
+cout &lt;&lt; whole &lt;&lt; endl;</pre></div>
+  <div class="output-box">3</div>
+  <p>The fractional part is dropped, not rounded. The number <code>3.9</code> became <code>3</code>, and this is called <strong>truncation</strong>.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-toggle-on"></i><h3>The bool Type: True and False Decisions</h3></div>
+  <p>A boolean variable holds one of two values: <code>true</code> or <code>false</code>, and we usually get it from a comparison. When printed, they appear as <code>1</code> and <code>0</code>, unless we use <code>boolalpha</code>:</p>
+  <div class="code-box"><div class="code-head"><span>bools.cpp</span><button class="copy-btn" onclick="copyCode('code_bools')">Copy code</button></div><pre id="code_bools"><span class="kw">int</span> altitude = <span class="num">1200</span>;
+<span class="kw">bool</span> aboveClouds = altitude &gt; <span class="num">2000</span>;
+<span class="kw">bool</span> inRange = altitude &gt;= <span class="num">500</span>;
+cout &lt;&lt; aboveClouds &lt;&lt; <span class="str">" "</span> &lt;&lt; inRange &lt;&lt; endl;
+cout &lt;&lt; boolalpha &lt;&lt; inRange &lt;&lt; endl;</pre></div>
+  <div class="output-box">0 1
+true</div>
+  <p>We will use this type a lot with conditional statements and loops in the coming lessons.</p>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-tag"></i><h3>Naming Variables</h3></div>
+  <p>A good name explains the purpose: <code>batteryLevel</code> is clearer than <code>x</code>. The mandatory rules are:</p>
+  <div class="rule-grid">
+    <div class="rule-list yes"><h5><i class="fas fa-circle-check"></i> Allowed</h5><ul>
+      <li><i class="fas fa-check"></i> English letters, digits and the underscore <code>_</code></li>
+      <li><i class="fas fa-check"></i> Starting with a letter or an underscore</li>
+      <li><i class="fas fa-check"></i> Capital and small letters together</li>
+    </ul></div>
+    <div class="rule-list no"><h5><i class="fas fa-circle-xmark"></i> Not allowed</h5><ul>
+      <li><i class="fas fa-xmark"></i> Starting with a digit, like <code>2ndPlace</code></li>
+      <li><i class="fas fa-xmark"></i> Spaces, like <code>best time</code></li>
+      <li><i class="fas fa-xmark"></i> Symbols, like <code>speed-max</code> or <code>cost$</code></li>
+      <li><i class="fas fa-xmark"></i> Reserved words, like <code>double</code> or <code>return</code></li>
+    </ul></div>
+  </div>
+  <p style="margin-top:16px">Letter case matters: <code>BestTime</code> and <code>bestTime</code> are two completely different variables. All of the following names are valid (we compiled the file to make sure):</p>
+  <div class="code-box"><div class="code-head"><span>names.cpp</span><button class="copy-btn" onclick="copyCode('code_names')">Copy code</button></div><pre id="code_names"><span class="kw">int</span> lap2 = <span class="num">1</span>;
+<span class="kw">int</span> _temp = <span class="num">2</span>;
+<span class="kw">int</span> best_time = <span class="num">3</span>;
+<span class="kw">int</span> bestTime = <span class="num">4</span>;
+<span class="kw">int</span> BestTime = <span class="num">5</span>;</pre></div>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>Style</th><th>Form</th><th>Note</th></tr>
+    <tr><td>snake_case</td><td><code>best_time</code></td><td>Small words separated by an underscore</td></tr>
+    <tr><td>camelCase</td><td><code>bestTime</code></td><td>The first word is small and every word after it starts with a capital letter</td></tr>
+    <tr><td>PascalCase</td><td><code>BestTime</code></td><td>Every word starts with a capital letter; usually used for type names</td></tr>
+  </table></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p>Choose one style and stick to it throughout the project. Consistency matters more than the style itself.</p></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-wand-magic-sparkles"></i><h3>Optional: auto</h3></div>
+  <p>Instead of writing the type, we let the compiler work it out from the first value. It helps with long types later on, but for now it is better to write the type explicitly so you practice it:</p>
+  <div class="code-box"><div class="code-head"><span>auto.cpp</span><button class="copy-btn" onclick="copyCode('code_autos')">Copy code</button></div><pre id="code_autos"><span class="kw">auto</span> a = <span class="num">7</span>;        <span class="cmt">// int</span>
+<span class="kw">auto</span> b = <span class="num">2.5</span>;      <span class="cmt">// double</span>
+<span class="kw">auto</span> c = <span class="str">'x'</span>;      <span class="cmt">// char</span>
+<span class="kw">auto</span> d = <span class="kw">true</span>;     <span class="cmt">// bool</span>
+cout &lt;&lt; a &lt;&lt; <span class="str">" "</span> &lt;&lt; b &lt;&lt; <span class="str">" "</span> &lt;&lt; c &lt;&lt; <span class="str">" "</span> &lt;&lt; d &lt;&lt; endl;</pre></div>
+  <div class="output-box">7 2.5 x 1</div>
+  <p>You must give an initial value when using <code>auto</code>, because the compiler relies on it to deduce the type.</p>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-flask"></i><h3>Interactive Lab: Which Type Should I Choose?</h3></div>
+  <p>Type a value the way you would write it in code (such as <code>42</code>, <code>3.5</code>, <code>'k'</code>, <code>"Hello"</code>, <code>true</code> or <code>5000000000</code>), and the simulator will suggest the suitable type.</p>
+  <div class="sim-box">
+    <div class="sim-inputs"><div class="field"><label>Value</label><input type="text" id="tfValue" value="5000000000" style="width:220px"></div></div>
+    <button class="btn-run" onclick="detectType()"><i class="fas fa-magnifying-glass"></i> Suggest the type</button>
+    <div class="sim-console" id="tfOut"></div>
+    <div class="result-line" id="tfNote"></div>
+  </div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="project-banner"><i class="fas fa-robot"></i><div><strong>Lesson Project: A Robot Status Card</strong><p>We bring the five types together in one program that shows a neatly formatted card.</p></div></div>
+  <div class="brief"><h5><i class="fas fa-lightbulb"></i> The idea</h5>
+    <p style="margin:0">A team operates an exploration robot remotely, and wants a small screen that clearly shows its status whenever its data changes. The robot's data is varied: its name is text, its battery is a whole number, its speed is a decimal number, its operating mode is a single character, and its network connection is a true-or-false value.</p></div>
+  <div class="brief"><h5><i class="fas fa-list-check"></i> What you need to do</h5>
+    <ol>
+      <li>Create five variables with suitable types and give each one an initial value: the name <code>Rover-7</code>, the battery <code>82</code>, the speed <code>1.5</code>, the mode <code>E</code>, online <code>true</code>.</li>
+      <li>Print the title of the card and then five lines, one line per variable, with a descriptive word before each value.</li>
+      <li>Print a <code>%</code> sign after the battery, and the unit <code>m/s</code> after the speed.</li>
+      <li>Make the boolean value appear as the word <code>true</code> or <code>false</code>, not as a number (remember <code>boolalpha</code>).</li>
+    </ol></div>
+  <div class="brief"><h5><i class="fas fa-bullseye"></i> The expected output</h5>
+    <div class="output-box">=== Rover Status Card ===
+Name:    Rover-7
+Battery: 82%
+Speed:   1.5 m/s
+Mode:    E
+Online:  true</div></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p><strong>Before you write:</strong> ask yourself about each value: is it text? One character? A whole number? A number with a fraction? True or false? Choosing the right type is half of the solution.</p></div>
+  <details class="reveal"><summary><i class="fas fa-eye"></i> After you have tried it yourself: show the solution</summary>
+    <div class="code-box"><div class="code-head"><span>rover.cpp</span><button class="copy-btn" onclick="copyCode('code_project')">Copy code</button></div><pre id="code_project"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;string&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">string</span> name = <span class="str">"Rover-7"</span>;
+    <span class="kw">int</span> battery = <span class="num">82</span>;
+    <span class="kw">double</span> speed = <span class="num">1.5</span>;
+    <span class="kw">char</span> mode = <span class="str">'E'</span>;
+    <span class="kw">bool</span> online = <span class="kw">true</span>;
+
+    cout &lt;&lt; <span class="str">"=== Rover Status Card ==="</span> &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Name:    "</span> &lt;&lt; name &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Battery: "</span> &lt;&lt; battery &lt;&lt; <span class="str">"%"</span> &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Speed:   "</span> &lt;&lt; speed &lt;&lt; <span class="str">" m/s"</span> &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Mode:    "</span> &lt;&lt; mode &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Online:  "</span> &lt;&lt; boolalpha &lt;&lt; online &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  </details>
+</div>
+
+
+<div class="card challenge-card"><div class="card-header"><i class="fas fa-dumbbell"></i><h3>Homework challenges</h3></div><p>Two short challenges to solve on your own after the lesson. Write your solution in a <code>.cpp</code> file, compile and run it, and compare your output with the expected output. Try first, open a hint only if you get stuck, and look at the sample solution only after a serious attempt.</p><div class="challenge"><div class="ch-head"><span class="ch-num">1</span><h4>Average Trip Speed</h4><span class="badge easy">Easy</span></div><p>A car covered a distance of <code>450</code> kilometers in <code>4</code> hours. The distance and the hours are integers, but the average may contain a fraction. Calculate the average and print it.</p><h5>Requirements</h5><ul><li>Define two integer variables: <code>distance</code> with the value 450 and <code>hours</code> with the value 4.</li><li>Define a decimal variable <code>speed</code> that holds the result of dividing the distance by the hours.</li><li>Print the sentence as shown in the expected output.</li><li>Check that your result is <code>112.5</code> and not <code>112</code>.</li></ul><h5>Expected output</h5><div class="output-box">Average speed: 112.5 km/h</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> Hints</summary><ul><li>Dividing two integers drops the fraction, so convert one of them to <code>double</code> before dividing.</li><li>Use <code>static_cast&lt;double&gt;(distance)</code>.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> Sample solution (after you try)</summary><div class="code-box"><div class="code-head"><span>speed.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_speed')">Copy code</button></div><pre id="code_ch_speed"><span class="cmt">// Challenge 1: average speed</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> distance = <span class="num">450</span>;
+    <span class="kw">int</span> hours = <span class="num">4</span>;
+    <span class="kw">double</span> speed = <span class="kw">static_cast</span>&lt;<span class="kw">double</span>&gt;(distance) / hours;
+    cout &lt;&lt; <span class="str">"Average speed: "</span> &lt;&lt; speed &lt;&lt; <span class="str">" km/h"</span> &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div><div class="challenge"><div class="ch-head"><span class="ch-num">2</span><h4>Shop Receipt</h4><span class="badge medium">Medium</span></div><p>A customer bought <code>3</code> pieces of a product that costs <code>24.5</code> riyals each. The shop gives free shipping if the total reaches <code>70</code> riyals or more.</p><h5>Requirements</h5><ul><li>Define <code>price</code> with a type suitable for a decimal price, and <code>quantity</code> for the amount.</li><li>Calculate the total in a variable named <code>total</code>.</li><li>Define a boolean variable <code>freeShipping</code> that holds the result of comparing the total with the number 70.</li><li>Print the total and the free-shipping status as <code>true</code> or <code>false</code>.</li></ul><h5>Expected output</h5><div class="output-box">Total: 73.5 SAR
+Free shipping: true</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> Hints</summary><ul><li>The result of the comparison <code>total &gt;= 70</code> is a value of type <code>bool</code>.</li><li>Write <code>boolalpha</code> before printing the boolean value.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> Sample solution (after you try)</summary><div class="code-box"><div class="code-head"><span>shop.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_shop')">Copy code</button></div><pre id="code_ch_shop"><span class="cmt">// Challenge 2: shop total</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">double</span> price = <span class="num">24.5</span>;
+    <span class="kw">int</span> quantity = <span class="num">3</span>;
+    <span class="kw">double</span> total = price * quantity;
+    <span class="kw">bool</span> freeShipping = total &gt;= <span class="num">70</span>;
+    cout &lt;&lt; <span class="str">"Total: "</span> &lt;&lt; total &lt;&lt; <span class="str">" SAR"</span> &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Free shipping: "</span> &lt;&lt; boolalpha &lt;&lt; freeShipping &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div></div>
+
+<div class="card summary-card"><div class="card-header"><i class="fas fa-clipboard-list"></i><h3>Quick summary</h3></div><ul class="sum-list"><li><i class="fas fa-circle-check"></i><span>A variable is a box with a name and a type that keeps a value which can change.</span></li><li><i class="fas fa-circle-check"></i><span>The basic types: <code class="inline">int</code> and <code class="inline">long long</code> for whole numbers, <code class="inline">double</code> for decimals, <code class="inline">char</code> for a character, <code class="inline">bool</code> for true/false, and <code class="inline">string</code> for text.</span></li><li><i class="fas fa-circle-check"></i><span>Declaration creates the variable, initialization is its first value, and assignment changes the value later.</span></li><li><i class="fas fa-circle-check"></i><span>Integers have limits, so use <code class="inline">long long</code> for large values.</span></li><li><i class="fas fa-circle-check"></i><span>Dividing two integers gives an integer; convert one of them to <code class="inline">double</code> if you want the fraction.</span></li><li><i class="fas fa-circle-check"></i><span>Choose clear names that describe the stored value.</span></li></ul></div>
+  <div class="card steps-card" id="tfCard">
+    <div class="card-header"><i class="fas fa-clipboard-check"></i><h3>Check your understanding</h3></div>
+    <p>Read each statement and choose <strong>True</strong> or <strong>False</strong>. The explanation appears right after you answer.</p>
+    <div id="tfList"></div>
+    <div class="score-box" id="tfScore" style="display:none"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><i class="fas fa-book"></i><h3>Glossary</h3></div>
+    <p>The most important terms in this lesson:</p>
+    <div class="glossary-grid"><div class="term-card"><span class="term-en">Variable</span><p class="term-desc">A slot in memory with a name, a type and a value that can be changed.</p></div><div class="term-card"><span class="term-en">Declaration</span><p class="term-desc">Creating a variable by specifying its type and name.</p></div><div class="term-card"><span class="term-en">Initialization</span><p class="term-desc">Giving a variable its first value when it is created.</p></div><div class="term-card"><span class="term-en">Assignment</span><p class="term-desc">Putting a new value into an existing variable using <code class="inline">=</code>.</p></div><div class="term-card"><span class="term-en">Data type</span><p class="term-desc">Decides what can be stored in a variable and how much memory is reserved.</p></div><div class="term-card"><span class="term-en">Integer</span><p class="term-desc">A number without a fraction, such as <code class="inline">int</code> and <code class="inline">long long</code>.</p></div><div class="term-card"><span class="term-en">Floating-point</span><p class="term-desc">A number with a fractional part, such as <code class="inline">double</code> and <code class="inline">float</code>.</p></div><div class="term-card"><span class="term-en">Precision</span><p class="term-desc">The number of significant digits that a type keeps reliably.</p></div><div class="term-card"><span class="term-en">Character</span><p class="term-desc">A single symbol stored in a <code class="inline">char</code>, written between single quotation marks.</p></div><div class="term-card"><span class="term-en">String</span><p class="term-desc">A sequence of characters stored in a <code class="inline">string</code>, written between double quotation marks.</p></div><div class="term-card"><span class="term-en">Boolean</span><p class="term-desc">A <code class="inline">true</code> or <code class="inline">false</code> value stored in a <code class="inline">bool</code>.</p></div><div class="term-card"><span class="term-en">Overflow</span><p class="term-desc">When the result of an operation exceeds the upper limit of the type, so the result becomes unreliable.</p></div><div class="term-card"><span class="term-en">Truncation</span><p class="term-desc">Dropping the fractional part when a decimal number is converted to an integer.</p></div><div class="term-card"><span class="term-en">Type casting</span><p class="term-desc">Converting a value from one type to another using <code class="inline">static_cast</code>.</p></div><div class="term-card"><span class="term-en">Identifier</span><p class="term-desc">The name we choose for a variable or a function.</p></div><div class="term-card"><span class="term-en">Keyword</span><p class="term-desc">A word with a special meaning in the language that cannot be used as a variable name.</p></div><div class="term-card"><span class="term-en">Case-sensitive</span><p class="term-desc">Distinguishes between capital and small letters, so <code class="inline">Id</code> is different from <code class="inline">id</code>.</p></div><div class="term-card"><span class="term-en">sizeof</span><p class="term-desc">An operator that returns the size of a type or a variable in bytes.</p></div></div>
+  </div>
+  <div class="card steps-card" id="quizCard">
+    <div class="card-header"><i class="fas fa-circle-question"></i><h3>Final quiz</h3></div>
+    <p>Ten questions, from easy to medium. Choose one answer for each question.</p>
+    <div class="progress"><div class="progress-bar" id="quizBar"></div></div>
+    <div id="quizList"></div>
+    <div class="score-box" id="quizScore" style="display:none"></div>
+  </div>
+  <div class="card refs-card">
+    <div class="card-header"><i class="fas fa-link"></i><h3>Further reading</h3></div>
+    <p>The technical facts in this lesson are documented in the references below. The explanations, examples and exercises were written specially for the TweetKod platform:</p>
+    <ul class="ref-list"><li><a href="https://github.com/federico-busato/Modern-CPP-Programming" target="_blank" rel="noopener">Modern C++ Programming &mdash; Federico Busato (CC BY 4.0)</a></li><li><a href="https://www.learn-cpp.org/" target="_blank" rel="noopener">Learn C++ (Apache 2.0)</a></li><li><a href="https://en.cppreference.com/w/cpp/language/types" target="_blank" rel="noopener">Fundamental types &mdash; cppreference</a></li></ul>
+  </div>
+</div>
+<button class="to-top" id="toTop" title="Back to top"><i class="fas fa-arrow-up"></i></button>
+<footer class="page-footer">TweetKod Platform</footer>
+<script>
+const LESSON_NUM = 3;
+const TF = [{"s": "The type given to a variable when it is declared does not change afterwards.", "a": true, "why": "C++ is a statically typed language: a variable of type <code class=\"inline\">int</code> stays an <code class=\"inline\">int</code>."}, {"s": "Running <code class=\"inline\">int whole = 3.9;</code> stores the value <code class=\"inline\">4</code> after rounding.", "a": false, "why": "The fractional part is dropped, so the value becomes <code class=\"inline\">3</code>. No rounding happens."}, {"s": "The value <code class=\"inline\">true</code> appears as <code class=\"inline\">1</code> when printed with <code class=\"inline\">cout</code>, unless we use <code class=\"inline\">boolalpha</code>.", "a": true, "why": "By default <code class=\"inline\">true</code> is printed as <code class=\"inline\">1</code> and <code class=\"inline\">false</code> as <code class=\"inline\">0</code>."}, {"s": "<code class=\"inline\">Score</code> and <code class=\"inline\">score</code> are two names for the same variable.", "a": false, "why": "The language is case-sensitive, so they are two different variables."}, {"s": "A variable name may start with a digit, such as <code class=\"inline\">3rdTry</code>.", "a": false, "why": "A name must start with a letter or an underscore."}, {"s": "The result of the expression <code class=\"inline\">17 / 5</code> is <code class=\"inline\">3.4</code>.", "a": false, "why": "Dividing two integers gives an integer, which is <code class=\"inline\">3</code>."}, {"s": "The <code class=\"inline\">double</code> type is more precise than the <code class=\"inline\">float</code> type for storing decimal numbers.", "a": true, "why": "<code class=\"inline\">double</code> provides about 15 significant digits compared with about 6 to 7 for <code class=\"inline\">float</code>."}, {"s": "An uninitialized local variable automatically holds the value <code class=\"inline\">0</code>.", "a": false, "why": "Its value is undefined and random, which is why we initialize variables when we create them."}];
+const QUIZ = [{"q": "Which type is the most suitable for storing the number of students in a class?", "o": ["<code class=\"inline\">double</code>", "<code class=\"inline\">bool</code>", "<code class=\"inline\">string</code>", "<code class=\"inline\">int</code>"], "a": 3, "why": "The number of students is a small whole number, and <code class=\"inline\">int</code> is enough for it."}, {"q": "Which type is the most suitable for storing a price of <code class=\"inline\">19.99</code>?", "o": ["<code class=\"inline\">char</code>", "<code class=\"inline\">int</code>", "<code class=\"inline\">double</code>", "<code class=\"inline\">bool</code>"], "a": 2, "why": "The price contains a decimal fraction, so we use <code class=\"inline\">double</code>."}, {"q": "Which of the following names is valid for a variable?", "o": ["<code class=\"inline\">double</code>", "<code class=\"inline\">2nd_place</code>", "<code class=\"inline\">total cost</code>", "<code class=\"inline\">total_cost</code>"], "a": 3, "why": "The first name starts with a digit, the second contains a space, and the fourth is a reserved word."}, {"q": "What does the code print? <code class=\"inline\">int a = 7; a = a + 3; cout &lt;&lt; a;</code>", "o": ["73", "7", "10", "3"], "a": 2, "why": "<code class=\"inline\">7 + 3</code> is calculated first, and then the result is stored in <code class=\"inline\">a</code>."}, {"q": "What is the result of <code class=\"inline\">cout &lt;&lt; 17 % 5;</code>?", "o": ["3", "2", "3.4", "85"], "a": 1, "why": "The <code class=\"inline\">%</code> operator gives the remainder of the division, and <code class=\"inline\">17 = 3 x 5 + 2</code>."}, {"q": "Which type stores a single character?", "o": ["<code class=\"inline\">char</code>", "<code class=\"inline\">string</code>", "<code class=\"inline\">int</code>", "<code class=\"inline\">double</code>"], "a": 0, "why": "The <code class=\"inline\">char</code> type is made for one character."}, {"q": "Which of the following declarations is correct?", "o": ["<code class=\"inline\">bool b = yes;</code>", "<code class=\"inline\">string city = \"Riyadh\";</code>", "<code class=\"inline\">int n = \"5\";</code>", "<code class=\"inline\">char c = \"A\";</code>"], "a": 1, "why": "Text is written with double quotation marks and stored in a <code class=\"inline\">string</code>."}, {"q": "What is the result of <code class=\"inline\">cout &lt;&lt; 9 / 2;</code>?", "o": ["9/2", "5", "4", "4.5"], "a": 2, "why": "Dividing two integers produces an integer, and the fraction is dropped."}, {"q": "Which type do we use to store the number <code class=\"inline\">5000000000</code>?", "o": ["<code class=\"inline\">int</code>", "<code class=\"inline\">char</code>", "<code class=\"inline\">bool</code>", "<code class=\"inline\">long long</code>"], "a": 3, "why": "The number is larger than the usual limit of <code class=\"inline\">int</code> (about 2.1 billion)."}, {"q": "What does the code print? <code class=\"inline\">bool ok = (3 &gt; 5); cout &lt;&lt; ok;</code>", "o": ["0", "true", "1", "false"], "a": 0, "why": "The comparison is false, so the value is <code class=\"inline\">false</code>, which is printed as <code class=\"inline\">0</code> by default."}];
+const EXPL = {"intro": {"5": "We declare a variable named <code class=\"inline\">moons</code> of type <code class=\"inline\">int</code> (a whole number) and give it its first value, 2.", "6": "A variable of type <code class=\"inline\">double</code>, because the value has a decimal fraction (roughly the surface gravity of Mars in m/s&sup2;).", "7": "A variable of type <code class=\"inline\">char</code> holding a single character, written between <strong>single</strong> quotation marks.", "8": "A variable of type <code class=\"inline\">string</code> holding text, written between <strong>double</strong> quotation marks.", "10": "We print the values of two variables together with fixed texts. The variable name has no quotation marks, so its value is printed, not its name."}};
+const TRACES = {};
+function copyCode(id) {
+  const el = document.getElementById(id);
+  const text = el.innerText.replace(/ /g, ' ');
+  const done = () => { const b = el.parentElement.querySelector('.copy-btn'); const t = b.textContent; b.textContent = 'Copied ✓'; setTimeout(() => b.textContent = t, 1400); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(done); else done();
+}
+
+/* click-to-explain code lines */
+document.querySelectorAll('.code-box[data-expl]').forEach(box => {
+  const id = box.getAttribute('data-expl');
+  const out = document.querySelector('.explain-box[data-for="' + id + '"]');
+  box.querySelectorAll('.code-line').forEach(line => {
+    line.addEventListener('click', () => {
+      box.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+      line.classList.add('active');
+      out.innerHTML = EXPL[id][line.getAttribute('data-i')];
+    });
+  });
+});
+
+/* true / false check */
+(function () {
+  const list = document.getElementById('tfList');
+  let answered = 0, right = 0;
+  TF.forEach((it, i) => {
+    const d = document.createElement('div');
+    d.className = 'tf-item';
+    d.innerHTML = '<div class="stmt">' + (i + 1) + '. ' + it.s + '</div>' +
+      '<div class="tf-btns"><button class="tf-btn" data-v="true"><i class="fas fa-check"></i> True</button>' +
+      '<button class="tf-btn" data-v="false"><i class="fas fa-xmark"></i> False</button></div><div class="feedback"></div>';
+    d.querySelectorAll('.tf-btn').forEach(b => b.addEventListener('click', () => {
+      const pick = b.getAttribute('data-v') === 'true';
+      const ok = pick === it.a;
+      d.querySelectorAll('.tf-btn').forEach(x => { x.disabled = true; });
+      b.classList.add(ok ? 'correct' : 'wrong');
+      const fb = d.querySelector('.feedback');
+      fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+      fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> Correct. ' : '<i class="fas fa-circle-xmark"></i> The correct answer is ' + (it.a ? 'True' : 'False') + '. ') + it.why;
+      answered++; if (ok) right++;
+      if (answered === TF.length) {
+        const s = document.getElementById('tfScore');
+        s.style.display = 'block';
+        s.innerHTML = '<div class="big">' + right + ' / ' + TF.length + '</div><div>' + (right === TF.length ? 'Excellent! You understood the lesson well.' : right >= TF.length - 2 ? 'A good result. Review the statements you missed.' : 'Re-read the lesson and try again.') + '</div>';
+      }
+    }));
+    list.appendChild(d);
+  });
+})();
+
+/* final quiz */
+(function () {
+  const list = document.getElementById('quizList');
+  const bar = document.getElementById('quizBar');
+  let answered = 0, right = 0;
+  QUIZ.forEach((q, qi) => {
+    const d = document.createElement('div');
+    d.className = 'quiz-q';
+    d.innerHTML = '<h4><span class="qnum">' + (qi + 1) + '</span>' + q.q + '</h4><div class="quiz-options"></div><div class="feedback"></div>';
+    const box = d.querySelector('.quiz-options');
+    q.o.forEach((txt, oi) => {
+      const b = document.createElement('button');
+      b.className = 'quiz-opt'; b.innerHTML = txt;
+      b.addEventListener('click', () => {
+        box.querySelectorAll('.quiz-opt').forEach(x => x.disabled = true);
+        const ok = oi === q.a;
+        b.classList.add(ok ? 'correct' : 'wrong');
+        if (!ok) box.children[q.a].classList.add('correct');
+        const fb = d.querySelector('.feedback');
+        fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+        fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> Correct! ' : '<i class="fas fa-circle-xmark"></i> That is not the right answer. ') + q.why;
+        answered++; if (ok) right++;
+        bar.style.width = (answered / QUIZ.length * 100) + '%';
+        if (answered === QUIZ.length) showScore();
+      });
+      box.appendChild(b);
+    });
+    list.appendChild(d);
+  });
+  function showScore() {
+    const s = document.getElementById('quizScore');
+    const pct = right / QUIZ.length;
+    s.style.display = 'block';
+    s.innerHTML = '<div class="big">' + right + ' / ' + QUIZ.length + '</div><div>' +
+      (pct === 1 ? 'Perfect score! You are ready for the next lesson.' : pct >= 0.7 ? 'Very good. Review the questions you missed.' : 'Review the lesson again, then try once more.') +
+      '</div><button class="retry-btn" onclick="location.hash=\'quizCard\';location.reload();">Retake the quiz</button>';
+  }
+})();
+
+
+/* ---------------- header tools ---------------- */
+(function () {
+  const root = document.documentElement;
+  const safeGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const safeSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+  /* theme */
+  const themeBtn = document.getElementById('themeBtn');
+  function applyTheme(t) { root.setAttribute('data-theme', t); if (themeBtn) themeBtn.innerHTML = t === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; }
+  applyTheme(safeGet('tk_theme') || 'light');
+  if (themeBtn) themeBtn.addEventListener('click', () => { const t = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; applyTheme(t); safeSet('tk_theme', t); });
+
+  /* code size */
+  let size = parseFloat(safeGet('tk_codesize') || '0.95');
+  function applySize() { root.style.setProperty('--code-size', size + 'rem'); }
+  applySize();
+  const dec = document.getElementById('fontDec'), inc = document.getElementById('fontInc');
+  if (dec) dec.addEventListener('click', () => { size = Math.max(0.75, +(size - 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+  if (inc) inc.addEventListener('click', () => { size = Math.min(1.3, +(size + 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+
+  /* table of contents */
+  const panel = document.getElementById('tocPanel'), tocBtn = document.getElementById('tocBtn');
+  if (panel && tocBtn) {
+    const cards = document.querySelectorAll('.container > .card');
+    let n = 0;
+    cards.forEach((c, i) => {
+      const h = c.querySelector('.card-header h3, .project-banner strong');
+      if (!h) return;
+      n++;
+      c.id = c.id || 'sec-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + c.id;
+      a.innerHTML = '<span>' + n + '</span><bdi>' + h.innerHTML + '</bdi>';
+      a.addEventListener('click', () => panel.classList.remove('open'));
+      panel.appendChild(a);
+    });
+    tocBtn.addEventListener('click', (e) => { e.stopPropagation(); panel.classList.toggle('open'); });
+    document.addEventListener('click', (e) => { if (!panel.contains(e.target)) panel.classList.remove('open'); });
+  }
+
+  /* reading progress + back to top */
+  const bar = document.getElementById('readBar'), top = document.getElementById('toTop');
+  function onScroll() {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+    if (bar) bar.style.width = pct + '%';
+    if (top) top.classList.toggle('show', h.scrollTop > 600);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  if (top) top.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+})();
+
+/* ---------------- step tracer ---------------- */
+document.querySelectorAll('.tracer').forEach(el => {
+  const steps = TRACES[el.getAttribute('data-trace')];
+  const lines = el.querySelectorAll('.tr-line');
+  const varsEl = el.querySelector('.tr-vars'), outEl = el.querySelector('.tr-out'), noteEl = el.querySelector('.tr-note'), cnt = el.querySelector('.tr-count');
+  const btn = (a) => el.querySelector('[data-a="' + a + '"]');
+  let i = 0, timer = null;
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  function draw() {
+    const s = steps[i], prev = i > 0 ? steps[i - 1].vars : {};
+    lines.forEach((l, k) => l.classList.toggle('active', k === s.line));
+    const names = Object.keys(s.vars);
+    varsEl.innerHTML = names.length ? names.map(n => '<div class="tr-var' + (prev[n] !== s.vars[n] ? ' changed' : '') + '"><span>' + esc(n) + '</span><b>' + esc(s.vars[n]) + '</b></div>').join('') : '<span style="color:#94a3b8">No variables yet</span>';
+    outEl.textContent = s.out || ' ';
+    noteEl.textContent = s.note || ' ';
+    cnt.textContent = 'Step ' + i + ' of ' + (steps.length - 1);
+    btn('prev').disabled = i === 0; btn('next').disabled = i === steps.length - 1;
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; btn('play').innerHTML = '<i class="fas fa-play"></i> Auto-play'; } }
+  btn('next').onclick = () => { stop(); if (i < steps.length - 1) i++; draw(); };
+  btn('prev').onclick = () => { stop(); if (i > 0) i--; draw(); };
+  btn('reset').onclick = () => { stop(); i = 0; draw(); };
+  btn('play').onclick = () => {
+    if (timer) { stop(); return; }
+    if (i >= steps.length - 1) i = 0;
+    btn('play').innerHTML = '<i class="fas fa-pause"></i> Pause';
+    timer = setInterval(() => { if (i < steps.length - 1) { i++; draw(); } else stop(); }, 1100);
+    draw();
+  };
+  draw();
+});
+
+/* ---------------- predict the output ---------------- */
+document.querySelectorAll('.predict').forEach(p => {
+  const opts = p.querySelectorAll('.pd-opt');
+  opts.forEach(o => o.addEventListener('click', () => {
+    const ok = o.getAttribute('data-ok') === '1';
+    opts.forEach(x => { x.disabled = true; if (x.getAttribute('data-ok') === '1') x.classList.add('correct'); });
+    if (!ok) o.classList.add('wrong');
+    const res = p.querySelector('.pd-result');
+    res.classList.remove('hidden');
+    const msg = p.querySelector('.pd-msg');
+    msg.innerHTML = ok ? '<span style="color:#16a34a"><i class="fas fa-check-circle"></i> Your prediction is right! Here is the real output:</span>' : '<span style="color:#dc2626"><i class="fas fa-circle-xmark"></i> Not quite. Here is the real output, and read the explanation below:</span>';
+  }));
+});
+
+
+function detectType() {
+  const raw = document.getElementById('tfValue').value.trim();
+  const out = document.getElementById('tfOut');
+  const note = document.getElementById('tfNote');
+  const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  let type = '', size = '', decl = '', msg = '';
+  if (raw === '') { out.textContent = ''; note.textContent = 'Type a value first.'; return; }
+  if (/^-?\d+$/.test(raw)) {
+    const v = BigInt(raw);
+    if (v >= -2147483648n && v <= 2147483647n) { type = 'int'; size = '4 bytes'; decl = 'int value = ' + raw + ';'; msg = 'A whole number that fits in the int type.'; }
+    else if (v >= -9223372036854775808n && v <= 9223372036854775807n) { type = 'long long'; size = '8 bytes'; decl = 'long long value = ' + raw + ';'; msg = 'A whole number beyond the limit of int, so use long long.'; }
+    else { type = 'out of range'; size = '-'; decl = '// larger than long long'; msg = 'This number is larger than what long long can store, and it needs advanced solutions.'; }
+  } else if (/^-?(\d+\.\d*|\.\d+)$/.test(raw)) {
+    type = 'double'; size = '8 bytes'; decl = 'double value = ' + raw + ';'; msg = 'A decimal number, and double is the default choice for it.';
+  } else if (/^'(\\.|[^'\\])'$/.test(raw)) {
+    type = 'char'; size = '1 byte'; decl = 'char value = ' + raw + ';'; msg = 'A single character between single quotation marks.';
+  } else if (raw === 'true' || raw === 'false') {
+    type = 'bool'; size = '1 byte'; decl = 'bool value = ' + raw + ';'; msg = 'A boolean value.';
+  } else if (/^".*"$/.test(raw)) {
+    type = 'string'; size = 'depends on the length'; decl = 'string value = ' + raw + ';'; msg = 'Text between double quotation marks.';
+  } else if (/^'.+'$/.test(raw)) {
+    type = 'string?'; size = '-'; decl = '// use double quotation marks'; msg = 'Single quotation marks hold only one character. If you have more than one character, write it between double quotation marks.';
+  } else {
+    type = 'string?'; size = '-'; decl = '// add double quotation marks'; msg = 'Text must be between double quotation marks, otherwise the compiler thinks it is the name of a variable.';
+  }
+  out.innerHTML = '<span class="line">// Suggested type:</span>\n' + esc(type) + '\n<span class="line">// Size:</span>\n' + esc(size) + '\n<span class="line">// Declaration:</span>\n' + esc(decl);
+  note.textContent = msg;
+}
+detectType();
+
+</script>
+</body>
+</html>

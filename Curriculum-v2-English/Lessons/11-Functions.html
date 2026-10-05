@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TweetKod | Functions</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --primary-blue: #00adef;
+  --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+  --primary-yellow: #f7941e;
+  --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+  --dark-navy: #0f172a;
+  --text-body: #475569;
+  --bg-main: #f4f9fd;
+  --surface: #f1f6fb;
+  --card-bg: #ffffff;
+  --border: #e2e8f0;
+  --chip-bg: #eef2f7;
+  --soft-shadow: 0 14px 34px -14px rgba(15,23,42,0.14);
+  --header-bg: rgba(255,255,255,0.82);
+  --code-size: 0.95rem;
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2300adef' fill-opacity='0.075'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+html[data-theme="dark"] {
+  --dark-navy: #e6edf7;
+  --text-body: #a9b6cc;
+  --bg-main: #0a1120;
+  --surface: #16213a;
+  --card-bg: #111a2e;
+  --border: #243049;
+  --chip-bg: #1d2a45;
+  --soft-shadow: 0 14px 34px -14px rgba(0,0,0,0.6);
+  --header-bg: rgba(10,17,32,0.82);
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2338bdf8' fill-opacity='0.06'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+body {
+  font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+  background-color: var(--bg-main);
+  margin: 0; padding: 0; color: var(--dark-navy);
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color .3s, color .3s;
+  position: relative;
+}
+/* decorative background */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.20), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.17), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.06), transparent 70%);
+}
+html[data-theme="dark"] body::before {
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.22), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.12), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.10), transparent 70%);
+}
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: var(--pattern); background-size: 260px 260px;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+          mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+}
+.bg-deco { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .35; animation: floaty 18s ease-in-out infinite; }
+.b1 { width: 340px; height: 340px; background: #00adef; top: 12%; right: -90px; }
+.b2 { width: 280px; height: 280px; background: #f7941e; bottom: 6%; left: -80px; animation-delay: -6s; }
+.b3 { width: 220px; height: 220px; background: #8b5cf6; top: 55%; right: 18%; opacity: .16; animation-delay: -11s; }
+html[data-theme="dark"] .blob { opacity: .2; }
+@keyframes floaty { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(26px,-34px) scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .blob { animation: none; } html { scroll-behavior: auto; } }
+
+/* header */
+header {
+  background: var(--header-bg); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  padding: 10px 4%; display: flex; justify-content: space-between; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 1000;
+  border-bottom: 1px solid rgba(0,173,239,0.16); box-shadow: 0 8px 28px -18px rgba(15,23,42,0.45);
+}
+.hdr-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.logo-img { width: 52px; height: 52px; border-radius: 15px; object-fit: contain; padding: 6px; background: #fff;
+  box-shadow: 0 6px 18px -6px rgba(0,173,239,0.45), 0 0 0 1px rgba(0,173,239,0.16); }
+.brand-info h3 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); line-height: 1.3; }
+.brand-info p { margin: 0; font-size: 0.78rem; color: var(--primary-blue); font-weight: 700; }
+.hdr-tools { display: flex; align-items: center; gap: 8px; position: relative; }
+.tool-btn { height: 38px; min-width: 38px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy);
+  cursor: pointer; font-family: 'Nunito'; font-weight: 800; font-size: .85rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: .2s; }
+.tool-btn:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+.toc-panel { position: absolute; top: 48px; right: 0; width: 290px; max-height: 60vh; overflow-y: auto; background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 16px; box-shadow: var(--soft-shadow); padding: 8px; display: none; }
+.toc-panel.open { display: block; }
+.toc-panel a { display: flex; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 10px; color: var(--dark-navy); text-decoration: none; font-weight: 700; font-size: .88rem; }
+.toc-panel a:hover { background: var(--surface); color: var(--primary-blue); }
+.toc-panel a span { width: 22px; height: 22px; border-radius: 50%; background: var(--chip-bg); color: var(--text-body); font-size: .72rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.read-progress { position: absolute; bottom: -1px; right: 0; left: 0; height: 3px; background: transparent; }
+.read-progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #00adef, #f7941e); transition: width .1s; }
+.to-top { position: fixed; bottom: 22px; right: 22px; z-index: 900; width: 46px; height: 46px; border-radius: 50%; border: none; background: var(--blue-gradient); color: #fff;
+  cursor: pointer; box-shadow: 0 10px 24px -8px rgba(0,173,239,.7); font-size: 1.1rem; opacity: 0; pointer-events: none; transition: .25s; }
+.to-top.show { opacity: 1; pointer-events: auto; }
+@media (max-width: 980px) { .brand-info p { display: none; } }
+@media (max-width: 720px) { .brand-info h3 { font-size: 1rem; } }
+
+.container { max-width: 900px; margin: 44px auto; padding: 0 25px; }
+.title-section { text-align: center; margin-bottom: 40px; }
+.title-section h1 { font-size: 2.7rem; font-weight: 800; margin: 12px 0 6px; background: linear-gradient(135deg, var(--dark-navy), #007bb5 80%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+html[data-theme="dark"] .title-section h1 { background: linear-gradient(135deg, #fff, #38bdf8 80%); -webkit-background-clip: text; background-clip: text; }
+.attribution { color: var(--primary-blue); font-size: 1.15rem; font-weight: 600; }
+.lesson-chip { display: inline-block; background: var(--yellow-gradient); color: #fff; padding: 6px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; box-shadow: 0 8px 18px -8px rgba(247,148,30,.8); }
+
+.card { background: var(--card-bg); border-radius: 25px; padding: 40px; margin-bottom: 30px; box-shadow: var(--soft-shadow); border-left: 8px solid var(--primary-blue);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); transition: background-color .3s; }
+.steps-card { border-left-color: var(--primary-yellow); }
+.card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+.card-header i { font-size: 1.8rem; }
+.card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+h4 { margin: 18px 0 8px; font-size: 1.05rem; color: var(--dark-navy); }
+p { color: var(--text-body); margin: 0 0 14px; }
+a { color: var(--primary-blue); }
+strong { color: var(--dark-navy); }
+
+.en { direction: ltr; unicode-bidi: isolate; font-weight: 700; color: var(--dark-navy); }
+/* every code chip is an isolated LTR island: fixes ; ( ) = placement inside Arabic text */
+code, code.inline { background: var(--chip-bg); padding: 2px 8px; border-radius: 6px; direction: ltr; unicode-bidi: isolate; display: inline-block; text-align: left;
+  color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; line-height: 1.6; }
+html[data-theme="dark"] code, html[data-theme="dark"] code.inline { color: #f9a8d4; }
+
+.obj-list { list-style: none; padding: 0; margin: 0; }
+.obj-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.obj-list i { color: #22c55e; margin-top: 6px; }
+
+/* code */
+.code-box { background: #1e293b; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.35); margin: 20px 0; border: 1px solid rgba(255,255,255,.04); }
+.code-head { background: #0f172a; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+.code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; direction: ltr; }
+.copy-btn { color: #38bdf8; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; font-family: 'Nunito'; }
+pre { padding: 26px 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: var(--code-size); tab-size: 8; }
+.cmt { color: #79c36a; font-style: italic; }
+.kw { color: #7dd3fc; }
+.str { color: #fbbf77; }
+.num { color: #c4b5fd; }
+.pp { color: #f9a8d4; }
+.code-line, .code-plain { display: block; border-radius: 6px; padding: 0 6px; margin: 0 -6px; }
+.code-line { cursor: pointer; transition: 0.2s; background: rgba(0,173,239,0.07); }
+.code-line:hover { background: rgba(0,173,239,0.22); }
+.code-line.active { background: rgba(247,148,30,0.28); outline: 1px dashed var(--primary-yellow); }
+.explain-box { margin-top: 14px; background: var(--surface); border: 2px dashed var(--border); border-radius: 16px; padding: 16px 22px; font-weight: 600; color: var(--dark-navy); min-height: 30px; }
+.explain-box .hint { color: #94a3b8; font-weight: 500; }
+.output-box, .input-box { font-family: 'Consolas', monospace; padding: 16px 22px; border-radius: 14px; margin: 10px 0 18px; direction: ltr; text-align: left; white-space: pre-wrap; tab-size: 8; font-size: var(--code-size); }
+.output-box { background: #0f172a; color: #4ade80; }
+.input-box { background: #0c2233; color: #7dd3fc; margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.input-box + .output-box { margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; border-top: 1px dashed #1e3a52; }
+.output-box::before, .input-box::before { display: block; font-size: 0.72rem; letter-spacing: 0.08em; margin-bottom: 6px; text-transform: uppercase; color: #64748b; }
+.output-box::before { content: 'Output'; }
+.input-box::before { content: 'Input (typed by the user)'; }
+.error-box { background: #1f1317; border: 1px solid #7f1d1d; border-radius: 14px; margin: 10px 0 18px; overflow: hidden; }
+.error-head { background: #450a0a; color: #fca5a5; padding: 8px 18px; font-weight: 700; font-size: 0.85rem; }
+.error-box pre { color: #fecaca; font-size: 0.8rem; padding: 14px 20px; line-height: 1.7; }
+
+/* steps */
+.step-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 14px; padding: 18px 20px; background: var(--card-bg); border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+.step-number { background: var(--yellow-gradient); color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+.step-item h4 { margin: 0 0 4px; font-size: 1rem; }
+.step-item p { margin: 0; font-size: 0.92rem; }
+
+/* tables */
+.table-wrap { overflow-x: auto; margin: 15px 0; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+table.data-table { width: 100%; border-collapse: collapse; background: var(--card-bg); }
+table.data-table th { background: var(--blue-gradient); color: #fff; padding: 12px 18px; font-size: 0.85rem; text-align: left; white-space: nowrap; }
+table.data-table td { padding: 12px 18px; font-size: 0.9rem; border-bottom: 1px solid var(--border); color: var(--text-body); }
+table.data-table tr:last-child td { border-bottom: none; }
+
+/* comparison / rules */
+.compare-grid, .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+@media (max-width: 700px) { .compare-grid, .rule-grid { grid-template-columns: 1fr; } .card { padding: 24px; } .title-section h1 { font-size: 2rem; } }
+.compare-card { border-radius: 16px; overflow: hidden; background: #1e293b; }
+.compare-title { padding: 10px 18px; font-weight: 800; font-size: 0.9rem; }
+.good .compare-title { background: #dcfce7; color: #15803d; }
+.bad .compare-title { background: #fee2e2; color: #b91c1c; }
+.compare-card pre { padding: 18px 20px; font-size: 0.83rem; }
+.rule-list { background: var(--surface); border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
+.rule-list h5 { margin: 0 0 12px; font-size: 0.95rem; }
+.rule-list.yes h5 { color: #16a34a; } .rule-list.no h5 { color: #dc2626; }
+.rule-list ul { list-style: none; padding: 0; margin: 0; }
+.rule-list li { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 0.9rem; color: var(--text-body); }
+.rule-list.yes li i { color: #22c55e; } .rule-list.no li i { color: #ef4444; }
+
+.tip-box { background: rgba(247,148,30,0.09); border: 2px dashed var(--primary-yellow); border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 4px; }
+.tip-box p { margin: 0; font-size: 0.93rem; }
+
+/* project */
+.project-banner { background: var(--blue-gradient); color: #fff; border-radius: 18px; padding: 16px 22px; margin-bottom: 18px; display: flex; gap: 14px; align-items: center; }
+.project-banner i { font-size: 1.6rem; }
+.project-banner strong { font-size: 1.05rem; color: #fff; }
+.project-banner p { color: #e0f4ff; margin: 0; font-size: 0.9rem; }
+.brief { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 18px 22px; margin: 14px 0; }
+.brief h5 { margin: 0 0 8px; font-size: 1rem; color: var(--primary-blue); display: flex; align-items: center; gap: 8px; }
+.brief ul, .brief ol { margin: 0; padding-left: 22px; color: var(--text-body); }
+.brief li { margin-bottom: 6px; }
+details.reveal { border: 2px dashed var(--border); border-radius: 16px; padding: 4px 16px; margin: 14px 0; background: var(--card-bg); }
+details.reveal > summary { cursor: pointer; font-weight: 800; padding: 10px 0; color: var(--primary-blue); list-style: none; display: flex; align-items: center; gap: 8px; }
+details.reveal > summary::-webkit-details-marker { display: none; }
+details.reveal[open] { border-style: solid; border-color: var(--primary-blue); }
+
+/* challenges */
+.challenge-card { border-left-color: #8b5cf6; }
+.challenge-card .card-header { color: #8b5cf6; }
+.challenge { border: 1px solid var(--border); border-radius: 20px; padding: 22px 24px; margin-bottom: 20px; background: var(--surface); }
+.ch-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+.ch-head h4 { margin: 0; flex: 1; }
+.ch-num { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
+.badge { font-size: .75rem; font-weight: 800; padding: 4px 12px; border-radius: 50px; }
+.badge.easy { background: #dcfce7; color: #15803d; }
+.badge.medium { background: #fef3c7; color: #b45309; }
+.challenge h5 { margin: 14px 0 6px; font-size: .9rem; color: var(--dark-navy); }
+.challenge ul { margin: 0 0 6px; padding-left: 22px; color: var(--text-body); }
+.challenge li { margin-bottom: 4px; }
+
+/* simulators */
+.sim-box { background: var(--surface); border: 3px dashed var(--border); border-radius: 20px; padding: 28px; text-align: center; margin-top: 15px; }
+.sim-inputs { display: flex; justify-content: center; gap: 18px; margin-bottom: 18px; flex-wrap: wrap; }
+.sim-inputs .field { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.sim-inputs label { font-size: 0.82rem; color: var(--text-body); font-weight: 700; }
+.sim-inputs input[type=text], .sim-inputs input[type=number] { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1.05rem; text-align: center; font-family: 'Consolas', monospace; outline: none; direction: ltr; }
+.sim-inputs input[type=number] { width: 110px; }
+.sim-inputs input:focus { border-color: var(--primary-blue); }
+.btn-run { background: var(--yellow-gradient); color: #fff; border: none; padding: 13px 32px; border-radius: 18px; cursor: pointer; font-weight: 800; font-family: 'Nunito'; font-size: 0.95rem; box-shadow: 0 10px 20px -10px rgba(247,148,30,.9); }
+.sim-console { margin-top: 18px; background: #0f172a; border-radius: 14px; padding: 18px 20px; text-align: left; direction: ltr; font-family: 'Consolas', monospace; color: #4ade80; min-height: 26px; white-space: pre-wrap; font-size: 0.92rem; }
+.sim-console .line { color: #94a3b8; }
+.result-line { margin-top: 14px; font-weight: 700; color: var(--dark-navy); }
+.reorder-list { max-width: 460px; margin: 0 auto 10px; direction: ltr; }
+.reorder-item { display: flex; align-items: center; gap: 10px; background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 8px 12px; margin-bottom: 8px; font-family: 'Consolas', monospace; font-size: 0.88rem; text-align: left; }
+.reorder-item code { flex: 1; background: transparent; padding: 0; }
+.rbtn { border: none; background: #e0f2fe; color: #0369a1; border-radius: 8px; width: 30px; height: 30px; cursor: pointer; font-weight: 800; }
+.rbtn:disabled { opacity: 0.35; cursor: default; }
+.bug-list { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.bug-btn { background: var(--card-bg); color: var(--dark-navy); border: 2px solid var(--border); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Nunito'; font-weight: 700; }
+.bug-btn.found { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.hidden { display: none; }
+.op-table { width: 100%; border-collapse: collapse; margin-top: 16px; direction: ltr; font-family: 'Consolas', monospace; font-size: .88rem; }
+.op-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--dark-navy); text-align: left; }
+.op-table td:last-child { color: var(--primary-blue); font-weight: 800; }
+
+/* glossary */
+.glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+.term-card { background: var(--surface); border-radius: 16px; padding: 18px; border: 1px solid var(--border); }
+.term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+.term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+.term-desc { font-size: 0.85rem; color: var(--text-body); margin: 0; }
+
+/* tf + quiz */
+.tf-item { border: 2px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 14px; background: var(--surface); }
+.tf-item .stmt { font-weight: 700; margin-bottom: 12px; color: var(--dark-navy); }
+.tf-btns { display: flex; gap: 10px; }
+.tf-btn { flex: 1; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 10px; cursor: pointer; font-family: 'Nunito'; font-weight: 800; font-size: 0.95rem; }
+.tf-btn:hover { border-color: var(--primary-blue); }
+.tf-btn.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.tf-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.feedback { margin-top: 10px; font-size: 0.9rem; font-weight: 600; }
+.feedback.ok { color: #16a34a; } .feedback.no { color: #dc2626; }
+.quiz-q { margin-bottom: 26px; padding-bottom: 8px; }
+.quiz-q h4 { margin-bottom: 12px; line-height: 1.9; }
+.qnum { display: inline-flex; align-items: center; justify-content: center; background: var(--yellow-gradient); color: #fff; width: 28px; height: 28px; border-radius: 50%; font-size: 0.85rem; margin-right: 8px; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-opt { background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 12px 18px; cursor: pointer; font-weight: 600; text-align: left; font-family: 'Nunito'; font-size: 0.95rem; transition: 0.2s; color: var(--dark-navy); }
+.quiz-opt:hover { border-color: var(--primary-blue); }
+.quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.quiz-opt:disabled { cursor: default; }
+.quiz-opt.correct code, .quiz-opt.wrong code { background: rgba(255,255,255,.7); }
+.progress { height: 10px; background: var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 22px; }
+.progress-bar { height: 100%; width: 0; background: var(--yellow-gradient); transition: width 0.3s; }
+.score-box { text-align: center; background: var(--surface); border: 2px solid var(--border); border-radius: 18px; padding: 22px; margin-top: 10px; }
+.score-box .big { font-size: 2.2rem; font-weight: 800; color: var(--primary-blue); }
+.retry-btn { margin-top: 10px; background: var(--blue-gradient); color: #fff; border: none; border-radius: 14px; padding: 10px 26px; cursor: pointer; font-family: 'Nunito'; font-weight: 800; }
+
+.refs-card { border-left-color: #94a3b8; }
+.ref-list { margin: 0; padding-left: 22px; }
+.ref-list li { margin-bottom: 6px; font-size: 0.9rem; }
+footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+
+/* ---------- tracer ---------- */
+.tracer { background: var(--surface); border: 2px solid var(--border); border-radius: 20px; padding: 18px; margin: 22px 0; }
+.tr-head { font-weight: 800; color: var(--primary-blue); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.tr-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .tr-grid { grid-template-columns: 1fr; } }
+.tr-code { background: #1e293b; border-radius: 14px; padding: 12px 0; direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: var(--code-size); overflow-x: auto; }
+.tr-line { display: flex; gap: 12px; padding: 1px 14px; color: #e2e8f0; white-space: pre; border-left: 4px solid transparent; transition: .15s; }
+.tr-line .ln { color: #64748b; min-width: 22px; text-align: right; user-select: none; }
+.tr-line.active { background: rgba(247,148,30,.28); border-left-color: var(--primary-yellow); }
+.tr-side { display: flex; flex-direction: column; gap: 12px; }
+.tr-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; flex: 1; }
+.tr-title { font-size: .78rem; font-weight: 800; color: var(--text-body); margin-bottom: 6px; }
+.tr-vars { direction: ltr; font-family: 'Consolas', monospace; font-size: .9rem; min-height: 28px; }
+.tr-var { display: flex; justify-content: space-between; padding: 3px 8px; border-radius: 8px; color: var(--dark-navy); }
+.tr-var b { color: var(--primary-blue); }
+.tr-var.changed { background: rgba(247,148,30,.22); }
+.tr-out { direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: .88rem; background: #0f172a; color: #4ade80; border-radius: 10px; padding: 8px 12px; min-height: 40px; white-space: pre-wrap; }
+.tr-note { margin-top: 12px; background: var(--card-bg); border: 1px dashed var(--primary-blue); border-radius: 12px; padding: 10px 16px; font-weight: 600; color: var(--dark-navy); min-height: 24px; }
+.tr-ctrl { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.tr-btn { border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 14px; cursor: pointer; font-family: 'Nunito'; font-weight: 800; font-size: .85rem; }
+.tr-btn.primary { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.tr-btn:disabled { opacity: .4; cursor: default; }
+.tr-count { margin-left: auto; font-size: .8rem; color: var(--text-body); font-weight: 700; }
+
+/* ---------- predict ---------- */
+.predict { border: 2px solid #8b5cf6; border-radius: 20px; padding: 16px 18px; margin: 22px 0; background: var(--surface); }
+.predict-head { font-weight: 800; color: #8b5cf6; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+.predict .code-box { margin: 12px 0; }
+.pd-q { font-weight: 700; color: var(--dark-navy); margin-bottom: 10px; }
+.pd-opts { display: flex; flex-wrap: wrap; gap: 10px; }
+.pd-opt { background: var(--card-bg); border: 2px solid var(--border); color: var(--dark-navy); border-radius: 12px; padding: 9px 16px; cursor: pointer; font-family: 'Nunito'; font-weight: 700; font-size: .92rem; }
+.pd-opt:hover { border-color: #8b5cf6; }
+.pd-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.pd-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.pd-opt:disabled { cursor: default; }
+.pd-result { margin-top: 12px; }
+.pd-msg { font-weight: 800; margin-bottom: 8px; }
+.pd-why { margin: 8px 0 0; font-size: .93rem; }
+
+/* ---------- misc ---------- */
+.summary-card { border-left-color: #22c55e; }
+.summary-card .card-header { color: #16a34a; }
+.sum-list { list-style: none; padding: 0; margin: 0; }
+.sum-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.sum-list i { color: #22c55e; margin-top: 6px; }
+.warn-box { background: rgba(239,68,68,.08); border: 2px dashed #ef4444; border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 4px; }
+.warn-box p { margin: 0; font-size: .93rem; }
+.analogy { background: linear-gradient(135deg, rgba(0,173,239,.1), rgba(139,92,246,.1)); border-radius: 18px; padding: 16px 22px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; border: 1px solid var(--border); }
+.analogy i { color: var(--primary-blue); font-size: 1.5rem; margin-top: 4px; }
+.analogy p { margin: 0; }
+.flow { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin: 18px 0; direction: ltr; }
+.flow-node { background: var(--card-bg); border: 2px solid var(--primary-blue); border-radius: 14px; padding: 10px 18px; font-weight: 800; color: var(--dark-navy); text-align: center; }
+.flow-node.decision { border-color: var(--primary-yellow); border-radius: 30px; }
+.flow-node.end { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.flow-arrow { color: var(--primary-blue); font-size: 1.2rem; }
+.flow-branch { display: flex; flex-direction: column; gap: 8px; }
+.cell-row { display: flex; direction: ltr; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 12px 0; }
+.cell { min-width: 54px; text-align: center; border: 2px solid var(--primary-blue); border-radius: 10px; background: var(--card-bg); font-family: 'Consolas', monospace; font-weight: 800; color: var(--dark-navy); padding: 6px 4px; cursor: pointer; }
+.cell small { display: block; font-size: .68rem; color: var(--text-body); font-weight: 700; }
+.cell.sel { background: rgba(247,148,30,.25); border-color: var(--primary-yellow); }
+.vis-line { display: block; padding: 0 6px; margin: 0 -6px; border-radius: 6px; opacity: .35; transition: .15s; }
+.vis-line.on { opacity: 1; background: rgba(34,197,94,.22); }
+.vis-btns { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+.vis-btn { border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Consolas', monospace; font-weight: 800; }
+.vis-btn.on { border-color: #22c55e; background: #dcfce7; color: #15803d; }
+
+.cell.ghost { opacity: .55; border-style: dashed; background: transparent; }
+
+</style>
+</head>
+<body>
+<div class="bg-deco"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+<header>
+  <div class="hdr-brand">
+    <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    <div class="brand-info"><h3>TweetKod Platform</h3><p>Interactive Programming Learning</p></div>
+  </div>
+  <div class="hdr-tools">
+    <button class="tool-btn" id="tocBtn" title="Lesson contents"><i class="fas fa-list-ul"></i> Contents</button>
+    <button class="tool-btn" id="fontDec" title="Smaller code font">A-</button>
+    <button class="tool-btn" id="fontInc" title="Larger code font">A+</button>
+    <button class="tool-btn" id="themeBtn" title="Dark mode"><i class="fas fa-moon"></i></button>
+    <div class="toc-panel" id="tocPanel"></div>
+  </div>
+  <div class="read-progress"><span id="readBar"></span></div>
+</header>
+<div class="container">
+  <div class="title-section">
+    <span class="lesson-chip">Lesson 11</span>
+    <h1>Functions</h1>
+    <p class="attribution">Functions &mdash; write once and use many times</p>
+  </div>
+  <div class="card goals-card">
+    <div class="card-header"><i class="fas fa-bullseye"></i><h3>What will you learn in this lesson?</h3></div>
+    <ul class="obj-list"><li><i class="fas fa-check-circle"></i><span>Understand the benefit of functions and write a function with a return type, a name, parameters and a body</span></li><li><i class="fas fa-check-circle"></i><span>Tell a parameter from an argument, and use <code class="inline">return</code> and <code class="inline">void</code></span></li><li><i class="fas fa-check-circle"></i><span>Define functions in the right order or with a prototype</span></li><li><i class="fas fa-check-circle"></i><span>Understand the difference between passing by value and passing by reference</span></li><li><i class="fas fa-check-circle"></i><span>Split a problem into small functions and build a program from them</span></li></ul>
+  </div>
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-vial"></i><h3>Write Once, Use Many Times</h3></div>
+  <p>Look at this code, which prints two cards for two names:</p>
+  <div class="code-box"><div class="code-head"><span>repeated_code.cpp</span><button class="copy-btn" onclick="copyCode('code_repeat')">Copy code</button></div><pre id="code_repeat">cout &lt;&lt; <span class="str">"+--------+"</span> &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"| Sara   |"</span> &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"+--------+"</span> &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"+--------+"</span> &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"| Omar   |"</span> &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"+--------+"</span> &lt;&lt; endl;</pre></div>
+  <div class="output-box">+--------+
+| Sara   |
++--------+
++--------+
+| Omar   |
++--------+</div>
+  <p>The lines repeated in almost the same form. Imagine we had a hundred names, or we wanted to change the look of the frame! The solution is the <strong>function</strong>: a group of statements that we give a name to, and then call whenever we need it.</p>
+  <div class="analogy"><i class="fas fa-store"></i><p>A function is like a vending machine: you put something in (such as the money), it does its job inside without you knowing how, and it gives you something (the snack). You use the machine by its name and its inputs, and you do not care what is inside it.</p></div>
+  <div class="flow">
+    <div class="flow-node">Inputs (parameters)</div><span class="flow-arrow"><i class="fas fa-arrow-right"></i></span>
+    <div class="flow-node decision">The function</div><span class="flow-arrow"><i class="fas fa-arrow-right"></i></span>
+    <div class="flow-node end">A result (return)</div>
+  </div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-hand-point-up"></i><h3>Your First Function</h3></div>
+  <p>You have already written a function since the first lesson: <code>main</code>! Now we will write our own functions. This is a function with no inputs and no result, which only prints a sentence:</p>
+  <div class="code-box"><div class="code-head"><span>say_hello.cpp</span><button class="copy-btn" onclick="copyCode('code_hello')">Copy code</button></div><pre id="code_hello"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">void</span> sayHello() {
+    cout &lt;&lt; <span class="str">"Hello from a function!"</span> &lt;&lt; endl;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    sayHello();
+    sayHello();
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="output-box">Hello from a function!
+Hello from a function!</div>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>Part</th><th>In the example</th><th>Meaning</th></tr>
+    <tr><td>Return type</td><td><code>void</code></td><td>The type of what the function returns, and <code>void</code> means "returns nothing"</td></tr>
+    <tr><td>Name</td><td><code>sayHello</code></td><td>A name that describes what it does</td></tr>
+    <tr><td>Parameters</td><td><code>()</code></td><td>The inputs of the function, and here there are none</td></tr>
+    <tr><td>Body</td><td><code>{ ... }</code></td><td>The statements that run when it is called</td></tr>
+  </table></div>
+  <p>Notice that the definition alone does not run anything. The function works only when you <strong>call it</strong> by writing its name and parentheses: <code>sayHello();</code></p>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-right-to-bracket"></i><h3>Parameters: The Inputs of a Function</h3></div>
+  <p>For a function to behave according to the situation, we give it <strong>parameters</strong> through which it receives values. Every parameter has a type and a name, just like a variable:</p>
+  <div class="code-box"><div class="code-head"><span>greet.cpp</span><button class="copy-btn" onclick="copyCode('code_param')">Copy code</button></div><pre id="code_param"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;string&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">void</span> greet(<span class="kw">string</span> name, <span class="kw">int</span> level) {
+    cout &lt;&lt; <span class="str">"Welcome "</span> &lt;&lt; name &lt;&lt; <span class="str">", you are level "</span> &lt;&lt; level &lt;&lt; endl;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    greet(<span class="str">"Sara"</span>, <span class="num">3</span>);
+    greet(<span class="str">"Omar"</span>, <span class="num">10</span>);
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="output-box">Welcome Sara, you are level 3
+Welcome Omar, you are level 10</div>
+  <div class="warn-box"><i class="fas fa-lightbulb" style="color:#ef4444"></i><p><strong>Two terms that people mix up:</strong> what we write in the definition of the function (<code>string name, int level</code>) is called <strong>parameters</strong>, and what we pass at the call (<code>"Sara", 3</code>) is called <strong>arguments</strong>. The arguments are copied into the parameters in the same order.</p></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-right-from-bracket"></i><h3>The Returned Value: return</h3></div>
+  <p>Many functions calculate something and give us the result. We write the type of the result instead of <code>void</code>, and we use <code>return</code> to send it. This trace shows exactly what happens when <code>add(2, 3)</code> is called:</p>
+  <div class="tracer" data-trace="add"><div class="tr-head"><i class="fas fa-bug-slash"></i> Step-by-step execution</div><div class="tr-grid"><div class="tr-code"><div class="tr-line" data-i="0"><span class="ln">1</span><span class="src"><span class="pp">#include &lt;iostream&gt;</span></span></div><div class="tr-line" data-i="1"><span class="ln">2</span><span class="src"><span class="kw">using</span> <span class="kw">namespace</span> std;</span></div><div class="tr-line" data-i="2"><span class="ln">3</span><span class="src"> </span></div><div class="tr-line" data-i="3"><span class="ln">4</span><span class="src"><span class="kw">int</span> add(<span class="kw">int</span> a, <span class="kw">int</span> b) {</span></div><div class="tr-line" data-i="4"><span class="ln">5</span><span class="src">    <span class="kw">return</span> a + b;</span></div><div class="tr-line" data-i="5"><span class="ln">6</span><span class="src">}</span></div><div class="tr-line" data-i="6"><span class="ln">7</span><span class="src"> </span></div><div class="tr-line" data-i="7"><span class="ln">8</span><span class="src"><span class="kw">int</span> <span class="kw">main</span>() {</span></div><div class="tr-line" data-i="8"><span class="ln">9</span><span class="src">    <span class="kw">int</span> x = add(<span class="num">2</span>, <span class="num">3</span>);</span></div><div class="tr-line" data-i="9"><span class="ln">10</span><span class="src">    cout &lt;&lt; x &lt;&lt; endl;</span></div><div class="tr-line" data-i="10"><span class="ln">11</span><span class="src">    <span class="kw">return</span> <span class="num">0</span>;</span></div><div class="tr-line" data-i="11"><span class="ln">12</span><span class="src">}</span></div></div><div class="tr-side"><div class="tr-box"><div class="tr-title">Variables</div><div class="tr-vars"></div></div><div class="tr-box"><div class="tr-title">Output so far</div><div class="tr-out"></div></div></div></div><div class="tr-note"></div><div class="tr-ctrl"><button class="tr-btn" data-a="reset" title="Restart"><i class="fas fa-backward-fast"></i></button><button class="tr-btn" data-a="prev"><i class="fas fa-backward-step"></i> Previous</button><button class="tr-btn primary" data-a="next">Next <i class="fas fa-forward-step"></i></button><button class="tr-btn" data-a="play"><i class="fas fa-play"></i> Auto-play</button><span class="tr-count"></span></div></div>
+  <p>How lovely this idea is: the call <code>add(2, 3)</code> becomes a <strong>value</strong> (here 5) and it can be used anywhere a value can be used. Consider:</p>
+  <div class="code-box"><div class="code-head"><span>returns.cpp</span><button class="copy-btn" onclick="copyCode('code_returns')">Copy code</button></div><pre id="code_returns"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> square(<span class="kw">int</span> x) {
+    <span class="kw">return</span> x * x;
+}
+
+<span class="kw">double</span> average(<span class="kw">double</span> a, <span class="kw">double</span> b) {
+    <span class="kw">return</span> (a + b) / <span class="num">2</span>;
+}
+
+<span class="kw">bool</span> isEven(<span class="kw">int</span> n) {
+    <span class="kw">return</span> n % <span class="num">2</span> == <span class="num">0</span>;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    cout &lt;&lt; square(<span class="num">7</span>) &lt;&lt; endl;
+    cout &lt;&lt; average(<span class="num">3</span>, <span class="num">8</span>) &lt;&lt; endl;
+    cout &lt;&lt; boolalpha &lt;&lt; isEven(<span class="num">10</span>) &lt;&lt; <span class="str">" "</span> &lt;&lt; isEven(<span class="num">7</span>) &lt;&lt; endl;
+    cout &lt;&lt; square(square(<span class="num">2</span>)) + <span class="num">1</span> &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="output-box">49
+5.5
+true false
+17</div>
+  <p>The function <code>isEven</code> returns a <code>bool</code>, and the last line calls a function inside a function: <code>square(square(2)) + 1</code> = <code>square(4) + 1</code> = 17.</p>
+  <div class="predict"><div class="predict-head"><i class="fas fa-brain"></i> Predict before you run</div><div class="code-box"><div class="code-head"><span>triple.cpp</span><button class="copy-btn" onclick="copyCode('code_p_triple')">Copy code</button></div><pre id="code_p_triple"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> triple(<span class="kw">int</span> x) {
+    <span class="kw">return</span> x * <span class="num">3</span>;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    cout &lt;&lt; triple(<span class="num">2</span>) + triple(<span class="num">3</span>) &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div><p class="pd-q">What will the program print?</p><div class="pd-opts"><button class="pd-opt" data-ok="0">6</button><button class="pd-opt" data-ok="0">23</button><button class="pd-opt" data-ok="1">15</button><button class="pd-opt" data-ok="0">5</button></div><div class="pd-result hidden"><div class="pd-msg"></div><div class="output-box">15</div><p class="pd-why">The first call triple(2) returns 6, and the second triple(3) returns 9. Then they are added: 6 + 9 = 15. We can treat a function call as if it were its value.</p></div></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p>When <code>return</code> runs, the function ends immediately even if there are lines after it. And you can write more than one <code>return</code> in a single function inside different <code>if</code> statements, as we did in <code>isPrime</code> and in the solution below.</p></div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-list-ol"></i><h3>The Order: Do Not Call What Is Not Defined Yet</h3></div>
+  <p>The compiler reads the file from top to bottom. So if you call a function before it has seen it, it will complain:</p>
+  <div class="code-box"><div class="code-head"><span>order_error.cpp</span><button class="copy-btn" onclick="copyCode('code_err_order')">Copy code</button></div><pre id="code_err_order"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    cout &lt;&lt; twice(<span class="num">4</span>) &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}
+
+<span class="kw">int</span> twice(<span class="kw">int</span> x) {
+    <span class="kw">return</span> x * <span class="num">2</span>;
+}</pre></div>
+  <div class="error-box"><div class="error-head"><i class="fas fa-bug"></i> What the compiler (g++) says</div><pre>main.cpp: In function ‘int main()’:
+main.cpp:5:13: error: ‘twice’ was not declared in this scope
+    5 |     cout &lt;&lt; twice(4) &lt;&lt; endl;
+      |             ^~~~~</pre></div>
+  <p>We have two solutions: either put the function <strong>before</strong> <code>main</code>, or put a <strong>prototype</strong> at the top that tells the compiler the name of the function, its parameters and its type, and write its full definition after <code>main</code>:</p>
+  <div class="code-box"><div class="code-head"><span>prototype.cpp</span><button class="copy-btn" onclick="copyCode('code_proto')">Copy code</button></div><pre id="code_proto"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> twice(<span class="kw">int</span> x);
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    cout &lt;&lt; twice(<span class="num">4</span>) &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}
+
+<span class="kw">int</span> twice(<span class="kw">int</span> x) {
+    <span class="kw">return</span> x * <span class="num">2</span>;
+}</pre></div>
+  <div class="output-box">8</div>
+  <p>A prototype is a single line that ends with a semicolon and has no body: <code>int twice(int x);</code></p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-copy"></i><h3>The Copy or the Original? Pass by Value and by Reference</h3></div>
+  <p>This is one of the most important ideas in the lesson. When we pass a variable to a function in the ordinary way, the function gets a <strong>copy</strong> of it. If it changes the copy, the original is not affected:</p>
+  <div class="code-box"><div class="code-head"><span>by_value.cpp</span><button class="copy-btn" onclick="copyCode('code_byvalue')">Copy code</button></div><pre id="code_byvalue"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">void</span> addBonus(<span class="kw">int</span> score) {
+    score = score + <span class="num">100</span>;
+    cout &lt;&lt; <span class="str">"Inside: "</span> &lt;&lt; score &lt;&lt; endl;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> myScore = <span class="num">50</span>;
+    addBonus(myScore);
+    cout &lt;&lt; <span class="str">"Outside: "</span> &lt;&lt; myScore &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="output-box">Inside: 150
+Outside: 50</div>
+  <p>The copy increased inside the function to 150, but the original variable in <code>main</code> stayed 50. This is called <strong>pass by value</strong>.</p>
+  <p>If we want the function to change the <strong>original</strong> itself, we add the symbol <code>&amp;</code> after the type in the parameter, and it becomes a <strong>reference</strong>, that is, a second name for the original variable:</p>
+  <div class="code-box"><div class="code-head"><span>by_reference.cpp</span><button class="copy-btn" onclick="copyCode('code_byref')">Copy code</button></div><pre id="code_byref"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">void</span> addBonus(<span class="kw">int</span>&amp; score) {
+    score = score + <span class="num">100</span>;
+    cout &lt;&lt; <span class="str">"Inside: "</span> &lt;&lt; score &lt;&lt; endl;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> myScore = <span class="num">50</span>;
+    addBonus(myScore);
+    cout &lt;&lt; <span class="str">"Outside: "</span> &lt;&lt; myScore &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="output-box">Inside: 150
+Outside: 150</div>
+  <p>Now the original changed as well. Remember the problem of swapping two values in the lesson about statements? With a reference we can write the solution once and reuse it:</p>
+  <div class="code-box"><div class="code-head"><span>swap_function.cpp</span><button class="copy-btn" onclick="copyCode('code_swapref')">Copy code</button></div><pre id="code_swapref"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">void</span> swapValues(<span class="kw">int</span>&amp; a, <span class="kw">int</span>&amp; b) {
+    <span class="kw">int</span> temp = a;
+    a = b;
+    b = temp;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> x = <span class="num">7</span>, y = <span class="num">12</span>;
+    swapValues(x, y);
+    cout &lt;&lt; <span class="str">"x = "</span> &lt;&lt; x &lt;&lt; <span class="str">", y = "</span> &lt;&lt; y &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="output-box">x = 12, y = 7</div>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>Form</th><th>What does the function receive?</th><th>Does the original change?</th></tr>
+    <tr><td><code>void f(int x)</code></td><td>A copy</td><td>No</td></tr>
+    <tr><td><code>void f(int&amp; x)</code></td><td>A reference to the original</td><td>Yes</td></tr>
+  </table></div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-bug"></i><h3>Common Mistakes with Functions</h3></div>
+  <h4>1) The number of arguments does not match the number of parameters</h4>
+  <div class="code-box"><div class="code-head"><span>arguments_error.cpp</span><button class="copy-btn" onclick="copyCode('code_err_args')">Copy code</button></div><pre id="code_err_args"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> add(<span class="kw">int</span> a, <span class="kw">int</span> b) {
+    <span class="kw">return</span> a + b;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    cout &lt;&lt; add(<span class="num">2</span>) &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="error-box"><div class="error-head"><i class="fas fa-bug"></i> What the compiler (g++) says</div><pre>main.cpp: In function ‘int main()’:
+main.cpp:9:16: error: too few arguments to function ‘int add(int, int)’
+    9 |     cout &lt;&lt; add(2) &lt;&lt; endl;
+      |             ~~~^~~
+main.cpp:4:5: note: declared here
+    4 | int add(int a, int b) {
+      |     ^~~</pre></div>
+  <h4>2) Forgetting return in a function that returns a value</h4>
+  <div class="warn-box"><i class="fas fa-triangle-exclamation"></i><p>If you write a function of type <code>int</code> and execution reaches its end without a <code>return</code>, the result is undefined (you may get a random value). Run the compiler with the <code>-Wall</code> option, because it warns you about that.</p></div>
+  <h4>3) A semicolon after the definition head</h4>
+  <div class="warn-box"><i class="fas fa-triangle-exclamation"></i><p>Writing <code>int twice(int x); { ... }</code> with a semicolon after the parenthesis turns the definition into a prototype, and the block after it becomes an independent, meaningless block. Do not put a semicolon after the head of a full definition.</p></div>
+  <h4>4) A name that does not describe the job</h4>
+  <p>The function <code>doIt</code> tells the reader nothing, while <code>calculateTotalPrice</code> explains itself. Choose an action name (a verb plus an object) in English.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-flask"></i><h3>Interactive Lab: The Function Machine</h3></div>
+  <p>Choose a function and give it inputs, and see how the call is written and what it returns:</p>
+  <div class="sim-box">
+    <div class="sim-inputs">
+      <div class="field"><label>Function</label><select id="fmFn" onchange="runFm()" style="padding:11px;border-radius:14px;border:2px solid var(--border);background:var(--card-bg);color:var(--dark-navy);font-family:Consolas,monospace;font-size:1rem"><option value="square">square(n)</option><option value="isEven">isEven(n)</option><option value="absValue">absValue(n)</option><option value="maxOf">maxOf(a, b)</option></select></div>
+      <div class="field"><label>a (or n)</label><input type="number" id="fmA" value="7"></div>
+      <div class="field"><label>b</label><input type="number" id="fmB" value="3"></div>
+    </div>
+    <button class="btn-run" onclick="runFm()"><i class="fas fa-play"></i> Call the function</button>
+    <div class="sim-console" id="fmOut"></div>
+  </div>
+</div>
+
+
+<div class="card">
+  <div class="project-banner"><i class="fas fa-shield-halved"></i><div><strong>Lesson Project: The Monster Fight</strong><p>We build a small fighting game from two functions and a loop.</p></div></div>
+  <div class="brief"><h5><i class="fas fa-lightbulb"></i> The idea</h5>
+    <p style="margin:0">A monster in a game has 50 health and 5 armor. The player attacks it at most three times, and types the power of each attack. The real damage is the power of the attack minus the monster's armor, but the smallest possible damage is 1 (even if the attack is weaker than the armor). The fight ends if the monster is defeated.</p></div>
+  <div class="brief"><h5><i class="fas fa-list-check"></i> What you need to do</h5>
+    <ol>
+      <li>Write a function <code>damage(attack, armor)</code> that returns <code>attack - armor</code> if the attack is greater than the armor, and otherwise returns 1.</li>
+      <li>Write a function <code>isAlive(hp)</code> that returns <code>true</code> if the health is greater than zero.</li>
+      <li>In <code>main</code>: repeat three rounds with a <code>for</code> loop; read the power of the attack, calculate the damage, reduce the health (and do not let it fall below zero), and print the report of the round.</li>
+      <li>If the monster dies, print <code>Monster defeated!</code> and end the program. If the three rounds finish while it is alive, print <code>The monster survived.</code></li>
+    </ol></div>
+  <div class="brief"><h5><i class="fas fa-bullseye"></i> Example runs</h5>
+    <p style="margin:0 0 6px"><strong>Strong attacks:</strong></p><div class="input-box">30 25 10</div><div class="output-box">Round 1: damage 25, monster HP 25
+Round 2: damage 20, monster HP 5
+Round 3: damage 5, monster HP 0
+Monster defeated!</div>
+    <p style="margin:12px 0 6px"><strong>Weak attacks:</strong></p><div class="input-box">3 4 20</div><div class="output-box">Round 1: damage 1, monster HP 49
+Round 2: damage 1, monster HP 48
+Round 3: damage 15, monster HP 33
+The monster survived.</div></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p><strong>Think before you write:</strong> write the two functions and test them on their own first in <code>main</code> with fixed numbers, and then connect them to the loop. Splitting the problem into small parts is the secret of professional programmers.</p></div>
+  <details class="reveal"><summary><i class="fas fa-eye"></i> After you have tried it yourself: show the solution</summary>
+    <div class="code-box"><div class="code-head"><span>monster_fight.cpp</span><button class="copy-btn" onclick="copyCode('code_project')">Copy code</button></div><pre id="code_project"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> damage(<span class="kw">int</span> attack, <span class="kw">int</span> armor) {
+    <span class="kw">if</span> (attack &gt; armor) {
+        <span class="kw">return</span> attack - armor;
+    }
+    <span class="kw">return</span> <span class="num">1</span>;
+}
+
+<span class="kw">bool</span> isAlive(<span class="kw">int</span> hp) {
+    <span class="kw">return</span> hp &gt; <span class="num">0</span>;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> monsterHp = <span class="num">50</span>;
+    <span class="kw">int</span> armor = <span class="num">5</span>;
+
+    <span class="kw">for</span> (<span class="kw">int</span> round = <span class="num">1</span>; round &lt;= <span class="num">3</span>; round++) {
+        <span class="kw">int</span> attack;
+        cin &gt;&gt; attack;
+
+        <span class="kw">int</span> dmg = damage(attack, armor);
+        monsterHp = monsterHp - dmg;
+        <span class="kw">if</span> (monsterHp &lt; <span class="num">0</span>) {
+            monsterHp = <span class="num">0</span>;
+        }
+        cout &lt;&lt; <span class="str">"Round "</span> &lt;&lt; round &lt;&lt; <span class="str">": damage "</span> &lt;&lt; dmg &lt;&lt; <span class="str">", monster HP "</span> &lt;&lt; monsterHp &lt;&lt; endl;
+
+        <span class="kw">if</span> (!isAlive(monsterHp)) {
+            cout &lt;&lt; <span class="str">"Monster defeated!"</span> &lt;&lt; endl;
+            <span class="kw">return</span> <span class="num">0</span>;
+        }
+    }
+    cout &lt;&lt; <span class="str">"The monster survived."</span> &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  </details>
+</div>
+
+
+<div class="card challenge-card"><div class="card-header"><i class="fas fa-dumbbell"></i><h3>Homework challenges</h3></div><p>Two short challenges to solve on your own after the lesson. Write your solution in a <code>.cpp</code> file, compile and run it, and compare your output with the expected output. Try first, open a hint only if you get stuck, and look at the sample solution only after a serious attempt.</p><div class="challenge"><div class="ch-head"><span class="ch-num">1</span><h4>Temperature Conversion Table</h4><span class="badge easy">Easy</span></div><p>Write a function <code>toFahrenheit</code> that converts a temperature from Celsius to Fahrenheit using the formula <code>F = C &times; 9 / 5 + 32</code>, and then use it inside a loop to print a table for the temperatures from 0 to 40 in steps of 10.</p><h5>Requirements</h5><ul><li>Write the function with a <code>double</code> parameter that returns a <code>double</code>.</li><li>In <code>main</code> use a <code>for</code> loop that counts from 0 to 40 in steps of 10.</li><li>Print every line in the format shown in the expected output.</li></ul><h5>Expected output</h5><div class="output-box">0C = 32F
+10C = 50F
+20C = 68F
+30C = 86F
+40C = 104F</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> Hints</summary><ul><li><code>return celsius * 9 / 5 + 32;</code> because <code>celsius</code> is a decimal, so the fractions are not dropped.</li><li>Pass the integer counter <code>c</code> to the function directly, and C++ will convert it to <code>double</code> automatically.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> Sample solution (after you try)</summary><div class="code-box"><div class="code-head"><span>temperature.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_temp')">Copy code</button></div><pre id="code_ch_temp"><span class="cmt">// Challenge 1: temperature table</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">double</span> toFahrenheit(<span class="kw">double</span> celsius) {
+    <span class="kw">return</span> celsius * <span class="num">9</span> / <span class="num">5</span> + <span class="num">32</span>;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">for</span> (<span class="kw">int</span> c = <span class="num">0</span>; c &lt;= <span class="num">40</span>; c += <span class="num">10</span>) {
+        cout &lt;&lt; c &lt;&lt; <span class="str">"C = "</span> &lt;&lt; toFahrenheit(c) &lt;&lt; <span class="str">"F"</span> &lt;&lt; endl;
+    }
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div><div class="challenge"><div class="ch-head"><span class="ch-num">2</span><h4>The Prime Number Function</h4><span class="badge medium">Medium</span></div><p>A prime number is a number greater than 1 that is divisible only by itself and by 1, such as 2, 3, 5 and 7. Write a function <code>isPrime(n)</code> that returns <code>true</code> for prime numbers, and then print all the prime numbers from 1 to 30.</p><h5>Requirements</h5><ul><li>Write <code>bool isPrime(int n)</code>.</li><li>Numbers smaller than 2 are not prime, so return <code>false</code> immediately.</li><li>Try dividing by every number from 2 up to <code>n - 1</code>; if you find a divisor, return <code>false</code> immediately.</li><li>If you find no divisor, return <code>true</code>. And print the prime numbers on a single line separated by spaces.</li></ul><h5>Expected output</h5><div class="output-box">2 3 5 7 11 13 17 19 23 29 </div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> Hints</summary><ul><li>Use a <code>for</code> loop inside the function, and <code>return false</code> inside an <code>if</code> in the loop.</li><li><code>return true</code> is written after the loop, because it is reached only if no divisor was found.</li><li>The prime numbers up to 30: 2 3 5 7 11 13 17 19 23 29.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> Sample solution (after you try)</summary><div class="code-box"><div class="code-head"><span>primes.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_prime')">Copy code</button></div><pre id="code_ch_prime"><span class="cmt">// Challenge 2: primes</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">bool</span> isPrime(<span class="kw">int</span> n) {
+    <span class="kw">if</span> (n &lt; <span class="num">2</span>) {
+        <span class="kw">return</span> <span class="kw">false</span>;
+    }
+    <span class="kw">for</span> (<span class="kw">int</span> d = <span class="num">2</span>; d &lt; n; d++) {
+        <span class="kw">if</span> (n % d == <span class="num">0</span>) {
+            <span class="kw">return</span> <span class="kw">false</span>;
+        }
+    }
+    <span class="kw">return</span> <span class="kw">true</span>;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">1</span>; i &lt;= <span class="num">30</span>; i++) {
+        <span class="kw">if</span> (isPrime(i)) {
+            cout &lt;&lt; i &lt;&lt; <span class="str">" "</span>;
+        }
+    }
+    cout &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div></div>
+
+<div class="card summary-card"><div class="card-header"><i class="fas fa-clipboard-list"></i><h3>Quick summary</h3></div><ul class="sum-list"><li><i class="fas fa-circle-check"></i><span>A function is a group of statements with a name; we write it once and call it many times.</span></li><li><i class="fas fa-circle-check"></i><span>The definition of a function: the return type, then the name, then the parameters between parentheses, then the body between curly braces.</span></li><li><i class="fas fa-circle-check"></i><span>Parameters are written in the definition, arguments are passed at the call, and they are copied in order.</span></li><li><i class="fas fa-circle-check"></i><span><code class="inline">return</code> ends the function and returns a value, and a <code class="inline">void</code> function returns nothing.</span></li><li><i class="fas fa-circle-check"></i><span>The compiler must see the function before it is called: define it before <code class="inline">main</code> or write a prototype.</span></li><li><i class="fas fa-circle-check"></i><span>Ordinary passing copies the value, and a reference <code class="inline">&amp;</code> lets the function change the original.</span></li></ul></div>
+  <div class="card steps-card" id="tfCard">
+    <div class="card-header"><i class="fas fa-clipboard-check"></i><h3>Check your understanding</h3></div>
+    <p>Read each statement and choose <strong>True</strong> or <strong>False</strong>. The explanation appears right after you answer.</p>
+    <div id="tfList"></div>
+    <div class="score-box" id="tfScore" style="display:none"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><i class="fas fa-book"></i><h3>Glossary</h3></div>
+    <p>The most important terms in this lesson:</p>
+    <div class="glossary-grid"><div class="term-card"><span class="term-en">Function</span><p class="term-desc">A named group of statements that performs a specific task.</p></div><div class="term-card"><span class="term-en">Call</span><p class="term-desc">Requesting the execution of a function by writing its name and arguments.</p></div><div class="term-card"><span class="term-en">Parameter</span><p class="term-desc">A variable in the definition of a function that receives a value.</p></div><div class="term-card"><span class="term-en">Argument</span><p class="term-desc">The value we pass at the call.</p></div><div class="term-card"><span class="term-en">Return value</span><p class="term-desc">The result that a function hands back to whoever called it.</p></div><div class="term-card"><span class="term-en">void</span><p class="term-desc">A return type meaning that the function returns no value.</p></div><div class="term-card"><span class="term-en">Function body</span><p class="term-desc">The statements between <code class="inline">{</code> and <code class="inline">}</code> inside the function.</p></div><div class="term-card"><span class="term-en">Prototype</span><p class="term-desc">A line that tells the compiler the name and type of a function before its full definition.</p></div><div class="term-card"><span class="term-en">Pass by value</span><p class="term-desc">Giving the function a copy of the variable.</p></div><div class="term-card"><span class="term-en">Reference</span><p class="term-desc">A second name for the original variable, written with the symbol <code class="inline">&amp;</code>.</p></div><div class="term-card"><span class="term-en">Return type</span><p class="term-desc">The type of the value that a function returns.</p></div><div class="term-card"><span class="term-en">Decomposition</span><p class="term-desc">Splitting a big problem into small functions.</p></div></div>
+  </div>
+  <div class="card steps-card" id="quizCard">
+    <div class="card-header"><i class="fas fa-circle-question"></i><h3>Final quiz</h3></div>
+    <p>Ten questions, from easy to medium. Choose one answer for each question.</p>
+    <div class="progress"><div class="progress-bar" id="quizBar"></div></div>
+    <div id="quizList"></div>
+    <div class="score-box" id="quizScore" style="display:none"></div>
+  </div>
+  <div class="card refs-card">
+    <div class="card-header"><i class="fas fa-link"></i><h3>Further reading</h3></div>
+    <p>The technical facts in this lesson are documented in the references below. The explanations, examples and exercises were written specially for the TweetKod platform:</p>
+    <ul class="ref-list"><li><a href="https://github.com/federico-busato/Modern-CPP-Programming" target="_blank" rel="noopener">Modern C++ Programming &mdash; Federico Busato (CC BY 4.0)</a></li><li><a href="https://www.learn-cpp.org/" target="_blank" rel="noopener">Learn C++ (Apache 2.0)</a></li><li><a href="https://en.cppreference.com/w/cpp/language/functions" target="_blank" rel="noopener">Functions &mdash; cppreference</a></li></ul>
+  </div>
+</div>
+<button class="to-top" id="toTop" title="Back to top"><i class="fas fa-arrow-up"></i></button>
+<footer class="page-footer">TweetKod Platform</footer>
+<script>
+const LESSON_NUM = 11;
+const TF = [{"s": "A function of type <code class=\"inline\">void</code> always returns an integer.", "a": false, "why": "<code class=\"inline\">void</code> means that it returns nothing."}, {"s": "The arguments in the call are copied into the parameters in the same order.", "a": true, "why": "The first argument goes to the first parameter, and so on."}, {"s": "The definition of a function alone makes it run automatically.", "a": false, "why": "It only runs when we call it (except <code class=\"inline\">main</code>, which the operating system calls)."}, {"s": "When <code class=\"inline\">return</code> runs, the function ends immediately.", "a": true, "why": "Any lines after it inside the function will not run."}, {"s": "If you change an ordinary parameter inside the function, the original variable changes.", "a": false, "why": "An ordinary parameter is a copy. To change the original we use a reference <code class=\"inline\">&amp;</code>."}, {"s": "A function defined after <code class=\"inline\">main</code> can be called if we write a prototype for it at the top.", "a": true, "why": "The prototype introduces it to the compiler before it reaches the call."}, {"s": "A function call can be used inside an arithmetic expression such as <code class=\"inline\">square(3) + 1</code>.", "a": true, "why": "A function call becomes its returned value."}, {"s": "It is allowed to call <code class=\"inline\">add(2)</code> for the function <code class=\"inline\">int add(int a, int b)</code>.", "a": false, "why": "The number of arguments must match the number of parameters."}];
+const QUIZ = [{"q": "What is a function in programming?", "o": ["A header file", "A variable that stores a number", "A comment in the code", "A named group of statements that can be called"], "a": 3, "why": "We write it once and call it when we need it."}, {"q": "What is the return type of a function that returns no value?", "o": ["<code class=\"inline\">void</code>", "<code class=\"inline\">null</code>", "<code class=\"inline\">bool</code>", "<code class=\"inline\">int</code>"], "a": 0, "why": "<code class=\"inline\">void</code> means \"nothing\"."}, {"q": "In <code class=\"inline\">int add(int a, int b)</code>, what are <code class=\"inline\">a</code> and <code class=\"inline\">b</code> called?", "o": ["Constants", "Functions", "Arguments", "Parameters"], "a": 3, "why": "The names written in the definition are called parameters."}, {"q": "In the call <code class=\"inline\">add(2, 3)</code>, what are <code class=\"inline\">2</code> and <code class=\"inline\">3</code> called?", "o": ["Arguments", "Parameters", "The return type", "Variables"], "a": 0, "why": "The values passed at the call are called arguments."}, {"q": "What is the result of <code class=\"inline\">int sq(int x){ return x * x; }  cout &lt;&lt; sq(4);</code>?", "o": ["8", "44", "4", "16"], "a": 3, "why": "4 x 4 = 16."}, {"q": "What happens when <code class=\"inline\">return</code> runs inside a function?", "o": ["The function ends and execution goes back to the place of the call", "The function keeps running", "The original variable is deleted", "The program always closes"], "a": 0, "why": "<code class=\"inline\">return</code> ends the function and hands the value back to the caller."}, {"q": "What happens to a variable passed by value if the function changes it?", "o": ["The original changes", "Only the copy changes", "A compile error occurs", "Nothing changes"], "a": 1, "why": "The function works on a copy, and the original stays as it is."}, {"q": "What does <code class=\"inline\">void f(int&amp; x)</code> mean?", "o": ["<code class=\"inline\">x</code> is a reference to the original variable", "<code class=\"inline\">x</code> is the address of the function", "<code class=\"inline\">x</code> is a constant", "<code class=\"inline\">x</code> is text"], "a": 0, "why": "The symbol <code class=\"inline\">&amp;</code> makes <code class=\"inline\">x</code> a second name for the original."}, {"q": "What happens if we call a function before the compiler has seen it and there is no prototype?", "o": ["It works normally", "The function turns into <code class=\"inline\">void</code>", "A compile error: the name is unknown", "The compiler ignores the call"], "a": 2, "why": "The compiler reads the file from top to bottom."}, {"q": "Which of the following names is the best fit for a function that calculates the sum of prices?", "o": ["<code class=\"inline\">f</code>", "<code class=\"inline\">x1</code>", "<code class=\"inline\">doIt</code>", "<code class=\"inline\">calculateTotalPrice</code>"], "a": 3, "why": "A clear name explains the job without needing to read the body."}];
+const EXPL = {};
+const TRACES = {"add": [{"line": -1, "vars": {}, "out": "", "note": "Starting point: no line has run yet."}, {"line": 7, "vars": {}, "out": "", "note": "Program execution always starts from main, not from the function that was written before it."}, {"line": 8, "vars": {}, "out": "", "note": "We reach the call add(2, 3). The line of main pauses for a moment, and execution jumps to the function."}, {"line": 3, "vars": {"a (in add)": "2", "b (in add)": "3"}, "out": "", "note": "We entered the function: the values 2 and 3 were copied into the parameters a and b."}, {"line": 4, "vars": {"a (in add)": "2", "b (in add)": "3"}, "out": "", "note": "We calculate a + b = 5 and return the result to the place it was called from."}, {"line": 8, "vars": {"x (in main)": "5"}, "out": "", "note": "We are back in main, and the variables a and b are gone. The result 5 took the place of the call, so it was stored in x."}, {"line": 9, "vars": {"x (in main)": "5"}, "out": "5\n", "note": "We printed x."}, {"line": 10, "vars": {"x (in main)": "5"}, "out": "5\n", "note": "main ends and the program is finished."}]};
+function copyCode(id) {
+  const el = document.getElementById(id);
+  const text = el.innerText.replace(/ /g, ' ');
+  const done = () => { const b = el.parentElement.querySelector('.copy-btn'); const t = b.textContent; b.textContent = 'Copied ✓'; setTimeout(() => b.textContent = t, 1400); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(done); else done();
+}
+
+/* click-to-explain code lines */
+document.querySelectorAll('.code-box[data-expl]').forEach(box => {
+  const id = box.getAttribute('data-expl');
+  const out = document.querySelector('.explain-box[data-for="' + id + '"]');
+  box.querySelectorAll('.code-line').forEach(line => {
+    line.addEventListener('click', () => {
+      box.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+      line.classList.add('active');
+      out.innerHTML = EXPL[id][line.getAttribute('data-i')];
+    });
+  });
+});
+
+/* true / false check */
+(function () {
+  const list = document.getElementById('tfList');
+  let answered = 0, right = 0;
+  TF.forEach((it, i) => {
+    const d = document.createElement('div');
+    d.className = 'tf-item';
+    d.innerHTML = '<div class="stmt">' + (i + 1) + '. ' + it.s + '</div>' +
+      '<div class="tf-btns"><button class="tf-btn" data-v="true"><i class="fas fa-check"></i> True</button>' +
+      '<button class="tf-btn" data-v="false"><i class="fas fa-xmark"></i> False</button></div><div class="feedback"></div>';
+    d.querySelectorAll('.tf-btn').forEach(b => b.addEventListener('click', () => {
+      const pick = b.getAttribute('data-v') === 'true';
+      const ok = pick === it.a;
+      d.querySelectorAll('.tf-btn').forEach(x => { x.disabled = true; });
+      b.classList.add(ok ? 'correct' : 'wrong');
+      const fb = d.querySelector('.feedback');
+      fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+      fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> Correct. ' : '<i class="fas fa-circle-xmark"></i> The correct answer is ' + (it.a ? 'True' : 'False') + '. ') + it.why;
+      answered++; if (ok) right++;
+      if (answered === TF.length) {
+        const s = document.getElementById('tfScore');
+        s.style.display = 'block';
+        s.innerHTML = '<div class="big">' + right + ' / ' + TF.length + '</div><div>' + (right === TF.length ? 'Excellent! You understood the lesson well.' : right >= TF.length - 2 ? 'A good result. Review the statements you missed.' : 'Re-read the lesson and try again.') + '</div>';
+      }
+    }));
+    list.appendChild(d);
+  });
+})();
+
+/* final quiz */
+(function () {
+  const list = document.getElementById('quizList');
+  const bar = document.getElementById('quizBar');
+  let answered = 0, right = 0;
+  QUIZ.forEach((q, qi) => {
+    const d = document.createElement('div');
+    d.className = 'quiz-q';
+    d.innerHTML = '<h4><span class="qnum">' + (qi + 1) + '</span>' + q.q + '</h4><div class="quiz-options"></div><div class="feedback"></div>';
+    const box = d.querySelector('.quiz-options');
+    q.o.forEach((txt, oi) => {
+      const b = document.createElement('button');
+      b.className = 'quiz-opt'; b.innerHTML = txt;
+      b.addEventListener('click', () => {
+        box.querySelectorAll('.quiz-opt').forEach(x => x.disabled = true);
+        const ok = oi === q.a;
+        b.classList.add(ok ? 'correct' : 'wrong');
+        if (!ok) box.children[q.a].classList.add('correct');
+        const fb = d.querySelector('.feedback');
+        fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+        fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> Correct! ' : '<i class="fas fa-circle-xmark"></i> That is not the right answer. ') + q.why;
+        answered++; if (ok) right++;
+        bar.style.width = (answered / QUIZ.length * 100) + '%';
+        if (answered === QUIZ.length) showScore();
+      });
+      box.appendChild(b);
+    });
+    list.appendChild(d);
+  });
+  function showScore() {
+    const s = document.getElementById('quizScore');
+    const pct = right / QUIZ.length;
+    s.style.display = 'block';
+    s.innerHTML = '<div class="big">' + right + ' / ' + QUIZ.length + '</div><div>' +
+      (pct === 1 ? 'Perfect score! You are ready for the next lesson.' : pct >= 0.7 ? 'Very good. Review the questions you missed.' : 'Review the lesson again, then try once more.') +
+      '</div><button class="retry-btn" onclick="location.hash=\'quizCard\';location.reload();">Retake the quiz</button>';
+  }
+})();
+
+
+/* ---------------- header tools ---------------- */
+(function () {
+  const root = document.documentElement;
+  const safeGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const safeSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+  /* theme */
+  const themeBtn = document.getElementById('themeBtn');
+  function applyTheme(t) { root.setAttribute('data-theme', t); if (themeBtn) themeBtn.innerHTML = t === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; }
+  applyTheme(safeGet('tk_theme') || 'light');
+  if (themeBtn) themeBtn.addEventListener('click', () => { const t = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; applyTheme(t); safeSet('tk_theme', t); });
+
+  /* code size */
+  let size = parseFloat(safeGet('tk_codesize') || '0.95');
+  function applySize() { root.style.setProperty('--code-size', size + 'rem'); }
+  applySize();
+  const dec = document.getElementById('fontDec'), inc = document.getElementById('fontInc');
+  if (dec) dec.addEventListener('click', () => { size = Math.max(0.75, +(size - 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+  if (inc) inc.addEventListener('click', () => { size = Math.min(1.3, +(size + 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+
+  /* table of contents */
+  const panel = document.getElementById('tocPanel'), tocBtn = document.getElementById('tocBtn');
+  if (panel && tocBtn) {
+    const cards = document.querySelectorAll('.container > .card');
+    let n = 0;
+    cards.forEach((c, i) => {
+      const h = c.querySelector('.card-header h3, .project-banner strong');
+      if (!h) return;
+      n++;
+      c.id = c.id || 'sec-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + c.id;
+      a.innerHTML = '<span>' + n + '</span><bdi>' + h.innerHTML + '</bdi>';
+      a.addEventListener('click', () => panel.classList.remove('open'));
+      panel.appendChild(a);
+    });
+    tocBtn.addEventListener('click', (e) => { e.stopPropagation(); panel.classList.toggle('open'); });
+    document.addEventListener('click', (e) => { if (!panel.contains(e.target)) panel.classList.remove('open'); });
+  }
+
+  /* reading progress + back to top */
+  const bar = document.getElementById('readBar'), top = document.getElementById('toTop');
+  function onScroll() {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+    if (bar) bar.style.width = pct + '%';
+    if (top) top.classList.toggle('show', h.scrollTop > 600);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  if (top) top.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+})();
+
+/* ---------------- step tracer ---------------- */
+document.querySelectorAll('.tracer').forEach(el => {
+  const steps = TRACES[el.getAttribute('data-trace')];
+  const lines = el.querySelectorAll('.tr-line');
+  const varsEl = el.querySelector('.tr-vars'), outEl = el.querySelector('.tr-out'), noteEl = el.querySelector('.tr-note'), cnt = el.querySelector('.tr-count');
+  const btn = (a) => el.querySelector('[data-a="' + a + '"]');
+  let i = 0, timer = null;
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  function draw() {
+    const s = steps[i], prev = i > 0 ? steps[i - 1].vars : {};
+    lines.forEach((l, k) => l.classList.toggle('active', k === s.line));
+    const names = Object.keys(s.vars);
+    varsEl.innerHTML = names.length ? names.map(n => '<div class="tr-var' + (prev[n] !== s.vars[n] ? ' changed' : '') + '"><span>' + esc(n) + '</span><b>' + esc(s.vars[n]) + '</b></div>').join('') : '<span style="color:#94a3b8">No variables yet</span>';
+    outEl.textContent = s.out || ' ';
+    noteEl.textContent = s.note || ' ';
+    cnt.textContent = 'Step ' + i + ' of ' + (steps.length - 1);
+    btn('prev').disabled = i === 0; btn('next').disabled = i === steps.length - 1;
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; btn('play').innerHTML = '<i class="fas fa-play"></i> Auto-play'; } }
+  btn('next').onclick = () => { stop(); if (i < steps.length - 1) i++; draw(); };
+  btn('prev').onclick = () => { stop(); if (i > 0) i--; draw(); };
+  btn('reset').onclick = () => { stop(); i = 0; draw(); };
+  btn('play').onclick = () => {
+    if (timer) { stop(); return; }
+    if (i >= steps.length - 1) i = 0;
+    btn('play').innerHTML = '<i class="fas fa-pause"></i> Pause';
+    timer = setInterval(() => { if (i < steps.length - 1) { i++; draw(); } else stop(); }, 1100);
+    draw();
+  };
+  draw();
+});
+
+/* ---------------- predict the output ---------------- */
+document.querySelectorAll('.predict').forEach(p => {
+  const opts = p.querySelectorAll('.pd-opt');
+  opts.forEach(o => o.addEventListener('click', () => {
+    const ok = o.getAttribute('data-ok') === '1';
+    opts.forEach(x => { x.disabled = true; if (x.getAttribute('data-ok') === '1') x.classList.add('correct'); });
+    if (!ok) o.classList.add('wrong');
+    const res = p.querySelector('.pd-result');
+    res.classList.remove('hidden');
+    const msg = p.querySelector('.pd-msg');
+    msg.innerHTML = ok ? '<span style="color:#16a34a"><i class="fas fa-check-circle"></i> Your prediction is right! Here is the real output:</span>' : '<span style="color:#dc2626"><i class="fas fa-circle-xmark"></i> Not quite. Here is the real output, and read the explanation below:</span>';
+  }));
+});
+
+
+function runFm() {
+  const fn = document.getElementById('fmFn').value;
+  const a = parseInt(document.getElementById('fmA').value, 10);
+  const b = parseInt(document.getElementById('fmB').value, 10);
+  const out = document.getElementById('fmOut');
+  if (isNaN(a) || (fn === 'maxOf' && isNaN(b))) { out.innerHTML = '<span class="line">// Enter integers</span>'; return; }
+  const defs = {
+    square: ['int square(int n) {\n    return n * n;\n}', 'square(' + a + ')', a * a],
+    isEven: ['bool isEven(int n) {\n    return n % 2 == 0;\n}', 'isEven(' + a + ')', (a % 2 === 0)],
+    absValue: ['int absValue(int n) {\n    if (n < 0) {\n        return -n;\n    }\n    return n;\n}', 'absValue(' + a + ')', Math.abs(a)],
+    maxOf: ['int maxOf(int a, int b) {\n    if (a > b) {\n        return a;\n    }\n    return b;\n}', 'maxOf(' + a + ', ' + b + ')', Math.max(a, b)]
+  };
+  const d = defs[fn];
+  out.innerHTML = '<span class="line">// The function definition:</span>\n' + d[0] + '\n\n<span class="line">// The call:</span>\n' + d[1] + '\n\n<span class="line">// The returned value:</span>\n' + d[2];
+}
+runFm();
+
+</script>
+</body>
+</html>

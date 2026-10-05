@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TweetKod | Operators</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --primary-blue: #00adef;
+  --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+  --primary-yellow: #f7941e;
+  --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+  --dark-navy: #0f172a;
+  --text-body: #475569;
+  --bg-main: #f4f9fd;
+  --surface: #f1f6fb;
+  --card-bg: #ffffff;
+  --border: #e2e8f0;
+  --chip-bg: #eef2f7;
+  --soft-shadow: 0 14px 34px -14px rgba(15,23,42,0.14);
+  --header-bg: rgba(255,255,255,0.82);
+  --code-size: 0.95rem;
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2300adef' fill-opacity='0.075'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+html[data-theme="dark"] {
+  --dark-navy: #e6edf7;
+  --text-body: #a9b6cc;
+  --bg-main: #0a1120;
+  --surface: #16213a;
+  --card-bg: #111a2e;
+  --border: #243049;
+  --chip-bg: #1d2a45;
+  --soft-shadow: 0 14px 34px -14px rgba(0,0,0,0.6);
+  --header-bg: rgba(10,17,32,0.82);
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2338bdf8' fill-opacity='0.06'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+body {
+  font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+  background-color: var(--bg-main);
+  margin: 0; padding: 0; color: var(--dark-navy);
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color .3s, color .3s;
+  position: relative;
+}
+/* decorative background */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.20), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.17), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.06), transparent 70%);
+}
+html[data-theme="dark"] body::before {
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.22), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.12), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.10), transparent 70%);
+}
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: var(--pattern); background-size: 260px 260px;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+          mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+}
+.bg-deco { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .35; animation: floaty 18s ease-in-out infinite; }
+.b1 { width: 340px; height: 340px; background: #00adef; top: 12%; right: -90px; }
+.b2 { width: 280px; height: 280px; background: #f7941e; bottom: 6%; left: -80px; animation-delay: -6s; }
+.b3 { width: 220px; height: 220px; background: #8b5cf6; top: 55%; right: 18%; opacity: .16; animation-delay: -11s; }
+html[data-theme="dark"] .blob { opacity: .2; }
+@keyframes floaty { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(26px,-34px) scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .blob { animation: none; } html { scroll-behavior: auto; } }
+
+/* header */
+header {
+  background: var(--header-bg); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  padding: 10px 4%; display: flex; justify-content: space-between; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 1000;
+  border-bottom: 1px solid rgba(0,173,239,0.16); box-shadow: 0 8px 28px -18px rgba(15,23,42,0.45);
+}
+.hdr-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.logo-img { width: 52px; height: 52px; border-radius: 15px; object-fit: contain; padding: 6px; background: #fff;
+  box-shadow: 0 6px 18px -6px rgba(0,173,239,0.45), 0 0 0 1px rgba(0,173,239,0.16); }
+.brand-info h3 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); line-height: 1.3; }
+.brand-info p { margin: 0; font-size: 0.78rem; color: var(--primary-blue); font-weight: 700; }
+.hdr-tools { display: flex; align-items: center; gap: 8px; position: relative; }
+.tool-btn { height: 38px; min-width: 38px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy);
+  cursor: pointer; font-family: 'Nunito'; font-weight: 800; font-size: .85rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: .2s; }
+.tool-btn:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+.toc-panel { position: absolute; top: 48px; right: 0; width: 290px; max-height: 60vh; overflow-y: auto; background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 16px; box-shadow: var(--soft-shadow); padding: 8px; display: none; }
+.toc-panel.open { display: block; }
+.toc-panel a { display: flex; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 10px; color: var(--dark-navy); text-decoration: none; font-weight: 700; font-size: .88rem; }
+.toc-panel a:hover { background: var(--surface); color: var(--primary-blue); }
+.toc-panel a span { width: 22px; height: 22px; border-radius: 50%; background: var(--chip-bg); color: var(--text-body); font-size: .72rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.read-progress { position: absolute; bottom: -1px; right: 0; left: 0; height: 3px; background: transparent; }
+.read-progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #00adef, #f7941e); transition: width .1s; }
+.to-top { position: fixed; bottom: 22px; right: 22px; z-index: 900; width: 46px; height: 46px; border-radius: 50%; border: none; background: var(--blue-gradient); color: #fff;
+  cursor: pointer; box-shadow: 0 10px 24px -8px rgba(0,173,239,.7); font-size: 1.1rem; opacity: 0; pointer-events: none; transition: .25s; }
+.to-top.show { opacity: 1; pointer-events: auto; }
+@media (max-width: 980px) { .brand-info p { display: none; } }
+@media (max-width: 720px) { .brand-info h3 { font-size: 1rem; } }
+
+.container { max-width: 900px; margin: 44px auto; padding: 0 25px; }
+.title-section { text-align: center; margin-bottom: 40px; }
+.title-section h1 { font-size: 2.7rem; font-weight: 800; margin: 12px 0 6px; background: linear-gradient(135deg, var(--dark-navy), #007bb5 80%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+html[data-theme="dark"] .title-section h1 { background: linear-gradient(135deg, #fff, #38bdf8 80%); -webkit-background-clip: text; background-clip: text; }
+.attribution { color: var(--primary-blue); font-size: 1.15rem; font-weight: 600; }
+.lesson-chip { display: inline-block; background: var(--yellow-gradient); color: #fff; padding: 6px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; box-shadow: 0 8px 18px -8px rgba(247,148,30,.8); }
+
+.card { background: var(--card-bg); border-radius: 25px; padding: 40px; margin-bottom: 30px; box-shadow: var(--soft-shadow); border-left: 8px solid var(--primary-blue);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); transition: background-color .3s; }
+.steps-card { border-left-color: var(--primary-yellow); }
+.card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+.card-header i { font-size: 1.8rem; }
+.card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+h4 { margin: 18px 0 8px; font-size: 1.05rem; color: var(--dark-navy); }
+p { color: var(--text-body); margin: 0 0 14px; }
+a { color: var(--primary-blue); }
+strong { color: var(--dark-navy); }
+
+.en { direction: ltr; unicode-bidi: isolate; font-weight: 700; color: var(--dark-navy); }
+/* every code chip is an isolated LTR island: fixes ; ( ) = placement inside Arabic text */
+code, code.inline { background: var(--chip-bg); padding: 2px 8px; border-radius: 6px; direction: ltr; unicode-bidi: isolate; display: inline-block; text-align: left;
+  color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; line-height: 1.6; }
+html[data-theme="dark"] code, html[data-theme="dark"] code.inline { color: #f9a8d4; }
+
+.obj-list { list-style: none; padding: 0; margin: 0; }
+.obj-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.obj-list i { color: #22c55e; margin-top: 6px; }
+
+/* code */
+.code-box { background: #1e293b; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.35); margin: 20px 0; border: 1px solid rgba(255,255,255,.04); }
+.code-head { background: #0f172a; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+.code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; direction: ltr; }
+.copy-btn { color: #38bdf8; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; font-family: 'Nunito'; }
+pre { padding: 26px 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: var(--code-size); tab-size: 8; }
+.cmt { color: #79c36a; font-style: italic; }
+.kw { color: #7dd3fc; }
+.str { color: #fbbf77; }
+.num { color: #c4b5fd; }
+.pp { color: #f9a8d4; }
+.code-line, .code-plain { display: block; border-radius: 6px; padding: 0 6px; margin: 0 -6px; }
+.code-line { cursor: pointer; transition: 0.2s; background: rgba(0,173,239,0.07); }
+.code-line:hover { background: rgba(0,173,239,0.22); }
+.code-line.active { background: rgba(247,148,30,0.28); outline: 1px dashed var(--primary-yellow); }
+.explain-box { margin-top: 14px; background: var(--surface); border: 2px dashed var(--border); border-radius: 16px; padding: 16px 22px; font-weight: 600; color: var(--dark-navy); min-height: 30px; }
+.explain-box .hint { color: #94a3b8; font-weight: 500; }
+.output-box, .input-box { font-family: 'Consolas', monospace; padding: 16px 22px; border-radius: 14px; margin: 10px 0 18px; direction: ltr; text-align: left; white-space: pre-wrap; tab-size: 8; font-size: var(--code-size); }
+.output-box { background: #0f172a; color: #4ade80; }
+.input-box { background: #0c2233; color: #7dd3fc; margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.input-box + .output-box { margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; border-top: 1px dashed #1e3a52; }
+.output-box::before, .input-box::before { display: block; font-size: 0.72rem; letter-spacing: 0.08em; margin-bottom: 6px; text-transform: uppercase; color: #64748b; }
+.output-box::before { content: 'Output'; }
+.input-box::before { content: 'Input (typed by the user)'; }
+.error-box { background: #1f1317; border: 1px solid #7f1d1d; border-radius: 14px; margin: 10px 0 18px; overflow: hidden; }
+.error-head { background: #450a0a; color: #fca5a5; padding: 8px 18px; font-weight: 700; font-size: 0.85rem; }
+.error-box pre { color: #fecaca; font-size: 0.8rem; padding: 14px 20px; line-height: 1.7; }
+
+/* steps */
+.step-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 14px; padding: 18px 20px; background: var(--card-bg); border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+.step-number { background: var(--yellow-gradient); color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+.step-item h4 { margin: 0 0 4px; font-size: 1rem; }
+.step-item p { margin: 0; font-size: 0.92rem; }
+
+/* tables */
+.table-wrap { overflow-x: auto; margin: 15px 0; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+table.data-table { width: 100%; border-collapse: collapse; background: var(--card-bg); }
+table.data-table th { background: var(--blue-gradient); color: #fff; padding: 12px 18px; font-size: 0.85rem; text-align: left; white-space: nowrap; }
+table.data-table td { padding: 12px 18px; font-size: 0.9rem; border-bottom: 1px solid var(--border); color: var(--text-body); }
+table.data-table tr:last-child td { border-bottom: none; }
+
+/* comparison / rules */
+.compare-grid, .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+@media (max-width: 700px) { .compare-grid, .rule-grid { grid-template-columns: 1fr; } .card { padding: 24px; } .title-section h1 { font-size: 2rem; } }
+.compare-card { border-radius: 16px; overflow: hidden; background: #1e293b; }
+.compare-title { padding: 10px 18px; font-weight: 800; font-size: 0.9rem; }
+.good .compare-title { background: #dcfce7; color: #15803d; }
+.bad .compare-title { background: #fee2e2; color: #b91c1c; }
+.compare-card pre { padding: 18px 20px; font-size: 0.83rem; }
+.rule-list { background: var(--surface); border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
+.rule-list h5 { margin: 0 0 12px; font-size: 0.95rem; }
+.rule-list.yes h5 { color: #16a34a; } .rule-list.no h5 { color: #dc2626; }
+.rule-list ul { list-style: none; padding: 0; margin: 0; }
+.rule-list li { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 0.9rem; color: var(--text-body); }
+.rule-list.yes li i { color: #22c55e; } .rule-list.no li i { color: #ef4444; }
+
+.tip-box { background: rgba(247,148,30,0.09); border: 2px dashed var(--primary-yellow); border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 4px; }
+.tip-box p { margin: 0; font-size: 0.93rem; }
+
+/* project */
+.project-banner { background: var(--blue-gradient); color: #fff; border-radius: 18px; padding: 16px 22px; margin-bottom: 18px; display: flex; gap: 14px; align-items: center; }
+.project-banner i { font-size: 1.6rem; }
+.project-banner strong { font-size: 1.05rem; color: #fff; }
+.project-banner p { color: #e0f4ff; margin: 0; font-size: 0.9rem; }
+.brief { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 18px 22px; margin: 14px 0; }
+.brief h5 { margin: 0 0 8px; font-size: 1rem; color: var(--primary-blue); display: flex; align-items: center; gap: 8px; }
+.brief ul, .brief ol { margin: 0; padding-left: 22px; color: var(--text-body); }
+.brief li { margin-bottom: 6px; }
+details.reveal { border: 2px dashed var(--border); border-radius: 16px; padding: 4px 16px; margin: 14px 0; background: var(--card-bg); }
+details.reveal > summary { cursor: pointer; font-weight: 800; padding: 10px 0; color: var(--primary-blue); list-style: none; display: flex; align-items: center; gap: 8px; }
+details.reveal > summary::-webkit-details-marker { display: none; }
+details.reveal[open] { border-style: solid; border-color: var(--primary-blue); }
+
+/* challenges */
+.challenge-card { border-left-color: #8b5cf6; }
+.challenge-card .card-header { color: #8b5cf6; }
+.challenge { border: 1px solid var(--border); border-radius: 20px; padding: 22px 24px; margin-bottom: 20px; background: var(--surface); }
+.ch-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+.ch-head h4 { margin: 0; flex: 1; }
+.ch-num { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
+.badge { font-size: .75rem; font-weight: 800; padding: 4px 12px; border-radius: 50px; }
+.badge.easy { background: #dcfce7; color: #15803d; }
+.badge.medium { background: #fef3c7; color: #b45309; }
+.challenge h5 { margin: 14px 0 6px; font-size: .9rem; color: var(--dark-navy); }
+.challenge ul { margin: 0 0 6px; padding-left: 22px; color: var(--text-body); }
+.challenge li { margin-bottom: 4px; }
+
+/* simulators */
+.sim-box { background: var(--surface); border: 3px dashed var(--border); border-radius: 20px; padding: 28px; text-align: center; margin-top: 15px; }
+.sim-inputs { display: flex; justify-content: center; gap: 18px; margin-bottom: 18px; flex-wrap: wrap; }
+.sim-inputs .field { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.sim-inputs label { font-size: 0.82rem; color: var(--text-body); font-weight: 700; }
+.sim-inputs input[type=text], .sim-inputs input[type=number] { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1.05rem; text-align: center; font-family: 'Consolas', monospace; outline: none; direction: ltr; }
+.sim-inputs input[type=number] { width: 110px; }
+.sim-inputs input:focus { border-color: var(--primary-blue); }
+.btn-run { background: var(--yellow-gradient); color: #fff; border: none; padding: 13px 32px; border-radius: 18px; cursor: pointer; font-weight: 800; font-family: 'Nunito'; font-size: 0.95rem; box-shadow: 0 10px 20px -10px rgba(247,148,30,.9); }
+.sim-console { margin-top: 18px; background: #0f172a; border-radius: 14px; padding: 18px 20px; text-align: left; direction: ltr; font-family: 'Consolas', monospace; color: #4ade80; min-height: 26px; white-space: pre-wrap; font-size: 0.92rem; }
+.sim-console .line { color: #94a3b8; }
+.result-line { margin-top: 14px; font-weight: 700; color: var(--dark-navy); }
+.reorder-list { max-width: 460px; margin: 0 auto 10px; direction: ltr; }
+.reorder-item { display: flex; align-items: center; gap: 10px; background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 8px 12px; margin-bottom: 8px; font-family: 'Consolas', monospace; font-size: 0.88rem; text-align: left; }
+.reorder-item code { flex: 1; background: transparent; padding: 0; }
+.rbtn { border: none; background: #e0f2fe; color: #0369a1; border-radius: 8px; width: 30px; height: 30px; cursor: pointer; font-weight: 800; }
+.rbtn:disabled { opacity: 0.35; cursor: default; }
+.bug-list { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.bug-btn { background: var(--card-bg); color: var(--dark-navy); border: 2px solid var(--border); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Nunito'; font-weight: 700; }
+.bug-btn.found { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.hidden { display: none; }
+.op-table { width: 100%; border-collapse: collapse; margin-top: 16px; direction: ltr; font-family: 'Consolas', monospace; font-size: .88rem; }
+.op-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--dark-navy); text-align: left; }
+.op-table td:last-child { color: var(--primary-blue); font-weight: 800; }
+
+/* glossary */
+.glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+.term-card { background: var(--surface); border-radius: 16px; padding: 18px; border: 1px solid var(--border); }
+.term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+.term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+.term-desc { font-size: 0.85rem; color: var(--text-body); margin: 0; }
+
+/* tf + quiz */
+.tf-item { border: 2px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 14px; background: var(--surface); }
+.tf-item .stmt { font-weight: 700; margin-bottom: 12px; color: var(--dark-navy); }
+.tf-btns { display: flex; gap: 10px; }
+.tf-btn { flex: 1; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 10px; cursor: pointer; font-family: 'Nunito'; font-weight: 800; font-size: 0.95rem; }
+.tf-btn:hover { border-color: var(--primary-blue); }
+.tf-btn.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.tf-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.feedback { margin-top: 10px; font-size: 0.9rem; font-weight: 600; }
+.feedback.ok { color: #16a34a; } .feedback.no { color: #dc2626; }
+.quiz-q { margin-bottom: 26px; padding-bottom: 8px; }
+.quiz-q h4 { margin-bottom: 12px; line-height: 1.9; }
+.qnum { display: inline-flex; align-items: center; justify-content: center; background: var(--yellow-gradient); color: #fff; width: 28px; height: 28px; border-radius: 50%; font-size: 0.85rem; margin-right: 8px; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-opt { background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 12px 18px; cursor: pointer; font-weight: 600; text-align: left; font-family: 'Nunito'; font-size: 0.95rem; transition: 0.2s; color: var(--dark-navy); }
+.quiz-opt:hover { border-color: var(--primary-blue); }
+.quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.quiz-opt:disabled { cursor: default; }
+.quiz-opt.correct code, .quiz-opt.wrong code { background: rgba(255,255,255,.7); }
+.progress { height: 10px; background: var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 22px; }
+.progress-bar { height: 100%; width: 0; background: var(--yellow-gradient); transition: width 0.3s; }
+.score-box { text-align: center; background: var(--surface); border: 2px solid var(--border); border-radius: 18px; padding: 22px; margin-top: 10px; }
+.score-box .big { font-size: 2.2rem; font-weight: 800; color: var(--primary-blue); }
+.retry-btn { margin-top: 10px; background: var(--blue-gradient); color: #fff; border: none; border-radius: 14px; padding: 10px 26px; cursor: pointer; font-family: 'Nunito'; font-weight: 800; }
+
+.refs-card { border-left-color: #94a3b8; }
+.ref-list { margin: 0; padding-left: 22px; }
+.ref-list li { margin-bottom: 6px; font-size: 0.9rem; }
+footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+
+/* ---------- tracer ---------- */
+.tracer { background: var(--surface); border: 2px solid var(--border); border-radius: 20px; padding: 18px; margin: 22px 0; }
+.tr-head { font-weight: 800; color: var(--primary-blue); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.tr-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .tr-grid { grid-template-columns: 1fr; } }
+.tr-code { background: #1e293b; border-radius: 14px; padding: 12px 0; direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: var(--code-size); overflow-x: auto; }
+.tr-line { display: flex; gap: 12px; padding: 1px 14px; color: #e2e8f0; white-space: pre; border-left: 4px solid transparent; transition: .15s; }
+.tr-line .ln { color: #64748b; min-width: 22px; text-align: right; user-select: none; }
+.tr-line.active { background: rgba(247,148,30,.28); border-left-color: var(--primary-yellow); }
+.tr-side { display: flex; flex-direction: column; gap: 12px; }
+.tr-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; flex: 1; }
+.tr-title { font-size: .78rem; font-weight: 800; color: var(--text-body); margin-bottom: 6px; }
+.tr-vars { direction: ltr; font-family: 'Consolas', monospace; font-size: .9rem; min-height: 28px; }
+.tr-var { display: flex; justify-content: space-between; padding: 3px 8px; border-radius: 8px; color: var(--dark-navy); }
+.tr-var b { color: var(--primary-blue); }
+.tr-var.changed { background: rgba(247,148,30,.22); }
+.tr-out { direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: .88rem; background: #0f172a; color: #4ade80; border-radius: 10px; padding: 8px 12px; min-height: 40px; white-space: pre-wrap; }
+.tr-note { margin-top: 12px; background: var(--card-bg); border: 1px dashed var(--primary-blue); border-radius: 12px; padding: 10px 16px; font-weight: 600; color: var(--dark-navy); min-height: 24px; }
+.tr-ctrl { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.tr-btn { border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 14px; cursor: pointer; font-family: 'Nunito'; font-weight: 800; font-size: .85rem; }
+.tr-btn.primary { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.tr-btn:disabled { opacity: .4; cursor: default; }
+.tr-count { margin-left: auto; font-size: .8rem; color: var(--text-body); font-weight: 700; }
+
+/* ---------- predict ---------- */
+.predict { border: 2px solid #8b5cf6; border-radius: 20px; padding: 16px 18px; margin: 22px 0; background: var(--surface); }
+.predict-head { font-weight: 800; color: #8b5cf6; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+.predict .code-box { margin: 12px 0; }
+.pd-q { font-weight: 700; color: var(--dark-navy); margin-bottom: 10px; }
+.pd-opts { display: flex; flex-wrap: wrap; gap: 10px; }
+.pd-opt { background: var(--card-bg); border: 2px solid var(--border); color: var(--dark-navy); border-radius: 12px; padding: 9px 16px; cursor: pointer; font-family: 'Nunito'; font-weight: 700; font-size: .92rem; }
+.pd-opt:hover { border-color: #8b5cf6; }
+.pd-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.pd-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.pd-opt:disabled { cursor: default; }
+.pd-result { margin-top: 12px; }
+.pd-msg { font-weight: 800; margin-bottom: 8px; }
+.pd-why { margin: 8px 0 0; font-size: .93rem; }
+
+/* ---------- misc ---------- */
+.summary-card { border-left-color: #22c55e; }
+.summary-card .card-header { color: #16a34a; }
+.sum-list { list-style: none; padding: 0; margin: 0; }
+.sum-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.sum-list i { color: #22c55e; margin-top: 6px; }
+.warn-box { background: rgba(239,68,68,.08); border: 2px dashed #ef4444; border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 4px; }
+.warn-box p { margin: 0; font-size: .93rem; }
+.analogy { background: linear-gradient(135deg, rgba(0,173,239,.1), rgba(139,92,246,.1)); border-radius: 18px; padding: 16px 22px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; border: 1px solid var(--border); }
+.analogy i { color: var(--primary-blue); font-size: 1.5rem; margin-top: 4px; }
+.analogy p { margin: 0; }
+.flow { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin: 18px 0; direction: ltr; }
+.flow-node { background: var(--card-bg); border: 2px solid var(--primary-blue); border-radius: 14px; padding: 10px 18px; font-weight: 800; color: var(--dark-navy); text-align: center; }
+.flow-node.decision { border-color: var(--primary-yellow); border-radius: 30px; }
+.flow-node.end { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.flow-arrow { color: var(--primary-blue); font-size: 1.2rem; }
+.flow-branch { display: flex; flex-direction: column; gap: 8px; }
+.cell-row { display: flex; direction: ltr; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 12px 0; }
+.cell { min-width: 54px; text-align: center; border: 2px solid var(--primary-blue); border-radius: 10px; background: var(--card-bg); font-family: 'Consolas', monospace; font-weight: 800; color: var(--dark-navy); padding: 6px 4px; cursor: pointer; }
+.cell small { display: block; font-size: .68rem; color: var(--text-body); font-weight: 700; }
+.cell.sel { background: rgba(247,148,30,.25); border-color: var(--primary-yellow); }
+.vis-line { display: block; padding: 0 6px; margin: 0 -6px; border-radius: 6px; opacity: .35; transition: .15s; }
+.vis-line.on { opacity: 1; background: rgba(34,197,94,.22); }
+.vis-btns { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+.vis-btn { border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Consolas', monospace; font-weight: 800; }
+.vis-btn.on { border-color: #22c55e; background: #dcfce7; color: #15803d; }
+
+.cell.ghost { opacity: .55; border-style: dashed; background: transparent; }
+
+</style>
+</head>
+<body>
+<div class="bg-deco"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+<header>
+  <div class="hdr-brand">
+    <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    <div class="brand-info"><h3>TweetKod Platform</h3><p>Interactive Programming Learning</p></div>
+  </div>
+  <div class="hdr-tools">
+    <button class="tool-btn" id="tocBtn" title="Lesson contents"><i class="fas fa-list-ul"></i> Contents</button>
+    <button class="tool-btn" id="fontDec" title="Smaller code font">A-</button>
+    <button class="tool-btn" id="fontInc" title="Larger code font">A+</button>
+    <button class="tool-btn" id="themeBtn" title="Dark mode"><i class="fas fa-moon"></i></button>
+    <div class="toc-panel" id="tocPanel"></div>
+  </div>
+  <div class="read-progress"><span id="readBar"></span></div>
+</header>
+<div class="container">
+  <div class="title-section">
+    <span class="lesson-chip">Lesson 5</span>
+    <h1>Operators</h1>
+    <p class="attribution">Operators &mdash; how we calculate, compare and decide</p>
+  </div>
+  <div class="card goals-card">
+    <div class="card-header"><i class="fas fa-bullseye"></i><h3>What will you learn in this lesson?</h3></div>
+    <ul class="obj-list"><li><i class="fas fa-check-circle"></i><span>Use the arithmetic operators and understand integer division and the remainder</span></li><li><i class="fas fa-check-circle"></i><span>Write compound assignment operations and the increment and decrement operators</span></li><li><i class="fas fa-check-circle"></i><span>Compare values and clearly tell <code class="inline">=</code> and <code class="inline">==</code> apart</span></li><li><i class="fas fa-check-circle"></i><span>Combine conditions with the logical operators and understand short-circuit evaluation</span></li><li><i class="fas fa-check-circle"></i><span>Predict the order in which operators run and use parentheses to make it clear</span></li></ul>
+  </div>
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-plus-minus"></i><h3>What Is an Operator?</h3></div>
+  <p>An <strong>operator</strong> is a symbol that asks the computer to carry out an operation, and the values the operation works on are called <strong>operands</strong>. In the expression <code>7 + 2</code>, the operator is <code>+</code> and the operands are <code>7</code> and <code>2</code>. The operators we will learn today fall into five groups:</p>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>Group</th><th>Operators</th><th>Gives us</th></tr>
+    <tr><td>Arithmetic</td><td><code>+ - * / %</code></td><td>A number</td></tr>
+    <tr><td>Assignment</td><td><code>= += -= *= /= %=</code></td><td>Storing a value in a variable</td></tr>
+    <tr><td>Increment and decrement</td><td><code>++ --</code></td><td>Changing the value by one</td></tr>
+    <tr><td>Comparison</td><td><code>== != &lt; &gt; &lt;= &gt;=</code></td><td>A <code>bool</code> value</td></tr>
+    <tr><td>Logical</td><td><code>&amp;&amp; || !</code></td><td>A <code>bool</code> value</td></tr>
+  </table></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-calculator"></i><h3>Arithmetic Operators</h3></div>
+  <p>Let's try the five operators on <code>a = 29</code> and <code>b = 6</code>:</p>
+  <div class="code-box" data-expl="arith"><div class="code-head"><span>arithmetic.cpp</span><button class="copy-btn" onclick="copyCode('code_arith')">Copy code</button></div><pre id="code_arith"><span class="code-plain"><span class="kw">int</span> a = <span class="num">29</span>;</span><span class="code-plain"><span class="kw">int</span> b = <span class="num">6</span>;</span><span class="code-line" data-i="2">cout &lt;&lt; <span class="str">"a + b = "</span> &lt;&lt; a + b &lt;&lt; endl;</span><span class="code-line" data-i="3">cout &lt;&lt; <span class="str">"a - b = "</span> &lt;&lt; a - b &lt;&lt; endl;</span><span class="code-line" data-i="4">cout &lt;&lt; <span class="str">"a * b = "</span> &lt;&lt; a * b &lt;&lt; endl;</span><span class="code-line" data-i="5">cout &lt;&lt; <span class="str">"a / b = "</span> &lt;&lt; a / b &lt;&lt; endl;</span><span class="code-line" data-i="6">cout &lt;&lt; <span class="str">"a % b = "</span> &lt;&lt; a % b &lt;&lt; endl;</span><span class="code-line" data-i="7">cout &lt;&lt; <span class="str">"a / b (real) = "</span> &lt;&lt; <span class="kw">static_cast</span>&lt;<span class="kw">double</span>&gt;(a) / b &lt;&lt; endl;</span></pre></div><div class="explain-box" data-for="arith"><span class="hint">Click any highlighted line of code to read its explanation here...</span></div>
+  <p style="font-size:0.9rem"><i class="fas fa-hand-pointer" style="color:var(--primary-blue)"></i> Click the highlighted lines to read their explanation:</p>
+  <div class="output-box">a + b = 35
+a - b = 23
+a * b = 174
+a / b = 4
+a % b = 5
+a / b (real) = 4.83333</div>
+  <div class="tip-box"><i class="fas fa-triangle-exclamation"></i><p><strong>Remember:</strong> the result of dividing two integers is an integer. And if you divide by zero, the program crashes or produces an undefined result, so make sure the divisor is not zero before dividing.</p></div>
+  <h4>The remainder with negative numbers</h4>
+  <p>The integer result of a division is rounded toward zero, and the remainder takes the sign of the dividend:</p>
+  <div class="code-box"><div class="code-head"><span>negative.cpp</span><button class="copy-btn" onclick="copyCode('code_negdiv')">Copy code</button></div><pre id="code_negdiv">cout &lt;&lt; -<span class="num">7</span> / <span class="num">2</span> &lt;&lt; <span class="str">" "</span> &lt;&lt; -<span class="num">7</span> % <span class="num">2</span> &lt;&lt; endl;
+cout &lt;&lt; <span class="num">7</span> / -<span class="num">2</span> &lt;&lt; <span class="str">" "</span> &lt;&lt; <span class="num">7</span> % -<span class="num">2</span> &lt;&lt; endl;</pre></div>
+  <div class="output-box">-3 -1
+-3 1</div>
+  <p>In each line the first number is the quotient and the second is the remainder. Check that <code>-7 = (-3) &times; 2 + (-1)</code>.</p>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-equals"></i><h3>Assignment and Compound Assignment</h3></div>
+  <p>The <code>=</code> operator stores the value on its right in the variable on its left. For brevity there are compound forms: instead of writing <code>x = x + 5</code> we write <code>x += 5</code>:</p>
+  <div class="code-box"><div class="code-head"><span>compound.cpp</span><button class="copy-btn" onclick="copyCode('code_compound')">Copy code</button></div><pre id="code_compound"><span class="kw">int</span> x = <span class="num">20</span>;
+x += <span class="num">5</span>;
+cout &lt;&lt; <span class="str">"after += 5  : "</span> &lt;&lt; x &lt;&lt; endl;
+x -= <span class="num">3</span>;
+cout &lt;&lt; <span class="str">"after -= 3  : "</span> &lt;&lt; x &lt;&lt; endl;
+x *= <span class="num">2</span>;
+cout &lt;&lt; <span class="str">"after *= 2  : "</span> &lt;&lt; x &lt;&lt; endl;
+x /= <span class="num">4</span>;
+cout &lt;&lt; <span class="str">"after /= 4  : "</span> &lt;&lt; x &lt;&lt; endl;
+x %= <span class="num">5</span>;
+cout &lt;&lt; <span class="str">"after %= 5  : "</span> &lt;&lt; x &lt;&lt; endl;</pre></div>
+  <div class="output-box">after += 5  : 25
+after -= 3  : 22
+after *= 2  : 44
+after /= 4  : 11
+after %= 5  : 1</div>
+  <p>Follow the values: 20, then <code>20+5=25</code>, then <code>25-3=22</code>, then <code>22&times;2=44</code>, then <code>44&divide;4=11</code>, then <code>11 % 5 = 1</code>.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-arrow-up-1-9"></i><h3>Increment and Decrement: ++ and --</h3></div>
+  <p>The <code>++</code> operator increases a variable by one, and the <code>--</code> operator decreases it by one. Each has two forms that differ in <strong>when</strong> the value changes:</p>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>Form</th><th>Name</th><th>What happens?</th></tr>
+    <tr><td><code>++a</code></td><td>Prefix</td><td>The value increases first, then it is used</td></tr>
+    <tr><td><code>a++</code></td><td>Postfix</td><td>The current value is used first, then it increases</td></tr>
+  </table></div>
+  <div class="code-box"><div class="code-head"><span>increment.cpp</span><button class="copy-btn" onclick="copyCode('code_incdec')">Copy code</button></div><pre id="code_incdec"><span class="kw">int</span> a = <span class="num">5</span>;
+<span class="kw">int</span> b = a++;
+<span class="kw">int</span> c = ++a;
+cout &lt;&lt; <span class="str">"a="</span> &lt;&lt; a &lt;&lt; <span class="str">" b="</span> &lt;&lt; b &lt;&lt; <span class="str">" c="</span> &lt;&lt; c &lt;&lt; endl;</pre></div>
+  <div class="output-box">a=7 b=5 c=7</div>
+  <p>Trace the lines: <code>a</code> starts at 5. In <code>b = a++</code> the value 5 is copied to <code>b</code> and then <code>a</code> becomes 6. In <code>c = ++a</code>, <code>a</code> becomes 7 first and then it is copied to <code>c</code>.</p>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p>If you use <code>++</code> on a line of its own, like <code>count++;</code>, there is no difference between the two forms. And avoid using the same variable twice in one expression together with <code>++</code>, such as <code>a + a++</code>, because its result is not guaranteed in C++.</p></div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-scale-balanced"></i><h3>Comparison Operators</h3></div>
+  <p>They compare two values and give <code>true</code> or <code>false</code>:</p>
+  <div class="code-box"><div class="code-head"><span>comparison.cpp</span><button class="copy-btn" onclick="copyCode('code_cmp')">Copy code</button></div><pre id="code_cmp"><span class="kw">int</span> age = <span class="num">17</span>;
+cout &lt;&lt; boolalpha;
+cout &lt;&lt; (age == <span class="num">17</span>) &lt;&lt; endl;
+cout &lt;&lt; (age != <span class="num">17</span>) &lt;&lt; endl;
+cout &lt;&lt; (age &gt;= <span class="num">18</span>) &lt;&lt; endl;
+cout &lt;&lt; (age &lt; <span class="num">18</span>) &lt;&lt; endl;</pre></div>
+  <div class="output-box">true
+false
+false
+true</div>
+  <div class="tip-box"><i class="fas fa-triangle-exclamation"></i><p><strong>The most famous beginner mistake:</strong> mixing up <code>=</code> (assignment) and <code>==</code> (comparison). See what happens:</p></div>
+  <div class="code-box"><div class="code-head"><span>eq_vs_assign.cpp</span><button class="copy-btn" onclick="copyCode('code_eqeq')">Copy code</button></div><pre id="code_eqeq"><span class="kw">int</span> x = <span class="num">3</span>;
+cout &lt;&lt; (x == <span class="num">5</span>) &lt;&lt; endl;
+cout &lt;&lt; (x = <span class="num">5</span>) &lt;&lt; endl;
+cout &lt;&lt; x &lt;&lt; endl;</pre></div>
+  <div class="output-box">0
+5
+5</div>
+  <p>The first line asked "is x equal to 5?" and the answer was <code>0</code> (false). The second line, <code>(x = 5)</code>, <strong>changed</strong> the value of <code>x</code> to 5 and gave us the assigned value, so 5 was printed and <code>x</code> stayed 5 afterwards.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-code-branch"></i><h3>Logical Operators</h3></div>
+  <p>They combine <code>bool</code> conditions to form a compound condition:</p>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>Operator</th><th>Name</th><th>It is <code>true</code> when...</th></tr>
+    <tr><td><code>&amp;&amp;</code></td><td>AND</td><td>Both conditions are <code>true</code> together</td></tr>
+    <tr><td><code>||</code></td><td>OR</td><td>At least one of the conditions is <code>true</code></td></tr>
+    <tr><td><code>!</code></td><td>NOT</td><td>The condition is <code>false</code> (it reverses the value)</td></tr>
+  </table></div>
+  <div class="code-box"><div class="code-head"><span>logic.cpp</span><button class="copy-btn" onclick="copyCode('code_logic')">Copy code</button></div><pre id="code_logic"><span class="kw">int</span> age = <span class="num">20</span>;
+<span class="kw">bool</span> hasTicket = <span class="kw">true</span>;
+<span class="kw">bool</span> canEnter = age &gt;= <span class="num">18</span> &amp;&amp; hasTicket;
+<span class="kw">bool</span> needsHelp = age &lt; <span class="num">12</span> || age &gt; <span class="num">70</span>;
+cout &lt;&lt; boolalpha;
+cout &lt;&lt; canEnter &lt;&lt; endl;
+cout &lt;&lt; needsHelp &lt;&lt; endl;
+cout &lt;&lt; !canEnter &lt;&lt; endl;</pre></div>
+  <div class="output-box">true
+false
+false</div>
+  <h4>Short-circuit evaluation</h4>
+  <p>When using <code>&amp;&amp;</code>, if the first condition is <code>false</code>, C++ never evaluates the second condition, because the result is already known. The same goes for <code>||</code> if the first is <code>true</code>. This is useful for protecting you from mistakes such as division by zero:</p>
+  <div class="code-box"><div class="code-head"><span>short_circuit.cpp</span><button class="copy-btn" onclick="copyCode('code_short')">Copy code</button></div><pre id="code_short"><span class="kw">int</span> d = <span class="num">0</span>;
+<span class="kw">bool</span> ok = (d != <span class="num">0</span>) &amp;&amp; (<span class="num">10</span> / d &gt; <span class="num">1</span>);
+cout &lt;&lt; boolalpha &lt;&lt; ok &lt;&lt; endl;</pre></div>
+  <div class="output-box">false</div>
+  <p>The division by zero did not cause an error, because <code>d != 0</code> was <code>false</code>, so what comes after it was never evaluated.</p>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-ranking-star"></i><h3>Precedence: Who Runs First?</h3></div>
+  <p>Just as multiplication comes before addition in mathematics, every operator in C++ has a <strong>precedence</strong>. When precedence is equal, execution usually goes from left to right. Here is a simplified order from highest to lowest:</p>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>Level</th><th>Operators</th></tr>
+    <tr><td>1 (highest)</td><td><code>++ --</code> (postfix), then <code>!</code> and <code>++ --</code> (prefix)</td></tr>
+    <tr><td>2</td><td><code>* / %</code></td></tr>
+    <tr><td>3</td><td><code>+ -</code></td></tr>
+    <tr><td>4</td><td><code>&lt; &lt;= &gt; &gt;=</code></td></tr>
+    <tr><td>5</td><td><code>== !=</code></td></tr>
+    <tr><td>6</td><td><code>&amp;&amp;</code></td></tr>
+    <tr><td>7</td><td><code>||</code></td></tr>
+    <tr><td>8 (lowest)</td><td><code>= += -= *= /= %=</code></td></tr>
+  </table></div>
+  <div class="code-box"><div class="code-head"><span>precedence.cpp</span><button class="copy-btn" onclick="copyCode('code_prec')">Copy code</button></div><pre id="code_prec">cout &lt;&lt; <span class="num">2</span> + <span class="num">3</span> * <span class="num">4</span> &lt;&lt; endl;
+cout &lt;&lt; (<span class="num">2</span> + <span class="num">3</span>) * <span class="num">4</span> &lt;&lt; endl;
+cout &lt;&lt; <span class="num">10</span> - <span class="num">4</span> - <span class="num">3</span> &lt;&lt; endl;
+cout &lt;&lt; <span class="num">100</span> / <span class="num">10</span> * <span class="num">5</span> &lt;&lt; endl;
+cout &lt;&lt; boolalpha &lt;&lt; (<span class="num">1</span> + <span class="num">2</span> &gt; <span class="num">2</span> &amp;&amp; <span class="num">5</span> % <span class="num">2</span> == <span class="num">1</span>) &lt;&lt; endl;</pre></div>
+  <div class="output-box">14
+20
+3
+50
+true</div>
+  <p>Review the lines: multiplication comes before addition, so the result is 14; the parentheses change the order, so it becomes 20; <code>10 - 4 - 3</code> runs from the left, so it equals 3; and <code>100 / 10 * 5</code> equals 50. In the last line the arithmetic is calculated first, then the comparisons, and finally <code>&amp;&amp;</code>.</p>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p>Don't rely on memorizing the table. When an expression is complicated, add parentheses so your intention is clear to the reader. They cost nothing.</p></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-flask"></i><h3>Interactive Lab: Try the Operators</h3></div>
+  <p>Enter two integers <code>a</code> and <code>b</code> and see the result of each operator as C++ calculates it. Try negative values, and try <code>b = 0</code>:</p>
+  <div class="sim-box">
+    <div class="sim-inputs">
+      <div class="field"><label>a</label><input type="number" id="opA" value="29"></div>
+      <div class="field"><label>b</label><input type="number" id="opB" value="6"></div>
+    </div>
+    <button class="btn-run" onclick="runOps()"><i class="fas fa-play"></i> Calculate</button>
+    <table class="op-table" id="opTable"></table>
+  </div>
+</div>
+
+
+<div class="card">
+  <div class="project-banner"><i class="fas fa-money-bill-wave"></i><div><strong>Lesson Project: An ATM</strong><p>We use integer division and the remainder to split an amount into banknote denominations.</p></div></div>
+  <div class="brief"><h5><i class="fas fa-lightbulb"></i> The idea</h5>
+    <p style="margin:0">A customer withdraws <code>870</code> riyals from an ATM. The machine splits the amount into the fewest possible notes, starting with the largest denomination: 500, then 100, then 50, then 10 riyals. The idea of the solution: dividing the amount by the denomination gives the number of notes, and the remainder is what still needs to be split among the smaller denominations.</p></div>
+  <div class="brief"><h5><i class="fas fa-list-check"></i> What you need to do</h5>
+    <ol>
+      <li>Define an integer variable <code>amount</code> with the value 870.</li>
+      <li>For each denomination (in order from 500 down to 10): calculate the number of notes with integer division, then update <code>amount</code> with the remainder using <code>%</code>.</li>
+      <li>Print the number of notes of each denomination, then the remaining amount that nothing covers.</li>
+    </ol></div>
+  <div class="brief"><h5><i class="fas fa-bullseye"></i> The expected output</h5>
+    <div class="output-box">500 SAR x 1
+100 SAR x 3
+ 50 SAR x 1
+ 10 SAR x 2
+Remaining: 0 SAR</div></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p><strong>Check in your head:</strong> <code>870 / 500 = 1</code> with a remainder of 370. Then <code>370 / 100 = 3</code> with a remainder of 70. Continue on your own before you write the code.</p></div>
+  <details class="reveal"><summary><i class="fas fa-eye"></i> After you have tried it yourself: show the solution</summary>
+    <div class="code-box"><div class="code-head"><span>atm.cpp</span><button class="copy-btn" onclick="copyCode('code_project')">Copy code</button></div><pre id="code_project"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> amount = <span class="num">870</span>;
+
+    <span class="kw">int</span> notes500 = amount / <span class="num">500</span>;
+    amount = amount % <span class="num">500</span>;
+
+    <span class="kw">int</span> notes100 = amount / <span class="num">100</span>;
+    amount = amount % <span class="num">100</span>;
+
+    <span class="kw">int</span> notes50 = amount / <span class="num">50</span>;
+    amount = amount % <span class="num">50</span>;
+
+    <span class="kw">int</span> notes10 = amount / <span class="num">10</span>;
+    amount = amount % <span class="num">10</span>;
+
+    cout &lt;&lt; <span class="str">"500 SAR x "</span> &lt;&lt; notes500 &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"100 SAR x "</span> &lt;&lt; notes100 &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">" 50 SAR x "</span> &lt;&lt; notes50 &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">" 10 SAR x "</span> &lt;&lt; notes10 &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Remaining: "</span> &lt;&lt; amount &lt;&lt; <span class="str">" SAR"</span> &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  </details>
+</div>
+
+
+<div class="card challenge-card"><div class="card-header"><i class="fas fa-dumbbell"></i><h3>Homework challenges</h3></div><p>Two short challenges to solve on your own after the lesson. Write your solution in a <code>.cpp</code> file, compile and run it, and compare your output with the expected output. Try first, open a hint only if you get stuck, and look at the sample solution only after a serious attempt.</p><div class="challenge"><div class="ch-head"><span class="ch-num">1</span><h4>Time Converter</h4><span class="badge easy">Easy</span></div><p>We have a duration of <code>7384</code> seconds, and we want to show it as hours, minutes and seconds.</p><h5>Requirements</h5><ul><li>Define an integer variable <code>total</code> with the value 7384.</li><li>Calculate the hours by dividing the total by 3600.</li><li>Calculate the minutes from the remainder after the hours, then the seconds from the remainder after the minutes.</li><li>Print the result in the format shown.</li></ul><h5>Expected output</h5><div class="output-box">7384 seconds = 2h 3m 4s</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> Hints</summary><ul><li>The remainder after extracting the hours is <code>total % 3600</code>.</li><li>Divide this remainder by 60 to get the minutes, and take its remainder by 60 to get the seconds.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> Sample solution (after you try)</summary><div class="code-box"><div class="code-head"><span>time_convert.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_time')">Copy code</button></div><pre id="code_ch_time"><span class="cmt">// Challenge 1: seconds to h m s</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> total = <span class="num">7384</span>;
+
+    <span class="kw">int</span> hours = total / <span class="num">3600</span>;
+    <span class="kw">int</span> rest = total % <span class="num">3600</span>;
+    <span class="kw">int</span> minutes = rest / <span class="num">60</span>;
+    <span class="kw">int</span> seconds = rest % <span class="num">60</span>;
+
+    cout &lt;&lt; total &lt;&lt; <span class="str">" seconds = "</span> &lt;&lt; hours &lt;&lt; <span class="str">"h "</span> &lt;&lt; minutes &lt;&lt; <span class="str">"m "</span> &lt;&lt; seconds &lt;&lt; <span class="str">"s"</span> &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div><div class="challenge"><div class="ch-head"><span class="ch-num">2</span><h4>Number Tricks</h4><span class="badge medium">Medium</span></div><p>Take the number <code>47</code> and apply four operations to it that use division, remainder and comparisons.</p><h5>Requirements</h5><ul><li>Print the ones digit.</li><li>Print the tens digit.</li><li>Print whether the number is even as <code>true</code> or <code>false</code>.</li><li>Print whether the number is greater than 40 and less than 50 at the same time.</li></ul><h5>Expected output</h5><div class="output-box">Last digit: 7
+Tens digit: 4
+Even: false
+Between 40 and 50: true</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> Hints</summary><ul><li>The ones digit is <code>n % 10</code>, while the tens digit is <code>n / 10 % 10</code>.</li><li>A number is even if the remainder of dividing it by 2 equals zero.</li><li>Use <code>boolalpha</code> before printing the first boolean value.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> Sample solution (after you try)</summary><div class="code-box"><div class="code-head"><span>digits.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_digits')">Copy code</button></div><pre id="code_ch_digits"><span class="cmt">// Challenge 2: number tricks</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> n = <span class="num">47</span>;
+
+    cout &lt;&lt; <span class="str">"Last digit: "</span> &lt;&lt; n % <span class="num">10</span> &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Tens digit: "</span> &lt;&lt; n / <span class="num">10</span> % <span class="num">10</span> &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Even: "</span> &lt;&lt; boolalpha &lt;&lt; (n % <span class="num">2</span> == <span class="num">0</span>) &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Between 40 and 50: "</span> &lt;&lt; (n &gt; <span class="num">40</span> &amp;&amp; n &lt; <span class="num">50</span>) &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div></div>
+
+<div class="card summary-card"><div class="card-header"><i class="fas fa-clipboard-list"></i><h3>Quick summary</h3></div><ul class="sum-list"><li><i class="fas fa-circle-check"></i><span>Arithmetic operators: <code class="inline">+ - * / %</code>. Dividing two integers gives an integer, and <code class="inline">%</code> gives the remainder.</span></li><li><i class="fas fa-circle-check"></i><span>Compound assignment <code class="inline">+=</code> and its relatives, and <code class="inline">++</code> and <code class="inline">--</code>, increase or decrease by one.</span></li><li><i class="fas fa-circle-check"></i><span><code class="inline">=</code> is for assignment and <code class="inline">==</code> is for comparison; mixing them up is a common mistake.</span></li><li><i class="fas fa-circle-check"></i><span>The logical operators <code class="inline">&amp;&amp;</code>, <code class="inline">||</code> and <code class="inline">!</code> combine conditions, and short-circuit evaluation stops at the first decisive part.</span></li><li><i class="fas fa-circle-check"></i><span>Parentheses guarantee the order of execution that you want.</span></li></ul></div>
+  <div class="card steps-card" id="tfCard">
+    <div class="card-header"><i class="fas fa-clipboard-check"></i><h3>Check your understanding</h3></div>
+    <p>Read each statement and choose <strong>True</strong> or <strong>False</strong>. The explanation appears right after you answer.</p>
+    <div id="tfList"></div>
+    <div class="score-box" id="tfScore" style="display:none"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><i class="fas fa-book"></i><h3>Glossary</h3></div>
+    <p>The most important terms in this lesson:</p>
+    <div class="glossary-grid"><div class="term-card"><span class="term-en">Operator</span><p class="term-desc">A symbol that asks for an operation to be carried out, such as <code class="inline">+</code> or <code class="inline">==</code>.</p></div><div class="term-card"><span class="term-en">Operand</span><p class="term-desc">The value that an operator works on.</p></div><div class="term-card"><span class="term-en">Expression</span><p class="term-desc">A combination of values and operators that produces a value, such as <code class="inline">2 + 3 * 4</code>.</p></div><div class="term-card"><span class="term-en">Arithmetic</span><p class="term-desc">The operators for addition, subtraction, multiplication, division and remainder.</p></div><div class="term-card"><span class="term-en">Modulo</span><p class="term-desc">The <code class="inline">%</code> operator, which gives what is left after integer division.</p></div><div class="term-card"><span class="term-en">Integer division</span><p class="term-desc">Dividing two integers, which produces an integer by dropping the fraction.</p></div><div class="term-card"><span class="term-en">Compound assignment</span><p class="term-desc">Forms such as <code class="inline">+=</code> and <code class="inline">*=</code> that combine an operation with an assignment.</p></div><div class="term-card"><span class="term-en">Increment</span><p class="term-desc">The <code class="inline">++</code> operator, which increases a variable by one.</p></div><div class="term-card"><span class="term-en">Decrement</span><p class="term-desc">The <code class="inline">--</code> operator, which decreases a variable by one.</p></div><div class="term-card"><span class="term-en">Comparison</span><p class="term-desc">Operators that compare two values and produce <code class="inline">true</code> or <code class="inline">false</code>.</p></div><div class="term-card"><span class="term-en">Logical operator</span><p class="term-desc"><code class="inline">&amp;&amp;</code>, <code class="inline">||</code> and <code class="inline">!</code>, used to combine conditions.</p></div><div class="term-card"><span class="term-en">Precedence</span><p class="term-desc">The order in which operators are carried out inside a single expression.</p></div><div class="term-card"><span class="term-en">Short-circuit</span><p class="term-desc">Stopping the evaluation of the rest of a condition once the result is known.</p></div></div>
+  </div>
+  <div class="card steps-card" id="quizCard">
+    <div class="card-header"><i class="fas fa-circle-question"></i><h3>Final quiz</h3></div>
+    <p>Ten questions, from easy to medium. Choose one answer for each question.</p>
+    <div class="progress"><div class="progress-bar" id="quizBar"></div></div>
+    <div id="quizList"></div>
+    <div class="score-box" id="quizScore" style="display:none"></div>
+  </div>
+  <div class="card refs-card">
+    <div class="card-header"><i class="fas fa-link"></i><h3>Further reading</h3></div>
+    <p>The technical facts in this lesson are documented in the references below. The explanations, examples and exercises were written specially for the TweetKod platform:</p>
+    <ul class="ref-list"><li><a href="https://github.com/federico-busato/Modern-CPP-Programming" target="_blank" rel="noopener">Modern C++ Programming &mdash; Federico Busato (CC BY 4.0)</a></li><li><a href="https://www.learn-cpp.org/" target="_blank" rel="noopener">Learn C++ (Apache 2.0)</a></li><li><a href="https://en.cppreference.com/w/cpp/language/operator_precedence" target="_blank" rel="noopener">Operator precedence &mdash; cppreference</a></li></ul>
+  </div>
+</div>
+<button class="to-top" id="toTop" title="Back to top"><i class="fas fa-arrow-up"></i></button>
+<footer class="page-footer">TweetKod Platform</footer>
+<script>
+const LESSON_NUM = 5;
+const TF = [{"s": "The result of the expression <code class=\"inline\">29 / 6</code> between two integers is <code class=\"inline\">4.83</code>.", "a": false, "why": "Integer division gives an integer, which is <code class=\"inline\">4</code>."}, {"s": "The expression <code class=\"inline\">29 % 6</code> gives the remainder of the division, which is <code class=\"inline\">5</code>.", "a": true, "why": "Because <code class=\"inline\">29 = 4 x 6 + 5</code>."}, {"s": "After running <code class=\"inline\">int a = 5; a += 3;</code> the value of <code class=\"inline\">a</code> equals <code class=\"inline\">8</code>.", "a": true, "why": "<code class=\"inline\">a += 3</code> means <code class=\"inline\">a = a + 3</code>."}, {"s": "In <code class=\"inline\">b = a++</code> the new value after the increase is copied to <code class=\"inline\">b</code>.", "a": false, "why": "The postfix form copies the old value first and then increases the variable."}, {"s": "The symbol <code class=\"inline\">==</code> is used for comparison, while <code class=\"inline\">=</code> is for assignment.", "a": true, "why": "Mixing them up is one of the most famous beginner mistakes."}, {"s": "The <code class=\"inline\">&amp;&amp;</code> operator gives <code class=\"inline\">true</code> if only one of the two conditions holds.", "a": false, "why": "<code class=\"inline\">&amp;&amp;</code> requires both conditions to hold together, while <code class=\"inline\">||</code> needs only one of them."}, {"s": "The result of <code class=\"inline\">2 + 3 * 4</code> equals <code class=\"inline\">14</code>.", "a": true, "why": "Multiplication has a higher precedence than addition, so <code class=\"inline\">3 * 4 = 12</code> is calculated first."}, {"s": "When the first condition in <code class=\"inline\">&amp;&amp;</code> is false, C++ does not evaluate the second condition.", "a": true, "why": "This is short-circuit evaluation, because the result is already known."}];
+const QUIZ = [{"q": "What is the result of <code class=\"inline\">cout &lt;&lt; 17 / 4;</code>?", "o": ["4", "4.25", "5", "1"], "a": 0, "why": "It is a division of two integers, so the fraction is dropped."}, {"q": "What is the result of <code class=\"inline\">cout &lt;&lt; 17 % 4;</code>?", "o": ["0", "13", "1", "4"], "a": 2, "why": "<code class=\"inline\">17 = 4 x 4 + 1</code>, so the remainder is 1."}, {"q": "What is the value of <code class=\"inline\">x</code> after <code class=\"inline\">int x = 10; x -= 4;</code>?", "o": ["10", "6", "4", "14"], "a": 1, "why": "<code class=\"inline\">x -= 4</code> means <code class=\"inline\">x = x - 4</code>."}, {"q": "What is the result of <code class=\"inline\">int a = 3; a++; cout &lt;&lt; a;</code>?", "o": ["5", "2", "4", "3"], "a": 2, "why": "The <code class=\"inline\">++</code> operator increases the value by one."}, {"q": "Which operator do we use to check whether two values are equal?", "o": ["<code class=\"inline\">=</code>", "<code class=\"inline\">==</code>", "<code class=\"inline\">=&gt;</code>", "<code class=\"inline\">!=</code>"], "a": 1, "why": "The <code class=\"inline\">==</code> operator is for comparison, while <code class=\"inline\">=</code> is for assignment."}, {"q": "What is the value of <code class=\"inline\">(5 &gt; 3) &amp;&amp; (2 &gt; 4)</code>?", "o": ["A compile error", "<code class=\"inline\">1</code> and <code class=\"inline\">0</code> together", "<code class=\"inline\">false</code>", "<code class=\"inline\">true</code>"], "a": 2, "why": "<code class=\"inline\">&amp;&amp;</code> requires both conditions to hold, and the second one is false."}, {"q": "What is the value of <code class=\"inline\">(5 &gt; 3) || (2 &gt; 4)</code>?", "o": ["<code class=\"inline\">0</code>", "<code class=\"inline\">true</code>", "<code class=\"inline\">false</code>", "A compile error"], "a": 1, "why": "<code class=\"inline\">||</code> is satisfied when one condition holds, and the first one is true."}, {"q": "What is the result of <code class=\"inline\">cout &lt;&lt; 2 + 3 * 4;</code>?", "o": ["14", "20", "9", "24"], "a": 0, "why": "Multiplication runs first and gives 12, then 2 is added."}, {"q": "What does <code class=\"inline\">int a = 5; int b = ++a; cout &lt;&lt; a &lt;&lt; \" \" &lt;&lt; b;</code> print?", "o": ["5 5", "5 6", "6 5", "6 6"], "a": 3, "why": "The prefix form increases <code class=\"inline\">a</code> to 6 first and then copies 6 into <code class=\"inline\">b</code>."}, {"q": "How do we get the last digit of an integer <code class=\"inline\">n</code>?", "o": ["<code class=\"inline\">n % 10</code>", "<code class=\"inline\">n * 10</code>", "<code class=\"inline\">n / 10</code>", "<code class=\"inline\">n - 10</code>"], "a": 0, "why": "The remainder of the division by 10 is the ones digit."}];
+const EXPL = {"arith": {"2": "Addition: it works as you expect.", "3": "Subtraction.", "4": "Multiplication is written with the asterisk <code class=\"inline\">*</code>, not the letter x.", "5": "Division between two integers: the result is an integer, which means the fraction is dropped (29 &divide; 6 = 4.83 becomes 4).", "6": "The remainder: what is left after integer division (29 = 4 &times; 6 + 5).", "7": "To get a decimal result, we convert one of the two sides to <code class=\"inline\">double</code> before dividing."}};
+const TRACES = {};
+function copyCode(id) {
+  const el = document.getElementById(id);
+  const text = el.innerText.replace(/ /g, ' ');
+  const done = () => { const b = el.parentElement.querySelector('.copy-btn'); const t = b.textContent; b.textContent = 'Copied ✓'; setTimeout(() => b.textContent = t, 1400); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(done); else done();
+}
+
+/* click-to-explain code lines */
+document.querySelectorAll('.code-box[data-expl]').forEach(box => {
+  const id = box.getAttribute('data-expl');
+  const out = document.querySelector('.explain-box[data-for="' + id + '"]');
+  box.querySelectorAll('.code-line').forEach(line => {
+    line.addEventListener('click', () => {
+      box.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+      line.classList.add('active');
+      out.innerHTML = EXPL[id][line.getAttribute('data-i')];
+    });
+  });
+});
+
+/* true / false check */
+(function () {
+  const list = document.getElementById('tfList');
+  let answered = 0, right = 0;
+  TF.forEach((it, i) => {
+    const d = document.createElement('div');
+    d.className = 'tf-item';
+    d.innerHTML = '<div class="stmt">' + (i + 1) + '. ' + it.s + '</div>' +
+      '<div class="tf-btns"><button class="tf-btn" data-v="true"><i class="fas fa-check"></i> True</button>' +
+      '<button class="tf-btn" data-v="false"><i class="fas fa-xmark"></i> False</button></div><div class="feedback"></div>';
+    d.querySelectorAll('.tf-btn').forEach(b => b.addEventListener('click', () => {
+      const pick = b.getAttribute('data-v') === 'true';
+      const ok = pick === it.a;
+      d.querySelectorAll('.tf-btn').forEach(x => { x.disabled = true; });
+      b.classList.add(ok ? 'correct' : 'wrong');
+      const fb = d.querySelector('.feedback');
+      fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+      fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> Correct. ' : '<i class="fas fa-circle-xmark"></i> The correct answer is ' + (it.a ? 'True' : 'False') + '. ') + it.why;
+      answered++; if (ok) right++;
+      if (answered === TF.length) {
+        const s = document.getElementById('tfScore');
+        s.style.display = 'block';
+        s.innerHTML = '<div class="big">' + right + ' / ' + TF.length + '</div><div>' + (right === TF.length ? 'Excellent! You understood the lesson well.' : right >= TF.length - 2 ? 'A good result. Review the statements you missed.' : 'Re-read the lesson and try again.') + '</div>';
+      }
+    }));
+    list.appendChild(d);
+  });
+})();
+
+/* final quiz */
+(function () {
+  const list = document.getElementById('quizList');
+  const bar = document.getElementById('quizBar');
+  let answered = 0, right = 0;
+  QUIZ.forEach((q, qi) => {
+    const d = document.createElement('div');
+    d.className = 'quiz-q';
+    d.innerHTML = '<h4><span class="qnum">' + (qi + 1) + '</span>' + q.q + '</h4><div class="quiz-options"></div><div class="feedback"></div>';
+    const box = d.querySelector('.quiz-options');
+    q.o.forEach((txt, oi) => {
+      const b = document.createElement('button');
+      b.className = 'quiz-opt'; b.innerHTML = txt;
+      b.addEventListener('click', () => {
+        box.querySelectorAll('.quiz-opt').forEach(x => x.disabled = true);
+        const ok = oi === q.a;
+        b.classList.add(ok ? 'correct' : 'wrong');
+        if (!ok) box.children[q.a].classList.add('correct');
+        const fb = d.querySelector('.feedback');
+        fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+        fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> Correct! ' : '<i class="fas fa-circle-xmark"></i> That is not the right answer. ') + q.why;
+        answered++; if (ok) right++;
+        bar.style.width = (answered / QUIZ.length * 100) + '%';
+        if (answered === QUIZ.length) showScore();
+      });
+      box.appendChild(b);
+    });
+    list.appendChild(d);
+  });
+  function showScore() {
+    const s = document.getElementById('quizScore');
+    const pct = right / QUIZ.length;
+    s.style.display = 'block';
+    s.innerHTML = '<div class="big">' + right + ' / ' + QUIZ.length + '</div><div>' +
+      (pct === 1 ? 'Perfect score! You are ready for the next lesson.' : pct >= 0.7 ? 'Very good. Review the questions you missed.' : 'Review the lesson again, then try once more.') +
+      '</div><button class="retry-btn" onclick="location.hash=\'quizCard\';location.reload();">Retake the quiz</button>';
+  }
+})();
+
+
+/* ---------------- header tools ---------------- */
+(function () {
+  const root = document.documentElement;
+  const safeGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const safeSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+  /* theme */
+  const themeBtn = document.getElementById('themeBtn');
+  function applyTheme(t) { root.setAttribute('data-theme', t); if (themeBtn) themeBtn.innerHTML = t === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; }
+  applyTheme(safeGet('tk_theme') || 'light');
+  if (themeBtn) themeBtn.addEventListener('click', () => { const t = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; applyTheme(t); safeSet('tk_theme', t); });
+
+  /* code size */
+  let size = parseFloat(safeGet('tk_codesize') || '0.95');
+  function applySize() { root.style.setProperty('--code-size', size + 'rem'); }
+  applySize();
+  const dec = document.getElementById('fontDec'), inc = document.getElementById('fontInc');
+  if (dec) dec.addEventListener('click', () => { size = Math.max(0.75, +(size - 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+  if (inc) inc.addEventListener('click', () => { size = Math.min(1.3, +(size + 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+
+  /* table of contents */
+  const panel = document.getElementById('tocPanel'), tocBtn = document.getElementById('tocBtn');
+  if (panel && tocBtn) {
+    const cards = document.querySelectorAll('.container > .card');
+    let n = 0;
+    cards.forEach((c, i) => {
+      const h = c.querySelector('.card-header h3, .project-banner strong');
+      if (!h) return;
+      n++;
+      c.id = c.id || 'sec-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + c.id;
+      a.innerHTML = '<span>' + n + '</span><bdi>' + h.innerHTML + '</bdi>';
+      a.addEventListener('click', () => panel.classList.remove('open'));
+      panel.appendChild(a);
+    });
+    tocBtn.addEventListener('click', (e) => { e.stopPropagation(); panel.classList.toggle('open'); });
+    document.addEventListener('click', (e) => { if (!panel.contains(e.target)) panel.classList.remove('open'); });
+  }
+
+  /* reading progress + back to top */
+  const bar = document.getElementById('readBar'), top = document.getElementById('toTop');
+  function onScroll() {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+    if (bar) bar.style.width = pct + '%';
+    if (top) top.classList.toggle('show', h.scrollTop > 600);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  if (top) top.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+})();
+
+/* ---------------- step tracer ---------------- */
+document.querySelectorAll('.tracer').forEach(el => {
+  const steps = TRACES[el.getAttribute('data-trace')];
+  const lines = el.querySelectorAll('.tr-line');
+  const varsEl = el.querySelector('.tr-vars'), outEl = el.querySelector('.tr-out'), noteEl = el.querySelector('.tr-note'), cnt = el.querySelector('.tr-count');
+  const btn = (a) => el.querySelector('[data-a="' + a + '"]');
+  let i = 0, timer = null;
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  function draw() {
+    const s = steps[i], prev = i > 0 ? steps[i - 1].vars : {};
+    lines.forEach((l, k) => l.classList.toggle('active', k === s.line));
+    const names = Object.keys(s.vars);
+    varsEl.innerHTML = names.length ? names.map(n => '<div class="tr-var' + (prev[n] !== s.vars[n] ? ' changed' : '') + '"><span>' + esc(n) + '</span><b>' + esc(s.vars[n]) + '</b></div>').join('') : '<span style="color:#94a3b8">No variables yet</span>';
+    outEl.textContent = s.out || ' ';
+    noteEl.textContent = s.note || ' ';
+    cnt.textContent = 'Step ' + i + ' of ' + (steps.length - 1);
+    btn('prev').disabled = i === 0; btn('next').disabled = i === steps.length - 1;
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; btn('play').innerHTML = '<i class="fas fa-play"></i> Auto-play'; } }
+  btn('next').onclick = () => { stop(); if (i < steps.length - 1) i++; draw(); };
+  btn('prev').onclick = () => { stop(); if (i > 0) i--; draw(); };
+  btn('reset').onclick = () => { stop(); i = 0; draw(); };
+  btn('play').onclick = () => {
+    if (timer) { stop(); return; }
+    if (i >= steps.length - 1) i = 0;
+    btn('play').innerHTML = '<i class="fas fa-pause"></i> Pause';
+    timer = setInterval(() => { if (i < steps.length - 1) { i++; draw(); } else stop(); }, 1100);
+    draw();
+  };
+  draw();
+});
+
+/* ---------------- predict the output ---------------- */
+document.querySelectorAll('.predict').forEach(p => {
+  const opts = p.querySelectorAll('.pd-opt');
+  opts.forEach(o => o.addEventListener('click', () => {
+    const ok = o.getAttribute('data-ok') === '1';
+    opts.forEach(x => { x.disabled = true; if (x.getAttribute('data-ok') === '1') x.classList.add('correct'); });
+    if (!ok) o.classList.add('wrong');
+    const res = p.querySelector('.pd-result');
+    res.classList.remove('hidden');
+    const msg = p.querySelector('.pd-msg');
+    msg.innerHTML = ok ? '<span style="color:#16a34a"><i class="fas fa-check-circle"></i> Your prediction is right! Here is the real output:</span>' : '<span style="color:#dc2626"><i class="fas fa-circle-xmark"></i> Not quite. Here is the real output, and read the explanation below:</span>';
+  }));
+});
+
+
+function runOps() {
+  const a = parseInt(document.getElementById('opA').value, 10);
+  const b = parseInt(document.getElementById('opB').value, 10);
+  const t = document.getElementById('opTable');
+  if (isNaN(a) || isNaN(b)) { t.innerHTML = '<tr><td>// Enter two integers</td></tr>'; return; }
+  const rows = [
+    ['a + b', a + b], ['a - b', a - b], ['a * b', a * b],
+    ['a / b', b === 0 ? 'undefined (division by zero)' : Math.trunc(a / b)],
+    ['a % b', b === 0 ? 'undefined (division by zero)' : a % b],
+    ['a == b', a === b], ['a != b', a !== b], ['a < b', a < b], ['a >= b', a >= b],
+    ['a > 0 && b > 0', a > 0 && b > 0], ['a > 0 || b > 0', a > 0 || b > 0], ['!(a > b)', !(a > b)]
+  ];
+  t.innerHTML = rows.map(r => '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>').join('');
+}
+runOps();
+
+</script>
+</body>
+</html>
