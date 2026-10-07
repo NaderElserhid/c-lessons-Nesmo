@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TweetKod | القواميس</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --primary-blue: #00adef;
+  --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+  --primary-yellow: #f7941e;
+  --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+  --dark-navy: #0f172a;
+  --text-body: #475569;
+  --bg-main: #f4f9fd;
+  --surface: #f1f6fb;
+  --card-bg: #ffffff;
+  --border: #e2e8f0;
+  --chip-bg: #eef2f7;
+  --soft-shadow: 0 14px 34px -14px rgba(15,23,42,0.14);
+  --header-bg: rgba(255,255,255,0.82);
+  --code-size: 0.95rem;
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2300adef' fill-opacity='0.075'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+html[data-theme="dark"] {
+  --dark-navy: #e6edf7;
+  --text-body: #a9b6cc;
+  --bg-main: #0a1120;
+  --surface: #16213a;
+  --card-bg: #111a2e;
+  --border: #243049;
+  --chip-bg: #1d2a45;
+  --soft-shadow: 0 14px 34px -14px rgba(0,0,0,0.6);
+  --header-bg: rgba(10,17,32,0.82);
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2338bdf8' fill-opacity='0.06'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+body {
+  font-family: 'Tajawal', 'Segoe UI', sans-serif;
+  background-color: var(--bg-main);
+  margin: 0; padding: 0; color: var(--dark-navy);
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color .3s, color .3s;
+  position: relative;
+}
+/* decorative background */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.20), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.17), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.06), transparent 70%);
+}
+html[data-theme="dark"] body::before {
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.22), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.12), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.10), transparent 70%);
+}
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: var(--pattern); background-size: 260px 260px;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+          mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+}
+.bg-deco { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .35; animation: floaty 18s ease-in-out infinite; }
+.b1 { width: 340px; height: 340px; background: #00adef; top: 12%; right: -90px; }
+.b2 { width: 280px; height: 280px; background: #f7941e; bottom: 6%; left: -80px; animation-delay: -6s; }
+.b3 { width: 220px; height: 220px; background: #8b5cf6; top: 55%; right: 18%; opacity: .16; animation-delay: -11s; }
+html[data-theme="dark"] .blob { opacity: .2; }
+@keyframes floaty { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(26px,-34px) scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .blob { animation: none; } html { scroll-behavior: auto; } }
+
+/* header */
+header {
+  background: var(--header-bg); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  padding: 10px 4%; display: flex; justify-content: space-between; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 1000;
+  border-bottom: 1px solid rgba(0,173,239,0.16); box-shadow: 0 8px 28px -18px rgba(15,23,42,0.45);
+}
+.hdr-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.logo-img { width: 52px; height: 52px; border-radius: 15px; object-fit: contain; padding: 6px; background: #fff;
+  box-shadow: 0 6px 18px -6px rgba(0,173,239,0.45), 0 0 0 1px rgba(0,173,239,0.16); }
+.brand-info h3 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); line-height: 1.3; }
+.brand-info p { margin: 0; font-size: 0.78rem; color: var(--primary-blue); font-weight: 700; }
+.hdr-tools { display: flex; align-items: center; gap: 8px; position: relative; }
+.tool-btn { height: 38px; min-width: 38px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy);
+  cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: .85rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: .2s; }
+.tool-btn:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+.toc-panel { position: absolute; top: 48px; left: 0; width: 290px; max-height: 60vh; overflow-y: auto; background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 16px; box-shadow: var(--soft-shadow); padding: 8px; display: none; }
+.toc-panel.open { display: block; }
+.toc-panel a { display: flex; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 10px; color: var(--dark-navy); text-decoration: none; font-weight: 700; font-size: .88rem; }
+.toc-panel a:hover { background: var(--surface); color: var(--primary-blue); }
+.toc-panel a span { width: 22px; height: 22px; border-radius: 50%; background: var(--chip-bg); color: var(--text-body); font-size: .72rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.read-progress { position: absolute; bottom: -1px; right: 0; left: 0; height: 3px; background: transparent; }
+.read-progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #00adef, #f7941e); transition: width .1s; }
+.to-top { position: fixed; bottom: 22px; left: 22px; z-index: 900; width: 46px; height: 46px; border-radius: 50%; border: none; background: var(--blue-gradient); color: #fff;
+  cursor: pointer; box-shadow: 0 10px 24px -8px rgba(0,173,239,.7); font-size: 1.1rem; opacity: 0; pointer-events: none; transition: .25s; }
+.to-top.show { opacity: 1; pointer-events: auto; }
+@media (max-width: 980px) { .brand-info p { display: none; } }
+@media (max-width: 720px) { .brand-info h3 { font-size: 1rem; } }
+
+.container { max-width: 900px; margin: 44px auto; padding: 0 25px; }
+.title-section { text-align: center; margin-bottom: 40px; }
+.title-section h1 { font-size: 2.7rem; font-weight: 800; margin: 12px 0 6px; background: linear-gradient(135deg, var(--dark-navy), #007bb5 80%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+html[data-theme="dark"] .title-section h1 { background: linear-gradient(135deg, #fff, #38bdf8 80%); -webkit-background-clip: text; background-clip: text; }
+.attribution { color: var(--primary-blue); font-size: 1.15rem; font-weight: 600; }
+.lesson-chip { display: inline-block; background: var(--yellow-gradient); color: #fff; padding: 6px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; box-shadow: 0 8px 18px -8px rgba(247,148,30,.8); }
+
+.card { background: var(--card-bg); border-radius: 25px; padding: 40px; margin-bottom: 30px; box-shadow: var(--soft-shadow); border-right: 8px solid var(--primary-blue);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); transition: background-color .3s; }
+.steps-card { border-right-color: var(--primary-yellow); }
+.card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+.card-header i { font-size: 1.8rem; }
+.card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+h4 { margin: 18px 0 8px; font-size: 1.05rem; color: var(--dark-navy); }
+p { color: var(--text-body); margin: 0 0 14px; }
+a { color: var(--primary-blue); }
+strong { color: var(--dark-navy); }
+
+.en { direction: ltr; unicode-bidi: isolate; font-weight: 700; color: var(--dark-navy); }
+/* every code chip is an isolated LTR island: fixes ; ( ) = placement inside Arabic text */
+code, code.inline { background: var(--chip-bg); padding: 2px 8px; border-radius: 6px; direction: ltr; unicode-bidi: isolate; display: inline-block; text-align: left;
+  color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; line-height: 1.6; }
+html[data-theme="dark"] code, html[data-theme="dark"] code.inline { color: #f9a8d4; }
+
+.obj-list { list-style: none; padding: 0; margin: 0; }
+.obj-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.obj-list i { color: #22c55e; margin-top: 6px; }
+
+/* code */
+.code-box { background: #1e293b; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.35); margin: 20px 0; border: 1px solid rgba(255,255,255,.04); }
+.code-head { background: #0f172a; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+.code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; direction: ltr; }
+.copy-btn { color: #38bdf8; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; font-family: 'Tajawal'; }
+pre { padding: 26px 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: var(--code-size); tab-size: 8; }
+.cmt { color: #79c36a; font-style: italic; }
+.kw { color: #7dd3fc; }
+.str { color: #fbbf77; }
+.num { color: #c4b5fd; }
+.pp { color: #f9a8d4; }
+.code-line, .code-plain { display: block; border-radius: 6px; padding: 0 6px; margin: 0 -6px; }
+.code-line { cursor: pointer; transition: 0.2s; background: rgba(0,173,239,0.07); }
+.code-line:hover { background: rgba(0,173,239,0.22); }
+.code-line.active { background: rgba(247,148,30,0.28); outline: 1px dashed var(--primary-yellow); }
+.explain-box { margin-top: 14px; background: var(--surface); border: 2px dashed var(--border); border-radius: 16px; padding: 16px 22px; font-weight: 600; color: var(--dark-navy); min-height: 30px; }
+.explain-box .hint { color: #94a3b8; font-weight: 500; }
+.output-box, .input-box { font-family: 'Consolas', monospace; padding: 16px 22px; border-radius: 14px; margin: 10px 0 18px; direction: ltr; text-align: left; white-space: pre-wrap; tab-size: 8; font-size: var(--code-size); }
+.output-box { background: #0f172a; color: #4ade80; }
+.input-box { background: #0c2233; color: #7dd3fc; margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.input-box + .output-box { margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; border-top: 1px dashed #1e3a52; }
+.output-box::before, .input-box::before { display: block; font-size: 0.72rem; letter-spacing: 0.08em; margin-bottom: 6px; text-transform: uppercase; color: #64748b; }
+.output-box::before { content: 'Output'; }
+.input-box::before { content: 'Input (typed by the user)'; }
+.error-box { background: #1f1317; border: 1px solid #7f1d1d; border-radius: 14px; margin: 10px 0 18px; overflow: hidden; }
+.error-head { background: #450a0a; color: #fca5a5; padding: 8px 18px; font-weight: 700; font-size: 0.85rem; }
+.error-box pre { color: #fecaca; font-size: 0.8rem; padding: 14px 20px; line-height: 1.7; }
+
+/* steps */
+.step-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 14px; padding: 18px 20px; background: var(--card-bg); border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+.step-number { background: var(--yellow-gradient); color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+.step-item h4 { margin: 0 0 4px; font-size: 1rem; }
+.step-item p { margin: 0; font-size: 0.92rem; }
+
+/* tables */
+.table-wrap { overflow-x: auto; margin: 15px 0; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+table.data-table { width: 100%; border-collapse: collapse; background: var(--card-bg); }
+table.data-table th { background: var(--blue-gradient); color: #fff; padding: 12px 18px; font-size: 0.85rem; text-align: right; white-space: nowrap; }
+table.data-table td { padding: 12px 18px; font-size: 0.9rem; border-bottom: 1px solid var(--border); color: var(--text-body); }
+table.data-table tr:last-child td { border-bottom: none; }
+
+/* comparison / rules */
+.compare-grid, .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+@media (max-width: 700px) { .compare-grid, .rule-grid { grid-template-columns: 1fr; } .card { padding: 24px; } .title-section h1 { font-size: 2rem; } }
+.compare-card { border-radius: 16px; overflow: hidden; background: #1e293b; }
+.compare-title { padding: 10px 18px; font-weight: 800; font-size: 0.9rem; }
+.good .compare-title { background: #dcfce7; color: #15803d; }
+.bad .compare-title { background: #fee2e2; color: #b91c1c; }
+.compare-card pre { padding: 18px 20px; font-size: 0.83rem; }
+.rule-list { background: var(--surface); border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
+.rule-list h5 { margin: 0 0 12px; font-size: 0.95rem; }
+.rule-list.yes h5 { color: #16a34a; } .rule-list.no h5 { color: #dc2626; }
+.rule-list ul { list-style: none; padding: 0; margin: 0; }
+.rule-list li { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 0.9rem; color: var(--text-body); }
+.rule-list.yes li i { color: #22c55e; } .rule-list.no li i { color: #ef4444; }
+
+.tip-box { background: rgba(247,148,30,0.09); border: 2px dashed var(--primary-yellow); border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 4px; }
+.tip-box p { margin: 0; font-size: 0.93rem; }
+
+/* project */
+.project-banner { background: var(--blue-gradient); color: #fff; border-radius: 18px; padding: 16px 22px; margin-bottom: 18px; display: flex; gap: 14px; align-items: center; }
+.project-banner i { font-size: 1.6rem; }
+.project-banner strong { font-size: 1.05rem; color: #fff; }
+.project-banner p { color: #e0f4ff; margin: 0; font-size: 0.9rem; }
+.brief { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 18px 22px; margin: 14px 0; }
+.brief h5 { margin: 0 0 8px; font-size: 1rem; color: var(--primary-blue); display: flex; align-items: center; gap: 8px; }
+.brief ul, .brief ol { margin: 0; padding-right: 22px; color: var(--text-body); }
+.brief li { margin-bottom: 6px; }
+details.reveal { border: 2px dashed var(--border); border-radius: 16px; padding: 4px 16px; margin: 14px 0; background: var(--card-bg); }
+details.reveal > summary { cursor: pointer; font-weight: 800; padding: 10px 0; color: var(--primary-blue); list-style: none; display: flex; align-items: center; gap: 8px; }
+details.reveal > summary::-webkit-details-marker { display: none; }
+details.reveal[open] { border-style: solid; border-color: var(--primary-blue); }
+
+/* challenges */
+.challenge-card { border-right-color: #8b5cf6; }
+.challenge-card .card-header { color: #8b5cf6; }
+.challenge { border: 1px solid var(--border); border-radius: 20px; padding: 22px 24px; margin-bottom: 20px; background: var(--surface); }
+.ch-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+.ch-head h4 { margin: 0; flex: 1; }
+.ch-num { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
+.badge { font-size: .75rem; font-weight: 800; padding: 4px 12px; border-radius: 50px; }
+.badge.easy { background: #dcfce7; color: #15803d; }
+.badge.medium { background: #fef3c7; color: #b45309; }
+.challenge h5 { margin: 14px 0 6px; font-size: .9rem; color: var(--dark-navy); }
+.challenge ul { margin: 0 0 6px; padding-right: 22px; color: var(--text-body); }
+.challenge li { margin-bottom: 4px; }
+
+/* simulators */
+.sim-box { background: var(--surface); border: 3px dashed var(--border); border-radius: 20px; padding: 28px; text-align: center; margin-top: 15px; }
+.sim-inputs { display: flex; justify-content: center; gap: 18px; margin-bottom: 18px; flex-wrap: wrap; }
+.sim-inputs .field { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.sim-inputs label { font-size: 0.82rem; color: var(--text-body); font-weight: 700; }
+.sim-inputs input[type=text], .sim-inputs input[type=number] { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1.05rem; text-align: center; font-family: 'Consolas', monospace; outline: none; direction: ltr; }
+.sim-inputs input[type=number] { width: 110px; }
+.sim-inputs input:focus { border-color: var(--primary-blue); }
+.btn-run { background: var(--yellow-gradient); color: #fff; border: none; padding: 13px 32px; border-radius: 18px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.95rem; box-shadow: 0 10px 20px -10px rgba(247,148,30,.9); }
+.sim-console { margin-top: 18px; background: #0f172a; border-radius: 14px; padding: 18px 20px; text-align: left; direction: ltr; font-family: 'Consolas', monospace; color: #4ade80; min-height: 26px; white-space: pre-wrap; font-size: 0.92rem; }
+.sim-console .line { color: #94a3b8; }
+.result-line { margin-top: 14px; font-weight: 700; color: var(--dark-navy); }
+.reorder-list { max-width: 460px; margin: 0 auto 10px; direction: ltr; }
+.reorder-item { display: flex; align-items: center; gap: 10px; background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 8px 12px; margin-bottom: 8px; font-family: 'Consolas', monospace; font-size: 0.88rem; text-align: left; }
+.reorder-item code { flex: 1; background: transparent; padding: 0; }
+.rbtn { border: none; background: #e0f2fe; color: #0369a1; border-radius: 8px; width: 30px; height: 30px; cursor: pointer; font-weight: 800; }
+.rbtn:disabled { opacity: 0.35; cursor: default; }
+.bug-list { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.bug-btn { background: var(--card-bg); color: var(--dark-navy); border: 2px solid var(--border); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Tajawal'; font-weight: 700; }
+.bug-btn.found { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.hidden { display: none; }
+.op-table { width: 100%; border-collapse: collapse; margin-top: 16px; direction: ltr; font-family: 'Consolas', monospace; font-size: .88rem; }
+.op-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--dark-navy); text-align: left; }
+.op-table td:last-child { color: var(--primary-blue); font-weight: 800; }
+
+/* glossary */
+.glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+.term-card { background: var(--surface); border-radius: 16px; padding: 18px; border: 1px solid var(--border); }
+.term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+.term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+.term-desc { font-size: 0.85rem; color: var(--text-body); margin: 0; }
+
+/* tf + quiz */
+.tf-item { border: 2px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 14px; background: var(--surface); }
+.tf-item .stmt { font-weight: 700; margin-bottom: 12px; color: var(--dark-navy); }
+.tf-btns { display: flex; gap: 10px; }
+.tf-btn { flex: 1; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 10px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: 0.95rem; }
+.tf-btn:hover { border-color: var(--primary-blue); }
+.tf-btn.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.tf-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.feedback { margin-top: 10px; font-size: 0.9rem; font-weight: 600; }
+.feedback.ok { color: #16a34a; } .feedback.no { color: #dc2626; }
+.quiz-q { margin-bottom: 26px; padding-bottom: 8px; }
+.quiz-q h4 { margin-bottom: 12px; line-height: 1.9; }
+.qnum { display: inline-flex; align-items: center; justify-content: center; background: var(--yellow-gradient); color: #fff; width: 28px; height: 28px; border-radius: 50%; font-size: 0.85rem; margin-left: 8px; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-opt { background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 12px 18px; cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s; color: var(--dark-navy); }
+.quiz-opt:hover { border-color: var(--primary-blue); }
+.quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.quiz-opt:disabled { cursor: default; }
+.quiz-opt.correct code, .quiz-opt.wrong code { background: rgba(255,255,255,.7); }
+.progress { height: 10px; background: var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 22px; }
+.progress-bar { height: 100%; width: 0; background: var(--yellow-gradient); transition: width 0.3s; }
+.score-box { text-align: center; background: var(--surface); border: 2px solid var(--border); border-radius: 18px; padding: 22px; margin-top: 10px; }
+.score-box .big { font-size: 2.2rem; font-weight: 800; color: var(--primary-blue); }
+.retry-btn { margin-top: 10px; background: var(--blue-gradient); color: #fff; border: none; border-radius: 14px; padding: 10px 26px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; }
+
+.refs-card { border-right-color: #94a3b8; }
+.ref-list { margin: 0; padding-right: 22px; }
+.ref-list li { margin-bottom: 6px; font-size: 0.9rem; }
+footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+
+/* ---------- tracer ---------- */
+.tracer { background: var(--surface); border: 2px solid var(--border); border-radius: 20px; padding: 18px; margin: 22px 0; }
+.tr-head { font-weight: 800; color: var(--primary-blue); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.tr-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .tr-grid { grid-template-columns: 1fr; } }
+.tr-code { background: #1e293b; border-radius: 14px; padding: 12px 0; direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: var(--code-size); overflow-x: auto; }
+.tr-line { display: flex; gap: 12px; padding: 1px 14px; color: #e2e8f0; white-space: pre; border-left: 4px solid transparent; transition: .15s; }
+.tr-line .ln { color: #64748b; min-width: 22px; text-align: right; user-select: none; }
+.tr-line.active { background: rgba(247,148,30,.28); border-left-color: var(--primary-yellow); }
+.tr-side { display: flex; flex-direction: column; gap: 12px; }
+.tr-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; flex: 1; }
+.tr-title { font-size: .78rem; font-weight: 800; color: var(--text-body); margin-bottom: 6px; }
+.tr-vars { direction: ltr; font-family: 'Consolas', monospace; font-size: .9rem; min-height: 28px; }
+.tr-var { display: flex; justify-content: space-between; padding: 3px 8px; border-radius: 8px; color: var(--dark-navy); }
+.tr-var b { color: var(--primary-blue); }
+.tr-var.changed { background: rgba(247,148,30,.22); }
+.tr-out { direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: .88rem; background: #0f172a; color: #4ade80; border-radius: 10px; padding: 8px 12px; min-height: 40px; white-space: pre-wrap; }
+.tr-note { margin-top: 12px; background: var(--card-bg); border: 1px dashed var(--primary-blue); border-radius: 12px; padding: 10px 16px; font-weight: 600; color: var(--dark-navy); min-height: 24px; }
+.tr-ctrl { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.tr-btn { border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 14px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: .85rem; }
+.tr-btn.primary { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.tr-btn:disabled { opacity: .4; cursor: default; }
+.tr-count { margin-right: auto; font-size: .8rem; color: var(--text-body); font-weight: 700; }
+
+/* ---------- predict ---------- */
+.predict { border: 2px solid #8b5cf6; border-radius: 20px; padding: 16px 18px; margin: 22px 0; background: var(--surface); }
+.predict-head { font-weight: 800; color: #8b5cf6; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+.predict .code-box { margin: 12px 0; }
+.pd-q { font-weight: 700; color: var(--dark-navy); margin-bottom: 10px; }
+.pd-opts { display: flex; flex-wrap: wrap; gap: 10px; }
+.pd-opt { background: var(--card-bg); border: 2px solid var(--border); color: var(--dark-navy); border-radius: 12px; padding: 9px 16px; cursor: pointer; font-family: 'Tajawal'; font-weight: 700; font-size: .92rem; }
+.pd-opt:hover { border-color: #8b5cf6; }
+.pd-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.pd-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.pd-opt:disabled { cursor: default; }
+.pd-result { margin-top: 12px; }
+.pd-msg { font-weight: 800; margin-bottom: 8px; }
+.pd-why { margin: 8px 0 0; font-size: .93rem; }
+
+/* ---------- misc ---------- */
+.summary-card { border-right-color: #22c55e; }
+.summary-card .card-header { color: #16a34a; }
+.sum-list { list-style: none; padding: 0; margin: 0; }
+.sum-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.sum-list i { color: #22c55e; margin-top: 6px; }
+.warn-box { background: rgba(239,68,68,.08); border: 2px dashed #ef4444; border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 4px; }
+.warn-box p { margin: 0; font-size: .93rem; }
+.analogy { background: linear-gradient(135deg, rgba(0,173,239,.1), rgba(139,92,246,.1)); border-radius: 18px; padding: 16px 22px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; border: 1px solid var(--border); }
+.analogy i { color: var(--primary-blue); font-size: 1.5rem; margin-top: 4px; }
+.analogy p { margin: 0; }
+.flow { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin: 18px 0; direction: rtl; }
+.flow-node { background: var(--card-bg); border: 2px solid var(--primary-blue); border-radius: 14px; padding: 10px 18px; font-weight: 800; color: var(--dark-navy); text-align: center; }
+.flow-node.decision { border-color: var(--primary-yellow); border-radius: 30px; }
+.flow-node.end { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.flow-arrow { color: var(--primary-blue); font-size: 1.2rem; }
+.flow-branch { display: flex; flex-direction: column; gap: 8px; }
+.cell-row { display: flex; direction: ltr; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 12px 0; }
+.cell { min-width: 54px; text-align: center; border: 2px solid var(--primary-blue); border-radius: 10px; background: var(--card-bg); font-family: 'Consolas', monospace; font-weight: 800; color: var(--dark-navy); padding: 6px 4px; cursor: pointer; }
+.cell small { display: block; font-size: .68rem; color: var(--text-body); font-weight: 700; }
+.cell.sel { background: rgba(247,148,30,.25); border-color: var(--primary-yellow); }
+.vis-line { display: block; padding: 0 6px; margin: 0 -6px; border-radius: 6px; opacity: .35; transition: .15s; }
+.vis-line.on { opacity: 1; background: rgba(34,197,94,.22); }
+.vis-btns { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+.vis-btn { border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Consolas', monospace; font-weight: 800; }
+.vis-btn.on { border-color: #22c55e; background: #dcfce7; color: #15803d; }
+
+.cell.ghost { opacity: .55; border-style: dashed; background: transparent; }
+
+
+.lab-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; margin: 10px 0; }
+.lab-row .btn-run { padding: 9px 18px; font-size: .88rem; border-radius: 14px; }
+.lab-tags { display: flex; direction: ltr; flex-wrap: wrap; gap: 8px; justify-content: center; min-height: 44px; margin: 10px 0; }
+.lab-tag { padding: 5px 14px; border-radius: 50px; background: var(--chip-bg); border: 2px solid var(--border); font-family: Consolas, monospace; font-weight: 800; color: var(--dark-navy); transition: .2s; }
+.lab-tag.hit { border-color: #16a34a; background: rgba(22,163,74,.16); }
+.lab-tag.miss { border-color: #ef4444; background: rgba(239,68,68,.14); }
+.lab-tag.new { border-color: var(--primary-blue); background: rgba(0,173,239,.16); }
+.lab-tag.warm { border-color: var(--primary-yellow); background: rgba(247,148,30,.2); }
+.lab-bars { display: flex; direction: ltr; align-items: flex-end; gap: 4px; height: 170px; justify-content: center; margin: 12px 0; }
+.lab-bar { width: 26px; background: var(--primary-blue); border-radius: 6px 6px 0 0; font-size: .68rem; color: #fff; text-align: center; font-weight: 800; padding-top: 2px; transition: height .15s, background .15s; font-family: Consolas, monospace; }
+.lab-bar.cmp { background: var(--primary-yellow); }
+.lab-bar.swp { background: #ef4444; }
+.lab-bar.done { background: #16a34a; }
+.lab-bar.dim { opacity: .28; }
+.lab-bar.mid { background: #8b5cf6; }
+.lab-grid { display: grid; direction: ltr; gap: 3px; justify-content: center; margin: 12px auto; }
+.lab-cell { width: 34px; height: 34px; border-radius: 8px; background: var(--chip-bg); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: Consolas, monospace; font-size: .9rem; color: var(--dark-navy); }
+.lab-cell.wall { background: #475569; border-color: #475569; }
+.lab-cell.on { background: rgba(0,173,239,.25); border-color: var(--primary-blue); }
+.lab-cell.hot { background: rgba(247,148,30,.3); border-color: var(--primary-yellow); }
+.lab-meter { height: 16px; border-radius: 50px; background: var(--chip-bg); overflow: hidden; direction: ltr; margin: 8px 0; }
+.lab-meter > span { display: block; height: 100%; background: linear-gradient(90deg, #16a34a, #f7941e, #ef4444); transition: width .25s; }
+.lab-table { width: 100%; border-collapse: collapse; direction: ltr; font-family: Consolas, monospace; font-size: .9rem; }
+.lab-table th, .lab-table td { border: 1px solid var(--border); padding: 6px 10px; text-align: center; }
+.lab-table th { background: var(--chip-bg); }
+.lab-say { margin-top: 10px; font-weight: 700; color: var(--dark-navy); min-height: 28px; }
+.lab-say.ok { color: #16a34a; } .lab-say.bad { color: #ef4444; }
+.sim-inputs select { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1rem; font-family: Consolas, monospace; }
+.sim-inputs input[type=range] { width: 200px; }
+.lab-in { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1rem; font-family: Consolas, monospace; direction: ltr; text-align: center; max-width: 100%; }
+
+</style>
+</head>
+<body>
+<div class="bg-deco"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+<header>
+  <div class="hdr-brand">
+    <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    <div class="brand-info"><h3>منصة TweetKod</h3><p>للتعلم البرمجي التفاعلي</p></div>
+  </div>
+  <div class="hdr-tools">
+    <button class="tool-btn" id="tocBtn" title="فهرس الدرس"><i class="fas fa-list-ul"></i> الفهرس</button>
+    <button class="tool-btn" id="fontDec" title="تصغير خط الكود">A-</button>
+    <button class="tool-btn" id="fontInc" title="تكبير خط الكود">A+</button>
+    <button class="tool-btn" id="themeBtn" title="الوضع الليلي"><i class="fas fa-moon"></i></button>
+    <div class="toc-panel" id="tocPanel"></div>
+  </div>
+  <div class="read-progress"><span id="readBar"></span></div>
+</header>
+<div class="container">
+  <div class="title-section">
+    <h1>القواميس</h1>
+    <p class="attribution"><span class="en">Maps</span> &mdash; ربط كل مفتاح بقيمة</p>
+  </div>
+  <div class="card goals-card">
+    <div class="card-header"><i class="fas fa-bullseye"></i><h3>ماذا ستتعلم في هذا الدرس؟</h3></div>
+    <ul class="obj-list"><li><i class="fas fa-check-circle"></i><span>تفهم متى نحتاج القاموس وكيف يربط المفتاح بالقيمة</span></li><li><i class="fas fa-check-circle"></i><span>تنشئ القاموس وتضيف وتقرأ وتحذف وتمر على عناصره</span></li><li><i class="fas fa-check-circle"></i><span>تتجنب فخ <code class="inline">m[key]</code> الذي ينشئ المفتاح دون أن تقصد</span></li><li><i class="fas fa-check-circle"></i><span>تعدّ التكرارات بـ <code class="inline">freq[x]++</code> وتحل مسائل المستويات بـ <code class="inline">upper_bound</code></span></li><li><i class="fas fa-check-circle"></i><span>تفرّق بين <code class="inline">map</code> و<code class="inline">unordered_map</code> و<code class="inline">multimap</code></span></li></ul>
+  </div>
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-book-open"></i><h3>القاموس: كل مفتاح له قيمة</h3></div>
+  <p>في الدرس السابق كانت المجموعة تعرف فقط «هل هذا العنصر موجود؟». لكن في أغلب المسائل نريد أكثر من ذلك: <strong>كم مرة ظهرت هذه الكلمة؟</strong> <strong>ما درجة هذا الطالب؟</strong> <strong>أي رقم هاتف يخص هذا الاسم؟</strong> نحتاج أن نربط كل عنصر بمعلومة تخصّه.</p>
+  <div class="analogy"><i class="fas fa-book"></i><p>القاموس (<span class="en">map</span>) كقاموس ورقي: تبحث عن <strong>الكلمة</strong> (المفتاح <span class="en">key</span>) فتجد <strong>معناها</strong> (القيمة <span class="en">value</span>). الكلمات لا تتكرر في القاموس، وهي مرتّبة أبجديًا، والبحث عنها سريع.</p></div>
+  <div class="cell-row"><div class="cell">"Sara"<small>&rarr; 90</small></div><div class="cell">"Omar"<small>&rarr; 80</small></div><div class="cell">"Lina"<small>&rarr; 82</small></div></div>
+  <p>تقنيًا، القاموس مجموعة مفاتيح مرتّبة بلا تكرار، ولكل مفتاح قيمة تتبعه. وهو يعمل بالسرعة نفسها <code>O(log n)</code>.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-plus"></i><h3>أول قاموس لنا</h3></div>
+  <p>نكتب نوعين بين <code>&lt; &gt;</code>: نوع المفتاح ثم نوع القيمة. اضغط على الأسطر المضيئة لتقرأ شرحها:</p>
+  <div class="code-box" data-expl="basic"><div class="code-head"><span>first_map.cpp</span><button class="copy-btn" onclick="copyCode('code_basic')">نسخ الكود</button></div><pre id="code_basic"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-line" data-i="1"><span class="pp">#include &lt;map&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;string&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-line" data-i="6">    map&lt;<span class="kw">string</span>, <span class="kw">int</span>&gt; scores;</span><span class="code-line" data-i="7">    scores[<span class="str">"Sara"</span>] = <span class="num">90</span>;</span><span class="code-plain">    scores[<span class="str">"Omar"</span>] = <span class="num">75</span>;</span><span class="code-plain">    scores[<span class="str">"Lina"</span>] = <span class="num">82</span>;</span><span class="code-line" data-i="10">    scores[<span class="str">"Omar"</span>] = <span class="num">80</span>;</span><span class="code-plain"> </span><span class="code-line" data-i="12">    cout &lt;&lt; <span class="str">"size = "</span> &lt;&lt; scores.size() &lt;&lt; endl;</span><span class="code-line" data-i="13">    <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; p : scores) {</span><span class="code-plain">        cout &lt;&lt; p.first &lt;&lt; <span class="str">" -&gt; "</span> &lt;&lt; p.second &lt;&lt; endl;</span><span class="code-plain">    }</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="basic"><span class="hint">اضغط على أي سطر مضيء من الكود لقراءة شرحه هنا...</span></div>
+  <div class="output-box">size = 3
+Lina -&gt; 82
+Omar -&gt; 80
+Sara -&gt; 90</div>
+  <p>الإسناد <code>scores["Omar"] = 80</code> لم يضف مفتاحًا جديدًا بل غيّر قيمة المفتاح الموجود. والمرور على القاموس يعطينا أزواجًا مرتّبة بحسب <strong>المفتاح</strong>.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-triangle-exclamation"></i><h3>فخ الأقواس المربعة</h3></div>
+  <p>أخطر ما في القاموس أن <code>m[key]</code> لا «تقرأ» فقط: إن لم يوجد المفتاح فإنها <strong>تنشئه</strong>. شاهد ماذا يحدث لحجم القاموس:</p>
+  <div class="code-box" data-expl="trap"><div class="code-head"><span>bracket_trap.cpp</span><button class="copy-btn" onclick="copyCode('code_trap')">نسخ الكود</button></div><pre id="code_trap"><span class="code-plain">map&lt;<span class="kw">string</span>, <span class="kw">int</span>&gt; stock = {{<span class="str">"apple"</span>, <span class="num">5</span>}, {<span class="str">"pear"</span>, <span class="num">2</span>}};</span><span class="code-plain"> </span><span class="code-line" data-i="2">cout &lt;&lt; stock[<span class="str">"apple"</span>] &lt;&lt; endl;</span><span class="code-line" data-i="3">cout &lt;&lt; stock[<span class="str">"kiwi"</span>] &lt;&lt; endl;</span><span class="code-line" data-i="4">cout &lt;&lt; stock.size() &lt;&lt; endl;</span><span class="code-plain"> </span><span class="code-line" data-i="6">cout &lt;&lt; stock.count(<span class="str">"mango"</span>) &lt;&lt; endl;</span><span class="code-line" data-i="7">cout &lt;&lt; stock.size() &lt;&lt; endl;</span></pre></div><div class="explain-box" data-for="trap"><span class="hint">اضغط على أي سطر مضيء من الكود لقراءة شرحه هنا...</span></div>
+  <div class="output-box">5
+0
+3
+0
+3</div>
+  <div class="warn-box"><i class="fas fa-triangle-exclamation"></i><p>لو كنت تريد فقط أن تسأل «هل المفتاح موجود؟» فاستخدم <code>count</code> أو <code>find</code> ولا تستخدم <code>m[key]</code>. وإلا امتلأ قاموسك بمفاتيح وهمية، وقد يعطي برنامجك أجوبة خاطئة.</p></div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-flask"></i><h3>مختبر تفاعلي: القاموس أمامك</h3></div>
+  <p>جرّب العمليات واحدة واحدة وراقب الجدول. ابدأ بالضغط على <code>m[key]</code> مع مفتاح جديد لترى الفخ بعينيك! ثم جرّب خانة «عدّ كلمات جملة».</p>
+  <div class="sim-box">
+    <div class="sim-inputs">
+      <div class="field"><label>المفتاح key</label><input type="text" id="mpKey" value="kiwi" style="width:130px"></div>
+      <div class="field"><label>القيمة (للإسناد)</label><input type="number" id="mpVal" value="7"></div>
+    </div>
+    <div class="lab-row">
+      <button class="btn-run" onclick="mpSet()">m[key] = value</button>
+      <button class="btn-run" onclick="mpInc()">m[key]++</button>
+      <button class="btn-run" onclick="mpRead()">cout &lt;&lt; m[key]</button>
+      <button class="btn-run" onclick="mpCount()">count(key)</button>
+      <button class="btn-run" onclick="mpAt()">at(key)</button>
+      <button class="btn-run" onclick="mpErase()">erase(key)</button>
+    </div>
+    <div style="overflow-x:auto"><table class="lab-table" id="mpTable"></table></div>
+    <div class="sim-console" id="mpOut"></div>
+    <div class="lab-say" id="mpNote"></div>
+    <hr style="margin:18px 0;border:0;border-top:2px dashed var(--border)">
+    <div class="field"><label>اكتب جملة وسنعدّ كلماتها بـ <code>freq[w]++</code></label>
+      <input type="text" id="mpSentence" class="lab-in" style="width:min(100%,420px)" value="go stop go go wait stop"></div>
+    <div class="lab-row"><button class="btn-run" onclick="mpCountWords()"><i class="fas fa-calculator"></i> عدّ الكلمات</button></div>
+  </div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-toolbox"></i><h3>صندوق أدوات القاموس</h3></div>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>الأمر</th><th>ماذا يفعل؟</th></tr>
+    <tr><td><code>m[k] = v</code></td><td>ينشئ المفتاح أو يستبدل قيمته</td></tr>
+    <tr><td><code>m[k]</code></td><td>يقرأ القيمة، وإن لم يوجد المفتاح <strong>ينشئه</strong> بقيمة افتراضية (0 للأعداد)</td></tr>
+    <tr><td><code>m.count(k)</code></td><td>0 أو 1: هل المفتاح موجود؟ دون تغيير القاموس</td></tr>
+    <tr><td><code>m.find(k)</code></td><td>مؤشر إلى الزوج أو <code>m.end()</code></td></tr>
+    <tr><td><code>m.at(k)</code></td><td>يقرأ القيمة، وإن لم يوجد المفتاح يعلن خطأ <code>out_of_range</code></td></tr>
+    <tr><td><code>m.insert({k, v})</code></td><td>يضيف فقط إن كان المفتاح غير موجود (لا يستبدل)</td></tr>
+    <tr><td><code>m.erase(k)</code></td><td>يحذف المفتاح وقيمته</td></tr>
+    <tr><td><code>m.size()</code> / <code>m.empty()</code></td><td>عدد الأزواج / هل هو فارغ؟</td></tr>
+  </table></div>
+  <div class="code-box"><div class="code-head"><span>find_at_erase.cpp</span><button class="copy-btn" onclick="copyCode('code_findat')">نسخ الكود</button></div><pre id="code_findat">map&lt;<span class="kw">int</span>, <span class="kw">string</span>&gt; id = {{<span class="num">3</span>, <span class="str">"Lina"</span>}, {<span class="num">1</span>, <span class="str">"Omar"</span>}};
+
+<span class="kw">auto</span> it = id.find(<span class="num">3</span>);
+<span class="kw">if</span> (it != id.end()) {
+    cout &lt;&lt; it-&gt;second &lt;&lt; endl;
+}
+
+id.erase(<span class="num">1</span>);
+cout &lt;&lt; id.size() &lt;&lt; endl;
+
+try {
+    cout &lt;&lt; id.at(<span class="num">9</span>) &lt;&lt; endl;
+} catch (<span class="kw">const</span> out_of_range&amp;) {
+    cout &lt;&lt; <span class="str">"no key 9"</span> &lt;&lt; endl;
+}</pre></div>
+  <div class="output-box">Lina
+1
+no key 9</div>
+  <p>المؤشر <code>it</code> يشير إلى زوج كامل، ولذلك نكتب <code>it-&gt;second</code> للوصول إلى القيمة (والسهم <code>-&gt;</code> اختصار لـ <code>(*it).second</code>).</p>
+  <h4>الإضافة بـ insert مقابل الإسناد بـ [ ]</h4>
+  <div class="code-box"><div class="code-head"><span>insert_vs_bracket.cpp</span><button class="copy-btn" onclick="copyCode('code_insert_vs')">نسخ الكود</button></div><pre id="code_insert_vs">map&lt;<span class="kw">string</span>, <span class="kw">int</span>&gt; m;
+m[<span class="str">"a"</span>] = <span class="num">1</span>;
+m.insert({<span class="str">"a"</span>, <span class="num">2</span>});
+cout &lt;&lt; m[<span class="str">"a"</span>] &lt;&lt; endl;
+
+m[<span class="str">"a"</span>] = <span class="num">3</span>;
+cout &lt;&lt; m[<span class="str">"a"</span>] &lt;&lt; endl;</pre></div>
+  <div class="output-box">1
+3</div>
+  <p><code>insert</code> لا تبدّل قيمة مفتاح موجود، أما الإسناد بالأقواس فيبدّلها.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-chart-simple"></i><h3>أشهر استعمال: عدّ التكرارات</h3></div>
+  <p>في آلاف المسائل نريد معرفة تكرار كل شيء: الحروف والأرقام والكلمات. القاموس يفعل ذلك بسطر واحد هو <code>freq[x]++</code>:</p>
+  <div class="code-box" data-expl="freq"><div class="code-head"><span>frequency.cpp</span><button class="copy-btn" onclick="copyCode('code_freq')">نسخ الكود</button></div><pre id="code_freq"><span class="code-plain"><span class="kw">vector</span>&lt;<span class="kw">string</span>&gt; words = {<span class="str">"go"</span>, <span class="str">"stop"</span>, <span class="str">"go"</span>, <span class="str">"go"</span>, <span class="str">"wait"</span>, <span class="str">"stop"</span>};</span><span class="code-plain">map&lt;<span class="kw">string</span>, <span class="kw">int</span>&gt; freq;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">for</span> (<span class="kw">const</span> <span class="kw">string</span>&amp; w : words) {</span><span class="code-line" data-i="4">    freq[w]++;</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-line" data-i="7"><span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; p : freq) {</span><span class="code-plain">    cout &lt;&lt; p.first &lt;&lt; <span class="str">": "</span> &lt;&lt; p.second &lt;&lt; endl;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="freq"><span class="hint">اضغط على أي سطر مضيء من الكود لقراءة شرحه هنا...</span></div>
+  <div class="output-box">go: 3
+stop: 2
+wait: 1</div>
+  <div class="predict"><div class="predict-head"><i class="fas fa-brain"></i> توقّع قبل أن تشغّل</div><div class="code-box"><div class="code-head"><span>predict_letters.cpp</span><button class="copy-btn" onclick="copyCode('code_p_count')">نسخ الكود</button></div><pre id="code_p_count">map&lt;<span class="kw">char</span>, <span class="kw">int</span>&gt; m;
+<span class="kw">string</span> s = <span class="str">"banana"</span>;
+<span class="kw">for</span> (<span class="kw">char</span> c : s) {
+    m[c]++;
+}
+cout &lt;&lt; m[<span class="str">'a'</span>] &lt;&lt; m[<span class="str">'n'</span>] &lt;&lt; m[<span class="str">'b'</span>] &lt;&lt; m.size() &lt;&lt; endl;</pre></div><p class="pd-q">ماذا سيطبع هذا الكود؟ (عدّ مرات ظهور كل حرف في banana ثم عدد المفاتيح)</p><div class="pd-opts"><button class="pd-opt" data-ok="1">3213</button><button class="pd-opt" data-ok="0">1233</button><button class="pd-opt" data-ok="0">3121</button><button class="pd-opt" data-ok="0">2313</button></div><div class="pd-result hidden"><div class="pd-msg"></div><div class="output-box">3213</div><p class="pd-why">في banana: الحرف a يظهر 3 مرات، وn مرتين، وb مرة واحدة. ثم عدد المفاتيح 3. فالناتج 3 ثم 2 ثم 1 ثم 3 متلاصقة: 3213.</p></div></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-shoe-prints"></i><h3>تتبّع: العدّاد يتشكّل</h3></div>
+  <p>اضغط «التالي» وراقب كيف تنشأ المفاتيح وتتغير القيم:</p>
+  <div class="tracer" data-trace="trace"><div class="tr-head"><i class="fas fa-bug-slash"></i> تتبّع التنفيذ خطوة بخطوة</div><div class="tr-grid"><div class="tr-code"><div class="tr-line" data-i="0"><span class="ln">1</span><span class="src">map&lt;<span class="kw">string</span>, <span class="kw">int</span>&gt; m;</span></div><div class="tr-line" data-i="1"><span class="ln">2</span><span class="src">m[<span class="str">"a"</span>]++;</span></div><div class="tr-line" data-i="2"><span class="ln">3</span><span class="src">m[<span class="str">"b"</span>]++;</span></div><div class="tr-line" data-i="3"><span class="ln">4</span><span class="src">m[<span class="str">"a"</span>]++;</span></div><div class="tr-line" data-i="4"><span class="ln">5</span><span class="src">cout &lt;&lt; m[<span class="str">"a"</span>] &lt;&lt; <span class="str">" "</span> &lt;&lt; m.size() &lt;&lt; endl;</span></div></div><div class="tr-side"><div class="tr-box"><div class="tr-title">المتغيرات</div><div class="tr-vars"></div></div><div class="tr-box"><div class="tr-title">الناتج حتى الآن</div><div class="tr-out"></div></div></div></div><div class="tr-note"></div><div class="tr-ctrl"><button class="tr-btn" data-a="reset" title="من البداية"><i class="fas fa-backward-fast"></i></button><button class="tr-btn" data-a="prev"><i class="fas fa-backward-step"></i> السابق</button><button class="tr-btn primary" data-a="next">التالي <i class="fas fa-forward-step"></i></button><button class="tr-btn" data-a="play"><i class="fas fa-play"></i> تشغيل تلقائي</button><span class="tr-count"></span></div></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-medal"></i><h3>حيلة المستويات: upper_bound على القاموس</h3></div>
+  <p>لأن مفاتيح القاموس مرتّبة، يمكننا أن نبحث «أقرب مفتاح». هذه الحيلة تحل مسائل الدرجات والمستويات: كل مفتاح هو بداية مستوى، ونريد معرفة مستوى نقطة معينة:</p>
+  <div class="code-box" data-expl="tiers"><div class="code-head"><span>tiers.cpp</span><button class="copy-btn" onclick="copyCode('code_tiers')">نسخ الكود</button></div><pre id="code_tiers"><span class="code-line" data-i="0">map&lt;<span class="kw">int</span>, <span class="kw">string</span>&gt; tiers = {{<span class="num">0</span>, <span class="str">"Bronze"</span>}, {<span class="num">100</span>, <span class="str">"Silver"</span>}, {<span class="num">500</span>, <span class="str">"Gold"</span>}};</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> points[] = {<span class="num">30</span>, <span class="num">100</span>, <span class="num">250</span>, <span class="num">999</span>};</span><span class="code-plain"><span class="kw">for</span> (<span class="kw">int</span> p : points) {</span><span class="code-line" data-i="4">    <span class="kw">auto</span> it = tiers.upper_bound(p);</span><span class="code-line" data-i="5">    --it;</span><span class="code-plain">    cout &lt;&lt; p &lt;&lt; <span class="str">" points -&gt; "</span> &lt;&lt; it-&gt;second &lt;&lt; endl;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="tiers"><span class="hint">اضغط على أي سطر مضيء من الكود لقراءة شرحه هنا...</span></div>
+  <div class="output-box">30 points -&gt; Bronze
+100 points -&gt; Silver
+250 points -&gt; Silver
+999 points -&gt; Gold</div>
+  <p>الفكرة: <code>upper_bound(p)</code> تعطي أول مستوى يبدأ بعد النقطة، فالمستوى الصحيح هو <strong>السابق مباشرة</strong>. هذا الأسلوب سيعود إلينا في درس البحث الثنائي.</p>
+  <h4>قاموس قيمه قوائم</h4>
+  <p>القيمة يمكن أن تكون أي نوع، حتى متجهًا. هذا يفيد في «تجميع» العناصر تحت مفتاح واحد:</p>
+  <div class="code-box"><div class="code-head"><span>grouping.cpp</span><button class="copy-btn" onclick="copyCode('code_group')">نسخ الكود</button></div><pre id="code_group">map&lt;<span class="kw">string</span>, <span class="kw">vector</span>&lt;<span class="kw">int</span>&gt;&gt; marks;
+marks[<span class="str">"Sara"</span>].push_back(<span class="num">90</span>);
+marks[<span class="str">"Omar"</span>].push_back(<span class="num">70</span>);
+marks[<span class="str">"Sara"</span>].push_back(<span class="num">80</span>);
+
+<span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; p : marks) {
+    <span class="kw">int</span> sum = <span class="num">0</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> x : p.second) {
+        sum += x;
+    }
+    cout &lt;&lt; p.first &lt;&lt; <span class="str">" avg "</span> &lt;&lt; sum / (<span class="kw">int</span>)p.second.size() &lt;&lt; endl;
+}</pre></div>
+  <div class="output-box">Omar avg 70
+Sara avg 85</div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-bolt"></i><h3>unordered_map وأخطاء المفاتيح</h3></div>
+  <p>مثل المجموعة، للقاموس نسخة غير مرتّبة هي <code>unordered_map</code>: متوسط سرعتها <code>O(1)</code> لكن لا ترتيب للمفاتيح. وهناك أيضًا <code>multimap</code> الذي يسمح بتكرار المفتاح.</p>
+  <div class="code-box"><div class="code-head"><span>unordered_map.cpp</span><button class="copy-btn" onclick="copyCode('code_unord')">نسخ الكود</button></div><pre id="code_unord">unordered_map&lt;<span class="kw">string</span>, <span class="kw">int</span>&gt; u;
+u[<span class="str">"a"</span>] = <span class="num">1</span>;
+u[<span class="str">"b"</span>] = <span class="num">2</span>;
+u[<span class="str">"a"</span>] += <span class="num">10</span>;
+cout &lt;&lt; u[<span class="str">"a"</span>] &lt;&lt; <span class="str">" "</span> &lt;&lt; u.count(<span class="str">"b"</span>) &lt;&lt; <span class="str">" "</span> &lt;&lt; u.count(<span class="str">"z"</span>) &lt;&lt; <span class="str">" "</span> &lt;&lt; u.size() &lt;&lt; endl;</pre></div>
+  <div class="output-box">11 1 0 2</div>
+  <p>ونوع المفتاح ثابت؛ إن أعطيته نوعًا مختلفًا رفض المترجم:</p>
+  <div class="code-box"><div class="code-head"><span>wrong_key.cpp</span><button class="copy-btn" onclick="copyCode('code_err_key')">نسخ الكود</button></div><pre id="code_err_key"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;map&gt;</span>
+<span class="pp">#include &lt;string&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    map&lt;<span class="kw">string</span>, <span class="kw">int</span>&gt; m;
+    m[<span class="num">1</span>] = <span class="num">5</span>;
+    cout &lt;&lt; m.size() &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="error-box"><div class="error-head"><i class="fas fa-bug"></i> ما يعرضه المترجم (<span class="en">g++</span>)</div><pre>main.cpp: In function ‘int main()’:
+main.cpp:8:6: error: no match for ‘operator[]’ (operand types are ‘std::map&lt;std::__cxx11::basic_string&lt;char&gt;, int&gt;’ and ‘int’)
+    8 |     m[1] = 5;
+      |      ^</pre></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p>اختر <code>map</code> حين تريد الترتيب أو أسئلة «الأقرب»، و<code>unordered_map</code> حين تحتاج فقط البحث السريع. وتذكّر أن مفتاح <code>unordered_map</code> يجب أن يكون نوعًا يعرف المترجم كيف «يبعثره» (مثل الأعداد والنصوص).</p></div>
+</div>
+
+
+<div class="card">
+  <div class="project-banner"><i class="fas fa-box-ballot"></i><div><strong>مشروع الدرس: انتخابات مجلس الطلاب</strong><p>برنامج يفرز الأصوات ويعلن الفائز.</p></div></div>
+  <div class="brief"><h5><i class="fas fa-lightbulb"></i> الفكرة</h5>
+    <p style="margin:0">أُجريت انتخابات مجلس الطلاب وجُمعت الأصوات في ورقة واحدة، كل سطر فيها اسم مرشح. مطلوب منك عدّ أصوات كل مرشح ثم إعلان الفائز.</p></div>
+  <div class="brief"><h5><i class="fas fa-list-check"></i> المطلوب منك</h5>
+    <ol>
+      <li>اقرأ العدد <code>n</code> ثم <code>n</code> اسمًا، واستخدم <code>map&lt;string, int&gt;</code> لعدّ أصوات كل اسم.</li>
+      <li>اطبع كل مرشح بالشكل <code>Sara: 3</code> مرتّبين أبجديًا.</li>
+      <li>اطبع <code>Winner: </code> متبوعة باسم صاحب أكبر عدد أصوات.</li>
+      <li>عند التعادل يفوز الاسم الأسبق أبجديًا (يحدث هذا تلقائيًا إن حدّثت الفائز فقط عند أصوات <strong>أكبر تمامًا</strong>).</li>
+    </ol></div>
+  <div class="brief"><h5><i class="fas fa-bullseye"></i> مثالان على التشغيل</h5>
+    <p><strong>التشغيل الأول:</strong></p>
+    <div class="input-box">7
+Sara Omar Sara Lina Omar Sara Lina</div><div class="output-box">Lina: 2
+Omar: 2
+Sara: 3
+Winner: Sara</div>
+    <p><strong>التشغيل الثاني (تعادل):</strong></p>
+    <div class="input-box">4
+Ali Zaid Ali Zaid</div><div class="output-box">Ali: 2
+Zaid: 2
+Winner: Ali</div></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p><strong>تحقق ذهنيًا:</strong> في الأول: Sara 3 وOmar 2 وLina 2، فالفائزة Sara. وفي الثاني Ali وZaid لكل منهما 2، فيفوز Ali لأنه الأول في الترتيب.</p></div>
+  <details class="reveal"><summary><i class="fas fa-eye"></i> بعد أن تجرّب بنفسك: اعرض الحل</summary>
+    <div class="code-box"><div class="code-head"><span>election.cpp</span><button class="copy-btn" onclick="copyCode('code_project')">نسخ الكود</button></div><pre id="code_project"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;map&gt;</span>
+<span class="pp">#include &lt;string&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> n;
+    cin &gt;&gt; n;
+    map&lt;<span class="kw">string</span>, <span class="kw">int</span>&gt; votes;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {
+        <span class="kw">string</span> name;
+        cin &gt;&gt; name;
+        votes[name]++;
+    }
+
+    <span class="kw">string</span> winner;
+    <span class="kw">int</span> best = <span class="num">0</span>;
+    <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; p : votes) {
+        cout &lt;&lt; p.first &lt;&lt; <span class="str">": "</span> &lt;&lt; p.second &lt;&lt; endl;
+        <span class="kw">if</span> (p.second &gt; best) {
+            best = p.second;
+            winner = p.first;
+        }
+    }
+    cout &lt;&lt; <span class="str">"Winner: "</span> &lt;&lt; winner &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  </details>
+</div>
+
+
+<div class="card challenge-card"><div class="card-header"><i class="fas fa-dumbbell"></i><h3>واجبات بعد الدرس</h3></div><p>تحديان بسيطان تحلّهما بنفسك بعد انتهاء الدرس. اكتب الحل في ملف <code>.cpp</code>، ثم ترجمه وشغّله وقارن ناتجك بالناتج المتوقع. جرّب أولًا، ثم افتح التلميح إن علقت، ولا تفتح نموذج الحل إلا بعد المحاولة الجادة.</p><div class="challenge"><div class="ch-head"><span class="ch-num">1</span><h4>تكرار الحروف</h4><span class="badge easy">سهل</span></div><p>اقرأ كلمة واحدة. اطبع كل حرف ظهر فيها مع عدد مرات ظهوره، مرتّبة أبجديًا، في سطر لكل حرف بالشكل <code>a 3</code>.</p><h5>المطلوب</h5><ul><li>استخدم <code>map&lt;char, int&gt;</code>.</li><li>مرّ على حروف الكلمة بحلقة <code>for (char c : word)</code>.</li><li>اطبع الحرف ثم فراغ ثم العدد.</li></ul><h5>مثال على الإدخال والناتج المتوقع</h5><div class="input-box">banana</div><div class="output-box">a 3
+b 1
+n 2</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> تلميحات</summary><ul><li>السطر <code>cnt[c]++</code> يكفي للعدّ.</li><li>المرور على القاموس يعطيك الحروف مرتّبة دون أي عمل إضافي.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> نموذج الحل (بعد المحاولة)</summary><div class="code-box"><div class="code-head"><span>letter_count.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_letters')">نسخ الكود</button></div><pre id="code_ch_letters"><span class="cmt">// Challenge 1: letter frequencies</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;map&gt;</span>
+<span class="pp">#include &lt;string&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">string</span> word;
+    cin &gt;&gt; word;
+    map&lt;<span class="kw">char</span>, <span class="kw">int</span>&gt; cnt;
+    <span class="kw">for</span> (<span class="kw">char</span> c : word) {
+        cnt[c]++;
+    }
+    <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; p : cnt) {
+        cout &lt;&lt; p.first &lt;&lt; <span class="str">" "</span> &lt;&lt; p.second &lt;&lt; endl;
+    }
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div><div class="challenge"><div class="ch-head"><span class="ch-num">2</span><h4>رقمان مجموعهما معروف</h4><span class="badge medium">متوسط</span></div><p>اقرأ <code>n</code> و<code>target</code> ثم <code>n</code> عددًا. ابحث عن موقعين <code>i &lt; j</code> (يبدأ العدّ من 1) مجموع العددين فيهما يساوي <code>target</code>، واطبعهما. وإن لم يوجد اطبع <code>IMPOSSIBLE</code>.</p><h5>المطلوب</h5><ul><li>مرّ على الأعداد بالترتيب مع رقم الموقع <code>j</code>.</li><li>قبل تخزين العدد <code>x</code> اسأل: هل رأينا <code>target - x</code> سابقًا؟ استخدم <code>count</code>.</li><li>إن وُجد اطبع موقعه المخزّن ثم <code>j</code> وانتهِ.</li><li>وإلا خزّن <code>seen[x] = j</code>.</li></ul><h5>مثال على الإدخال والناتج المتوقع</h5><div class="input-box">5 9
+2 7 11 15 1</div><div class="output-box">1 2</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> تلميحات</summary><ul><li>القاموس هنا يربط «العدد» بـ «موقعه الذي رأيناه فيه».</li><li>اسأل بـ <code>count</code> قبل أن تقرأ بـ <code>[ ]</code> حتى لا تُنشئ مفاتيح وهمية.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> نموذج الحل (بعد المحاولة)</summary><div class="code-box"><div class="code-head"><span>two_sum.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_two')">نسخ الكود</button></div><pre id="code_ch_two"><span class="cmt">// Challenge 2: two numbers with a given sum</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;map&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> n, target;
+    cin &gt;&gt; n &gt;&gt; target;
+    map&lt;<span class="kw">int</span>, <span class="kw">int</span>&gt; seen;
+    <span class="kw">for</span> (<span class="kw">int</span> j = <span class="num">1</span>; j &lt;= n; j++) {
+        <span class="kw">int</span> x;
+        cin &gt;&gt; x;
+        <span class="kw">if</span> (seen.count(target - x)) {
+            cout &lt;&lt; seen[target - x] &lt;&lt; <span class="str">" "</span> &lt;&lt; j &lt;&lt; endl;
+            <span class="kw">return</span> <span class="num">0</span>;
+        }
+        seen[x] = j;
+    }
+    cout &lt;&lt; <span class="str">"IMPOSSIBLE"</span> &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div></div>
+
+<div class="card summary-card"><div class="card-header"><i class="fas fa-clipboard-list"></i><h3>ملخص سريع</h3></div><ul class="sum-list"><li><i class="fas fa-circle-check"></i><span>القاموس <code class="inline">map&lt;K, V&gt;</code> يربط **مفتاحًا** بـ **قيمة**: المفاتيح بلا تكرار ومرتّبة، ويحتاج <code class="inline">#include &lt;map&gt;</code>.</span></li><li><i class="fas fa-circle-check"></i><span><code class="inline">m[k] = v</code> تنشئ أو تستبدل. و<code class="inline">m[k]</code> وحدها **تنشئ** المفتاح إن لم يوجد!</span></li><li><i class="fas fa-circle-check"></i><span>للسؤال دون تغيير استخدم <code class="inline">count</code> أو <code class="inline">find</code>، وللقراءة الآمنة استخدم <code class="inline">at</code>.</span></li><li><i class="fas fa-circle-check"></i><span>كل عنصر زوج: <code class="inline">first</code> هو المفتاح و<code class="inline">second</code> هو القيمة، ونمر عليهم بـ <code class="inline">for (const auto&amp; p : m)</code>.</span></li><li><i class="fas fa-circle-check"></i><span>عدّ التكرارات: <code class="inline">freq[x]++</code> سطر واحد يكفي.</span></li><li><i class="fas fa-circle-check"></i><span><code class="inline">upper_bound</code> على المفاتيح المرتّبة تحل مسائل المستويات: النتيجة ثم خطوة للخلف.</span></li><li><i class="fas fa-circle-check"></i><span><code class="inline">unordered_map</code> أسرع غالبًا لكن بلا ترتيب، و<code class="inline">multimap</code> يسمح بتكرار المفتاح.</span></li></ul></div>
+  <div class="card steps-card" id="tfCard">
+    <div class="card-header"><i class="fas fa-clipboard-check"></i><h3>تحقق من فهمك</h3></div>
+    <p>اقرأ كل عبارة ثم اختر <strong>صحيح</strong> أو <strong>خطأ</strong>. سيظهر التفسير مباشرة بعد إجابتك.</p>
+    <div id="tfList"></div>
+    <div class="score-box" id="tfScore" style="display:none"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><i class="fas fa-book"></i><h3>قاموس المصطلحات</h3></div>
+    <p>المصطلحات الإنجليزية الأهم في هذا الدرس ومقابلها بالعربية:</p>
+    <div class="glossary-grid"><div class="term-card"><span class="term-en">Map</span><span class="term-ar">قاموس</span><p class="term-desc">حاوية تربط كل مفتاح بقيمة، والمفاتيح مرتّبة وفريدة.</p></div><div class="term-card"><span class="term-en">Key</span><span class="term-ar">مفتاح</span><p class="term-desc">العنصر الذي نبحث به ولا يتكرر في القاموس.</p></div><div class="term-card"><span class="term-en">Value</span><span class="term-ar">قيمة</span><p class="term-desc">المعلومة المرتبطة بالمفتاح.</p></div><div class="term-card"><span class="term-en">Pair</span><span class="term-ar">زوج</span><p class="term-desc">عنصران معًا: <code class="inline">first</code> و<code class="inline">second</code>.</p></div><div class="term-card"><span class="term-en">Frequency</span><span class="term-ar">تكرار</span><p class="term-desc">عدد مرات ظهور عنصر ما.</p></div><div class="term-card"><span class="term-en">unordered_map</span><span class="term-ar">قاموس غير مرتّب</span><p class="term-desc">قاموس أسرع غالبًا لكن بلا ترتيب للمفاتيح.</p></div><div class="term-card"><span class="term-en">multimap</span><span class="term-ar">قاموس متعدد</span><p class="term-desc">قاموس يسمح بتكرار المفتاح.</p></div><div class="term-card"><span class="term-en">at</span><span class="term-ar">قراءة آمنة</span><p class="term-desc">تقرأ قيمة المفتاح وتعلن خطأً إن لم يوجد.</p></div><div class="term-card"><span class="term-en">Default value</span><span class="term-ar">قيمة افتراضية</span><p class="term-desc">القيمة التي تُنشأ تلقائيًا (0 للأعداد).</p></div><div class="term-card"><span class="term-en">find</span><span class="term-ar">بحث</span><p class="term-desc">تعيد مؤشرًا إلى الزوج أو <code class="inline">end()</code>.</p></div><div class="term-card"><span class="term-en">Iterator</span><span class="term-ar">مؤشر</span><p class="term-desc">كائن يشير إلى عنصر ويقرأ منه <code class="inline">first</code> و<code class="inline">second</code> بالسهم <code class="inline">-&gt;</code>.</p></div><div class="term-card"><span class="term-en">Grouping</span><span class="term-ar">تجميع</span><p class="term-desc">وضع عناصر كثيرة تحت مفتاح واحد.</p></div></div>
+  </div>
+  <div class="card steps-card" id="quizCard">
+    <div class="card-header"><i class="fas fa-circle-question"></i><h3>الاختبار النهائي</h3></div>
+    <p>عشرة أسئلة بين السهلة والمتوسطة. اختر إجابة واحدة لكل سؤال.</p>
+    <div class="progress"><div class="progress-bar" id="quizBar"></div></div>
+    <div id="quizList"></div>
+    <div class="score-box" id="quizScore" style="display:none"></div>
+  </div>
+  <div class="card refs-card">
+    <div class="card-header"><i class="fas fa-link"></i><h3>للاستزادة</h3></div>
+    <p>الحقائق التقنية في هذا الدرس موثّقة في المراجع التالية، أما الشرح والأمثلة والتمارين فمكتوبة خصيصًا لمنصة TweetKod:</p>
+    <ul class="ref-list"><li><a href="https://en.cppreference.com/w/cpp/container/map" target="_blank" rel="noopener"><span class="en">std::map &mdash; cppreference</span></a></li><li><a href="https://en.cppreference.com/w/cpp/container/unordered_map" target="_blank" rel="noopener"><span class="en">std::unordered_map &mdash; cppreference</span></a></li><li><a href="https://en.cppreference.com/w/cpp/utility/pair" target="_blank" rel="noopener"><span class="en">std::pair &mdash; cppreference</span></a></li><li><a href="https://cses.fi/book/book.pdf" target="_blank" rel="noopener"><span class="en">Competitive Programmer's Handbook &mdash; Antti Laaksonen (book, CC BY-NC-SA 4.0)</span></a></li><li><a href="https://usaco.guide/silver/" target="_blank" rel="noopener"><span class="en">USACO Guide: Sorting &amp; Sets/Maps (CC BY-NC-SA 4.0)</span></a></li><li><a href="https://cses.fi/problemset/" target="_blank" rel="noopener"><span class="en">CSES Problem Set &mdash; practice problems</span></a></li></ul>
+  </div>
+</div>
+<button class="to-top" id="toTop" title="إلى الأعلى"><i class="fas fa-arrow-up"></i></button>
+<footer class="page-footer">منصة TweetKod</footer>
+<script>
+const TF = [{"s": "في <code class=\"inline\">map</code> يمكن أن يظهر المفتاح نفسه مرتين بقيمتين مختلفتين.", "a": false, "why": "المفتاح فريد؛ الإسناد إليه مرة ثانية يستبدل القيمة. أما <code class=\"inline\">multimap</code> فيسمح بالتكرار."}, {"s": "الاستدعاء <code class=\"inline\">m[\"x\"]</code> على مفتاح غير موجود يضيف المفتاح <code class=\"inline\">x</code> إلى القاموس.", "a": true, "why": "الأقواس تنشئ المفتاح بقيمة افتراضية، وهذا فخ مشهور."}, {"s": "الدالة <code class=\"inline\">count(k)</code> في <code class=\"inline\">map</code> تعيد 0 أو 1 ولا تغيّر القاموس.", "a": true, "why": "ولذلك هي الوسيلة الآمنة للسؤال عن وجود مفتاح."}, {"s": "عند المرور على <code class=\"inline\">map</code> بحلقة <code class=\"inline\">for</code> تظهر الأزواج مرتّبة بحسب القيمة.", "a": false, "why": "الترتيب بحسب المفتاح لا القيمة."}, {"s": "الاستدعاء <code class=\"inline\">m.at(k)</code> لمفتاح غير موجود يعيد 0 بصمت.", "a": false, "why": "<code class=\"inline\">at</code> تعلن الخطأ <code class=\"inline\">out_of_range</code>. الذي ينشئ المفتاح بصمت هو <code class=\"inline\">[ ]</code>."}, {"s": "<code class=\"inline\">m.insert({\"a\", 2})</code> تستبدل قيمة المفتاح <code class=\"inline\">\"a\"</code> إذا كان موجودًا.", "a": false, "why": "<code class=\"inline\">insert</code> تتجاهل الإضافة إن كان المفتاح موجودًا. الاستبدال يكون بالإسناد <code class=\"inline\">m[\"a\"] = 2</code>."}, {"s": "<code class=\"inline\">freq[w]++</code> طريقة قصيرة وصحيحة لعدّ تكرار الكلمات.", "a": true, "why": "المفتاح الجديد يبدأ بـ 0 ثم يزيد إلى 1، والموجود يزيد عدّاده."}];
+const QUIZ = [{"q": "ماذا يخزّن كل عنصر في <code class=\"inline\">map&lt;string, int&gt;</code> ؟", "o": ["مفتاحًا نصيًا وقيمة عددية مرتبطة به", "مصفوفة من الأعداد", "عددين صحيحين فقط", "نصًا واحدًا"], "a": 0, "why": "القاموس يربط مفتاحًا بقيمة."}, {"q": "ما الذي يطبعه: ‏<code class=\"inline\">map&lt;string,int&gt; m; m[\"x\"]; cout &lt;&lt; m.size();</code> ؟", "o": ["0", "2", "خطأ", "1"], "a": 3, "why": "الأقواس أنشأت المفتاح \"x\" بقيمة 0 فصار الحجم 1."}, {"q": "كيف نسأل «هل المفتاح موجود؟» دون تغيير القاموس؟", "o": ["<code class=\"inline\">m.count(k)</code>", "<code class=\"inline\">m.insert(k)</code>", "<code class=\"inline\">m.size(k)</code>", "<code class=\"inline\">m[k]</code>"], "a": 0, "why": "<code class=\"inline\">count</code> تعيد 0 أو 1 ولا تنشئ شيئًا."}, {"q": "ما الذي يطبعه: ‏<code class=\"inline\">m[\"a\"]=1; m.insert({\"a\",2}); cout &lt;&lt; m[\"a\"];</code> ؟", "o": ["3", "2", "0", "1"], "a": 3, "why": "<code class=\"inline\">insert</code> لا تستبدل القيمة الموجودة."}, {"q": "أي سطر يعدّ ظهور الكلمة <code class=\"inline\">w</code> داخل قاموس <code class=\"inline\">freq</code> ؟", "o": ["<code class=\"inline\">freq.add(w);</code>", "<code class=\"inline\">freq[w]++;</code>", "<code class=\"inline\">freq.count(w)++;</code>", "<code class=\"inline\">freq = w;</code>"], "a": 1, "why": "القوسان ينشئان العدّاد عند أول ظهور ثم يزيد."}, {"q": "بأي ترتيب يمر <code class=\"inline\">for (auto p : m)</code> على القاموس <code class=\"inline\">map</code> ؟", "o": ["عشوائي", "ترتيب الإضافة", "مرتّبة بحسب المفتاح", "مرتّبة بحسب القيمة"], "a": 2, "why": "<code class=\"inline\">map</code> يحفظ المفاتيح مرتّبة تصاعديًا."}, {"q": "ماذا يحدث عند <code class=\"inline\">m.at(k)</code> وليس <code class=\"inline\">k</code> موجودًا؟", "o": ["يعلن الخطأ out_of_range", "يعيد 0", "يحذف القاموس", "ينشئ المفتاح"], "a": 0, "why": "<code class=\"inline\">at</code> تفحص الوجود وتعلن خطأً."}, {"q": "ما سرعة البحث في <code class=\"inline\">map</code> ذي n عنصرًا؟", "o": ["<code class=\"inline\">O(1)</code> دائمًا", "<code class=\"inline\">O(log n)</code>", "<code class=\"inline\">O(n^2)</code>", "<code class=\"inline\">O(n)</code>"], "a": 1, "why": "القاموس مبني على شجرة بحث متوازنة."}, {"q": "إذا كان <code class=\"inline\">it</code> مؤشرًا في <code class=\"inline\">map&lt;int,string&gt;</code> فكيف نقرأ القيمة؟", "o": ["<code class=\"inline\">it[1]</code>", "<code class=\"inline\">*it.second</code>", "<code class=\"inline\">it.first</code>", "<code class=\"inline\">it-&gt;second</code>"], "a": 3, "why": "السهم يصل إلى عضو الزوج <code class=\"inline\">second</code>."}, {"q": "ما الذي يطبعه ‏<code class=\"inline\">map&lt;char,int&gt; m; for (char c : string(\"aab\")) m[c]++; cout &lt;&lt; m['a'];</code> ؟", "o": ["2", "1", "0", "3"], "a": 0, "why": "الحرف a ظهر مرتين."}];
+const EXPL = {"basic": {"1": "المكتبة <code class=\"inline\">&lt;map&gt;</code> تحتوي القاموس.", "6": "قاموس مفتاحه <code class=\"inline\">string</code> وقيمته <code class=\"inline\">int</code>: لكل اسم درجة.", "7": "الكتابة <code class=\"inline\">scores[\"Sara\"] = 90</code> تنشئ المفتاح إن لم يكن موجودًا وتضع قيمته.", "10": "المفتاح <code class=\"inline\">\"Omar\"</code> موجود، فهذا السطر <strong>يستبدل</strong> قيمته القديمة 75 بـ 80.", "12": "ثلاثة مفاتيح فقط، لأن Omar لم يُنشأ مرتين.", "13": "كل عنصر في القاموس زوج: <code class=\"inline\">first</code> هو المفتاح و<code class=\"inline\">second</code> هو القيمة."}, "trap": {"2": "مفتاح موجود: نحصل على قيمته 5.", "3": "<code class=\"inline\">kiwi</code> غير موجود! القوسان <code class=\"inline\">[ ]</code> <strong>ينشئان</strong> المفتاح بقيمة افتراضية 0 ثم يعيدانها.", "4": "صار الحجم 3 بدل 2: أفسدنا القاموس بمجرد سؤال!", "6": "<code class=\"inline\">count</code> تسأل دون أن تغيّر شيئًا: النتيجة 0.", "7": "لا تزال 3، فالسؤال بـ <code class=\"inline\">count</code> آمن."}, "freq": {"4": "السطر الذهبي: إن لم تظهر الكلمة من قبل أنشأها <code class=\"inline\">[ ]</code> بقيمة 0، ثم <code class=\"inline\">++</code> تجعلها 1. وإن ظهرت زاد عدّادها.", "7": "المرور على القاموس يعطي المفاتيح <strong>مرتّبة</strong> أبجديًا: go ثم stop ثم wait."}, "tiers": {"0": "المفاتيح هي بدايات المستويات: من 0 برونزي، ومن 100 فضي، ومن 500 ذهبي.", "4": "<code class=\"inline\">upper_bound(p)</code> تعطي أول مستوى يبدأ <strong>بعد</strong> p، فالمستوى المطلوب هو الذي قبله.", "5": "نتراجع خطوة واحدة. هذا آمن لأن أصغر مفتاح 0 ولا توجد نقاط سالبة."}};
+const TRACES = {"trace": [{"line": -1, "vars": {}, "out": "", "note": "نقطة البداية: لم يُنفَّذ أي سطر بعد."}, {"line": 0, "vars": {"m": "{ }", "size": "0"}, "out": "", "note": "قاموس فارغ اسمه m."}, {"line": 1, "vars": {"m": "{a:1}", "size": "1"}, "out": "", "note": "<code>m[\"a\"]++</code>: المفتاح a غير موجود، فأنشأه القوسان بقيمة 0 ثم زادت إلى 1."}, {"line": 2, "vars": {"m": "{a:1, b:1}", "size": "2"}, "out": "", "note": "مفتاح جديد b بقيمة 1، ويقف بعد a في الترتيب."}, {"line": 3, "vars": {"m": "{a:2, b:1}", "size": "2"}, "out": "", "note": "المفتاح a موجود، فزادت قيمته إلى 2."}, {"line": 4, "vars": {"m": "{a:2, b:1}", "size": "2"}, "out": "2 2\n", "note": "طبعنا m[\"a\"] وهي 2، ثم الحجم 2. انتهى البرنامج."}]};
+function copyCode(id) {
+  const el = document.getElementById(id);
+  const text = el.innerText.replace(/ /g, ' ');
+  const done = () => { const b = el.parentElement.querySelector('.copy-btn'); const t = b.textContent; b.textContent = 'تم النسخ ✓'; setTimeout(() => b.textContent = t, 1400); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(done); else done();
+}
+
+/* click-to-explain code lines */
+document.querySelectorAll('.code-box[data-expl]').forEach(box => {
+  const id = box.getAttribute('data-expl');
+  const out = document.querySelector('.explain-box[data-for="' + id + '"]');
+  box.querySelectorAll('.code-line').forEach(line => {
+    line.addEventListener('click', () => {
+      box.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+      line.classList.add('active');
+      out.innerHTML = EXPL[id][line.getAttribute('data-i')];
+    });
+  });
+});
+
+/* true / false check */
+(function () {
+  const list = document.getElementById('tfList');
+  let answered = 0, right = 0;
+  TF.forEach((it, i) => {
+    const d = document.createElement('div');
+    d.className = 'tf-item';
+    d.innerHTML = '<div class="stmt">' + (i + 1) + '. ' + it.s + '</div>' +
+      '<div class="tf-btns"><button class="tf-btn" data-v="true"><i class="fas fa-check"></i> صحيح</button>' +
+      '<button class="tf-btn" data-v="false"><i class="fas fa-xmark"></i> خطأ</button></div><div class="feedback"></div>';
+    d.querySelectorAll('.tf-btn').forEach(b => b.addEventListener('click', () => {
+      const pick = b.getAttribute('data-v') === 'true';
+      const ok = pick === it.a;
+      d.querySelectorAll('.tf-btn').forEach(x => { x.disabled = true; });
+      b.classList.add(ok ? 'correct' : 'wrong');
+      const fb = d.querySelector('.feedback');
+      fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+      fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> إجابة صحيحة. ' : '<i class="fas fa-circle-xmark"></i> الإجابة الصحيحة: ' + (it.a ? 'صحيح' : 'خطأ') + '. ') + it.why;
+      answered++; if (ok) right++;
+      if (answered === TF.length) {
+        const s = document.getElementById('tfScore');
+        s.style.display = 'block';
+        s.innerHTML = '<div class="big">' + right + ' / ' + TF.length + '</div><div>' + (right === TF.length ? 'ممتاز! فهمت الدرس جيدًا.' : right >= TF.length - 2 ? 'نتيجة جيدة، راجع العبارات التي أخطأت فيها.' : 'أعد قراءة الدرس ثم جرّب مرة أخرى.') + '</div>';
+      }
+    }));
+    list.appendChild(d);
+  });
+})();
+
+/* final quiz */
+(function () {
+  const list = document.getElementById('quizList');
+  const bar = document.getElementById('quizBar');
+  let answered = 0, right = 0;
+  QUIZ.forEach((q, qi) => {
+    const d = document.createElement('div');
+    d.className = 'quiz-q';
+    d.innerHTML = '<h4><span class="qnum">' + (qi + 1) + '</span>' + q.q + '</h4><div class="quiz-options"></div><div class="feedback"></div>';
+    const box = d.querySelector('.quiz-options');
+    q.o.forEach((txt, oi) => {
+      const b = document.createElement('button');
+      b.className = 'quiz-opt'; b.innerHTML = txt;
+      b.addEventListener('click', () => {
+        box.querySelectorAll('.quiz-opt').forEach(x => x.disabled = true);
+        const ok = oi === q.a;
+        b.classList.add(ok ? 'correct' : 'wrong');
+        if (!ok) box.children[q.a].classList.add('correct');
+        const fb = d.querySelector('.feedback');
+        fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+        fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> صحيح! ' : '<i class="fas fa-circle-xmark"></i> ليست الإجابة الصحيحة. ') + q.why;
+        answered++; if (ok) right++;
+        bar.style.width = (answered / QUIZ.length * 100) + '%';
+        if (answered === QUIZ.length) showScore();
+      });
+      box.appendChild(b);
+    });
+    list.appendChild(d);
+  });
+  function showScore() {
+    const s = document.getElementById('quizScore');
+    const pct = right / QUIZ.length;
+    s.style.display = 'block';
+    s.innerHTML = '<div class="big">' + right + ' / ' + QUIZ.length + '</div><div>' +
+      (pct === 1 ? 'نتيجة كاملة! أنت جاهز للدرس التالي.' : pct >= 0.7 ? 'أداء جيد جدًا، راجع الأسئلة التي أخطأت فيها.' : 'راجع الدرس مرة أخرى ثم أعد المحاولة.') +
+      '</div><button class="retry-btn" onclick="location.hash=\'quizCard\';location.reload();">إعادة الاختبار</button>';
+  }
+})();
+
+
+/* ---------------- header tools ---------------- */
+(function () {
+  const root = document.documentElement;
+  const safeGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const safeSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+  /* theme */
+  const themeBtn = document.getElementById('themeBtn');
+  function applyTheme(t) { root.setAttribute('data-theme', t); if (themeBtn) themeBtn.innerHTML = t === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; }
+  applyTheme(safeGet('tk_theme') || 'light');
+  if (themeBtn) themeBtn.addEventListener('click', () => { const t = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; applyTheme(t); safeSet('tk_theme', t); });
+
+  /* code size */
+  let size = parseFloat(safeGet('tk_codesize') || '0.95');
+  function applySize() { root.style.setProperty('--code-size', size + 'rem'); }
+  applySize();
+  const dec = document.getElementById('fontDec'), inc = document.getElementById('fontInc');
+  if (dec) dec.addEventListener('click', () => { size = Math.max(0.75, +(size - 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+  if (inc) inc.addEventListener('click', () => { size = Math.min(1.3, +(size + 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+
+  /* table of contents */
+  const panel = document.getElementById('tocPanel'), tocBtn = document.getElementById('tocBtn');
+  if (panel && tocBtn) {
+    const cards = document.querySelectorAll('.container > .card');
+    let n = 0;
+    cards.forEach((c, i) => {
+      const h = c.querySelector('.card-header h3, .project-banner strong');
+      if (!h) return;
+      n++;
+      c.id = c.id || 'sec-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + c.id;
+      a.innerHTML = '<span>' + n + '</span><bdi>' + h.innerHTML + '</bdi>';
+      a.addEventListener('click', () => panel.classList.remove('open'));
+      panel.appendChild(a);
+    });
+    tocBtn.addEventListener('click', (e) => { e.stopPropagation(); panel.classList.toggle('open'); });
+    document.addEventListener('click', (e) => { if (!panel.contains(e.target)) panel.classList.remove('open'); });
+  }
+
+  /* reading progress + back to top */
+  const bar = document.getElementById('readBar'), top = document.getElementById('toTop');
+  function onScroll() {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+    if (bar) bar.style.width = pct + '%';
+    if (top) top.classList.toggle('show', h.scrollTop > 600);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  if (top) top.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+})();
+
+/* ---------------- step tracer ---------------- */
+document.querySelectorAll('.tracer').forEach(el => {
+  const steps = TRACES[el.getAttribute('data-trace')];
+  const lines = el.querySelectorAll('.tr-line');
+  const varsEl = el.querySelector('.tr-vars'), outEl = el.querySelector('.tr-out'), noteEl = el.querySelector('.tr-note'), cnt = el.querySelector('.tr-count');
+  const btn = (a) => el.querySelector('[data-a="' + a + '"]');
+  let i = 0, timer = null;
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  function draw() {
+    const s = steps[i], prev = i > 0 ? steps[i - 1].vars : {};
+    lines.forEach((l, k) => l.classList.toggle('active', k === s.line));
+    const names = Object.keys(s.vars);
+    varsEl.innerHTML = names.length ? names.map(n => '<div class="tr-var' + (prev[n] !== s.vars[n] ? ' changed' : '') + '"><span>' + esc(n) + '</span><b>' + esc(s.vars[n]) + '</b></div>').join('') : '<span style="color:#94a3b8">لا توجد متغيرات بعد</span>';
+    outEl.textContent = s.out || ' ';
+    noteEl.textContent = s.note || ' ';
+    cnt.textContent = 'الخطوة ' + i + ' من ' + (steps.length - 1);
+    btn('prev').disabled = i === 0; btn('next').disabled = i === steps.length - 1;
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; btn('play').innerHTML = '<i class="fas fa-play"></i> تشغيل تلقائي'; } }
+  btn('next').onclick = () => { stop(); if (i < steps.length - 1) i++; draw(); };
+  btn('prev').onclick = () => { stop(); if (i > 0) i--; draw(); };
+  btn('reset').onclick = () => { stop(); i = 0; draw(); };
+  btn('play').onclick = () => {
+    if (timer) { stop(); return; }
+    if (i >= steps.length - 1) i = 0;
+    btn('play').innerHTML = '<i class="fas fa-pause"></i> إيقاف';
+    timer = setInterval(() => { if (i < steps.length - 1) { i++; draw(); } else stop(); }, 1100);
+    draw();
+  };
+  draw();
+});
+
+/* ---------------- predict the output ---------------- */
+document.querySelectorAll('.predict').forEach(p => {
+  const opts = p.querySelectorAll('.pd-opt');
+  opts.forEach(o => o.addEventListener('click', () => {
+    const ok = o.getAttribute('data-ok') === '1';
+    opts.forEach(x => { x.disabled = true; if (x.getAttribute('data-ok') === '1') x.classList.add('correct'); });
+    if (!ok) o.classList.add('wrong');
+    const res = p.querySelector('.pd-result');
+    res.classList.remove('hidden');
+    const msg = p.querySelector('.pd-msg');
+    msg.innerHTML = ok ? '<span style="color:#16a34a"><i class="fas fa-check-circle"></i> توقّعك صحيح! هذا هو الناتج الحقيقي:</span>' : '<span style="color:#dc2626"><i class="fas fa-circle-xmark"></i> ليس تمامًا. هذا هو الناتج الحقيقي، وتابع التفسير:</span>';
+  }));
+});
+
+
+let MP = {kiwi: undefined};
+MP = {apple: 5, pear: 2};
+let MPHL = null;
+function mpDraw() {
+  const keys = Object.keys(MP).sort();
+  let h = '<tr><th>key</th><th>value</th></tr>';
+  if (keys.length === 0) h += '<tr><td colspan="2" style="opacity:.6">(القاموس فارغ)</td></tr>';
+  keys.forEach(k => { h += '<tr' + (k === MPHL ? ' style="background:rgba(247,148,30,.25)"' : '') + '><td>"' + k + '"</td><td>' + MP[k] + '</td></tr>'; });
+  document.getElementById('mpTable').innerHTML = h;
+}
+function mpLog(code, res, note, cls) {
+  document.getElementById('mpOut').innerHTML = '<span class="line">// ' + code + '</span>\n' + res;
+  const n = document.getElementById('mpNote'); n.className = 'lab-say' + (cls ? ' ' + cls : '');
+  n.textContent = note + '  (size = ' + Object.keys(MP).length + ')';
+}
+function mpK() { return document.getElementById('mpKey').value.trim(); }
+function mpV() { const v = parseInt(document.getElementById('mpVal').value, 10); return isNaN(v) ? 0 : v; }
+function mpSet() { const k = mpK(); if (!k) { mpLog('m[key]=value', '؟', 'اكتب مفتاحًا أولًا.'); return; }
+  const had = k in MP; MP[k] = mpV(); MPHL = k; mpDraw();
+  mpLog('m["' + k + '"] = ' + MP[k] + ';', 'تم', had ? 'المفتاح موجود، فاستُبدلت قيمته.' : 'مفتاح جديد أُنشئ بهذه القيمة.', 'ok'); }
+function mpInc() { const k = mpK(); if (!k) { mpLog('m[key]++', '؟', 'اكتب مفتاحًا أولًا.'); return; }
+  const had = k in MP; MP[k] = (MP[k] || 0) + 1; MPHL = k; mpDraw();
+  mpLog('m["' + k + '"]++;', MP[k], had ? 'المفتاح موجود فزاد عدّاده.' : 'المفتاح جديد: أُنشئ بقيمة 0 ثم صار 1.', 'ok'); }
+function mpRead() { const k = mpK(); if (!k) { mpLog('m[key]', '؟', 'اكتب مفتاحًا أولًا.'); return; }
+  const had = k in MP; if (!had) MP[k] = 0; MPHL = k; mpDraw();
+  mpLog('cout << m["' + k + '"];', MP[k], had ? 'المفتاح موجود، قرأنا قيمته.' : 'الفخ! المفتاح لم يكن موجودًا فأنشأه [ ] بقيمة 0 وكبر القاموس.', had ? 'ok' : 'bad'); }
+function mpCount() { const k = mpK(); if (!k) { mpLog('count', '؟', 'اكتب مفتاحًا أولًا.'); return; }
+  const had = k in MP; MPHL = had ? k : null; mpDraw();
+  mpLog('m.count("' + k + '")', had ? '1' : '0', had ? 'موجود.' : 'غير موجود، ولم يتغير القاموس.', had ? 'ok' : 'bad'); }
+function mpAt() { const k = mpK(); if (!k) { mpLog('at', '؟', 'اكتب مفتاحًا أولًا.'); return; }
+  const had = k in MP; MPHL = had ? k : null; mpDraw();
+  if (had) mpLog('m.at("' + k + '")', MP[k], 'قرأنا القيمة.', 'ok');
+  else mpLog('m.at("' + k + '")', 'std::out_of_range', 'at() أعلنت خطأً بدل أن تنشئ مفتاحًا.', 'bad'); }
+function mpErase() { const k = mpK(); if (!k) { mpLog('erase', '؟', 'اكتب مفتاحًا أولًا.'); return; }
+  const had = k in MP; delete MP[k]; MPHL = null; mpDraw();
+  mpLog('m.erase("' + k + '")', had ? '1' : '0', had ? 'حُذف المفتاح مع قيمته.' : 'لا يوجد هذا المفتاح.', had ? 'ok' : 'bad'); }
+function mpCountWords() {
+  const ws = document.getElementById('mpSentence').value.trim().split(/\s+/).filter(Boolean);
+  MP = {}; MPHL = null; let log = '';
+  ws.forEach(w => { MP[w] = (MP[w] || 0) + 1; log += 'freq["' + w + '"]++  =>  ' + MP[w] + '\n'; });
+  mpDraw();
+  document.getElementById('mpOut').innerHTML = '<span class="line">// خطوات العدّ</span>\n' + log;
+  const n = document.getElementById('mpNote'); n.className = 'lab-say ok';
+  n.textContent = 'ظهرت ' + ws.length + ' كلمة، منها ' + Object.keys(MP).length + ' كلمة مختلفة. لاحظ أن الجدول مرتّب أبجديًا.';
+}
+mpDraw();
+
+</script>
+</body>
+</html>

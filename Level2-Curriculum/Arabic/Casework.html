@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TweetKod | تحليل الحالات</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --primary-blue: #00adef;
+  --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+  --primary-yellow: #f7941e;
+  --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+  --dark-navy: #0f172a;
+  --text-body: #475569;
+  --bg-main: #f4f9fd;
+  --surface: #f1f6fb;
+  --card-bg: #ffffff;
+  --border: #e2e8f0;
+  --chip-bg: #eef2f7;
+  --soft-shadow: 0 14px 34px -14px rgba(15,23,42,0.14);
+  --header-bg: rgba(255,255,255,0.82);
+  --code-size: 0.95rem;
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2300adef' fill-opacity='0.075'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+html[data-theme="dark"] {
+  --dark-navy: #e6edf7;
+  --text-body: #a9b6cc;
+  --bg-main: #0a1120;
+  --surface: #16213a;
+  --card-bg: #111a2e;
+  --border: #243049;
+  --chip-bg: #1d2a45;
+  --soft-shadow: 0 14px 34px -14px rgba(0,0,0,0.6);
+  --header-bg: rgba(10,17,32,0.82);
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2338bdf8' fill-opacity='0.06'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+body {
+  font-family: 'Tajawal', 'Segoe UI', sans-serif;
+  background-color: var(--bg-main);
+  margin: 0; padding: 0; color: var(--dark-navy);
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color .3s, color .3s;
+  position: relative;
+}
+/* decorative background */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.20), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.17), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.06), transparent 70%);
+}
+html[data-theme="dark"] body::before {
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.22), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.12), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.10), transparent 70%);
+}
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: var(--pattern); background-size: 260px 260px;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+          mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+}
+.bg-deco { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .35; animation: floaty 18s ease-in-out infinite; }
+.b1 { width: 340px; height: 340px; background: #00adef; top: 12%; right: -90px; }
+.b2 { width: 280px; height: 280px; background: #f7941e; bottom: 6%; left: -80px; animation-delay: -6s; }
+.b3 { width: 220px; height: 220px; background: #8b5cf6; top: 55%; right: 18%; opacity: .16; animation-delay: -11s; }
+html[data-theme="dark"] .blob { opacity: .2; }
+@keyframes floaty { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(26px,-34px) scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .blob { animation: none; } html { scroll-behavior: auto; } }
+
+/* header */
+header {
+  background: var(--header-bg); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  padding: 10px 4%; display: flex; justify-content: space-between; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 1000;
+  border-bottom: 1px solid rgba(0,173,239,0.16); box-shadow: 0 8px 28px -18px rgba(15,23,42,0.45);
+}
+.hdr-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.logo-img { width: 52px; height: 52px; border-radius: 15px; object-fit: contain; padding: 6px; background: #fff;
+  box-shadow: 0 6px 18px -6px rgba(0,173,239,0.45), 0 0 0 1px rgba(0,173,239,0.16); }
+.brand-info h3 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); line-height: 1.3; }
+.brand-info p { margin: 0; font-size: 0.78rem; color: var(--primary-blue); font-weight: 700; }
+.hdr-tools { display: flex; align-items: center; gap: 8px; position: relative; }
+.tool-btn { height: 38px; min-width: 38px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy);
+  cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: .85rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: .2s; }
+.tool-btn:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+.toc-panel { position: absolute; top: 48px; left: 0; width: 290px; max-height: 60vh; overflow-y: auto; background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 16px; box-shadow: var(--soft-shadow); padding: 8px; display: none; }
+.toc-panel.open { display: block; }
+.toc-panel a { display: flex; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 10px; color: var(--dark-navy); text-decoration: none; font-weight: 700; font-size: .88rem; }
+.toc-panel a:hover { background: var(--surface); color: var(--primary-blue); }
+.toc-panel a span { width: 22px; height: 22px; border-radius: 50%; background: var(--chip-bg); color: var(--text-body); font-size: .72rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.read-progress { position: absolute; bottom: -1px; right: 0; left: 0; height: 3px; background: transparent; }
+.read-progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #00adef, #f7941e); transition: width .1s; }
+.to-top { position: fixed; bottom: 22px; left: 22px; z-index: 900; width: 46px; height: 46px; border-radius: 50%; border: none; background: var(--blue-gradient); color: #fff;
+  cursor: pointer; box-shadow: 0 10px 24px -8px rgba(0,173,239,.7); font-size: 1.1rem; opacity: 0; pointer-events: none; transition: .25s; }
+.to-top.show { opacity: 1; pointer-events: auto; }
+@media (max-width: 980px) { .brand-info p { display: none; } }
+@media (max-width: 720px) { .brand-info h3 { font-size: 1rem; } }
+
+.container { max-width: 900px; margin: 44px auto; padding: 0 25px; }
+.title-section { text-align: center; margin-bottom: 40px; }
+.title-section h1 { font-size: 2.7rem; font-weight: 800; margin: 12px 0 6px; background: linear-gradient(135deg, var(--dark-navy), #007bb5 80%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+html[data-theme="dark"] .title-section h1 { background: linear-gradient(135deg, #fff, #38bdf8 80%); -webkit-background-clip: text; background-clip: text; }
+.attribution { color: var(--primary-blue); font-size: 1.15rem; font-weight: 600; }
+.lesson-chip { display: inline-block; background: var(--yellow-gradient); color: #fff; padding: 6px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; box-shadow: 0 8px 18px -8px rgba(247,148,30,.8); }
+
+.card { background: var(--card-bg); border-radius: 25px; padding: 40px; margin-bottom: 30px; box-shadow: var(--soft-shadow); border-right: 8px solid var(--primary-blue);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); transition: background-color .3s; }
+.steps-card { border-right-color: var(--primary-yellow); }
+.card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+.card-header i { font-size: 1.8rem; }
+.card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+h4 { margin: 18px 0 8px; font-size: 1.05rem; color: var(--dark-navy); }
+p { color: var(--text-body); margin: 0 0 14px; }
+a { color: var(--primary-blue); }
+strong { color: var(--dark-navy); }
+
+.en { direction: ltr; unicode-bidi: isolate; font-weight: 700; color: var(--dark-navy); }
+/* every code chip is an isolated LTR island: fixes ; ( ) = placement inside Arabic text */
+code, code.inline { background: var(--chip-bg); padding: 2px 8px; border-radius: 6px; direction: ltr; unicode-bidi: isolate; display: inline-block; text-align: left;
+  color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; line-height: 1.6; }
+html[data-theme="dark"] code, html[data-theme="dark"] code.inline { color: #f9a8d4; }
+
+.obj-list { list-style: none; padding: 0; margin: 0; }
+.obj-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.obj-list i { color: #22c55e; margin-top: 6px; }
+
+/* code */
+.code-box { background: #1e293b; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.35); margin: 20px 0; border: 1px solid rgba(255,255,255,.04); }
+.code-head { background: #0f172a; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+.code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; direction: ltr; }
+.copy-btn { color: #38bdf8; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; font-family: 'Tajawal'; }
+pre { padding: 26px 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: var(--code-size); tab-size: 8; }
+.cmt { color: #79c36a; font-style: italic; }
+.kw { color: #7dd3fc; }
+.str { color: #fbbf77; }
+.num { color: #c4b5fd; }
+.pp { color: #f9a8d4; }
+.code-line, .code-plain { display: block; border-radius: 6px; padding: 0 6px; margin: 0 -6px; }
+.code-line { cursor: pointer; transition: 0.2s; background: rgba(0,173,239,0.07); }
+.code-line:hover { background: rgba(0,173,239,0.22); }
+.code-line.active { background: rgba(247,148,30,0.28); outline: 1px dashed var(--primary-yellow); }
+.explain-box { margin-top: 14px; background: var(--surface); border: 2px dashed var(--border); border-radius: 16px; padding: 16px 22px; font-weight: 600; color: var(--dark-navy); min-height: 30px; }
+.explain-box .hint { color: #94a3b8; font-weight: 500; }
+.output-box, .input-box { font-family: 'Consolas', monospace; padding: 16px 22px; border-radius: 14px; margin: 10px 0 18px; direction: ltr; text-align: left; white-space: pre-wrap; tab-size: 8; font-size: var(--code-size); }
+.output-box { background: #0f172a; color: #4ade80; }
+.input-box { background: #0c2233; color: #7dd3fc; margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.input-box + .output-box { margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; border-top: 1px dashed #1e3a52; }
+.output-box::before, .input-box::before { display: block; font-size: 0.72rem; letter-spacing: 0.08em; margin-bottom: 6px; text-transform: uppercase; color: #64748b; }
+.output-box::before { content: 'Output'; }
+.input-box::before { content: 'Input (typed by the user)'; }
+.error-box { background: #1f1317; border: 1px solid #7f1d1d; border-radius: 14px; margin: 10px 0 18px; overflow: hidden; }
+.error-head { background: #450a0a; color: #fca5a5; padding: 8px 18px; font-weight: 700; font-size: 0.85rem; }
+.error-box pre { color: #fecaca; font-size: 0.8rem; padding: 14px 20px; line-height: 1.7; }
+
+/* steps */
+.step-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 14px; padding: 18px 20px; background: var(--card-bg); border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+.step-number { background: var(--yellow-gradient); color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+.step-item h4 { margin: 0 0 4px; font-size: 1rem; }
+.step-item p { margin: 0; font-size: 0.92rem; }
+
+/* tables */
+.table-wrap { overflow-x: auto; margin: 15px 0; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+table.data-table { width: 100%; border-collapse: collapse; background: var(--card-bg); }
+table.data-table th { background: var(--blue-gradient); color: #fff; padding: 12px 18px; font-size: 0.85rem; text-align: right; white-space: nowrap; }
+table.data-table td { padding: 12px 18px; font-size: 0.9rem; border-bottom: 1px solid var(--border); color: var(--text-body); }
+table.data-table tr:last-child td { border-bottom: none; }
+
+/* comparison / rules */
+.compare-grid, .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+@media (max-width: 700px) { .compare-grid, .rule-grid { grid-template-columns: 1fr; } .card { padding: 24px; } .title-section h1 { font-size: 2rem; } }
+.compare-card { border-radius: 16px; overflow: hidden; background: #1e293b; }
+.compare-title { padding: 10px 18px; font-weight: 800; font-size: 0.9rem; }
+.good .compare-title { background: #dcfce7; color: #15803d; }
+.bad .compare-title { background: #fee2e2; color: #b91c1c; }
+.compare-card pre { padding: 18px 20px; font-size: 0.83rem; }
+.rule-list { background: var(--surface); border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
+.rule-list h5 { margin: 0 0 12px; font-size: 0.95rem; }
+.rule-list.yes h5 { color: #16a34a; } .rule-list.no h5 { color: #dc2626; }
+.rule-list ul { list-style: none; padding: 0; margin: 0; }
+.rule-list li { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 0.9rem; color: var(--text-body); }
+.rule-list.yes li i { color: #22c55e; } .rule-list.no li i { color: #ef4444; }
+
+.tip-box { background: rgba(247,148,30,0.09); border: 2px dashed var(--primary-yellow); border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 4px; }
+.tip-box p { margin: 0; font-size: 0.93rem; }
+
+/* project */
+.project-banner { background: var(--blue-gradient); color: #fff; border-radius: 18px; padding: 16px 22px; margin-bottom: 18px; display: flex; gap: 14px; align-items: center; }
+.project-banner i { font-size: 1.6rem; }
+.project-banner strong { font-size: 1.05rem; color: #fff; }
+.project-banner p { color: #e0f4ff; margin: 0; font-size: 0.9rem; }
+.brief { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 18px 22px; margin: 14px 0; }
+.brief h5 { margin: 0 0 8px; font-size: 1rem; color: var(--primary-blue); display: flex; align-items: center; gap: 8px; }
+.brief ul, .brief ol { margin: 0; padding-right: 22px; color: var(--text-body); }
+.brief li { margin-bottom: 6px; }
+details.reveal { border: 2px dashed var(--border); border-radius: 16px; padding: 4px 16px; margin: 14px 0; background: var(--card-bg); }
+details.reveal > summary { cursor: pointer; font-weight: 800; padding: 10px 0; color: var(--primary-blue); list-style: none; display: flex; align-items: center; gap: 8px; }
+details.reveal > summary::-webkit-details-marker { display: none; }
+details.reveal[open] { border-style: solid; border-color: var(--primary-blue); }
+
+/* challenges */
+.challenge-card { border-right-color: #8b5cf6; }
+.challenge-card .card-header { color: #8b5cf6; }
+.challenge { border: 1px solid var(--border); border-radius: 20px; padding: 22px 24px; margin-bottom: 20px; background: var(--surface); }
+.ch-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+.ch-head h4 { margin: 0; flex: 1; }
+.ch-num { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
+.badge { font-size: .75rem; font-weight: 800; padding: 4px 12px; border-radius: 50px; }
+.badge.easy { background: #dcfce7; color: #15803d; }
+.badge.medium { background: #fef3c7; color: #b45309; }
+.challenge h5 { margin: 14px 0 6px; font-size: .9rem; color: var(--dark-navy); }
+.challenge ul { margin: 0 0 6px; padding-right: 22px; color: var(--text-body); }
+.challenge li { margin-bottom: 4px; }
+
+/* simulators */
+.sim-box { background: var(--surface); border: 3px dashed var(--border); border-radius: 20px; padding: 28px; text-align: center; margin-top: 15px; }
+.sim-inputs { display: flex; justify-content: center; gap: 18px; margin-bottom: 18px; flex-wrap: wrap; }
+.sim-inputs .field { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.sim-inputs label { font-size: 0.82rem; color: var(--text-body); font-weight: 700; }
+.sim-inputs input[type=text], .sim-inputs input[type=number] { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1.05rem; text-align: center; font-family: 'Consolas', monospace; outline: none; direction: ltr; }
+.sim-inputs input[type=number] { width: 110px; }
+.sim-inputs input:focus { border-color: var(--primary-blue); }
+.btn-run { background: var(--yellow-gradient); color: #fff; border: none; padding: 13px 32px; border-radius: 18px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.95rem; box-shadow: 0 10px 20px -10px rgba(247,148,30,.9); }
+.sim-console { margin-top: 18px; background: #0f172a; border-radius: 14px; padding: 18px 20px; text-align: left; direction: ltr; font-family: 'Consolas', monospace; color: #4ade80; min-height: 26px; white-space: pre-wrap; font-size: 0.92rem; }
+.sim-console .line { color: #94a3b8; }
+.result-line { margin-top: 14px; font-weight: 700; color: var(--dark-navy); }
+.reorder-list { max-width: 460px; margin: 0 auto 10px; direction: ltr; }
+.reorder-item { display: flex; align-items: center; gap: 10px; background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 8px 12px; margin-bottom: 8px; font-family: 'Consolas', monospace; font-size: 0.88rem; text-align: left; }
+.reorder-item code { flex: 1; background: transparent; padding: 0; }
+.rbtn { border: none; background: #e0f2fe; color: #0369a1; border-radius: 8px; width: 30px; height: 30px; cursor: pointer; font-weight: 800; }
+.rbtn:disabled { opacity: 0.35; cursor: default; }
+.bug-list { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.bug-btn { background: var(--card-bg); color: var(--dark-navy); border: 2px solid var(--border); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Tajawal'; font-weight: 700; }
+.bug-btn.found { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.hidden { display: none; }
+.op-table { width: 100%; border-collapse: collapse; margin-top: 16px; direction: ltr; font-family: 'Consolas', monospace; font-size: .88rem; }
+.op-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--dark-navy); text-align: left; }
+.op-table td:last-child { color: var(--primary-blue); font-weight: 800; }
+
+/* glossary */
+.glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+.term-card { background: var(--surface); border-radius: 16px; padding: 18px; border: 1px solid var(--border); }
+.term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+.term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+.term-desc { font-size: 0.85rem; color: var(--text-body); margin: 0; }
+
+/* tf + quiz */
+.tf-item { border: 2px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 14px; background: var(--surface); }
+.tf-item .stmt { font-weight: 700; margin-bottom: 12px; color: var(--dark-navy); }
+.tf-btns { display: flex; gap: 10px; }
+.tf-btn { flex: 1; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 10px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: 0.95rem; }
+.tf-btn:hover { border-color: var(--primary-blue); }
+.tf-btn.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.tf-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.feedback { margin-top: 10px; font-size: 0.9rem; font-weight: 600; }
+.feedback.ok { color: #16a34a; } .feedback.no { color: #dc2626; }
+.quiz-q { margin-bottom: 26px; padding-bottom: 8px; }
+.quiz-q h4 { margin-bottom: 12px; line-height: 1.9; }
+.qnum { display: inline-flex; align-items: center; justify-content: center; background: var(--yellow-gradient); color: #fff; width: 28px; height: 28px; border-radius: 50%; font-size: 0.85rem; margin-left: 8px; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-opt { background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 12px 18px; cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s; color: var(--dark-navy); }
+.quiz-opt:hover { border-color: var(--primary-blue); }
+.quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.quiz-opt:disabled { cursor: default; }
+.quiz-opt.correct code, .quiz-opt.wrong code { background: rgba(255,255,255,.7); }
+.progress { height: 10px; background: var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 22px; }
+.progress-bar { height: 100%; width: 0; background: var(--yellow-gradient); transition: width 0.3s; }
+.score-box { text-align: center; background: var(--surface); border: 2px solid var(--border); border-radius: 18px; padding: 22px; margin-top: 10px; }
+.score-box .big { font-size: 2.2rem; font-weight: 800; color: var(--primary-blue); }
+.retry-btn { margin-top: 10px; background: var(--blue-gradient); color: #fff; border: none; border-radius: 14px; padding: 10px 26px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; }
+
+.refs-card { border-right-color: #94a3b8; }
+.ref-list { margin: 0; padding-right: 22px; }
+.ref-list li { margin-bottom: 6px; font-size: 0.9rem; }
+footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+
+/* ---------- tracer ---------- */
+.tracer { background: var(--surface); border: 2px solid var(--border); border-radius: 20px; padding: 18px; margin: 22px 0; }
+.tr-head { font-weight: 800; color: var(--primary-blue); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.tr-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .tr-grid { grid-template-columns: 1fr; } }
+.tr-code { background: #1e293b; border-radius: 14px; padding: 12px 0; direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: var(--code-size); overflow-x: auto; }
+.tr-line { display: flex; gap: 12px; padding: 1px 14px; color: #e2e8f0; white-space: pre; border-left: 4px solid transparent; transition: .15s; }
+.tr-line .ln { color: #64748b; min-width: 22px; text-align: right; user-select: none; }
+.tr-line.active { background: rgba(247,148,30,.28); border-left-color: var(--primary-yellow); }
+.tr-side { display: flex; flex-direction: column; gap: 12px; }
+.tr-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; flex: 1; }
+.tr-title { font-size: .78rem; font-weight: 800; color: var(--text-body); margin-bottom: 6px; }
+.tr-vars { direction: ltr; font-family: 'Consolas', monospace; font-size: .9rem; min-height: 28px; }
+.tr-var { display: flex; justify-content: space-between; padding: 3px 8px; border-radius: 8px; color: var(--dark-navy); }
+.tr-var b { color: var(--primary-blue); }
+.tr-var.changed { background: rgba(247,148,30,.22); }
+.tr-out { direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: .88rem; background: #0f172a; color: #4ade80; border-radius: 10px; padding: 8px 12px; min-height: 40px; white-space: pre-wrap; }
+.tr-note { margin-top: 12px; background: var(--card-bg); border: 1px dashed var(--primary-blue); border-radius: 12px; padding: 10px 16px; font-weight: 600; color: var(--dark-navy); min-height: 24px; }
+.tr-ctrl { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.tr-btn { border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 14px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: .85rem; }
+.tr-btn.primary { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.tr-btn:disabled { opacity: .4; cursor: default; }
+.tr-count { margin-right: auto; font-size: .8rem; color: var(--text-body); font-weight: 700; }
+
+/* ---------- predict ---------- */
+.predict { border: 2px solid #8b5cf6; border-radius: 20px; padding: 16px 18px; margin: 22px 0; background: var(--surface); }
+.predict-head { font-weight: 800; color: #8b5cf6; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+.predict .code-box { margin: 12px 0; }
+.pd-q { font-weight: 700; color: var(--dark-navy); margin-bottom: 10px; }
+.pd-opts { display: flex; flex-wrap: wrap; gap: 10px; }
+.pd-opt { background: var(--card-bg); border: 2px solid var(--border); color: var(--dark-navy); border-radius: 12px; padding: 9px 16px; cursor: pointer; font-family: 'Tajawal'; font-weight: 700; font-size: .92rem; }
+.pd-opt:hover { border-color: #8b5cf6; }
+.pd-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.pd-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.pd-opt:disabled { cursor: default; }
+.pd-result { margin-top: 12px; }
+.pd-msg { font-weight: 800; margin-bottom: 8px; }
+.pd-why { margin: 8px 0 0; font-size: .93rem; }
+
+/* ---------- misc ---------- */
+.summary-card { border-right-color: #22c55e; }
+.summary-card .card-header { color: #16a34a; }
+.sum-list { list-style: none; padding: 0; margin: 0; }
+.sum-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.sum-list i { color: #22c55e; margin-top: 6px; }
+.warn-box { background: rgba(239,68,68,.08); border: 2px dashed #ef4444; border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 4px; }
+.warn-box p { margin: 0; font-size: .93rem; }
+.analogy { background: linear-gradient(135deg, rgba(0,173,239,.1), rgba(139,92,246,.1)); border-radius: 18px; padding: 16px 22px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; border: 1px solid var(--border); }
+.analogy i { color: var(--primary-blue); font-size: 1.5rem; margin-top: 4px; }
+.analogy p { margin: 0; }
+.flow { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin: 18px 0; direction: rtl; }
+.flow-node { background: var(--card-bg); border: 2px solid var(--primary-blue); border-radius: 14px; padding: 10px 18px; font-weight: 800; color: var(--dark-navy); text-align: center; }
+.flow-node.decision { border-color: var(--primary-yellow); border-radius: 30px; }
+.flow-node.end { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.flow-arrow { color: var(--primary-blue); font-size: 1.2rem; }
+.flow-branch { display: flex; flex-direction: column; gap: 8px; }
+.cell-row { display: flex; direction: ltr; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 12px 0; }
+.cell { min-width: 54px; text-align: center; border: 2px solid var(--primary-blue); border-radius: 10px; background: var(--card-bg); font-family: 'Consolas', monospace; font-weight: 800; color: var(--dark-navy); padding: 6px 4px; cursor: pointer; }
+.cell small { display: block; font-size: .68rem; color: var(--text-body); font-weight: 700; }
+.cell.sel { background: rgba(247,148,30,.25); border-color: var(--primary-yellow); }
+.vis-line { display: block; padding: 0 6px; margin: 0 -6px; border-radius: 6px; opacity: .35; transition: .15s; }
+.vis-line.on { opacity: 1; background: rgba(34,197,94,.22); }
+.vis-btns { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+.vis-btn { border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Consolas', monospace; font-weight: 800; }
+.vis-btn.on { border-color: #22c55e; background: #dcfce7; color: #15803d; }
+
+.cell.ghost { opacity: .55; border-style: dashed; background: transparent; }
+
+
+.lab-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; margin: 10px 0; }
+.lab-row .btn-run { padding: 9px 18px; font-size: .88rem; border-radius: 14px; }
+.lab-tags { display: flex; direction: ltr; flex-wrap: wrap; gap: 8px; justify-content: center; min-height: 44px; margin: 10px 0; }
+.lab-tag { padding: 5px 14px; border-radius: 50px; background: var(--chip-bg); border: 2px solid var(--border); font-family: Consolas, monospace; font-weight: 800; color: var(--dark-navy); transition: .2s; }
+.lab-tag.hit { border-color: #16a34a; background: rgba(22,163,74,.16); }
+.lab-tag.miss { border-color: #ef4444; background: rgba(239,68,68,.14); }
+.lab-tag.new { border-color: var(--primary-blue); background: rgba(0,173,239,.16); }
+.lab-tag.warm { border-color: var(--primary-yellow); background: rgba(247,148,30,.2); }
+.lab-bars { display: flex; direction: ltr; align-items: flex-end; gap: 4px; height: 170px; justify-content: center; margin: 12px 0; }
+.lab-bar { width: 26px; background: var(--primary-blue); border-radius: 6px 6px 0 0; font-size: .68rem; color: #fff; text-align: center; font-weight: 800; padding-top: 2px; transition: height .15s, background .15s; font-family: Consolas, monospace; }
+.lab-bar.cmp { background: var(--primary-yellow); }
+.lab-bar.swp { background: #ef4444; }
+.lab-bar.done { background: #16a34a; }
+.lab-bar.dim { opacity: .28; }
+.lab-bar.mid { background: #8b5cf6; }
+.lab-grid { display: grid; direction: ltr; gap: 3px; justify-content: center; margin: 12px auto; }
+.lab-cell { width: 34px; height: 34px; border-radius: 8px; background: var(--chip-bg); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: Consolas, monospace; font-size: .9rem; color: var(--dark-navy); }
+.lab-cell.wall { background: #475569; border-color: #475569; }
+.lab-cell.on { background: rgba(0,173,239,.25); border-color: var(--primary-blue); }
+.lab-cell.hot { background: rgba(247,148,30,.3); border-color: var(--primary-yellow); }
+.lab-meter { height: 16px; border-radius: 50px; background: var(--chip-bg); overflow: hidden; direction: ltr; margin: 8px 0; }
+.lab-meter > span { display: block; height: 100%; background: linear-gradient(90deg, #16a34a, #f7941e, #ef4444); transition: width .25s; }
+.lab-table { width: 100%; border-collapse: collapse; direction: ltr; font-family: Consolas, monospace; font-size: .9rem; }
+.lab-table th, .lab-table td { border: 1px solid var(--border); padding: 6px 10px; text-align: center; }
+.lab-table th { background: var(--chip-bg); }
+.lab-say { margin-top: 10px; font-weight: 700; color: var(--dark-navy); min-height: 28px; }
+.lab-say.ok { color: #16a34a; } .lab-say.bad { color: #ef4444; }
+.sim-inputs select { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1rem; font-family: Consolas, monospace; }
+.sim-inputs input[type=range] { width: 200px; }
+.lab-in { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1rem; font-family: Consolas, monospace; direction: ltr; text-align: center; max-width: 100%; }
+
+</style>
+</head>
+<body>
+<div class="bg-deco"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+<header>
+  <div class="hdr-brand">
+    <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    <div class="brand-info"><h3>منصة TweetKod</h3><p>للتعلم البرمجي التفاعلي</p></div>
+  </div>
+  <div class="hdr-tools">
+    <button class="tool-btn" id="tocBtn" title="فهرس الدرس"><i class="fas fa-list-ul"></i> الفهرس</button>
+    <button class="tool-btn" id="fontDec" title="تصغير خط الكود">A-</button>
+    <button class="tool-btn" id="fontInc" title="تكبير خط الكود">A+</button>
+    <button class="tool-btn" id="themeBtn" title="الوضع الليلي"><i class="fas fa-moon"></i></button>
+    <div class="toc-panel" id="tocPanel"></div>
+  </div>
+  <div class="read-progress"><span id="readBar"></span></div>
+</header>
+<div class="container">
+  <div class="title-section">
+    <h1>تحليل الحالات</h1>
+    <p class="attribution"><span class="en">Casework</span> &mdash; قسّم المسألة إلى حالات صغيرة</p>
+  </div>
+  <div class="card goals-card">
+    <div class="card-header"><i class="fas fa-bullseye"></i><h3>ماذا ستتعلم في هذا الدرس؟</h3></div>
+    <ul class="obj-list"><li><i class="fas fa-check-circle"></i><span>تقسّم المسألة إلى حالات شاملة ومتنافية وتحلّ كلًّا منها</span></li><li><i class="fas fa-check-circle"></i><span>ترتّب الشروط: الاستثناءات أولًا ثم من الأخص إلى الأعم</span></li><li><i class="fas fa-check-circle"></i><span>تفرّق بين سلسلة <code class="inline">else if</code> و<code class="inline">if</code> المستقلة وتستخدم الأقواس دائمًا</span></li><li><i class="fas fa-check-circle"></i><span>تختصر الحالات الكثيرة بالعدّ أو بصيغة بالباقي</span></li><li><i class="fas fa-check-circle"></i><span>تتحقق من حلّك بالحدود وبمقارنته مع حل القوة الغاشمة</span></li></ul>
+  </div>
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-inbox"></i><h3>فرز البريد في صناديق</h3></div>
+  <p>في مكتب البريد توضع كل رسالة في صندوق واحد بحسب المدينة. لا تُترك رسالة بلا صندوق، ولا توضع رسالة في صندوقين. بهذه الفكرة تُحلّ مسائل كثيرة: <strong>نقسّم كل الاحتمالات إلى حالات</strong> (<span class="en">cases</span>)، ونحلّ كل حالة على حدة بطريقة بسيطة. هذا هو تحليل الحالات (<span class="en">Casework</span>).</p>
+  <div class="analogy"><i class="fas fa-sitemap"></i><p>الحالات الجيدة تحقق شرطين: <strong>شاملة</strong> (<span class="en">exhaustive</span>) لا يفلت منها احتمال، و<strong>متنافية</strong> (<span class="en">mutually exclusive</span>) لا يقع احتمال في حالتين. وإذا كان لكل حالة جوابها البسيط فقد حلّت المسألة الصعبة.</p></div>
+  <p>أدواتنا هنا قديمة معروفة: <code>if / else if / else</code>. الجديد هو طريقة التفكير: كيف نختار الحالات؟ وبأي ترتيب نفحصها؟ وكيف نتأكد أننا لم ننسَ حالة؟</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-play"></i><h3>المثال الأول: أنواع المثلثات</h3></div>
+  <p>نعطيك ثلاثة أضلاع، ومطلوب أن تقول أي نوع هي. لاحظ ترتيب الحالات: <strong>نبدأ بالاستثناءات</strong> (ضلع غير موجب، لا يتكوّن مثلث)، ثم الحالات <strong>الأخص</strong> (متساوي الأضلاع) قبل الأعم (متساوي الساقين)، وأخيرًا «ما تبقى». اضغط على الأسطر المضيئة:</p>
+  <div class="code-box" data-expl="triangle"><div class="code-head"><span>triangle_cases.cpp</span><button class="copy-btn" onclick="copyCode('code_triangle')">نسخ الكود</button></div><pre id="code_triangle"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;string&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">string</span> classify(<span class="kw">int</span> a, <span class="kw">int</span> b, <span class="kw">int</span> c) {</span><span class="code-line" data-i="5">    <span class="kw">if</span> (a &lt;= <span class="num">0</span> || b &lt;= <span class="num">0</span> || c &lt;= <span class="num">0</span>) {</span><span class="code-plain">        <span class="kw">return</span> <span class="str">"invalid"</span>;</span><span class="code-plain">    }</span><span class="code-line" data-i="8">    <span class="kw">if</span> (a + b &lt;= c || a + c &lt;= b || b + c &lt;= a) {</span><span class="code-plain">        <span class="kw">return</span> <span class="str">"not a triangle"</span>;</span><span class="code-plain">    }</span><span class="code-line" data-i="11">    <span class="kw">if</span> (a == b &amp;&amp; b == c) {</span><span class="code-plain">        <span class="kw">return</span> <span class="str">"equilateral"</span>;</span><span class="code-plain">    }</span><span class="code-line" data-i="14">    <span class="kw">if</span> (a == b || b == c || a == c) {</span><span class="code-plain">        <span class="kw">return</span> <span class="str">"isosceles"</span>;</span><span class="code-plain">    }</span><span class="code-line" data-i="17">    <span class="kw">return</span> <span class="str">"scalene"</span>;</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-plain">    cout &lt;&lt; classify(<span class="num">3</span>, <span class="num">3</span>, <span class="num">3</span>) &lt;&lt; endl;</span><span class="code-plain">    cout &lt;&lt; classify(<span class="num">3</span>, <span class="num">3</span>, <span class="num">5</span>) &lt;&lt; endl;</span><span class="code-plain">    cout &lt;&lt; classify(<span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>) &lt;&lt; endl;</span><span class="code-plain">    cout &lt;&lt; classify(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>) &lt;&lt; endl;</span><span class="code-plain">    cout &lt;&lt; classify(<span class="num">0</span>, <span class="num">4</span>, <span class="num">4</span>) &lt;&lt; endl;</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="triangle"><span class="hint">اضغط على أي سطر مضيء من الكود لقراءة شرحه هنا...</span></div>
+  <div class="output-box">equilateral
+isosceles
+scalene
+not a triangle
+invalid</div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p>قاعدة الترتيب: ضع الشروط التي <strong>تُسقط المدخلات الغريبة</strong> أولًا، ثم الحالات من الأخص إلى الأعم. لو فحصنا «متساوي الساقين» قبل «متساوي الأضلاع» لصُنّفت كل المثلثات المتساوية الأضلاع خطأً.</p></div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-flask"></i><h3>مختبر تفاعلي (1): مصنّف المثلثات</h3></div>
+  <p>حرّك أطوال الأضلاع الثلاثة وشاهد أي حالة تتحقق، وكيف يتغير الرسم. جرّب <code>a=1, b=2, c=3</code> لترى الحد الفاصل: المجموع يساوي الضلع الثالث فلا مثلث!</p>
+  <div class="sim-box">
+    <div class="sim-inputs">
+      <div class="field"><label>a = <span id="trA" style="color:var(--primary-blue);font-weight:800">3</span></label><input type="range" id="trARange" min="0" max="12" value="3" oninput="trRun()"></div>
+      <div class="field"><label>b = <span id="trB" style="color:var(--primary-blue);font-weight:800">4</span></label><input type="range" id="trBRange" min="0" max="12" value="4" oninput="trRun()"></div>
+      <div class="field"><label>c = <span id="trC" style="color:var(--primary-blue);font-weight:800">5</span></label><input type="range" id="trCRange" min="0" max="12" value="5" oninput="trRun()"></div>
+    </div>
+    <div id="trDraw" style="display:flex;justify-content:center"></div>
+    <div style="overflow-x:auto"><table class="lab-table" id="trTable"></table></div>
+    <div class="lab-say" id="trNote"></div>
+  </div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-calendar-days"></i><h3>المثال الثاني: السنة الكبيسة</h3></div>
+  <p>السنة الكبيسة فيها 29 يومًا في شباط. قاعدتها ثلاث حالات <strong>مترتبة</strong>: تقبل القسمة على 400 فهي كبيسة، وإلا إن قبلت القسمة على 100 فليست كبيسة، وإلا تكون كبيسة إن قبلت القسمة على 4. شاهد أثر الترتيب:</p>
+  <div class="code-box" data-expl="leap"><div class="code-head"><span>leap_year.cpp</span><button class="copy-btn" onclick="copyCode('code_leap')">نسخ الكود</button></div><pre id="code_leap"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">bool</span> isLeap(<span class="kw">int</span> y) {</span><span class="code-line" data-i="4">    <span class="kw">if</span> (y % <span class="num">400</span> == <span class="num">0</span>) {</span><span class="code-plain">        <span class="kw">return</span> <span class="kw">true</span>;</span><span class="code-plain">    }</span><span class="code-line" data-i="7">    <span class="kw">if</span> (y % <span class="num">100</span> == <span class="num">0</span>) {</span><span class="code-plain">        <span class="kw">return</span> <span class="kw">false</span>;</span><span class="code-plain">    }</span><span class="code-line" data-i="10">    <span class="kw">return</span> y % <span class="num">4</span> == <span class="num">0</span>;</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> daysInMonth(<span class="kw">int</span> y, <span class="kw">int</span> m) {</span><span class="code-plain">    <span class="kw">if</span> (m == <span class="num">2</span>) {</span><span class="code-plain">        <span class="kw">return</span> isLeap(y) ? <span class="num">29</span> : <span class="num">28</span>;</span><span class="code-plain">    }</span><span class="code-plain">    <span class="kw">if</span> (m == <span class="num">4</span> || m == <span class="num">6</span> || m == <span class="num">9</span> || m == <span class="num">11</span>) {</span><span class="code-plain">        <span class="kw">return</span> <span class="num">30</span>;</span><span class="code-plain">    }</span><span class="code-plain">    <span class="kw">return</span> <span class="num">31</span>;</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-plain">    <span class="kw">int</span> years[] = {<span class="num">1900</span>, <span class="num">2000</span>, <span class="num">2023</span>, <span class="num">2024</span>};</span><span class="code-plain">    <span class="kw">for</span> (<span class="kw">int</span> y : years) {</span><span class="code-plain">        cout &lt;&lt; y &lt;&lt; <span class="str">": february has "</span> &lt;&lt; daysInMonth(y, <span class="num">2</span>) &lt;&lt; <span class="str">" days"</span> &lt;&lt; endl;</span><span class="code-plain">    }</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="leap"><span class="hint">اضغط على أي سطر مضيء من الكود لقراءة شرحه هنا...</span></div>
+  <div class="output-box">1900: february has 28 days
+2000: february has 29 days
+2023: february has 28 days
+2024: february has 29 days</div>
+  <h4>تتبّع السنة 1900</h4>
+  <div class="tracer" data-trace="ltrace"><div class="tr-head"><i class="fas fa-bug-slash"></i> تتبّع التنفيذ خطوة بخطوة</div><div class="tr-grid"><div class="tr-code"><div class="tr-line" data-i="0"><span class="ln">1</span><span class="src"><span class="kw">int</span> y = <span class="num">1900</span>;</span></div><div class="tr-line" data-i="1"><span class="ln">2</span><span class="src"><span class="kw">bool</span> leap;</span></div><div class="tr-line" data-i="2"><span class="ln">3</span><span class="src"><span class="kw">if</span> (y % <span class="num">400</span> == <span class="num">0</span>) {</span></div><div class="tr-line" data-i="3"><span class="ln">4</span><span class="src">    leap = <span class="kw">true</span>;</span></div><div class="tr-line" data-i="4"><span class="ln">5</span><span class="src">} <span class="kw">else</span> <span class="kw">if</span> (y % <span class="num">100</span> == <span class="num">0</span>) {</span></div><div class="tr-line" data-i="5"><span class="ln">6</span><span class="src">    leap = <span class="kw">false</span>;</span></div><div class="tr-line" data-i="6"><span class="ln">7</span><span class="src">} <span class="kw">else</span> {</span></div><div class="tr-line" data-i="7"><span class="ln">8</span><span class="src">    leap = (y % <span class="num">4</span> == <span class="num">0</span>);</span></div><div class="tr-line" data-i="8"><span class="ln">9</span><span class="src">}</span></div><div class="tr-line" data-i="9"><span class="ln">10</span><span class="src">cout &lt;&lt; (leap ? <span class="str">"leap"</span> : <span class="str">"common"</span>) &lt;&lt; endl;</span></div></div><div class="tr-side"><div class="tr-box"><div class="tr-title">المتغيرات</div><div class="tr-vars"></div></div><div class="tr-box"><div class="tr-title">الناتج حتى الآن</div><div class="tr-out"></div></div></div></div><div class="tr-note"></div><div class="tr-ctrl"><button class="tr-btn" data-a="reset" title="من البداية"><i class="fas fa-backward-fast"></i></button><button class="tr-btn" data-a="prev"><i class="fas fa-backward-step"></i> السابق</button><button class="tr-btn primary" data-a="next">التالي <i class="fas fa-forward-step"></i></button><button class="tr-btn" data-a="play"><i class="fas fa-play"></i> تشغيل تلقائي</button><span class="tr-count"></span></div></div>
+  <p>1900 تقبل القسمة على 4 لكنها ليست كبيسة! لو بدأنا بفحص القسمة على 4 فقط لأخطأنا. هذا هو درس الترتيب: الشروط الأكثر <strong>استثناءً</strong> تأتي أولًا.</p>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-flask"></i><h3>مختبر تفاعلي (2): شجرة قرار السنة الكبيسة</h3></div>
+  <p>اكتب أي سنة وشاهد المسار الذي سلكه البرنامج في سلسلة الشروط (الخانة المضيئة هي الشرط الذي حسم الجواب).</p>
+  <div class="sim-box">
+    <div class="sim-inputs"><div class="field"><label>السنة</label><input type="number" id="lyYear" value="1900" oninput="lyRun()"></div></div>
+    <div style="overflow-x:auto"><table class="lab-table" id="lyTable"></table></div>
+    <div class="lab-say" id="lyNote"></div>
+    <div class="lab-row">
+      <button class="btn-run" onclick="lySet(1900)">1900</button><button class="btn-run" onclick="lySet(2000)">2000</button>
+      <button class="btn-run" onclick="lySet(2023)">2023</button><button class="btn-run" onclick="lySet(2024)">2024</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-code-branch"></i><h3>else if مقابل if جديدة</h3></div>
+  <p>سلسلة <code>if / else if / else</code> تضمن أن <strong>حالة واحدة فقط</strong> تُنفَّذ (الأولى الصحيحة). أما كتابة <code>if</code> جديدة فهي سؤال مستقل لا علاقة له بما قبله:</p>
+  <div class="predict"><div class="predict-head"><i class="fas fa-brain"></i> توقّع قبل أن تشغّل</div><div class="code-box"><div class="code-head"><span>predict_chain.cpp</span><button class="copy-btn" onclick="copyCode('code_p_chain')">نسخ الكود</button></div><pre id="code_p_chain"><span class="kw">int</span> x = <span class="num">15</span>;
+<span class="kw">if</span> (x % <span class="num">3</span> == <span class="num">0</span>) {
+    cout &lt;&lt; <span class="str">"A"</span>;
+} <span class="kw">else</span> <span class="kw">if</span> (x % <span class="num">5</span> == <span class="num">0</span>) {
+    cout &lt;&lt; <span class="str">"B"</span>;
+} <span class="kw">else</span> {
+    cout &lt;&lt; <span class="str">"C"</span>;
+}
+<span class="kw">if</span> (x % <span class="num">5</span> == <span class="num">0</span>) {
+    cout &lt;&lt; <span class="str">"D"</span>;
+}
+cout &lt;&lt; endl;</pre></div><p class="pd-q">ماذا سيطبع هذا الكود؟ (انتبه إلى الفرق بين else if و if جديدة)</p><div class="pd-opts"><button class="pd-opt" data-ok="0">A</button><button class="pd-opt" data-ok="1">AD</button><button class="pd-opt" data-ok="0">ABD</button><button class="pd-opt" data-ok="0">ABCD</button></div><div class="pd-result hidden"><div class="pd-msg"></div><div class="output-box">AD</div><p class="pd-why">السلسلة الأولى تدخل أول شرط صحيح فقط (A) وتتجاهل بقيتها. أما <code>if</code> الثانية فهي مستقلة وشرطها صحيح (15 تقبل القسمة على 5) فتطبع D. الناتج AD.</p></div></div>
+  <p>ولا تنسَ الأقواس <code>{ }</code>: بدونها يرتبط الشرط بسطر واحد فقط، وقد ينتج خطأ غريب:</p>
+  <div class="code-box"><div class="code-head"><span>missing_braces.cpp</span><button class="copy-btn" onclick="copyCode('code_err_else')">نسخ الكود</button></div><pre id="code_err_else"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> x = <span class="num">5</span>;
+    <span class="kw">if</span> (x &gt; <span class="num">3</span>)
+        cout &lt;&lt; <span class="str">"big"</span> &lt;&lt; endl;
+        cout &lt;&lt; <span class="str">"really big"</span> &lt;&lt; endl;
+    <span class="kw">else</span>
+        cout &lt;&lt; <span class="str">"small"</span> &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="error-box"><div class="error-head"><i class="fas fa-bug"></i> ما يعرضه المترجم (<span class="en">g++</span>)</div><pre>main.cpp: In function ‘int main()’:
+main.cpp:6:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+    6 |     if (x &gt; 3)
+      |     ^~
+main.cpp:8:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+    8 |         cout &lt;&lt; "really big" &lt;&lt; endl;
+      |         ^~~~
+main.cpp:9:5: error: ‘else’ without a previous ‘if’
+    9 |     else
+      |     ^~~~</pre></div>
+  <p>السطر الثاني بعد <code>if</code> ليس جزءًا منها فانقطعت السلسلة، وصار <code>else</code> يتيمًا. اجعل الأقواس عادة دائمة.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-plus-minus"></i><h3>حالات تُحلّ بالعدّ: إشارة حاصل الضرب</h3></div>
+  <p>نريد إشارة حاصل ضرب مئات الأعداد دون أن نضربها (فسيفيض النوع). هنا نقسم الحالات بحسب أمرين فقط: <strong>هل وُجد صفر؟</strong> وإن لم يوجد فـ<strong>هل عدد السالبة زوجي أم فردي؟</strong>:</p>
+  <div class="code-box" data-expl="signprod"><div class="code-head"><span>sign_of_product.cpp</span><button class="copy-btn" onclick="copyCode('code_signprod')">نسخ الكود</button></div><pre id="code_signprod"><span class="code-line" data-i="0"><span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; v = {-<span class="num">3</span>, <span class="num">4</span>, -<span class="num">5</span>, <span class="num">2</span>};</span><span class="code-plain"><span class="kw">int</span> negatives = <span class="num">0</span>;</span><span class="code-plain"><span class="kw">bool</span> hasZero = <span class="kw">false</span>;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">for</span> (<span class="kw">int</span> x : v) {</span><span class="code-plain">    <span class="kw">if</span> (x == <span class="num">0</span>) {</span><span class="code-line" data-i="6">        hasZero = <span class="kw">true</span>;</span><span class="code-plain">    } <span class="kw">else</span> <span class="kw">if</span> (x &lt; <span class="num">0</span>) {</span><span class="code-line" data-i="8">        negatives++;</span><span class="code-plain">    }</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">if</span> (hasZero) {</span><span class="code-line" data-i="13">    cout &lt;&lt; <span class="str">"zero"</span> &lt;&lt; endl;</span><span class="code-plain">} <span class="kw">else</span> <span class="kw">if</span> (negatives % <span class="num">2</span> == <span class="num">0</span>) {</span><span class="code-line" data-i="15">    cout &lt;&lt; <span class="str">"positive"</span> &lt;&lt; endl;</span><span class="code-plain">} <span class="kw">else</span> {</span><span class="code-line" data-i="17">    cout &lt;&lt; <span class="str">"negative"</span> &lt;&lt; endl;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="signprod"><span class="hint">اضغط على أي سطر مضيء من الكود لقراءة شرحه هنا...</span></div>
+  <div class="output-box">positive</div>
+  <h4>حين تختصر الحالات في صيغة</h4>
+  <p>أحيانًا تبدو الحالات كثيرة لكن بينها نمط. في لعبة حجر-ورقة-مقص عندنا تسع مباريات ممكنة، لكنها تتلخص في معادلة بالباقي (درس الحساب النمطي مرة أخرى!):</p>
+  <div class="code-box" data-expl="rps"><div class="code-head"><span>rock_paper_scissors.cpp</span><button class="copy-btn" onclick="copyCode('code_rps')">نسخ الكود</button></div><pre id="code_rps"><span class="code-line" data-i="0"><span class="kw">const</span> <span class="kw">char</span>* names[] = {<span class="str">"rock"</span>, <span class="str">"paper"</span>, <span class="str">"scissors"</span>};</span><span class="code-plain"><span class="kw">int</span> games[<span class="num">3</span>][<span class="num">2</span>] = {{<span class="num">1</span>, <span class="num">0</span>}, {<span class="num">0</span>, <span class="num">2</span>}, {<span class="num">2</span>, <span class="num">2</span>}};</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">for</span> (<span class="kw">auto</span>&amp; g : games) {</span><span class="code-line" data-i="4">    <span class="kw">int</span> r = (g[<span class="num">0</span>] - g[<span class="num">1</span>] + <span class="num">3</span>) % <span class="num">3</span>;</span><span class="code-plain">    cout &lt;&lt; names[g[<span class="num">0</span>]] &lt;&lt; <span class="str">" vs "</span> &lt;&lt; names[g[<span class="num">1</span>]] &lt;&lt; <span class="str">": "</span>;</span><span class="code-plain">    cout &lt;&lt; (r == <span class="num">0</span> ? <span class="str">"tie"</span> : r == <span class="num">1</span> ? <span class="str">"first wins"</span> : <span class="str">"second wins"</span>) &lt;&lt; endl;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="rps"><span class="hint">اضغط على أي سطر مضيء من الكود لقراءة شرحه هنا...</span></div>
+  <div class="output-box">paper vs rock: first wins
+rock vs scissors: first wins
+scissors vs scissors: tie</div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-shield-halved"></i><h3>كيف تتأكد أنك لم تنسَ حالة؟</h3></div>
+  <p>أخطر عيوب هذا الأسلوب أن تنسى حالة. أمامك ثلاث وسائل دفاع:</p>
+  <ol>
+    <li><strong>الحدود:</strong> جرّب القيم الصغيرة والفاصلة: 0 و1 والقيم المتساوية والسالبة.</li>
+    <li><strong>الشمول:</strong> اسأل «ما الذي سيحدث لو لم تتحقق أي حالة؟» وأضف <code>else</code> أخيرة تلتقط الباقي.</li>
+    <li><strong>القوة الغاشمة:</strong> اكتب حلًا بطيئًا لكنه يجرّب كل الاحتمالات، وقارنه بحلّك السريع على جميع القيم الصغيرة:</li>
+  </ol>
+  <div class="code-box" data-expl="brute"><div class="code-head"><span>check_by_brute_force.cpp</span><button class="copy-btn" onclick="copyCode('code_brute')">نسخ الكود</button></div><pre id="code_brute"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-plain"><span class="cmt">// Can n be written as the sum of two positive even numbers?</span></span><span class="code-plain"><span class="kw">bool</span> byCases(<span class="kw">int</span> n) {</span><span class="code-line" data-i="5">    <span class="kw">return</span> n % <span class="num">2</span> == <span class="num">0</span> &amp;&amp; n &gt;= <span class="num">4</span>;</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">bool</span> byBrute(<span class="kw">int</span> n) {</span><span class="code-line" data-i="9">    <span class="kw">for</span> (<span class="kw">int</span> a = <span class="num">2</span>; a &lt; n; a += <span class="num">2</span>) {</span><span class="code-plain">        <span class="kw">int</span> b = n - a;</span><span class="code-plain">        <span class="kw">if</span> (b &gt;= <span class="num">2</span> &amp;&amp; b % <span class="num">2</span> == <span class="num">0</span>) {</span><span class="code-plain">            <span class="kw">return</span> <span class="kw">true</span>;</span><span class="code-plain">        }</span><span class="code-plain">    }</span><span class="code-plain">    <span class="kw">return</span> <span class="kw">false</span>;</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-plain">    <span class="kw">int</span> mismatches = <span class="num">0</span>;</span><span class="code-plain">    <span class="kw">for</span> (<span class="kw">int</span> n = <span class="num">1</span>; n &lt;= <span class="num">50</span>; n++) {</span><span class="code-line" data-i="21">        <span class="kw">if</span> (byCases(n) != byBrute(n)) {</span><span class="code-plain">            mismatches++;</span><span class="code-plain">            cout &lt;&lt; <span class="str">"mismatch at n = "</span> &lt;&lt; n &lt;&lt; endl;</span><span class="code-plain">        }</span><span class="code-plain">    }</span><span class="code-plain">    cout &lt;&lt; <span class="str">"checked 50 values, mismatches: "</span> &lt;&lt; mismatches &lt;&lt; endl;</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="brute"><span class="hint">اضغط على أي سطر مضيء من الكود لقراءة شرحه هنا...</span></div>
+  <div class="output-box">checked 50 values, mismatches: 0</div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p>هذه الحيلة (مقارنة حل ذكي بحل غبي على قيم صغيرة) تُسمى <strong>الاختبار المقارِن</strong>، وهي من أقوى عادات المبرمجين المحترفين. اجعلها عادتك قبل إرسال أي حل.</p></div>
+</div>
+
+
+<div class="card">
+  <div class="project-banner"><i class="fas fa-ticket"></i><div><strong>مشروع الدرس: حاسبة أسعار تذاكر الملاهي</strong><p>برنامج يختار السعر المناسب بحسب العمر واليوم وبطاقة الطالب.</p></div></div>
+  <div class="brief"><h5><i class="fas fa-lightbulb"></i> الفكرة</h5>
+    <p style="margin:0">تدير شباك التذاكر في مدينة ألعاب، وأسعارك تعتمد على عمر الزائر ويوم الزيارة وهل معه بطاقة طالب. تريد برنامجًا يحسب السعر بلا أخطاء مهما كانت المدخلات.</p></div>
+  <div class="brief"><h5><i class="fas fa-list-check"></i> المطلوب منك</h5>
+    <ol>
+      <li>اقرأ ثلاثة أعداد: <code>age</code> العمر، و<code>weekend</code> (1 إن كان اليوم عطلة نهاية الأسبوع وإلا 0)، و<code>student</code> (1 إن كانت معه بطاقة طالب وإلا 0).</li>
+      <li>السعر الأساسي بالريال: دون 4 سنوات <code>0</code>، ومن 4 إلى 12 سنة <code>10</code>، ومن 13 إلى 17 <code>15</code>، ومن 18 إلى 59 يكون <code>25</code> (أو <code>15</code> إن كان طالبًا)، و60 فما فوق <code>10</code>.</li>
+      <li>في عطلة نهاية الأسبوع يُضاف <code>20%</code> من السعر (<code>price / 5</code> بالقسمة الصحيحة).</li>
+      <li>اطبع <code>Ticket price: P SAR</code>.</li>
+    </ol></div>
+  <div class="brief"><h5><i class="fas fa-bullseye"></i> مثالان على التشغيل</h5>
+    <p><strong>التشغيل الأول (طفل في يوم عادي):</strong></p>
+    <div class="input-box">10 0 0</div><div class="output-box">Ticket price: 10 SAR</div>
+    <p><strong>التشغيل الثاني (طالب في العطلة):</strong></p>
+    <div class="input-box">30 1 1</div><div class="output-box">Ticket price: 18 SAR</div></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p><strong>تحقق ذهنيًا:</strong> في الثاني العمر 30 فالأساس 25، لكن بطاقة الطالب تجعله 15، وفي العطلة نضيف 20% (3) فيصبح 18. لاحظ أن شرط العمر في سلسلة واحدة مرتّبة من الأصغر إلى الأكبر، فلا نحتاج كتابة حدّ أدنى لكل حالة (بل «ما لم يتحقق ما قبله»).</p></div>
+  <details class="reveal"><summary><i class="fas fa-eye"></i> بعد أن تجرّب بنفسك: اعرض الحل</summary>
+    <div class="code-box"><div class="code-head"><span>ticket_price.cpp</span><button class="copy-btn" onclick="copyCode('code_project')">نسخ الكود</button></div><pre id="code_project"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> age, weekend, student;
+    cin &gt;&gt; age &gt;&gt; weekend &gt;&gt; student;
+
+    <span class="kw">int</span> price;
+    <span class="kw">if</span> (age &lt; <span class="num">4</span>) {
+        price = <span class="num">0</span>;
+    } <span class="kw">else</span> <span class="kw">if</span> (age &lt;= <span class="num">12</span>) {
+        price = <span class="num">10</span>;
+    } <span class="kw">else</span> <span class="kw">if</span> (age &lt;= <span class="num">17</span>) {
+        price = <span class="num">15</span>;
+    } <span class="kw">else</span> <span class="kw">if</span> (age &lt;= <span class="num">59</span>) {
+        price = student ? <span class="num">15</span> : <span class="num">25</span>;
+    } <span class="kw">else</span> {
+        price = <span class="num">10</span>;
+    }
+
+    <span class="kw">if</span> (weekend == <span class="num">1</span>) {
+        price = price + price / <span class="num">5</span>;
+    }
+    cout &lt;&lt; <span class="str">"Ticket price: "</span> &lt;&lt; price &lt;&lt; <span class="str">" SAR"</span> &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  </details>
+</div>
+
+
+<div class="card challenge-card"><div class="card-header"><i class="fas fa-dumbbell"></i><h3>واجبات بعد الدرس</h3></div><p>تحديان بسيطان تحلّهما بنفسك بعد انتهاء الدرس. اكتب الحل في ملف <code>.cpp</code>، ثم ترجمه وشغّله وقارن ناتجك بالناتج المتوقع. جرّب أولًا، ثم افتح التلميح إن علقت، ولا تفتح نموذج الحل إلا بعد المحاولة الجادة.</p><div class="challenge"><div class="ch-head"><span class="ch-num">1</span><h4>الوسيط بين ثلاثة</h4><span class="badge easy">سهل</span></div><p>اقرأ ثلاثة أعداد صحيحة مختلفة أو متساوية. اطبع <strong>الوسيط</strong> منها: العدد الذي ليس الأصغر ولا الأكبر، دون استخدام <code>sort</code>.</p><h5>المطلوب</h5><ul><li>استخدم سلسلة <code>if / else if / else</code> فقط.</li><li>العدد وسيط إن كان بين الآخرين (بصرف النظر عن أيهما أكبر).</li><li>اطبع الوسيط.</li></ul><h5>مثال على الإدخال والناتج المتوقع</h5><div class="input-box">7 2 9</div><div class="output-box">7</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> تلميحات</summary><ul><li>العدد <code>a</code> وسيط إن تحقق <code>(a &gt;= b &amp;&amp; a &lt;= c) || (a &lt;= b &amp;&amp; a &gt;= c)</code>.</li><li>إن لم يكن <code>a</code> ولا <code>b</code> وسيطًا فالوسيط هو <code>c</code> بالضرورة.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> نموذج الحل (بعد المحاولة)</summary><div class="code-box"><div class="code-head"><span>median_of_three.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_median')">نسخ الكود</button></div><pre id="code_ch_median"><span class="cmt">// Challenge 1: median of three numbers (no sorting)</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> a, b, c;
+    cin &gt;&gt; a &gt;&gt; b &gt;&gt; c;
+    <span class="kw">int</span> med;
+    <span class="kw">if</span> ((a &gt;= b &amp;&amp; a &lt;= c) || (a &lt;= b &amp;&amp; a &gt;= c)) {
+        med = a;
+    } <span class="kw">else</span> <span class="kw">if</span> ((b &gt;= a &amp;&amp; b &lt;= c) || (b &lt;= a &amp;&amp; b &gt;= c)) {
+        med = b;
+    } <span class="kw">else</span> {
+        med = c;
+    }
+    cout &lt;&lt; med &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div><div class="challenge"><div class="ch-head"><span class="ch-num">2</span><h4>قطع الكعكة</h4><span class="badge medium">متوسط</span></div><p>كعكة دائرية نريد تقطيعها إلى <code>s</code> قطعة متساوية تمامًا بقطع مستقيمة كلها تمرّ بمركزها. كل قطع يقسم الكعكة بقطرٍ كامل. اقرأ <code>s</code> (حتى <code>10¹²</code>) واطبع أقل عدد من القطوع.</p><h5>المطلوب</h5><ul><li>فكّر في ثلاث حالات: <code>s = 1</code> ولا حاجة لأي قطع.</li><li>عدد زوجي من القطع: كل قطع يعطي قطعتين فنحتاج <code>s / 2</code>.</li><li>عدد فردي أكبر من 1: لا يمكن القسمة المتساوية إلا بـ <code>s</code> قطعًا.</li></ul><h5>مثال على الإدخال والناتج المتوقع</h5><div class="input-box">7</div><div class="output-box">7</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> تلميحات</summary><ul><li>استخدم <code>long long</code> لأن <code>s</code> كبير.</li><li>جرّب بيدك: ثمان قطع تحتاج 4 قطوع، وسبع قطع تحتاج 7.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> نموذج الحل (بعد المحاولة)</summary><div class="code-box"><div class="code-head"><span>cake_cuts.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_cake')">نسخ الكود</button></div><pre id="code_ch_cake"><span class="cmt">// Challenge 2: straight cuts through the center of a round cake</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">long</span> <span class="kw">long</span> s;
+    cin &gt;&gt; s;
+    <span class="kw">long</span> <span class="kw">long</span> cuts;
+    <span class="kw">if</span> (s == <span class="num">1</span>) {
+        cuts = <span class="num">0</span>;
+    } <span class="kw">else</span> <span class="kw">if</span> (s % <span class="num">2</span> == <span class="num">0</span>) {
+        cuts = s / <span class="num">2</span>;
+    } <span class="kw">else</span> {
+        cuts = s;
+    }
+    cout &lt;&lt; cuts &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div></div>
+
+<div class="card summary-card"><div class="card-header"><i class="fas fa-clipboard-list"></i><h3>ملخص سريع</h3></div><ul class="sum-list"><li><i class="fas fa-circle-check"></i><span>تحليل الحالات: نقسّم الاحتمالات إلى حالات **شاملة** (لا يفلت احتمال) و**متنافية** (لا يقع احتمال في حالتين) ونحلّ كل حالة بسهولة.</span></li><li><i class="fas fa-circle-check"></i><span>رتّب الشروط: الاستثناءات أولًا ثم من الأخص إلى الأعم ثم <code class="inline">else</code> للباقي.</span></li><li><i class="fas fa-circle-check"></i><span>سلسلة <code class="inline">if / else if / else</code> تنفّذ حالة واحدة فقط، و<code class="inline">if</code> الجديدة سؤال مستقل.</span></li><li><i class="fas fa-circle-check"></i><span>لا تهمل الأقواس <code class="inline">{ }</code>، فبدونها يرتبط الشرط بسطر واحد فقط.</span></li><li><i class="fas fa-circle-check"></i><span>أحيانًا تُختصر الحالات الكثيرة في صيغة (مثل الباقي في حجر-ورقة-مقص) أو في العدّ (زوجي/فردي).</span></li><li><i class="fas fa-circle-check"></i><span>جرّب الحدود: 0 و1 والقيم المتساوية والسالبة، وأنهِ بـ <code class="inline">else</code> تلتقط ما لم تفكر فيه.</span></li><li><i class="fas fa-circle-check"></i><span>قارن حلّك على القيم الصغيرة مع حل القوة الغاشمة لتكتشف الحالات المنسية.</span></li></ul></div>
+  <div class="card steps-card" id="tfCard">
+    <div class="card-header"><i class="fas fa-clipboard-check"></i><h3>تحقق من فهمك</h3></div>
+    <p>اقرأ كل عبارة ثم اختر <strong>صحيح</strong> أو <strong>خطأ</strong>. سيظهر التفسير مباشرة بعد إجابتك.</p>
+    <div id="tfList"></div>
+    <div class="score-box" id="tfScore" style="display:none"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><i class="fas fa-book"></i><h3>قاموس المصطلحات</h3></div>
+    <p>المصطلحات الإنجليزية الأهم في هذا الدرس ومقابلها بالعربية:</p>
+    <div class="glossary-grid"><div class="term-card"><span class="term-en">Casework</span><span class="term-ar">تحليل الحالات</span><p class="term-desc">تقسيم المسألة إلى حالات يُحلّ كل منها على حدة.</p></div><div class="term-card"><span class="term-en">Case</span><span class="term-ar">حالة</span><p class="term-desc">مجموعة من الاحتمالات تتشارك خاصية واحدة.</p></div><div class="term-card"><span class="term-en">Exhaustive</span><span class="term-ar">شامل</span><p class="term-desc">تغطي الحالات كل الاحتمالات الممكنة دون نسيان.</p></div><div class="term-card"><span class="term-en">Mutually exclusive</span><span class="term-ar">متنافٍ</span><p class="term-desc">لا يمكن أن تتحقق حالتان معًا.</p></div><div class="term-card"><span class="term-en">Edge case</span><span class="term-ar">حالة حدّية</span><p class="term-desc">قيمة على حافة المدى مثل 0 أو 1 أو أصغر مدخل ممكن.</p></div><div class="term-card"><span class="term-en">Else-if chain</span><span class="term-ar">سلسلة else if</span><p class="term-desc">سلسلة شروط تنفّذ أول حالة صحيحة فقط.</p></div><div class="term-card"><span class="term-en">Brute force</span><span class="term-ar">القوة الغاشمة</span><p class="term-desc">حل بسيط يجرّب كل الاحتمالات دون ذكاء.</p></div><div class="term-card"><span class="term-en">Stress test</span><span class="term-ar">اختبار مقارن</span><p class="term-desc">مقارنة حلّين على مدخلات كثيرة للتأكد من تطابقهما.</p></div><div class="term-card"><span class="term-en">Parity</span><span class="term-ar">الزوجية</span><p class="term-desc">كون العدد زوجيًا أو فرديًا.</p></div><div class="term-card"><span class="term-en">Leap year</span><span class="term-ar">سنة كبيسة</span><p class="term-desc">سنة فيها 29 يومًا في شباط، بحسب قاعدة القسمة على 4 و100 و400.</p></div><div class="term-card"><span class="term-en">Equilateral</span><span class="term-ar">متساوي الأضلاع</span><p class="term-desc">مثلث أضلاعه الثلاثة متساوية.</p></div><div class="term-card"><span class="term-en">Isosceles</span><span class="term-ar">متساوي الساقين</span><p class="term-desc">مثلث فيه ضلعان متساويان على الأقل.</p></div></div>
+  </div>
+  <div class="card steps-card" id="quizCard">
+    <div class="card-header"><i class="fas fa-circle-question"></i><h3>الاختبار النهائي</h3></div>
+    <p>عشرة أسئلة بين السهلة والمتوسطة. اختر إجابة واحدة لكل سؤال.</p>
+    <div class="progress"><div class="progress-bar" id="quizBar"></div></div>
+    <div id="quizList"></div>
+    <div class="score-box" id="quizScore" style="display:none"></div>
+  </div>
+  <div class="card refs-card">
+    <div class="card-header"><i class="fas fa-link"></i><h3>للاستزادة</h3></div>
+    <p>الحقائق التقنية في هذا الدرس موثّقة في المراجع التالية، أما الشرح والأمثلة والتمارين فمكتوبة خصيصًا لمنصة TweetKod:</p>
+    <ul class="ref-list"><li><a href="https://en.cppreference.com/w/cpp/language/if" target="_blank" rel="noopener"><span class="en">if statement &mdash; cppreference</span></a></li><li><a href="https://en.cppreference.com/w/cpp/language/operator_arithmetic" target="_blank" rel="noopener"><span class="en">Arithmetic operators (remainder) &mdash; cppreference</span></a></li><li><a href="https://en.cppreference.com/w/cpp/algorithm/max" target="_blank" rel="noopener"><span class="en">std::min / std::max &mdash; cppreference</span></a></li><li><a href="https://cses.fi/book/book.pdf" target="_blank" rel="noopener"><span class="en">Competitive Programmer's Handbook &mdash; Antti Laaksonen (book, CC BY-NC-SA 4.0)</span></a></li><li><a href="https://usaco.guide/silver/" target="_blank" rel="noopener"><span class="en">USACO Guide: Sorting &amp; Sets/Maps (CC BY-NC-SA 4.0)</span></a></li><li><a href="https://cses.fi/problemset/" target="_blank" rel="noopener"><span class="en">CSES Problem Set &mdash; practice problems</span></a></li></ul>
+  </div>
+</div>
+<button class="to-top" id="toTop" title="إلى الأعلى"><i class="fas fa-arrow-up"></i></button>
+<footer class="page-footer">منصة TweetKod</footer>
+<script>
+const TF = [{"s": "الحالات الجيدة يجب أن تكون شاملة ومتنافية.", "a": true, "why": "شاملة: لا ينسى احتمال. متنافية: لا يقع احتمال في حالتين."}, {"s": "في سلسلة <code class=\"inline\">if / else if / else</code> قد تُنفَّذ أكثر من حالة في الوقت نفسه.", "a": false, "why": "تُنفَّذ أول حالة صحيحة فقط، وتتجاهل البقية."}, {"s": "السنة 1900 كبيسة لأنها تقبل القسمة على 4.", "a": false, "why": "تقبل القسمة على 100 ولا تقبلها على 400، فليست كبيسة."}, {"s": "عند تصنيف المثلثات نفحص «متساوي الأضلاع» قبل «متساوي الساقين».", "a": true, "why": "الحالة الأخص تأتي أولًا وإلا ابتلعتها الحالة الأعم."}, {"s": "يكفي اختبار حلّ الحالات على المدخلات الكبيرة فقط.", "a": false, "why": "الاختبار على القيم الصغيرة والحدود هو الأهم لأنه يكشف الحالات المنسية وتُقارن فيه بحل القوة الغاشمة."}, {"s": "حاصل ضرب مجموعة أعداد يساوي صفرًا إذا وُجد صفر واحد على الأقل بينها.", "a": true, "why": "أي عدد مضروب في صفر يعطي صفرًا."}, {"s": "وضع سطرين بعد <code class=\"inline\">if</code> بدون أقواس يجعل السطرين معًا جزءًا من الشرط.", "a": false, "why": "السطر الأول فقط يتبع الشرط، والثاني ينفَّذ دائمًا وقد يسبب خطأً مع <code class=\"inline\">else</code>."}];
+const QUIZ = [{"q": "ماذا تعني أن تكون الحالات «متنافية»؟", "o": ["عددها زوجي", "تغطي كل الاحتمالات", "لا يمكن أن يقع احتمال في حالتين معًا", "تبدأ بالرقم 0"], "a": 2, "why": "التنافي يعني عدم التداخل."}, {"q": "في تصنيف المثلثات لماذا نفحص «متساوي الأضلاع» قبل «متساوي الساقين»؟", "o": ["لأنه أسرع", "لأنه حالة خاصة تحقق شرط الأعم أيضًا، فلو تأخر لصُنّف خطأً", "لأن القوانين تقول ذلك", "لا فرق"], "a": 1, "why": "متساوي الأضلاع يحقق شرط متساوي الساقين فنقدّمه."}, {"q": "أي السنوات التالية كبيسة؟", "o": ["2023", "2100", "2000", "1900"], "a": 2, "why": "2000 تقبل القسمة على 400."}, {"q": "ما الذي يطبعه: ‏<code class=\"inline\">int x = 6; if (x % 2 == 0) cout &lt;&lt; \"A\"; else if (x % 3 == 0) cout &lt;&lt; \"B\";</code> ؟", "o": ["B", "A", "AB", "لا شيء"], "a": 1, "why": "أول شرط صحيح فينفذ ويُتجاهل الثاني."}, {"q": "ما الذي يطبعه: ‏<code class=\"inline\">int x = 6; if (x % 2 == 0) cout &lt;&lt; \"A\"; if (x % 3 == 0) cout &lt;&lt; \"B\";</code> ؟", "o": ["A", "B", "AB", "لا شيء"], "a": 2, "why": "سؤالان مستقلان وكلاهما صحيح."}, {"q": "ما إشارة حاصل ضرب الأعداد <code class=\"inline\">-1 -2 -3 4</code>؟", "o": ["صفر", "لا يمكن تحديدها", "موجب", "سالب"], "a": 3, "why": "ثلاثة أعداد سالبة (فردي) فالناتج سالب."}, {"q": "في المعادلة <code class=\"inline\">(a - b + 3) % 3</code> لحجر-ورقة-مقص، إذا كان الناتج 0 فهذا يعني:", "o": ["تعادل", "فوز الأول", "خطأ", "فوز الثاني"], "a": 0, "why": "فرق الصفر يعني الأداة نفسها."}, {"q": "ما فائدة كتابة حل بالقوة الغاشمة بجانب الحل الذكي؟", "o": ["لتبطيء البرنامج", "لأنه مطلوب دائمًا", "لتقليل الأسطر", "لمقارنتهما على قيم صغيرة وكشف الحالات المنسية"], "a": 3, "why": "المطابقة بين الحلين تكشف الأخطاء."}, {"q": "أي القيم أنسب لاختبار الحالات الحدّية؟", "o": ["0 و1 والقيم المتساوية", "لا حاجة لاختبارها", "الأعداد الكبيرة الأولية فقط", "قيم عشوائية جدًا"], "a": 0, "why": "الأخطاء تختبئ عند الحدود."}, {"q": "ما سبب الخطأ في: <code class=\"inline\">if (x &gt; 3) cout &lt;&lt; \"a\"; cout &lt;&lt; \"b\"; else cout &lt;&lt; \"c\";</code> ؟", "o": ["نسيان <code class=\"inline\">return</code>", "القوسان <code class=\"inline\">{ }</code> زائدان", "النوع int خاطئ", "else بلا if سابقة لأن الجملة الثانية قطعت السلسلة"], "a": 3, "why": "ضع الأقواس لتجمع السطرين مع الشرط."}];
+const EXPL = {"triangle": {"5": "الحالة الأولى: أي ضلع غير موجب؟ نتخلص من المدخلات المستحيلة أولًا.", "8": "الحالة الثانية: لا يتكوّن مثلث إلا إذا كان مجموع أي ضلعين <strong>أكبر تمامًا</strong> من الثالث.", "11": "الأضلاع الثلاثة متساوية: متساوي الأضلاع. نفحصه <strong>قبل</strong> متساوي الساقين لأنه حالة خاصة منه.", "14": "تساوي ضلعين (أي ضلعين) يكفي لمتساوي الساقين.", "17": "ما تبقى بعد استبعاد كل ما سبق هو مختلف الأضلاع. لا نحتاج شرطًا له لأنه «الباقي»."}, "signprod": {"0": "نريد إشارة حاصل ضرب كل الأعداد <strong>دون ضربها فعليًا</strong> (الضرب قد يفيض!).", "6": "حالة الصفر: يكفي صفر واحد ليصبح الناتج صفرًا.", "8": "نعدّ الأعداد السالبة فقط، فهي التي تغيّر الإشارة.", "13": "إن وُجد صفر انتهى الأمر.", "15": "وإلا فعدد زوجي من السالبة يعطي موجبًا (سالب × سالب = موجب)...", "17": "...وعدد فردي يعطي سالبًا."}, "leap": {"4": "كل ما يقبل القسمة على 400 سنة كبيسة (مثل 2000).", "7": "وما عدا ذلك، إن قبل القسمة على 100 فليست كبيسة (مثل 1900).", "10": "والباقي: يكون كبيسًا إن قبل القسمة على 4 (مثل 2024). <strong>الترتيب مهم!</strong> لو بدأنا بـ 4 لأخطأنا في 1900."}, "rps": {"0": "نرقّم الأدوات: حجر 0، ورقة 1، مقص 2. كل واحدة تهزم السابقة لها: الورقة تهزم الحجر، والمقص يهزم الورقة، والحجر يهزم المقص.", "4": "تسع حالات ممكنة (3×3) تختصرها معادلة واحدة بالباقي: الناتج 0 تعادل، 1 فوز الأول، 2 فوز الثاني. أحيانًا تتحول الحالات الكثيرة إلى صيغة!"}, "brute": {"5": "حلّنا المختصر القائم على الحالات: الجواب نعم إن كان العدد زوجيًا ولا يقل عن 4.", "9": "حلّ «غبي» لكنه صحيح بلا شك: يجرّب كل التقسيمات الممكنة.", "21": "نقارن الحلين على كل الأعداد الصغيرة. إن اتفقا فاطمئنّ، وإن اختلفا فقد وجدت حالة نسيتها!"}};
+const TRACES = {"ltrace": [{"line": -1, "vars": {}, "out": "", "note": "نقطة البداية: لم يُنفَّذ أي سطر بعد."}, {"line": 0, "vars": {"y": "1900"}, "out": "", "note": "السنة المراد فحصها: 1900."}, {"line": 1, "vars": {"y": "1900"}, "out": "", "note": "متغير الجواب leap لم يأخذ قيمة بعد."}, {"line": 2, "vars": {"y": "1900"}, "out": "", "note": "هل 1900 % 400 == 0؟ الباقي 300، فالشرط خاطئ."}, {"line": 4, "vars": {"y": "1900"}, "out": "", "note": "هل 1900 % 100 == 0؟ نعم! الباقي صفر."}, {"line": 5, "vars": {"y": "1900", "leap": "false"}, "out": "", "note": "إذن ليست كبيسة، ولا نفحص بقية الحالات."}, {"line": 9, "vars": {"y": "1900", "leap": "false"}, "out": "common\n", "note": "طبعنا common. السنة 1900 ليست كبيسة رغم أنها تقبل القسمة على 4."}]};
+function copyCode(id) {
+  const el = document.getElementById(id);
+  const text = el.innerText.replace(/ /g, ' ');
+  const done = () => { const b = el.parentElement.querySelector('.copy-btn'); const t = b.textContent; b.textContent = 'تم النسخ ✓'; setTimeout(() => b.textContent = t, 1400); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(done); else done();
+}
+
+/* click-to-explain code lines */
+document.querySelectorAll('.code-box[data-expl]').forEach(box => {
+  const id = box.getAttribute('data-expl');
+  const out = document.querySelector('.explain-box[data-for="' + id + '"]');
+  box.querySelectorAll('.code-line').forEach(line => {
+    line.addEventListener('click', () => {
+      box.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+      line.classList.add('active');
+      out.innerHTML = EXPL[id][line.getAttribute('data-i')];
+    });
+  });
+});
+
+/* true / false check */
+(function () {
+  const list = document.getElementById('tfList');
+  let answered = 0, right = 0;
+  TF.forEach((it, i) => {
+    const d = document.createElement('div');
+    d.className = 'tf-item';
+    d.innerHTML = '<div class="stmt">' + (i + 1) + '. ' + it.s + '</div>' +
+      '<div class="tf-btns"><button class="tf-btn" data-v="true"><i class="fas fa-check"></i> صحيح</button>' +
+      '<button class="tf-btn" data-v="false"><i class="fas fa-xmark"></i> خطأ</button></div><div class="feedback"></div>';
+    d.querySelectorAll('.tf-btn').forEach(b => b.addEventListener('click', () => {
+      const pick = b.getAttribute('data-v') === 'true';
+      const ok = pick === it.a;
+      d.querySelectorAll('.tf-btn').forEach(x => { x.disabled = true; });
+      b.classList.add(ok ? 'correct' : 'wrong');
+      const fb = d.querySelector('.feedback');
+      fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+      fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> إجابة صحيحة. ' : '<i class="fas fa-circle-xmark"></i> الإجابة الصحيحة: ' + (it.a ? 'صحيح' : 'خطأ') + '. ') + it.why;
+      answered++; if (ok) right++;
+      if (answered === TF.length) {
+        const s = document.getElementById('tfScore');
+        s.style.display = 'block';
+        s.innerHTML = '<div class="big">' + right + ' / ' + TF.length + '</div><div>' + (right === TF.length ? 'ممتاز! فهمت الدرس جيدًا.' : right >= TF.length - 2 ? 'نتيجة جيدة، راجع العبارات التي أخطأت فيها.' : 'أعد قراءة الدرس ثم جرّب مرة أخرى.') + '</div>';
+      }
+    }));
+    list.appendChild(d);
+  });
+})();
+
+/* final quiz */
+(function () {
+  const list = document.getElementById('quizList');
+  const bar = document.getElementById('quizBar');
+  let answered = 0, right = 0;
+  QUIZ.forEach((q, qi) => {
+    const d = document.createElement('div');
+    d.className = 'quiz-q';
+    d.innerHTML = '<h4><span class="qnum">' + (qi + 1) + '</span>' + q.q + '</h4><div class="quiz-options"></div><div class="feedback"></div>';
+    const box = d.querySelector('.quiz-options');
+    q.o.forEach((txt, oi) => {
+      const b = document.createElement('button');
+      b.className = 'quiz-opt'; b.innerHTML = txt;
+      b.addEventListener('click', () => {
+        box.querySelectorAll('.quiz-opt').forEach(x => x.disabled = true);
+        const ok = oi === q.a;
+        b.classList.add(ok ? 'correct' : 'wrong');
+        if (!ok) box.children[q.a].classList.add('correct');
+        const fb = d.querySelector('.feedback');
+        fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+        fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> صحيح! ' : '<i class="fas fa-circle-xmark"></i> ليست الإجابة الصحيحة. ') + q.why;
+        answered++; if (ok) right++;
+        bar.style.width = (answered / QUIZ.length * 100) + '%';
+        if (answered === QUIZ.length) showScore();
+      });
+      box.appendChild(b);
+    });
+    list.appendChild(d);
+  });
+  function showScore() {
+    const s = document.getElementById('quizScore');
+    const pct = right / QUIZ.length;
+    s.style.display = 'block';
+    s.innerHTML = '<div class="big">' + right + ' / ' + QUIZ.length + '</div><div>' +
+      (pct === 1 ? 'نتيجة كاملة! أنت جاهز للدرس التالي.' : pct >= 0.7 ? 'أداء جيد جدًا، راجع الأسئلة التي أخطأت فيها.' : 'راجع الدرس مرة أخرى ثم أعد المحاولة.') +
+      '</div><button class="retry-btn" onclick="location.hash=\'quizCard\';location.reload();">إعادة الاختبار</button>';
+  }
+})();
+
+
+/* ---------------- header tools ---------------- */
+(function () {
+  const root = document.documentElement;
+  const safeGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const safeSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+  /* theme */
+  const themeBtn = document.getElementById('themeBtn');
+  function applyTheme(t) { root.setAttribute('data-theme', t); if (themeBtn) themeBtn.innerHTML = t === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; }
+  applyTheme(safeGet('tk_theme') || 'light');
+  if (themeBtn) themeBtn.addEventListener('click', () => { const t = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; applyTheme(t); safeSet('tk_theme', t); });
+
+  /* code size */
+  let size = parseFloat(safeGet('tk_codesize') || '0.95');
+  function applySize() { root.style.setProperty('--code-size', size + 'rem'); }
+  applySize();
+  const dec = document.getElementById('fontDec'), inc = document.getElementById('fontInc');
+  if (dec) dec.addEventListener('click', () => { size = Math.max(0.75, +(size - 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+  if (inc) inc.addEventListener('click', () => { size = Math.min(1.3, +(size + 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+
+  /* table of contents */
+  const panel = document.getElementById('tocPanel'), tocBtn = document.getElementById('tocBtn');
+  if (panel && tocBtn) {
+    const cards = document.querySelectorAll('.container > .card');
+    let n = 0;
+    cards.forEach((c, i) => {
+      const h = c.querySelector('.card-header h3, .project-banner strong');
+      if (!h) return;
+      n++;
+      c.id = c.id || 'sec-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + c.id;
+      a.innerHTML = '<span>' + n + '</span><bdi>' + h.innerHTML + '</bdi>';
+      a.addEventListener('click', () => panel.classList.remove('open'));
+      panel.appendChild(a);
+    });
+    tocBtn.addEventListener('click', (e) => { e.stopPropagation(); panel.classList.toggle('open'); });
+    document.addEventListener('click', (e) => { if (!panel.contains(e.target)) panel.classList.remove('open'); });
+  }
+
+  /* reading progress + back to top */
+  const bar = document.getElementById('readBar'), top = document.getElementById('toTop');
+  function onScroll() {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+    if (bar) bar.style.width = pct + '%';
+    if (top) top.classList.toggle('show', h.scrollTop > 600);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  if (top) top.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+})();
+
+/* ---------------- step tracer ---------------- */
+document.querySelectorAll('.tracer').forEach(el => {
+  const steps = TRACES[el.getAttribute('data-trace')];
+  const lines = el.querySelectorAll('.tr-line');
+  const varsEl = el.querySelector('.tr-vars'), outEl = el.querySelector('.tr-out'), noteEl = el.querySelector('.tr-note'), cnt = el.querySelector('.tr-count');
+  const btn = (a) => el.querySelector('[data-a="' + a + '"]');
+  let i = 0, timer = null;
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  function draw() {
+    const s = steps[i], prev = i > 0 ? steps[i - 1].vars : {};
+    lines.forEach((l, k) => l.classList.toggle('active', k === s.line));
+    const names = Object.keys(s.vars);
+    varsEl.innerHTML = names.length ? names.map(n => '<div class="tr-var' + (prev[n] !== s.vars[n] ? ' changed' : '') + '"><span>' + esc(n) + '</span><b>' + esc(s.vars[n]) + '</b></div>').join('') : '<span style="color:#94a3b8">لا توجد متغيرات بعد</span>';
+    outEl.textContent = s.out || ' ';
+    noteEl.textContent = s.note || ' ';
+    cnt.textContent = 'الخطوة ' + i + ' من ' + (steps.length - 1);
+    btn('prev').disabled = i === 0; btn('next').disabled = i === steps.length - 1;
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; btn('play').innerHTML = '<i class="fas fa-play"></i> تشغيل تلقائي'; } }
+  btn('next').onclick = () => { stop(); if (i < steps.length - 1) i++; draw(); };
+  btn('prev').onclick = () => { stop(); if (i > 0) i--; draw(); };
+  btn('reset').onclick = () => { stop(); i = 0; draw(); };
+  btn('play').onclick = () => {
+    if (timer) { stop(); return; }
+    if (i >= steps.length - 1) i = 0;
+    btn('play').innerHTML = '<i class="fas fa-pause"></i> إيقاف';
+    timer = setInterval(() => { if (i < steps.length - 1) { i++; draw(); } else stop(); }, 1100);
+    draw();
+  };
+  draw();
+});
+
+/* ---------------- predict the output ---------------- */
+document.querySelectorAll('.predict').forEach(p => {
+  const opts = p.querySelectorAll('.pd-opt');
+  opts.forEach(o => o.addEventListener('click', () => {
+    const ok = o.getAttribute('data-ok') === '1';
+    opts.forEach(x => { x.disabled = true; if (x.getAttribute('data-ok') === '1') x.classList.add('correct'); });
+    if (!ok) o.classList.add('wrong');
+    const res = p.querySelector('.pd-result');
+    res.classList.remove('hidden');
+    const msg = p.querySelector('.pd-msg');
+    msg.innerHTML = ok ? '<span style="color:#16a34a"><i class="fas fa-check-circle"></i> توقّعك صحيح! هذا هو الناتج الحقيقي:</span>' : '<span style="color:#dc2626"><i class="fas fa-circle-xmark"></i> ليس تمامًا. هذا هو الناتج الحقيقي، وتابع التفسير:</span>';
+  }));
+});
+
+
+function trRun() {
+  const a = +document.getElementById('trARange').value, b = +document.getElementById('trBRange').value, c = +document.getElementById('trCRange').value;
+  document.getElementById('trA').textContent = a; document.getElementById('trB').textContent = b; document.getElementById('trC').textContent = c;
+  const checks = [
+    ['أي ضلع ≤ 0 ؟ → invalid', a <= 0 || b <= 0 || c <= 0, 'invalid'],
+    ['مجموع ضلعين ≤ الثالث؟ → not a triangle', a + b <= c || a + c <= b || b + c <= a, 'ليس مثلثًا (not a triangle)'],
+    ['الأضلاع الثلاثة متساوية؟ → equilateral', a === b && b === c, 'متساوي الأضلاع (equilateral)'],
+    ['ضلعان متساويان؟ → isosceles', a === b || b === c || a === c, 'متساوي الساقين (isosceles)'],
+    ['وإلا → scalene', true, 'مختلف الأضلاع (scalene)']
+  ];
+  let hit = -1; checks.forEach((ch, i) => { if (hit < 0 && ch[1]) hit = i; });
+  let h = '<tr><th>#</th><th>الشرط</th><th>النتيجة</th></tr>';
+  checks.forEach((ch, i) => { const reached = i <= hit; const style = i === hit ? ' style="background:rgba(22,163,74,.25);font-weight:800"' : (reached ? '' : ' style="opacity:.4"'); h += '<tr' + style + '><td>' + (i + 1) + '</td><td style="text-align:start">' + ch[0] + '</td><td>' + (i < hit ? 'خاطئ ✗' : i === hit ? 'صحيح ✓' : 'لم يُفحص') + '</td></tr>'; });
+  document.getElementById('trTable').innerHTML = h;
+  const n = document.getElementById('trNote'); n.className = 'lab-say ' + (hit >= 2 ? 'ok' : 'bad'); n.textContent = 'النتيجة: ' + checks[hit][2];
+  let svg = '<svg viewBox="0 0 220 130" width="260" style="max-width:100%">';
+  if (hit >= 2) {
+    const x = (b * b + c * c - a * a) / (2 * c), y2 = b * b - x * x, y = Math.sqrt(Math.max(0, y2));
+    const sc = Math.min(180 / Math.max(c, 1), 100 / Math.max(y, 1)); const ox = 20, oy = 115;
+    const P = [[ox, oy], [ox + c * sc, oy], [ox + x * sc, oy - y * sc]];
+    svg += '<polygon points="' + P.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ') + '" fill="rgba(0,173,239,.25)" stroke="#00adef" stroke-width="3"/>';
+  } else { svg += '<text x="110" y="70" text-anchor="middle" fill="#ef4444" font-size="16" font-weight="800">لا يمكن رسمه</text>'; }
+  svg += '</svg>'; document.getElementById('trDraw').innerHTML = svg;
+}
+function lyRun() {
+  const y = parseInt(document.getElementById('lyYear').value, 10); if (isNaN(y) || y < 1) { document.getElementById('lyTable').innerHTML = ''; return; }
+  const c400 = y % 400 === 0, c100 = y % 100 === 0, c4 = y % 4 === 0;
+  const steps = [['y % 400 == 0 ؟', y % 400, c400, 'كبيسة ✓'], ['y % 100 == 0 ؟', y % 100, c100, 'ليست كبيسة ✗'], ['y % 4 == 0 ؟', y % 4, c4, 'كبيسة ✓']];
+  let h = '<tr><th>الشرط</th><th>الباقي</th><th>صحيح؟</th><th>القرار</th></tr>', done = false, leap = false;
+  steps.forEach((s, i) => { if (done) { h += '<tr style="opacity:.35"><td>' + s[0] + '</td><td>—</td><td>لم يُفحص</td><td>—</td></tr>'; return; }
+    if (i === 0 && s[2]) { done = true; leap = true; } else if (i === 1 && s[2]) { done = true; leap = false; } else if (i === 2) { done = true; leap = s[2]; }
+    h += '<tr' + (done ? ' style="background:rgba(22,163,74,.22);font-weight:800"' : '') + '><td>' + s[0] + '</td><td>' + s[1] + '</td><td>' + (s[2] ? 'نعم' : 'لا') + '</td><td>' + (done ? (leap ? 'كبيسة ✓' : 'ليست كبيسة ✗') : 'ننتقل للشرط التالي') + '</td></tr>'; });
+  document.getElementById('lyTable').innerHTML = h;
+  const n = document.getElementById('lyNote'); n.className = 'lab-say ' + (leap ? 'ok' : 'bad'); n.textContent = y + (leap ? ' سنة كبيسة: شباط فيها 29 يومًا.' : ' سنة عادية: شباط فيها 28 يومًا.');
+}
+function lySet(v) { document.getElementById('lyYear').value = v; lyRun(); }
+trRun(); lyRun();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TweetKod | البحث الثنائي</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --primary-blue: #00adef;
+  --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+  --primary-yellow: #f7941e;
+  --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+  --dark-navy: #0f172a;
+  --text-body: #475569;
+  --bg-main: #f4f9fd;
+  --surface: #f1f6fb;
+  --card-bg: #ffffff;
+  --border: #e2e8f0;
+  --chip-bg: #eef2f7;
+  --soft-shadow: 0 14px 34px -14px rgba(15,23,42,0.14);
+  --header-bg: rgba(255,255,255,0.82);
+  --code-size: 0.95rem;
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2300adef' fill-opacity='0.075'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+html[data-theme="dark"] {
+  --dark-navy: #e6edf7;
+  --text-body: #a9b6cc;
+  --bg-main: #0a1120;
+  --surface: #16213a;
+  --card-bg: #111a2e;
+  --border: #243049;
+  --chip-bg: #1d2a45;
+  --soft-shadow: 0 14px 34px -14px rgba(0,0,0,0.6);
+  --header-bg: rgba(10,17,32,0.82);
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2338bdf8' fill-opacity='0.06'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+body {
+  font-family: 'Tajawal', 'Segoe UI', sans-serif;
+  background-color: var(--bg-main);
+  margin: 0; padding: 0; color: var(--dark-navy);
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color .3s, color .3s;
+  position: relative;
+}
+/* decorative background */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.20), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.17), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.06), transparent 70%);
+}
+html[data-theme="dark"] body::before {
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.22), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.12), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.10), transparent 70%);
+}
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: var(--pattern); background-size: 260px 260px;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+          mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+}
+.bg-deco { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .35; animation: floaty 18s ease-in-out infinite; }
+.b1 { width: 340px; height: 340px; background: #00adef; top: 12%; right: -90px; }
+.b2 { width: 280px; height: 280px; background: #f7941e; bottom: 6%; left: -80px; animation-delay: -6s; }
+.b3 { width: 220px; height: 220px; background: #8b5cf6; top: 55%; right: 18%; opacity: .16; animation-delay: -11s; }
+html[data-theme="dark"] .blob { opacity: .2; }
+@keyframes floaty { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(26px,-34px) scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .blob { animation: none; } html { scroll-behavior: auto; } }
+
+/* header */
+header {
+  background: var(--header-bg); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  padding: 10px 4%; display: flex; justify-content: space-between; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 1000;
+  border-bottom: 1px solid rgba(0,173,239,0.16); box-shadow: 0 8px 28px -18px rgba(15,23,42,0.45);
+}
+.hdr-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.logo-img { width: 52px; height: 52px; border-radius: 15px; object-fit: contain; padding: 6px; background: #fff;
+  box-shadow: 0 6px 18px -6px rgba(0,173,239,0.45), 0 0 0 1px rgba(0,173,239,0.16); }
+.brand-info h3 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); line-height: 1.3; }
+.brand-info p { margin: 0; font-size: 0.78rem; color: var(--primary-blue); font-weight: 700; }
+.hdr-tools { display: flex; align-items: center; gap: 8px; position: relative; }
+.tool-btn { height: 38px; min-width: 38px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy);
+  cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: .85rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: .2s; }
+.tool-btn:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+.toc-panel { position: absolute; top: 48px; left: 0; width: 290px; max-height: 60vh; overflow-y: auto; background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 16px; box-shadow: var(--soft-shadow); padding: 8px; display: none; }
+.toc-panel.open { display: block; }
+.toc-panel a { display: flex; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 10px; color: var(--dark-navy); text-decoration: none; font-weight: 700; font-size: .88rem; }
+.toc-panel a:hover { background: var(--surface); color: var(--primary-blue); }
+.toc-panel a span { width: 22px; height: 22px; border-radius: 50%; background: var(--chip-bg); color: var(--text-body); font-size: .72rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.read-progress { position: absolute; bottom: -1px; right: 0; left: 0; height: 3px; background: transparent; }
+.read-progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #00adef, #f7941e); transition: width .1s; }
+.to-top { position: fixed; bottom: 22px; left: 22px; z-index: 900; width: 46px; height: 46px; border-radius: 50%; border: none; background: var(--blue-gradient); color: #fff;
+  cursor: pointer; box-shadow: 0 10px 24px -8px rgba(0,173,239,.7); font-size: 1.1rem; opacity: 0; pointer-events: none; transition: .25s; }
+.to-top.show { opacity: 1; pointer-events: auto; }
+@media (max-width: 980px) { .brand-info p { display: none; } }
+@media (max-width: 720px) { .brand-info h3 { font-size: 1rem; } }
+
+.container { max-width: 900px; margin: 44px auto; padding: 0 25px; }
+.title-section { text-align: center; margin-bottom: 40px; }
+.title-section h1 { font-size: 2.7rem; font-weight: 800; margin: 12px 0 6px; background: linear-gradient(135deg, var(--dark-navy), #007bb5 80%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+html[data-theme="dark"] .title-section h1 { background: linear-gradient(135deg, #fff, #38bdf8 80%); -webkit-background-clip: text; background-clip: text; }
+.attribution { color: var(--primary-blue); font-size: 1.15rem; font-weight: 600; }
+.lesson-chip { display: inline-block; background: var(--yellow-gradient); color: #fff; padding: 6px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; box-shadow: 0 8px 18px -8px rgba(247,148,30,.8); }
+
+.card { background: var(--card-bg); border-radius: 25px; padding: 40px; margin-bottom: 30px; box-shadow: var(--soft-shadow); border-right: 8px solid var(--primary-blue);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); transition: background-color .3s; }
+.steps-card { border-right-color: var(--primary-yellow); }
+.card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+.card-header i { font-size: 1.8rem; }
+.card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+h4 { margin: 18px 0 8px; font-size: 1.05rem; color: var(--dark-navy); }
+p { color: var(--text-body); margin: 0 0 14px; }
+a { color: var(--primary-blue); }
+strong { color: var(--dark-navy); }
+
+.en { direction: ltr; unicode-bidi: isolate; font-weight: 700; color: var(--dark-navy); }
+/* every code chip is an isolated LTR island: fixes ; ( ) = placement inside Arabic text */
+code, code.inline { background: var(--chip-bg); padding: 2px 8px; border-radius: 6px; direction: ltr; unicode-bidi: isolate; display: inline-block; text-align: left;
+  color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; line-height: 1.6; }
+html[data-theme="dark"] code, html[data-theme="dark"] code.inline { color: #f9a8d4; }
+
+.obj-list { list-style: none; padding: 0; margin: 0; }
+.obj-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.obj-list i { color: #22c55e; margin-top: 6px; }
+
+/* code */
+.code-box { background: #1e293b; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.35); margin: 20px 0; border: 1px solid rgba(255,255,255,.04); }
+.code-head { background: #0f172a; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+.code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; direction: ltr; }
+.copy-btn { color: #38bdf8; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; font-family: 'Tajawal'; }
+pre { padding: 26px 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: var(--code-size); tab-size: 8; }
+.cmt { color: #79c36a; font-style: italic; }
+.kw { color: #7dd3fc; }
+.str { color: #fbbf77; }
+.num { color: #c4b5fd; }
+.pp { color: #f9a8d4; }
+.code-line, .code-plain { display: block; border-radius: 6px; padding: 0 6px; margin: 0 -6px; }
+.code-line { cursor: pointer; transition: 0.2s; background: rgba(0,173,239,0.07); }
+.code-line:hover { background: rgba(0,173,239,0.22); }
+.code-line.active { background: rgba(247,148,30,0.28); outline: 1px dashed var(--primary-yellow); }
+.explain-box { margin-top: 14px; background: var(--surface); border: 2px dashed var(--border); border-radius: 16px; padding: 16px 22px; font-weight: 600; color: var(--dark-navy); min-height: 30px; }
+.explain-box .hint { color: #94a3b8; font-weight: 500; }
+.output-box, .input-box { font-family: 'Consolas', monospace; padding: 16px 22px; border-radius: 14px; margin: 10px 0 18px; direction: ltr; text-align: left; white-space: pre-wrap; tab-size: 8; font-size: var(--code-size); }
+.output-box { background: #0f172a; color: #4ade80; }
+.input-box { background: #0c2233; color: #7dd3fc; margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.input-box + .output-box { margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; border-top: 1px dashed #1e3a52; }
+.output-box::before, .input-box::before { display: block; font-size: 0.72rem; letter-spacing: 0.08em; margin-bottom: 6px; text-transform: uppercase; color: #64748b; }
+.output-box::before { content: 'Output'; }
+.input-box::before { content: 'Input (typed by the user)'; }
+.error-box { background: #1f1317; border: 1px solid #7f1d1d; border-radius: 14px; margin: 10px 0 18px; overflow: hidden; }
+.error-head { background: #450a0a; color: #fca5a5; padding: 8px 18px; font-weight: 700; font-size: 0.85rem; }
+.error-box pre { color: #fecaca; font-size: 0.8rem; padding: 14px 20px; line-height: 1.7; }
+
+/* steps */
+.step-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 14px; padding: 18px 20px; background: var(--card-bg); border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+.step-number { background: var(--yellow-gradient); color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+.step-item h4 { margin: 0 0 4px; font-size: 1rem; }
+.step-item p { margin: 0; font-size: 0.92rem; }
+
+/* tables */
+.table-wrap { overflow-x: auto; margin: 15px 0; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+table.data-table { width: 100%; border-collapse: collapse; background: var(--card-bg); }
+table.data-table th { background: var(--blue-gradient); color: #fff; padding: 12px 18px; font-size: 0.85rem; text-align: right; white-space: nowrap; }
+table.data-table td { padding: 12px 18px; font-size: 0.9rem; border-bottom: 1px solid var(--border); color: var(--text-body); }
+table.data-table tr:last-child td { border-bottom: none; }
+
+/* comparison / rules */
+.compare-grid, .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+@media (max-width: 700px) { .compare-grid, .rule-grid { grid-template-columns: 1fr; } .card { padding: 24px; } .title-section h1 { font-size: 2rem; } }
+.compare-card { border-radius: 16px; overflow: hidden; background: #1e293b; }
+.compare-title { padding: 10px 18px; font-weight: 800; font-size: 0.9rem; }
+.good .compare-title { background: #dcfce7; color: #15803d; }
+.bad .compare-title { background: #fee2e2; color: #b91c1c; }
+.compare-card pre { padding: 18px 20px; font-size: 0.83rem; }
+.rule-list { background: var(--surface); border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
+.rule-list h5 { margin: 0 0 12px; font-size: 0.95rem; }
+.rule-list.yes h5 { color: #16a34a; } .rule-list.no h5 { color: #dc2626; }
+.rule-list ul { list-style: none; padding: 0; margin: 0; }
+.rule-list li { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 0.9rem; color: var(--text-body); }
+.rule-list.yes li i { color: #22c55e; } .rule-list.no li i { color: #ef4444; }
+
+.tip-box { background: rgba(247,148,30,0.09); border: 2px dashed var(--primary-yellow); border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 4px; }
+.tip-box p { margin: 0; font-size: 0.93rem; }
+
+/* project */
+.project-banner { background: var(--blue-gradient); color: #fff; border-radius: 18px; padding: 16px 22px; margin-bottom: 18px; display: flex; gap: 14px; align-items: center; }
+.project-banner i { font-size: 1.6rem; }
+.project-banner strong { font-size: 1.05rem; color: #fff; }
+.project-banner p { color: #e0f4ff; margin: 0; font-size: 0.9rem; }
+.brief { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 18px 22px; margin: 14px 0; }
+.brief h5 { margin: 0 0 8px; font-size: 1rem; color: var(--primary-blue); display: flex; align-items: center; gap: 8px; }
+.brief ul, .brief ol { margin: 0; padding-right: 22px; color: var(--text-body); }
+.brief li { margin-bottom: 6px; }
+details.reveal { border: 2px dashed var(--border); border-radius: 16px; padding: 4px 16px; margin: 14px 0; background: var(--card-bg); }
+details.reveal > summary { cursor: pointer; font-weight: 800; padding: 10px 0; color: var(--primary-blue); list-style: none; display: flex; align-items: center; gap: 8px; }
+details.reveal > summary::-webkit-details-marker { display: none; }
+details.reveal[open] { border-style: solid; border-color: var(--primary-blue); }
+
+/* challenges */
+.challenge-card { border-right-color: #8b5cf6; }
+.challenge-card .card-header { color: #8b5cf6; }
+.challenge { border: 1px solid var(--border); border-radius: 20px; padding: 22px 24px; margin-bottom: 20px; background: var(--surface); }
+.ch-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+.ch-head h4 { margin: 0; flex: 1; }
+.ch-num { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
+.badge { font-size: .75rem; font-weight: 800; padding: 4px 12px; border-radius: 50px; }
+.badge.easy { background: #dcfce7; color: #15803d; }
+.badge.medium { background: #fef3c7; color: #b45309; }
+.challenge h5 { margin: 14px 0 6px; font-size: .9rem; color: var(--dark-navy); }
+.challenge ul { margin: 0 0 6px; padding-right: 22px; color: var(--text-body); }
+.challenge li { margin-bottom: 4px; }
+
+/* simulators */
+.sim-box { background: var(--surface); border: 3px dashed var(--border); border-radius: 20px; padding: 28px; text-align: center; margin-top: 15px; }
+.sim-inputs { display: flex; justify-content: center; gap: 18px; margin-bottom: 18px; flex-wrap: wrap; }
+.sim-inputs .field { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.sim-inputs label { font-size: 0.82rem; color: var(--text-body); font-weight: 700; }
+.sim-inputs input[type=text], .sim-inputs input[type=number] { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1.05rem; text-align: center; font-family: 'Consolas', monospace; outline: none; direction: ltr; }
+.sim-inputs input[type=number] { width: 110px; }
+.sim-inputs input:focus { border-color: var(--primary-blue); }
+.btn-run { background: var(--yellow-gradient); color: #fff; border: none; padding: 13px 32px; border-radius: 18px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.95rem; box-shadow: 0 10px 20px -10px rgba(247,148,30,.9); }
+.sim-console { margin-top: 18px; background: #0f172a; border-radius: 14px; padding: 18px 20px; text-align: left; direction: ltr; font-family: 'Consolas', monospace; color: #4ade80; min-height: 26px; white-space: pre-wrap; font-size: 0.92rem; }
+.sim-console .line { color: #94a3b8; }
+.result-line { margin-top: 14px; font-weight: 700; color: var(--dark-navy); }
+.reorder-list { max-width: 460px; margin: 0 auto 10px; direction: ltr; }
+.reorder-item { display: flex; align-items: center; gap: 10px; background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 8px 12px; margin-bottom: 8px; font-family: 'Consolas', monospace; font-size: 0.88rem; text-align: left; }
+.reorder-item code { flex: 1; background: transparent; padding: 0; }
+.rbtn { border: none; background: #e0f2fe; color: #0369a1; border-radius: 8px; width: 30px; height: 30px; cursor: pointer; font-weight: 800; }
+.rbtn:disabled { opacity: 0.35; cursor: default; }
+.bug-list { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.bug-btn { background: var(--card-bg); color: var(--dark-navy); border: 2px solid var(--border); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Tajawal'; font-weight: 700; }
+.bug-btn.found { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.hidden { display: none; }
+.op-table { width: 100%; border-collapse: collapse; margin-top: 16px; direction: ltr; font-family: 'Consolas', monospace; font-size: .88rem; }
+.op-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--dark-navy); text-align: left; }
+.op-table td:last-child { color: var(--primary-blue); font-weight: 800; }
+
+/* glossary */
+.glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+.term-card { background: var(--surface); border-radius: 16px; padding: 18px; border: 1px solid var(--border); }
+.term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+.term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+.term-desc { font-size: 0.85rem; color: var(--text-body); margin: 0; }
+
+/* tf + quiz */
+.tf-item { border: 2px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 14px; background: var(--surface); }
+.tf-item .stmt { font-weight: 700; margin-bottom: 12px; color: var(--dark-navy); }
+.tf-btns { display: flex; gap: 10px; }
+.tf-btn { flex: 1; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 10px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: 0.95rem; }
+.tf-btn:hover { border-color: var(--primary-blue); }
+.tf-btn.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.tf-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.feedback { margin-top: 10px; font-size: 0.9rem; font-weight: 600; }
+.feedback.ok { color: #16a34a; } .feedback.no { color: #dc2626; }
+.quiz-q { margin-bottom: 26px; padding-bottom: 8px; }
+.quiz-q h4 { margin-bottom: 12px; line-height: 1.9; }
+.qnum { display: inline-flex; align-items: center; justify-content: center; background: var(--yellow-gradient); color: #fff; width: 28px; height: 28px; border-radius: 50%; font-size: 0.85rem; margin-left: 8px; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-opt { background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 12px 18px; cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s; color: var(--dark-navy); }
+.quiz-opt:hover { border-color: var(--primary-blue); }
+.quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.quiz-opt:disabled { cursor: default; }
+.quiz-opt.correct code, .quiz-opt.wrong code { background: rgba(255,255,255,.7); }
+.progress { height: 10px; background: var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 22px; }
+.progress-bar { height: 100%; width: 0; background: var(--yellow-gradient); transition: width 0.3s; }
+.score-box { text-align: center; background: var(--surface); border: 2px solid var(--border); border-radius: 18px; padding: 22px; margin-top: 10px; }
+.score-box .big { font-size: 2.2rem; font-weight: 800; color: var(--primary-blue); }
+.retry-btn { margin-top: 10px; background: var(--blue-gradient); color: #fff; border: none; border-radius: 14px; padding: 10px 26px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; }
+
+.refs-card { border-right-color: #94a3b8; }
+.ref-list { margin: 0; padding-right: 22px; }
+.ref-list li { margin-bottom: 6px; font-size: 0.9rem; }
+footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+
+/* ---------- tracer ---------- */
+.tracer { background: var(--surface); border: 2px solid var(--border); border-radius: 20px; padding: 18px; margin: 22px 0; }
+.tr-head { font-weight: 800; color: var(--primary-blue); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.tr-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .tr-grid { grid-template-columns: 1fr; } }
+.tr-code { background: #1e293b; border-radius: 14px; padding: 12px 0; direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: var(--code-size); overflow-x: auto; }
+.tr-line { display: flex; gap: 12px; padding: 1px 14px; color: #e2e8f0; white-space: pre; border-left: 4px solid transparent; transition: .15s; }
+.tr-line .ln { color: #64748b; min-width: 22px; text-align: right; user-select: none; }
+.tr-line.active { background: rgba(247,148,30,.28); border-left-color: var(--primary-yellow); }
+.tr-side { display: flex; flex-direction: column; gap: 12px; }
+.tr-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; flex: 1; }
+.tr-title { font-size: .78rem; font-weight: 800; color: var(--text-body); margin-bottom: 6px; }
+.tr-vars { direction: ltr; font-family: 'Consolas', monospace; font-size: .9rem; min-height: 28px; }
+.tr-var { display: flex; justify-content: space-between; padding: 3px 8px; border-radius: 8px; color: var(--dark-navy); }
+.tr-var b { color: var(--primary-blue); }
+.tr-var.changed { background: rgba(247,148,30,.22); }
+.tr-out { direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: .88rem; background: #0f172a; color: #4ade80; border-radius: 10px; padding: 8px 12px; min-height: 40px; white-space: pre-wrap; }
+.tr-note { margin-top: 12px; background: var(--card-bg); border: 1px dashed var(--primary-blue); border-radius: 12px; padding: 10px 16px; font-weight: 600; color: var(--dark-navy); min-height: 24px; }
+.tr-ctrl { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.tr-btn { border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 14px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: .85rem; }
+.tr-btn.primary { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.tr-btn:disabled { opacity: .4; cursor: default; }
+.tr-count { margin-right: auto; font-size: .8rem; color: var(--text-body); font-weight: 700; }
+
+/* ---------- predict ---------- */
+.predict { border: 2px solid #8b5cf6; border-radius: 20px; padding: 16px 18px; margin: 22px 0; background: var(--surface); }
+.predict-head { font-weight: 800; color: #8b5cf6; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+.predict .code-box { margin: 12px 0; }
+.pd-q { font-weight: 700; color: var(--dark-navy); margin-bottom: 10px; }
+.pd-opts { display: flex; flex-wrap: wrap; gap: 10px; }
+.pd-opt { background: var(--card-bg); border: 2px solid var(--border); color: var(--dark-navy); border-radius: 12px; padding: 9px 16px; cursor: pointer; font-family: 'Tajawal'; font-weight: 700; font-size: .92rem; }
+.pd-opt:hover { border-color: #8b5cf6; }
+.pd-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.pd-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.pd-opt:disabled { cursor: default; }
+.pd-result { margin-top: 12px; }
+.pd-msg { font-weight: 800; margin-bottom: 8px; }
+.pd-why { margin: 8px 0 0; font-size: .93rem; }
+
+/* ---------- misc ---------- */
+.summary-card { border-right-color: #22c55e; }
+.summary-card .card-header { color: #16a34a; }
+.sum-list { list-style: none; padding: 0; margin: 0; }
+.sum-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.sum-list i { color: #22c55e; margin-top: 6px; }
+.warn-box { background: rgba(239,68,68,.08); border: 2px dashed #ef4444; border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 4px; }
+.warn-box p { margin: 0; font-size: .93rem; }
+.analogy { background: linear-gradient(135deg, rgba(0,173,239,.1), rgba(139,92,246,.1)); border-radius: 18px; padding: 16px 22px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; border: 1px solid var(--border); }
+.analogy i { color: var(--primary-blue); font-size: 1.5rem; margin-top: 4px; }
+.analogy p { margin: 0; }
+.flow { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin: 18px 0; direction: rtl; }
+.flow-node { background: var(--card-bg); border: 2px solid var(--primary-blue); border-radius: 14px; padding: 10px 18px; font-weight: 800; color: var(--dark-navy); text-align: center; }
+.flow-node.decision { border-color: var(--primary-yellow); border-radius: 30px; }
+.flow-node.end { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.flow-arrow { color: var(--primary-blue); font-size: 1.2rem; }
+.flow-branch { display: flex; flex-direction: column; gap: 8px; }
+.cell-row { display: flex; direction: ltr; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 12px 0; }
+.cell { min-width: 54px; text-align: center; border: 2px solid var(--primary-blue); border-radius: 10px; background: var(--card-bg); font-family: 'Consolas', monospace; font-weight: 800; color: var(--dark-navy); padding: 6px 4px; cursor: pointer; }
+.cell small { display: block; font-size: .68rem; color: var(--text-body); font-weight: 700; }
+.cell.sel { background: rgba(247,148,30,.25); border-color: var(--primary-yellow); }
+.vis-line { display: block; padding: 0 6px; margin: 0 -6px; border-radius: 6px; opacity: .35; transition: .15s; }
+.vis-line.on { opacity: 1; background: rgba(34,197,94,.22); }
+.vis-btns { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+.vis-btn { border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Consolas', monospace; font-weight: 800; }
+.vis-btn.on { border-color: #22c55e; background: #dcfce7; color: #15803d; }
+
+.cell.ghost { opacity: .55; border-style: dashed; background: transparent; }
+
+
+.lab-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; margin: 10px 0; }
+.lab-row .btn-run { padding: 9px 18px; font-size: .88rem; border-radius: 14px; }
+.lab-tags { display: flex; direction: ltr; flex-wrap: wrap; gap: 8px; justify-content: center; min-height: 44px; margin: 10px 0; }
+.lab-tag { padding: 5px 14px; border-radius: 50px; background: var(--chip-bg); border: 2px solid var(--border); font-family: Consolas, monospace; font-weight: 800; color: var(--dark-navy); transition: .2s; }
+.lab-tag.hit { border-color: #16a34a; background: rgba(22,163,74,.16); }
+.lab-tag.miss { border-color: #ef4444; background: rgba(239,68,68,.14); }
+.lab-tag.new { border-color: var(--primary-blue); background: rgba(0,173,239,.16); }
+.lab-tag.warm { border-color: var(--primary-yellow); background: rgba(247,148,30,.2); }
+.lab-bars { display: flex; direction: ltr; align-items: flex-end; gap: 4px; height: 170px; justify-content: center; margin: 12px 0; }
+.lab-bar { width: 26px; background: var(--primary-blue); border-radius: 6px 6px 0 0; font-size: .68rem; color: #fff; text-align: center; font-weight: 800; padding-top: 2px; transition: height .15s, background .15s; font-family: Consolas, monospace; }
+.lab-bar.cmp { background: var(--primary-yellow); }
+.lab-bar.swp { background: #ef4444; }
+.lab-bar.done { background: #16a34a; }
+.lab-bar.dim { opacity: .28; }
+.lab-bar.mid { background: #8b5cf6; }
+.lab-grid { display: grid; direction: ltr; gap: 3px; justify-content: center; margin: 12px auto; }
+.lab-cell { width: 34px; height: 34px; border-radius: 8px; background: var(--chip-bg); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: Consolas, monospace; font-size: .9rem; color: var(--dark-navy); }
+.lab-cell.wall { background: #475569; border-color: #475569; }
+.lab-cell.on { background: rgba(0,173,239,.25); border-color: var(--primary-blue); }
+.lab-cell.hot { background: rgba(247,148,30,.3); border-color: var(--primary-yellow); }
+.lab-meter { height: 16px; border-radius: 50px; background: var(--chip-bg); overflow: hidden; direction: ltr; margin: 8px 0; }
+.lab-meter > span { display: block; height: 100%; background: linear-gradient(90deg, #16a34a, #f7941e, #ef4444); transition: width .25s; }
+.lab-table { width: 100%; border-collapse: collapse; direction: ltr; font-family: Consolas, monospace; font-size: .9rem; }
+.lab-table th, .lab-table td { border: 1px solid var(--border); padding: 6px 10px; text-align: center; }
+.lab-table th { background: var(--chip-bg); }
+.lab-say { margin-top: 10px; font-weight: 700; color: var(--dark-navy); min-height: 28px; }
+.lab-say.ok { color: #16a34a; } .lab-say.bad { color: #ef4444; }
+.sim-inputs select { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1rem; font-family: Consolas, monospace; }
+.sim-inputs input[type=range] { width: 200px; }
+.lab-in { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1rem; font-family: Consolas, monospace; direction: ltr; text-align: center; max-width: 100%; }
+
+</style>
+</head>
+<body>
+<div class="bg-deco"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+<header>
+  <div class="hdr-brand">
+    <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    <div class="brand-info"><h3>منصة TweetKod</h3><p>للتعلم البرمجي التفاعلي</p></div>
+  </div>
+  <div class="hdr-tools">
+    <button class="tool-btn" id="tocBtn" title="فهرس الدرس"><i class="fas fa-list-ul"></i> الفهرس</button>
+    <button class="tool-btn" id="fontDec" title="تصغير خط الكود">A-</button>
+    <button class="tool-btn" id="fontInc" title="تكبير خط الكود">A+</button>
+    <button class="tool-btn" id="themeBtn" title="الوضع الليلي"><i class="fas fa-moon"></i></button>
+    <div class="toc-panel" id="tocPanel"></div>
+  </div>
+  <div class="read-progress"><span id="readBar"></span></div>
+</header>
+<div class="container">
+  <div class="title-section">
+    <h1>البحث الثنائي</h1>
+    <p class="attribution"><span class="en">Binary Search</span> &mdash; نصف الاحتمالات يختفي في كل خطوة</p>
+  </div>
+  <div class="card goals-card">
+    <div class="card-header"><i class="fas fa-bullseye"></i><h3>ماذا ستتعلم في هذا الدرس؟</h3></div>
+    <ul class="obj-list"><li><i class="fas fa-check-circle"></i><span>تفهم لماذا يحتاج البحث الثنائي <code class="inline">O(log n)</code> خطوة وما شرطه</span></li><li><i class="fas fa-check-circle"></i><span>تكتب البحث الثنائي بنفسك وتتجنب الفخاخ الثلاثة الشائعة</span></li><li><i class="fas fa-check-circle"></i><span>تستخدم <code class="inline">binary_search</code> و<code class="inline">lower_bound</code> و<code class="inline">upper_bound</code> وتعدّ تكرار قيمة</span></li><li><i class="fas fa-check-circle"></i><span>تطبّق البحث الثنائي على الجواب حين يكون الشرط رتيبًا</span></li><li><i class="fas fa-check-circle"></i><span>تفرّق بين قالب «أول قيمة صادقة» وقالب «آخر قيمة صادقة» وتتعامل مع الأعداد العشرية</span></li></ul>
+  </div>
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-circle-question"></i><h3>لعبة التخمين</h3></div>
+  <p>صديقك يفكر بعدد بين 1 و100، وكلما خمّنت قال لك «أعلى» أو «أقل». كيف تضمن الوصول بأقل عدد تخمينات؟ ليس بأن تبدأ من 1 وتزيد واحدًا واحدًا، بل بأن <strong>تخمّن دائمًا المنتصف</strong>: 50. إن قال «أعلى» رميت نصف الاحتمالات كلها دفعة واحدة. في سبع تخمينات فقط ستصل إلى أي عدد من مئة!</p>
+  <div class="analogy"><i class="fas fa-scissors"></i><p>البحث الثنائي (<span class="en">Binary Search</span>) كمقص: كل نظرة تقصّ نصف الاحتمالات الباقية. بدل أن تقلّب ألف صفحة تقصّها عشر مرات فقط. شرطه الوحيد: <strong>البيانات مرتّبة</strong>، وإلا فلا معنى لقولنا «أعلى» أو «أقل».</p></div>
+  <div class="code-box" data-expl="guess"><div class="code-head"><span>guess_game.cpp</span><button class="copy-btn" onclick="copyCode('code_guess')">نسخ الكود</button></div><pre id="code_guess"><span class="code-line" data-i="0"><span class="kw">int</span> secret = <span class="num">73</span>, lo = <span class="num">1</span>, hi = <span class="num">100</span>, tries = <span class="num">0</span>;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">while</span> (lo &lt;= hi) {</span><span class="code-line" data-i="3">    <span class="kw">int</span> mid = (lo + hi) / <span class="num">2</span>;</span><span class="code-plain">    tries++;</span><span class="code-plain">    cout &lt;&lt; <span class="str">"guess "</span> &lt;&lt; mid &lt;&lt; endl;</span><span class="code-plain">    <span class="kw">if</span> (mid == secret) {</span><span class="code-plain">        <span class="kw">break</span>;</span><span class="code-plain">    }</span><span class="code-line" data-i="9">    <span class="kw">if</span> (mid &lt; secret) {</span><span class="code-plain">        lo = mid + <span class="num">1</span>;</span><span class="code-plain">    } <span class="kw">else</span> {</span><span class="code-line" data-i="12">        hi = mid - <span class="num">1</span>;</span><span class="code-plain">    }</span><span class="code-plain">}</span><span class="code-plain">cout &lt;&lt; <span class="str">"found in "</span> &lt;&lt; tries &lt;&lt; <span class="str">" tries"</span> &lt;&lt; endl;</span></pre></div><div class="explain-box" data-for="guess"><span class="hint">اضغط على أي سطر مضيء من الكود لقراءة شرحه هنا...</span></div>
+  <div class="output-box">guess 50
+guess 75
+guess 62
+guess 68
+guess 71
+guess 73
+found in 6 tries</div>
+  <p>ستة تخمينات فقط للوصول إلى 73. ومع مليون احتمال نحتاج 20 تخمينًا لا أكثر، ومع مليار احتمال 30 فقط! هذه هي قوة <code>O(log n)</code>.</p>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-flask"></i><h3>مختبر تفاعلي (1): شاهد المقص يعمل</h3></div>
+  <p>اختر العدد الذي تبحث عنه واضغط «خطوة». الأعمدة الباهتة تعني أننا رميناها، والبنفسجي هو المنتصف الحالي <code>mid</code>. قارن عدد الخطوات مع البحث العادي!</p>
+  <div class="sim-box">
+    <div class="sim-inputs"><div class="field"><label>الهدف x</label><input type="number" id="bsTarget" value="23"></div></div>
+    <div class="cell-row" id="bsCells"></div>
+    <div class="lab-row">
+      <button class="btn-run" onclick="bsStep()"><i class="fas fa-forward-step"></i> خطوة</button>
+      <button class="btn-run" onclick="bsAuto()"><i class="fas fa-play"></i> تشغيل تلقائي</button>
+      <button class="btn-run" onclick="bsNew()"><i class="fas fa-shuffle"></i> مصفوفة جديدة</button>
+    </div>
+    <div class="sim-console" id="bsOut"></div>
+    <div class="lab-say" id="bsNote"></div>
+  </div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-code"></i><h3>كتابة البحث الثنائي</h3></div>
+  <p>نحتفظ بمدى ممكن <code>[lo, hi]</code> ونقصّه نصفًا في كل دورة. اضغط على الأسطر المضيئة:</p>
+  <div class="code-box" data-expl="bsfull"><div class="code-head"><span>binary_search.cpp</span><button class="copy-btn" onclick="copyCode('code_bsfull')">نسخ الكود</button></div><pre id="code_bsfull"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;vector&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-line" data-i="4"><span class="kw">int</span> findIndex(<span class="kw">const</span> <span class="kw">vector</span>&lt;<span class="kw">int</span>&gt;&amp; a, <span class="kw">int</span> x) {</span><span class="code-line" data-i="5">    <span class="kw">int</span> lo = <span class="num">0</span>, hi = (<span class="kw">int</span>)a.size() - <span class="num">1</span>;</span><span class="code-line" data-i="6">    <span class="kw">while</span> (lo &lt;= hi) {</span><span class="code-line" data-i="7">        <span class="kw">int</span> mid = lo + (hi - lo) / <span class="num">2</span>;</span><span class="code-line" data-i="8">        <span class="kw">if</span> (a[mid] == x) {</span><span class="code-plain">            <span class="kw">return</span> mid;</span><span class="code-plain">        }</span><span class="code-line" data-i="11">        <span class="kw">if</span> (a[mid] &lt; x) {</span><span class="code-plain">            lo = mid + <span class="num">1</span>;</span><span class="code-line" data-i="13">        } <span class="kw">else</span> {</span><span class="code-plain">            hi = mid - <span class="num">1</span>;</span><span class="code-plain">        }</span><span class="code-plain">    }</span><span class="code-line" data-i="17">    <span class="kw">return</span> -<span class="num">1</span>;</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-plain">    <span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; a = {<span class="num">2</span>, <span class="num">5</span>, <span class="num">8</span>, <span class="num">12</span>, <span class="num">16</span>, <span class="num">23</span>, <span class="num">38</span>, <span class="num">56</span>, <span class="num">72</span>, <span class="num">91</span>};</span><span class="code-plain">    cout &lt;&lt; findIndex(a, <span class="num">23</span>) &lt;&lt; <span class="str">" "</span> &lt;&lt; findIndex(a, <span class="num">40</span>) &lt;&lt; endl;</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="bsfull"><span class="hint">اضغط على أي سطر مضيء من الكود لقراءة شرحه هنا...</span></div>
+  <div class="output-box">5 -1</div>
+  <h4>تتبّع البحث عن 23</h4>
+  <div class="code-box"><div class="code-head"><span>binary_trace.cpp</span><button class="copy-btn" onclick="copyCode('code_bstrace')">نسخ الكود</button></div><pre id="code_bstrace"><span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; a = {<span class="num">2</span>, <span class="num">5</span>, <span class="num">8</span>, <span class="num">12</span>, <span class="num">16</span>, <span class="num">23</span>, <span class="num">38</span>, <span class="num">56</span>, <span class="num">72</span>, <span class="num">91</span>};
+<span class="kw">int</span> x = <span class="num">23</span>, lo = <span class="num">0</span>, hi = <span class="num">9</span>, steps = <span class="num">0</span>;
+<span class="kw">while</span> (lo &lt;= hi) {
+    <span class="kw">int</span> mid = lo + (hi - lo) / <span class="num">2</span>;
+    steps++;
+    <span class="kw">if</span> (a[mid] == x) {
+        cout &lt;&lt; <span class="str">"index "</span> &lt;&lt; mid &lt;&lt; <span class="str">" after "</span> &lt;&lt; steps &lt;&lt; <span class="str">" steps"</span> &lt;&lt; endl;
+        <span class="kw">break</span>;
+    }
+    <span class="kw">if</span> (a[mid] &lt; x) lo = mid + <span class="num">1</span>;
+    <span class="kw">else</span> hi = mid - <span class="num">1</span>;
+}</pre></div>
+  <div class="tracer" data-trace="bstrace"><div class="tr-head"><i class="fas fa-bug-slash"></i> تتبّع التنفيذ خطوة بخطوة</div><div class="tr-grid"><div class="tr-code"><div class="tr-line" data-i="0"><span class="ln">1</span><span class="src"><span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; a = {<span class="num">2</span>, <span class="num">5</span>, <span class="num">8</span>, <span class="num">12</span>, <span class="num">16</span>, <span class="num">23</span>, <span class="num">38</span>, <span class="num">56</span>, <span class="num">72</span>, <span class="num">91</span>};</span></div><div class="tr-line" data-i="1"><span class="ln">2</span><span class="src"><span class="kw">int</span> x = <span class="num">23</span>, lo = <span class="num">0</span>, hi = <span class="num">9</span>, steps = <span class="num">0</span>;</span></div><div class="tr-line" data-i="2"><span class="ln">3</span><span class="src"><span class="kw">while</span> (lo &lt;= hi) {</span></div><div class="tr-line" data-i="3"><span class="ln">4</span><span class="src">    <span class="kw">int</span> mid = lo + (hi - lo) / <span class="num">2</span>;</span></div><div class="tr-line" data-i="4"><span class="ln">5</span><span class="src">    steps++;</span></div><div class="tr-line" data-i="5"><span class="ln">6</span><span class="src">    <span class="kw">if</span> (a[mid] == x) {</span></div><div class="tr-line" data-i="6"><span class="ln">7</span><span class="src">        cout &lt;&lt; <span class="str">"index "</span> &lt;&lt; mid &lt;&lt; <span class="str">" after "</span> &lt;&lt; steps &lt;&lt; <span class="str">" steps"</span> &lt;&lt; endl;</span></div><div class="tr-line" data-i="7"><span class="ln">8</span><span class="src">        <span class="kw">break</span>;</span></div><div class="tr-line" data-i="8"><span class="ln">9</span><span class="src">    }</span></div><div class="tr-line" data-i="9"><span class="ln">10</span><span class="src">    <span class="kw">if</span> (a[mid] &lt; x) lo = mid + <span class="num">1</span>;</span></div><div class="tr-line" data-i="10"><span class="ln">11</span><span class="src">    <span class="kw">else</span> hi = mid - <span class="num">1</span>;</span></div><div class="tr-line" data-i="11"><span class="ln">12</span><span class="src">}</span></div></div><div class="tr-side"><div class="tr-box"><div class="tr-title">المتغيرات</div><div class="tr-vars"></div></div><div class="tr-box"><div class="tr-title">الناتج حتى الآن</div><div class="tr-out"></div></div></div></div><div class="tr-note"></div><div class="tr-ctrl"><button class="tr-btn" data-a="reset" title="من البداية"><i class="fas fa-backward-fast"></i></button><button class="tr-btn" data-a="prev"><i class="fas fa-backward-step"></i> السابق</button><button class="tr-btn primary" data-a="next">التالي <i class="fas fa-forward-step"></i></button><button class="tr-btn" data-a="play"><i class="fas fa-play"></i> تشغيل تلقائي</button><span class="tr-count"></span></div></div>
+  <div class="warn-box"><i class="fas fa-triangle-exclamation"></i><p>ثلاثة فخاخ شائعة: <strong>(1)</strong> المصفوفة غير مرتّبة (النتيجة تصبح عشوائية). <strong>(2)</strong> الحلقة <code>while (lo &lt; hi)</code> مع <code>lo = mid</code> قد لا تنتهي أبدًا. <strong>(3)</strong> كتابة <code>(lo + hi) / 2</code> مع أعداد ضخمة قد تفيض؛ استعمل <code>lo + (hi - lo) / 2</code>.</p></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-toolbox"></i><h3>الجاهز في C++: binary_search و lower_bound و upper_bound</h3></div>
+  <p>لن تكتب الحلقة بنفسك في أغلب الأحيان؛ المكتبة <code>&lt;algorithm&gt;</code> تقدّم أدوات جاهزة تعمل على <strong>المتجه المرتّب</strong> بسرعة <code>O(log n)</code>:</p>
+  <div class="code-box" data-expl="stl"><div class="code-head"><span>stl_binary_search.cpp</span><button class="copy-btn" onclick="copyCode('code_stl')">نسخ الكود</button></div><pre id="code_stl"><span class="code-plain"><span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; v = {<span class="num">1</span>, <span class="num">3</span>, <span class="num">3</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">8</span>};</span><span class="code-plain"> </span><span class="code-line" data-i="2">cout &lt;&lt; binary_search(v.begin(), v.end(), <span class="num">5</span>) &lt;&lt; binary_search(v.begin(), v.end(), <span class="num">4</span>) &lt;&lt; endl;</span><span class="code-plain"> </span><span class="code-line" data-i="4"><span class="kw">auto</span> lo = lower_bound(v.begin(), v.end(), <span class="num">3</span>);</span><span class="code-line" data-i="5"><span class="kw">auto</span> hi = upper_bound(v.begin(), v.end(), <span class="num">3</span>);</span><span class="code-line" data-i="6">cout &lt;&lt; <span class="str">"first 3 at index "</span> &lt;&lt; lo - v.begin() &lt;&lt; endl;</span><span class="code-plain">cout &lt;&lt; <span class="str">"after last 3 at index "</span> &lt;&lt; hi - v.begin() &lt;&lt; endl;</span><span class="code-line" data-i="8">cout &lt;&lt; <span class="str">"count of 3 = "</span> &lt;&lt; hi - lo &lt;&lt; endl;</span><span class="code-line" data-i="9">cout &lt;&lt; <span class="str">"elements &lt; 4: "</span> &lt;&lt; lower_bound(v.begin(), v.end(), <span class="num">4</span>) - v.begin() &lt;&lt; endl;</span></pre></div><div class="explain-box" data-for="stl"><span class="hint">اضغط على أي سطر مضيء من الكود لقراءة شرحه هنا...</span></div>
+  <div class="output-box">10
+first 3 at index 1
+after last 3 at index 4
+count of 3 = 3
+elements &lt; 4: 4</div>
+  <div class="predict"><div class="predict-head"><i class="fas fa-brain"></i> توقّع قبل أن تشغّل</div><div class="code-box"><div class="code-head"><span>predict_upper.cpp</span><button class="copy-btn" onclick="copyCode('code_p_ub')">نسخ الكود</button></div><pre id="code_p_ub"><span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; v = {<span class="num">1</span>, <span class="num">3</span>, <span class="num">3</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">8</span>};
+cout &lt;&lt; upper_bound(v.begin(), v.end(), <span class="num">5</span>) - v.begin() &lt;&lt; endl;</pre></div><p class="pd-q">ماذا يطبع هذا الكود؟ (تذكّر: upper_bound تعيد أول عنصر أكبر تمامًا)</p><div class="pd-opts"><button class="pd-opt" data-ok="0">6</button><button class="pd-opt" data-ok="0">4</button><button class="pd-opt" data-ok="1">5</button><button class="pd-opt" data-ok="0">1</button></div><div class="pd-result hidden"><div class="pd-msg"></div><div class="output-box">5</div><p class="pd-why">المتجه {1, 3, 3, 3, 5, 8}. أول عنصر أكبر من 5 هو 8 وموقعه 5. وعندما نطرح <code>v.begin()</code> نحصل على رقم الموقع 5.</p></div></div>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>الأداة</th><th>ماذا تعيد؟</th></tr>
+    <tr><td><code>binary_search(b, e, x)</code></td><td><code>true</code> إن وُجد العنصر، <code>false</code> إن لم يوجد</td></tr>
+    <tr><td><code>lower_bound(b, e, x)</code></td><td>مؤشر لأول عنصر <strong>&ge; x</strong></td></tr>
+    <tr><td><code>upper_bound(b, e, x)</code></td><td>مؤشر لأول عنصر <strong>&gt; x</strong></td></tr>
+    <tr><td><code>upper - lower</code></td><td>عدد مرات ظهور <code>x</code></td></tr>
+    <tr><td><code>lower_bound(...) - v.begin()</code></td><td>رقم الموقع (وهو عدد العناصر الأصغر من x)</td></tr>
+  </table></div>
+  <p>وإن نسيت أن تعطيها بداية المدى ونهايته رفض المترجم:</p>
+  <div class="code-box"><div class="code-head"><span>missing_range.cpp</span><button class="copy-btn" onclick="copyCode('code_err_bs')">نسخ الكود</button></div><pre id="code_err_bs"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;vector&gt;</span>
+<span class="pp">#include &lt;algorithm&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; v = {<span class="num">1</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">8</span>};
+    <span class="kw">if</span> (binary_search(v, <span class="num">5</span>)) {
+        cout &lt;&lt; <span class="str">"found"</span> &lt;&lt; endl;
+    }
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="error-box"><div class="error-head"><i class="fas fa-bug"></i> ما يعرضه المترجم (<span class="en">g++</span>)</div><pre>main.cpp: In function ‘int main()’:
+main.cpp:8:22: error: no matching function for call to ‘binary_search(std::vector&lt;int&gt;&amp;, int)’
+    8 |     if (binary_search(v, 5)) {
+      |         ~~~~~~~~~~~~~^~~~~~</pre></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p>تذكّر ما تعلمناه في درس المجموعات: على <code>set</code> و<code>map</code> استخدم <strong>الدالة العضو</strong> <code>s.lower_bound(x)</code>. أما <code>std::lower_bound</code> العامة فهي للمتجهات والمصفوفات المرتّبة.</p></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-bullseye"></i><h3>الفكرة الكبرى: البحث الثنائي على الجواب</h3></div>
+  <p>أجمل ما في البحث الثنائي أنه لا يبحث فقط داخل مصفوفة. إذا كان عندك سؤال من نوع «ما أصغر قيمة تحقق الشرط؟» وكان الشرط <strong>رتيبًا</strong> (كاذب ثم كاذب ثم ... ثم صادق ثم صادق للأبد) فيمكنك البحث بالمقص عن «الحد الفاصل» بين الكذب والصدق دون أن تبني أي مصفوفة:</p>
+  <div class="code-box" data-expl="first_true"><div class="code-head"><span>first_true.cpp</span><button class="copy-btn" onclick="copyCode('code_first_true')">نسخ الكود</button></div><pre id="code_first_true"><span class="code-line" data-i="0"><span class="kw">int</span> lo = <span class="num">0</span>, hi = <span class="num">100</span>;</span><span class="code-plain"><span class="kw">while</span> (lo &lt; hi) {</span><span class="code-plain">    <span class="kw">int</span> mid = (lo + hi) / <span class="num">2</span>;</span><span class="code-line" data-i="3">    <span class="kw">if</span> (mid * mid &gt;= <span class="num">50</span>) {</span><span class="code-plain">        hi = mid;</span><span class="code-line" data-i="5">    } <span class="kw">else</span> {</span><span class="code-plain">        lo = mid + <span class="num">1</span>;</span><span class="code-plain">    }</span><span class="code-line" data-i="8">}</span><span class="code-plain">cout &lt;&lt; lo &lt;&lt; endl;</span></pre></div><div class="explain-box" data-for="first_true"><span class="hint">اضغط على أي سطر مضيء من الكود لقراءة شرحه هنا...</span></div>
+  <div class="output-box">8</div>
+  <p>الشرط <code>x*x &gt;= 50</code> كاذب لكل <code>x &le; 7</code> وصادق لكل <code>x &ge; 8</code>، فوجدنا الحد الفاصل 8 بسبع دورات تقريبًا بدل مئة. وهذا النمط يحل مسائل كثيرة. إليك القالبين اللذين تحتاجهما:</p>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>الهدف</th><th>القالب</th></tr>
+    <tr><td><strong>أول</strong> قيمة صادقة (الأصغر)</td><td><code>mid = (lo + hi) / 2;</code> إن صدق: <code>hi = mid;</code> وإلا <code>lo = mid + 1;</code></td></tr>
+    <tr><td><strong>آخر</strong> قيمة صادقة (الأكبر)</td><td><code>mid = (lo + hi + 1) / 2;</code> إن صدق: <code>lo = mid;</code> وإلا <code>hi = mid - 1;</code></td></tr>
+  </table></div>
+  <div class="warn-box"><i class="fas fa-triangle-exclamation"></i><p>انتبه للتقريب في القالب الثاني: لو كتبت <code>(lo + hi) / 2</code> مع <code>lo = mid</code> فعندما يكون <code>hi = lo + 1</code> يبقى <code>mid = lo</code> للأبد فتدور الحلقة بلا نهاية. لذلك نضيف 1 لتقريب المنتصف <strong>للأعلى</strong>.</p></div>
+  <h4>وماذا عن الكسور؟</h4>
+  <p>مع الأعداد العشرية لا نبحث عن «العدد الصحيح الفاصل» بل نكرر القصّ عددًا ثابتًا من المرات (مثل 50 أو 100) حتى تصبح الدقة كافية:</p>
+  <div class="code-box"><div class="code-head"><span>sqrt_by_search.cpp</span><button class="copy-btn" onclick="copyCode('code_sqrt')">نسخ الكود</button></div><pre id="code_sqrt"><span class="kw">double</span> lo = <span class="num">0</span>, hi = <span class="num">2</span>;
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">50</span>; i++) {
+    <span class="kw">double</span> mid = (lo + hi) / <span class="num">2</span>;
+    <span class="kw">if</span> (mid * mid &lt; <span class="num">2</span>) {
+        lo = mid;
+    } <span class="kw">else</span> {
+        hi = mid;
+    }
+}
+cout &lt;&lt; fixed &lt;&lt; setprecision(<span class="num">6</span>) &lt;&lt; lo &lt;&lt; endl;</pre></div>
+  <div class="output-box">1.414214</div>
+  <p>وجدنا <code>√2 ≈ 1.414214</code> دون استخدام <code>sqrt</code> أصلًا.</p>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-flask"></i><h3>مختبر تفاعلي (2): البحث الثنائي على الجواب</h3></div>
+  <p>عندك ثلاثة حبال أطوالها 20 و15 و9 سنتيمترات، وتريد <strong>سبع قطع متساوية الطول</strong> على الأقل. ما أطول قطعة ممكنة؟ حرّك الشريط لتجرّب طولًا، ثم اضغط «ابحث ثنائيًا» لترى كيف يصل المقص إلى الجواب بسرعة.</p>
+  <div class="sim-box">
+    <div class="sim-inputs"><div class="field"><label>طول القطعة L = <span id="rpL" style="color:var(--primary-blue);font-weight:800">5</span></label><input type="range" id="rpRange" min="1" max="20" value="5" oninput="rpUpdate()"></div></div>
+    <div style="overflow-x:auto"><table class="lab-table" id="rpTable"></table></div>
+    <div class="lab-say" id="rpNote"></div>
+    <div class="lab-row"><button class="btn-run" onclick="rpSearch()"><i class="fas fa-scissors"></i> ابحث ثنائيًا</button></div>
+    <div style="overflow-x:auto"><table class="lab-table" id="rpLog"></table></div>
+  </div>
+</div>
+
+
+<div class="card">
+  <div class="project-banner"><i class="fas fa-ruler-combined"></i><div><strong>مشروع الدرس: قصّ الحبال</strong><p>تقطيع حبال متفاوتة الطول إلى أطول قطع متساوية ممكنة.</p></div></div>
+  <div class="brief"><h5><i class="fas fa-lightbulb"></i> الفكرة</h5>
+    <p style="margin:0">يحتاج نادي الكشافة <code>k</code> قطعة حبل متساوية الطول لنصب الخيام، وعنده <code>n</code> حبلًا بأطوال مختلفة. يمكن قصّ كل حبل إلى قطع بالطول المطلوب (وما يتبقى منه يُهمل). المطلوب أطول طول صحيح للقطعة يحقق الحاجة.</p></div>
+  <div class="brief"><h5><i class="fas fa-list-check"></i> المطلوب منك</h5>
+    <ol>
+      <li>اقرأ <code>n</code> و<code>k</code> ثم أطوال الحبال (استخدم <code>long long</code>).</li>
+      <li>الشرط «تكفي القطع بطول L» رتيب: إن كفى طول L كفى أي طول أصغر منه. فاستخدم قالب «آخر قيمة صادقة».</li>
+      <li>في كل دورة احسب عدد القطع <code>pieces</code> بجمع <code>x / mid</code> لكل حبل.</li>
+      <li>اطبع <code>Best length: </code> متبوعة بالجواب. وإن كان مستحيلًا (حتى الطول 1 لا يكفي) اطبع 0.</li>
+    </ol></div>
+  <div class="brief"><h5><i class="fas fa-bullseye"></i> مثالان على التشغيل</h5>
+    <p><strong>التشغيل الأول:</strong></p>
+    <div class="input-box">3 7
+20 15 9</div><div class="output-box">Best length: 5</div>
+    <p><strong>التشغيل الثاني (مستحيل):</strong></p>
+    <div class="input-box">2 100
+3 4</div><div class="output-box">Best length: 0</div></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p><strong>تحقق ذهنيًا:</strong> بالطول 5 نحصل على 4 + 3 + 1 = 8 قطع (تكفي السبع). وبالطول 6 نحصل على 3 + 2 + 1 = 6 قطع (لا تكفي). فالجواب 5.</p></div>
+  <details class="reveal"><summary><i class="fas fa-eye"></i> بعد أن تجرّب بنفسك: اعرض الحل</summary>
+    <div class="code-box"><div class="code-head"><span>rope_cutting.cpp</span><button class="copy-btn" onclick="copyCode('code_project')">نسخ الكود</button></div><pre id="code_project"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;vector&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> n;
+    <span class="kw">long</span> <span class="kw">long</span> k;
+    cin &gt;&gt; n &gt;&gt; k;
+    <span class="kw">vector</span>&lt;<span class="kw">long</span> <span class="kw">long</span>&gt; len(n);
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {
+        cin &gt;&gt; len[i];
+    }
+
+    <span class="kw">long</span> <span class="kw">long</span> lo = <span class="num">0</span>, hi = <span class="num">1000000000</span>;
+    <span class="kw">while</span> (lo &lt; hi) {
+        <span class="kw">long</span> <span class="kw">long</span> mid = (lo + hi + <span class="num">1</span>) / <span class="num">2</span>;
+        <span class="kw">long</span> <span class="kw">long</span> pieces = <span class="num">0</span>;
+        <span class="kw">for</span> (<span class="kw">long</span> <span class="kw">long</span> x : len) {
+            pieces += x / mid;
+        }
+        <span class="kw">if</span> (pieces &gt;= k) {
+            lo = mid;
+        } <span class="kw">else</span> {
+            hi = mid - <span class="num">1</span>;
+        }
+    }
+    cout &lt;&lt; <span class="str">"Best length: "</span> &lt;&lt; lo &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  </details>
+</div>
+
+
+<div class="card challenge-card"><div class="card-header"><i class="fas fa-dumbbell"></i><h3>واجبات بعد الدرس</h3></div><p>تحديان بسيطان تحلّهما بنفسك بعد انتهاء الدرس. اكتب الحل في ملف <code>.cpp</code>، ثم ترجمه وشغّله وقارن ناتجك بالناتج المتوقع. جرّب أولًا، ثم افتح التلميح إن علقت، ولا تفتح نموذج الحل إلا بعد المحاولة الجادة.</p><div class="challenge"><div class="ch-head"><span class="ch-num">1</span><h4>كم مرة يظهر x؟</h4><span class="badge easy">سهل</span></div><p>اقرأ <code>n</code> ثم <code>n</code> عددًا (غير مرتّبة ومتكررة)، ثم <code>q</code> استعلامًا. لكل استعلام <code>x</code> اطبع عدد مرات ظهور <code>x</code> في الأعداد.</p><h5>المطلوب</h5><ul><li>رتّب المتجه مرة واحدة قبل الاستعلامات.</li><li>لكل استعلام احسب <code>upper_bound - lower_bound</code>.</li><li>اطبع جواب كل استعلام في سطر.</li></ul><h5>مثال على الإدخال والناتج المتوقع</h5><div class="input-box">7
+5 1 5 3 5 2 3
+3
+5 3 4</div><div class="output-box">3
+2
+0</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> تلميحات</summary><ul><li>الفرق بين مؤشرين من <code>vector</code> هو عدد صحيح، فاطبعه مباشرة.</li><li>إن لم يكن العدد موجودًا فالمؤشران متساويان والفرق 0.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> نموذج الحل (بعد المحاولة)</summary><div class="code-box"><div class="code-head"><span>count_occurrences.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_count')">نسخ الكود</button></div><pre id="code_ch_count"><span class="cmt">// Challenge 1: how many times does x appear?</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;vector&gt;</span>
+<span class="pp">#include &lt;algorithm&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> n;
+    cin &gt;&gt; n;
+    <span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; v(n);
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {
+        cin &gt;&gt; v[i];
+    }
+    sort(v.begin(), v.end());
+
+    <span class="kw">int</span> q;
+    cin &gt;&gt; q;
+    <span class="kw">while</span> (q--) {
+        <span class="kw">int</span> x;
+        cin &gt;&gt; x;
+        cout &lt;&lt; upper_bound(v.begin(), v.end(), x) - lower_bound(v.begin(), v.end(), x) &lt;&lt; endl;
+    }
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div><div class="challenge"><div class="ch-head"><span class="ch-num">2</span><h4>الجذر التربيعي الصحيح</h4><span class="badge medium">متوسط</span></div><p>اقرأ عددًا <code>n</code> حتى <code>10¹²</code>. اطبع أكبر عدد صحيح <code>x</code> يحقق <code>x × x &le; n</code> دون استخدام <code>sqrt</code>.</p><h5>المطلوب</h5><ul><li>استخدم <code>long long</code> في كل شيء.</li><li>ابحث ثنائيًا على <code>x</code> بين 0 و2000000.</li><li>الشرط <code>mid * mid &lt;= n</code> رتيب (صادق ثم كاذب)، فاستخدم قالب «آخر قيمة صادقة».</li></ul><h5>مثال على الإدخال والناتج المتوقع</h5><div class="input-box">1000000000000</div><div class="output-box">1000000</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> تلميحات</summary><ul><li>استخدم <code>mid = (lo + hi + 1) / 2</code> مع <code>lo = mid</code> عند الصدق.</li><li>مع <code>n = 10¹²</code> يكون الجواب 1000000.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> نموذج الحل (بعد المحاولة)</summary><div class="code-box"><div class="code-head"><span>integer_sqrt.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_isqrt')">نسخ الكود</button></div><pre id="code_ch_isqrt"><span class="cmt">// Challenge 2: integer square root</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">long</span> <span class="kw">long</span> n;
+    cin &gt;&gt; n;
+    <span class="kw">long</span> <span class="kw">long</span> lo = <span class="num">0</span>, hi = <span class="num">2000000</span>;
+    <span class="kw">while</span> (lo &lt; hi) {
+        <span class="kw">long</span> <span class="kw">long</span> mid = (lo + hi + <span class="num">1</span>) / <span class="num">2</span>;
+        <span class="kw">if</span> (mid * mid &lt;= n) {
+            lo = mid;
+        } <span class="kw">else</span> {
+            hi = mid - <span class="num">1</span>;
+        }
+    }
+    cout &lt;&lt; lo &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div></div>
+
+<div class="card summary-card"><div class="card-header"><i class="fas fa-clipboard-list"></i><h3>ملخص سريع</h3></div><ul class="sum-list"><li><i class="fas fa-circle-check"></i><span>البحث الثنائي يقصّ المدى نصفًا في كل خطوة فيحتاج <code class="inline">O(log n)</code>، وشرطه أن تكون البيانات **مرتّبة**.</span></li><li><i class="fas fa-circle-check"></i><span>نقسّم بـ <code class="inline">mid = lo + (hi - lo) / 2</code> لتجنب الفيضان، ونرمي النصف الذي لا يحوي الهدف.</span></li><li><i class="fas fa-circle-check"></i><span><code class="inline">binary_search</code> تجيب بصح/خطأ، و<code class="inline">lower_bound</code> أول عنصر ≥ x، و<code class="inline">upper_bound</code> أول عنصر > x.</span></li><li><i class="fas fa-circle-check"></i><span>عدد ظهور <code class="inline">x</code> يساوي <code class="inline">upper_bound - lower_bound</code>، ورقم الموقع يساوي المؤشر ناقص <code class="inline">begin()</code>.</span></li><li><i class="fas fa-circle-check"></i><span>البحث الثنائي على الجواب يعمل عندما يكون الشرط **رتيبًا** (كاذب ... كاذب صادق ... صادق).</span></li><li><i class="fas fa-circle-check"></i><span>أول قيمة صادقة: <code class="inline">hi = mid</code> و<code class="inline">lo = mid + 1</code>. آخر قيمة صادقة: <code class="inline">mid = (lo + hi + 1) / 2</code> ثم <code class="inline">lo = mid</code>.</span></li><li><i class="fas fa-circle-check"></i><span>في الأعداد العشرية نكرر القصّ 50 إلى 100 مرة بدل شرط <code class="inline">lo &lt; hi</code>.</span></li></ul></div>
+  <div class="card steps-card" id="tfCard">
+    <div class="card-header"><i class="fas fa-clipboard-check"></i><h3>تحقق من فهمك</h3></div>
+    <p>اقرأ كل عبارة ثم اختر <strong>صحيح</strong> أو <strong>خطأ</strong>. سيظهر التفسير مباشرة بعد إجابتك.</p>
+    <div id="tfList"></div>
+    <div class="score-box" id="tfScore" style="display:none"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><i class="fas fa-book"></i><h3>قاموس المصطلحات</h3></div>
+    <p>المصطلحات الإنجليزية الأهم في هذا الدرس ومقابلها بالعربية:</p>
+    <div class="glossary-grid"><div class="term-card"><span class="term-en">Binary search</span><span class="term-ar">البحث الثنائي</span><p class="term-desc">خوارزمية تقصّ المدى المرتّب نصفًا في كل خطوة.</p></div><div class="term-card"><span class="term-en">Sorted</span><span class="term-ar">مرتّب</span><p class="term-desc">البيانات مرتّبة تصاعديًا أو تنازليًا، شرط البحث الثنائي.</p></div><div class="term-card"><span class="term-en">lo / hi</span><span class="term-ar">الحد الأدنى / الأعلى</span><p class="term-desc">طرفا المدى الذي ما زال العنصر ممكنًا فيه.</p></div><div class="term-card"><span class="term-en">mid</span><span class="term-ar">المنتصف</span><p class="term-desc">الموقع الذي نفحصه في كل خطوة.</p></div><div class="term-card"><span class="term-en">binary_search</span><span class="term-ar">بحث ثنائي جاهز</span><p class="term-desc">دالة تعيد true إن وُجدت القيمة في مدى مرتّب.</p></div><div class="term-card"><span class="term-en">lower_bound</span><span class="term-ar">الحد الأدنى</span><p class="term-desc">مؤشر لأول عنصر أكبر من القيمة أو يساويها.</p></div><div class="term-card"><span class="term-en">upper_bound</span><span class="term-ar">الحد الأعلى</span><p class="term-desc">مؤشر لأول عنصر أكبر تمامًا من القيمة.</p></div><div class="term-card"><span class="term-en">Predicate</span><span class="term-ar">شرط منطقي</span><p class="term-desc">عبارة تعطي صحيحًا أو خطأ لكل قيمة مرشحة.</p></div><div class="term-card"><span class="term-en">Monotonic</span><span class="term-ar">رتيب</span><p class="term-desc">شرط ينتقل من خطأ إلى صواب (أو العكس) مرة واحدة فقط.</p></div><div class="term-card"><span class="term-en">Overflow</span><span class="term-ar">فيضان</span><p class="term-desc">تجاوز الناتج أكبر قيمة يخزّنها النوع.</p></div><div class="term-card"><span class="term-en">Search space</span><span class="term-ar">فضاء البحث</span><p class="term-desc">مجموعة كل القيم التي قد يكون الجواب بينها.</p></div><div class="term-card"><span class="term-en">Precision</span><span class="term-ar">دقة</span><p class="term-desc">عدد مرات القصّ في البحث العشري يحدد دقة الجواب.</p></div></div>
+  </div>
+  <div class="card steps-card" id="quizCard">
+    <div class="card-header"><i class="fas fa-circle-question"></i><h3>الاختبار النهائي</h3></div>
+    <p>عشرة أسئلة بين السهلة والمتوسطة. اختر إجابة واحدة لكل سؤال.</p>
+    <div class="progress"><div class="progress-bar" id="quizBar"></div></div>
+    <div id="quizList"></div>
+    <div class="score-box" id="quizScore" style="display:none"></div>
+  </div>
+  <div class="card refs-card">
+    <div class="card-header"><i class="fas fa-link"></i><h3>للاستزادة</h3></div>
+    <p>الحقائق التقنية في هذا الدرس موثّقة في المراجع التالية، أما الشرح والأمثلة والتمارين فمكتوبة خصيصًا لمنصة TweetKod:</p>
+    <ul class="ref-list"><li><a href="https://en.cppreference.com/w/cpp/algorithm/binary_search" target="_blank" rel="noopener"><span class="en">std::binary_search &mdash; cppreference</span></a></li><li><a href="https://en.cppreference.com/w/cpp/algorithm/lower_bound" target="_blank" rel="noopener"><span class="en">std::lower_bound &mdash; cppreference</span></a></li><li><a href="https://en.cppreference.com/w/cpp/algorithm/upper_bound" target="_blank" rel="noopener"><span class="en">std::upper_bound &mdash; cppreference</span></a></li><li><a href="https://cp-algorithms.com/num_methods/binary_search.html" target="_blank" rel="noopener"><span class="en">Binary Search &mdash; cp-algorithms (CC BY-SA 4.0)</span></a></li><li><a href="https://cses.fi/book/book.pdf" target="_blank" rel="noopener"><span class="en">Competitive Programmer's Handbook &mdash; Antti Laaksonen (book, CC BY-NC-SA 4.0)</span></a></li><li><a href="https://usaco.guide/silver/" target="_blank" rel="noopener"><span class="en">USACO Guide: Sorting &amp; Sets/Maps (CC BY-NC-SA 4.0)</span></a></li><li><a href="https://cses.fi/problemset/" target="_blank" rel="noopener"><span class="en">CSES Problem Set &mdash; practice problems</span></a></li></ul>
+  </div>
+</div>
+<button class="to-top" id="toTop" title="إلى الأعلى"><i class="fas fa-arrow-up"></i></button>
+<footer class="page-footer">منصة TweetKod</footer>
+<script>
+const TF = [{"s": "يعمل البحث الثنائي على أي مصفوفة حتى لو لم تكن مرتّبة.", "a": false, "why": "الترتيب شرط أساسي، وإلا لا نعرف أي نصف نرمي."}, {"s": "البحث الثنائي في مليون عنصر يحتاج نحو 20 خطوة.", "a": true, "why": "2²⁰ ≈ مليون، فنقصّ المدى نصفًا عشرين مرة."}, {"s": "الكتابة <code class=\"inline\">lo + (hi - lo) / 2</code> تتجنب فيضان العدد أفضل من <code class=\"inline\">(lo + hi) / 2</code>.", "a": true, "why": "المجموع <code class=\"inline\">lo + hi</code> قد يتجاوز أكبر عدد ممكن عند القيم الضخمة."}, {"s": "<code class=\"inline\">binary_search</code> تعيد رقم موقع العنصر.", "a": false, "why": "تعيد قيمة منطقية فقط. أما الموقع فنأخذه من <code class=\"inline\">lower_bound</code>."}, {"s": "الفرق <code class=\"inline\">upper_bound - lower_bound</code> يعطي عدد مرات ظهور القيمة.", "a": true, "why": "المؤشران يحيطان بكل النسخ المتساوية."}, {"s": "البحث الثنائي على الجواب يحتاج مصفوفة مرتّبة تُخزَّن في الذاكرة.", "a": false, "why": "يكفي شرط رتيب (كاذب ثم صادق)، ولا نحتاج مصفوفة أصلًا."}, {"s": "في قالب «آخر قيمة صادقة» نستخدم <code class=\"inline\">mid = (lo + hi + 1) / 2</code> لتجنب حلقة لا تنتهي.", "a": true, "why": "التقريب للأعلى يضمن أن يتقدم <code class=\"inline\">lo</code> عندما يكون <code class=\"inline\">hi = lo + 1</code>."}];
+const QUIZ = [{"q": "ما الشرط الأساسي لاستخدام البحث الثنائي على مصفوفة؟", "o": ["أن تكون مرتّبة", "أن يكون حجمها عددًا زوجيًا", "أن تكون أعدادها زوجية", "أن تكون أعدادها موجبة"], "a": 0, "why": "الترتيب يسمح لنا أن نقرر أي نصف نرمي."}, {"q": "تقريبًا كم خطوة يحتاج البحث الثنائي في 1000 عنصر؟", "o": ["500", "100", "10", "1000"], "a": 2, "why": "2¹⁰ = 1024، أي عشر قصّات."}, {"q": "أي سطر هو الأفضل لحساب المنتصف؟", "o": ["<code class=\"inline\">mid = (lo - hi) / 2;</code>", "<code class=\"inline\">mid = lo + (hi - lo) / 2;</code>", "<code class=\"inline\">mid = hi / lo;</code>", "<code class=\"inline\">mid = lo * hi / 2;</code>"], "a": 1, "why": "هذه الصيغة تتجنب فيضان المجموع <code class=\"inline\">lo + hi</code>."}, {"q": "إذا كان <code class=\"inline\">a[mid] &lt; x</code> في بحث عن <code class=\"inline\">x</code> فماذا نفعل؟", "o": ["<code class=\"inline\">lo = 0;</code>", "<code class=\"inline\">hi = mid - 1;</code>", "<code class=\"inline\">lo = mid + 1;</code>", "<code class=\"inline\">return mid;</code>"], "a": 2, "why": "الأوسط أصغر من المطلوب فكل ما قبله أصغر أيضًا، نرمي النصف الأيسر."}, {"q": "ماذا تعيد الدالة <code class=\"inline\">binary_search(v.begin(), v.end(), x)</code> ؟", "o": ["مؤشرًا لأول عنصر ≥ x", "عدد مرات ظهور x", "رقم الموقع", "قيمة منطقية: هل وُجدت x؟"], "a": 3, "why": "تعيد <code class=\"inline\">true</code> أو <code class=\"inline\">false</code> فقط."}, {"q": "على <code class=\"inline\">{1, 3, 3, 3, 5, 8}</code> كم يساوي <code class=\"inline\">lower_bound(v.begin(), v.end(), 3) - v.begin()</code> ؟", "o": ["1", "4", "3", "0"], "a": 0, "why": "أول ظهور للعدد 3 في الموقع 1."}, {"q": "على المتجه نفسه، كم مرة يظهر 3 بحسب <code class=\"inline\">upper_bound(3) - lower_bound(3)</code> ؟", "o": ["1", "2", "4", "3"], "a": 3, "why": "upper تعيد الموقع 4 وlower تعيد الموقع 1 والفرق 3."}, {"q": "متى يصح استخدام البحث الثنائي على الجواب؟", "o": ["حين لا يوجد ترتيب إطلاقًا", "حين تكون المسألة عن النصوص فقط", "حين يكون الشرط رتيبًا: كاذب ثم صادق", "دائمًا بلا شروط"], "a": 2, "why": "الرتابة هي ما يسمح لنا برمي نصف القيم."}, {"q": "لماذا نكتب <code class=\"inline\">mid = (lo + hi + 1) / 2</code> في قالب «آخر قيمة صادقة»؟", "o": ["لتجنب حلقة لا تنتهي عندما <code class=\"inline\">hi = lo + 1</code>", "لتسريع الحلقة فقط", "لحفظ الذاكرة", "لأن القسمة ممنوعة"], "a": 0, "why": "التقريب للأعلى يضمن أن يتقدّم <code class=\"inline\">lo</code> عند الاقتراب."}, {"q": "ما تعقيد <code class=\"inline\">lower_bound</code> على <code class=\"inline\">vector</code> مرتّب ذي n عنصرًا؟", "o": ["<code class=\"inline\">O(n log n)</code>", "<code class=\"inline\">O(1)</code>", "<code class=\"inline\">O(log n)</code>", "<code class=\"inline\">O(n)</code>"], "a": 2, "why": "هي بحث ثنائي على مؤشرات عشوائية الوصول."}];
+const EXPL = {"guess": {"0": "اللاعب يفكر بعدد بين 1 و100. نحتفظ بمدى ممكن <code class=\"inline\">[lo, hi]</code> يبدأ بالمدى كله.", "3": "نخمّن دائمًا <strong>منتصف المدى</strong>.", "9": "إن كان تخميننا أصغر من السر فكل ما قبله مستحيل: ننقل <code class=\"inline\">lo</code> إلى ما بعد التخمين.", "12": "وإن كان أكبر فننقل <code class=\"inline\">hi</code> إلى ما قبله. في كل مرة يختفي نصف الاحتمالات!"}, "bsfull": {"4": "الدالة تعيد رقم موقع <code class=\"inline\">x</code> في المتجه <strong>المرتّب</strong> أو <code class=\"inline\">-1</code> إن لم يوجد.", "5": "المدى الممكن هو المتجه كله: من الموقع 0 إلى الأخير.", "6": "ما دام المدى غير فارغ نكمل.", "7": "نكتب المنتصف هكذا <code class=\"inline\">lo + (hi - lo) / 2</code> وليس <code class=\"inline\">(lo + hi) / 2</code> حتى لا يفيض العدد عند الأحجام الضخمة.", "8": "وجدناه!", "11": "العنصر الأوسط أصغر من المطلوب: كل ما على يساره أصغر منه أيضًا، فنرمي النصف الأيسر.", "13": "وإلا نرمي النصف الأيمن.", "17": "خرجنا من الحلقة دون العثور عليه."}, "stl": {"2": "<code class=\"inline\">binary_search</code> تجيب فقط بـ نعم/لا (1 أو 0): هل العنصر موجود؟", "4": "<code class=\"inline\">lower_bound</code> تعيد مؤشرًا إلى <strong>أول</strong> عنصر ≥ القيمة.", "5": "<code class=\"inline\">upper_bound</code> تعيد مؤشرًا إلى أول عنصر <strong>&gt;</strong> القيمة، أي مباشرة بعد آخر نسخة.", "6": "لتحويل المؤشر إلى رقم موقع نطرح منه <code class=\"inline\">v.begin()</code>.", "8": "الفرق بين المؤشرين هو عدد مرات ظهور القيمة: خدعة العدّ بالبحث الثنائي!", "9": "عدد العناصر الأصغر تمامًا من 4 هو موقع <code class=\"inline\">lower_bound(4)</code>."}, "first_true": {"0": "نبحث عن <strong>أصغر</strong> عدد <code class=\"inline\">x</code> يحقق <code class=\"inline\">x*x &gt;= 50</code>. الشرط «كاذب كاذب كاذب ... صادق صادق صادق»: مرتّب!", "3": "إن حقق المنتصف الشرط فهو مرشح، وقد يوجد أصغر منه على يساره: نجعل <code class=\"inline\">hi = mid</code> (لا نتجاوزه).", "5": "وإن لم يحقق فكل ما قبله لا يحقق: <code class=\"inline\">lo = mid + 1</code>.", "8": "عندما يلتقي <code class=\"inline\">lo</code> و<code class=\"inline\">hi</code> نكون وجدنا أول عدد صادق."}};
+const TRACES = {"bstrace": [{"line": -1, "vars": {}, "out": "", "note": "نقطة البداية: لم يُنفَّذ أي سطر بعد."}, {"line": 0, "vars": {"a": "[2,5,8,12,16,23,38,56,72,91]"}, "out": "", "note": "متجه مرتّب من عشرة أعداد، ونبحث عن 23."}, {"line": 1, "vars": {"a": "[2,5,8,12,16,23,38,56,72,91]", "x": "23", "lo": "0", "hi": "9", "steps": "0"}, "out": "", "note": "المدى كله ممكن: lo = 0 و hi = 9."}, {"line": 2, "vars": {"a": "[2,5,8,12,16,23,38,56,72,91]", "x": "23", "lo": "0", "hi": "9", "steps": "0"}, "out": "", "note": "lo ≤ hi: ندخل الحلقة."}, {"line": 3, "vars": {"a": "[2,5,8,12,16,23,38,56,72,91]", "x": "23", "lo": "0", "hi": "9", "steps": "0", "mid": "4"}, "out": "", "note": "المنتصف: 0 + (9-0)/2 = 4."}, {"line": 4, "vars": {"a": "[2,5,8,12,16,23,38,56,72,91]", "x": "23", "lo": "0", "hi": "9", "steps": "1", "mid": "4"}, "out": "", "note": "الخطوة الأولى."}, {"line": 5, "vars": {"a": "[2,5,8,12,16,23,38,56,72,91]", "x": "23", "lo": "0", "hi": "9", "steps": "1", "mid": "4"}, "out": "", "note": "a[4] = 16 وهو ليس 23."}, {"line": 9, "vars": {"a": "[2,5,8,12,16,23,38,56,72,91]", "x": "23", "lo": "5", "hi": "9", "steps": "1", "mid": "4"}, "out": "", "note": "16 < 23: كل ما على اليسار أصغر، نرمي النصف الأيسر."}, {"line": 2, "vars": {"a": "[2,5,8,12,16,23,38,56,72,91]", "x": "23", "lo": "5", "hi": "9", "steps": "1", "mid": "4"}, "out": "", "note": "المدى الآن [5, 9]. ندخل من جديد."}, {"line": 3, "vars": {"a": "[2,5,8,12,16,23,38,56,72,91]", "x": "23", "lo": "5", "hi": "9", "steps": "1", "mid": "7"}, "out": "", "note": "المنتصف: 5 + (9-5)/2 = 7."}, {"line": 4, "vars": {"a": "[2,5,8,12,16,23,38,56,72,91]", "x": "23", "lo": "5", "hi": "9", "steps": "2", "mid": "7"}, "out": "", "note": "الخطوة الثانية."}, {"line": 5, "vars": {"a": "[2,5,8,12,16,23,38,56,72,91]", "x": "23", "lo": "5", "hi": "9", "steps": "2", "mid": "7"}, "out": "", "note": "a[7] = 56 وهو ليس 23."}, {"line": 10, "vars": {"a": "[2,5,8,12,16,23,38,56,72,91]", "x": "23", "lo": "5", "hi": "6", "steps": "2", "mid": "7"}, "out": "", "note": "56 > 23: نرمي النصف الأيمن."}, {"line": 2, "vars": {"a": "[2,5,8,12,16,23,38,56,72,91]", "x": "23", "lo": "5", "hi": "6", "steps": "2", "mid": "7"}, "out": "", "note": "المدى الآن [5, 6]."}, {"line": 3, "vars": {"a": "[2,5,8,12,16,23,38,56,72,91]", "x": "23", "lo": "5", "hi": "6", "steps": "2", "mid": "5"}, "out": "", "note": "المنتصف: 5 + (6-5)/2 = 5."}, {"line": 4, "vars": {"a": "[2,5,8,12,16,23,38,56,72,91]", "x": "23", "lo": "5", "hi": "6", "steps": "3", "mid": "5"}, "out": "", "note": "الخطوة الثالثة."}, {"line": 5, "vars": {"a": "[2,5,8,12,16,23,38,56,72,91]", "x": "23", "lo": "5", "hi": "6", "steps": "3", "mid": "5"}, "out": "", "note": "a[5] = 23 وجدناه!"}, {"line": 6, "vars": {"a": "[2,5,8,12,16,23,38,56,72,91]", "x": "23", "lo": "5", "hi": "6", "steps": "3", "mid": "5"}, "out": "index 5 after 3 steps\n", "note": "طبعنا النتيجة."}, {"line": 7, "vars": {"a": "[2,5,8,12,16,23,38,56,72,91]", "x": "23", "lo": "5", "hi": "6", "steps": "3", "mid": "5"}, "out": "index 5 after 3 steps\n", "note": "break تخرج من الحلقة. ثلاث خطوات فقط من عشرة عناصر."}]};
+function copyCode(id) {
+  const el = document.getElementById(id);
+  const text = el.innerText.replace(/ /g, ' ');
+  const done = () => { const b = el.parentElement.querySelector('.copy-btn'); const t = b.textContent; b.textContent = 'تم النسخ ✓'; setTimeout(() => b.textContent = t, 1400); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(done); else done();
+}
+
+/* click-to-explain code lines */
+document.querySelectorAll('.code-box[data-expl]').forEach(box => {
+  const id = box.getAttribute('data-expl');
+  const out = document.querySelector('.explain-box[data-for="' + id + '"]');
+  box.querySelectorAll('.code-line').forEach(line => {
+    line.addEventListener('click', () => {
+      box.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+      line.classList.add('active');
+      out.innerHTML = EXPL[id][line.getAttribute('data-i')];
+    });
+  });
+});
+
+/* true / false check */
+(function () {
+  const list = document.getElementById('tfList');
+  let answered = 0, right = 0;
+  TF.forEach((it, i) => {
+    const d = document.createElement('div');
+    d.className = 'tf-item';
+    d.innerHTML = '<div class="stmt">' + (i + 1) + '. ' + it.s + '</div>' +
+      '<div class="tf-btns"><button class="tf-btn" data-v="true"><i class="fas fa-check"></i> صحيح</button>' +
+      '<button class="tf-btn" data-v="false"><i class="fas fa-xmark"></i> خطأ</button></div><div class="feedback"></div>';
+    d.querySelectorAll('.tf-btn').forEach(b => b.addEventListener('click', () => {
+      const pick = b.getAttribute('data-v') === 'true';
+      const ok = pick === it.a;
+      d.querySelectorAll('.tf-btn').forEach(x => { x.disabled = true; });
+      b.classList.add(ok ? 'correct' : 'wrong');
+      const fb = d.querySelector('.feedback');
+      fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+      fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> إجابة صحيحة. ' : '<i class="fas fa-circle-xmark"></i> الإجابة الصحيحة: ' + (it.a ? 'صحيح' : 'خطأ') + '. ') + it.why;
+      answered++; if (ok) right++;
+      if (answered === TF.length) {
+        const s = document.getElementById('tfScore');
+        s.style.display = 'block';
+        s.innerHTML = '<div class="big">' + right + ' / ' + TF.length + '</div><div>' + (right === TF.length ? 'ممتاز! فهمت الدرس جيدًا.' : right >= TF.length - 2 ? 'نتيجة جيدة، راجع العبارات التي أخطأت فيها.' : 'أعد قراءة الدرس ثم جرّب مرة أخرى.') + '</div>';
+      }
+    }));
+    list.appendChild(d);
+  });
+})();
+
+/* final quiz */
+(function () {
+  const list = document.getElementById('quizList');
+  const bar = document.getElementById('quizBar');
+  let answered = 0, right = 0;
+  QUIZ.forEach((q, qi) => {
+    const d = document.createElement('div');
+    d.className = 'quiz-q';
+    d.innerHTML = '<h4><span class="qnum">' + (qi + 1) + '</span>' + q.q + '</h4><div class="quiz-options"></div><div class="feedback"></div>';
+    const box = d.querySelector('.quiz-options');
+    q.o.forEach((txt, oi) => {
+      const b = document.createElement('button');
+      b.className = 'quiz-opt'; b.innerHTML = txt;
+      b.addEventListener('click', () => {
+        box.querySelectorAll('.quiz-opt').forEach(x => x.disabled = true);
+        const ok = oi === q.a;
+        b.classList.add(ok ? 'correct' : 'wrong');
+        if (!ok) box.children[q.a].classList.add('correct');
+        const fb = d.querySelector('.feedback');
+        fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+        fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> صحيح! ' : '<i class="fas fa-circle-xmark"></i> ليست الإجابة الصحيحة. ') + q.why;
+        answered++; if (ok) right++;
+        bar.style.width = (answered / QUIZ.length * 100) + '%';
+        if (answered === QUIZ.length) showScore();
+      });
+      box.appendChild(b);
+    });
+    list.appendChild(d);
+  });
+  function showScore() {
+    const s = document.getElementById('quizScore');
+    const pct = right / QUIZ.length;
+    s.style.display = 'block';
+    s.innerHTML = '<div class="big">' + right + ' / ' + QUIZ.length + '</div><div>' +
+      (pct === 1 ? 'نتيجة كاملة! أنت جاهز للدرس التالي.' : pct >= 0.7 ? 'أداء جيد جدًا، راجع الأسئلة التي أخطأت فيها.' : 'راجع الدرس مرة أخرى ثم أعد المحاولة.') +
+      '</div><button class="retry-btn" onclick="location.hash=\'quizCard\';location.reload();">إعادة الاختبار</button>';
+  }
+})();
+
+
+/* ---------------- header tools ---------------- */
+(function () {
+  const root = document.documentElement;
+  const safeGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const safeSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+  /* theme */
+  const themeBtn = document.getElementById('themeBtn');
+  function applyTheme(t) { root.setAttribute('data-theme', t); if (themeBtn) themeBtn.innerHTML = t === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; }
+  applyTheme(safeGet('tk_theme') || 'light');
+  if (themeBtn) themeBtn.addEventListener('click', () => { const t = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; applyTheme(t); safeSet('tk_theme', t); });
+
+  /* code size */
+  let size = parseFloat(safeGet('tk_codesize') || '0.95');
+  function applySize() { root.style.setProperty('--code-size', size + 'rem'); }
+  applySize();
+  const dec = document.getElementById('fontDec'), inc = document.getElementById('fontInc');
+  if (dec) dec.addEventListener('click', () => { size = Math.max(0.75, +(size - 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+  if (inc) inc.addEventListener('click', () => { size = Math.min(1.3, +(size + 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+
+  /* table of contents */
+  const panel = document.getElementById('tocPanel'), tocBtn = document.getElementById('tocBtn');
+  if (panel && tocBtn) {
+    const cards = document.querySelectorAll('.container > .card');
+    let n = 0;
+    cards.forEach((c, i) => {
+      const h = c.querySelector('.card-header h3, .project-banner strong');
+      if (!h) return;
+      n++;
+      c.id = c.id || 'sec-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + c.id;
+      a.innerHTML = '<span>' + n + '</span><bdi>' + h.innerHTML + '</bdi>';
+      a.addEventListener('click', () => panel.classList.remove('open'));
+      panel.appendChild(a);
+    });
+    tocBtn.addEventListener('click', (e) => { e.stopPropagation(); panel.classList.toggle('open'); });
+    document.addEventListener('click', (e) => { if (!panel.contains(e.target)) panel.classList.remove('open'); });
+  }
+
+  /* reading progress + back to top */
+  const bar = document.getElementById('readBar'), top = document.getElementById('toTop');
+  function onScroll() {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+    if (bar) bar.style.width = pct + '%';
+    if (top) top.classList.toggle('show', h.scrollTop > 600);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  if (top) top.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+})();
+
+/* ---------------- step tracer ---------------- */
+document.querySelectorAll('.tracer').forEach(el => {
+  const steps = TRACES[el.getAttribute('data-trace')];
+  const lines = el.querySelectorAll('.tr-line');
+  const varsEl = el.querySelector('.tr-vars'), outEl = el.querySelector('.tr-out'), noteEl = el.querySelector('.tr-note'), cnt = el.querySelector('.tr-count');
+  const btn = (a) => el.querySelector('[data-a="' + a + '"]');
+  let i = 0, timer = null;
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  function draw() {
+    const s = steps[i], prev = i > 0 ? steps[i - 1].vars : {};
+    lines.forEach((l, k) => l.classList.toggle('active', k === s.line));
+    const names = Object.keys(s.vars);
+    varsEl.innerHTML = names.length ? names.map(n => '<div class="tr-var' + (prev[n] !== s.vars[n] ? ' changed' : '') + '"><span>' + esc(n) + '</span><b>' + esc(s.vars[n]) + '</b></div>').join('') : '<span style="color:#94a3b8">لا توجد متغيرات بعد</span>';
+    outEl.textContent = s.out || ' ';
+    noteEl.textContent = s.note || ' ';
+    cnt.textContent = 'الخطوة ' + i + ' من ' + (steps.length - 1);
+    btn('prev').disabled = i === 0; btn('next').disabled = i === steps.length - 1;
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; btn('play').innerHTML = '<i class="fas fa-play"></i> تشغيل تلقائي'; } }
+  btn('next').onclick = () => { stop(); if (i < steps.length - 1) i++; draw(); };
+  btn('prev').onclick = () => { stop(); if (i > 0) i--; draw(); };
+  btn('reset').onclick = () => { stop(); i = 0; draw(); };
+  btn('play').onclick = () => {
+    if (timer) { stop(); return; }
+    if (i >= steps.length - 1) i = 0;
+    btn('play').innerHTML = '<i class="fas fa-pause"></i> إيقاف';
+    timer = setInterval(() => { if (i < steps.length - 1) { i++; draw(); } else stop(); }, 1100);
+    draw();
+  };
+  draw();
+});
+
+/* ---------------- predict the output ---------------- */
+document.querySelectorAll('.predict').forEach(p => {
+  const opts = p.querySelectorAll('.pd-opt');
+  opts.forEach(o => o.addEventListener('click', () => {
+    const ok = o.getAttribute('data-ok') === '1';
+    opts.forEach(x => { x.disabled = true; if (x.getAttribute('data-ok') === '1') x.classList.add('correct'); });
+    if (!ok) o.classList.add('wrong');
+    const res = p.querySelector('.pd-result');
+    res.classList.remove('hidden');
+    const msg = p.querySelector('.pd-msg');
+    msg.innerHTML = ok ? '<span style="color:#16a34a"><i class="fas fa-check-circle"></i> توقّعك صحيح! هذا هو الناتج الحقيقي:</span>' : '<span style="color:#dc2626"><i class="fas fa-circle-xmark"></i> ليس تمامًا. هذا هو الناتج الحقيقي، وتابع التفسير:</span>';
+  }));
+});
+
+
+// ---------- binary search visualizer ----------
+let BS = { a: [], lo: 0, hi: 0, steps: 0, done: false, found: -1, timer: null };
+function bsNew() {
+  bsStop();
+  const a = []; let v = Math.floor(Math.random() * 6) + 1;
+  for (let i = 0; i < 16; i++) { a.push(v); v += Math.floor(Math.random() * 9) + 2; }
+  BS.a = a; document.getElementById('bsTarget').value = a[Math.floor(Math.random() * 16)];
+  bsReset();
+}
+function bsReset() {
+  bsStop(); BS.lo = 0; BS.hi = BS.a.length - 1; BS.steps = 0; BS.done = false; BS.found = -1; BS.mid = -1;
+  document.getElementById('bsOut').innerHTML = '<span class="line">// اضغط خطوة لتبدأ</span>'; document.getElementById('bsNote').textContent = ''; bsDraw();
+}
+function bsDraw() {
+  let h = '';
+  BS.a.forEach((v, i) => {
+    const inr = i >= BS.lo && i <= BS.hi && !BS.done;
+    const cls = 'cell' + (i === BS.mid ? ' sel' : '') + (!inr && BS.found !== i ? ' ghost' : '');
+    const st = i === BS.found ? ' style="background:rgba(22,163,74,.3);border-color:#16a34a"' : (i === BS.mid ? ' style="background:rgba(139,92,246,.3);border-color:#8b5cf6"' : '');
+    let tag = '[' + i + ']'; if (i === BS.lo && !BS.done) tag += '▼lo'; if (i === BS.hi && !BS.done) tag += '▲hi';
+    h += '<div class="' + cls + '"' + st + '>' + v + '<small>' + tag + '</small></div>';
+  });
+  document.getElementById('bsCells').innerHTML = h;
+}
+function bsStep() {
+  if (BS.done) return false;
+  const x = parseInt(document.getElementById('bsTarget').value, 10);
+  if (isNaN(x)) { document.getElementById('bsNote').textContent = 'اكتب الهدف أولًا.'; return false; }
+  if (BS.lo > BS.hi) { BS.done = true; BS.mid = -1; bsDraw(); document.getElementById('bsOut').innerHTML = 'return -1;'; document.getElementById('bsNote').textContent = 'انتهى المدى دون العثور على ' + x + ' بعد ' + BS.steps + ' خطوات.'; return false; }
+  const mid = Math.floor(BS.lo + (BS.hi - BS.lo) / 2); BS.mid = mid; BS.steps++;
+  let msg = 'lo=' + BS.lo + ', hi=' + BS.hi + ', mid=' + mid + ', a[mid]=' + BS.a[mid];
+  if (BS.a[mid] === x) { BS.found = mid; BS.done = true; msg += '  =>  وجدناه! return ' + mid + ';'; document.getElementById('bsNote').textContent = 'وجدنا ' + x + ' في ' + BS.steps + ' خطوات، والبحث العادي في أسوأ حالة يحتاج ' + BS.a.length + '.'; }
+  else if (BS.a[mid] < x) { msg += '  =>  ' + BS.a[mid] + ' < ' + x + '  فنرمي النصف الأيسر: lo = ' + (mid + 1); BS.lo = mid + 1; }
+  else { msg += '  =>  ' + BS.a[mid] + ' > ' + x + '  فنرمي النصف الأيمن: hi = ' + (mid - 1); BS.hi = mid - 1; }
+  document.getElementById('bsOut').innerHTML = '<span class="line">// الخطوة ' + BS.steps + '</span>\n' + msg;
+  bsDraw(); return !BS.done;
+}
+function bsStop() { if (BS.timer) { clearTimeout(BS.timer); BS.timer = null; } }
+function bsAuto() {
+  if (BS.timer) { bsStop(); return; }
+  if (BS.done) bsReset();
+  const tick = () => { if (!bsStep()) { BS.timer = null; return; } BS.timer = setTimeout(tick, 900); };
+  tick();
+}
+bsNew();
+
+// ---------- binary search on the answer (ropes) ----------
+const ROPES = [20, 15, 9], NEED = 7;
+function rpPieces(L) { return ROPES.reduce((s, x) => s + Math.floor(x / L), 0); }
+function rpUpdate() {
+  const L = parseInt(document.getElementById('rpRange').value, 10);
+  document.getElementById('rpL').textContent = L;
+  let h = '<tr><th>الحبل</th>' + ROPES.map(x => '<th>' + x + '</th>').join('') + '<th>المجموع</th></tr><tr><td>القطع بطول ' + L + '</td>' + ROPES.map(x => '<td>' + Math.floor(x / L) + '</td>').join('') + '<td><strong>' + rpPieces(L) + '</strong></td></tr>';
+  document.getElementById('rpTable').innerHTML = h;
+  const ok = rpPieces(L) >= NEED, n = document.getElementById('rpNote');
+  n.className = 'lab-say ' + (ok ? 'ok' : 'bad');
+  n.textContent = ok ? 'تكفي! (' + rpPieces(L) + ' ≥ ' + NEED + ') جرّب طولًا أكبر.' : 'لا تكفي. (' + rpPieces(L) + ' < ' + NEED + ') جرّب طولًا أصغر.';
+}
+function rpSearch() {
+  let lo = 0, hi = 20, h = '<tr><th>lo</th><th>hi</th><th>mid</th><th>القطع</th><th>القرار</th></tr>';
+  while (lo < hi) {
+    const mid = Math.floor((lo + hi + 1) / 2), p = rpPieces(mid), ok = p >= NEED;
+    h += '<tr><td>' + lo + '</td><td>' + hi + '</td><td>' + mid + '</td><td>' + p + '</td><td>' + (ok ? 'تكفي → lo = ' + mid : 'لا تكفي → hi = ' + (mid - 1)) + '</td></tr>';
+    if (ok) lo = mid; else hi = mid - 1;
+  }
+  h += '<tr><td colspan="5" style="font-weight:800;color:#16a34a">الجواب: أطول قطعة ممكنة = ' + lo + '</td></tr>';
+  document.getElementById('rpLog').innerHTML = h;
+  document.getElementById('rpRange').value = lo; rpUpdate();
+}
+rpUpdate();
+
+</script>
+</body>
+</html>

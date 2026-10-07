@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TweetKod | الخوارزميات الإنشائية</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --primary-blue: #00adef;
+  --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+  --primary-yellow: #f7941e;
+  --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+  --dark-navy: #0f172a;
+  --text-body: #475569;
+  --bg-main: #f4f9fd;
+  --surface: #f1f6fb;
+  --card-bg: #ffffff;
+  --border: #e2e8f0;
+  --chip-bg: #eef2f7;
+  --soft-shadow: 0 14px 34px -14px rgba(15,23,42,0.14);
+  --header-bg: rgba(255,255,255,0.82);
+  --code-size: 0.95rem;
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2300adef' fill-opacity='0.075'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+html[data-theme="dark"] {
+  --dark-navy: #e6edf7;
+  --text-body: #a9b6cc;
+  --bg-main: #0a1120;
+  --surface: #16213a;
+  --card-bg: #111a2e;
+  --border: #243049;
+  --chip-bg: #1d2a45;
+  --soft-shadow: 0 14px 34px -14px rgba(0,0,0,0.6);
+  --header-bg: rgba(10,17,32,0.82);
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2338bdf8' fill-opacity='0.06'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+body {
+  font-family: 'Tajawal', 'Segoe UI', sans-serif;
+  background-color: var(--bg-main);
+  margin: 0; padding: 0; color: var(--dark-navy);
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color .3s, color .3s;
+  position: relative;
+}
+/* decorative background */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.20), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.17), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.06), transparent 70%);
+}
+html[data-theme="dark"] body::before {
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.22), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.12), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.10), transparent 70%);
+}
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: var(--pattern); background-size: 260px 260px;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+          mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+}
+.bg-deco { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .35; animation: floaty 18s ease-in-out infinite; }
+.b1 { width: 340px; height: 340px; background: #00adef; top: 12%; right: -90px; }
+.b2 { width: 280px; height: 280px; background: #f7941e; bottom: 6%; left: -80px; animation-delay: -6s; }
+.b3 { width: 220px; height: 220px; background: #8b5cf6; top: 55%; right: 18%; opacity: .16; animation-delay: -11s; }
+html[data-theme="dark"] .blob { opacity: .2; }
+@keyframes floaty { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(26px,-34px) scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .blob { animation: none; } html { scroll-behavior: auto; } }
+
+/* header */
+header {
+  background: var(--header-bg); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  padding: 10px 4%; display: flex; justify-content: space-between; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 1000;
+  border-bottom: 1px solid rgba(0,173,239,0.16); box-shadow: 0 8px 28px -18px rgba(15,23,42,0.45);
+}
+.hdr-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.logo-img { width: 52px; height: 52px; border-radius: 15px; object-fit: contain; padding: 6px; background: #fff;
+  box-shadow: 0 6px 18px -6px rgba(0,173,239,0.45), 0 0 0 1px rgba(0,173,239,0.16); }
+.brand-info h3 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); line-height: 1.3; }
+.brand-info p { margin: 0; font-size: 0.78rem; color: var(--primary-blue); font-weight: 700; }
+.hdr-tools { display: flex; align-items: center; gap: 8px; position: relative; }
+.tool-btn { height: 38px; min-width: 38px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy);
+  cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: .85rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: .2s; }
+.tool-btn:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+.toc-panel { position: absolute; top: 48px; left: 0; width: 290px; max-height: 60vh; overflow-y: auto; background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 16px; box-shadow: var(--soft-shadow); padding: 8px; display: none; }
+.toc-panel.open { display: block; }
+.toc-panel a { display: flex; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 10px; color: var(--dark-navy); text-decoration: none; font-weight: 700; font-size: .88rem; }
+.toc-panel a:hover { background: var(--surface); color: var(--primary-blue); }
+.toc-panel a span { width: 22px; height: 22px; border-radius: 50%; background: var(--chip-bg); color: var(--text-body); font-size: .72rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.read-progress { position: absolute; bottom: -1px; right: 0; left: 0; height: 3px; background: transparent; }
+.read-progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #00adef, #f7941e); transition: width .1s; }
+.to-top { position: fixed; bottom: 22px; left: 22px; z-index: 900; width: 46px; height: 46px; border-radius: 50%; border: none; background: var(--blue-gradient); color: #fff;
+  cursor: pointer; box-shadow: 0 10px 24px -8px rgba(0,173,239,.7); font-size: 1.1rem; opacity: 0; pointer-events: none; transition: .25s; }
+.to-top.show { opacity: 1; pointer-events: auto; }
+@media (max-width: 980px) { .brand-info p { display: none; } }
+@media (max-width: 720px) { .brand-info h3 { font-size: 1rem; } }
+
+.container { max-width: 900px; margin: 44px auto; padding: 0 25px; }
+.title-section { text-align: center; margin-bottom: 40px; }
+.title-section h1 { font-size: 2.7rem; font-weight: 800; margin: 12px 0 6px; background: linear-gradient(135deg, var(--dark-navy), #007bb5 80%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+html[data-theme="dark"] .title-section h1 { background: linear-gradient(135deg, #fff, #38bdf8 80%); -webkit-background-clip: text; background-clip: text; }
+.attribution { color: var(--primary-blue); font-size: 1.15rem; font-weight: 600; }
+.lesson-chip { display: inline-block; background: var(--yellow-gradient); color: #fff; padding: 6px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; box-shadow: 0 8px 18px -8px rgba(247,148,30,.8); }
+
+.card { background: var(--card-bg); border-radius: 25px; padding: 40px; margin-bottom: 30px; box-shadow: var(--soft-shadow); border-right: 8px solid var(--primary-blue);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); transition: background-color .3s; }
+.steps-card { border-right-color: var(--primary-yellow); }
+.card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+.card-header i { font-size: 1.8rem; }
+.card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+h4 { margin: 18px 0 8px; font-size: 1.05rem; color: var(--dark-navy); }
+p { color: var(--text-body); margin: 0 0 14px; }
+a { color: var(--primary-blue); }
+strong { color: var(--dark-navy); }
+
+.en { direction: ltr; unicode-bidi: isolate; font-weight: 700; color: var(--dark-navy); }
+/* every code chip is an isolated LTR island: fixes ; ( ) = placement inside Arabic text */
+code, code.inline { background: var(--chip-bg); padding: 2px 8px; border-radius: 6px; direction: ltr; unicode-bidi: isolate; display: inline-block; text-align: left;
+  color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; line-height: 1.6; }
+html[data-theme="dark"] code, html[data-theme="dark"] code.inline { color: #f9a8d4; }
+
+.obj-list { list-style: none; padding: 0; margin: 0; }
+.obj-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.obj-list i { color: #22c55e; margin-top: 6px; }
+
+/* code */
+.code-box { background: #1e293b; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.35); margin: 20px 0; border: 1px solid rgba(255,255,255,.04); }
+.code-head { background: #0f172a; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+.code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; direction: ltr; }
+.copy-btn { color: #38bdf8; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; font-family: 'Tajawal'; }
+pre { padding: 26px 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: var(--code-size); tab-size: 8; }
+.cmt { color: #79c36a; font-style: italic; }
+.kw { color: #7dd3fc; }
+.str { color: #fbbf77; }
+.num { color: #c4b5fd; }
+.pp { color: #f9a8d4; }
+.code-line, .code-plain { display: block; border-radius: 6px; padding: 0 6px; margin: 0 -6px; }
+.code-line { cursor: pointer; transition: 0.2s; background: rgba(0,173,239,0.07); }
+.code-line:hover { background: rgba(0,173,239,0.22); }
+.code-line.active { background: rgba(247,148,30,0.28); outline: 1px dashed var(--primary-yellow); }
+.explain-box { margin-top: 14px; background: var(--surface); border: 2px dashed var(--border); border-radius: 16px; padding: 16px 22px; font-weight: 600; color: var(--dark-navy); min-height: 30px; }
+.explain-box .hint { color: #94a3b8; font-weight: 500; }
+.output-box, .input-box { font-family: 'Consolas', monospace; padding: 16px 22px; border-radius: 14px; margin: 10px 0 18px; direction: ltr; text-align: left; white-space: pre-wrap; tab-size: 8; font-size: var(--code-size); }
+.output-box { background: #0f172a; color: #4ade80; }
+.input-box { background: #0c2233; color: #7dd3fc; margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.input-box + .output-box { margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; border-top: 1px dashed #1e3a52; }
+.output-box::before, .input-box::before { display: block; font-size: 0.72rem; letter-spacing: 0.08em; margin-bottom: 6px; text-transform: uppercase; color: #64748b; }
+.output-box::before { content: 'Output'; }
+.input-box::before { content: 'Input (typed by the user)'; }
+.error-box { background: #1f1317; border: 1px solid #7f1d1d; border-radius: 14px; margin: 10px 0 18px; overflow: hidden; }
+.error-head { background: #450a0a; color: #fca5a5; padding: 8px 18px; font-weight: 700; font-size: 0.85rem; }
+.error-box pre { color: #fecaca; font-size: 0.8rem; padding: 14px 20px; line-height: 1.7; }
+
+/* steps */
+.step-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 14px; padding: 18px 20px; background: var(--card-bg); border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+.step-number { background: var(--yellow-gradient); color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+.step-item h4 { margin: 0 0 4px; font-size: 1rem; }
+.step-item p { margin: 0; font-size: 0.92rem; }
+
+/* tables */
+.table-wrap { overflow-x: auto; margin: 15px 0; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+table.data-table { width: 100%; border-collapse: collapse; background: var(--card-bg); }
+table.data-table th { background: var(--blue-gradient); color: #fff; padding: 12px 18px; font-size: 0.85rem; text-align: right; white-space: nowrap; }
+table.data-table td { padding: 12px 18px; font-size: 0.9rem; border-bottom: 1px solid var(--border); color: var(--text-body); }
+table.data-table tr:last-child td { border-bottom: none; }
+
+/* comparison / rules */
+.compare-grid, .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+@media (max-width: 700px) { .compare-grid, .rule-grid { grid-template-columns: 1fr; } .card { padding: 24px; } .title-section h1 { font-size: 2rem; } }
+.compare-card { border-radius: 16px; overflow: hidden; background: #1e293b; }
+.compare-title { padding: 10px 18px; font-weight: 800; font-size: 0.9rem; }
+.good .compare-title { background: #dcfce7; color: #15803d; }
+.bad .compare-title { background: #fee2e2; color: #b91c1c; }
+.compare-card pre { padding: 18px 20px; font-size: 0.83rem; }
+.rule-list { background: var(--surface); border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
+.rule-list h5 { margin: 0 0 12px; font-size: 0.95rem; }
+.rule-list.yes h5 { color: #16a34a; } .rule-list.no h5 { color: #dc2626; }
+.rule-list ul { list-style: none; padding: 0; margin: 0; }
+.rule-list li { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 0.9rem; color: var(--text-body); }
+.rule-list.yes li i { color: #22c55e; } .rule-list.no li i { color: #ef4444; }
+
+.tip-box { background: rgba(247,148,30,0.09); border: 2px dashed var(--primary-yellow); border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 4px; }
+.tip-box p { margin: 0; font-size: 0.93rem; }
+
+/* project */
+.project-banner { background: var(--blue-gradient); color: #fff; border-radius: 18px; padding: 16px 22px; margin-bottom: 18px; display: flex; gap: 14px; align-items: center; }
+.project-banner i { font-size: 1.6rem; }
+.project-banner strong { font-size: 1.05rem; color: #fff; }
+.project-banner p { color: #e0f4ff; margin: 0; font-size: 0.9rem; }
+.brief { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 18px 22px; margin: 14px 0; }
+.brief h5 { margin: 0 0 8px; font-size: 1rem; color: var(--primary-blue); display: flex; align-items: center; gap: 8px; }
+.brief ul, .brief ol { margin: 0; padding-right: 22px; color: var(--text-body); }
+.brief li { margin-bottom: 6px; }
+details.reveal { border: 2px dashed var(--border); border-radius: 16px; padding: 4px 16px; margin: 14px 0; background: var(--card-bg); }
+details.reveal > summary { cursor: pointer; font-weight: 800; padding: 10px 0; color: var(--primary-blue); list-style: none; display: flex; align-items: center; gap: 8px; }
+details.reveal > summary::-webkit-details-marker { display: none; }
+details.reveal[open] { border-style: solid; border-color: var(--primary-blue); }
+
+/* challenges */
+.challenge-card { border-right-color: #8b5cf6; }
+.challenge-card .card-header { color: #8b5cf6; }
+.challenge { border: 1px solid var(--border); border-radius: 20px; padding: 22px 24px; margin-bottom: 20px; background: var(--surface); }
+.ch-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+.ch-head h4 { margin: 0; flex: 1; }
+.ch-num { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
+.badge { font-size: .75rem; font-weight: 800; padding: 4px 12px; border-radius: 50px; }
+.badge.easy { background: #dcfce7; color: #15803d; }
+.badge.medium { background: #fef3c7; color: #b45309; }
+.challenge h5 { margin: 14px 0 6px; font-size: .9rem; color: var(--dark-navy); }
+.challenge ul { margin: 0 0 6px; padding-right: 22px; color: var(--text-body); }
+.challenge li { margin-bottom: 4px; }
+
+/* simulators */
+.sim-box { background: var(--surface); border: 3px dashed var(--border); border-radius: 20px; padding: 28px; text-align: center; margin-top: 15px; }
+.sim-inputs { display: flex; justify-content: center; gap: 18px; margin-bottom: 18px; flex-wrap: wrap; }
+.sim-inputs .field { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.sim-inputs label { font-size: 0.82rem; color: var(--text-body); font-weight: 700; }
+.sim-inputs input[type=text], .sim-inputs input[type=number] { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1.05rem; text-align: center; font-family: 'Consolas', monospace; outline: none; direction: ltr; }
+.sim-inputs input[type=number] { width: 110px; }
+.sim-inputs input:focus { border-color: var(--primary-blue); }
+.btn-run { background: var(--yellow-gradient); color: #fff; border: none; padding: 13px 32px; border-radius: 18px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.95rem; box-shadow: 0 10px 20px -10px rgba(247,148,30,.9); }
+.sim-console { margin-top: 18px; background: #0f172a; border-radius: 14px; padding: 18px 20px; text-align: left; direction: ltr; font-family: 'Consolas', monospace; color: #4ade80; min-height: 26px; white-space: pre-wrap; font-size: 0.92rem; }
+.sim-console .line { color: #94a3b8; }
+.result-line { margin-top: 14px; font-weight: 700; color: var(--dark-navy); }
+.reorder-list { max-width: 460px; margin: 0 auto 10px; direction: ltr; }
+.reorder-item { display: flex; align-items: center; gap: 10px; background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 8px 12px; margin-bottom: 8px; font-family: 'Consolas', monospace; font-size: 0.88rem; text-align: left; }
+.reorder-item code { flex: 1; background: transparent; padding: 0; }
+.rbtn { border: none; background: #e0f2fe; color: #0369a1; border-radius: 8px; width: 30px; height: 30px; cursor: pointer; font-weight: 800; }
+.rbtn:disabled { opacity: 0.35; cursor: default; }
+.bug-list { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.bug-btn { background: var(--card-bg); color: var(--dark-navy); border: 2px solid var(--border); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Tajawal'; font-weight: 700; }
+.bug-btn.found { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.hidden { display: none; }
+.op-table { width: 100%; border-collapse: collapse; margin-top: 16px; direction: ltr; font-family: 'Consolas', monospace; font-size: .88rem; }
+.op-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--dark-navy); text-align: left; }
+.op-table td:last-child { color: var(--primary-blue); font-weight: 800; }
+
+/* glossary */
+.glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+.term-card { background: var(--surface); border-radius: 16px; padding: 18px; border: 1px solid var(--border); }
+.term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+.term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+.term-desc { font-size: 0.85rem; color: var(--text-body); margin: 0; }
+
+/* tf + quiz */
+.tf-item { border: 2px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 14px; background: var(--surface); }
+.tf-item .stmt { font-weight: 700; margin-bottom: 12px; color: var(--dark-navy); }
+.tf-btns { display: flex; gap: 10px; }
+.tf-btn { flex: 1; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 10px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: 0.95rem; }
+.tf-btn:hover { border-color: var(--primary-blue); }
+.tf-btn.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.tf-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.feedback { margin-top: 10px; font-size: 0.9rem; font-weight: 600; }
+.feedback.ok { color: #16a34a; } .feedback.no { color: #dc2626; }
+.quiz-q { margin-bottom: 26px; padding-bottom: 8px; }
+.quiz-q h4 { margin-bottom: 12px; line-height: 1.9; }
+.qnum { display: inline-flex; align-items: center; justify-content: center; background: var(--yellow-gradient); color: #fff; width: 28px; height: 28px; border-radius: 50%; font-size: 0.85rem; margin-left: 8px; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-opt { background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 12px 18px; cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s; color: var(--dark-navy); }
+.quiz-opt:hover { border-color: var(--primary-blue); }
+.quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.quiz-opt:disabled { cursor: default; }
+.quiz-opt.correct code, .quiz-opt.wrong code { background: rgba(255,255,255,.7); }
+.progress { height: 10px; background: var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 22px; }
+.progress-bar { height: 100%; width: 0; background: var(--yellow-gradient); transition: width 0.3s; }
+.score-box { text-align: center; background: var(--surface); border: 2px solid var(--border); border-radius: 18px; padding: 22px; margin-top: 10px; }
+.score-box .big { font-size: 2.2rem; font-weight: 800; color: var(--primary-blue); }
+.retry-btn { margin-top: 10px; background: var(--blue-gradient); color: #fff; border: none; border-radius: 14px; padding: 10px 26px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; }
+
+.refs-card { border-right-color: #94a3b8; }
+.ref-list { margin: 0; padding-right: 22px; }
+.ref-list li { margin-bottom: 6px; font-size: 0.9rem; }
+footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+
+/* ---------- tracer ---------- */
+.tracer { background: var(--surface); border: 2px solid var(--border); border-radius: 20px; padding: 18px; margin: 22px 0; }
+.tr-head { font-weight: 800; color: var(--primary-blue); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.tr-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .tr-grid { grid-template-columns: 1fr; } }
+.tr-code { background: #1e293b; border-radius: 14px; padding: 12px 0; direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: var(--code-size); overflow-x: auto; }
+.tr-line { display: flex; gap: 12px; padding: 1px 14px; color: #e2e8f0; white-space: pre; border-left: 4px solid transparent; transition: .15s; }
+.tr-line .ln { color: #64748b; min-width: 22px; text-align: right; user-select: none; }
+.tr-line.active { background: rgba(247,148,30,.28); border-left-color: var(--primary-yellow); }
+.tr-side { display: flex; flex-direction: column; gap: 12px; }
+.tr-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; flex: 1; }
+.tr-title { font-size: .78rem; font-weight: 800; color: var(--text-body); margin-bottom: 6px; }
+.tr-vars { direction: ltr; font-family: 'Consolas', monospace; font-size: .9rem; min-height: 28px; }
+.tr-var { display: flex; justify-content: space-between; padding: 3px 8px; border-radius: 8px; color: var(--dark-navy); }
+.tr-var b { color: var(--primary-blue); }
+.tr-var.changed { background: rgba(247,148,30,.22); }
+.tr-out { direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: .88rem; background: #0f172a; color: #4ade80; border-radius: 10px; padding: 8px 12px; min-height: 40px; white-space: pre-wrap; }
+.tr-note { margin-top: 12px; background: var(--card-bg); border: 1px dashed var(--primary-blue); border-radius: 12px; padding: 10px 16px; font-weight: 600; color: var(--dark-navy); min-height: 24px; }
+.tr-ctrl { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.tr-btn { border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 14px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: .85rem; }
+.tr-btn.primary { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.tr-btn:disabled { opacity: .4; cursor: default; }
+.tr-count { margin-right: auto; font-size: .8rem; color: var(--text-body); font-weight: 700; }
+
+/* ---------- predict ---------- */
+.predict { border: 2px solid #8b5cf6; border-radius: 20px; padding: 16px 18px; margin: 22px 0; background: var(--surface); }
+.predict-head { font-weight: 800; color: #8b5cf6; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+.predict .code-box { margin: 12px 0; }
+.pd-q { font-weight: 700; color: var(--dark-navy); margin-bottom: 10px; }
+.pd-opts { display: flex; flex-wrap: wrap; gap: 10px; }
+.pd-opt { background: var(--card-bg); border: 2px solid var(--border); color: var(--dark-navy); border-radius: 12px; padding: 9px 16px; cursor: pointer; font-family: 'Tajawal'; font-weight: 700; font-size: .92rem; }
+.pd-opt:hover { border-color: #8b5cf6; }
+.pd-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.pd-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.pd-opt:disabled { cursor: default; }
+.pd-result { margin-top: 12px; }
+.pd-msg { font-weight: 800; margin-bottom: 8px; }
+.pd-why { margin: 8px 0 0; font-size: .93rem; }
+
+/* ---------- misc ---------- */
+.summary-card { border-right-color: #22c55e; }
+.summary-card .card-header { color: #16a34a; }
+.sum-list { list-style: none; padding: 0; margin: 0; }
+.sum-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.sum-list i { color: #22c55e; margin-top: 6px; }
+.warn-box { background: rgba(239,68,68,.08); border: 2px dashed #ef4444; border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 4px; }
+.warn-box p { margin: 0; font-size: .93rem; }
+.analogy { background: linear-gradient(135deg, rgba(0,173,239,.1), rgba(139,92,246,.1)); border-radius: 18px; padding: 16px 22px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; border: 1px solid var(--border); }
+.analogy i { color: var(--primary-blue); font-size: 1.5rem; margin-top: 4px; }
+.analogy p { margin: 0; }
+.flow { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin: 18px 0; direction: rtl; }
+.flow-node { background: var(--card-bg); border: 2px solid var(--primary-blue); border-radius: 14px; padding: 10px 18px; font-weight: 800; color: var(--dark-navy); text-align: center; }
+.flow-node.decision { border-color: var(--primary-yellow); border-radius: 30px; }
+.flow-node.end { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.flow-arrow { color: var(--primary-blue); font-size: 1.2rem; }
+.flow-branch { display: flex; flex-direction: column; gap: 8px; }
+.cell-row { display: flex; direction: ltr; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 12px 0; }
+.cell { min-width: 54px; text-align: center; border: 2px solid var(--primary-blue); border-radius: 10px; background: var(--card-bg); font-family: 'Consolas', monospace; font-weight: 800; color: var(--dark-navy); padding: 6px 4px; cursor: pointer; }
+.cell small { display: block; font-size: .68rem; color: var(--text-body); font-weight: 700; }
+.cell.sel { background: rgba(247,148,30,.25); border-color: var(--primary-yellow); }
+.vis-line { display: block; padding: 0 6px; margin: 0 -6px; border-radius: 6px; opacity: .35; transition: .15s; }
+.vis-line.on { opacity: 1; background: rgba(34,197,94,.22); }
+.vis-btns { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+.vis-btn { border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Consolas', monospace; font-weight: 800; }
+.vis-btn.on { border-color: #22c55e; background: #dcfce7; color: #15803d; }
+
+.cell.ghost { opacity: .55; border-style: dashed; background: transparent; }
+
+
+.lab-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; margin: 10px 0; }
+.lab-row .btn-run { padding: 9px 18px; font-size: .88rem; border-radius: 14px; }
+.lab-tags { display: flex; direction: ltr; flex-wrap: wrap; gap: 8px; justify-content: center; min-height: 44px; margin: 10px 0; }
+.lab-tag { padding: 5px 14px; border-radius: 50px; background: var(--chip-bg); border: 2px solid var(--border); font-family: Consolas, monospace; font-weight: 800; color: var(--dark-navy); transition: .2s; }
+.lab-tag.hit { border-color: #16a34a; background: rgba(22,163,74,.16); }
+.lab-tag.miss { border-color: #ef4444; background: rgba(239,68,68,.14); }
+.lab-tag.new { border-color: var(--primary-blue); background: rgba(0,173,239,.16); }
+.lab-tag.warm { border-color: var(--primary-yellow); background: rgba(247,148,30,.2); }
+.lab-bars { display: flex; direction: ltr; align-items: flex-end; gap: 4px; height: 170px; justify-content: center; margin: 12px 0; }
+.lab-bar { width: 26px; background: var(--primary-blue); border-radius: 6px 6px 0 0; font-size: .68rem; color: #fff; text-align: center; font-weight: 800; padding-top: 2px; transition: height .15s, background .15s; font-family: Consolas, monospace; }
+.lab-bar.cmp { background: var(--primary-yellow); }
+.lab-bar.swp { background: #ef4444; }
+.lab-bar.done { background: #16a34a; }
+.lab-bar.dim { opacity: .28; }
+.lab-bar.mid { background: #8b5cf6; }
+.lab-grid { display: grid; direction: ltr; gap: 3px; justify-content: center; margin: 12px auto; }
+.lab-cell { width: 34px; height: 34px; border-radius: 8px; background: var(--chip-bg); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: Consolas, monospace; font-size: .9rem; color: var(--dark-navy); }
+.lab-cell.wall { background: #475569; border-color: #475569; }
+.lab-cell.on { background: rgba(0,173,239,.25); border-color: var(--primary-blue); }
+.lab-cell.hot { background: rgba(247,148,30,.3); border-color: var(--primary-yellow); }
+.lab-meter { height: 16px; border-radius: 50px; background: var(--chip-bg); overflow: hidden; direction: ltr; margin: 8px 0; }
+.lab-meter > span { display: block; height: 100%; background: linear-gradient(90deg, #16a34a, #f7941e, #ef4444); transition: width .25s; }
+.lab-table { width: 100%; border-collapse: collapse; direction: ltr; font-family: Consolas, monospace; font-size: .9rem; }
+.lab-table th, .lab-table td { border: 1px solid var(--border); padding: 6px 10px; text-align: center; }
+.lab-table th { background: var(--chip-bg); }
+.lab-say { margin-top: 10px; font-weight: 700; color: var(--dark-navy); min-height: 28px; }
+.lab-say.ok { color: #16a34a; } .lab-say.bad { color: #ef4444; }
+.sim-inputs select { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1rem; font-family: Consolas, monospace; }
+.sim-inputs input[type=range] { width: 200px; }
+.lab-in { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1rem; font-family: Consolas, monospace; direction: ltr; text-align: center; max-width: 100%; }
+
+</style>
+</head>
+<body>
+<div class="bg-deco"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+<header>
+  <div class="hdr-brand">
+    <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    <div class="brand-info"><h3>منصة TweetKod</h3><p>للتعلم البرمجي التفاعلي</p></div>
+  </div>
+  <div class="hdr-tools">
+    <button class="tool-btn" id="tocBtn" title="فهرس الدرس"><i class="fas fa-list-ul"></i> الفهرس</button>
+    <button class="tool-btn" id="fontDec" title="تصغير خط الكود">A-</button>
+    <button class="tool-btn" id="fontInc" title="تكبير خط الكود">A+</button>
+    <button class="tool-btn" id="themeBtn" title="الوضع الليلي"><i class="fas fa-moon"></i></button>
+    <div class="toc-panel" id="tocPanel"></div>
+  </div>
+  <div class="read-progress"><span id="readBar"></span></div>
+</header>
+<div class="container">
+  <div class="title-section">
+    <h1>الخوارزميات الإنشائية</h1>
+    <p class="attribution"><span class="en">Constructive Algorithms</span> &mdash; ابنِ الجواب الذي يحقق الشروط</p>
+  </div>
+  <div class="card goals-card">
+    <div class="card-header"><i class="fas fa-bullseye"></i><h3>ماذا ستتعلم في هذا الدرس؟</h3></div>
+    <ul class="obj-list"><li><i class="fas fa-check-circle"></i><span>تفهم الفرق بين حساب الجواب وبنائه، ولماذا تكفي إجابة صحيحة واحدة</span></li><li><i class="fas fa-check-circle"></i><span>تتبع الخطة: حالات صغيرة ثم نمط ثم بناء ثم فاحص</span></li><li><i class="fas fa-check-circle"></i><span>تستخدم أدوات البناء: الإزاحة بالباقي والتقسيم زوجي/فردي والتكرار الدوري</span></li><li><i class="fas fa-check-circle"></i><span>تتعامل مع الحالات المستحيلة وتثبتها بالتجربة الشاملة على القيم الصغيرة</span></li><li><i class="fas fa-check-circle"></i><span>تكتب فاحصًا يتحقق من صحة ما بنيت</span></li></ul>
+  </div>
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-puzzle-piece"></i><h3>ابنِ الجواب بنفسك</h3></div>
+  <p>في أغلب المسائل نحسب جوابًا واحدًا صحيحًا (مجموع، أصغر قيمة، عدد...). أما في <strong>المسائل الإنشائية</strong> (<span class="en">Constructive</span>) فالمطلوب أن <strong>تبني شيئًا</strong> يحقق شروطًا: ترتيب أعداد، نص، جدول، مجموعة. والجميل أن للمسألة غالبًا <strong>أكثر من جواب صحيح</strong>، وأي واحد منها مقبول! (فيحكم عليك «فاحص» (<span class="en">checker</span>) يتأكد أن ما بنيته يحقق الشروط.)</p>
+  <div class="analogy"><i class="fas fa-cubes"></i><p>الأمر كبناء بيت من المكعبات بشروط: «لا تضع مكعبين أحمرين متجاورين». لا يوجد بيت واحد صحيح، وإنما أنت تبحث عن <strong>طريقة منظّمة</strong> تضمن أن أي بيت تبنيه صحيح، وتعرف متى يكون البناء مستحيلًا.</p></div>
+  <p>خطة العمل في كل مسألة إنشائية:</p>
+  <ol>
+    <li><strong>جرّب حالات صغيرة بيدك</strong> (n = 1 ثم 2 ثم 3...) وابحث عن نمط.</li>
+    <li><strong>عمّم النمط</strong> إلى قاعدة بناء (إزاحة، تقسيم زوجي/فردي، تكرار دوري، البدء بالأكبر...).</li>
+    <li><strong>اكتب فاحصًا</strong> يتأكد أن الناتج يحقق الشروط، وجرّبه على قيم كثيرة.</li>
+    <li><strong>تعامل مع المستحيل:</strong> أي القيم لا حل لها؟ وكيف تتأكد؟</li>
+  </ol>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-rotate"></i><h3>المثال الأول: لا أحد في مكانه</h3></div>
+  <p>رتّب الأعداد من 1 إلى n بحيث لا يقف أي عدد في موضعه الأصلي. الحل الأنيق: أزِح الجميع خطوة واحدة (كما يتناوب طلاب على المقاعد). نكتب الحل ثم نكتب الفاحص:</p>
+  <div class="code-box" data-expl="derange"><div class="code-head"><span>rotate_by_one.cpp</span><button class="copy-btn" onclick="copyCode('code_derange')">نسخ الكود</button></div><pre id="code_derange"><span class="code-line" data-i="0"><span class="kw">int</span> n = <span class="num">5</span>;</span><span class="code-plain"><span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; p(n);</span><span class="code-line" data-i="2"><span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {</span><span class="code-line" data-i="3">    p[i] = (i + <span class="num">1</span>) % n + <span class="num">1</span>;</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">bool</span> ok = <span class="kw">true</span>;</span><span class="code-line" data-i="7"><span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {</span><span class="code-plain">    <span class="kw">if</span> (p[i] == i + <span class="num">1</span>) {</span><span class="code-plain">        ok = <span class="kw">false</span>;</span><span class="code-plain">    }</span><span class="code-plain">}</span><span class="code-plain"><span class="kw">for</span> (<span class="kw">int</span> x : p) {</span><span class="code-plain">    cout &lt;&lt; x &lt;&lt; <span class="str">" "</span>;</span><span class="code-plain">}</span><span class="code-plain">cout &lt;&lt; endl &lt;&lt; <span class="str">"no fixed point: "</span> &lt;&lt; (ok ? <span class="str">"yes"</span> : <span class="str">"no"</span>) &lt;&lt; endl;</span></pre></div><div class="explain-box" data-for="derange"><span class="hint">اضغط على أي سطر مضيء من الكود لقراءة شرحه هنا...</span></div>
+  <div class="output-box">2 3 4 5 1 
+no fixed point: yes</div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p>متى يفشل هذا البناء؟ عندما <code>n = 1</code>: لا يوجد إلا العدد 1 وهو في مكانه حتمًا. وهذه حالة مستحيلة لا يمكن حلها بأي طريقة. تذكّر دائمًا أن تسأل: «هل هناك مدخلات لا حل لها؟».</p></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-plus"></i><h3>المثال الثاني: أعداد مختلفة بمجموع معلوم</h3></div>
+  <p>أعطني <code>n</code> عددًا صحيحًا موجبًا <strong>مختلفة</strong> مجموعها <code>S</code> بالضبط. أولًا: أصغر مجموع ممكن هو <code>1+2+...+n</code>، فإن كان <code>S</code> أصغر منه فلا حل. وإلا نبني: <code>1, 2, ..., n-1</code> ونضع الباقي كله في العدد الأخير:</p>
+  <div class="code-box" data-expl="distinct"><div class="code-head"><span>distinct_sum.cpp</span><button class="copy-btn" onclick="copyCode('code_distinct')">نسخ الكود</button></div><pre id="code_distinct"><span class="code-plain"><span class="kw">long</span> <span class="kw">long</span> n = <span class="num">4</span>, S = <span class="num">20</span>;</span><span class="code-line" data-i="1"><span class="kw">long</span> <span class="kw">long</span> minSum = n * (n + <span class="num">1</span>) / <span class="num">2</span>;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">if</span> (S &lt; minSum) {</span><span class="code-plain">    cout &lt;&lt; <span class="str">"NO"</span> &lt;&lt; endl;</span><span class="code-plain">} <span class="kw">else</span> {</span><span class="code-plain">    <span class="kw">long</span> <span class="kw">long</span> used = <span class="num">0</span>;</span><span class="code-line" data-i="7">    <span class="kw">for</span> (<span class="kw">long</span> <span class="kw">long</span> i = <span class="num">1</span>; i &lt; n; i++) {</span><span class="code-plain">        cout &lt;&lt; i &lt;&lt; <span class="str">" "</span>;</span><span class="code-plain">        used += i;</span><span class="code-plain">    }</span><span class="code-line" data-i="11">    cout &lt;&lt; S - used &lt;&lt; endl;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="distinct"><span class="hint">اضغط على أي سطر مضيء من الكود لقراءة شرحه هنا...</span></div>
+  <div class="output-box">1 2 3 14</div>
+  <p>الأعداد <code>1 2 3 14</code> مختلفة ومجموعها 20. وهذا هو الأسلوب «ابدأ بالأصغر ودع الأخير يمتص الباقي»، وهو متكرر في المسائل الإنشائية.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-font"></i><h3>المثال الثالث: بناء نص دوري</h3></div>
+  <p>ابنِ نصًا من الحروف <code>a</code> و<code>b</code> و<code>c</code> بطول <code>n</code> لا يحتوي أي مقطع متناظر من ثلاثة حروف (مثل <code>aba</code>). الحل: كرّر <code>abc</code> دوريًا، لأن كل ثلاثة حروف متتالية فيه مختلفة، فلا يتساوى الأول والثالث أبدًا:</p>
+  <div class="code-box" data-expl="nopal"><div class="code-head"><span>no_palindromes.cpp</span><button class="copy-btn" onclick="copyCode('code_nopal')">نسخ الكود</button></div><pre id="code_nopal"><span class="code-line" data-i="0"><span class="kw">int</span> n = <span class="num">7</span>;</span><span class="code-plain"><span class="kw">string</span> s;</span><span class="code-plain"><span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {</span><span class="code-line" data-i="3">    s += <span class="str">"abc"</span>[i % <span class="num">3</span>];</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">bool</span> ok = <span class="kw">true</span>;</span><span class="code-plain"><span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i + <span class="num">2</span> &lt; n; i++) {</span><span class="code-line" data-i="8">    <span class="kw">if</span> (s[i] == s[i + <span class="num">2</span>]) {</span><span class="code-plain">        ok = <span class="kw">false</span>;</span><span class="code-plain">    }</span><span class="code-plain">}</span><span class="code-plain">cout &lt;&lt; s &lt;&lt; <span class="str">" "</span> &lt;&lt; (ok ? <span class="str">"valid"</span> : <span class="str">"invalid"</span>) &lt;&lt; endl;</span></pre></div><div class="explain-box" data-for="nopal"><span class="hint">اضغط على أي سطر مضيء من الكود لقراءة شرحه هنا...</span></div>
+  <div class="output-box">abcabca valid</div>
+  <p>الأنماط الدورية بالباقي هي أبسط أدوات البناء: <code>"abc"[i % 3]</code> تعطيك الحرف المناسب لأي موضع.</p>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-flask"></i><h3>مختبر تفاعلي (1): ابنِ ثم افحص</h3></div>
+  <p>اختر نوع المسألة، ثم حاول ترتيب الأعداد بيدك: انقر على عددين ليتبادلا مكانيهما. الأعداد الحمراء تخالف الشرط. أو جرّب الأزرار الجاهزة لترى أي بناء ينجح!</p>
+  <div class="sim-box">
+    <div class="sim-inputs">
+      <div class="field"><label>المسألة</label><select id="bdProb" onchange="bdReset()"><option value="adj">لا يتجاور عددان الفرق بينهما 1</option><option value="fixed">لا عدد في موضعه الأصلي</option></select></div>
+      <div class="field"><label>n = <span id="bdNv" style="color:var(--primary-blue);font-weight:800">6</span></label><input type="range" id="bdN" min="2" max="12" value="6" oninput="bdReset()"></div>
+    </div>
+    <div class="lab-tags" id="bdTags"></div>
+    <div class="lab-row">
+      <button class="btn-run" onclick="bdAsc()">1 2 3 ...</button>
+      <button class="btn-run" onclick="bdEvenOdd()">زوجي ثم فردي</button>
+      <button class="btn-run" onclick="bdRotate()">إزاحة بخطوة</button>
+      <button class="btn-run" onclick="bdShuffle()"><i class="fas fa-shuffle"></i> عشوائي</button>
+    </div>
+    <div class="lab-say" id="bdNote"></div>
+  </div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-people-arrows"></i><h3>مسألة مقاعد الحفل: زوجي ثم فردي</h3></div>
+  <p>وزّع <code>n</code> طلابًا (أرقامهم من 1 إلى n) على صف مقاعد بحيث لا يجلس بجوار بعضهما طالبان رقماهما متتاليان (مثل 4 و5). كيف نبني الترتيب؟ فكّر: لو وضعنا الأعداد الزوجية معًا، فالفرق بين جيرانها 2 دائمًا، وكذلك الفردية! نكتب الحل ونفحصه ونجربه على n من 1 إلى 7:</p>
+  <div class="code-box" data-expl="evenodd"><div class="code-head"><span>no_consecutive_neighbors.cpp</span><button class="copy-btn" onclick="copyCode('code_evenodd')">نسخ الكود</button></div><pre id="code_evenodd"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;vector&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;cstdlib&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-line" data-i="5"><span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; build(<span class="kw">int</span> n) {</span><span class="code-plain">    <span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; r;</span><span class="code-line" data-i="7">    <span class="kw">if</span> (n == <span class="num">2</span> || n == <span class="num">3</span>) {</span><span class="code-plain">        <span class="kw">return</span> r;</span><span class="code-plain">    }</span><span class="code-line" data-i="10">    <span class="kw">for</span> (<span class="kw">int</span> x = <span class="num">2</span>; x &lt;= n; x += <span class="num">2</span>) {</span><span class="code-plain">        r.push_back(x);</span><span class="code-plain">    }</span><span class="code-line" data-i="13">    <span class="kw">for</span> (<span class="kw">int</span> x = <span class="num">1</span>; x &lt;= n; x += <span class="num">2</span>) {</span><span class="code-plain">        r.push_back(x);</span><span class="code-plain">    }</span><span class="code-plain">    <span class="kw">return</span> r;</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-line" data-i="19"><span class="kw">bool</span> valid(<span class="kw">const</span> <span class="kw">vector</span>&lt;<span class="kw">int</span>&gt;&amp; p) {</span><span class="code-plain">    <span class="kw">for</span> (size_t i = <span class="num">0</span>; i + <span class="num">1</span> &lt; p.size(); i++) {</span><span class="code-plain">        <span class="kw">if</span> (abs(p[i] - p[i + <span class="num">1</span>]) == <span class="num">1</span>) {</span><span class="code-plain">            <span class="kw">return</span> <span class="kw">false</span>;</span><span class="code-plain">        }</span><span class="code-plain">    }</span><span class="code-plain">    <span class="kw">return</span> <span class="kw">true</span>;</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-plain">    <span class="kw">for</span> (<span class="kw">int</span> n = <span class="num">1</span>; n &lt;= <span class="num">7</span>; n++) {</span><span class="code-plain">        <span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; p = build(n);</span><span class="code-plain">        cout &lt;&lt; <span class="str">"n="</span> &lt;&lt; n &lt;&lt; <span class="str">": "</span>;</span><span class="code-plain">        <span class="kw">if</span> (p.empty()) {</span><span class="code-plain">            cout &lt;&lt; <span class="str">"NO SOLUTION"</span>;</span><span class="code-plain">        } <span class="kw">else</span> {</span><span class="code-plain">            <span class="kw">for</span> (<span class="kw">int</span> x : p) {</span><span class="code-plain">                cout &lt;&lt; x &lt;&lt; <span class="str">" "</span>;</span><span class="code-plain">            }</span><span class="code-plain">            cout &lt;&lt; (valid(p) ? <span class="str">"(valid)"</span> : <span class="str">"(INVALID)"</span>);</span><span class="code-plain">        }</span><span class="code-plain">        cout &lt;&lt; endl;</span><span class="code-plain">    }</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="evenodd"><span class="hint">اضغط على أي سطر مضيء من الكود لقراءة شرحه هنا...</span></div>
+  <div class="output-box">n=1: 1 (valid)
+n=2: NO SOLUTION
+n=3: NO SOLUTION
+n=4: 2 4 1 3 (valid)
+n=5: 2 4 1 3 5 (valid)
+n=6: 2 4 6 1 3 5 (valid)
+n=7: 2 4 6 1 3 5 7 (valid)</div>
+  <div class="tracer" data-trace="trace"><div class="tr-head"><i class="fas fa-bug-slash"></i> تتبّع التنفيذ خطوة بخطوة</div><div class="tr-grid"><div class="tr-code"><div class="tr-line" data-i="0"><span class="ln">1</span><span class="src"><span class="kw">int</span> n = <span class="num">5</span>;</span></div><div class="tr-line" data-i="1"><span class="ln">2</span><span class="src"><span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; r;</span></div><div class="tr-line" data-i="2"><span class="ln">3</span><span class="src"><span class="kw">for</span> (<span class="kw">int</span> x = <span class="num">2</span>; x &lt;= n; x += <span class="num">2</span>) {</span></div><div class="tr-line" data-i="3"><span class="ln">4</span><span class="src">    r.push_back(x);</span></div><div class="tr-line" data-i="4"><span class="ln">5</span><span class="src">}</span></div><div class="tr-line" data-i="5"><span class="ln">6</span><span class="src"><span class="kw">for</span> (<span class="kw">int</span> x = <span class="num">1</span>; x &lt;= n; x += <span class="num">2</span>) {</span></div><div class="tr-line" data-i="6"><span class="ln">7</span><span class="src">    r.push_back(x);</span></div><div class="tr-line" data-i="7"><span class="ln">8</span><span class="src">}</span></div><div class="tr-line" data-i="8"><span class="ln">9</span><span class="src"><span class="kw">for</span> (<span class="kw">int</span> x : r) cout &lt;&lt; x;</span></div><div class="tr-line" data-i="9"><span class="ln">10</span><span class="src">cout &lt;&lt; endl;</span></div></div><div class="tr-side"><div class="tr-box"><div class="tr-title">المتغيرات</div><div class="tr-vars"></div></div><div class="tr-box"><div class="tr-title">الناتج حتى الآن</div><div class="tr-out"></div></div></div></div><div class="tr-note"></div><div class="tr-ctrl"><button class="tr-btn" data-a="reset" title="من البداية"><i class="fas fa-backward-fast"></i></button><button class="tr-btn" data-a="prev"><i class="fas fa-backward-step"></i> السابق</button><button class="tr-btn primary" data-a="next">التالي <i class="fas fa-forward-step"></i></button><button class="tr-btn" data-a="play"><i class="fas fa-play"></i> تشغيل تلقائي</button><span class="tr-count"></span></div></div>
+  <div class="predict"><div class="predict-head"><i class="fas fa-brain"></i> توقّع قبل أن تشغّل</div><div class="code-box"><div class="code-head"><span>predict_build.cpp</span><button class="copy-btn" onclick="copyCode('code_p_build')">نسخ الكود</button></div><pre id="code_p_build"><span class="kw">int</span> n = <span class="num">6</span>;
+<span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; r;
+<span class="kw">for</span> (<span class="kw">int</span> x = <span class="num">2</span>; x &lt;= n; x += <span class="num">2</span>) {
+    r.push_back(x);
+}
+<span class="kw">for</span> (<span class="kw">int</span> x = <span class="num">1</span>; x &lt;= n; x += <span class="num">2</span>) {
+    r.push_back(x);
+}
+<span class="kw">for</span> (<span class="kw">int</span> x : r) {
+    cout &lt;&lt; x;
+}
+cout &lt;&lt; endl;</pre></div><p class="pd-q">ماذا سيطبع هذا الكود؟ (الزوجي أولًا ثم الفردي، دون فواصل)</p><div class="pd-opts"><button class="pd-opt" data-ok="1">246135</button><button class="pd-opt" data-ok="0">642531</button><button class="pd-opt" data-ok="0">135246</button><button class="pd-opt" data-ok="0">123456</button></div><div class="pd-result hidden"><div class="pd-msg"></div><div class="output-box">246135</div><p class="pd-why">الحلقة الأولى تضيف الأعداد الزوجية 2 و4 و6، والثانية تضيف الفردية 1 و3 و5. فالمتجه <code>2 4 6 1 3 5</code> ويُطبع ملتصقًا: 246135.</p></div></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p>الحيلة هنا هي <strong>تقسيم الأعداد إلى صنفين لا يتصلان</strong> بالشرط (أي زوجي وفردي)، ثم نرتب كل صنف وحده. وأكثر ما يقع الخطأ عند <strong>نقطة الربط</strong> بين الصنفين، فافحصها بعناية: آخر زوجي وأول فردي.</p></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-ban"></i><h3>كيف أعرف أن المسألة مستحيلة؟</h3></div>
+  <p>لم نضع <code>n = 2</code> و<code>n = 3</code> في قائمة المستحيلات اعتباطًا. التحقق: جرّب <strong>كل</strong> الترتيبات الممكنة للقيم الصغيرة. المكتبة <code>&lt;algorithm&gt;</code> فيها <code>next_permutation</code> التي تمر على كل ترتيبات متجه واحدًا واحدًا:</p>
+  <div class="code-box" data-expl="brute"><div class="code-head"><span>brute_force_all.cpp</span><button class="copy-btn" onclick="copyCode('code_brute')">نسخ الكود</button></div><pre id="code_brute"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;vector&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;algorithm&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;cstdlib&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-plain">    <span class="kw">for</span> (<span class="kw">int</span> n = <span class="num">1</span>; n &lt;= <span class="num">7</span>; n++) {</span><span class="code-plain">        <span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; p(n);</span><span class="code-plain">        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {</span><span class="code-plain">            p[i] = i + <span class="num">1</span>;</span><span class="code-plain">        }</span><span class="code-plain">        <span class="kw">int</span> count = <span class="num">0</span>;</span><span class="code-plain">        <span class="kw">do</span> {</span><span class="code-plain">            <span class="kw">bool</span> ok = <span class="kw">true</span>;</span><span class="code-plain">            <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i + <span class="num">1</span> &lt; n; i++) {</span><span class="code-plain">                <span class="kw">if</span> (abs(p[i] - p[i + <span class="num">1</span>]) == <span class="num">1</span>) {</span><span class="code-plain">                    ok = <span class="kw">false</span>;</span><span class="code-plain">                }</span><span class="code-plain">            }</span><span class="code-plain">            <span class="kw">if</span> (ok) {</span><span class="code-plain">                count++;</span><span class="code-plain">            }</span><span class="code-line" data-i="23">        } <span class="kw">while</span> (next_permutation(p.begin(), p.end()));</span><span class="code-line" data-i="24">        cout &lt;&lt; <span class="str">"n="</span> &lt;&lt; n &lt;&lt; <span class="str">": "</span> &lt;&lt; count &lt;&lt; <span class="str">" valid arrangements"</span> &lt;&lt; endl;</span><span class="code-plain">    }</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="brute"><span class="hint">اضغط على أي سطر مضيء من الكود لقراءة شرحه هنا...</span></div>
+  <div class="output-box">n=1: 1 valid arrangements
+n=2: 0 valid arrangements
+n=3: 0 valid arrangements
+n=4: 2 valid arrangements
+n=5: 14 valid arrangements
+n=6: 90 valid arrangements
+n=7: 646 valid arrangements</div>
+  <p>الجدول يؤكد: لا ترتيب صحيح عند <code>n = 2</code> أو <code>3</code>، وعند <code>n = 4</code> يوجد ترتيبان فقط (<code>2 4 1 3</code> و<code>3 1 4 2</code>)، ثم تتضاعف الاحتمالات. فبنيتنا صحيحة وحالتا الاستثناء صحيحتان. هذا المنهج (قوة غاشمة على القيم الصغيرة) هو <strong>أقوى أداة</strong> للمبرمج الإنشائي: يكشف النمط ويثبت الاستحالة ويفحص بناءك.</p>
+  <div class="warn-box"><i class="fas fa-triangle-exclamation"></i><p>عدد الترتيبات <code>n!</code> ينمو بسرعة هائلة: 10! ≈ 3.6 مليون و13! ≈ 6 مليارات. فاستعمل القوة الغاشمة للقيم الصغيرة جدًا فقط (حتى n ≈ 9 أو 10).</p></div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-flask"></i><h3>مختبر تفاعلي (2): مولّد الأعداد المختلفة</h3></div>
+  <p>أعطني <code>n</code> و<code>S</code> وسأبني لك <code>n</code> عددًا موجبًا مختلفًا مجموعها <code>S</code>، أو أخبرك أن ذلك مستحيل. انتبه للحد الأدنى الذي يظهر لك.</p>
+  <div class="sim-box">
+    <div class="sim-inputs">
+      <div class="field"><label>عدد الأعداد n</label><input type="number" id="dsN" value="5" min="1" max="12" oninput="dsRun()"></div>
+      <div class="field"><label>المجموع S</label><input type="number" id="dsS" value="30" min="1" max="1000" oninput="dsRun()"></div>
+    </div>
+    <div class="lab-tags" id="dsTags"></div>
+    <div class="lab-say" id="dsNote"></div>
+  </div>
+</div>
+
+
+<div class="card">
+  <div class="project-banner"><i class="fas fa-chair"></i><div><strong>مشروع الدرس: مخطط مقاعد الحفل</strong><p>برنامج يبني ترتيب الجلوس ويفحص نفسه.</p></div></div>
+  <div class="brief"><h5><i class="fas fa-lightbulb"></i> الفكرة</h5>
+    <p style="margin:0">في حفل المدرسة تريد ترتيب <code>n</code> طلاب (أرقامهم من 1 إلى n) في صف واحد بحيث لا يجلس رقمان متتاليان متجاورين. إن لم يكن ذلك ممكنًا اطبع <code>NO SOLUTION</code>. وتريد أن يتأكد برنامجك بنفسه من صحة ما بناه.</p></div>
+  <div class="brief"><h5><i class="fas fa-list-check"></i> المطلوب منك</h5>
+    <ol>
+      <li>اقرأ <code>n</code>. إن كان 2 أو 3 فاطبع <code>NO SOLUTION</code> وأنهِ البرنامج.</li>
+      <li>ابنِ الترتيب: الأعداد الزوجية أولًا ثم الفردية، في <code>vector&lt;int&gt;</code>.</li>
+      <li>اكتب فاحصًا يمر على كل جارين ويتأكد أن <code>abs</code> الفرق بينهما لا يساوي 1.</li>
+      <li>اطبع الترتيب في سطر واحد تفصل بين أعداده مسافات.</li>
+      <li>اطبع في السطر التالي <code>Valid: yes</code> أو <code>Valid: no</code> بحسب الفاحص.</li>
+    </ol></div>
+  <div class="brief"><h5><i class="fas fa-bullseye"></i> مثالان على التشغيل</h5>
+    <p><strong>التشغيل الأول:</strong></p>
+    <div class="input-box">6</div><div class="output-box">2 4 6 1 3 5
+Valid: yes</div>
+    <p><strong>التشغيل الثاني (مستحيل):</strong></p>
+    <div class="input-box">3</div><div class="output-box">NO SOLUTION</div></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p><strong>تحقق ذهنيًا:</strong> مع <code>n = 6</code>: الزوجية <code>2 4 6</code> ثم الفردية <code>1 3 5</code>. فروق الجيران: 2 و2 و5 و2 و2 وكلها ليست 1. وفي مسابقات البرمجة الحقيقية يقبل «الفاحص» أي ترتيب صحيح آخر مثل <code>3 1 4 2 5 ...</code>.</p></div>
+  <details class="reveal"><summary><i class="fas fa-eye"></i> بعد أن تجرّب بنفسك: اعرض الحل</summary>
+    <div class="code-box"><div class="code-head"><span>seating_chart.cpp</span><button class="copy-btn" onclick="copyCode('code_project')">نسخ الكود</button></div><pre id="code_project"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;vector&gt;</span>
+<span class="pp">#include &lt;cstdlib&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> n;
+    cin &gt;&gt; n;
+    <span class="kw">if</span> (n == <span class="num">2</span> || n == <span class="num">3</span>) {
+        cout &lt;&lt; <span class="str">"NO SOLUTION"</span> &lt;&lt; endl;
+        <span class="kw">return</span> <span class="num">0</span>;
+    }
+
+    <span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; seat;
+    <span class="kw">for</span> (<span class="kw">int</span> x = <span class="num">2</span>; x &lt;= n; x += <span class="num">2</span>) {
+        seat.push_back(x);
+    }
+    <span class="kw">for</span> (<span class="kw">int</span> x = <span class="num">1</span>; x &lt;= n; x += <span class="num">2</span>) {
+        seat.push_back(x);
+    }
+
+    <span class="kw">bool</span> valid = <span class="kw">true</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i + <span class="num">1</span> &lt; n; i++) {
+        <span class="kw">if</span> (abs(seat[i] - seat[i + <span class="num">1</span>]) == <span class="num">1</span>) {
+            valid = <span class="kw">false</span>;
+        }
+    }
+
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {
+        cout &lt;&lt; seat[i] &lt;&lt; (i + <span class="num">1</span> &lt; n ? <span class="str">" "</span> : <span class="str">"\n"</span>);
+    }
+    cout &lt;&lt; <span class="str">"Valid: "</span> &lt;&lt; (valid ? <span class="str">"yes"</span> : <span class="str">"no"</span>) &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  </details>
+</div>
+
+
+<div class="card challenge-card"><div class="card-header"><i class="fas fa-dumbbell"></i><h3>واجبات بعد الدرس</h3></div><p>تحديان بسيطان تحلّهما بنفسك بعد انتهاء الدرس. اكتب الحل في ملف <code>.cpp</code>، ثم ترجمه وشغّله وقارن ناتجك بالناتج المتوقع. جرّب أولًا، ثم افتح التلميح إن علقت، ولا تفتح نموذج الحل إلا بعد المحاولة الجادة.</p><div class="challenge"><div class="ch-head"><span class="ch-num">1</span><h4>نص بلا حرفين متجاورين متماثلين</h4><span class="badge easy">سهل</span></div><p>اقرأ <code>n</code>. اطبع أي نص طوله <code>n</code> يستخدم الحرفين <code>a</code> و<code>b</code> فقط، ولا يحتوي حرفين متجاورين متماثلين.</p><h5>المطلوب</h5><ul><li>استخدم الباقي <code>i % 2</code> لاختيار الحرف.</li><li>ابنِ النص في متغير <code>string</code> بالإضافة <code>s += ...</code>.</li><li>اطبع النص.</li></ul><h5>مثال على الإدخال والناتج المتوقع</h5><div class="input-box">7</div><div class="output-box">abababa</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> تلميحات</summary><ul><li>النمط <code>abab...</code> يحقق الشرط دائمًا.</li><li>هذا النمط دوري بدورة طولها 2، تمامًا كما استخدمنا <code>abc</code> بدورة طولها 3.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> نموذج الحل (بعد المحاولة)</summary><div class="code-box"><div class="code-head"><span>alternating.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_alt')">نسخ الكود</button></div><pre id="code_ch_alt"><span class="cmt">// Challenge 1: alternating string</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;string&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> n;
+    cin &gt;&gt; n;
+    <span class="kw">string</span> s;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {
+        s += (i % <span class="num">2</span> == <span class="num">0</span> ? <span class="str">'a'</span> : <span class="str">'b'</span>);
+    }
+    cout &lt;&lt; s &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div><div class="challenge"><div class="ch-head"><span class="ch-num">2</span><h4>أعداد مختلفة بمجموع محدد</h4><span class="badge medium">متوسط</span></div><p>اقرأ <code>n</code> و<code>S</code>. اطبع <code>n</code> عددًا صحيحًا موجبًا <strong>مختلفًا</strong> مجموعها يساوي <code>S</code>، أو اطبع <code>NO</code> إن كان ذلك مستحيلًا.</p><h5>المطلوب</h5><ul><li>احسب الحد الأدنى <code>n × (n + 1) / 2</code> واطبع <code>NO</code> إن كان <code>S</code> أصغر منه.</li><li>اطبع <code>1, 2, ..., n-1</code> ثم العدد الأخير <code>S - (مجموع ما طبعت)</code>.</li><li>استخدم <code>long long</code> لأن القيم كبيرة.</li></ul><h5>مثال على الإدخال والناتج المتوقع</h5><div class="input-box">4 20</div><div class="output-box">1 2 3 14</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> تلميحات</summary><ul><li>العدد الأخير أكبر من <code>n-1</code> دائمًا، فهو مختلف عن البقية.</li><li>مع <code>n = 4</code> و<code>S = 20</code> تخرج الأعداد <code>1 2 3 14</code> (ويقبل أي جواب صحيح آخر في المسابقات).</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> نموذج الحل (بعد المحاولة)</summary><div class="code-box"><div class="code-head"><span>distinct_numbers.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_dsum')">نسخ الكود</button></div><pre id="code_ch_dsum"><span class="cmt">// Challenge 2: n distinct positive numbers with sum S</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">long</span> <span class="kw">long</span> n, S;
+    cin &gt;&gt; n &gt;&gt; S;
+    <span class="kw">if</span> (S &lt; n * (n + <span class="num">1</span>) / <span class="num">2</span>) {
+        cout &lt;&lt; <span class="str">"NO"</span> &lt;&lt; endl;
+        <span class="kw">return</span> <span class="num">0</span>;
+    }
+    <span class="kw">long</span> <span class="kw">long</span> used = <span class="num">0</span>;
+    <span class="kw">for</span> (<span class="kw">long</span> <span class="kw">long</span> i = <span class="num">1</span>; i &lt; n; i++) {
+        cout &lt;&lt; i &lt;&lt; <span class="str">" "</span>;
+        used += i;
+    }
+    cout &lt;&lt; S - used &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div></div>
+
+<div class="card summary-card"><div class="card-header"><i class="fas fa-clipboard-list"></i><h3>ملخص سريع</h3></div><ul class="sum-list"><li><i class="fas fa-circle-check"></i><span>في المسائل الإنشائية نبني جوابًا يحقق شروطًا، وغالبًا يوجد أكثر من جواب مقبول يتحقق منه «فاحص».</span></li><li><i class="fas fa-circle-check"></i><span>الخطة: جرّب حالات صغيرة، اكتشف النمط، عمّمه، ثم اكتب فاحصًا وجرّب قيمًا كثيرة.</span></li><li><i class="fas fa-circle-check"></i><span>أدوات بناء شائعة: الإزاحة بالباقي، تقسيم الأعداد إلى صنفين (زوجي/فردي)، التكرار الدوري، وترك الباقي للعنصر الأخير.</span></li><li><i class="fas fa-circle-check"></i><span>اسأل دائمًا: ما القيم المستحيلة؟ أثبت ذلك بالتجربة الشاملة على القيم الصغيرة.</span></li><li><i class="fas fa-circle-check"></i><span><code class="inline">next_permutation</code> تمر على كل ترتيبات متجه، وتصلح للقوة الغاشمة عند <code class="inline">n</code> صغير جدًا (حتى 9 أو 10).</span></li><li><i class="fas fa-circle-check"></i><span>انتبه لنقاط الربط بين الأجزاء المبنية (مثل آخر زوجي وأول فردي).</span></li><li><i class="fas fa-circle-check"></i><span>قبل الإرسال قارن بناءك بالفاحص على جميع القيم الصغيرة.</span></li></ul></div>
+  <div class="card steps-card" id="tfCard">
+    <div class="card-header"><i class="fas fa-clipboard-check"></i><h3>تحقق من فهمك</h3></div>
+    <p>اقرأ كل عبارة ثم اختر <strong>صحيح</strong> أو <strong>خطأ</strong>. سيظهر التفسير مباشرة بعد إجابتك.</p>
+    <div id="tfList"></div>
+    <div class="score-box" id="tfScore" style="display:none"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><i class="fas fa-book"></i><h3>قاموس المصطلحات</h3></div>
+    <p>المصطلحات الإنجليزية الأهم في هذا الدرس ومقابلها بالعربية:</p>
+    <div class="glossary-grid"><div class="term-card"><span class="term-en">Constructive</span><span class="term-ar">إنشائي</span><p class="term-desc">مسألة تطلب بناء جواب يحقق شروطًا لا حسابه فقط.</p></div><div class="term-card"><span class="term-en">Checker</span><span class="term-ar">فاحص</span><p class="term-desc">برنامج صغير يتأكد أن الجواب المبني يحقق شروط المسألة.</p></div><div class="term-card"><span class="term-en">Permutation</span><span class="term-ar">تبديلة</span><p class="term-desc">ترتيب لأعداد 1..n تظهر فيه كل قيمة مرة واحدة.</p></div><div class="term-card"><span class="term-en">Fixed point</span><span class="term-ar">نقطة ثابتة</span><p class="term-desc">عدد يبقى في موضعه الأصلي في التبديلة.</p></div><div class="term-card"><span class="term-en">Derangement</span><span class="term-ar">تبديلة بلا نقاط ثابتة</span><p class="term-desc">تبديلة لا يبقى فيها أي عدد في موضعه.</p></div><div class="term-card"><span class="term-en">Pattern</span><span class="term-ar">نمط</span><p class="term-desc">قاعدة تتكرر نكتشفها من الحالات الصغيرة.</p></div><div class="term-card"><span class="term-en">Parity</span><span class="term-ar">الزوجية</span><p class="term-desc">كون العدد زوجيًا أو فرديًا.</p></div><div class="term-card"><span class="term-en">Periodic</span><span class="term-ar">دوري</span><p class="term-desc">يتكرر نمطه بعد عدد ثابت من العناصر.</p></div><div class="term-card"><span class="term-en">Impossible case</span><span class="term-ar">حالة مستحيلة</span><p class="term-desc">قيم لا يوجد لها جواب يحقق الشروط.</p></div><div class="term-card"><span class="term-en">Brute force</span><span class="term-ar">القوة الغاشمة</span><p class="term-desc">تجربة كل الاحتمالات على القيم الصغيرة.</p></div><div class="term-card"><span class="term-en">next_permutation</span><span class="term-ar">التبديلة التالية</span><p class="term-desc">دالة تنقل المتجه إلى الترتيب التالي من الترتيبات كلها.</p></div><div class="term-card"><span class="term-en">Any valid answer</span><span class="term-ar">أي جواب صحيح</span><p class="term-desc">تقبل المسألة أي ناتج يحقق الشروط لا ناتجًا معينًا.</p></div></div>
+  </div>
+  <div class="card steps-card" id="quizCard">
+    <div class="card-header"><i class="fas fa-circle-question"></i><h3>الاختبار النهائي</h3></div>
+    <p>عشرة أسئلة بين السهلة والمتوسطة. اختر إجابة واحدة لكل سؤال.</p>
+    <div class="progress"><div class="progress-bar" id="quizBar"></div></div>
+    <div id="quizList"></div>
+    <div class="score-box" id="quizScore" style="display:none"></div>
+  </div>
+  <div class="card refs-card">
+    <div class="card-header"><i class="fas fa-link"></i><h3>للاستزادة</h3></div>
+    <p>الحقائق التقنية في هذا الدرس موثّقة في المراجع التالية، أما الشرح والأمثلة والتمارين فمكتوبة خصيصًا لمنصة TweetKod:</p>
+    <ul class="ref-list"><li><a href="https://en.cppreference.com/w/cpp/language/operator_arithmetic" target="_blank" rel="noopener"><span class="en">Arithmetic operators (remainder) &mdash; cppreference</span></a></li><li><a href="https://en.cppreference.com/w/cpp/container/vector" target="_blank" rel="noopener"><span class="en">std::vector &mdash; cppreference</span></a></li><li><a href="https://en.cppreference.com/w/cpp/algorithm/sort" target="_blank" rel="noopener"><span class="en">std::sort &mdash; cppreference</span></a></li><li><a href="https://cses.fi/book/book.pdf" target="_blank" rel="noopener"><span class="en">Competitive Programmer's Handbook &mdash; Antti Laaksonen (book, CC BY-NC-SA 4.0)</span></a></li><li><a href="https://usaco.guide/silver/greedy" target="_blank" rel="noopener"><span class="en">USACO Guide: Greedy Algorithms (CC BY-NC-SA 4.0)</span></a></li><li><a href="https://cses.fi/problemset/" target="_blank" rel="noopener"><span class="en">CSES Problem Set &mdash; practice problems</span></a></li></ul>
+  </div>
+</div>
+<button class="to-top" id="toTop" title="إلى الأعلى"><i class="fas fa-arrow-up"></i></button>
+<footer class="page-footer">منصة TweetKod</footer>
+<script>
+const TF = [{"s": "في المسائل الإنشائية يكون للمسألة عادةً جواب صحيح واحد فقط.", "a": false, "why": "غالبًا توجد إجابات كثيرة صحيحة، ويتحقق «فاحص» من أن إجابتك تحقق الشروط."}, {"s": "إزاحة الأعداد 1..n موضعًا واحدًا (2 3 ... n 1) تضمن ألا يبقى عدد في مكانه عندما n ≥ 2.", "a": true, "why": "كل عدد ينتقل إلى موضع مختلف عن موضعه الأصلي."}, {"s": "الحد الأدنى لمجموع n أعداد صحيحة موجبة مختلفة هو <code class=\"inline\">n × (n + 1) / 2</code>.", "a": true, "why": "يتحقق عند الأعداد 1 و2 ... و n."}, {"s": "عند <code class=\"inline\">n = 3</code> يوجد ترتيب للأعداد 1..3 لا يتجاور فيه عددان متتاليان.", "a": false, "why": "التجربة الشاملة تبيّن أنه لا يوجد أي ترتيب."}, {"s": "الدالة <code class=\"inline\">next_permutation</code> تُنتج الترتيبات كلها واحدًا واحدًا وتعيد false بعد آخرها.", "a": true, "why": "ولذلك تصلح مع حلقة <code class=\"inline\">do ... while</code> للقوة الغاشمة."}, {"s": "يكفي بناء الحل دون كتابة فاحص ما دام النمط يبدو صحيحًا.", "a": false, "why": "الفاحص يكشف الأخطاء الخفية، خاصة عند نقاط الربط والحدود."}, {"s": "القوة الغاشمة على <code class=\"inline\">n = 20</code> للترتيبات ممكنة بسرعة.", "a": false, "why": "20! عدد هائل جدًا؛ تُستخدم هذه الطريقة للقيم الصغيرة فقط."}];
+const QUIZ = [{"q": "ما الذي يميز المسائل الإنشائية؟", "o": ["نبني جوابًا يحقق شروطًا وقد توجد أجوبة كثيرة", "لا يوجد فيها إدخال", "جوابها دائمًا رقم واحد", "تحتاج دائمًا لقاعدة بيانات"], "a": 0, "why": "نبحث عن بناء صحيح وليس حسابًا وحيدًا."}, {"q": "ما أول خطوة في حل مسألة إنشائية جديدة؟", "o": ["استخدام <code class=\"inline\">sort</code>", "تجربة حالات صغيرة بيدك لاكتشاف نمط", "حذف الشروط", "كتابة الكود الكامل فورًا"], "a": 1, "why": "الأنماط تظهر في الحالات الصغيرة."}, {"q": "أي ترتيب للأعداد 1..5 يحقق «لا يتجاور عددان الفرق بينهما 1»؟", "o": ["5 4 3 2 1", "1 3 2 5 4", "2 4 1 3 5", "1 2 3 4 5"], "a": 2, "why": "فروق الجيران: 2 و3 و2 و2."}, {"q": "إزاحة 1..n بخطوة واحدة تعطي (لـ n = 4):", "o": ["2 3 4 1", "1 2 3 4", "4 3 2 1", "3 4 1 2"], "a": 0, "why": "كل عدد ينتقل خطوة، وآخر عدد يعود إلى البداية."}, {"q": "كم أصغر مجموع ممكن لأربعة أعداد موجبة مختلفة؟", "o": ["4", "6", "16", "10"], "a": 3, "why": "1 + 2 + 3 + 4 = 10."}, {"q": "عند بناء أعداد مختلفة بمجموع S نضع الباقي في:", "o": ["العدد الأخير", "العدد الأول", "كل الأعداد", "لا نضعه"], "a": 0, "why": "نأخذ 1..n-1 ونجعل الأخير يمتص الباقي."}, {"q": "لماذا يعمل نص <code class=\"inline\">abcabc...</code> في مسألة «بلا مقاطع متناظرة من ثلاثة»؟", "o": ["لأنه يحتوي a فقط", "لأنه قصير", "لأنه أبجدي", "لأن الأول والثالث في كل ثلاثية مختلفان دائمًا"], "a": 3, "why": "كل ثلاثة حروف متتالية مختلفة."}, {"q": "ما فائدة كتابة «فاحص» في الحل الإنشائي؟", "o": ["لا فائدة", "يسرّع البرنامج", "يتأكد أن الناتج يحقق الشروط ويكشف أخطاء البناء", "يقلل الذاكرة"], "a": 2, "why": "الفحص على قيم كثيرة يكشف الأخطاء."}, {"q": "ماذا تفعل <code class=\"inline\">next_permutation</code>؟", "o": ["تنقل المتجه إلى الترتيب التالي وتعيد false بعد آخر ترتيب", "تحذف العناصر المكررة", "تقلب المتجه", "ترتب المتجه تنازليًا فقط"], "a": 0, "why": "تُستخدم لتجربة كل الترتيبات الممكنة."}, {"q": "لماذا لا نستخدم القوة الغاشمة على كل الترتيبات عند n = 20؟", "o": ["لأن العدد زوجي", "لأن الذاكرة غير كافية للأعداد", "لأن 20! عدد هائل جدًا من الترتيبات", "لأن المترجم يمنع ذلك"], "a": 2, "why": "عدد الترتيبات ينمو بسرعة هائلة."}];
+const EXPL = {"derange": {"0": "المطلوب: ترتيب للأعداد من 1 إلى n بحيث لا يقف أي عدد في مكانه الأصلي (العدد i لا يكون في الموضع i).", "2": "الفكرة الذكية: <strong>أزِح كل عدد موضعًا واحدًا</strong> فيصير الترتيب 2 3 4 ... n 1. كل عدد انتقل من مكانه فلا يبقى أي عدد في موضعه!", "3": "الباقي <code class=\"inline\">% n</code> يعيد آخر عدد إلى بداية الدائرة. إنه الحساب النمطي مجددًا.", "7": "ولا نكتفي بالثقة: نكتب <strong>فاحصًا</strong> (<span class=\"en\">checker</span>) يتأكد أن لا عدد يطابق موضعه."}, "distinct": {"1": "أصغر مجموع ممكن لـ n أعداد موجبة <strong>مختلفة</strong> هو 1 + 2 + ... + n. إن كان S أصغر منه فالمسألة مستحيلة.", "7": "نبني: نأخذ الأعداد الصغيرة 1 و2 و... و n-1، ونضع <strong>كل الباقي</strong> في آخر عدد.", "11": "العدد الأخير هو S ناقص المستخدم. هل هو مختلف عن البقية؟ نعم، لأنه لا يقل عن n (وإلا لكان S أصغر من الحد الأدنى)."}, "nopal": {"0": "المطلوب: نص طوله n من الحروف a وb وc ليس فيه أي مقطع من ثلاثة حروف متناظر (مثل aba).", "3": "حلّ بالتكرار الدوري: <code class=\"inline\">abcabcabc...</code>. أي ثلاثة حروف متتالية هنا مختلفة تمامًا، فلا يتطابق الحرف الأول مع الثالث.", "8": "الفحص: لا يجوز أن يتساوى <code class=\"inline\">s[i]</code> مع <code class=\"inline\">s[i+2]</code>."}, "evenodd": {"5": "المطلوب: رتّب الأعداد من 1 إلى n بحيث لا يتجاور عددان الفرق بينهما 1 بالضبط.", "7": "اكتشفنا بالتجربة أن n = 2 و3 مستحيلتان. (سنبرهن ذلك بالتجربة الشاملة بعد قليل.)", "10": "الحيلة: <strong>اجمع الأعداد الزوجية أولًا</strong> ثم الفردية. داخل كل مجموعة الفرق بين الجيران 2، وهذا مقبول!", "13": "وبعدها الفردية. الاتصال الوحيد الخطر هو بين آخر زوجي وأول فردي (العدد 1)، وهو ثابت أكبر من 1 حين n ≥ 4.", "19": "فاحصنا: يمر على الجيران ويرفض أي فرق يساوي 1."}, "brute": {"23": "<code class=\"inline\">next_permutation</code> تنقل المتجه إلى الترتيب التالي من الترتيبات كلها، وتعيد <code class=\"inline\">false</code> بعد آخر ترتيب. بهذه الحلقة نمر على <strong>كل</strong> الترتيبات الممكنة.", "24": "بعد التجربة الشاملة: لا شيء صحيح عند n=2 و3 (مستحيل فعلًا)، وهناك ترتيبات كثيرة من n=4 وما فوق. إذًا حالتنا الخاصة تستحق الاستثناء!"}};
+const TRACES = {"trace": [{"line": -1, "vars": {}, "out": "", "note": "نقطة البداية: لم يُنفَّذ أي سطر بعد."}, {"line": 0, "vars": {"n": "5"}, "out": "", "note": "نريد ترتيب الأعداد من 1 إلى 5."}, {"line": 1, "vars": {"n": "5", "r": "[ ]"}, "out": "", "note": "المتجه r فارغ."}, {"line": 2, "vars": {"n": "5", "r": "[ ]", "x": "2"}, "out": "", "note": "الحلقة الأولى للأعداد الزوجية: x = 2."}, {"line": 3, "vars": {"n": "5", "r": "[2]", "x": "2"}, "out": "", "note": "أضفنا 2."}, {"line": 2, "vars": {"n": "5", "r": "[2]", "x": "4"}, "out": "", "note": "x = 4."}, {"line": 3, "vars": {"n": "5", "r": "[2, 4]", "x": "4"}, "out": "", "note": "أضفنا 4."}, {"line": 2, "vars": {"n": "5", "r": "[2, 4]", "x": "6"}, "out": "", "note": "x = 6 أكبر من n فتنتهي الحلقة."}, {"line": 5, "vars": {"n": "5", "r": "[2, 4]", "x": "1"}, "out": "", "note": "الحلقة الثانية للأعداد الفردية: x = 1."}, {"line": 6, "vars": {"n": "5", "r": "[2, 4, 1]", "x": "1"}, "out": "", "note": "أضفنا 1."}, {"line": 5, "vars": {"n": "5", "r": "[2, 4, 1]", "x": "3"}, "out": "", "note": "x = 3."}, {"line": 6, "vars": {"n": "5", "r": "[2, 4, 1, 3]", "x": "3"}, "out": "", "note": "أضفنا 3."}, {"line": 5, "vars": {"n": "5", "r": "[2, 4, 1, 3]", "x": "5"}, "out": "", "note": "x = 5."}, {"line": 6, "vars": {"n": "5", "r": "[2, 4, 1, 3, 5]", "x": "5"}, "out": "", "note": "أضفنا 5."}, {"line": 5, "vars": {"n": "5", "r": "[2, 4, 1, 3, 5]", "x": "7"}, "out": "", "note": "x = 7 أكبر من n فتنتهي."}, {"line": 8, "vars": {"n": "5", "r": "[2, 4, 1, 3, 5]", "x": "7"}, "out": "24135", "note": "طبعنا الترتيب: 2 4 1 3 5. لا يتجاور عددان الفرق بينهما 1."}, {"line": 9, "vars": {"n": "5", "r": "[2, 4, 1, 3, 5]", "x": "7"}, "out": "24135\n", "note": "انتهى."}]};
+function copyCode(id) {
+  const el = document.getElementById(id);
+  const text = el.innerText.replace(/ /g, ' ');
+  const done = () => { const b = el.parentElement.querySelector('.copy-btn'); const t = b.textContent; b.textContent = 'تم النسخ ✓'; setTimeout(() => b.textContent = t, 1400); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(done); else done();
+}
+
+/* click-to-explain code lines */
+document.querySelectorAll('.code-box[data-expl]').forEach(box => {
+  const id = box.getAttribute('data-expl');
+  const out = document.querySelector('.explain-box[data-for="' + id + '"]');
+  box.querySelectorAll('.code-line').forEach(line => {
+    line.addEventListener('click', () => {
+      box.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+      line.classList.add('active');
+      out.innerHTML = EXPL[id][line.getAttribute('data-i')];
+    });
+  });
+});
+
+/* true / false check */
+(function () {
+  const list = document.getElementById('tfList');
+  let answered = 0, right = 0;
+  TF.forEach((it, i) => {
+    const d = document.createElement('div');
+    d.className = 'tf-item';
+    d.innerHTML = '<div class="stmt">' + (i + 1) + '. ' + it.s + '</div>' +
+      '<div class="tf-btns"><button class="tf-btn" data-v="true"><i class="fas fa-check"></i> صحيح</button>' +
+      '<button class="tf-btn" data-v="false"><i class="fas fa-xmark"></i> خطأ</button></div><div class="feedback"></div>';
+    d.querySelectorAll('.tf-btn').forEach(b => b.addEventListener('click', () => {
+      const pick = b.getAttribute('data-v') === 'true';
+      const ok = pick === it.a;
+      d.querySelectorAll('.tf-btn').forEach(x => { x.disabled = true; });
+      b.classList.add(ok ? 'correct' : 'wrong');
+      const fb = d.querySelector('.feedback');
+      fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+      fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> إجابة صحيحة. ' : '<i class="fas fa-circle-xmark"></i> الإجابة الصحيحة: ' + (it.a ? 'صحيح' : 'خطأ') + '. ') + it.why;
+      answered++; if (ok) right++;
+      if (answered === TF.length) {
+        const s = document.getElementById('tfScore');
+        s.style.display = 'block';
+        s.innerHTML = '<div class="big">' + right + ' / ' + TF.length + '</div><div>' + (right === TF.length ? 'ممتاز! فهمت الدرس جيدًا.' : right >= TF.length - 2 ? 'نتيجة جيدة، راجع العبارات التي أخطأت فيها.' : 'أعد قراءة الدرس ثم جرّب مرة أخرى.') + '</div>';
+      }
+    }));
+    list.appendChild(d);
+  });
+})();
+
+/* final quiz */
+(function () {
+  const list = document.getElementById('quizList');
+  const bar = document.getElementById('quizBar');
+  let answered = 0, right = 0;
+  QUIZ.forEach((q, qi) => {
+    const d = document.createElement('div');
+    d.className = 'quiz-q';
+    d.innerHTML = '<h4><span class="qnum">' + (qi + 1) + '</span>' + q.q + '</h4><div class="quiz-options"></div><div class="feedback"></div>';
+    const box = d.querySelector('.quiz-options');
+    q.o.forEach((txt, oi) => {
+      const b = document.createElement('button');
+      b.className = 'quiz-opt'; b.innerHTML = txt;
+      b.addEventListener('click', () => {
+        box.querySelectorAll('.quiz-opt').forEach(x => x.disabled = true);
+        const ok = oi === q.a;
+        b.classList.add(ok ? 'correct' : 'wrong');
+        if (!ok) box.children[q.a].classList.add('correct');
+        const fb = d.querySelector('.feedback');
+        fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+        fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> صحيح! ' : '<i class="fas fa-circle-xmark"></i> ليست الإجابة الصحيحة. ') + q.why;
+        answered++; if (ok) right++;
+        bar.style.width = (answered / QUIZ.length * 100) + '%';
+        if (answered === QUIZ.length) showScore();
+      });
+      box.appendChild(b);
+    });
+    list.appendChild(d);
+  });
+  function showScore() {
+    const s = document.getElementById('quizScore');
+    const pct = right / QUIZ.length;
+    s.style.display = 'block';
+    s.innerHTML = '<div class="big">' + right + ' / ' + QUIZ.length + '</div><div>' +
+      (pct === 1 ? 'نتيجة كاملة! أنت جاهز للدرس التالي.' : pct >= 0.7 ? 'أداء جيد جدًا، راجع الأسئلة التي أخطأت فيها.' : 'راجع الدرس مرة أخرى ثم أعد المحاولة.') +
+      '</div><button class="retry-btn" onclick="location.hash=\'quizCard\';location.reload();">إعادة الاختبار</button>';
+  }
+})();
+
+
+/* ---------------- header tools ---------------- */
+(function () {
+  const root = document.documentElement;
+  const safeGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const safeSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+  /* theme */
+  const themeBtn = document.getElementById('themeBtn');
+  function applyTheme(t) { root.setAttribute('data-theme', t); if (themeBtn) themeBtn.innerHTML = t === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; }
+  applyTheme(safeGet('tk_theme') || 'light');
+  if (themeBtn) themeBtn.addEventListener('click', () => { const t = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; applyTheme(t); safeSet('tk_theme', t); });
+
+  /* code size */
+  let size = parseFloat(safeGet('tk_codesize') || '0.95');
+  function applySize() { root.style.setProperty('--code-size', size + 'rem'); }
+  applySize();
+  const dec = document.getElementById('fontDec'), inc = document.getElementById('fontInc');
+  if (dec) dec.addEventListener('click', () => { size = Math.max(0.75, +(size - 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+  if (inc) inc.addEventListener('click', () => { size = Math.min(1.3, +(size + 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+
+  /* table of contents */
+  const panel = document.getElementById('tocPanel'), tocBtn = document.getElementById('tocBtn');
+  if (panel && tocBtn) {
+    const cards = document.querySelectorAll('.container > .card');
+    let n = 0;
+    cards.forEach((c, i) => {
+      const h = c.querySelector('.card-header h3, .project-banner strong');
+      if (!h) return;
+      n++;
+      c.id = c.id || 'sec-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + c.id;
+      a.innerHTML = '<span>' + n + '</span><bdi>' + h.innerHTML + '</bdi>';
+      a.addEventListener('click', () => panel.classList.remove('open'));
+      panel.appendChild(a);
+    });
+    tocBtn.addEventListener('click', (e) => { e.stopPropagation(); panel.classList.toggle('open'); });
+    document.addEventListener('click', (e) => { if (!panel.contains(e.target)) panel.classList.remove('open'); });
+  }
+
+  /* reading progress + back to top */
+  const bar = document.getElementById('readBar'), top = document.getElementById('toTop');
+  function onScroll() {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+    if (bar) bar.style.width = pct + '%';
+    if (top) top.classList.toggle('show', h.scrollTop > 600);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  if (top) top.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+})();
+
+/* ---------------- step tracer ---------------- */
+document.querySelectorAll('.tracer').forEach(el => {
+  const steps = TRACES[el.getAttribute('data-trace')];
+  const lines = el.querySelectorAll('.tr-line');
+  const varsEl = el.querySelector('.tr-vars'), outEl = el.querySelector('.tr-out'), noteEl = el.querySelector('.tr-note'), cnt = el.querySelector('.tr-count');
+  const btn = (a) => el.querySelector('[data-a="' + a + '"]');
+  let i = 0, timer = null;
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  function draw() {
+    const s = steps[i], prev = i > 0 ? steps[i - 1].vars : {};
+    lines.forEach((l, k) => l.classList.toggle('active', k === s.line));
+    const names = Object.keys(s.vars);
+    varsEl.innerHTML = names.length ? names.map(n => '<div class="tr-var' + (prev[n] !== s.vars[n] ? ' changed' : '') + '"><span>' + esc(n) + '</span><b>' + esc(s.vars[n]) + '</b></div>').join('') : '<span style="color:#94a3b8">لا توجد متغيرات بعد</span>';
+    outEl.textContent = s.out || ' ';
+    noteEl.textContent = s.note || ' ';
+    cnt.textContent = 'الخطوة ' + i + ' من ' + (steps.length - 1);
+    btn('prev').disabled = i === 0; btn('next').disabled = i === steps.length - 1;
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; btn('play').innerHTML = '<i class="fas fa-play"></i> تشغيل تلقائي'; } }
+  btn('next').onclick = () => { stop(); if (i < steps.length - 1) i++; draw(); };
+  btn('prev').onclick = () => { stop(); if (i > 0) i--; draw(); };
+  btn('reset').onclick = () => { stop(); i = 0; draw(); };
+  btn('play').onclick = () => {
+    if (timer) { stop(); return; }
+    if (i >= steps.length - 1) i = 0;
+    btn('play').innerHTML = '<i class="fas fa-pause"></i> إيقاف';
+    timer = setInterval(() => { if (i < steps.length - 1) { i++; draw(); } else stop(); }, 1100);
+    draw();
+  };
+  draw();
+});
+
+/* ---------------- predict the output ---------------- */
+document.querySelectorAll('.predict').forEach(p => {
+  const opts = p.querySelectorAll('.pd-opt');
+  opts.forEach(o => o.addEventListener('click', () => {
+    const ok = o.getAttribute('data-ok') === '1';
+    opts.forEach(x => { x.disabled = true; if (x.getAttribute('data-ok') === '1') x.classList.add('correct'); });
+    if (!ok) o.classList.add('wrong');
+    const res = p.querySelector('.pd-result');
+    res.classList.remove('hidden');
+    const msg = p.querySelector('.pd-msg');
+    msg.innerHTML = ok ? '<span style="color:#16a34a"><i class="fas fa-check-circle"></i> توقّعك صحيح! هذا هو الناتج الحقيقي:</span>' : '<span style="color:#dc2626"><i class="fas fa-circle-xmark"></i> ليس تمامًا. هذا هو الناتج الحقيقي، وتابع التفسير:</span>';
+  }));
+});
+
+
+// ---------- build & check lab ----------
+let BD = { arr: [], sel: -1 };
+function bdN() { return parseInt(document.getElementById('bdN').value, 10); }
+function bdReset() { document.getElementById('bdNv').textContent = bdN(); BD.arr = Array.from({ length: bdN() }, (_, i) => i + 1); BD.sel = -1; bdDraw(); }
+function bdBad() {
+  const a = BD.arr, mode = document.getElementById('bdProb').value, bad = new Set();
+  if (mode === 'adj') { for (let i = 0; i + 1 < a.length; i++) if (Math.abs(a[i] - a[i + 1]) === 1) { bad.add(i); bad.add(i + 1); } }
+  else { a.forEach((v, i) => { if (v === i + 1) bad.add(i); }); }
+  return bad;
+}
+function bdDraw() {
+  const bad = bdBad();
+  document.getElementById('bdTags').innerHTML = BD.arr.map((v, i) => '<span class="lab-tag ' + (i === BD.sel ? 'warm' : bad.has(i) ? 'miss' : 'hit') + '" style="cursor:pointer;min-width:34px;text-align:center" onclick="bdClick(' + i + ')">' + v + '</span>').join('');
+  const n = document.getElementById('bdNote'), mode = document.getElementById('bdProb').value;
+  if (bad.size === 0) { n.className = 'lab-say ok'; n.textContent = 'ممتاز ✓ الترتيب يحقق الشرط.'; }
+  else { n.className = 'lab-say bad'; n.textContent = 'عدد الأعداد المخالفة: ' + bad.size + (mode === 'adj' ? ' (أعداد متجاورة متتالية)' : ' (أعداد في موضعها الأصلي)') + '. جرّب التبديل أو الأزرار الجاهزة.'; }
+}
+function bdClick(i) { if (BD.sel < 0) { BD.sel = i; } else { [BD.arr[BD.sel], BD.arr[i]] = [BD.arr[i], BD.arr[BD.sel]]; BD.sel = -1; } bdDraw(); }
+function bdAsc() { bdReset(); }
+function bdEvenOdd() { const n = bdN(), r = []; for (let x = 2; x <= n; x += 2) r.push(x); for (let x = 1; x <= n; x += 2) r.push(x); BD.arr = r; BD.sel = -1; bdDraw(); }
+function bdRotate() { const n = bdN(); BD.arr = Array.from({ length: n }, (_, i) => (i + 1) % n + 1); BD.sel = -1; bdDraw(); }
+function bdShuffle() { const a = Array.from({ length: bdN() }, (_, i) => i + 1); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } BD.arr = a; BD.sel = -1; bdDraw(); }
+bdReset();
+
+// ---------- distinct sum lab ----------
+function dsRun() {
+  const n = parseInt(document.getElementById('dsN').value, 10), S = parseInt(document.getElementById('dsS').value, 10);
+  const note = document.getElementById('dsNote'), tags = document.getElementById('dsTags');
+  if (isNaN(n) || isNaN(S) || n < 1 || S < 1) { tags.innerHTML = ''; note.textContent = 'اكتب قيمًا موجبة.'; return; }
+  const minS = n * (n + 1) / 2;
+  if (S < minS) { tags.innerHTML = ''; note.className = 'lab-say bad'; note.textContent = 'مستحيل ✗ الحد الأدنى لمجموع ' + n + ' أعداد مختلفة هو ' + minS + ' وأنت طلبت ' + S + '.'; return; }
+  const out = []; let used = 0; for (let i = 1; i < n; i++) { out.push(i); used += i; } out.push(S - used);
+  tags.innerHTML = out.map((v, i) => '<span class="lab-tag ' + (i === n - 1 ? 'warm' : 'hit') + '">' + v + '</span>').join('');
+  note.className = 'lab-say ok'; note.textContent = 'المجموع = ' + out.reduce((a, b) => a + b, 0) + ' ✓ والأعداد مختلفة ✓ (الأخير امتصّ الباقي: ' + out[n - 1] + ').';
+}
+dsRun();
+
+</script>
+</body>
+</html>
