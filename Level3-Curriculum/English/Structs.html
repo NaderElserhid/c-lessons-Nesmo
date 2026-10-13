@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TweetKod | Structures (struct)</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --primary-blue: #00adef;
+  --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+  --primary-yellow: #f7941e;
+  --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+  --dark-navy: #0f172a;
+  --text-body: #475569;
+  --bg-main: #f4f9fd;
+  --surface: #f1f6fb;
+  --card-bg: #ffffff;
+  --border: #e2e8f0;
+  --chip-bg: #eef2f7;
+  --soft-shadow: 0 14px 34px -14px rgba(15,23,42,0.14);
+  --header-bg: rgba(255,255,255,0.82);
+  --code-size: 0.95rem;
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2300adef' fill-opacity='0.075'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+html[data-theme="dark"] {
+  --dark-navy: #e6edf7;
+  --text-body: #a9b6cc;
+  --bg-main: #0a1120;
+  --surface: #16213a;
+  --card-bg: #111a2e;
+  --border: #243049;
+  --chip-bg: #1d2a45;
+  --soft-shadow: 0 14px 34px -14px rgba(0,0,0,0.6);
+  --header-bg: rgba(10,17,32,0.82);
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2338bdf8' fill-opacity='0.06'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+body {
+  font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+  background-color: var(--bg-main);
+  margin: 0; padding: 0; color: var(--dark-navy);
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color .3s, color .3s;
+  position: relative;
+}
+/* decorative background */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.20), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.17), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.06), transparent 70%);
+}
+html[data-theme="dark"] body::before {
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.22), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.12), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.10), transparent 70%);
+}
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: var(--pattern); background-size: 260px 260px;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+          mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+}
+.bg-deco { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .35; animation: floaty 18s ease-in-out infinite; }
+.b1 { width: 340px; height: 340px; background: #00adef; top: 12%; right: -90px; }
+.b2 { width: 280px; height: 280px; background: #f7941e; bottom: 6%; left: -80px; animation-delay: -6s; }
+.b3 { width: 220px; height: 220px; background: #8b5cf6; top: 55%; right: 18%; opacity: .16; animation-delay: -11s; }
+html[data-theme="dark"] .blob { opacity: .2; }
+@keyframes floaty { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(26px,-34px) scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .blob { animation: none; } html { scroll-behavior: auto; } }
+
+/* header */
+header {
+  background: var(--header-bg); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  padding: 10px 4%; display: flex; justify-content: space-between; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 1000;
+  border-bottom: 1px solid rgba(0,173,239,0.16); box-shadow: 0 8px 28px -18px rgba(15,23,42,0.45);
+}
+.hdr-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.logo-img { width: 52px; height: 52px; border-radius: 15px; object-fit: contain; padding: 6px; background: #fff;
+  box-shadow: 0 6px 18px -6px rgba(0,173,239,0.45), 0 0 0 1px rgba(0,173,239,0.16); }
+.brand-info h3 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); line-height: 1.3; }
+.brand-info p { margin: 0; font-size: 0.78rem; color: var(--primary-blue); font-weight: 700; }
+.hdr-tools { display: flex; align-items: center; gap: 8px; position: relative; }
+.tool-btn { height: 38px; min-width: 38px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy);
+  cursor: pointer; font-family: 'Nunito'; font-weight: 800; font-size: .85rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: .2s; }
+.tool-btn:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+.toc-panel { position: absolute; top: 48px; right: 0; width: 290px; max-height: 60vh; overflow-y: auto; background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 16px; box-shadow: var(--soft-shadow); padding: 8px; display: none; }
+.toc-panel.open { display: block; }
+.toc-panel a { display: flex; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 10px; color: var(--dark-navy); text-decoration: none; font-weight: 700; font-size: .88rem; }
+.toc-panel a:hover { background: var(--surface); color: var(--primary-blue); }
+.toc-panel a span { width: 22px; height: 22px; border-radius: 50%; background: var(--chip-bg); color: var(--text-body); font-size: .72rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.read-progress { position: absolute; bottom: -1px; right: 0; left: 0; height: 3px; background: transparent; }
+.read-progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #00adef, #f7941e); transition: width .1s; }
+.to-top { position: fixed; bottom: 22px; right: 22px; z-index: 900; width: 46px; height: 46px; border-radius: 50%; border: none; background: var(--blue-gradient); color: #fff;
+  cursor: pointer; box-shadow: 0 10px 24px -8px rgba(0,173,239,.7); font-size: 1.1rem; opacity: 0; pointer-events: none; transition: .25s; }
+.to-top.show { opacity: 1; pointer-events: auto; }
+@media (max-width: 980px) { .brand-info p { display: none; } }
+@media (max-width: 720px) { .brand-info h3 { font-size: 1rem; } }
+
+.container { max-width: 900px; margin: 44px auto; padding: 0 25px; }
+.title-section { text-align: center; margin-bottom: 40px; }
+.title-section h1 { font-size: 2.7rem; font-weight: 800; margin: 12px 0 6px; background: linear-gradient(135deg, var(--dark-navy), #007bb5 80%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+html[data-theme="dark"] .title-section h1 { background: linear-gradient(135deg, #fff, #38bdf8 80%); -webkit-background-clip: text; background-clip: text; }
+.attribution { color: var(--primary-blue); font-size: 1.15rem; font-weight: 600; }
+.lesson-chip { display: inline-block; background: var(--yellow-gradient); color: #fff; padding: 6px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; box-shadow: 0 8px 18px -8px rgba(247,148,30,.8); }
+
+.card { background: var(--card-bg); border-radius: 25px; padding: 40px; margin-bottom: 30px; box-shadow: var(--soft-shadow); border-left: 8px solid var(--primary-blue);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); transition: background-color .3s; }
+.steps-card { border-left-color: var(--primary-yellow); }
+.card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+.card-header i { font-size: 1.8rem; }
+.card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+h4 { margin: 18px 0 8px; font-size: 1.05rem; color: var(--dark-navy); }
+p { color: var(--text-body); margin: 0 0 14px; }
+a { color: var(--primary-blue); }
+strong { color: var(--dark-navy); }
+
+.en { direction: ltr; unicode-bidi: isolate; font-weight: 700; color: var(--dark-navy); }
+/* every code chip is an isolated LTR island: fixes ; ( ) = placement inside Arabic text */
+code, code.inline { background: var(--chip-bg); padding: 2px 8px; border-radius: 6px; direction: ltr; unicode-bidi: isolate; display: inline-block; text-align: left;
+  color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; line-height: 1.6; }
+html[data-theme="dark"] code, html[data-theme="dark"] code.inline { color: #f9a8d4; }
+
+.obj-list { list-style: none; padding: 0; margin: 0; }
+.obj-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.obj-list i { color: #22c55e; margin-top: 6px; }
+
+/* code */
+.code-box { background: #1e293b; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.35); margin: 20px 0; border: 1px solid rgba(255,255,255,.04); }
+.code-head { background: #0f172a; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+.code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; direction: ltr; }
+.copy-btn { color: #38bdf8; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; font-family: 'Nunito'; }
+pre { padding: 26px 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: var(--code-size); tab-size: 8; }
+.cmt { color: #79c36a; font-style: italic; }
+.kw { color: #7dd3fc; }
+.str { color: #fbbf77; }
+.num { color: #c4b5fd; }
+.pp { color: #f9a8d4; }
+.code-line, .code-plain { display: block; border-radius: 6px; padding: 0 6px; margin: 0 -6px; }
+.code-line { cursor: pointer; transition: 0.2s; background: rgba(0,173,239,0.07); }
+.code-line:hover { background: rgba(0,173,239,0.22); }
+.code-line.active { background: rgba(247,148,30,0.28); outline: 1px dashed var(--primary-yellow); }
+.explain-box { margin-top: 14px; background: var(--surface); border: 2px dashed var(--border); border-radius: 16px; padding: 16px 22px; font-weight: 600; color: var(--dark-navy); min-height: 30px; }
+.explain-box .hint { color: #94a3b8; font-weight: 500; }
+.output-box, .input-box { font-family: 'Consolas', monospace; padding: 16px 22px; border-radius: 14px; margin: 10px 0 18px; direction: ltr; text-align: left; white-space: pre-wrap; tab-size: 8; font-size: var(--code-size); }
+.output-box { background: #0f172a; color: #4ade80; }
+.input-box { background: #0c2233; color: #7dd3fc; margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.input-box + .output-box { margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; border-top: 1px dashed #1e3a52; }
+.output-box::before, .input-box::before { display: block; font-size: 0.72rem; letter-spacing: 0.08em; margin-bottom: 6px; text-transform: uppercase; color: #64748b; }
+.output-box::before { content: 'Output'; }
+.input-box::before { content: 'Input (typed by the user)'; }
+.error-box { background: #1f1317; border: 1px solid #7f1d1d; border-radius: 14px; margin: 10px 0 18px; overflow: hidden; }
+.error-head { background: #450a0a; color: #fca5a5; padding: 8px 18px; font-weight: 700; font-size: 0.85rem; }
+.error-box pre { color: #fecaca; font-size: 0.8rem; padding: 14px 20px; line-height: 1.7; }
+
+/* steps */
+.step-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 14px; padding: 18px 20px; background: var(--card-bg); border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+.step-number { background: var(--yellow-gradient); color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+.step-item h4 { margin: 0 0 4px; font-size: 1rem; }
+.step-item p { margin: 0; font-size: 0.92rem; }
+
+/* tables */
+.table-wrap { overflow-x: auto; margin: 15px 0; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+table.data-table { width: 100%; border-collapse: collapse; background: var(--card-bg); }
+table.data-table th { background: var(--blue-gradient); color: #fff; padding: 12px 18px; font-size: 0.85rem; text-align: left; white-space: nowrap; }
+table.data-table td { padding: 12px 18px; font-size: 0.9rem; border-bottom: 1px solid var(--border); color: var(--text-body); }
+table.data-table tr:last-child td { border-bottom: none; }
+
+/* comparison / rules */
+.compare-grid, .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+@media (max-width: 700px) { .compare-grid, .rule-grid { grid-template-columns: 1fr; } .card { padding: 24px; } .title-section h1 { font-size: 2rem; } }
+.compare-card { border-radius: 16px; overflow: hidden; background: #1e293b; }
+.compare-title { padding: 10px 18px; font-weight: 800; font-size: 0.9rem; }
+.good .compare-title { background: #dcfce7; color: #15803d; }
+.bad .compare-title { background: #fee2e2; color: #b91c1c; }
+.compare-card pre { padding: 18px 20px; font-size: 0.83rem; }
+.rule-list { background: var(--surface); border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
+.rule-list h5 { margin: 0 0 12px; font-size: 0.95rem; }
+.rule-list.yes h5 { color: #16a34a; } .rule-list.no h5 { color: #dc2626; }
+.rule-list ul { list-style: none; padding: 0; margin: 0; }
+.rule-list li { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 0.9rem; color: var(--text-body); }
+.rule-list.yes li i { color: #22c55e; } .rule-list.no li i { color: #ef4444; }
+
+.tip-box { background: rgba(247,148,30,0.09); border: 2px dashed var(--primary-yellow); border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 4px; }
+.tip-box p { margin: 0; font-size: 0.93rem; }
+
+/* project */
+.project-banner { background: var(--blue-gradient); color: #fff; border-radius: 18px; padding: 16px 22px; margin-bottom: 18px; display: flex; gap: 14px; align-items: center; }
+.project-banner i { font-size: 1.6rem; }
+.project-banner strong { font-size: 1.05rem; color: #fff; }
+.project-banner p { color: #e0f4ff; margin: 0; font-size: 0.9rem; }
+.brief { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 18px 22px; margin: 14px 0; }
+.brief h5 { margin: 0 0 8px; font-size: 1rem; color: var(--primary-blue); display: flex; align-items: center; gap: 8px; }
+.brief ul, .brief ol { margin: 0; padding-left: 22px; color: var(--text-body); }
+.brief li { margin-bottom: 6px; }
+details.reveal { border: 2px dashed var(--border); border-radius: 16px; padding: 4px 16px; margin: 14px 0; background: var(--card-bg); }
+details.reveal > summary { cursor: pointer; font-weight: 800; padding: 10px 0; color: var(--primary-blue); list-style: none; display: flex; align-items: center; gap: 8px; }
+details.reveal > summary::-webkit-details-marker { display: none; }
+details.reveal[open] { border-style: solid; border-color: var(--primary-blue); }
+
+/* challenges */
+.challenge-card { border-left-color: #8b5cf6; }
+.challenge-card .card-header { color: #8b5cf6; }
+.challenge { border: 1px solid var(--border); border-radius: 20px; padding: 22px 24px; margin-bottom: 20px; background: var(--surface); }
+.ch-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+.ch-head h4 { margin: 0; flex: 1; }
+.ch-num { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
+.badge { font-size: .75rem; font-weight: 800; padding: 4px 12px; border-radius: 50px; }
+.badge.easy { background: #dcfce7; color: #15803d; }
+.badge.medium { background: #fef3c7; color: #b45309; }
+.challenge h5 { margin: 14px 0 6px; font-size: .9rem; color: var(--dark-navy); }
+.challenge ul { margin: 0 0 6px; padding-left: 22px; color: var(--text-body); }
+.challenge li { margin-bottom: 4px; }
+
+/* simulators */
+.sim-box { background: var(--surface); border: 3px dashed var(--border); border-radius: 20px; padding: 28px; text-align: center; margin-top: 15px; }
+.sim-inputs { display: flex; justify-content: center; gap: 18px; margin-bottom: 18px; flex-wrap: wrap; }
+.sim-inputs .field { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.sim-inputs label { font-size: 0.82rem; color: var(--text-body); font-weight: 700; }
+.sim-inputs input[type=text], .sim-inputs input[type=number] { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1.05rem; text-align: center; font-family: 'Consolas', monospace; outline: none; direction: ltr; }
+.sim-inputs input[type=number] { width: 110px; }
+.sim-inputs input:focus { border-color: var(--primary-blue); }
+.btn-run { background: var(--yellow-gradient); color: #fff; border: none; padding: 13px 32px; border-radius: 18px; cursor: pointer; font-weight: 800; font-family: 'Nunito'; font-size: 0.95rem; box-shadow: 0 10px 20px -10px rgba(247,148,30,.9); }
+.sim-console { margin-top: 18px; background: #0f172a; border-radius: 14px; padding: 18px 20px; text-align: left; direction: ltr; font-family: 'Consolas', monospace; color: #4ade80; min-height: 26px; white-space: pre-wrap; font-size: 0.92rem; }
+.sim-console .line { color: #94a3b8; }
+.result-line { margin-top: 14px; font-weight: 700; color: var(--dark-navy); }
+.reorder-list { max-width: 460px; margin: 0 auto 10px; direction: ltr; }
+.reorder-item { display: flex; align-items: center; gap: 10px; background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 8px 12px; margin-bottom: 8px; font-family: 'Consolas', monospace; font-size: 0.88rem; text-align: left; }
+.reorder-item code { flex: 1; background: transparent; padding: 0; }
+.rbtn { border: none; background: #e0f2fe; color: #0369a1; border-radius: 8px; width: 30px; height: 30px; cursor: pointer; font-weight: 800; }
+.rbtn:disabled { opacity: 0.35; cursor: default; }
+.bug-list { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.bug-btn { background: var(--card-bg); color: var(--dark-navy); border: 2px solid var(--border); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Nunito'; font-weight: 700; }
+.bug-btn.found { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.hidden { display: none; }
+.op-table { width: 100%; border-collapse: collapse; margin-top: 16px; direction: ltr; font-family: 'Consolas', monospace; font-size: .88rem; }
+.op-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--dark-navy); text-align: left; }
+.op-table td:last-child { color: var(--primary-blue); font-weight: 800; }
+
+/* glossary */
+.glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+.term-card { background: var(--surface); border-radius: 16px; padding: 18px; border: 1px solid var(--border); }
+.term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+.term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+.term-desc { font-size: 0.85rem; color: var(--text-body); margin: 0; }
+
+/* tf + quiz */
+.tf-item { border: 2px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 14px; background: var(--surface); }
+.tf-item .stmt { font-weight: 700; margin-bottom: 12px; color: var(--dark-navy); }
+.tf-btns { display: flex; gap: 10px; }
+.tf-btn { flex: 1; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 10px; cursor: pointer; font-family: 'Nunito'; font-weight: 800; font-size: 0.95rem; }
+.tf-btn:hover { border-color: var(--primary-blue); }
+.tf-btn.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.tf-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.feedback { margin-top: 10px; font-size: 0.9rem; font-weight: 600; }
+.feedback.ok { color: #16a34a; } .feedback.no { color: #dc2626; }
+.quiz-q { margin-bottom: 26px; padding-bottom: 8px; }
+.quiz-q h4 { margin-bottom: 12px; line-height: 1.9; }
+.qnum { display: inline-flex; align-items: center; justify-content: center; background: var(--yellow-gradient); color: #fff; width: 28px; height: 28px; border-radius: 50%; font-size: 0.85rem; margin-right: 8px; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-opt { background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 12px 18px; cursor: pointer; font-weight: 600; text-align: left; font-family: 'Nunito'; font-size: 0.95rem; transition: 0.2s; color: var(--dark-navy); }
+.quiz-opt:hover { border-color: var(--primary-blue); }
+.quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.quiz-opt:disabled { cursor: default; }
+.quiz-opt.correct code, .quiz-opt.wrong code { background: rgba(255,255,255,.7); }
+.progress { height: 10px; background: var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 22px; }
+.progress-bar { height: 100%; width: 0; background: var(--yellow-gradient); transition: width 0.3s; }
+.score-box { text-align: center; background: var(--surface); border: 2px solid var(--border); border-radius: 18px; padding: 22px; margin-top: 10px; }
+.score-box .big { font-size: 2.2rem; font-weight: 800; color: var(--primary-blue); }
+.retry-btn { margin-top: 10px; background: var(--blue-gradient); color: #fff; border: none; border-radius: 14px; padding: 10px 26px; cursor: pointer; font-family: 'Nunito'; font-weight: 800; }
+
+.refs-card { border-left-color: #94a3b8; }
+.ref-list { margin: 0; padding-left: 22px; }
+.ref-list li { margin-bottom: 6px; font-size: 0.9rem; }
+footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+
+/* ---------- tracer ---------- */
+.tracer { background: var(--surface); border: 2px solid var(--border); border-radius: 20px; padding: 18px; margin: 22px 0; }
+.tr-head { font-weight: 800; color: var(--primary-blue); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.tr-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .tr-grid { grid-template-columns: 1fr; } }
+.tr-code { background: #1e293b; border-radius: 14px; padding: 12px 0; direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: var(--code-size); overflow-x: auto; }
+.tr-line { display: flex; gap: 12px; padding: 1px 14px; color: #e2e8f0; white-space: pre; border-left: 4px solid transparent; transition: .15s; }
+.tr-line .ln { color: #64748b; min-width: 22px; text-align: right; user-select: none; }
+.tr-line.active { background: rgba(247,148,30,.28); border-left-color: var(--primary-yellow); }
+.tr-side { display: flex; flex-direction: column; gap: 12px; }
+.tr-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; flex: 1; }
+.tr-title { font-size: .78rem; font-weight: 800; color: var(--text-body); margin-bottom: 6px; }
+.tr-vars { direction: ltr; font-family: 'Consolas', monospace; font-size: .9rem; min-height: 28px; }
+.tr-var { display: flex; justify-content: space-between; padding: 3px 8px; border-radius: 8px; color: var(--dark-navy); }
+.tr-var b { color: var(--primary-blue); }
+.tr-var.changed { background: rgba(247,148,30,.22); }
+.tr-out { direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: .88rem; background: #0f172a; color: #4ade80; border-radius: 10px; padding: 8px 12px; min-height: 40px; white-space: pre-wrap; }
+.tr-note { margin-top: 12px; background: var(--card-bg); border: 1px dashed var(--primary-blue); border-radius: 12px; padding: 10px 16px; font-weight: 600; color: var(--dark-navy); min-height: 24px; }
+.tr-ctrl { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.tr-btn { border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 14px; cursor: pointer; font-family: 'Nunito'; font-weight: 800; font-size: .85rem; }
+.tr-btn.primary { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.tr-btn:disabled { opacity: .4; cursor: default; }
+.tr-count { margin-left: auto; font-size: .8rem; color: var(--text-body); font-weight: 700; }
+
+/* ---------- predict ---------- */
+.predict { border: 2px solid #8b5cf6; border-radius: 20px; padding: 16px 18px; margin: 22px 0; background: var(--surface); }
+.predict-head { font-weight: 800; color: #8b5cf6; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+.predict .code-box { margin: 12px 0; }
+.pd-q { font-weight: 700; color: var(--dark-navy); margin-bottom: 10px; }
+.pd-opts { display: flex; flex-wrap: wrap; gap: 10px; }
+.pd-opt { background: var(--card-bg); border: 2px solid var(--border); color: var(--dark-navy); border-radius: 12px; padding: 9px 16px; cursor: pointer; font-family: 'Nunito'; font-weight: 700; font-size: .92rem; }
+.pd-opt:hover { border-color: #8b5cf6; }
+.pd-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.pd-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.pd-opt:disabled { cursor: default; }
+.pd-result { margin-top: 12px; }
+.pd-msg { font-weight: 800; margin-bottom: 8px; }
+.pd-why { margin: 8px 0 0; font-size: .93rem; }
+
+/* ---------- misc ---------- */
+.summary-card { border-left-color: #22c55e; }
+.summary-card .card-header { color: #16a34a; }
+.sum-list { list-style: none; padding: 0; margin: 0; }
+.sum-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.sum-list i { color: #22c55e; margin-top: 6px; }
+.warn-box { background: rgba(239,68,68,.08); border: 2px dashed #ef4444; border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 4px; }
+.warn-box p { margin: 0; font-size: .93rem; }
+.analogy { background: linear-gradient(135deg, rgba(0,173,239,.1), rgba(139,92,246,.1)); border-radius: 18px; padding: 16px 22px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; border: 1px solid var(--border); }
+.analogy i { color: var(--primary-blue); font-size: 1.5rem; margin-top: 4px; }
+.analogy p { margin: 0; }
+.flow { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin: 18px 0; direction: ltr; }
+.flow-node { background: var(--card-bg); border: 2px solid var(--primary-blue); border-radius: 14px; padding: 10px 18px; font-weight: 800; color: var(--dark-navy); text-align: center; }
+.flow-node.decision { border-color: var(--primary-yellow); border-radius: 30px; }
+.flow-node.end { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.flow-arrow { color: var(--primary-blue); font-size: 1.2rem; }
+.flow-branch { display: flex; flex-direction: column; gap: 8px; }
+.cell-row { display: flex; direction: ltr; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 12px 0; }
+.cell { min-width: 54px; text-align: center; border: 2px solid var(--primary-blue); border-radius: 10px; background: var(--card-bg); font-family: 'Consolas', monospace; font-weight: 800; color: var(--dark-navy); padding: 6px 4px; cursor: pointer; }
+.cell small { display: block; font-size: .68rem; color: var(--text-body); font-weight: 700; }
+.cell.sel { background: rgba(247,148,30,.25); border-color: var(--primary-yellow); }
+.vis-line { display: block; padding: 0 6px; margin: 0 -6px; border-radius: 6px; opacity: .35; transition: .15s; }
+.vis-line.on { opacity: 1; background: rgba(34,197,94,.22); }
+.vis-btns { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+.vis-btn { border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Consolas', monospace; font-weight: 800; }
+.vis-btn.on { border-color: #22c55e; background: #dcfce7; color: #15803d; }
+
+.cell.ghost { opacity: .55; border-style: dashed; background: transparent; }
+
+
+.lab-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; margin: 10px 0; }
+.lab-row .btn-run { padding: 9px 18px; font-size: .88rem; border-radius: 14px; }
+.lab-tags { display: flex; direction: ltr; flex-wrap: wrap; gap: 8px; justify-content: center; min-height: 44px; margin: 10px 0; }
+.lab-tag { padding: 5px 14px; border-radius: 50px; background: var(--chip-bg); border: 2px solid var(--border); font-family: Consolas, monospace; font-weight: 800; color: var(--dark-navy); transition: .2s; }
+.lab-tag.hit { border-color: #16a34a; background: rgba(22,163,74,.16); }
+.lab-tag.miss { border-color: #ef4444; background: rgba(239,68,68,.14); }
+.lab-tag.new { border-color: var(--primary-blue); background: rgba(0,173,239,.16); }
+.lab-tag.warm { border-color: var(--primary-yellow); background: rgba(247,148,30,.2); }
+.lab-bars { display: flex; direction: ltr; align-items: flex-end; gap: 4px; height: 170px; justify-content: center; margin: 12px 0; }
+.lab-bar { width: 26px; background: var(--primary-blue); border-radius: 6px 6px 0 0; font-size: .68rem; color: #fff; text-align: center; font-weight: 800; padding-top: 2px; transition: height .15s, background .15s; font-family: Consolas, monospace; }
+.lab-bar.cmp { background: var(--primary-yellow); }
+.lab-bar.swp { background: #ef4444; }
+.lab-bar.done { background: #16a34a; }
+.lab-bar.dim { opacity: .28; }
+.lab-bar.mid { background: #8b5cf6; }
+.lab-grid { display: grid; direction: ltr; gap: 3px; justify-content: center; margin: 12px auto; }
+.lab-cell { width: 34px; height: 34px; border-radius: 8px; background: var(--chip-bg); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: Consolas, monospace; font-size: .9rem; color: var(--dark-navy); }
+.lab-cell.wall { background: #475569; border-color: #475569; }
+.lab-cell.on { background: rgba(0,173,239,.25); border-color: var(--primary-blue); }
+.lab-cell.hot { background: rgba(247,148,30,.3); border-color: var(--primary-yellow); }
+.lab-meter { height: 16px; border-radius: 50px; background: var(--chip-bg); overflow: hidden; direction: ltr; margin: 8px 0; }
+.lab-meter > span { display: block; height: 100%; background: linear-gradient(90deg, #16a34a, #f7941e, #ef4444); transition: width .25s; }
+.lab-table { width: 100%; border-collapse: collapse; direction: ltr; font-family: Consolas, monospace; font-size: .9rem; }
+.lab-table th, .lab-table td { border: 1px solid var(--border); padding: 6px 10px; text-align: center; }
+.lab-table th { background: var(--chip-bg); }
+.lab-say { margin-top: 10px; font-weight: 700; color: var(--dark-navy); min-height: 28px; }
+.lab-say.ok { color: #16a34a; } .lab-say.bad { color: #ef4444; }
+.sim-inputs select { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1rem; font-family: Consolas, monospace; }
+.sim-inputs input[type=range] { width: 200px; }
+.lab-in { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1rem; font-family: Consolas, monospace; direction: ltr; text-align: center; max-width: 100%; }
+
+.bit-row { display: flex; direction: ltr; gap: 5px; justify-content: center; flex-wrap: wrap; margin: 6px 0 4px; }
+.bit { width: 40px; height: 46px; border-radius: 10px; border: 2px solid var(--border); background: var(--chip-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: Consolas, monospace; font-weight: 800; font-size: 1.05rem; color: var(--dark-navy); cursor: pointer; user-select: none; transition: .15s; line-height: 1.1; }
+.bit small { font-size: .58rem; font-weight: 700; opacity: .65; }
+.bit.on { background: rgba(0,173,239,.24); border-color: var(--primary-blue); }
+.bit.res { cursor: default; }
+.bit.res.on { background: rgba(22,163,74,.2); border-color: #16a34a; }
+.bit.w { cursor: default; background: transparent; border-style: dashed; height: 30px; font-size: .78rem; opacity: .85; }
+.bit.flash { border-color: var(--primary-yellow); background: rgba(247,148,30,.3); }
+.bit.pick { outline: 3px solid var(--primary-yellow); }
+.bit-label { font-size: .8rem; font-weight: 800; text-align: center; margin-top: 8px; color: var(--text-body); }
+.mini-table { width: 100%; border-collapse: collapse; direction: ltr; font-family: Consolas, monospace; font-size: .86rem; margin: 8px 0; }
+.mini-table th, .mini-table td { border: 1px solid var(--border); padding: 5px 9px; text-align: center; }
+.mini-table th { background: var(--chip-bg); }
+.mini-table tr.hit td { background: rgba(22,163,74,.16); font-weight: 800; }
+.mini-table tr.sel td { background: rgba(247,148,30,.22); font-weight: 800; }
+.stu-table { width: 100%; border-collapse: collapse; direction: ltr; font-size: .92rem; margin: 8px 0; }
+.stu-table th, .stu-table td { border: 1px solid var(--border); padding: 7px 12px; text-align: center; }
+.stu-table th { background: var(--chip-bg); }
+
+</style>
+</head>
+<body>
+<div class="bg-deco"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+<header>
+  <div class="hdr-brand">
+    <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    <div class="brand-info"><h3>TweetKod Platform</h3><p>Interactive Programming Learning</p></div>
+  </div>
+  <div class="hdr-tools">
+    <button class="tool-btn" id="tocBtn" title="Lesson contents"><i class="fas fa-list-ul"></i> Contents</button>
+    <button class="tool-btn" id="fontDec" title="Smaller code font">A-</button>
+    <button class="tool-btn" id="fontInc" title="Larger code font">A+</button>
+    <button class="tool-btn" id="themeBtn" title="Dark mode"><i class="fas fa-moon"></i></button>
+    <div class="toc-panel" id="tocPanel"></div>
+  </div>
+  <div class="read-progress"><span id="readBar"></span></div>
+</header>
+<div class="container">
+  <div class="title-section">
+    <h1>Structures (struct)</h1>
+    <p class="attribution">Build your own types</p>
+  </div>
+  <div class="card goals-card">
+    <div class="card-header"><i class="fas fa-bullseye"></i><h3>What will you learn in this lesson?</h3></div>
+    <ul class="obj-list"><li><i class="fas fa-check-circle"></i><span>Understand why we group related data in a struct instead of parallel lists</span></li><li><i class="fas fa-check-circle"></i><span>Define a struct, fill it, reach its members and copy it</span></li><li><i class="fas fa-check-circle"></i><span>Store objects in a vector and sort them with a comparison rule or by defining <code class="inline">operator&lt;</code></span></li><li><i class="fas fa-check-circle"></i><span>Tell apart passing a struct by value, by reference and by constant reference</span></li><li><i class="fas fa-check-circle"></i><span>Write simple member functions and a constructor</span></li></ul>
+  </div>
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-id-card"></i><h3>The problem of parallel lists</h3></div>
+  <p>You want to store ten students, each with a name and a score. The solution you know so far is two vectors: <code>names</code> and <code>scores</code>. That works until you need to <strong>sort the students by score</strong>. Then you must move both vectors together with great care, and if a single line of code slips, one student's name ends up with another student's score!</p>
+  <div class="analogy"><i class="fas fa-address-card"></i><p>A struct is like a student card: it gathers all the information about one thing in <strong>one card</strong> instead of spreading it over several sheets. You can move or sort the card and all its information travels with it.</p></div>
+  <div class="cell-row"><div class="cell sel">name<small>string</small></div><div class="cell sel">score<small>int</small></div><div class="cell ghost">one card<small>Student</small></div></div>
+  <p>A struct lets us <strong>make a new type</strong> by grouping variables of different types under one name. Once it is defined we use it like <code>int</code> and <code>string</code>: we make variables and vectors of it and pass it to functions.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-hammer"></i><h3>Our first struct</h3></div>
+  <p>We define the struct outside <code>main</code> so that every function in the program can see it. Click any highlighted line to read its explanation:</p>
+  <div class="code-box" data-expl="basic"><div class="code-head"><span>first_struct.cpp</span><button class="copy-btn" onclick="copyCode('code_basic')">Copy code</button></div><pre id="code_basic"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;string&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-line" data-i="4"><span class="kw">struct</span> Student {</span><span class="code-line" data-i="5">    <span class="kw">string</span> name;</span><span class="code-line" data-i="6">    <span class="kw">int</span> score;</span><span class="code-line" data-i="7">};</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-line" data-i="10">    Student s;</span><span class="code-line" data-i="11">    s.name = <span class="str">"Sara"</span>;</span><span class="code-plain">    s.score = <span class="num">92</span>;</span><span class="code-plain"> </span><span class="code-line" data-i="14">    Student t = {<span class="str">"Omar"</span>, <span class="num">85</span>};</span><span class="code-plain"> </span><span class="code-plain">    cout &lt;&lt; s.name &lt;&lt; <span class="str">": "</span> &lt;&lt; s.score &lt;&lt; endl;</span><span class="code-plain">    cout &lt;&lt; t.name &lt;&lt; <span class="str">": "</span> &lt;&lt; t.score &lt;&lt; endl;</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="basic"><span class="hint">Click any highlighted line of code to read its explanation here...</span></div>
+  <div class="output-box">Sara: 92
+Omar: 85</div>
+  <p>Notice that the word <code>Student</code> has become the name of a type, exactly like <code>int</code>. Each variable of this type is called an object and has its own copy of the members.</p>
+  <div class="warn-box"><i class="fas fa-triangle-exclamation"></i><p>Forgetting the semicolon after the final brace is one of the most famous beginner mistakes with structs. This is how the compiler responds:</p></div>
+  <div class="code-box"><div class="code-head"><span>missing_semicolon.cpp</span><button class="copy-btn" onclick="copyCode('code_err_semi')">Copy code</button></div><pre id="code_err_semi"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">struct</span> Point {
+    <span class="kw">int</span> x;
+    <span class="kw">int</span> y;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    Point p = {<span class="num">1</span>, <span class="num">2</span>};
+    cout &lt;&lt; p.x &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="error-box"><div class="error-head"><i class="fas fa-bug"></i> What the compiler (g++) says</div><pre>main.cpp:7:2: error: expected ‘;’ after struct definition
+    7 | }
+      |  ^
+      |  ;</pre></div>
+  <p>The message is clear: "I expected a semicolon after the struct definition". Add it and the program works.</p>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p>You have learned that a variable declared inside a function may hold a random value until we give it one. This applies to numeric struct members as well, so do not read a member you have not filled in. Write <code>Student s{};</code> if you want the members to start at zero.</p></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-seedling"></i><h3>Ways to fill a struct</h3></div>
+  <div class="code-box" data-expl="init"><div class="code-head"><span>initialize.cpp</span><button class="copy-btn" onclick="copyCode('code_init')">Copy code</button></div><pre id="code_init"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">struct</span> Point {</span><span class="code-plain">    <span class="kw">int</span> x;</span><span class="code-plain">    <span class="kw">int</span> y;</span><span class="code-plain">};</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-line" data-i="9">    Point a = {<span class="num">3</span>, <span class="num">4</span>};</span><span class="code-line" data-i="10">    Point b{<span class="num">5</span>, <span class="num">6</span>};</span><span class="code-line" data-i="11">    Point c{};</span><span class="code-line" data-i="12">    Point d{<span class="num">7</span>};</span><span class="code-plain"> </span><span class="code-plain">    cout &lt;&lt; a.x &lt;&lt; <span class="str">" "</span> &lt;&lt; a.y &lt;&lt; endl;</span><span class="code-plain">    cout &lt;&lt; b.x &lt;&lt; <span class="str">" "</span> &lt;&lt; b.y &lt;&lt; endl;</span><span class="code-plain">    cout &lt;&lt; c.x &lt;&lt; <span class="str">" "</span> &lt;&lt; c.y &lt;&lt; endl;</span><span class="code-plain">    cout &lt;&lt; d.x &lt;&lt; <span class="str">" "</span> &lt;&lt; d.y &lt;&lt; endl;</span><span class="code-plain"> </span><span class="code-line" data-i="19">    <span class="kw">auto</span> [px, py] = a;</span><span class="code-plain">    cout &lt;&lt; px + py &lt;&lt; endl;</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="init"><span class="hint">Click any highlighted line of code to read its explanation here...</span></div>
+  <div class="output-box">3 4
+5 6
+0 0
+7 0
+7</div>
+  <p>This example shows three facts: curly braces fill the members <strong>in order</strong>, whatever we do not mention is zeroed, and empty braces <code>{}</code> zero all the members. The last line unpacks the struct into two variables at once, a C++17 feature.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-copy"></i><h3>Copying: every object is independent</h3></div>
+  <p>When you write <code>Point q = p;</code>, C++ makes a new object that <strong>copies</strong> all the members of <code>p</code>. After that there is no link between them. Press "Next" and watch:</p>
+  <div class="tracer" data-trace="trace"><div class="tr-head"><i class="fas fa-bug-slash"></i> Step-by-step execution</div><div class="tr-grid"><div class="tr-code"><div class="tr-line" data-i="0"><span class="ln">1</span><span class="src"><span class="pp">#include &lt;iostream&gt;</span></span></div><div class="tr-line" data-i="1"><span class="ln">2</span><span class="src"><span class="kw">using</span> <span class="kw">namespace</span> std;</span></div><div class="tr-line" data-i="2"><span class="ln">3</span><span class="src"> </span></div><div class="tr-line" data-i="3"><span class="ln">4</span><span class="src"><span class="kw">struct</span> Point {</span></div><div class="tr-line" data-i="4"><span class="ln">5</span><span class="src">    <span class="kw">int</span> x;</span></div><div class="tr-line" data-i="5"><span class="ln">6</span><span class="src">    <span class="kw">int</span> y;</span></div><div class="tr-line" data-i="6"><span class="ln">7</span><span class="src">};</span></div><div class="tr-line" data-i="7"><span class="ln">8</span><span class="src"> </span></div><div class="tr-line" data-i="8"><span class="ln">9</span><span class="src"><span class="kw">int</span> <span class="kw">main</span>() {</span></div><div class="tr-line" data-i="9"><span class="ln">10</span><span class="src">    Point p = {<span class="num">1</span>, <span class="num">2</span>};</span></div><div class="tr-line" data-i="10"><span class="ln">11</span><span class="src">    Point q = p;</span></div><div class="tr-line" data-i="11"><span class="ln">12</span><span class="src">    q.x = <span class="num">10</span>;</span></div><div class="tr-line" data-i="12"><span class="ln">13</span><span class="src">    cout &lt;&lt; p.x &lt;&lt; <span class="str">" "</span> &lt;&lt; q.x &lt;&lt; endl;</span></div><div class="tr-line" data-i="13"><span class="ln">14</span><span class="src">    <span class="kw">return</span> <span class="num">0</span>;</span></div><div class="tr-line" data-i="14"><span class="ln">15</span><span class="src">}</span></div></div><div class="tr-side"><div class="tr-box"><div class="tr-title">Variables</div><div class="tr-vars"></div></div><div class="tr-box"><div class="tr-title">Output so far</div><div class="tr-out"></div></div></div></div><div class="tr-note"></div><div class="tr-ctrl"><button class="tr-btn" data-a="reset" title="Restart"><i class="fas fa-backward-fast"></i></button><button class="tr-btn" data-a="prev"><i class="fas fa-backward-step"></i> Previous</button><button class="tr-btn primary" data-a="next">Next <i class="fas fa-forward-step"></i></button><button class="tr-btn" data-a="play"><i class="fas fa-play"></i> Auto-play</button><span class="tr-count"></span></div></div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-flask"></i><h3>Interactive lab (1): a copy or a reference?</h3></div>
+  <p>Choose the method, then press "Run" to see what happens to <code>p</code> when we change <code>q.x</code>:</p>
+  <div class="sim-box">
+    <div class="lab-row">
+      <button class="btn-run" onclick="cpMode('copy')">Point q = p;</button>
+      <button class="btn-run" onclick="cpMode('ref')">Point&amp; q = p;</button>
+      <button class="btn-run" onclick="cpGo()"><i class="fas fa-play"></i> Run q.x = 10</button>
+      <button class="btn-run" onclick="cpReset()"><i class="fas fa-rotate-left"></i> Start over</button>
+    </div>
+    <div class="sim-console" id="cpCode"></div>
+    <div class="lab-tags" id="cpTags"></div>
+    <div class="lab-say" id="cpNote"></div>
+  </div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-layer-group"></i><h3>A vector of structs</h3></div>
+  <p>The real power appears when we store thousands of objects in a vector. Each element has its name and score together, and we walk through it with a single loop:</p>
+  <div class="code-box" data-expl="vec"><div class="code-head"><span>vector_of_structs.cpp</span><button class="copy-btn" onclick="copyCode('code_vec')">Copy code</button></div><pre id="code_vec"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;string&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;vector&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">struct</span> Student {</span><span class="code-plain">    <span class="kw">string</span> name;</span><span class="code-plain">    <span class="kw">int</span> score;</span><span class="code-plain">};</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-line" data-i="11">    <span class="kw">vector</span>&lt;Student&gt; v;</span><span class="code-line" data-i="12">    v.push_back({<span class="str">"Sara"</span>, <span class="num">92</span>});</span><span class="code-plain">    v.push_back({<span class="str">"Omar"</span>, <span class="num">85</span>});</span><span class="code-line" data-i="14">    v.push_back(Student{<span class="str">"Lina"</span>, <span class="num">97</span>});</span><span class="code-plain"> </span><span class="code-plain">    <span class="kw">int</span> total = <span class="num">0</span>;</span><span class="code-line" data-i="17">    Student best = v[<span class="num">0</span>];</span><span class="code-line" data-i="18">    <span class="kw">for</span> (<span class="kw">const</span> Student&amp; s : v) {</span><span class="code-plain">        cout &lt;&lt; s.name &lt;&lt; <span class="str">" "</span> &lt;&lt; s.score &lt;&lt; endl;</span><span class="code-plain">        total += s.score;</span><span class="code-plain">        <span class="kw">if</span> (s.score &gt; best.score) {</span><span class="code-line" data-i="22">            best = s;</span><span class="code-plain">        }</span><span class="code-plain">    }</span><span class="code-plain">    cout &lt;&lt; <span class="str">"total: "</span> &lt;&lt; total &lt;&lt; endl;</span><span class="code-plain">    cout &lt;&lt; <span class="str">"best: "</span> &lt;&lt; best.name &lt;&lt; endl;</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="vec"><span class="hint">Click any highlighted line of code to read its explanation here...</span></div>
+  <div class="output-box">Sara 92
+Omar 85
+Lina 97
+total: 274
+best: Lina</div>
+  <p>Notice that we added the students in three different forms, and all of them are valid. You can also make an ordinary array of structs: <code>Point pts[3] = {{1, 2}, {3, 4}, {5, 6}};</code>.</p>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p>A struct resembles the <code>pair</code> we saw earlier. The difference is that a pair gives two fixed names, <code>first</code> and <code>second</code>, while a struct gives names that express the meaning (<code>name</code> and <code>score</code>) and has room for any number of members. A pair suits quick jobs, and a struct is clearer when the program grows.</p></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-arrow-down-wide-short"></i><h3>Sorting objects</h3></div>
+  <p>The function <code>sort</code> does not know how to compare two students, so we hand it a <strong>comparison rule</strong> as a small function that answers a single question: "should <code>a</code> come before <code>b</code>?":</p>
+  <div class="code-box" data-expl="sortlam"><div class="code-head"><span>sort_students.cpp</span><button class="copy-btn" onclick="copyCode('code_sortlam')">Copy code</button></div><pre id="code_sortlam"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;string&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;vector&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;algorithm&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">struct</span> Student {</span><span class="code-plain">    <span class="kw">string</span> name;</span><span class="code-plain">    <span class="kw">int</span> score;</span><span class="code-plain">};</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-plain">    <span class="kw">vector</span>&lt;Student&gt; v = {{<span class="str">"Sara"</span>, <span class="num">92</span>}, {<span class="str">"Omar"</span>, <span class="num">85</span>}, {<span class="str">"Lina"</span>, <span class="num">92</span>}, {<span class="str">"Zaid"</span>, <span class="num">70</span>}};</span><span class="code-plain"> </span><span class="code-line" data-i="14">    sort(v.begin(), v.end(), [](<span class="kw">const</span> Student&amp; a, <span class="kw">const</span> Student&amp; b) {</span><span class="code-line" data-i="15">        <span class="kw">if</span> (a.score != b.score) {</span><span class="code-line" data-i="16">            <span class="kw">return</span> a.score &gt; b.score;</span><span class="code-plain">        }</span><span class="code-line" data-i="18">        <span class="kw">return</span> a.name &lt; b.name;</span><span class="code-plain">    });</span><span class="code-plain"> </span><span class="code-plain">    <span class="kw">for</span> (<span class="kw">const</span> Student&amp; s : v) {</span><span class="code-plain">        cout &lt;&lt; s.name &lt;&lt; <span class="str">" "</span> &lt;&lt; s.score &lt;&lt; endl;</span><span class="code-plain">    }</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="sortlam"><span class="hint">Click any highlighted line of code to read its explanation here...</span></div>
+  <div class="output-box">Lina 92
+Sara 92
+Omar 85
+Zaid 70</div>
+  <div class="warn-box"><i class="fas fa-triangle-exclamation"></i><p>The rule must be <strong>strict</strong>: write <code>&gt;</code> or <code>&lt;</code> and never <code>&gt;=</code> or <code>&lt;=</code>. When two elements are equal, such a rule says "each one comes before the other", which is a contradiction that can put the program into serious trouble (a crash or an endless loop). Remember too that <code>sort</code> is not <strong>stable</strong>: elements that compare equal may change their relative order, so add a secondary key (such as the name) when the order matters.</p></div>
+  <h4>An alternative: teach the type to compare itself</h4>
+  <p>If the type has one "natural" order, define the operator <code>&lt;</code> once inside the struct, and <code>sort</code>, <code>set</code> and <code>map</code> will use it automatically:</p>
+  <div class="code-box" data-expl="oper"><div class="code-head"><span>operator_less.cpp</span><button class="copy-btn" onclick="copyCode('code_oper')">Copy code</button></div><pre id="code_oper"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;vector&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;algorithm&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">struct</span> Event {</span><span class="code-plain">    <span class="kw">int</span> start;</span><span class="code-plain">    <span class="kw">int</span> end;</span><span class="code-line" data-i="8">    <span class="kw">bool</span> operator&lt;(<span class="kw">const</span> Event&amp; other) <span class="kw">const</span> {</span><span class="code-line" data-i="9">        <span class="kw">return</span> end &lt; other.end;</span><span class="code-plain">    }</span><span class="code-plain">};</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-plain">    <span class="kw">vector</span>&lt;Event&gt; v = {{<span class="num">1</span>, <span class="num">5</span>}, {<span class="num">2</span>, <span class="num">3</span>}, {<span class="num">4</span>, <span class="num">9</span>}, {<span class="num">3</span>, <span class="num">4</span>}};</span><span class="code-line" data-i="15">    sort(v.begin(), v.end());</span><span class="code-plain">    <span class="kw">for</span> (<span class="kw">const</span> Event&amp; e : v) {</span><span class="code-plain">        cout &lt;&lt; e.start &lt;&lt; <span class="str">"-"</span> &lt;&lt; e.end &lt;&lt; <span class="str">" "</span>;</span><span class="code-plain">    }</span><span class="code-plain">    cout &lt;&lt; endl;</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="oper"><span class="hint">Click any highlighted line of code to read its explanation here...</span></div>
+  <div class="output-box">2-3 3-4 1-5 4-9 </div>
+  <p>Be aware that <code>set</code> relies on the operator <code>&lt;</code> alone to decide "are these two elements equal?". If we compare events by their end time only, two events ending at the same time count as <strong>one element</strong>:</p>
+  <div class="code-box"><div class="code-head"><span>set_of_structs.cpp</span><button class="copy-btn" onclick="copyCode('code_setdup')">Copy code</button></div><pre id="code_setdup"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;set&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">struct</span> Event {
+    <span class="kw">int</span> start;
+    <span class="kw">int</span> end;
+    <span class="kw">bool</span> operator&lt;(<span class="kw">const</span> Event&amp; other) <span class="kw">const</span> {
+        <span class="kw">return</span> end &lt; other.end;
+    }
+};
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    set&lt;Event&gt; s;
+    s.insert({<span class="num">1</span>, <span class="num">5</span>});
+    s.insert({<span class="num">2</span>, <span class="num">5</span>});
+    s.insert({<span class="num">3</span>, <span class="num">6</span>});
+    cout &lt;&lt; s.size() &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="output-box">2</div>
+  <p>We added three events but the size is two, because <code>{1, 5}</code> and <code>{2, 5}</code> are equal in the set's eyes. To avoid this, make the comparison include everything that tells the objects apart.</p>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-flask"></i><h3>Interactive lab (2): the sorting workshop</h3></div>
+  <p>Here is a list of six students. Choose a sorting rule and see how the list changes, then read the C++ function that produces this order:</p>
+  <div class="sim-box">
+    <div class="lab-row">
+      <button class="btn-run" onclick="stuRule('score')">Score, descending</button>
+      <button class="btn-run" onclick="stuRule('name')">Name, alphabetical</button>
+      <button class="btn-run" onclick="stuRule('both')">Score, then name</button>
+      <button class="btn-run" onclick="stuRule('wrong')">Score with &gt;= (wrong)</button>
+    </div>
+    <table class="stu-table" id="stuTable"></table>
+    <div class="sim-console" id="stuCode"></div>
+    <div class="lab-say" id="stuNote"></div>
+  </div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-gears"></i><h3>Functions inside a struct, and the constructor</h3></div>
+  <p>A struct does not only hold data; it can hold the functions that work on that data. They are called <strong>member functions</strong>:</p>
+  <div class="code-box" data-expl="memfn"><div class="code-head"><span>member_functions.cpp</span><button class="copy-btn" onclick="copyCode('code_memfn')">Copy code</button></div><pre id="code_memfn"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">struct</span> Rect {</span><span class="code-plain">    <span class="kw">int</span> w;</span><span class="code-plain">    <span class="kw">int</span> h;</span><span class="code-plain"> </span><span class="code-line" data-i="7">    <span class="kw">int</span> area() <span class="kw">const</span> {</span><span class="code-plain">        <span class="kw">return</span> w * h;</span><span class="code-plain">    }</span><span class="code-line" data-i="10">    <span class="kw">bool</span> isSquare() <span class="kw">const</span> {</span><span class="code-plain">        <span class="kw">return</span> w == h;</span><span class="code-plain">    }</span><span class="code-plain">};</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-plain">    Rect r = {<span class="num">4</span>, <span class="num">6</span>};</span><span class="code-plain">    Rect q = {<span class="num">5</span>, <span class="num">5</span>};</span><span class="code-line" data-i="18">    cout &lt;&lt; r.area() &lt;&lt; <span class="str">" "</span> &lt;&lt; (r.isSquare() ? <span class="str">"square"</span> : <span class="str">"not square"</span>) &lt;&lt; endl;</span><span class="code-plain">    cout &lt;&lt; q.area() &lt;&lt; <span class="str">" "</span> &lt;&lt; (q.isSquare() ? <span class="str">"square"</span> : <span class="str">"not square"</span>) &lt;&lt; endl;</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="memfn"><span class="hint">Click any highlighted line of code to read its explanation here...</span></div>
+  <div class="output-box">24 not square
+25 square</div>
+  <p>To make objects start with correct values from the moment they are created, we write a constructor:</p>
+  <div class="code-box" data-expl="ctor"><div class="code-head"><span>constructor.cpp</span><button class="copy-btn" onclick="copyCode('code_ctor')">Copy code</button></div><pre id="code_ctor"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;cstdlib&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">struct</span> Point {</span><span class="code-plain">    <span class="kw">int</span> x;</span><span class="code-plain">    <span class="kw">int</span> y;</span><span class="code-plain"> </span><span class="code-line" data-i="8">    Point(<span class="kw">int</span> x_, <span class="kw">int</span> y_) : x(x_), y(y_) {}</span><span class="code-plain"> </span><span class="code-plain">    <span class="kw">int</span> walk() <span class="kw">const</span> {</span><span class="code-plain">        <span class="kw">return</span> abs(x) + abs(y);</span><span class="code-plain">    }</span><span class="code-plain">};</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-line" data-i="16">    Point p(<span class="num">3</span>, -<span class="num">4</span>);</span><span class="code-line" data-i="17">    Point q = {-<span class="num">2</span>, <span class="num">6</span>};</span><span class="code-plain">    cout &lt;&lt; p.walk() &lt;&lt; <span class="str">" "</span> &lt;&lt; q.walk() &lt;&lt; endl;</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="ctor"><span class="hint">Click any highlighted line of code to read its explanation here...</span></div>
+  <div class="output-box">7 8</div>
+  <div class="warn-box"><i class="fas fa-triangle-exclamation"></i><p>As soon as you write a constructor with parameters, C++ stops generating the empty constructor automatically, and it will no longer accept <code>Point p;</code> without values:</p></div>
+  <div class="code-box"><div class="code-head"><span>no_default.cpp</span><button class="copy-btn" onclick="copyCode('code_err_ctor')">Copy code</button></div><pre id="code_err_ctor"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">struct</span> Point {
+    <span class="kw">int</span> x;
+    <span class="kw">int</span> y;
+    Point(<span class="kw">int</span> x_, <span class="kw">int</span> y_) : x(x_), y(y_) {}
+};
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    Point p;
+    cout &lt;&lt; p.x &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="error-box"><div class="error-head"><i class="fas fa-bug"></i> What the compiler (g++) says</div><pre>main.cpp: In function ‘int main()’:
+main.cpp:11:11: error: no matching function for call to ‘Point::Point()’
+   11 |     Point p;
+      |           ^
+main.cpp:7:5: note: candidate: ‘Point::Point(int, int)’
+    7 |     Point(int x_, int y_) : x(x_), y(y_) {}
+      |     ^~~~~
+main.cpp:7:5: note:   candidate expects 2 arguments, 0 provided
+main.cpp:4:8: note: candidate: ‘constexpr Point::Point(const Point&amp;)’
+    4 | struct Point {
+      |        ^~~~~
+main.cpp:4:8: note:   candidate expects 1 argument, 0 provided
+main.cpp:4:8: note: candidate: ‘constexpr Point::Point(Point&amp;&amp;)’
+main.cpp:4:8: note:   candidate expects 1 argument, 0 provided</pre></div>
+  <p>The fix is to always give the object values, or to write a second constructor with no parameters.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-arrow-right-arrow-left"></i><h3>Structs and functions: by value or by reference?</h3></div>
+  <p>When we pass a struct to a function, the parameter's type decides its fate: without <code>&amp;</code> all its members are copied (which is slow if it is large, and does not affect the original), and with <code>&amp;</code> the function works on the original itself. If you only want to read without copying, use <code>const Student&amp;</code>:</p>
+  <div class="code-box" data-expl="byref"><div class="code-head"><span>by_reference.cpp</span><button class="copy-btn" onclick="copyCode('code_byref')">Copy code</button></div><pre id="code_byref"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">struct</span> Counter {</span><span class="code-plain">    <span class="kw">int</span> hits;</span><span class="code-plain">};</span><span class="code-plain"> </span><span class="code-line" data-i="7"><span class="kw">void</span> bumpCopy(Counter c) {</span><span class="code-plain">    c.hits++;</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-line" data-i="11"><span class="kw">void</span> bump(Counter&amp; c) {</span><span class="code-plain">    c.hits++;</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-plain">    Counter c{<span class="num">0</span>};</span><span class="code-line" data-i="17">    bumpCopy(c);</span><span class="code-plain">    cout &lt;&lt; c.hits &lt;&lt; <span class="str">" "</span>;</span><span class="code-line" data-i="19">    bump(c);</span><span class="code-plain">    cout &lt;&lt; c.hits &lt;&lt; endl;</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="byref"><span class="hint">Click any highlighted line of code to read its explanation here...</span></div>
+  <div class="predict"><div class="predict-head"><i class="fas fa-brain"></i> Predict before you run</div><div class="code-box" data-expl="byref"><div class="code-head"><span>by_reference.cpp</span><button class="copy-btn" onclick="copyCode('code_byref')">Copy code</button></div><pre id="code_byref"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">struct</span> Counter {</span><span class="code-plain">    <span class="kw">int</span> hits;</span><span class="code-plain">};</span><span class="code-plain"> </span><span class="code-line" data-i="7"><span class="kw">void</span> bumpCopy(Counter c) {</span><span class="code-plain">    c.hits++;</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-line" data-i="11"><span class="kw">void</span> bump(Counter&amp; c) {</span><span class="code-plain">    c.hits++;</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-plain">    Counter c{<span class="num">0</span>};</span><span class="code-line" data-i="17">    bumpCopy(c);</span><span class="code-plain">    cout &lt;&lt; c.hits &lt;&lt; <span class="str">" "</span>;</span><span class="code-line" data-i="19">    bump(c);</span><span class="code-plain">    cout &lt;&lt; c.hits &lt;&lt; endl;</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><p class="pd-q">What will the program print?</p><div class="pd-opts"><button class="pd-opt" data-ok="1">0 1</button><button class="pd-opt" data-ok="0">1 1</button><button class="pd-opt" data-ok="0">0 0</button><button class="pd-opt" data-ok="0">1 2</button></div><div class="pd-result hidden"><div class="pd-msg"></div><div class="output-box">0 1</div><p class="pd-why"><code class="inline">bumpCopy</code> changes a copy, and the result vanishes with it, so the value stays 0. But <code class="inline">bump</code> takes the object by reference <code class="inline">&amp;</code> and truly changes it, so the value becomes 1. The output is <code class="inline">0 1</code>.</p></div></div>
+</div>
+
+
+<div class="card">
+  <div class="project-banner"><i class="fas fa-ranking-star"></i><div><strong>Lesson project: the leaderboard</strong><p>A program that ranks the contestants of a programming contest and prints their final order.</p></div></div>
+  <div class="brief"><h5><i class="fas fa-lightbulb"></i> The idea</h5>
+    <p style="margin:0">You are organizing a programming contest at school, and each contestant has a name and a score. You want a leaderboard showing the highest score first, and when scores tie the alphabetically earlier name goes first, with a final line showing the highest score and how many contestants earned it.</p></div>
+  <div class="brief"><h5><i class="fas fa-list-check"></i> What you must do</h5>
+    <ol>
+      <li>Define the struct <code>Student</code> with two members: <code>name</code> and <code>score</code>.</li>
+      <li>Read the number <code>n</code> and then <code>n</code> lines, each with a name and a score, and store them in a <code>vector&lt;Student&gt;</code>.</li>
+      <li>Sort by score descending, then by name ascending.</li>
+      <li>Print each contestant in the form <code>1. Lina 92</code> (the rank, a dot, the name, the score).</li>
+      <li>On the last line print <code>Highest score: 92 (2 students)</code> with the top score and the number of people who got it.</li>
+    </ol></div>
+  <div class="brief"><h5><i class="fas fa-bullseye"></i> Two sample runs</h5>
+    <p><strong>First run:</strong></p>
+    <div class="input-box">5
+Sara 92
+Omar 85
+Lina 92
+Zaid 70
+Noor 85</div><div class="output-box">1. Lina 92
+2. Sara 92
+3. Noor 85
+4. Omar 85
+5. Zaid 70
+Highest score: 92 (2 students)</div>
+    <p><strong>Second run (two identical names with one score):</strong></p>
+    <div class="input-box">2
+Ali 50
+Ali 50</div><div class="output-box">1. Ali 50
+2. Ali 50
+Highest score: 50 (2 students)</div></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p><strong>Check it in your head:</strong> Sara and Lina both have 92, and the alphabet puts Lina before Sara. Then Noor and Omar have 85 and Noor comes first, and finally Zaid has 70. After sorting, it is enough to count the students whose score equals the score of the first element.</p></div>
+  <details class="reveal"><summary><i class="fas fa-eye"></i> After you have tried it yourself: show the solution</summary>
+    <div class="code-box"><div class="code-head"><span>leaderboard.cpp</span><button class="copy-btn" onclick="copyCode('code_project')">Copy code</button></div><pre id="code_project"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;string&gt;</span>
+<span class="pp">#include &lt;vector&gt;</span>
+<span class="pp">#include &lt;algorithm&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">struct</span> Student {
+    <span class="kw">string</span> name;
+    <span class="kw">int</span> score;
+};
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> n;
+    cin &gt;&gt; n;
+    <span class="kw">vector</span>&lt;Student&gt; v(n);
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {
+        cin &gt;&gt; v[i].name &gt;&gt; v[i].score;
+    }
+
+    sort(v.begin(), v.end(), [](<span class="kw">const</span> Student&amp; a, <span class="kw">const</span> Student&amp; b) {
+        <span class="kw">if</span> (a.score != b.score) {
+            <span class="kw">return</span> a.score &gt; b.score;
+        }
+        <span class="kw">return</span> a.name &lt; b.name;
+    });
+
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {
+        cout &lt;&lt; i + <span class="num">1</span> &lt;&lt; <span class="str">". "</span> &lt;&lt; v[i].name &lt;&lt; <span class="str">" "</span> &lt;&lt; v[i].score &lt;&lt; endl;
+    }
+
+    <span class="kw">int</span> top = <span class="num">0</span>;
+    <span class="kw">for</span> (<span class="kw">const</span> Student&amp; s : v) {
+        <span class="kw">if</span> (s.score == v[<span class="num">0</span>].score) {
+            top++;
+        }
+    }
+    cout &lt;&lt; <span class="str">"Highest score: "</span> &lt;&lt; v[<span class="num">0</span>].score &lt;&lt; <span class="str">" ("</span> &lt;&lt; top &lt;&lt; <span class="str">" students)"</span> &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  </details>
+</div>
+
+
+<div class="card challenge-card"><div class="card-header"><i class="fas fa-dumbbell"></i><h3>Homework challenges</h3></div><p>Two short challenges to solve on your own after the lesson. Write your solution in a <code>.cpp</code> file, compile and run it, and compare your output with the expected output. Try first, open a hint only if you get stuck, and look at the sample solution only after a serious attempt.</p><div class="challenge"><div class="ch-head"><span class="ch-num">1</span><h4>The oldest person</h4><span class="badge easy">Easy</span></div><p>Read <code>n</code> and then <code>n</code> people, each with a name and an age. Print the name of the oldest one; if two ages tie, print the one that appeared first in the input.</p><h5>Requirements</h5><ul><li>Define a struct <code>Person</code> with two members: <code>name</code> and <code>age</code>.</li><li>Read the people in a single loop and keep the best person seen so far.</li><li>You do not need a vector or sorting.</li><li>Print only the name of the oldest.</li></ul><h5>Example input and expected output</h5><div class="input-box">4
+Sara 15
+Omar 17
+Lina 17
+Zaid 12</div><div class="output-box">Omar</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> Hints</summary><ul><li>Use a strict condition <code>p.age &gt; best.age</code> so that the first one stays when there is a tie.</li><li>When reading the first person there is no "best" before it, so handle this case with the condition <code>i == 0</code>.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> Sample solution (after you try)</summary><div class="code-box"><div class="code-head"><span>oldest.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_old')">Copy code</button></div><pre id="code_ch_old"><span class="cmt">// Challenge 1: the oldest person</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;string&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">struct</span> Person {
+    <span class="kw">string</span> name;
+    <span class="kw">int</span> age;
+};
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> n;
+    cin &gt;&gt; n;
+    Person best;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {
+        Person p;
+        cin &gt;&gt; p.name &gt;&gt; p.age;
+        <span class="kw">if</span> (i == <span class="num">0</span> || p.age &gt; best.age) {
+            best = p;
+        }
+    }
+    cout &lt;&lt; best.name &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div><div class="challenge"><div class="ch-head"><span class="ch-num">2</span><h4>Sorting points</h4><span class="badge medium">Medium</span></div><p>Read <code>n</code> points, each with <code>x</code> and <code>y</code>. Sort them so that <code>x</code> increases, and when <code>x</code> ties the point with the larger <code>y</code> comes first. Print each point on its own line.</p><h5>Requirements</h5><ul><li>Define a struct <code>Point</code> and store the points in a <code>vector&lt;Point&gt;</code>.</li><li>Write a lambda comparison rule and pass it to <code>sort</code>.</li><li>Use strict comparisons only.</li><li>Print <code>x y</code> for each point on a separate line.</li></ul><h5>Example input and expected output</h5><div class="input-box">5
+3 1
+1 5
+3 7
+1 2
+2 2</div><div class="output-box">1 5
+1 2
+2 2
+3 7
+3 1</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> Hints</summary><ul><li>Start with <code>if (a.x != b.x) return a.x &lt; b.x;</code> and then compare <code>y</code> in the opposite direction.</li><li>With the sample input the points must come out in the order <code>1 5</code>, <code>1 2</code>, <code>2 2</code>, <code>3 7</code>, <code>3 1</code>.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> Sample solution (after you try)</summary><div class="code-box"><div class="code-head"><span>sort_points.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_pts')">Copy code</button></div><pre id="code_ch_pts"><span class="cmt">// Challenge 2: sort points</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;vector&gt;</span>
+<span class="pp">#include &lt;algorithm&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">struct</span> Point {
+    <span class="kw">int</span> x;
+    <span class="kw">int</span> y;
+};
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> n;
+    cin &gt;&gt; n;
+    <span class="kw">vector</span>&lt;Point&gt; v(n);
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {
+        cin &gt;&gt; v[i].x &gt;&gt; v[i].y;
+    }
+    sort(v.begin(), v.end(), [](<span class="kw">const</span> Point&amp; a, <span class="kw">const</span> Point&amp; b) {
+        <span class="kw">if</span> (a.x != b.x) {
+            <span class="kw">return</span> a.x &lt; b.x;
+        }
+        <span class="kw">return</span> a.y &gt; b.y;
+    });
+    <span class="kw">for</span> (<span class="kw">const</span> Point&amp; p : v) {
+        cout &lt;&lt; p.x &lt;&lt; <span class="str">" "</span> &lt;&lt; p.y &lt;&lt; endl;
+    }
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div></div>
+
+<div class="card summary-card"><div class="card-header"><i class="fas fa-clipboard-list"></i><h3>Quick summary</h3></div><ul class="sum-list"><li><i class="fas fa-circle-check"></i><span>A <code class="inline">struct</code> groups members of different types into a **new type** of your own, and its block ends with a semicolon <code class="inline">;</code>.</span></li><li><i class="fas fa-circle-check"></i><span>We reach a member with a dot: <code class="inline">s.score</code>. We fill the members in order with curly braces <code class="inline">{"Sara", 92}</code>.</span></li><li><i class="fas fa-circle-check"></i><span>Copying <code class="inline">q = p</code> creates an independent object. To change the original inside a function use a reference <code class="inline">&amp;</code>, and to read without copying use <code class="inline">const T&amp;</code>.</span></li><li><i class="fas fa-circle-check"></i><span><code class="inline">vector&lt;Student&gt;</code> stores thousands of objects and sorts them with a comparison rule passed to <code class="inline">sort</code>.</span></li><li><i class="fas fa-circle-check"></i><span>The comparison rule must be strict (<code class="inline">&lt;</code> or <code class="inline">&gt;</code>) and settle ties with a secondary key.</span></li><li><i class="fas fa-circle-check"></i><span>Define <code class="inline">operator&lt;</code> inside the struct so it works with <code class="inline">sort</code>, <code class="inline">set</code> and <code class="inline">map</code>, and remember that <code class="inline">set</code> treats two elements that are equal under <code class="inline">&lt;</code> as a single one.</span></li><li><i class="fas fa-circle-check"></i><span>Member functions and constructors add behavior: after you write a constructor with parameters, <code class="inline">Point p;</code> without values no longer works.</span></li></ul></div>
+  <div class="card steps-card" id="tfCard">
+    <div class="card-header"><i class="fas fa-clipboard-check"></i><h3>Check your understanding</h3></div>
+    <p>Read each statement and choose <strong>True</strong> or <strong>False</strong>. The explanation appears right after you answer.</p>
+    <div id="tfList"></div>
+    <div class="score-box" id="tfScore" style="display:none"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><i class="fas fa-book"></i><h3>Glossary</h3></div>
+    <p>The most important terms in this lesson:</p>
+    <div class="glossary-grid"><div class="term-card"><span class="term-en">Struct</span><p class="term-desc">A new type that groups several variables (members) under one name.</p></div><div class="term-card"><span class="term-en">Member</span><p class="term-desc">A variable or function inside a struct.</p></div><div class="term-card"><span class="term-en">Object</span><p class="term-desc">A variable made from the struct type, with its own copy of the members.</p></div><div class="term-card"><span class="term-en">Dot operator</span><p class="term-desc">Links an object to a member name: <code class="inline">s.score</code>.</p></div><div class="term-card"><span class="term-en">Initialization</span><p class="term-desc">Giving an object its first values when it is created.</p></div><div class="term-card"><span class="term-en">Copy</span><p class="term-desc">Making a new object with the same values as another one.</p></div><div class="term-card"><span class="term-en">Reference</span><p class="term-desc">Another name for an existing object, written with the symbol <code class="inline">&amp;</code>.</p></div><div class="term-card"><span class="term-en">Comparator</span><p class="term-desc">A function that decides which of two objects comes first in the order.</p></div><div class="term-card"><span class="term-en">Lambda</span><p class="term-desc">A small nameless function written where it is used.</p></div><div class="term-card"><span class="term-en">Constructor</span><p class="term-desc">A special function that runs when an object is created and initializes its members.</p></div><div class="term-card"><span class="term-en">Member function</span><p class="term-desc">A function defined inside a struct that works on its data.</p></div><div class="term-card"><span class="term-en">Strict weak ordering</span><p class="term-desc">A condition on comparison rules: they never return true for an element and itself.</p></div></div>
+  </div>
+  <div class="card steps-card" id="quizCard">
+    <div class="card-header"><i class="fas fa-circle-question"></i><h3>Final quiz</h3></div>
+    <p>Ten questions, from easy to medium. Choose one answer for each question.</p>
+    <div class="progress"><div class="progress-bar" id="quizBar"></div></div>
+    <div id="quizList"></div>
+    <div class="score-box" id="quizScore" style="display:none"></div>
+  </div>
+  <div class="card refs-card">
+    <div class="card-header"><i class="fas fa-link"></i><h3>Further reading</h3></div>
+    <p>The technical facts in this lesson are documented in the references below. The explanations, examples and exercises were written specially for the TweetKod platform:</p>
+    <ul class="ref-list"><li><a href="https://en.cppreference.com/w/cpp/language/class" target="_blank" rel="noopener">Class declaration (struct) &mdash; cppreference</a></li><li><a href="https://en.cppreference.com/w/cpp/container/vector" target="_blank" rel="noopener">std::vector &mdash; cppreference</a></li><li><a href="https://en.cppreference.com/w/cpp/algorithm/sort" target="_blank" rel="noopener">std::sort &mdash; cppreference</a></li><li><a href="https://en.cppreference.com/w/cpp/language/lambda" target="_blank" rel="noopener">Lambda expressions &mdash; cppreference</a></li><li><a href="https://en.cppreference.com/w/cpp/utility/pair" target="_blank" rel="noopener">std::pair &mdash; cppreference</a></li><li><a href="https://en.cppreference.com/w/cpp/container/set" target="_blank" rel="noopener">std::set &mdash; cppreference</a></li><li><a href="https://cses.fi/book/book.pdf" target="_blank" rel="noopener">Competitive Programmer's Handbook &mdash; Antti Laaksonen (book, CC BY-NC-SA 4.0)</a></li><li><a href="https://cses.fi/problemset/" target="_blank" rel="noopener">CSES Problem Set &mdash; practice problems</a></li></ul>
+  </div>
+</div>
+<button class="to-top" id="toTop" title="Back to top"><i class="fas fa-arrow-up"></i></button>
+<footer class="page-footer">TweetKod Platform</footer>
+<script>
+const TF = [{"s": "The semicolon after the closing brace of a <code class=\"inline\">struct</code> definition is optional.", "a": false, "why": "It is always required, and without it the compiler rejects the program."}, {"s": "We reach a member inside an object with a dot, such as <code class=\"inline\">s.score</code>.", "a": true, "why": "The dot links the object's name to the member's name."}, {"s": "After <code class=\"inline\">Point q = p;</code>, the objects <code class=\"inline\">q</code> and <code class=\"inline\">p</code> are the same object, so changing <code class=\"inline\">q.x</code> changes <code class=\"inline\">p.x</code>.", "a": false, "why": "This is a copy: we get two independent objects. Referring to the same object needs a reference <code class=\"inline\">Point&amp; q = p;</code>."}, {"s": "A function whose parameter is <code class=\"inline\">Point p</code> (without <code class=\"inline\">&amp;</code>) cannot change the original object in the caller.", "a": true, "why": "The function works on a copy of the object, so its changes are lost when it ends."}, {"s": "Writing <code class=\"inline\">a.score &lt;= b.score</code> in a <code class=\"inline\">sort</code> comparison rule is correct and safe.", "a": false, "why": "The rule must be strict. Comparing with \"or equal\" gives a wrong answer on ties and may crash the program."}, {"s": "A <code class=\"inline\">set&lt;Event&gt;</code> that compares events by their end time only treats two events with the same end time as a single element.", "a": true, "why": "<code class=\"inline\">set</code> decides equality from the operator <code class=\"inline\">&lt;</code> alone: if neither is smaller than the other, they are equal."}, {"s": "The local variable <code class=\"inline\">Student s;</code> starts with a zero score automatically.", "a": false, "why": "Members of basic types are not zeroed automatically in local variables. Use <code class=\"inline\">Student s{};</code> to zero them."}];
+const QUIZ = [{"q": "What is <code class=\"inline\">struct</code> for?", "o": ["It removes duplicates from a vector", "It groups variables of different types into one new type", "It prints text", "It speeds up <code class=\"inline\">for</code> loops"], "a": 1, "why": "A struct gathers related data under one name so we can treat it as a single block."}, {"q": "If <code class=\"inline\">s</code> is of type <code class=\"inline\">Student</code>, how do we read its member <code class=\"inline\">score</code>?", "o": ["<code class=\"inline\">s.score</code>", "<code class=\"inline\">s-&gt;score()</code>", "<code class=\"inline\">score(s)</code>", "<code class=\"inline\">s[score]</code>"], "a": 0, "why": "We use the dot operator between the object and the member."}, {"q": "Which symbol must be written after the final brace of a struct definition?", "o": ["nothing", "<code class=\"inline\">;</code>", "<code class=\"inline\">:</code>", "<code class=\"inline\">,</code>"], "a": 1, "why": "The semicolon is mandatory after a struct definition."}, {"q": "What does <code class=\"inline\">Point p = {3, 4}; Point q = p; q.x = 9; cout &lt;&lt; p.x;</code> print?", "o": ["9", "0", "4", "3"], "a": 3, "why": "Copying makes an independent object, so changing <code class=\"inline\">q.x</code> does not touch <code class=\"inline\">p.x</code>."}, {"q": "If the struct <code class=\"inline\">Point</code> has members <code class=\"inline\">x</code> and <code class=\"inline\">y</code>, what is the value of <code class=\"inline\">d.y</code> in <code class=\"inline\">Point d{7};</code> ?", "o": ["7", "0", "random", "a compile error"], "a": 1, "why": "Members we did not mention in the brace initialization are zeroed."}, {"q": "Which rule sorts <code class=\"inline\">Student</code> by score in descending order?", "o": ["<code class=\"inline\">return a.score == b.score;</code>", "<code class=\"inline\">return a.score &lt; b.score;</code>", "<code class=\"inline\">return a.score &gt; b.score;</code>", "<code class=\"inline\">return a.score &gt;= b.score;</code>"], "a": 2, "why": "The strict comparison <code class=\"inline\">&gt;</code> puts the larger first, while <code class=\"inline\">&gt;=</code> violates the strictness requirement."}, {"q": "How do we write a function parameter that can modify the original object?", "o": ["<code class=\"inline\">void f(const Point p)</code>", "<code class=\"inline\">void f(Point p)</code>", "<code class=\"inline\">void f(Point* p)</code>", "<code class=\"inline\">void f(Point&amp; p)</code>"], "a": 3, "why": "The <code class=\"inline\">&amp;</code> makes the parameter another name for the original object, not a copy."}, {"q": "Which loop reads every student without copying them and without allowing modification?", "o": ["<code class=\"inline\">for (const Student&amp; s : v)</code>", "<code class=\"inline\">for (Student s : v)</code>", "<code class=\"inline\">for (auto s : v)</code>", "<code class=\"inline\">for (Student&amp; s : v)</code>"], "a": 0, "why": "Combining <code class=\"inline\">const</code> and <code class=\"inline\">&amp;</code> prevents both copying and modification."}, {"q": "What is the main advantage of a struct compared with <code class=\"inline\">pair</code> ?", "o": ["Always faster", "Meaningful member names and any number of members", "Works only with <code class=\"inline\">sort</code>", "Always uses less memory"], "a": 1, "why": "A struct reads better because its members have names that carry meaning, and it holds any number of them."}, {"q": "How many elements does <code class=\"inline\">v</code> hold after <code class=\"inline\">vector&lt;Student&gt; v; v.push_back({\"Sara\", 92});</code> ?", "o": ["0", "a compile error", "2", "1"], "a": 3, "why": "<code class=\"inline\">push_back</code> adds one student, so the size is 1."}];
+const EXPL = {"basic": {"4": "The word <code class=\"inline\">struct</code> declares a <strong>new type</strong> that we make ourselves. Its name here is <code class=\"inline\">Student</code>.", "5": "The first member: the student's name. A member is a variable that lives inside the struct.", "6": "The second member: the score. Members can have different types, and that is what sets a struct apart from an array.", "7": "Watch out: a <strong>semicolon</strong> is required after the final brace of a struct.", "10": "We make a variable of this new type. Its name is <code class=\"inline\">s</code>, and it has a place for the name and a place for the score.", "11": "We reach a member with a dot between the variable name and the member name.", "14": "All the members can be filled in one go with curly braces, in the same order the members were defined."}, "init": {"9": "Initialization with braces: the first value is <code class=\"inline\">x</code> and the second is <code class=\"inline\">y</code>.", "10": "The same idea without an equals sign, which is also a common style.", "11": "Empty braces mean <strong>zero everything</strong>. Without them, a <code class=\"inline\">Point c;</code> declared inside <code class=\"inline\">main</code> would hold random values.", "12": "Whatever we do not mention is zeroed: <code class=\"inline\">x = 7</code> and <code class=\"inline\">y = 0</code>.", "19": "A C++17 feature: we unpack the struct into two variables at once, in the order of the members."}, "vec": {"11": "A vector whose elements are of our new type. Each element is a complete student with a name and a score.", "12": "We add a student with curly braces, and the compiler deduces the type from the vector.", "14": "You can also write the type name explicitly before the braces if you want to be clear.", "17": "We remember the best student, starting with the first one. This copy takes both the name and the score.", "18": "We go through the students. The <code class=\"inline\">&amp;</code> prevents copying each student, and <code class=\"inline\">const</code> prevents us from changing it by mistake.", "22": "Copying a whole struct with an equals sign, without writing it member by member."}, "sortlam": {"14": "A small nameless function (a lambda) that takes two students and answers: does <code class=\"inline\">a</code> come <strong>before</strong> <code class=\"inline\">b</code>?", "15": "If the two scores differ, the higher one goes first.", "16": "We use <code class=\"inline\">&gt;</code> because we want <strong>descending</strong> order.", "18": "When the scores are equal we sort the names alphabetically, so Lina comes before Sara."}, "oper": {"8": "We teach the type how to compare itself with another one. The name <code class=\"inline\">operator&lt;</code> makes <code class=\"inline\">a &lt; b</code> work on our objects.", "9": "Our rule: the event that ends earlier comes first.", "15": "We no longer need a lambda; <code class=\"inline\">sort</code> uses <code class=\"inline\">operator&lt;</code> automatically."}, "memfn": {"7": "A function inside the struct is called a <strong>member function</strong>. It uses <code class=\"inline\">w</code> and <code class=\"inline\">h</code> directly because it lives with the object.", "10": "The word <code class=\"inline\">const</code> after the parentheses promises that the function does not change the object's members.", "18": "We call the function with a dot like the members, but with parentheses."}, "ctor": {"8": "After the colon we initialize the members with the parameter values, which is the preferred style.", "16": "We pass the two values in parentheses when creating the object.", "17": "Curly braces still work, because they call the same constructor."}, "byref": {"7": "The parameter <code class=\"inline\">Counter c</code> receives a <strong>copy</strong> of the object, so any change happens on the copy alone.", "11": "The <code class=\"inline\">&amp;</code> means <code class=\"inline\">c</code> is another name for the original object itself, so the original changes.", "17": "After calling the first function nothing changes: the first result is 0.", "19": "And after the second function the counter really changes."}};
+const TRACES = {"trace": [{"line": -1, "vars": {}, "out": "", "note": "Starting point: no line has run yet."}, {"line": 9, "vars": {"p": "{x:1, y:2}"}, "out": "", "note": "We created the object `p` and filled its two members."}, {"line": 10, "vars": {"p": "{x:1, y:2}", "q": "{x:1, y:2}"}, "out": "", "note": "The copy line: we now have a second, independent object `q` holding a <strong>copy</strong> of the same values."}, {"line": 11, "vars": {"p": "{x:1, y:2}", "q": "{x:10, y:2}"}, "out": "", "note": "We changed `q.x` only. `p` is unaffected because they are two separate objects."}, {"line": 12, "vars": {"p": "{x:1, y:2}", "q": "{x:10, y:2}"}, "out": "1 10\n", "note": "We print `p.x` and then `q.x`: the values 1 and 10."}]};
+function copyCode(id) {
+  const el = document.getElementById(id);
+  const text = el.innerText.replace(/ /g, ' ');
+  const done = () => { const b = el.parentElement.querySelector('.copy-btn'); const t = b.textContent; b.textContent = 'Copied ✓'; setTimeout(() => b.textContent = t, 1400); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(done); else done();
+}
+
+/* click-to-explain code lines */
+document.querySelectorAll('.code-box[data-expl]').forEach(box => {
+  const id = box.getAttribute('data-expl');
+  const out = document.querySelector('.explain-box[data-for="' + id + '"]');
+  box.querySelectorAll('.code-line').forEach(line => {
+    line.addEventListener('click', () => {
+      box.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+      line.classList.add('active');
+      out.innerHTML = EXPL[id][line.getAttribute('data-i')];
+    });
+  });
+});
+
+/* true / false check */
+(function () {
+  const list = document.getElementById('tfList');
+  let answered = 0, right = 0;
+  TF.forEach((it, i) => {
+    const d = document.createElement('div');
+    d.className = 'tf-item';
+    d.innerHTML = '<div class="stmt">' + (i + 1) + '. ' + it.s + '</div>' +
+      '<div class="tf-btns"><button class="tf-btn" data-v="true"><i class="fas fa-check"></i> True</button>' +
+      '<button class="tf-btn" data-v="false"><i class="fas fa-xmark"></i> False</button></div><div class="feedback"></div>';
+    d.querySelectorAll('.tf-btn').forEach(b => b.addEventListener('click', () => {
+      const pick = b.getAttribute('data-v') === 'true';
+      const ok = pick === it.a;
+      d.querySelectorAll('.tf-btn').forEach(x => { x.disabled = true; });
+      b.classList.add(ok ? 'correct' : 'wrong');
+      const fb = d.querySelector('.feedback');
+      fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+      fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> Correct. ' : '<i class="fas fa-circle-xmark"></i> The correct answer is ' + (it.a ? 'True' : 'False') + '. ') + it.why;
+      answered++; if (ok) right++;
+      if (answered === TF.length) {
+        const s = document.getElementById('tfScore');
+        s.style.display = 'block';
+        s.innerHTML = '<div class="big">' + right + ' / ' + TF.length + '</div><div>' + (right === TF.length ? 'Excellent! You understood the lesson well.' : right >= TF.length - 2 ? 'A good result. Review the statements you missed.' : 'Re-read the lesson and try again.') + '</div>';
+      }
+    }));
+    list.appendChild(d);
+  });
+})();
+
+/* final quiz */
+(function () {
+  const list = document.getElementById('quizList');
+  const bar = document.getElementById('quizBar');
+  let answered = 0, right = 0;
+  QUIZ.forEach((q, qi) => {
+    const d = document.createElement('div');
+    d.className = 'quiz-q';
+    d.innerHTML = '<h4><span class="qnum">' + (qi + 1) + '</span>' + q.q + '</h4><div class="quiz-options"></div><div class="feedback"></div>';
+    const box = d.querySelector('.quiz-options');
+    q.o.forEach((txt, oi) => {
+      const b = document.createElement('button');
+      b.className = 'quiz-opt'; b.innerHTML = txt;
+      b.addEventListener('click', () => {
+        box.querySelectorAll('.quiz-opt').forEach(x => x.disabled = true);
+        const ok = oi === q.a;
+        b.classList.add(ok ? 'correct' : 'wrong');
+        if (!ok) box.children[q.a].classList.add('correct');
+        const fb = d.querySelector('.feedback');
+        fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+        fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> Correct! ' : '<i class="fas fa-circle-xmark"></i> That is not the right answer. ') + q.why;
+        answered++; if (ok) right++;
+        bar.style.width = (answered / QUIZ.length * 100) + '%';
+        if (answered === QUIZ.length) showScore();
+      });
+      box.appendChild(b);
+    });
+    list.appendChild(d);
+  });
+  function showScore() {
+    const s = document.getElementById('quizScore');
+    const pct = right / QUIZ.length;
+    s.style.display = 'block';
+    s.innerHTML = '<div class="big">' + right + ' / ' + QUIZ.length + '</div><div>' +
+      (pct === 1 ? 'Perfect score! You are ready for the next lesson.' : pct >= 0.7 ? 'Very good. Review the questions you missed.' : 'Review the lesson again, then try once more.') +
+      '</div><button class="retry-btn" onclick="location.hash=\'quizCard\';location.reload();">Retake the quiz</button>';
+  }
+})();
+
+
+/* ---------------- header tools ---------------- */
+(function () {
+  const root = document.documentElement;
+  const safeGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const safeSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+  /* theme */
+  const themeBtn = document.getElementById('themeBtn');
+  function applyTheme(t) { root.setAttribute('data-theme', t); if (themeBtn) themeBtn.innerHTML = t === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; }
+  applyTheme(safeGet('tk_theme') || 'light');
+  if (themeBtn) themeBtn.addEventListener('click', () => { const t = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; applyTheme(t); safeSet('tk_theme', t); });
+
+  /* code size */
+  let size = parseFloat(safeGet('tk_codesize') || '0.95');
+  function applySize() { root.style.setProperty('--code-size', size + 'rem'); }
+  applySize();
+  const dec = document.getElementById('fontDec'), inc = document.getElementById('fontInc');
+  if (dec) dec.addEventListener('click', () => { size = Math.max(0.75, +(size - 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+  if (inc) inc.addEventListener('click', () => { size = Math.min(1.3, +(size + 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+
+  /* table of contents */
+  const panel = document.getElementById('tocPanel'), tocBtn = document.getElementById('tocBtn');
+  if (panel && tocBtn) {
+    const cards = document.querySelectorAll('.container > .card');
+    let n = 0;
+    cards.forEach((c, i) => {
+      const h = c.querySelector('.card-header h3, .project-banner strong');
+      if (!h) return;
+      n++;
+      c.id = c.id || 'sec-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + c.id;
+      a.innerHTML = '<span>' + n + '</span><bdi>' + h.innerHTML + '</bdi>';
+      a.addEventListener('click', () => panel.classList.remove('open'));
+      panel.appendChild(a);
+    });
+    tocBtn.addEventListener('click', (e) => { e.stopPropagation(); panel.classList.toggle('open'); });
+    document.addEventListener('click', (e) => { if (!panel.contains(e.target)) panel.classList.remove('open'); });
+  }
+
+  /* reading progress + back to top */
+  const bar = document.getElementById('readBar'), top = document.getElementById('toTop');
+  function onScroll() {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+    if (bar) bar.style.width = pct + '%';
+    if (top) top.classList.toggle('show', h.scrollTop > 600);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  if (top) top.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+})();
+
+/* ---------------- step tracer ---------------- */
+document.querySelectorAll('.tracer').forEach(el => {
+  const steps = TRACES[el.getAttribute('data-trace')];
+  const lines = el.querySelectorAll('.tr-line');
+  const varsEl = el.querySelector('.tr-vars'), outEl = el.querySelector('.tr-out'), noteEl = el.querySelector('.tr-note'), cnt = el.querySelector('.tr-count');
+  const btn = (a) => el.querySelector('[data-a="' + a + '"]');
+  let i = 0, timer = null;
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  function draw() {
+    const s = steps[i], prev = i > 0 ? steps[i - 1].vars : {};
+    lines.forEach((l, k) => l.classList.toggle('active', k === s.line));
+    const names = Object.keys(s.vars);
+    varsEl.innerHTML = names.length ? names.map(n => '<div class="tr-var' + (prev[n] !== s.vars[n] ? ' changed' : '') + '"><span>' + esc(n) + '</span><b>' + esc(s.vars[n]) + '</b></div>').join('') : '<span style="color:#94a3b8">No variables yet</span>';
+    outEl.textContent = s.out || ' ';
+    noteEl.textContent = s.note || ' ';
+    cnt.textContent = 'Step ' + i + ' of ' + (steps.length - 1);
+    btn('prev').disabled = i === 0; btn('next').disabled = i === steps.length - 1;
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; btn('play').innerHTML = '<i class="fas fa-play"></i> Auto-play'; } }
+  btn('next').onclick = () => { stop(); if (i < steps.length - 1) i++; draw(); };
+  btn('prev').onclick = () => { stop(); if (i > 0) i--; draw(); };
+  btn('reset').onclick = () => { stop(); i = 0; draw(); };
+  btn('play').onclick = () => {
+    if (timer) { stop(); return; }
+    if (i >= steps.length - 1) i = 0;
+    btn('play').innerHTML = '<i class="fas fa-pause"></i> Pause';
+    timer = setInterval(() => { if (i < steps.length - 1) { i++; draw(); } else stop(); }, 1100);
+    draw();
+  };
+  draw();
+});
+
+/* ---------------- predict the output ---------------- */
+document.querySelectorAll('.predict').forEach(p => {
+  const opts = p.querySelectorAll('.pd-opt');
+  opts.forEach(o => o.addEventListener('click', () => {
+    const ok = o.getAttribute('data-ok') === '1';
+    opts.forEach(x => { x.disabled = true; if (x.getAttribute('data-ok') === '1') x.classList.add('correct'); });
+    if (!ok) o.classList.add('wrong');
+    const res = p.querySelector('.pd-result');
+    res.classList.remove('hidden');
+    const msg = p.querySelector('.pd-msg');
+    msg.innerHTML = ok ? '<span style="color:#16a34a"><i class="fas fa-check-circle"></i> Your prediction is right! Here is the real output:</span>' : '<span style="color:#dc2626"><i class="fas fa-circle-xmark"></i> Not quite. Here is the real output, and read the explanation below:</span>';
+  }));
+});
+
+
+/* ---------- lab 1: copy vs reference ---------- */
+let CP = { mode: 'copy', done: false };
+function cpState() {
+  const px = (CP.done && CP.mode === 'ref') ? 10 : 1;
+  const qx = CP.done ? 10 : 1;
+  return { px, qx };
+}
+function cpDraw() {
+  const s = cpState();
+  document.getElementById('cpCode').innerHTML =
+    '<span class="line">Point p = {1, 2};</span>\n' +
+    (CP.mode === 'copy' ? 'Point q = p;' : 'Point& q = p;') + (CP.done ? '\nq.x = 10;' : '');
+  let html = '<span class="lab-tag new">p.x = ' + s.px + '</span>';
+  if (CP.mode === 'copy') html += '<span class="lab-tag warm">q.x = ' + s.qx + '</span>';
+  else html += '<span class="lab-tag warm">q = another name for p</span>';
+  document.getElementById('cpTags').innerHTML = html;
+  const n = document.getElementById('cpNote');
+  if (!CP.done) { n.className = 'lab-say'; n.textContent = CP.mode === 'copy' ? 'We now have two separate objects with the same values.' : 'There is no second object; q and p are two names for the same object.'; }
+  else if (CP.mode === 'copy') { n.className = 'lab-say ok'; n.textContent = 'We changed the copy only, so p.x stayed 1.'; }
+  else { n.className = 'lab-say bad'; n.textContent = 'We changed the original object itself! p.x became 10.'; }
+}
+function cpMode(m) { CP.mode = m; CP.done = false; cpDraw(); }
+function cpGo() { CP.done = true; cpDraw(); }
+function cpReset() { CP.done = false; cpDraw(); }
+
+/* ---------- lab 2: sorting workshop ---------- */
+const STU = [['Sara', 92], ['Omar', 85], ['Lina', 92], ['Zaid', 70], ['Noor', 85], ['Huda', 78]];
+let STUR = 'both';
+function stuSorted(rule) {
+  const a = STU.map(x => x.slice());
+  if (rule === 'score' || rule === 'wrong') a.sort((p, q) => q[1] - p[1]);
+  else if (rule === 'name') a.sort((p, q) => (p[0] < q[0] ? -1 : p[0] > q[0] ? 1 : 0));
+  else a.sort((p, q) => (q[1] - p[1]) || (p[0] < q[0] ? -1 : p[0] > q[0] ? 1 : 0));
+  return a;
+}
+const STUCODE = {
+  score: 'return a.score > b.score;',
+  name: 'return a.name < b.name;',
+  both: 'if (a.score != b.score) {\n    return a.score > b.score;\n}\nreturn a.name < b.name;',
+  wrong: 'return a.score >= b.score;   // wrong!'
+};
+function stuRule(r) {
+  STUR = r;
+  const a = stuSorted(r);
+  let h = '<tr><th>#</th><th>name</th><th>score</th></tr>';
+  a.forEach((x, i) => {
+    const tie = a.some((y, j) => j !== i && y[1] === x[1]);
+    h += '<tr' + ((r === 'score' || r === 'wrong') && tie ? ' style="background:rgba(247,148,30,.18)"' : '') + '><td>' + (i + 1) + '</td><td>' + x[0] + '</td><td>' + x[1] + '</td></tr>';
+  });
+  document.getElementById('stuTable').innerHTML = h;
+  document.getElementById('stuCode').innerHTML = '<span class="line">[](const Student& a, const Student& b) {</span>\n    ' + STUCODE[r].replace(/\n/g, '\n    ') + '\n<span class="line">}</span>';
+  const n = document.getElementById('stuNote');
+  if (r === 'wrong') { n.className = 'lab-say bad'; n.textContent = 'Forbidden: when two scores tie, the rule says each is before the other. sort may crash or give a meaningless order.'; }
+  else if (r === 'score') { n.className = 'lab-say'; n.textContent = 'The highlighted rows tie on score, and their order among themselves is not guaranteed in C++ because sort is not stable. Add a secondary key!'; }
+  else if (r === 'name') { n.className = 'lab-say ok'; n.textContent = 'A plain alphabetical order, and the scores play no role.'; }
+  else { n.className = 'lab-say ok'; n.textContent = 'A complete rule: score first, then the name settles ties, so the order is always determined.'; }
+}
+cpDraw(); stuRule('both');
+
+</script>
+</body>
+</html>

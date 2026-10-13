@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TweetKod | Backtracking</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --primary-blue: #00adef;
+  --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+  --primary-yellow: #f7941e;
+  --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+  --dark-navy: #0f172a;
+  --text-body: #475569;
+  --bg-main: #f4f9fd;
+  --surface: #f1f6fb;
+  --card-bg: #ffffff;
+  --border: #e2e8f0;
+  --chip-bg: #eef2f7;
+  --soft-shadow: 0 14px 34px -14px rgba(15,23,42,0.14);
+  --header-bg: rgba(255,255,255,0.82);
+  --code-size: 0.95rem;
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2300adef' fill-opacity='0.075'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+html[data-theme="dark"] {
+  --dark-navy: #e6edf7;
+  --text-body: #a9b6cc;
+  --bg-main: #0a1120;
+  --surface: #16213a;
+  --card-bg: #111a2e;
+  --border: #243049;
+  --chip-bg: #1d2a45;
+  --soft-shadow: 0 14px 34px -14px rgba(0,0,0,0.6);
+  --header-bg: rgba(10,17,32,0.82);
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2338bdf8' fill-opacity='0.06'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+body {
+  font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+  background-color: var(--bg-main);
+  margin: 0; padding: 0; color: var(--dark-navy);
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color .3s, color .3s;
+  position: relative;
+}
+/* decorative background */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.20), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.17), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.06), transparent 70%);
+}
+html[data-theme="dark"] body::before {
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.22), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.12), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.10), transparent 70%);
+}
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: var(--pattern); background-size: 260px 260px;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+          mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+}
+.bg-deco { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .35; animation: floaty 18s ease-in-out infinite; }
+.b1 { width: 340px; height: 340px; background: #00adef; top: 12%; right: -90px; }
+.b2 { width: 280px; height: 280px; background: #f7941e; bottom: 6%; left: -80px; animation-delay: -6s; }
+.b3 { width: 220px; height: 220px; background: #8b5cf6; top: 55%; right: 18%; opacity: .16; animation-delay: -11s; }
+html[data-theme="dark"] .blob { opacity: .2; }
+@keyframes floaty { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(26px,-34px) scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .blob { animation: none; } html { scroll-behavior: auto; } }
+
+/* header */
+header {
+  background: var(--header-bg); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  padding: 10px 4%; display: flex; justify-content: space-between; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 1000;
+  border-bottom: 1px solid rgba(0,173,239,0.16); box-shadow: 0 8px 28px -18px rgba(15,23,42,0.45);
+}
+.hdr-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.logo-img { width: 52px; height: 52px; border-radius: 15px; object-fit: contain; padding: 6px; background: #fff;
+  box-shadow: 0 6px 18px -6px rgba(0,173,239,0.45), 0 0 0 1px rgba(0,173,239,0.16); }
+.brand-info h3 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); line-height: 1.3; }
+.brand-info p { margin: 0; font-size: 0.78rem; color: var(--primary-blue); font-weight: 700; }
+.hdr-tools { display: flex; align-items: center; gap: 8px; position: relative; }
+.tool-btn { height: 38px; min-width: 38px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy);
+  cursor: pointer; font-family: 'Nunito'; font-weight: 800; font-size: .85rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: .2s; }
+.tool-btn:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+.toc-panel { position: absolute; top: 48px; right: 0; width: 290px; max-height: 60vh; overflow-y: auto; background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 16px; box-shadow: var(--soft-shadow); padding: 8px; display: none; }
+.toc-panel.open { display: block; }
+.toc-panel a { display: flex; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 10px; color: var(--dark-navy); text-decoration: none; font-weight: 700; font-size: .88rem; }
+.toc-panel a:hover { background: var(--surface); color: var(--primary-blue); }
+.toc-panel a span { width: 22px; height: 22px; border-radius: 50%; background: var(--chip-bg); color: var(--text-body); font-size: .72rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.read-progress { position: absolute; bottom: -1px; right: 0; left: 0; height: 3px; background: transparent; }
+.read-progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #00adef, #f7941e); transition: width .1s; }
+.to-top { position: fixed; bottom: 22px; right: 22px; z-index: 900; width: 46px; height: 46px; border-radius: 50%; border: none; background: var(--blue-gradient); color: #fff;
+  cursor: pointer; box-shadow: 0 10px 24px -8px rgba(0,173,239,.7); font-size: 1.1rem; opacity: 0; pointer-events: none; transition: .25s; }
+.to-top.show { opacity: 1; pointer-events: auto; }
+@media (max-width: 980px) { .brand-info p { display: none; } }
+@media (max-width: 720px) { .brand-info h3 { font-size: 1rem; } }
+
+.container { max-width: 900px; margin: 44px auto; padding: 0 25px; }
+.title-section { text-align: center; margin-bottom: 40px; }
+.title-section h1 { font-size: 2.7rem; font-weight: 800; margin: 12px 0 6px; background: linear-gradient(135deg, var(--dark-navy), #007bb5 80%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+html[data-theme="dark"] .title-section h1 { background: linear-gradient(135deg, #fff, #38bdf8 80%); -webkit-background-clip: text; background-clip: text; }
+.attribution { color: var(--primary-blue); font-size: 1.15rem; font-weight: 600; }
+.lesson-chip { display: inline-block; background: var(--yellow-gradient); color: #fff; padding: 6px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; box-shadow: 0 8px 18px -8px rgba(247,148,30,.8); }
+
+.card { background: var(--card-bg); border-radius: 25px; padding: 40px; margin-bottom: 30px; box-shadow: var(--soft-shadow); border-left: 8px solid var(--primary-blue);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); transition: background-color .3s; }
+.steps-card { border-left-color: var(--primary-yellow); }
+.card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+.card-header i { font-size: 1.8rem; }
+.card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+h4 { margin: 18px 0 8px; font-size: 1.05rem; color: var(--dark-navy); }
+p { color: var(--text-body); margin: 0 0 14px; }
+a { color: var(--primary-blue); }
+strong { color: var(--dark-navy); }
+
+.en { direction: ltr; unicode-bidi: isolate; font-weight: 700; color: var(--dark-navy); }
+/* every code chip is an isolated LTR island: fixes ; ( ) = placement inside Arabic text */
+code, code.inline { background: var(--chip-bg); padding: 2px 8px; border-radius: 6px; direction: ltr; unicode-bidi: isolate; display: inline-block; text-align: left;
+  color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; line-height: 1.6; }
+html[data-theme="dark"] code, html[data-theme="dark"] code.inline { color: #f9a8d4; }
+
+.obj-list { list-style: none; padding: 0; margin: 0; }
+.obj-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.obj-list i { color: #22c55e; margin-top: 6px; }
+
+/* code */
+.code-box { background: #1e293b; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.35); margin: 20px 0; border: 1px solid rgba(255,255,255,.04); }
+.code-head { background: #0f172a; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+.code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; direction: ltr; }
+.copy-btn { color: #38bdf8; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; font-family: 'Nunito'; }
+pre { padding: 26px 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: var(--code-size); tab-size: 8; }
+.cmt { color: #79c36a; font-style: italic; }
+.kw { color: #7dd3fc; }
+.str { color: #fbbf77; }
+.num { color: #c4b5fd; }
+.pp { color: #f9a8d4; }
+.code-line, .code-plain { display: block; border-radius: 6px; padding: 0 6px; margin: 0 -6px; }
+.code-line { cursor: pointer; transition: 0.2s; background: rgba(0,173,239,0.07); }
+.code-line:hover { background: rgba(0,173,239,0.22); }
+.code-line.active { background: rgba(247,148,30,0.28); outline: 1px dashed var(--primary-yellow); }
+.explain-box { margin-top: 14px; background: var(--surface); border: 2px dashed var(--border); border-radius: 16px; padding: 16px 22px; font-weight: 600; color: var(--dark-navy); min-height: 30px; }
+.explain-box .hint { color: #94a3b8; font-weight: 500; }
+.output-box, .input-box { font-family: 'Consolas', monospace; padding: 16px 22px; border-radius: 14px; margin: 10px 0 18px; direction: ltr; text-align: left; white-space: pre-wrap; tab-size: 8; font-size: var(--code-size); }
+.output-box { background: #0f172a; color: #4ade80; }
+.input-box { background: #0c2233; color: #7dd3fc; margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.input-box + .output-box { margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; border-top: 1px dashed #1e3a52; }
+.output-box::before, .input-box::before { display: block; font-size: 0.72rem; letter-spacing: 0.08em; margin-bottom: 6px; text-transform: uppercase; color: #64748b; }
+.output-box::before { content: 'Output'; }
+.input-box::before { content: 'Input (typed by the user)'; }
+.error-box { background: #1f1317; border: 1px solid #7f1d1d; border-radius: 14px; margin: 10px 0 18px; overflow: hidden; }
+.error-head { background: #450a0a; color: #fca5a5; padding: 8px 18px; font-weight: 700; font-size: 0.85rem; }
+.error-box pre { color: #fecaca; font-size: 0.8rem; padding: 14px 20px; line-height: 1.7; }
+
+/* steps */
+.step-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 14px; padding: 18px 20px; background: var(--card-bg); border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+.step-number { background: var(--yellow-gradient); color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+.step-item h4 { margin: 0 0 4px; font-size: 1rem; }
+.step-item p { margin: 0; font-size: 0.92rem; }
+
+/* tables */
+.table-wrap { overflow-x: auto; margin: 15px 0; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+table.data-table { width: 100%; border-collapse: collapse; background: var(--card-bg); }
+table.data-table th { background: var(--blue-gradient); color: #fff; padding: 12px 18px; font-size: 0.85rem; text-align: left; white-space: nowrap; }
+table.data-table td { padding: 12px 18px; font-size: 0.9rem; border-bottom: 1px solid var(--border); color: var(--text-body); }
+table.data-table tr:last-child td { border-bottom: none; }
+
+/* comparison / rules */
+.compare-grid, .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+@media (max-width: 700px) { .compare-grid, .rule-grid { grid-template-columns: 1fr; } .card { padding: 24px; } .title-section h1 { font-size: 2rem; } }
+.compare-card { border-radius: 16px; overflow: hidden; background: #1e293b; }
+.compare-title { padding: 10px 18px; font-weight: 800; font-size: 0.9rem; }
+.good .compare-title { background: #dcfce7; color: #15803d; }
+.bad .compare-title { background: #fee2e2; color: #b91c1c; }
+.compare-card pre { padding: 18px 20px; font-size: 0.83rem; }
+.rule-list { background: var(--surface); border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
+.rule-list h5 { margin: 0 0 12px; font-size: 0.95rem; }
+.rule-list.yes h5 { color: #16a34a; } .rule-list.no h5 { color: #dc2626; }
+.rule-list ul { list-style: none; padding: 0; margin: 0; }
+.rule-list li { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 0.9rem; color: var(--text-body); }
+.rule-list.yes li i { color: #22c55e; } .rule-list.no li i { color: #ef4444; }
+
+.tip-box { background: rgba(247,148,30,0.09); border: 2px dashed var(--primary-yellow); border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 4px; }
+.tip-box p { margin: 0; font-size: 0.93rem; }
+
+/* project */
+.project-banner { background: var(--blue-gradient); color: #fff; border-radius: 18px; padding: 16px 22px; margin-bottom: 18px; display: flex; gap: 14px; align-items: center; }
+.project-banner i { font-size: 1.6rem; }
+.project-banner strong { font-size: 1.05rem; color: #fff; }
+.project-banner p { color: #e0f4ff; margin: 0; font-size: 0.9rem; }
+.brief { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 18px 22px; margin: 14px 0; }
+.brief h5 { margin: 0 0 8px; font-size: 1rem; color: var(--primary-blue); display: flex; align-items: center; gap: 8px; }
+.brief ul, .brief ol { margin: 0; padding-left: 22px; color: var(--text-body); }
+.brief li { margin-bottom: 6px; }
+details.reveal { border: 2px dashed var(--border); border-radius: 16px; padding: 4px 16px; margin: 14px 0; background: var(--card-bg); }
+details.reveal > summary { cursor: pointer; font-weight: 800; padding: 10px 0; color: var(--primary-blue); list-style: none; display: flex; align-items: center; gap: 8px; }
+details.reveal > summary::-webkit-details-marker { display: none; }
+details.reveal[open] { border-style: solid; border-color: var(--primary-blue); }
+
+/* challenges */
+.challenge-card { border-left-color: #8b5cf6; }
+.challenge-card .card-header { color: #8b5cf6; }
+.challenge { border: 1px solid var(--border); border-radius: 20px; padding: 22px 24px; margin-bottom: 20px; background: var(--surface); }
+.ch-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+.ch-head h4 { margin: 0; flex: 1; }
+.ch-num { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
+.badge { font-size: .75rem; font-weight: 800; padding: 4px 12px; border-radius: 50px; }
+.badge.easy { background: #dcfce7; color: #15803d; }
+.badge.medium { background: #fef3c7; color: #b45309; }
+.challenge h5 { margin: 14px 0 6px; font-size: .9rem; color: var(--dark-navy); }
+.challenge ul { margin: 0 0 6px; padding-left: 22px; color: var(--text-body); }
+.challenge li { margin-bottom: 4px; }
+
+/* simulators */
+.sim-box { background: var(--surface); border: 3px dashed var(--border); border-radius: 20px; padding: 28px; text-align: center; margin-top: 15px; }
+.sim-inputs { display: flex; justify-content: center; gap: 18px; margin-bottom: 18px; flex-wrap: wrap; }
+.sim-inputs .field { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.sim-inputs label { font-size: 0.82rem; color: var(--text-body); font-weight: 700; }
+.sim-inputs input[type=text], .sim-inputs input[type=number] { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1.05rem; text-align: center; font-family: 'Consolas', monospace; outline: none; direction: ltr; }
+.sim-inputs input[type=number] { width: 110px; }
+.sim-inputs input:focus { border-color: var(--primary-blue); }
+.btn-run { background: var(--yellow-gradient); color: #fff; border: none; padding: 13px 32px; border-radius: 18px; cursor: pointer; font-weight: 800; font-family: 'Nunito'; font-size: 0.95rem; box-shadow: 0 10px 20px -10px rgba(247,148,30,.9); }
+.sim-console { margin-top: 18px; background: #0f172a; border-radius: 14px; padding: 18px 20px; text-align: left; direction: ltr; font-family: 'Consolas', monospace; color: #4ade80; min-height: 26px; white-space: pre-wrap; font-size: 0.92rem; }
+.sim-console .line { color: #94a3b8; }
+.result-line { margin-top: 14px; font-weight: 700; color: var(--dark-navy); }
+.reorder-list { max-width: 460px; margin: 0 auto 10px; direction: ltr; }
+.reorder-item { display: flex; align-items: center; gap: 10px; background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 8px 12px; margin-bottom: 8px; font-family: 'Consolas', monospace; font-size: 0.88rem; text-align: left; }
+.reorder-item code { flex: 1; background: transparent; padding: 0; }
+.rbtn { border: none; background: #e0f2fe; color: #0369a1; border-radius: 8px; width: 30px; height: 30px; cursor: pointer; font-weight: 800; }
+.rbtn:disabled { opacity: 0.35; cursor: default; }
+.bug-list { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.bug-btn { background: var(--card-bg); color: var(--dark-navy); border: 2px solid var(--border); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Nunito'; font-weight: 700; }
+.bug-btn.found { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.hidden { display: none; }
+.op-table { width: 100%; border-collapse: collapse; margin-top: 16px; direction: ltr; font-family: 'Consolas', monospace; font-size: .88rem; }
+.op-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--dark-navy); text-align: left; }
+.op-table td:last-child { color: var(--primary-blue); font-weight: 800; }
+
+/* glossary */
+.glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+.term-card { background: var(--surface); border-radius: 16px; padding: 18px; border: 1px solid var(--border); }
+.term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+.term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+.term-desc { font-size: 0.85rem; color: var(--text-body); margin: 0; }
+
+/* tf + quiz */
+.tf-item { border: 2px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 14px; background: var(--surface); }
+.tf-item .stmt { font-weight: 700; margin-bottom: 12px; color: var(--dark-navy); }
+.tf-btns { display: flex; gap: 10px; }
+.tf-btn { flex: 1; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 10px; cursor: pointer; font-family: 'Nunito'; font-weight: 800; font-size: 0.95rem; }
+.tf-btn:hover { border-color: var(--primary-blue); }
+.tf-btn.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.tf-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.feedback { margin-top: 10px; font-size: 0.9rem; font-weight: 600; }
+.feedback.ok { color: #16a34a; } .feedback.no { color: #dc2626; }
+.quiz-q { margin-bottom: 26px; padding-bottom: 8px; }
+.quiz-q h4 { margin-bottom: 12px; line-height: 1.9; }
+.qnum { display: inline-flex; align-items: center; justify-content: center; background: var(--yellow-gradient); color: #fff; width: 28px; height: 28px; border-radius: 50%; font-size: 0.85rem; margin-right: 8px; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-opt { background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 12px 18px; cursor: pointer; font-weight: 600; text-align: left; font-family: 'Nunito'; font-size: 0.95rem; transition: 0.2s; color: var(--dark-navy); }
+.quiz-opt:hover { border-color: var(--primary-blue); }
+.quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.quiz-opt:disabled { cursor: default; }
+.quiz-opt.correct code, .quiz-opt.wrong code { background: rgba(255,255,255,.7); }
+.progress { height: 10px; background: var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 22px; }
+.progress-bar { height: 100%; width: 0; background: var(--yellow-gradient); transition: width 0.3s; }
+.score-box { text-align: center; background: var(--surface); border: 2px solid var(--border); border-radius: 18px; padding: 22px; margin-top: 10px; }
+.score-box .big { font-size: 2.2rem; font-weight: 800; color: var(--primary-blue); }
+.retry-btn { margin-top: 10px; background: var(--blue-gradient); color: #fff; border: none; border-radius: 14px; padding: 10px 26px; cursor: pointer; font-family: 'Nunito'; font-weight: 800; }
+
+.refs-card { border-left-color: #94a3b8; }
+.ref-list { margin: 0; padding-left: 22px; }
+.ref-list li { margin-bottom: 6px; font-size: 0.9rem; }
+footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+
+/* ---------- tracer ---------- */
+.tracer { background: var(--surface); border: 2px solid var(--border); border-radius: 20px; padding: 18px; margin: 22px 0; }
+.tr-head { font-weight: 800; color: var(--primary-blue); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.tr-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .tr-grid { grid-template-columns: 1fr; } }
+.tr-code { background: #1e293b; border-radius: 14px; padding: 12px 0; direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: var(--code-size); overflow-x: auto; }
+.tr-line { display: flex; gap: 12px; padding: 1px 14px; color: #e2e8f0; white-space: pre; border-left: 4px solid transparent; transition: .15s; }
+.tr-line .ln { color: #64748b; min-width: 22px; text-align: right; user-select: none; }
+.tr-line.active { background: rgba(247,148,30,.28); border-left-color: var(--primary-yellow); }
+.tr-side { display: flex; flex-direction: column; gap: 12px; }
+.tr-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; flex: 1; }
+.tr-title { font-size: .78rem; font-weight: 800; color: var(--text-body); margin-bottom: 6px; }
+.tr-vars { direction: ltr; font-family: 'Consolas', monospace; font-size: .9rem; min-height: 28px; }
+.tr-var { display: flex; justify-content: space-between; padding: 3px 8px; border-radius: 8px; color: var(--dark-navy); }
+.tr-var b { color: var(--primary-blue); }
+.tr-var.changed { background: rgba(247,148,30,.22); }
+.tr-out { direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: .88rem; background: #0f172a; color: #4ade80; border-radius: 10px; padding: 8px 12px; min-height: 40px; white-space: pre-wrap; }
+.tr-note { margin-top: 12px; background: var(--card-bg); border: 1px dashed var(--primary-blue); border-radius: 12px; padding: 10px 16px; font-weight: 600; color: var(--dark-navy); min-height: 24px; }
+.tr-ctrl { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.tr-btn { border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 14px; cursor: pointer; font-family: 'Nunito'; font-weight: 800; font-size: .85rem; }
+.tr-btn.primary { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.tr-btn:disabled { opacity: .4; cursor: default; }
+.tr-count { margin-left: auto; font-size: .8rem; color: var(--text-body); font-weight: 700; }
+
+/* ---------- predict ---------- */
+.predict { border: 2px solid #8b5cf6; border-radius: 20px; padding: 16px 18px; margin: 22px 0; background: var(--surface); }
+.predict-head { font-weight: 800; color: #8b5cf6; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+.predict .code-box { margin: 12px 0; }
+.pd-q { font-weight: 700; color: var(--dark-navy); margin-bottom: 10px; }
+.pd-opts { display: flex; flex-wrap: wrap; gap: 10px; }
+.pd-opt { background: var(--card-bg); border: 2px solid var(--border); color: var(--dark-navy); border-radius: 12px; padding: 9px 16px; cursor: pointer; font-family: 'Nunito'; font-weight: 700; font-size: .92rem; }
+.pd-opt:hover { border-color: #8b5cf6; }
+.pd-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.pd-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.pd-opt:disabled { cursor: default; }
+.pd-result { margin-top: 12px; }
+.pd-msg { font-weight: 800; margin-bottom: 8px; }
+.pd-why { margin: 8px 0 0; font-size: .93rem; }
+
+/* ---------- misc ---------- */
+.summary-card { border-left-color: #22c55e; }
+.summary-card .card-header { color: #16a34a; }
+.sum-list { list-style: none; padding: 0; margin: 0; }
+.sum-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.sum-list i { color: #22c55e; margin-top: 6px; }
+.warn-box { background: rgba(239,68,68,.08); border: 2px dashed #ef4444; border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 4px; }
+.warn-box p { margin: 0; font-size: .93rem; }
+.analogy { background: linear-gradient(135deg, rgba(0,173,239,.1), rgba(139,92,246,.1)); border-radius: 18px; padding: 16px 22px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; border: 1px solid var(--border); }
+.analogy i { color: var(--primary-blue); font-size: 1.5rem; margin-top: 4px; }
+.analogy p { margin: 0; }
+.flow { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin: 18px 0; direction: ltr; }
+.flow-node { background: var(--card-bg); border: 2px solid var(--primary-blue); border-radius: 14px; padding: 10px 18px; font-weight: 800; color: var(--dark-navy); text-align: center; }
+.flow-node.decision { border-color: var(--primary-yellow); border-radius: 30px; }
+.flow-node.end { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.flow-arrow { color: var(--primary-blue); font-size: 1.2rem; }
+.flow-branch { display: flex; flex-direction: column; gap: 8px; }
+.cell-row { display: flex; direction: ltr; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 12px 0; }
+.cell { min-width: 54px; text-align: center; border: 2px solid var(--primary-blue); border-radius: 10px; background: var(--card-bg); font-family: 'Consolas', monospace; font-weight: 800; color: var(--dark-navy); padding: 6px 4px; cursor: pointer; }
+.cell small { display: block; font-size: .68rem; color: var(--text-body); font-weight: 700; }
+.cell.sel { background: rgba(247,148,30,.25); border-color: var(--primary-yellow); }
+.vis-line { display: block; padding: 0 6px; margin: 0 -6px; border-radius: 6px; opacity: .35; transition: .15s; }
+.vis-line.on { opacity: 1; background: rgba(34,197,94,.22); }
+.vis-btns { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+.vis-btn { border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Consolas', monospace; font-weight: 800; }
+.vis-btn.on { border-color: #22c55e; background: #dcfce7; color: #15803d; }
+
+.cell.ghost { opacity: .55; border-style: dashed; background: transparent; }
+
+
+.lab-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; margin: 10px 0; }
+.lab-row .btn-run { padding: 9px 18px; font-size: .88rem; border-radius: 14px; }
+.lab-tags { display: flex; direction: ltr; flex-wrap: wrap; gap: 8px; justify-content: center; min-height: 44px; margin: 10px 0; }
+.lab-tag { padding: 5px 14px; border-radius: 50px; background: var(--chip-bg); border: 2px solid var(--border); font-family: Consolas, monospace; font-weight: 800; color: var(--dark-navy); transition: .2s; }
+.lab-tag.hit { border-color: #16a34a; background: rgba(22,163,74,.16); }
+.lab-tag.miss { border-color: #ef4444; background: rgba(239,68,68,.14); }
+.lab-tag.new { border-color: var(--primary-blue); background: rgba(0,173,239,.16); }
+.lab-tag.warm { border-color: var(--primary-yellow); background: rgba(247,148,30,.2); }
+.lab-bars { display: flex; direction: ltr; align-items: flex-end; gap: 4px; height: 170px; justify-content: center; margin: 12px 0; }
+.lab-bar { width: 26px; background: var(--primary-blue); border-radius: 6px 6px 0 0; font-size: .68rem; color: #fff; text-align: center; font-weight: 800; padding-top: 2px; transition: height .15s, background .15s; font-family: Consolas, monospace; }
+.lab-bar.cmp { background: var(--primary-yellow); }
+.lab-bar.swp { background: #ef4444; }
+.lab-bar.done { background: #16a34a; }
+.lab-bar.dim { opacity: .28; }
+.lab-bar.mid { background: #8b5cf6; }
+.lab-grid { display: grid; direction: ltr; gap: 3px; justify-content: center; margin: 12px auto; }
+.lab-cell { width: 34px; height: 34px; border-radius: 8px; background: var(--chip-bg); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: Consolas, monospace; font-size: .9rem; color: var(--dark-navy); }
+.lab-cell.wall { background: #475569; border-color: #475569; }
+.lab-cell.on { background: rgba(0,173,239,.25); border-color: var(--primary-blue); }
+.lab-cell.hot { background: rgba(247,148,30,.3); border-color: var(--primary-yellow); }
+.lab-meter { height: 16px; border-radius: 50px; background: var(--chip-bg); overflow: hidden; direction: ltr; margin: 8px 0; }
+.lab-meter > span { display: block; height: 100%; background: linear-gradient(90deg, #16a34a, #f7941e, #ef4444); transition: width .25s; }
+.lab-table { width: 100%; border-collapse: collapse; direction: ltr; font-family: Consolas, monospace; font-size: .9rem; }
+.lab-table th, .lab-table td { border: 1px solid var(--border); padding: 6px 10px; text-align: center; }
+.lab-table th { background: var(--chip-bg); }
+.lab-say { margin-top: 10px; font-weight: 700; color: var(--dark-navy); min-height: 28px; }
+.lab-say.ok { color: #16a34a; } .lab-say.bad { color: #ef4444; }
+.sim-inputs select { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1rem; font-family: Consolas, monospace; }
+.sim-inputs input[type=range] { width: 200px; }
+.lab-in { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1rem; font-family: Consolas, monospace; direction: ltr; text-align: center; max-width: 100%; }
+
+.bit-row { display: flex; direction: ltr; gap: 5px; justify-content: center; flex-wrap: wrap; margin: 6px 0 4px; }
+.bit { width: 40px; height: 46px; border-radius: 10px; border: 2px solid var(--border); background: var(--chip-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: Consolas, monospace; font-weight: 800; font-size: 1.05rem; color: var(--dark-navy); cursor: pointer; user-select: none; transition: .15s; line-height: 1.1; }
+.bit small { font-size: .58rem; font-weight: 700; opacity: .65; }
+.bit.on { background: rgba(0,173,239,.24); border-color: var(--primary-blue); }
+.bit.res { cursor: default; }
+.bit.res.on { background: rgba(22,163,74,.2); border-color: #16a34a; }
+.bit.w { cursor: default; background: transparent; border-style: dashed; height: 30px; font-size: .78rem; opacity: .85; }
+.bit.flash { border-color: var(--primary-yellow); background: rgba(247,148,30,.3); }
+.bit.pick { outline: 3px solid var(--primary-yellow); }
+.bit-label { font-size: .8rem; font-weight: 800; text-align: center; margin-top: 8px; color: var(--text-body); }
+.mini-table { width: 100%; border-collapse: collapse; direction: ltr; font-family: Consolas, monospace; font-size: .86rem; margin: 8px 0; }
+.mini-table th, .mini-table td { border: 1px solid var(--border); padding: 5px 9px; text-align: center; }
+.mini-table th { background: var(--chip-bg); }
+.mini-table tr.hit td { background: rgba(22,163,74,.16); font-weight: 800; }
+.mini-table tr.sel td { background: rgba(247,148,30,.22); font-weight: 800; }
+.stu-table { width: 100%; border-collapse: collapse; direction: ltr; font-size: .92rem; margin: 8px 0; }
+.stu-table th, .stu-table td { border: 1px solid var(--border); padding: 7px 12px; text-align: center; }
+.stu-table th { background: var(--chip-bg); }
+
+.svg-box { width: 100%; max-width: 700px; height: auto; display: block; margin: 8px auto; direction: ltr; }
+.svg-box text { font-family: Consolas, monospace; font-size: 11px; fill: var(--dark-navy); text-anchor: middle; dominant-baseline: central; }
+.svg-box line.ed { stroke: var(--border); stroke-width: 2; }
+.svg-box line.ed.seen { stroke: var(--primary-blue); }
+.svg-box circle.nd { fill: var(--chip-bg); stroke: var(--border); stroke-width: 2; }
+.svg-box circle.nd.seen { stroke: var(--primary-blue); fill: rgba(0,173,239,.14); }
+.svg-box circle.nd.done { stroke: #16a34a; fill: rgba(22,163,74,.18); }
+.svg-box circle.nd.cur { stroke: var(--primary-yellow); fill: rgba(247,148,30,.35); }
+.svg-box text.lf { font-size: 10px; font-weight: 800; }
+.svg-box text.eg { font-size: 9px; opacity: .7; }
+.lab-cell.bad { background: rgba(239,68,68,.28); border-color: #ef4444; }
+.lab-cell.q { background: rgba(0,173,239,.25); border-color: var(--primary-blue); font-size: 1.25rem; }
+.lab-cell.ok { background: rgba(22,163,74,.22); border-color: #16a34a; }
+.lab-cell.dim { opacity: .35; }
+.lab-cell.sm { width: 26px; height: 26px; font-size: .72rem; border-radius: 6px; }
+.lab-cell.pr { background: rgba(22,163,74,.22); border-color: #16a34a; }
+.lab-cell.co { background: rgba(239,68,68,.2); border-color: #ef4444; text-decoration: line-through; opacity: .75; }
+.stat-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 8px 0; }
+.stat { padding: 6px 14px; border-radius: 12px; background: var(--chip-bg); border: 2px solid var(--border); font-weight: 800; font-size: .86rem; color: var(--dark-navy); }
+.stat b { font-family: Consolas, monospace; color: var(--primary-blue); }
+
+</style>
+</head>
+<body>
+<div class="bg-deco"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+<header>
+  <div class="hdr-brand">
+    <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    <div class="brand-info"><h3>TweetKod Platform</h3><p>Interactive Programming Learning</p></div>
+  </div>
+  <div class="hdr-tools">
+    <button class="tool-btn" id="tocBtn" title="Lesson contents"><i class="fas fa-list-ul"></i> Contents</button>
+    <button class="tool-btn" id="fontDec" title="Smaller code font">A-</button>
+    <button class="tool-btn" id="fontInc" title="Larger code font">A+</button>
+    <button class="tool-btn" id="themeBtn" title="Dark mode"><i class="fas fa-moon"></i></button>
+    <div class="toc-panel" id="tocPanel"></div>
+  </div>
+  <div class="read-progress"><span id="readBar"></span></div>
+</header>
+<div class="container">
+  <div class="title-section">
+    <h1>Backtracking</h1>
+    <p class="attribution">Choose, explore, then undo</p>
+  </div>
+  <div class="card goals-card">
+    <div class="card-header"><i class="fas fa-bullseye"></i><h3>What will you learn in this lesson?</h3></div>
+    <ul class="obj-list"><li><i class="fas fa-check-circle"></i><span>Understand the idea of backtracking and its skeleton: choose, explore, undo</span></li><li><i class="fas fa-check-circle"></i><span>Write a recursive function that generates subsets and arrangements</span></li><li><i class="fas fa-check-circle"></i><span>Understand why every choice must be undone after the recursive call</span></li><li><i class="fas fa-check-circle"></i><span>Use pruning to skip possibilities that cannot succeed</span></li><li><i class="fas fa-check-circle"></i><span>Solve splitting and counting problems with small limits, and know when backtracking fits</span></li></ul>
+  </div>
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-route"></i><h3>A maze with forks</h3></div>
+  <p>Imagine you are trying to get out of a maze. At every fork you choose a path and keep going. If you reach a dead end, you do not start the maze over: you go back to the <strong>last fork</strong> and try a different path. That is the whole idea of backtracking.</p>
+  <div class="analogy"><i class="fas fa-rotate-left"></i><p>Backtracking builds the solution <strong>piece by piece</strong>. After each piece it asks: can I keep going? When the exploration of a path is over (it succeeded or failed), it <strong>cancels the last piece</strong> and tries the next one. This way it misses no possibility, and it never repeats one.</p></div>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>Step</th><th>What do we do?</th><th>Example: taking an item into the bag</th></tr>
+    <tr><td><strong>Choose</strong></td><td>add an option to the partial solution</td><td><code>chosen.push_back(x)</code></td></tr>
+    <tr><td><strong>Explore</strong></td><td>continue with a recursive call on what is left</td><td><code>go(i + 1)</code></td></tr>
+    <tr><td><strong>Undo</strong></td><td>cancel the option to try another</td><td><code>chosen.pop_back()</code></td></tr>
+  </table></div>
+  <p>These three actions, <strong>choose, explore, undo</strong>, are the skeleton of every backtracking program you will write. To write it you first need to understand recursion well.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-layer-group"></i><h3>Before we start: going down and coming up</h3></div>
+  <p>When a function calls itself, the current call pauses and waits. The computer runs the deeper call first, and only afterwards returns to what is left of the waiting call. See how that shows up in the output:</p>
+  <div class="code-box" data-expl="unwind"><div class="code-head"><span>unwind.cpp</span><button class="copy-btn" onclick="copyCode('code_unwind')">Copy code</button></div><pre id="code_unwind"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-line" data-i="3"><span class="kw">void</span> dive(<span class="kw">int</span> n) {</span><span class="code-line" data-i="4">    <span class="kw">if</span> (n == <span class="num">0</span>) {</span><span class="code-plain">        cout &lt;&lt; <span class="str">"bottom"</span> &lt;&lt; endl;</span><span class="code-plain">        <span class="kw">return</span>;</span><span class="code-plain">    }</span><span class="code-line" data-i="8">    cout &lt;&lt; <span class="str">"in "</span> &lt;&lt; n &lt;&lt; endl;</span><span class="code-line" data-i="9">    dive(n - <span class="num">1</span>);</span><span class="code-line" data-i="10">    cout &lt;&lt; <span class="str">"out "</span> &lt;&lt; n &lt;&lt; endl;</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-plain">    dive(<span class="num">3</span>);</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="unwind"><span class="hint">Click any highlighted line of code to read its explanation here...</span></div>
+  <div class="output-box">in 3
+in 2
+in 1
+bottom
+out 1
+out 2
+out 3</div>
+  <p>The <code>in</code> lines were printed on the way <strong>down</strong> (3, then 2, then 1), and the <code>out</code> lines on the way <strong>up</strong> in reverse order (1, then 2, then 3). Whatever we write after the recursive call runs after everything beneath it has finished. That is why we put the "undo" line right after the call: it runs when the exploration of the branch is over.</p>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p><strong>Golden rule:</strong> every recursive function has a <strong>base case</strong> that stops the descent. And in backtracking, whatever you did before the recursive call (choose) must be undone after it (undo), so that the state is exactly as it was.</p></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-backpack"></i><h3>The first backtracking program: subsets</h3></div>
+  <p>You have three items: a pen, a book and a bag. For every item there is one decision: take it or leave it. We want to print every possible combination. We already met this problem with bitmasks; now we solve it in a different way, one that also works for problems where masks do not. Click any highlighted line to read its explanation:</p>
+  <div class="code-box" data-expl="subsets"><div class="code-head"><span>subsets_bt.cpp</span><button class="copy-btn" onclick="copyCode('code_subsets')">Copy code</button></div><pre id="code_subsets"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;string&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;vector&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-line" data-i="5"><span class="kw">string</span> item[<span class="num">3</span>] = {<span class="str">"pen"</span>, <span class="str">"book"</span>, <span class="str">"bag"</span>};</span><span class="code-line" data-i="6"><span class="kw">vector</span>&lt;<span class="kw">string</span>&gt; chosen;</span><span class="code-plain"> </span><span class="code-line" data-i="8"><span class="kw">void</span> go(<span class="kw">int</span> i) {</span><span class="code-line" data-i="9">    <span class="kw">if</span> (i == <span class="num">3</span>) {</span><span class="code-plain">        cout &lt;&lt; <span class="str">"{"</span>;</span><span class="code-plain">        <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">string</span>&amp; s : chosen) {</span><span class="code-plain">            cout &lt;&lt; <span class="str">" "</span> &lt;&lt; s;</span><span class="code-plain">        }</span><span class="code-plain">        cout &lt;&lt; <span class="str">" }"</span> &lt;&lt; endl;</span><span class="code-plain">        <span class="kw">return</span>;</span><span class="code-plain">    }</span><span class="code-line" data-i="17">    chosen.push_back(item[i]);</span><span class="code-line" data-i="18">    go(i + <span class="num">1</span>);</span><span class="code-line" data-i="19">    chosen.pop_back();</span><span class="code-line" data-i="20">    go(i + <span class="num">1</span>);</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-plain">    go(<span class="num">0</span>);</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="subsets"><span class="hint">Click any highlighted line of code to read its explanation here...</span></div>
+  <div class="output-box">{ pen book bag }
+{ pen book }
+{ pen bag }
+{ pen }
+{ book bag }
+{ book }
+{ bag }
+{ }</div>
+  <p>Look at the order: the first solution printed is the one where the program took every item, because it tries "take" first at each level. The last one printed is the empty set. Exactly eight solutions, which is <code>2<sup>3</sup></code>.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-shoe-prints"></i><h3>Trace: how do the calls move?</h3></div>
+  <p>Let us trace the small version with only two items (A and B). Watch the list <code>chosen</code> grow when we choose and shrink when we undo, and notice that the state always returns to what it was before each branch:</p>
+  <div class="tracer" data-trace="trace"><div class="tr-head"><i class="fas fa-bug-slash"></i> Step-by-step execution</div><div class="tr-grid"><div class="tr-code"><div class="tr-line" data-i="0"><span class="ln">1</span><span class="src"><span class="pp">#include &lt;iostream&gt;</span></span></div><div class="tr-line" data-i="1"><span class="ln">2</span><span class="src"><span class="pp">#include &lt;string&gt;</span></span></div><div class="tr-line" data-i="2"><span class="ln">3</span><span class="src"><span class="pp">#include &lt;vector&gt;</span></span></div><div class="tr-line" data-i="3"><span class="ln">4</span><span class="src"><span class="kw">using</span> <span class="kw">namespace</span> std;</span></div><div class="tr-line" data-i="4"><span class="ln">5</span><span class="src"> </span></div><div class="tr-line" data-i="5"><span class="ln">6</span><span class="src"><span class="kw">string</span> item[<span class="num">2</span>] = {<span class="str">"A"</span>, <span class="str">"B"</span>};</span></div><div class="tr-line" data-i="6"><span class="ln">7</span><span class="src"><span class="kw">vector</span>&lt;<span class="kw">string</span>&gt; chosen;</span></div><div class="tr-line" data-i="7"><span class="ln">8</span><span class="src"> </span></div><div class="tr-line" data-i="8"><span class="ln">9</span><span class="src"><span class="kw">void</span> go(<span class="kw">int</span> i) {</span></div><div class="tr-line" data-i="9"><span class="ln">10</span><span class="src">    <span class="kw">if</span> (i == <span class="num">2</span>) {</span></div><div class="tr-line" data-i="10"><span class="ln">11</span><span class="src">        cout &lt;&lt; chosen.size() &lt;&lt; endl;</span></div><div class="tr-line" data-i="11"><span class="ln">12</span><span class="src">        <span class="kw">return</span>;</span></div><div class="tr-line" data-i="12"><span class="ln">13</span><span class="src">    }</span></div><div class="tr-line" data-i="13"><span class="ln">14</span><span class="src">    chosen.push_back(item[i]);</span></div><div class="tr-line" data-i="14"><span class="ln">15</span><span class="src">    go(i + <span class="num">1</span>);</span></div><div class="tr-line" data-i="15"><span class="ln">16</span><span class="src">    chosen.pop_back();</span></div><div class="tr-line" data-i="16"><span class="ln">17</span><span class="src">    go(i + <span class="num">1</span>);</span></div><div class="tr-line" data-i="17"><span class="ln">18</span><span class="src">}</span></div><div class="tr-line" data-i="18"><span class="ln">19</span><span class="src"> </span></div><div class="tr-line" data-i="19"><span class="ln">20</span><span class="src"><span class="kw">int</span> <span class="kw">main</span>() {</span></div><div class="tr-line" data-i="20"><span class="ln">21</span><span class="src">    go(<span class="num">0</span>);</span></div><div class="tr-line" data-i="21"><span class="ln">22</span><span class="src">    <span class="kw">return</span> <span class="num">0</span>;</span></div><div class="tr-line" data-i="22"><span class="ln">23</span><span class="src">}</span></div></div><div class="tr-side"><div class="tr-box"><div class="tr-title">Variables</div><div class="tr-vars"></div></div><div class="tr-box"><div class="tr-title">Output so far</div><div class="tr-out"></div></div></div></div><div class="tr-note"></div><div class="tr-ctrl"><button class="tr-btn" data-a="reset" title="Restart"><i class="fas fa-backward-fast"></i></button><button class="tr-btn" data-a="prev"><i class="fas fa-backward-step"></i> Previous</button><button class="tr-btn primary" data-a="next">Next <i class="fas fa-forward-step"></i></button><button class="tr-btn" data-a="play"><i class="fas fa-play"></i> Auto-play</button><span class="tr-count"></span></div></div>
+  <div class="predict"><div class="predict-head"><i class="fas fa-brain"></i> Predict before you run</div><div class="code-box"><div class="code-head"><span>predict_leaves.cpp</span><button class="copy-btn" onclick="copyCode('code_p_count')">Copy code</button></div><pre id="code_p_count"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> cnt = <span class="num">0</span>;
+
+<span class="kw">void</span> go(<span class="kw">int</span> i) {
+    <span class="kw">if</span> (i == <span class="num">4</span>) {
+        cnt++;
+        <span class="kw">return</span>;
+    }
+    go(i + <span class="num">1</span>);
+    go(i + <span class="num">1</span>);
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    go(<span class="num">0</span>);
+    cout &lt;&lt; cnt &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div><p class="pd-q">How many times will execution reach the condition <code class="inline">i == 4</code> and increase the counter? (How many leaves are in the tree?)</p><div class="pd-opts"><button class="pd-opt" data-ok="1">16</button><button class="pd-opt" data-ok="0">4</button><button class="pd-opt" data-ok="0">32</button><button class="pd-opt" data-ok="0">8</button></div><div class="pd-result hidden"><div class="pd-msg"></div><div class="output-box">16</div><p class="pd-why">At every level each call splits into two calls, and there are 4 levels, so there are <code class="inline">2^4 = 16</code> leaves. This is the same as the number of subsets of four items.</p></div></div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-flask"></i><h3>Interactive lab: the backtracking tree</h3></div>
+  <p>Each call is a circle, and each branch is either "take" or "leave". Press "Next step" and watch the orange circle move through the tree: it goes down-left to take, and when it comes back it undoes the choice and goes down-right. A green leaf means a solution is complete.</p>
+  <div class="sim-box">
+    <div class="sim-inputs">
+      <div class="field"><label>number of items</label><select id="btN" onchange="btBuild()"><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option></select></div>
+    </div>
+    <svg id="btTree" class="svg-box" viewBox="0 0 640 270" role="img" aria-label="recursion tree"></svg>
+    <div class="lab-row">
+      <button class="btn-run" onclick="btStep(-1)"><i class="fas fa-backward-step"></i> previous</button>
+      <button class="btn-run" onclick="btStep(1)">next step <i class="fas fa-forward-step"></i></button>
+      <button class="btn-run" onclick="btPlay()"><i class="fas fa-play"></i> play / pause</button>
+      <button class="btn-run" onclick="btReset()"><i class="fas fa-rotate-left"></i> restart</button>
+    </div>
+    <div class="bit-label">current choices (<code>chosen</code>)</div>
+    <div class="lab-tags" id="btPath"></div>
+    <div class="sim-console" id="btOut"></div>
+    <div class="lab-say" id="btNote"></div>
+  </div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-shuffle"></i><h3>Arrangements: choose, but never repeat</h3></div>
+  <p>What if we want to arrange the numbers 1, 2 and 3 in every possible way? Here we fill the positions one by one, and at each position we try every number that has <strong>not been used yet</strong>. We need a record <code>used</code> that remembers what we used, and we must clear the mark when we undo:</p>
+  <div class="code-box" data-expl="perm"><div class="code-head"><span>permutations.cpp</span><button class="copy-btn" onclick="copyCode('code_perm')">Copy code</button></div><pre id="code_perm"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="pp">#include &lt;vector&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> n = <span class="num">3</span>;</span><span class="code-plain"><span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; cur;</span><span class="code-line" data-i="6"><span class="kw">bool</span> used[<span class="num">4</span>];</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">void</span> build() {</span><span class="code-line" data-i="9">    <span class="kw">if</span> ((<span class="kw">int</span>)cur.size() == n) {</span><span class="code-plain">        <span class="kw">for</span> (<span class="kw">int</span> x : cur) {</span><span class="code-plain">            cout &lt;&lt; x &lt;&lt; <span class="str">" "</span>;</span><span class="code-plain">        }</span><span class="code-plain">        cout &lt;&lt; endl;</span><span class="code-plain">        <span class="kw">return</span>;</span><span class="code-plain">    }</span><span class="code-line" data-i="16">    <span class="kw">for</span> (<span class="kw">int</span> v = <span class="num">1</span>; v &lt;= n; v++) {</span><span class="code-line" data-i="17">        <span class="kw">if</span> (used[v]) {</span><span class="code-plain">            <span class="kw">continue</span>;</span><span class="code-plain">        }</span><span class="code-line" data-i="20">        used[v] = <span class="kw">true</span>;</span><span class="code-plain">        cur.push_back(v);</span><span class="code-line" data-i="22">        build();</span><span class="code-line" data-i="23">        cur.pop_back();</span><span class="code-line" data-i="24">        used[v] = <span class="kw">false</span>;</span><span class="code-plain">    }</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-plain">    build();</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="perm"><span class="hint">Click any highlighted line of code to read its explanation here...</span></div>
+  <div class="output-box">1 2 3 
+1 3 2 
+2 1 3 
+2 3 1 
+3 1 2 
+3 2 1 </div>
+  <p>Six arrangements, which is <code>3! = 3 × 2 × 1</code>. They appear in ascending order because at every position we try the numbers from smallest to largest. Notice that the undo here is two lines, not one: removing the number from the list, and marking it "not used" again.</p>
+  <div class="warn-box"><i class="fas fa-triangle-exclamation"></i><p>Arrangements grow much faster than subsets: <code>10! = 3,628,800</code> and <code>12!</code> is more than 479 million. That is why we normally enumerate arrangements only when <code>n</code> is at most about 9 or 10.</p></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-scissors"></i><h3>Cutting dead branches (pruning)</h3></div>
+  <p>The strongest weapon of backtracking is that it can <strong>stop early</strong>. If we learn in the middle of the road that the current branch can never lead to a solution, there is no need to explore anything beneath it. Try this idea on a problem: how many subsets of the ten numbers sum to exactly 12? (All numbers are positive):</p>
+  <div class="code-box" data-expl="prune"><div class="code-head"><span>pruning.cpp</span><button class="copy-btn" onclick="copyCode('code_prune')">Copy code</button></div><pre id="code_prune"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> a[] = {<span class="num">8</span>, <span class="num">3</span>, <span class="num">6</span>, <span class="num">5</span>, <span class="num">9</span>, <span class="num">4</span>, <span class="num">7</span>, <span class="num">2</span>, <span class="num">10</span>, <span class="num">1</span>};</span><span class="code-plain"><span class="kw">int</span> n = <span class="num">10</span>;</span><span class="code-plain"><span class="kw">int</span> target = <span class="num">12</span>;</span><span class="code-plain"><span class="kw">long</span> <span class="kw">long</span> calls;</span><span class="code-plain"><span class="kw">int</span> found;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">void</span> walk(<span class="kw">int</span> i, <span class="kw">int</span> sum, <span class="kw">bool</span> prune) {</span><span class="code-line" data-i="10">    calls++;</span><span class="code-line" data-i="11">    <span class="kw">if</span> (prune &amp;&amp; sum &gt; target) {</span><span class="code-plain">        <span class="kw">return</span>;</span><span class="code-plain">    }</span><span class="code-line" data-i="14">    <span class="kw">if</span> (i == n) {</span><span class="code-plain">        <span class="kw">if</span> (sum == target) {</span><span class="code-plain">            found++;</span><span class="code-plain">        }</span><span class="code-plain">        <span class="kw">return</span>;</span><span class="code-plain">    }</span><span class="code-line" data-i="20">    walk(i + <span class="num">1</span>, sum + a[i], prune);</span><span class="code-plain">    walk(i + <span class="num">1</span>, sum, prune);</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-plain">    calls = <span class="num">0</span>;</span><span class="code-plain">    found = <span class="num">0</span>;</span><span class="code-plain">    walk(<span class="num">0</span>, <span class="num">0</span>, <span class="kw">false</span>);</span><span class="code-plain">    cout &lt;&lt; <span class="str">"no pruning: "</span> &lt;&lt; calls &lt;&lt; <span class="str">" calls, "</span> &lt;&lt; found &lt;&lt; <span class="str">" subsets"</span> &lt;&lt; endl;</span><span class="code-plain">    calls = <span class="num">0</span>;</span><span class="code-plain">    found = <span class="num">0</span>;</span><span class="code-plain">    walk(<span class="num">0</span>, <span class="num">0</span>, <span class="kw">true</span>);</span><span class="code-plain">    cout &lt;&lt; <span class="str">"pruning:    "</span> &lt;&lt; calls &lt;&lt; <span class="str">" calls, "</span> &lt;&lt; found &lt;&lt; <span class="str">" subsets"</span> &lt;&lt; endl;</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="prune"><span class="hint">Click any highlighted line of code to read its explanation here...</span></div>
+  <div class="output-box">no pruning: 2047 calls, 13 subsets
+pruning:    287 calls, 13 subsets</div>
+  <p>The result is the same in both cases: <strong>the same solutions</strong>, but the number of calls dropped a lot, because every branch whose sum exceeded 12 was cut immediately. A correct cut never changes the answer; it only skips what is useless.</p>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p><strong>When is a cut valid?</strong> When you are sure that <em>no</em> completion of this branch can succeed. Here all numbers are positive, so the sum never decreases once it has passed the target. With negative numbers around, the cut would be wrong.</p></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-chess-queen"></i><h3>The queens problem: backtracking at its best</h3></div>
+  <p>Place <code>n</code> queens on an <code>n × n</code> chessboard so that no queen attacks another (no two queens share a row, column or diagonal). We put one queen in each row, and in each row we try the columns. Whenever we find that a square is attacked, we cut the branch. We keep the columns and diagonals in boolean records so that we can test for an attack in a single step:</p>
+  <div class="code-box" data-expl="queens"><div class="code-head"><span>queens.cpp</span><button class="copy-btn" onclick="copyCode('code_queens')">Copy code</button></div><pre id="code_queens"><span class="code-plain"><span class="pp">#include &lt;iostream&gt;</span></span><span class="code-plain"><span class="kw">using</span> <span class="kw">namespace</span> std;</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> n;</span><span class="code-line" data-i="4"><span class="kw">bool</span> col[<span class="num">16</span>], diagA[<span class="num">32</span>], diagB[<span class="num">32</span>];</span><span class="code-plain"><span class="kw">int</span> pos[<span class="num">16</span>];</span><span class="code-plain"><span class="kw">int</span> solutions;</span><span class="code-plain"> </span><span class="code-line" data-i="8"><span class="kw">void</span> place(<span class="kw">int</span> row) {</span><span class="code-line" data-i="9">    <span class="kw">if</span> (row == n) {</span><span class="code-plain">        solutions++;</span><span class="code-plain">        <span class="kw">if</span> (solutions == <span class="num">1</span>) {</span><span class="code-plain">            <span class="kw">for</span> (<span class="kw">int</span> r = <span class="num">0</span>; r &lt; n; r++) {</span><span class="code-plain">                <span class="kw">for</span> (<span class="kw">int</span> c = <span class="num">0</span>; c &lt; n; c++) {</span><span class="code-plain">                    cout &lt;&lt; (pos[r] == c ? <span class="str">'Q'</span> : <span class="str">'.'</span>);</span><span class="code-plain">                }</span><span class="code-plain">                cout &lt;&lt; endl;</span><span class="code-plain">            }</span><span class="code-plain">        }</span><span class="code-plain">        <span class="kw">return</span>;</span><span class="code-plain">    }</span><span class="code-plain">    <span class="kw">for</span> (<span class="kw">int</span> c = <span class="num">0</span>; c &lt; n; c++) {</span><span class="code-line" data-i="22">        <span class="kw">if</span> (col[c] || diagA[row + c] || diagB[row - c + n]) {</span><span class="code-plain">            <span class="kw">continue</span>;</span><span class="code-plain">        }</span><span class="code-line" data-i="25">        col[c] = diagA[row + c] = diagB[row - c + n] = <span class="kw">true</span>;</span><span class="code-plain">        pos[row] = c;</span><span class="code-line" data-i="27">        place(row + <span class="num">1</span>);</span><span class="code-line" data-i="28">        col[c] = diagA[row + c] = diagB[row - c + n] = <span class="kw">false</span>;</span><span class="code-plain">    }</span><span class="code-plain">}</span><span class="code-plain"> </span><span class="code-plain"><span class="kw">int</span> <span class="kw">main</span>() {</span><span class="code-plain">    <span class="kw">for</span> (n = <span class="num">4</span>; n &lt;= <span class="num">8</span>; n++) {</span><span class="code-plain">        solutions = <span class="num">0</span>;</span><span class="code-plain">        place(<span class="num">0</span>);</span><span class="code-plain">        cout &lt;&lt; n &lt;&lt; <span class="str">" queens: "</span> &lt;&lt; solutions &lt;&lt; <span class="str">" solutions"</span> &lt;&lt; endl;</span><span class="code-plain">    }</span><span class="code-plain">    <span class="kw">return</span> <span class="num">0</span>;</span><span class="code-plain">}</span></pre></div><div class="explain-box" data-for="queens"><span class="hint">Click any highlighted line of code to read its explanation here...</span></div>
+  <div class="output-box">.Q..
+...Q
+Q...
+..Q.
+4 queens: 2 solutions
+Q....
+..Q..
+....Q
+.Q...
+...Q.
+5 queens: 10 solutions
+.Q....
+...Q..
+.....Q
+Q.....
+..Q...
+....Q.
+6 queens: 4 solutions
+Q......
+..Q....
+....Q..
+......Q
+.Q.....
+...Q...
+.....Q.
+7 queens: 40 solutions
+Q.......
+....Q...
+.......Q
+.....Q..
+..Q.....
+......Q.
+.Q......
+...Q....
+8 queens: 92 solutions</div>
+  <p>The program printed the first solution for each size, followed by the total number of solutions: 2 for the 4 × 4 board, 10 for 5 × 5, 4 for 6 × 6, 40 for 7 × 7, and 92 for the 8 × 8 chessboard. Trying every placement of 8 queens on 64 squares would need more than four billion possibilities, but the cuts make this problem finish in a fraction of a second.</p>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>Diagonal</th><th>What stays constant along it?</th><th>Its index in the record</th></tr>
+    <tr><td>diagonal "/"</td><td><code>row + col</code> is constant</td><td><code>diagA[row + c]</code></td></tr>
+    <tr><td>diagonal "\"</td><td><code>row - col</code> is constant (we add <code>n</code> to avoid negative indexes)</td><td><code>diagB[row - c + n]</code></td></tr>
+  </table></div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-flask"></i><h3>Interactive lab: queens, step by step</h3></div>
+  <p>Watch the program try and backtrack. A blue cell is a queen that was placed, a red cell is an attacked square the program rejected, and green is a completed solution. Use "to next solution" to jump straight to the nearest solution.</p>
+  <div class="sim-box">
+    <div class="sim-inputs">
+      <div class="field"><label>board size</label><select id="qN" onchange="qBuild()"><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option></select></div>
+    </div>
+    <div id="qBoard" class="lab-grid"></div>
+    <div class="stat-row">
+      <span class="stat">step: <b id="qStep">0</b></span>
+      <span class="stat">queens placed: <b id="qPlaced">0</b></span>
+      <span class="stat">backtracks: <b id="qBack">0</b></span>
+      <span class="stat">solutions: <b id="qSol">0</b></span>
+    </div>
+    <div class="lab-row">
+      <button class="btn-run" onclick="qStep(-1)"><i class="fas fa-backward-step"></i> previous</button>
+      <button class="btn-run" onclick="qStep(1)">next step <i class="fas fa-forward-step"></i></button>
+      <button class="btn-run" onclick="qNextSol()"><i class="fas fa-flag-checkered"></i> to next solution</button>
+      <button class="btn-run" onclick="qPlay()"><i class="fas fa-play"></i> play / pause</button>
+      <button class="btn-run" onclick="qReset()"><i class="fas fa-rotate-left"></i> restart</button>
+    </div>
+    <div class="lab-say" id="qNote"></div>
+  </div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-scale-balanced"></i><h3>When should I use backtracking?</h3></div>
+  <p>Backtracking goes through many possibilities, so it suits problems where <code>n</code> is small. This summary helps you judge:</p>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>Kind of enumeration</th><th>Number of cases</th><th>Usual limit for <code>n</code></th></tr>
+    <tr><td>subsets (take / leave)</td><td><code>2<sup>n</sup></code></td><td>up to about 20 (more with pruning)</td></tr>
+    <tr><td>arrangements (all orders)</td><td><code>n!</code></td><td>up to about 9 or 10</td></tr>
+    <tr><td><code>k</code> options at every step</td><td><code>k<sup>n</sup></code></td><td>depends on <code>k</code></td></tr>
+    <tr><td>problems with strong pruning (like queens)</td><td>far fewer than the maximum</td><td>depends on the strength of the pruning</td></tr>
+  </table></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p>If a problem statement says <code>n ≤ 20</code> or <code>n ≤ 10</code>, that is a strong hint that exhaustive search or backtracking is intended. If you see <code>n ≤ 10<sup>5</sup></code>, look for another approach (such as sorting, binary search or dynamic programming).</p></div>
+</div>
+
+
+<div class="card">
+  <div class="project-banner"><i class="fas fa-candy-cane"></i><div><strong>Lesson project: splitting candy fairly</strong><p>We divide the candy into two bags with the smallest possible difference in weight.</p></div></div>
+  <div class="brief"><h5><i class="fas fa-lightbulb"></i> The idea</h5>
+    <p style="margin:0">You have two brothers and several pieces of candy of different weights. You want to split them into two bags so that the difference between the weights of the bags is <strong>as small as possible</strong>. You also want to know what is in the first bag. The number of pieces is small (at most 20).</p></div>
+  <div class="brief"><h5><i class="fas fa-list-check"></i> What you need to do</h5>
+    <ol>
+      <li>Read <code>n</code> and then the weights of the pieces.</li>
+      <li>In the recursive function <code>split(i)</code>, try to put piece <code>i</code> in the first bag, then explore, then undo, then try the second bag.</li>
+      <li>When the split is complete (<code>i == n</code>) compute the absolute difference, and if it is strictly smaller than the best difference you have seen, save it and save the split.</li>
+      <li>Print <code>Difference:</code> followed by the difference, and after it a line that starts with <code>Group A:</code> followed by the weights of the first bag in input order.</li>
+    </ol></div>
+  <div class="brief"><h5><i class="fas fa-bullseye"></i> Two sample runs</h5>
+    <p><strong>First run:</strong></p>
+    <div class="input-box">5
+3 7 4 6 2</div><div class="output-box">Difference: 0
+Group A: 3 6 2</div>
+    <p><strong>Second run:</strong></p>
+    <div class="input-box">3
+10 4 3</div><div class="output-box">Difference: 3
+Group A: 10</div></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p><strong>Check it in your head:</strong> in the first run the total weight is 22, so the best that can happen is two bags of weight 11 each (a difference of zero). In the second run the piece of weight 10 is heavier than the other two together (7), so the best difference is 3.</p></div>
+  <details class="reveal"><summary><i class="fas fa-eye"></i> After you try it yourself: show the solution</summary>
+    <div class="code-box"><div class="code-head"><span>candy_split.cpp</span><button class="copy-btn" onclick="copyCode('code_project')">Copy code</button></div><pre id="code_project"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;vector&gt;</span>
+<span class="pp">#include &lt;cstdlib&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> n;
+<span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; candy;
+<span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; side;
+<span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; bestSide;
+<span class="kw">long</span> <span class="kw">long</span> sumA = <span class="num">0</span>, sumB = <span class="num">0</span>;
+<span class="kw">long</span> <span class="kw">long</span> best = -<span class="num">1</span>;
+
+<span class="kw">void</span> split(<span class="kw">int</span> i) {
+    <span class="kw">if</span> (i == n) {
+        <span class="kw">long</span> <span class="kw">long</span> diff = llabs(sumA - sumB);
+        <span class="kw">if</span> (best == -<span class="num">1</span> || diff &lt; best) {
+            best = diff;
+            bestSide = side;
+        }
+        <span class="kw">return</span>;
+    }
+    side[i] = <span class="num">0</span>;
+    sumA += candy[i];
+    split(i + <span class="num">1</span>);
+    sumA -= candy[i];
+
+    side[i] = <span class="num">1</span>;
+    sumB += candy[i];
+    split(i + <span class="num">1</span>);
+    sumB -= candy[i];
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    cin &gt;&gt; n;
+    candy.resize(n);
+    side.assign(n, <span class="num">0</span>);
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {
+        cin &gt;&gt; candy[i];
+    }
+
+    split(<span class="num">0</span>);
+
+    cout &lt;&lt; <span class="str">"Difference: "</span> &lt;&lt; best &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Group A:"</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {
+        <span class="kw">if</span> (bestSide[i] == <span class="num">0</span>) {
+            cout &lt;&lt; <span class="str">" "</span> &lt;&lt; candy[i];
+        }
+    }
+    cout &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  </details>
+  <p style="margin-top:12px">This problem is known on the CSES platform as "Apple Division"; try solving it there after writing your own solution.</p>
+</div>
+
+
+<div class="card challenge-card"><div class="card-header"><i class="fas fa-dumbbell"></i><h3>Homework challenges</h3></div><p>Two short challenges to solve on your own after the lesson. Write your solution in a <code>.cpp</code> file, compile and run it, and compare your output with the expected output. Try first, open a hint only if you get stuck, and look at the sample solution only after a serious attempt.</p><div class="challenge"><div class="ch-head"><span class="ch-num">1</span><h4>All arrangements</h4><span class="badge easy">Easy</span></div><p>Read <code>n</code> (from 1 to 6) and print every arrangement of the numbers from 1 to <code>n</code>, one arrangement per line, in ascending (dictionary) order.</p><h5>Requirements</h5><ul><li>Read <code>n</code>.</li><li>Build the arrangement position by position with a recursive function.</li><li>Never use the same number twice, and remember to undo.</li><li>Print each complete arrangement on its own line, with the numbers separated by a space (no space after the last number).</li></ul><h5>Example input and expected output</h5><div class="input-box">3</div><div class="output-box">1 2 3
+1 3 2
+2 1 3
+2 3 1
+3 1 2
+3 2 1</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> Hints</summary><ul><li>Try the numbers at every position from 1 to <code>n</code>, and the order comes out ascending automatically.</li><li>With <code>n = 3</code> you should get six lines, the first <code>1 2 3</code> and the last <code>3 2 1</code>.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> Sample solution (after you try)</summary><div class="code-box"><div class="code-head"><span>all_permutations.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_perm')">Copy code</button></div><pre id="code_ch_perm"><span class="cmt">// Challenge 1: all permutations of 1..n in order</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;vector&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> n;
+<span class="kw">vector</span>&lt;<span class="kw">int</span>&gt; cur;
+<span class="kw">vector</span>&lt;<span class="kw">bool</span>&gt; used;
+
+<span class="kw">void</span> build() {
+    <span class="kw">if</span> ((<span class="kw">int</span>)cur.size() == n) {
+        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {
+            cout &lt;&lt; cur[i] &lt;&lt; (i + <span class="num">1</span> &lt; n ? <span class="str">" "</span> : <span class="str">""</span>);
+        }
+        cout &lt;&lt; endl;
+        <span class="kw">return</span>;
+    }
+    <span class="kw">for</span> (<span class="kw">int</span> v = <span class="num">1</span>; v &lt;= n; v++) {
+        <span class="kw">if</span> (used[v]) {
+            <span class="kw">continue</span>;
+        }
+        used[v] = <span class="kw">true</span>;
+        cur.push_back(v);
+        build();
+        cur.pop_back();
+        used[v] = <span class="kw">false</span>;
+    }
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    cin &gt;&gt; n;
+    used.assign(n + <span class="num">1</span>, <span class="kw">false</span>);
+    build();
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div><div class="challenge"><div class="ch-head"><span class="ch-num">2</span><h4>Robot routes</h4><span class="badge medium">Medium</span></div><p>A robot stands at the top-left of an <code>R × C</code> grid (each at most 6) and wants to reach the bottom-right. It moves only right or down, and never enters cells that contain <code>#</code>. How many different routes are there?</p><h5>Requirements</h5><ul><li>Read <code>R</code> and <code>C</code>, then the grid line by line.</li><li>Write a function <code>routes(r, c)</code> that returns the number of routes from cell <code>(r, c)</code> to the goal.</li><li>Return 0 if you leave the grid or hit a wall, and return 1 on reaching the goal.</li><li>Print the total number.</li></ul><h5>Example input and expected output</h5><div class="input-box">3 3
+...
+.#.
+...</div><div class="output-box">2</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> Hints</summary><ul><li>The routes from a cell = the routes when moving down + the routes when moving right.</li><li>In the example (a 3 × 3 grid with a single wall in the middle) the answer is 2.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> Sample solution (after you try)</summary><div class="code-box"><div class="code-head"><span>robot_routes.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_path')">Copy code</button></div><pre id="code_ch_path"><span class="cmt">// Challenge 2: count the routes of a robot (right / down only)</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;string&gt;</span>
+<span class="pp">#include &lt;vector&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> R, C;
+<span class="kw">vector</span>&lt;<span class="kw">string</span>&gt; grid;
+
+<span class="kw">int</span> routes(<span class="kw">int</span> r, <span class="kw">int</span> c) {
+    <span class="kw">if</span> (r &gt;= R || c &gt;= C || grid[r][c] == <span class="str">'#'</span>) {
+        <span class="kw">return</span> <span class="num">0</span>;
+    }
+    <span class="kw">if</span> (r == R - <span class="num">1</span> &amp;&amp; c == C - <span class="num">1</span>) {
+        <span class="kw">return</span> <span class="num">1</span>;
+    }
+    <span class="kw">return</span> routes(r + <span class="num">1</span>, c) + routes(r, c + <span class="num">1</span>);
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    cin &gt;&gt; R &gt;&gt; C;
+    grid.resize(R);
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; R; i++) {
+        cin &gt;&gt; grid[i];
+    }
+    cout &lt;&lt; routes(<span class="num">0</span>, <span class="num">0</span>) &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div></div>
+
+<div class="card summary-card"><div class="card-header"><i class="fas fa-clipboard-list"></i><h3>Quick summary</h3></div><ul class="sum-list"><li><i class="fas fa-circle-check"></i><span>Backtracking builds the solution piece by piece, and its skeleton is three actions: **choose, explore, undo**.</span></li><li><i class="fas fa-circle-check"></i><span>Whatever you do before the recursive call you must undo after it, so the state returns to what it was.</span></li><li><i class="fas fa-circle-check"></i><span>Every recursive function has a base case; in backtracking it is usually the moment the solution is complete.</span></li><li><i class="fas fa-circle-check"></i><span>Subsets give <code class="inline">2^n</code> leaves and arrangements give <code class="inline">n!</code>, so backtracking suits small values.</span></li><li><i class="fas fa-circle-check"></i><span>Cutting a branch that cannot succeed saves a huge amount of work without changing the answer.</span></li><li><i class="fas fa-circle-check"></i><span>For arrangements you need a <code class="inline">used</code> record and you clear its mark when you undo.</span></li><li><i class="fas fa-circle-check"></i><span>In the queens problem we keep the columns and diagonals in boolean records to detect attacks instantly.</span></li></ul></div>
+  <div class="card steps-card" id="tfCard">
+    <div class="card-header"><i class="fas fa-clipboard-check"></i><h3>Check your understanding</h3></div>
+    <p>Read each statement and choose <strong>True</strong> or <strong>False</strong>. The explanation appears right after you answer.</p>
+    <div id="tfList"></div>
+    <div class="score-box" id="tfScore" style="display:none"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><i class="fas fa-book"></i><h3>Glossary</h3></div>
+    <p>The most important terms in this lesson:</p>
+    <div class="glossary-grid"><div class="term-card"><span class="term-en">Backtracking</span><p class="term-desc">Building a solution step by step and undoing the last step when its exploration ends.</p></div><div class="term-card"><span class="term-en">Recursion</span><p class="term-desc">A function that calls itself on a smaller problem.</p></div><div class="term-card"><span class="term-en">Base case</span><p class="term-desc">The case that stops the descent, where the function does not call itself again.</p></div><div class="term-card"><span class="term-en">Partial solution</span><p class="term-desc">What we have built so far and has not been completed yet.</p></div><div class="term-card"><span class="term-en">Search tree</span><p class="term-desc">A tree of all possible decisions; each leaf is a complete solution.</p></div><div class="term-card"><span class="term-en">Pruning</span><p class="term-desc">Stopping early on a branch that cannot lead to a solution.</p></div><div class="term-card"><span class="term-en">Permutation</span><p class="term-desc">A sequence that uses every element once in some order; there are <code class="inline">n!</code> of them.</p></div><div class="term-card"><span class="term-en">Subset</span><p class="term-desc">A choice of some of the elements; there are <code class="inline">2^n</code> of them.</p></div><div class="term-card"><span class="term-en">Call stack</span><p class="term-desc">Memory that holds the pending calls until they finish.</p></div><div class="term-card"><span class="term-en">Exhaustive search</span><p class="term-desc">Trying every possibility.</p></div><div class="term-card"><span class="term-en">Constraint</span><p class="term-desc">A condition the solution must satisfy, such as "no two queens attack each other".</p></div><div class="term-card"><span class="term-en">Factorial</span><p class="term-desc">The product of the numbers from 1 to n, written <code class="inline">n!</code>.</p></div></div>
+  </div>
+  <div class="card steps-card" id="quizCard">
+    <div class="card-header"><i class="fas fa-circle-question"></i><h3>Final quiz</h3></div>
+    <p>Ten questions, from easy to medium. Choose one answer for each question.</p>
+    <div class="progress"><div class="progress-bar" id="quizBar"></div></div>
+    <div id="quizList"></div>
+    <div class="score-box" id="quizScore" style="display:none"></div>
+  </div>
+  <div class="card refs-card">
+    <div class="card-header"><i class="fas fa-link"></i><h3>Further reading</h3></div>
+    <p>The technical facts in this lesson are documented in the references below. The explanations, examples and exercises were written specially for the TweetKod platform:</p>
+    <ul class="ref-list"><li><a href="https://en.cppreference.com/w/cpp/language/functions" target="_blank" rel="noopener">Functions (recursion) &mdash; cppreference</a></li><li><a href="https://en.cppreference.com/w/cpp/container/vector" target="_blank" rel="noopener">std::vector &mdash; cppreference</a></li><li><a href="https://cses.fi/book/book.pdf" target="_blank" rel="noopener">Competitive Programmer's Handbook &mdash; Antti Laaksonen (book, CC BY-NC-SA 4.0)</a></li><li><a href="https://cses.fi/problemset/" target="_blank" rel="noopener">CSES Problem Set &mdash; practice problems</a></li></ul>
+  </div>
+</div>
+<button class="to-top" id="toTop" title="Back to top"><i class="fas fa-arrow-up"></i></button>
+<footer class="page-footer">TweetKod Platform</footer>
+<script>
+const TF = [{"s": "The <code class=\"inline\">pop_back()</code> after the recursive call is the \"undo\" step in the subsets program.", "a": true, "why": "It cancels the option we added before the call, so the partial solution is back to how it was."}, {"s": "Without a base case a backtracking function may never finish.", "a": true, "why": "The base case is what stops the descent. Without it the function calls itself forever until memory runs out."}, {"s": "The number of arrangements of 5 items is 25.", "a": false, "why": "The number of arrangements is <code class=\"inline\">5! = 120</code>, not <code class=\"inline\">5^2</code>."}, {"s": "Cutting a branch may change the final answer if the cutting condition is valid.", "a": false, "why": "A valid cut only skips branches that cannot succeed, so the answer does not change."}, {"s": "When generating arrangements we must mark the number \"not used\" again when we undo.", "a": true, "why": "Otherwise the number stays reserved and the arrangements that need it never appear."}, {"s": "If <code class=\"inline\">n = 60</code>, backtracking over all subsets finishes within a second.", "a": false, "why": "<code class=\"inline\">2^60</code> is far beyond any reasonable limit."}, {"s": "In the queens problem we place exactly one queen in each row.", "a": true, "why": "That guarantees no two queens share a row, and leaves only the columns and diagonals to check."}];
+const QUIZ = [{"q": "What are the three actions in the skeleton of backtracking?", "o": ["sort, search, merge", "read, compute, print", "start, repeat, finish", "choose, explore, undo"], "a": 3, "why": "We choose an option, explore what follows, then undo the option to try another."}, {"q": "What is the job of the base case in a backtracking function?", "o": ["stopping the descent and the recursive calls", "freeing memory", "speeding up the program", "reading the input"], "a": 0, "why": "It prevents infinite recursion, and it is usually the moment the solution is complete."}, {"q": "How many subsets does a set of 5 items have?", "o": ["10", "32", "120", "25"], "a": 1, "why": "<code class=\"inline\">2^5 = 32</code>."}, {"q": "How many different arrangements do 4 distinct items have?", "o": ["64", "8", "16", "24"], "a": 3, "why": "<code class=\"inline\">4! = 24</code>."}, {"q": "Why do we write <code class=\"inline\">used[v] = false</code> after the recursive call when generating arrangements?", "o": ["to speed up the loop", "because the compiler requires it", "so the number is available for other branches once this branch is over", "to avoid printing errors"], "a": 2, "why": "This is the undo: we restore the state."}, {"q": "What is the benefit of pruning?", "o": ["printing more solutions", "using fewer variables", "changing the final answer", "skipping branches that cannot succeed, so there are fewer calls"], "a": 3, "why": "A valid cut saves time and does not change the result."}, {"q": "For arrangements, what is the usual limit of n for the solution to run quickly?", "o": ["up to about 9 or 10", "up to 100", "up to 1000", "no limit"], "a": 0, "why": "<code class=\"inline\">10! ≈ 3.6</code> million, which is fine. But <code class=\"inline\">15!</code> is over a trillion."}, {"q": "In the queens problem, why is one queen per row enough?", "o": ["because it is a C++ rule", "because there are fewer columns", "because two queens in one row attack each other, so they cannot be in a valid solution", "because rows are faster"], "a": 2, "why": "Two queens in the same row attack each other, so there is no point in placing both."}, {"q": "Which line cancels the choice in the \"take the item\" branch of the subsets program?", "o": ["<code class=\"inline\">chosen.pop_back()</code>", "<code class=\"inline\">go(i + 1)</code>", "<code class=\"inline\">chosen.push_back(x)</code>", "<code class=\"inline\">return</code>"], "a": 0, "why": "<code class=\"inline\">pop_back</code> removes the last element we added."}, {"q": "When is cutting a branch with the condition <code class=\"inline\">sum &gt; target</code> valid?", "o": ["never", "when the numbers are negative", "when all numbers are positive", "always"], "a": 2, "why": "The sum cannot decrease once it passes the target, unless negative numbers exist."}];
+const EXPL = {"unwind": {"3": "A function that calls itself: this is recursion.", "4": "The **base case**: when <code class=\"inline\">n</code> reaches zero we stop calling and return. Without it the program never ends.", "8": "This line runs **before** going down to the deeper call.", "9": "We go one step deeper. The current call waits here until the call it created comes back.", "10": "This line runs **after** the return, on the way back up. This is exactly where \"undo\" belongs."}, "subsets": {"5": "Three items, and for each one we decide: put it in the bag or leave it.", "6": "The list of **current choices**. It is the \"partial solution\" we build step by step.", "8": "The function <code class=\"inline\">go(i)</code> decides the fate of item number <code class=\"inline\">i</code>, and leaves the rest to deeper calls.", "9": "We reached the last decision: we hold a complete solution, so we print it and return.", "17": "**Choose**: we decide to take item <code class=\"inline\">i</code>, so we add it to the list.", "18": "**Explore**: we continue with the remaining decisions as if we had taken the item.", "19": "**Undo**: we cancel our choice, so the list is back to how it was before we chose.", "20": "We continue with the remaining decisions as if we had **not** taken the item."}, "perm": {"6": "A record of which numbers are in use, so we never repeat a number inside one arrangement.", "9": "The arrangement is complete: we print it and return.", "16": "At every position we try every allowed number.", "17": "The number is already used in this arrangement, so we skip it. Notice that this <code class=\"inline\">continue</code> cuts off a whole branch of possibilities.", "20": "**Choose**: we mark the number as used and put it in the arrangement.", "22": "**Explore**: we fill the remaining positions.", "23": "**Undo** (1): we remove the number from the arrangement.", "24": "**Undo** (2): we mark it \"not used\" again so it fits other branches. Forgetting this line is a common mistake."}, "prune": {"10": "We count every call to compare the cost of the two approaches.", "11": "**Cutting the branch**: all numbers are positive, so once the sum exceeds the target there is no point continuing this branch, ever.", "14": "We reached a complete choice: we check whether its sum is the target.", "20": "The \"take the number\" branch. Notice that we passed the sum as a parameter, so no explicit undo is needed."}, "queens": {"4": "Three records that tell us instantly whether a column or a diagonal is occupied by a queen.", "8": "We fill the rows one by one, and in every row we choose exactly one column.", "9": "We placed a queen in every row without any queen threatening another: we found a solution.", "22": "**Cutting the branch**: this square is attacked by an earlier queen, so we place nothing here.", "25": "**Choose**: we mark the column and both diagonals as occupied.", "27": "**Explore**: we move on to the next row.", "28": "**Undo**: we free the column and both diagonals to try another column."}};
+const TRACES = {"trace": [{"line": -1, "vars": {}, "out": "", "note": "Starting point: no line has run yet."}, {"line": 20, "vars": {"i": "-", "chosen": "{ }"}, "out": "", "note": "We start with the first decision: `go(0)`, and nothing is chosen yet."}, {"line": 9, "vars": {"i": "0", "chosen": "{ }"}, "out": "", "note": "The call `go(0)`: we have not reached the end yet (`i = 0`)."}, {"line": 13, "vars": {"i": "0", "chosen": "{ A }"}, "out": "", "note": "**Choose**: we take A."}, {"line": 14, "vars": {"i": "0", "chosen": "{ A }"}, "out": "", "note": "We go down into `go(1)`."}, {"line": 9, "vars": {"i": "1", "chosen": "{ A }"}, "out": "", "note": "The call `go(1)`: still in the middle."}, {"line": 13, "vars": {"i": "1", "chosen": "{ A, B }"}, "out": "", "note": "**Choose**: we take B too."}, {"line": 14, "vars": {"i": "1", "chosen": "{ A, B }"}, "out": "", "note": "We go down into `go(2)`."}, {"line": 9, "vars": {"i": "2", "chosen": "{ A, B }"}, "out": "", "note": "The call `go(2)`: `i == 2` is true, so this is a leaf."}, {"line": 10, "vars": {"i": "2", "chosen": "{ A, B }"}, "out": "2\n", "note": "We print the size of the complete solution {A, B}, that is 2, then return."}, {"line": 15, "vars": {"i": "1", "chosen": "{ A }"}, "out": "2\n", "note": "Back in `go(1)`. **Undo**: we remove B."}, {"line": 16, "vars": {"i": "1", "chosen": "{ A }"}, "out": "2\n", "note": "Now we try the second branch: we do not take B. We go down into `go(2)`."}, {"line": 9, "vars": {"i": "2", "chosen": "{ A }"}, "out": "2\n", "note": "The call `go(2)`: another leaf."}, {"line": 10, "vars": {"i": "2", "chosen": "{ A }"}, "out": "2\n1\n", "note": "The solution {A} has size 1."}, {"line": 15, "vars": {"i": "0", "chosen": "{ }"}, "out": "2\n1\n", "note": "Back in `go(0)` after the whole \"take A\" branch has finished. **Undo**: we remove A."}, {"line": 16, "vars": {"i": "0", "chosen": "{ }"}, "out": "2\n1\n", "note": "We try the second branch: we do not take A. We go down into `go(1)`."}, {"line": 9, "vars": {"i": "1", "chosen": "{ }"}, "out": "2\n1\n", "note": "The new call `go(1)`."}, {"line": 13, "vars": {"i": "1", "chosen": "{ B }"}, "out": "2\n1\n", "note": "**Choose**: we take B."}, {"line": 14, "vars": {"i": "1", "chosen": "{ B }"}, "out": "2\n1\n", "note": "We go down into `go(2)`."}, {"line": 9, "vars": {"i": "2", "chosen": "{ B }"}, "out": "2\n1\n", "note": "A leaf."}, {"line": 10, "vars": {"i": "2", "chosen": "{ B }"}, "out": "2\n1\n1\n", "note": "The solution {B} has size 1."}, {"line": 15, "vars": {"i": "1", "chosen": "{ }"}, "out": "2\n1\n1\n", "note": "**Undo**: we remove B."}, {"line": 16, "vars": {"i": "1", "chosen": "{ }"}, "out": "2\n1\n1\n", "note": "The last branch: neither A nor B. We go down into `go(2)`."}, {"line": 9, "vars": {"i": "2", "chosen": "{ }"}, "out": "2\n1\n1\n", "note": "A leaf."}, {"line": 10, "vars": {"i": "2", "chosen": "{ }"}, "out": "2\n1\n1\n0\n", "note": "The empty solution {} has size 0. The whole tree is done: four solutions for two items."}]};
+function copyCode(id) {
+  const el = document.getElementById(id);
+  const text = el.innerText.replace(/ /g, ' ');
+  const done = () => { const b = el.parentElement.querySelector('.copy-btn'); const t = b.textContent; b.textContent = 'Copied ✓'; setTimeout(() => b.textContent = t, 1400); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(done); else done();
+}
+
+/* click-to-explain code lines */
+document.querySelectorAll('.code-box[data-expl]').forEach(box => {
+  const id = box.getAttribute('data-expl');
+  const out = document.querySelector('.explain-box[data-for="' + id + '"]');
+  box.querySelectorAll('.code-line').forEach(line => {
+    line.addEventListener('click', () => {
+      box.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+      line.classList.add('active');
+      out.innerHTML = EXPL[id][line.getAttribute('data-i')];
+    });
+  });
+});
+
+/* true / false check */
+(function () {
+  const list = document.getElementById('tfList');
+  let answered = 0, right = 0;
+  TF.forEach((it, i) => {
+    const d = document.createElement('div');
+    d.className = 'tf-item';
+    d.innerHTML = '<div class="stmt">' + (i + 1) + '. ' + it.s + '</div>' +
+      '<div class="tf-btns"><button class="tf-btn" data-v="true"><i class="fas fa-check"></i> True</button>' +
+      '<button class="tf-btn" data-v="false"><i class="fas fa-xmark"></i> False</button></div><div class="feedback"></div>';
+    d.querySelectorAll('.tf-btn').forEach(b => b.addEventListener('click', () => {
+      const pick = b.getAttribute('data-v') === 'true';
+      const ok = pick === it.a;
+      d.querySelectorAll('.tf-btn').forEach(x => { x.disabled = true; });
+      b.classList.add(ok ? 'correct' : 'wrong');
+      const fb = d.querySelector('.feedback');
+      fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+      fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> Correct. ' : '<i class="fas fa-circle-xmark"></i> The correct answer is ' + (it.a ? 'True' : 'False') + '. ') + it.why;
+      answered++; if (ok) right++;
+      if (answered === TF.length) {
+        const s = document.getElementById('tfScore');
+        s.style.display = 'block';
+        s.innerHTML = '<div class="big">' + right + ' / ' + TF.length + '</div><div>' + (right === TF.length ? 'Excellent! You understood the lesson well.' : right >= TF.length - 2 ? 'A good result. Review the statements you missed.' : 'Re-read the lesson and try again.') + '</div>';
+      }
+    }));
+    list.appendChild(d);
+  });
+})();
+
+/* final quiz */
+(function () {
+  const list = document.getElementById('quizList');
+  const bar = document.getElementById('quizBar');
+  let answered = 0, right = 0;
+  QUIZ.forEach((q, qi) => {
+    const d = document.createElement('div');
+    d.className = 'quiz-q';
+    d.innerHTML = '<h4><span class="qnum">' + (qi + 1) + '</span>' + q.q + '</h4><div class="quiz-options"></div><div class="feedback"></div>';
+    const box = d.querySelector('.quiz-options');
+    q.o.forEach((txt, oi) => {
+      const b = document.createElement('button');
+      b.className = 'quiz-opt'; b.innerHTML = txt;
+      b.addEventListener('click', () => {
+        box.querySelectorAll('.quiz-opt').forEach(x => x.disabled = true);
+        const ok = oi === q.a;
+        b.classList.add(ok ? 'correct' : 'wrong');
+        if (!ok) box.children[q.a].classList.add('correct');
+        const fb = d.querySelector('.feedback');
+        fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+        fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> Correct! ' : '<i class="fas fa-circle-xmark"></i> That is not the right answer. ') + q.why;
+        answered++; if (ok) right++;
+        bar.style.width = (answered / QUIZ.length * 100) + '%';
+        if (answered === QUIZ.length) showScore();
+      });
+      box.appendChild(b);
+    });
+    list.appendChild(d);
+  });
+  function showScore() {
+    const s = document.getElementById('quizScore');
+    const pct = right / QUIZ.length;
+    s.style.display = 'block';
+    s.innerHTML = '<div class="big">' + right + ' / ' + QUIZ.length + '</div><div>' +
+      (pct === 1 ? 'Perfect score! You are ready for the next lesson.' : pct >= 0.7 ? 'Very good. Review the questions you missed.' : 'Review the lesson again, then try once more.') +
+      '</div><button class="retry-btn" onclick="location.hash=\'quizCard\';location.reload();">Retake the quiz</button>';
+  }
+})();
+
+
+/* ---------------- header tools ---------------- */
+(function () {
+  const root = document.documentElement;
+  const safeGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const safeSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+  /* theme */
+  const themeBtn = document.getElementById('themeBtn');
+  function applyTheme(t) { root.setAttribute('data-theme', t); if (themeBtn) themeBtn.innerHTML = t === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; }
+  applyTheme(safeGet('tk_theme') || 'light');
+  if (themeBtn) themeBtn.addEventListener('click', () => { const t = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; applyTheme(t); safeSet('tk_theme', t); });
+
+  /* code size */
+  let size = parseFloat(safeGet('tk_codesize') || '0.95');
+  function applySize() { root.style.setProperty('--code-size', size + 'rem'); }
+  applySize();
+  const dec = document.getElementById('fontDec'), inc = document.getElementById('fontInc');
+  if (dec) dec.addEventListener('click', () => { size = Math.max(0.75, +(size - 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+  if (inc) inc.addEventListener('click', () => { size = Math.min(1.3, +(size + 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+
+  /* table of contents */
+  const panel = document.getElementById('tocPanel'), tocBtn = document.getElementById('tocBtn');
+  if (panel && tocBtn) {
+    const cards = document.querySelectorAll('.container > .card');
+    let n = 0;
+    cards.forEach((c, i) => {
+      const h = c.querySelector('.card-header h3, .project-banner strong');
+      if (!h) return;
+      n++;
+      c.id = c.id || 'sec-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + c.id;
+      a.innerHTML = '<span>' + n + '</span><bdi>' + h.innerHTML + '</bdi>';
+      a.addEventListener('click', () => panel.classList.remove('open'));
+      panel.appendChild(a);
+    });
+    tocBtn.addEventListener('click', (e) => { e.stopPropagation(); panel.classList.toggle('open'); });
+    document.addEventListener('click', (e) => { if (!panel.contains(e.target)) panel.classList.remove('open'); });
+  }
+
+  /* reading progress + back to top */
+  const bar = document.getElementById('readBar'), top = document.getElementById('toTop');
+  function onScroll() {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+    if (bar) bar.style.width = pct + '%';
+    if (top) top.classList.toggle('show', h.scrollTop > 600);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  if (top) top.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+})();
+
+/* ---------------- step tracer ---------------- */
+document.querySelectorAll('.tracer').forEach(el => {
+  const steps = TRACES[el.getAttribute('data-trace')];
+  const lines = el.querySelectorAll('.tr-line');
+  const varsEl = el.querySelector('.tr-vars'), outEl = el.querySelector('.tr-out'), noteEl = el.querySelector('.tr-note'), cnt = el.querySelector('.tr-count');
+  const btn = (a) => el.querySelector('[data-a="' + a + '"]');
+  let i = 0, timer = null;
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  function draw() {
+    const s = steps[i], prev = i > 0 ? steps[i - 1].vars : {};
+    lines.forEach((l, k) => l.classList.toggle('active', k === s.line));
+    const names = Object.keys(s.vars);
+    varsEl.innerHTML = names.length ? names.map(n => '<div class="tr-var' + (prev[n] !== s.vars[n] ? ' changed' : '') + '"><span>' + esc(n) + '</span><b>' + esc(s.vars[n]) + '</b></div>').join('') : '<span style="color:#94a3b8">No variables yet</span>';
+    outEl.textContent = s.out || ' ';
+    noteEl.textContent = s.note || ' ';
+    cnt.textContent = 'Step ' + i + ' of ' + (steps.length - 1);
+    btn('prev').disabled = i === 0; btn('next').disabled = i === steps.length - 1;
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; btn('play').innerHTML = '<i class="fas fa-play"></i> Auto-play'; } }
+  btn('next').onclick = () => { stop(); if (i < steps.length - 1) i++; draw(); };
+  btn('prev').onclick = () => { stop(); if (i > 0) i--; draw(); };
+  btn('reset').onclick = () => { stop(); i = 0; draw(); };
+  btn('play').onclick = () => {
+    if (timer) { stop(); return; }
+    if (i >= steps.length - 1) i = 0;
+    btn('play').innerHTML = '<i class="fas fa-pause"></i> Pause';
+    timer = setInterval(() => { if (i < steps.length - 1) { i++; draw(); } else stop(); }, 1100);
+    draw();
+  };
+  draw();
+});
+
+/* ---------------- predict the output ---------------- */
+document.querySelectorAll('.predict').forEach(p => {
+  const opts = p.querySelectorAll('.pd-opt');
+  opts.forEach(o => o.addEventListener('click', () => {
+    const ok = o.getAttribute('data-ok') === '1';
+    opts.forEach(x => { x.disabled = true; if (x.getAttribute('data-ok') === '1') x.classList.add('correct'); });
+    if (!ok) o.classList.add('wrong');
+    const res = p.querySelector('.pd-result');
+    res.classList.remove('hidden');
+    const msg = p.querySelector('.pd-msg');
+    msg.innerHTML = ok ? '<span style="color:#16a34a"><i class="fas fa-check-circle"></i> Your prediction is right! Here is the real output:</span>' : '<span style="color:#dc2626"><i class="fas fa-circle-xmark"></i> Not quite. Here is the real output, and read the explanation below:</span>';
+  }));
+});
+
+
+const BTT = {
+  enter: i => 'We enter the call <code>go(' + i + ')</code>.',
+  take: it => '<strong>Choose</strong>: we put ' + it + ' in the bag (<code>push_back</code>) and go down the left branch.',
+  leaf: p => 'We reached a <strong>leaf</strong>: the solution { ' + p + ' } is complete, so we print it and return.',
+  undo: it => '<strong>Undo</strong>: we remove ' + it + ' (<code>pop_back</code>) and go down the right branch (we do not take it).',
+  back: () => 'Both branches are finished, so we return to the parent call.',
+  start: 'Press "next step" to start the walk.',
+  end: 'The walk is over: every solution was printed.',
+  take_e: 'take', skip_e: 'leave'
+};
+const QT = {
+  start: 'Press "next step". The program will place a queen in the first row and continue.',
+  place: (r, c) => 'Places a queen at row ' + (r + 1) + ', column ' + (c + 1) + ' (choose).',
+  bad: (r, c) => 'The square (' + (r + 1) + ', ' + (c + 1) + ') is attacked by an earlier queen, so it is rejected (cut).',
+  remove: (r, c) => 'Undo: lifts the queen from row ' + (r + 1) + ', column ' + (c + 1) + ' to try another column.',
+  sol: 'A complete solution! No queen attacks another.',
+  end: 'The search is over: every possibility was explored.',
+  none: 'There is no other solution.'
+};
+
+// ---------- recursion tree lab
+let BT = { ev: [], nodes: [], k: 0, timer: null };
+function btBuild() {
+  btStop();
+  const n = parseInt(document.getElementById('btN').value, 10) || 3;
+  const names = 'ABCD'.split('');
+  BT.ev = []; BT.nodes = []; BT.k = 0; BT.n = n; BT.leafCount = 0;
+  function rec(i, path, parent, edge) {
+    const id = BT.nodes.length;
+    const node = { id, i, parent, edge, children: [] };
+    BT.nodes.push(node);
+    if (parent >= 0) BT.nodes[parent].children.push(id);
+    BT.ev.push({ t: 'enter', id, i, path: path.slice() });
+    if (i === n) { node.leaf = BT.leafCount++; node.text = path.join(' '); BT.ev.push({ t: 'leaf', id, path: path.slice() }); return; }
+    path.push(names[i]); BT.ev.push({ t: 'take', id, item: names[i], path: path.slice() });
+    rec(i + 1, path, id, 'take');
+    path.pop(); BT.ev.push({ t: 'undo', id, item: names[i], path: path.slice() });
+    rec(i + 1, path, id, 'skip');
+    BT.ev.push({ t: 'back', id, path: path.slice() });
+  }
+  rec(0, [], -1, '');
+  const W = 640, H = 270, total = 1 << n;
+  function lay(id) {
+    const nd = BT.nodes[id];
+    if (nd.leaf !== undefined) nd.x = (nd.leaf + 0.5) * W / total;
+    else { nd.children.forEach(lay); nd.x = (BT.nodes[nd.children[0]].x + BT.nodes[nd.children[1]].x) / 2; }
+    nd.y = 22 + nd.i * (H - 60) / n;
+  }
+  lay(0);
+  btDraw();
+}
+function btState() {
+  const seen = new Set(), done = new Set(); let cur = -1, path = [], results = [];
+  for (let k = 0; k < BT.k; k++) {
+    const e = BT.ev[k];
+    if (e.t === 'enter') seen.add(e.id);
+    if (e.t === 'leaf') { done.add(e.id); results.push(e.path.join(' ')); }
+    if (e.t === 'back') done.add(e.id);
+    cur = e.id; path = e.path;
+  }
+  return { seen, done, cur, path, results };
+}
+function btDraw() {
+  const st = btState();
+  let s = '';
+  BT.nodes.forEach(nd => {
+    if (nd.parent >= 0) {
+      const p = BT.nodes[nd.parent];
+      s += '<line class="ed' + (st.seen.has(nd.id) ? ' seen' : '') + '" x1="' + p.x + '" y1="' + p.y + '" x2="' + nd.x + '" y2="' + nd.y + '"/>';
+      s += '<text class="eg" x="' + ((p.x + nd.x) / 2 + (nd.edge === 'take' ? -12 : 12)) + '" y="' + ((p.y + nd.y) / 2) + '">' + (nd.edge === 'take' ? BTT.take_e : BTT.skip_e) + '</text>';
+    }
+  });
+  BT.nodes.forEach(nd => {
+    const cls = nd.id === st.cur ? 'cur' : (st.done.has(nd.id) ? 'done' : (st.seen.has(nd.id) ? 'seen' : ''));
+    s += '<circle class="nd ' + cls + '" cx="' + nd.x + '" cy="' + nd.y + '" r="' + (nd.leaf !== undefined ? 14 : 12) + '"/>';
+    s += '<text x="' + nd.x + '" y="' + nd.y + '">' + nd.i + '</text>';
+    if (nd.leaf !== undefined && st.done.has(nd.id)) s += '<text class="lf" x="' + nd.x + '" y="' + (nd.y + 26) + '">{' + nd.text + '}</text>';
+  });
+  document.getElementById('btTree').innerHTML = s;
+  document.getElementById('btPath').innerHTML = st.path.length ? st.path.map(x => '<span class="lab-tag new">' + x + '</span>').join('') : '<span class="lab-tag">{ }</span>';
+  document.getElementById('btOut').textContent = st.results.map(r => '{ ' + r + (r ? ' ' : '') + '}').join('\n');
+  const note = document.getElementById('btNote');
+  if (BT.k === 0) note.innerHTML = BTT.start;
+  else if (BT.k >= BT.ev.length) note.innerHTML = BTT.end;
+  else {
+    const e = BT.ev[BT.k - 1];
+    note.innerHTML = e.t === 'enter' ? BTT.enter(e.i) : e.t === 'take' ? BTT.take(e.item) : e.t === 'leaf' ? BTT.leaf(e.path.join(' ')) : e.t === 'undo' ? BTT.undo(e.item) : BTT.back();
+  }
+}
+function btStep(d) { BT.k = Math.max(0, Math.min(BT.ev.length, BT.k + d)); btDraw(); if (BT.k >= BT.ev.length) btStop(); }
+function btStop() { if (BT.timer) { clearInterval(BT.timer); BT.timer = null; } }
+function btPlay() { if (BT.timer) { btStop(); return; } if (BT.k >= BT.ev.length) BT.k = 0; BT.timer = setInterval(() => btStep(1), 650); }
+function btReset() { btStop(); BT.k = 0; btDraw(); }
+
+// ---------- queens lab
+let Q = { ev: [], snaps: [], k: 0, timer: null, n: 4 };
+function qBuild() {
+  qStop();
+  const n = parseInt(document.getElementById('qN').value, 10) || 4;
+  Q.n = n; Q.ev = []; Q.snaps = []; Q.k = 0;
+  const pos = [], cols = {}, d1 = {}, d2 = {};
+  let sols = 0, backs = 0;
+  function snap(ev) { Q.ev.push(ev); Q.snaps.push({ pos: pos.slice(), sols, backs, ev }); }
+  function place(r) {
+    if (r === n) { sols++; snap({ t: 'sol' }); return; }
+    for (let c = 0; c < n; c++) {
+      if (cols[c] || d1[r + c] || d2[r - c + n]) { snap({ t: 'bad', r, c }); continue; }
+      cols[c] = d1[r + c] = d2[r - c + n] = true; pos[r] = c; snap({ t: 'place', r, c });
+      place(r + 1);
+      cols[c] = d1[r + c] = d2[r - c + n] = false; pos.length = r; backs++; snap({ t: 'remove', r, c });
+    }
+  }
+  place(0);
+  qDraw();
+}
+function qDraw() {
+  const n = Q.n, st = Q.k > 0 ? Q.snaps[Q.k - 1] : { pos: [], sols: 0, backs: 0, ev: null };
+  const g = document.getElementById('qBoard');
+  g.style.gridTemplateColumns = 'repeat(' + n + ', 34px)';
+  let h = '';
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+    let cls = 'lab-cell', txt = '';
+    if (st.pos[r] === c) { cls += ' q'; txt = '&#9819;'; }
+    if (st.ev && st.ev.t === 'bad' && st.ev.r === r && st.ev.c === c) cls += ' bad';
+    if (st.ev && st.ev.t === 'sol' && st.pos[r] === c) cls += ' ok';
+    h += '<div class="' + cls + '">' + txt + '</div>';
+  }
+  g.innerHTML = h;
+  document.getElementById('qStep').textContent = Q.k;
+  document.getElementById('qPlaced').textContent = st.pos.length;
+  document.getElementById('qBack').textContent = st.backs;
+  document.getElementById('qSol').textContent = st.sols;
+  const note = document.getElementById('qNote'), e = st.ev;
+  note.className = 'lab-say' + (e && e.t === 'sol' ? ' ok' : '');
+  if (Q.k === 0) note.textContent = QT.start;
+  else if (Q.k >= Q.ev.length) note.textContent = QT.end;
+  else note.textContent = e.t === 'place' ? QT.place(e.r, e.c) : e.t === 'bad' ? QT.bad(e.r, e.c) : e.t === 'remove' ? QT.remove(e.r, e.c) : QT.sol;
+}
+function qStep(d) { Q.k = Math.max(0, Math.min(Q.ev.length, Q.k + d)); qDraw(); if (Q.k >= Q.ev.length) qStop(); }
+function qStop() { if (Q.timer) { clearInterval(Q.timer); Q.timer = null; } }
+function qPlay() { if (Q.timer) { qStop(); return; } if (Q.k >= Q.ev.length) Q.k = 0; Q.timer = setInterval(() => qStep(1), 220); }
+function qReset() { qStop(); Q.k = 0; qDraw(); }
+function qNextSol() {
+  qStop();
+  for (let k = Q.k; k < Q.ev.length; k++) if (Q.ev[k].t === 'sol') { Q.k = k + 1; qDraw(); return; }
+  Q.k = Q.ev.length; qDraw(); document.getElementById('qNote').textContent = QT.none;
+}
+btBuild(); qBuild();
+
+</script>
+</body>
+</html>
