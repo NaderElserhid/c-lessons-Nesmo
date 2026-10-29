@@ -1,31 +1,26 @@
+import base64
 import hashlib
-import urllib.parse
-import urllib.request
+import hmac
 
+header = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9"
+payload_data = b'{"role":"admin"}'
 
-urls = [
-    "https://facebook.com",
-    "https://twitter.com",
-    "https://slack.com"
-]
+payload = base64.urlsafe_b64encode(
+    payload_data
+).rstrip(b"=").decode()
 
-for url in urls:
-    print(url, hashlib.md5(url.encode()).hexdigest())
+message = f"{header}.{payload}".encode()
 
+signature = hmac.new(
+    b"lol",
+    message,
+    hashlib.sha512
+).digest()
 
+signature = base64.urlsafe_b64encode(
+    signature
+).rstrip(b"=").decode()
 
-url = "https://google.com"
-h = hashlib.md5(url.encode()).hexdigest()
+token = f"{header}.{payload}.{signature}"
 
-target = (
-    "http://challenge01.root-me.org/web-serveur/ch52/"
-    + "?url=" + urllib.parse.quote(url, safe="")
-    + "&h=" + h
-)
-
-print("Generated hash:", h)
-print("Challenge URL:", target)
-
-response = urllib.request.urlopen(target)
-print(response.geturl())
-print(response.read().decode())
+print(token)
