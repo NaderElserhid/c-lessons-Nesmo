@@ -1,0 +1,1161 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>مختبر الطابور Queue</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@600;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a single reading column of "lab stations"; each station pairs a live queue lane with code. Teal = front (exit), amber = back (entry). */
+:root{
+  --bg:#EDF1EF; --surface:#FAFCFB; --surface-2:#E1E8E5; --ink:#12201C; --muted:#52645E; --line:#C7D3CE;
+  --front:#0B7A69; --front-soft:#D2ECE6; --back:#A86400; --back-soft:#F6E5C8;
+  --danger:#B23A26; --danger-soft:#F5DAD3; --ok:#2E7D32; --ok-soft:#DCEFD9;
+  --code-bg:#11211E; --code-ink:#D5E4DF; --code-muted:#6E8982; --code-kw:#F0B35A; --code-ty:#7FD6C2;
+  --code-str:#EBA390; --code-num:#BBA6F2; --code-pre:#9FB7F5; --code-line:rgba(240,179,90,.16); --code-edge:#F0B35A;
+  --f-display:"Noto Kufi Arabic","IBM Plex Sans Arabic",Tahoma,sans-serif;
+  --f-body:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Code",Consolas,monospace;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0C1513; --surface:#13201D; --surface-2:#1B2A26; --ink:#E2ECE8; --muted:#94A8A1; --line:#2B3D38;
+  --front:#3CC6AE; --front-soft:#113A33; --back:#F0A63A; --back-soft:#3A2A11;
+  --danger:#F27E68; --danger-soft:#3D1D17; --ok:#7BCB7F; --ok-soft:#1A3320;
+  --code-bg:#091210; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0C1513; --surface:#13201D; --surface-2:#1B2A26; --ink:#E2ECE8; --muted:#94A8A1; --line:#2B3D38;
+  --front:#3CC6AE; --front-soft:#113A33; --back:#F0A63A; --back-soft:#3A2A11;
+  --danger:#F27E68; --danger-soft:#3D1D17; --ok:#7BCB7F; --ok-soft:#1A3320;
+  --code-bg:#091210; color-scheme:dark;
+}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.75}
+*{box-sizing:border-box}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.page{max-width:1120px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.35;margin:0}
+p{margin:0}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--surface-2);padding:.08em .4em;border-radius:6px;unicode-bidi:isolate;direction:ltr;display:inline-block;line-height:1.5}
+:focus-visible{outline:3px solid var(--back);outline-offset:2px}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{max-width:1120px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;align-items:center;gap:16px;min-height:56px}
+.brand{font-family:var(--f-display);font-weight:800;font-size:17px;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.brand .dots{display:flex;gap:3px;direction:ltr}
+.brand .dots i{width:9px;height:14px;border-radius:3px;background:var(--line)}
+.brand .dots i:first-child{background:var(--back)} .brand .dots i:last-child{background:var(--front)}
+.nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;min-width:0;flex:1}
+.nav::-webkit-scrollbar{display:none}
+.nav a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;padding:6px 12px;border-radius:999px;white-space:nowrap}
+.nav a:hover{background:var(--surface-2);color:var(--ink)}
+
+/* hero */
+.hero{padding-block:48px 28px;display:grid;gap:18px}
+.eyebrow{font-size:13px;font-weight:600;letter-spacing:.04em;color:var(--front)}
+.hero h1{font-size:clamp(34px,6vw,58px);font-weight:800}
+.hero h1 .en{font-family:var(--f-mono);font-weight:600;font-size:.62em;color:var(--back);margin-inline-start:.25em}
+.lead{font-size:clamp(17px,2.1vw,19px);color:var(--muted);max-width:64ch}
+.facts{display:flex;flex-wrap:wrap;gap:8px}
+.fact{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-size:14px}
+.fact b{font-family:var(--f-mono);direction:ltr;unicode-bidi:isolate;color:var(--front)}
+
+/* sections */
+section.station{padding-block:44px 8px;border-top:1px solid var(--line);margin-top:28px;display:grid;gap:22px;scroll-margin-top:72px}
+.s-head{display:grid;gap:8px;max-width:72ch}
+.s-num{font-family:var(--f-mono);font-size:13px;font-weight:600;color:var(--back);direction:ltr;unicode-bidi:isolate}
+.s-head h2{font-size:clamp(24px,3.4vw,32px);font-weight:800}
+.s-head p{color:var(--muted)}
+.prose{display:grid;gap:12px;max-width:68ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px}
+.grid-2>*{min-width:0}
+.kicker{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--muted);margin-bottom:8px;display:block}
+
+/* terms */
+.terms{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:12px}
+.term{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:6px;align-content:start}
+.term .t-en{font-family:var(--f-mono);font-weight:600;direction:ltr;unicode-bidi:isolate;font-size:15px}
+.term.f{border-top:4px solid var(--front)} .term.f .t-en{color:var(--front)}
+.term.b{border-top:4px solid var(--back)} .term.b .t-en{color:var(--back)}
+.term h3{font-size:16px}
+.term p{color:var(--muted);font-size:15px}
+.vs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.vs div{border:1px dashed var(--line);border-radius:var(--r);padding:14px 16px}
+.vs h3{font-size:16px;margin-bottom:4px}
+.vs p{color:var(--muted);font-size:15px}
+.uses{display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:0;list-style:none}
+.uses li{background:var(--surface-2);border-radius:8px;padding:6px 12px;font-size:14.5px}
+
+/* lane + cells */
+.lane{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:8px 12px}
+.lane-end{display:grid;justify-items:center;gap:2px;font-size:12px;color:var(--muted);text-align:center;min-width:58px}
+.lane-end b{font-family:var(--f-mono);font-size:13px;direction:ltr}
+.lane-end.exit b{color:var(--front)} .lane-end.entry b{color:var(--back)}
+.lane-end svg{display:block}
+.lane-end.exit svg{color:var(--front)} .lane-end.entry svg{color:var(--back)}
+.gone{font-family:var(--f-mono);font-size:12px;color:var(--danger);text-decoration:line-through;min-height:18px}
+.track{position:relative;display:flex;direction:rtl;align-items:center;gap:8px;min-height:128px;padding-block:28px;overflow-x:auto;overflow-y:hidden;border-inline:2px dashed var(--line);padding-inline:10px}
+.track-empty{color:var(--muted);font-size:14px;margin-inline:auto;text-align:center}
+.cell{position:relative;flex:0 0 auto;min-width:clamp(38px,8.4vw,62px);height:clamp(46px,9vw,66px);padding-inline:8px;border:2px solid var(--line);background:var(--surface-2);border-radius:10px;display:grid;place-items:center;font-family:var(--f-mono);font-weight:600;font-size:clamp(14px,2.2vw,19px);direction:ltr}
+.cell .tag{position:absolute;inset-inline:0;margin-inline:auto;width:max-content;font-size:10.5px;font-weight:600;padding:0 6px;border-radius:5px;display:none;line-height:1.6}
+.cell .tag-f{top:-23px;background:var(--front);color:var(--surface)}
+.cell .tag-b{bottom:-23px;background:var(--back);color:var(--surface)}
+.cell.is-front{border-color:var(--front);background:var(--front-soft)}
+.cell.is-front .tag-f{display:block}
+.cell.is-back .tag-b{display:block}
+.cell.is-back:not(.is-front){border-color:var(--back);background:var(--back-soft)}
+.cell.is-front.is-back{box-shadow:0 0 0 3px var(--back-soft)}
+.cell.is-read{outline:3px solid var(--back);outline-offset:3px}
+.cell.ghost{position:absolute;pointer-events:none;margin:0}
+.track.small .cell{min-width:44px;height:48px;font-size:15px}
+.track.small{min-height:108px}
+
+/* playground */
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+.field{display:grid;gap:4px}
+.field label{font-size:13px;color:var(--muted);font-weight:500}
+.field input{font-family:var(--f-mono);font-size:16px;width:86px;padding:8px 10px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);direction:ltr;text-align:center}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font-family:var(--f-mono);font-size:14.5px;font-weight:600;padding:9px 14px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;direction:ltr;transition:transform .08s, background .15s}
+.btn:hover{background:var(--surface-2)}
+.btn:active{transform:translateY(1px)}
+.btn.push{background:var(--back);border-color:var(--back);color:var(--surface)}
+.btn.pop{background:var(--front);border-color:var(--front);color:var(--surface)}
+.btn.push:hover,.btn.pop:hover{filter:brightness(1.07)}
+.btn.ar{font-family:var(--f-body);direction:rtl;font-weight:600}
+.btn.ghosty{border-style:dashed;color:var(--muted)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.sep{width:1px;align-self:stretch;background:var(--line)}
+.explain{border-radius:var(--r);padding:16px 18px;border:1px solid var(--line);background:var(--surface);display:grid;gap:8px;align-content:start;min-height:150px}
+.explain .ex-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;justify-content:space-between}
+.explain .ex-call{font-family:var(--f-mono);font-weight:600;font-size:16px;direction:ltr}
+.pill{font-size:12px;font-weight:600;border-radius:999px;padding:2px 10px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.pill.o1{font-family:var(--f-mono);direction:ltr}
+.explain.warn{border-color:var(--danger);background:var(--danger-soft)}
+.explain.warn .ex-call{color:var(--danger)}
+.explain p{font-size:15.5px}
+.stats{display:flex;flex-wrap:wrap;gap:8px}
+.stat{font-family:var(--f-mono);font-size:13px;background:var(--surface-2);padding:3px 10px;border-radius:7px;direction:ltr}
+.stat b{color:var(--front)}
+
+/* code */
+.codewrap{position:relative;min-width:0}
+pre.code{margin:0;direction:ltr;text-align:left;background:var(--code-bg);color:var(--code-ink);font-family:var(--f-mono);font-size:13.5px;line-height:1.7;border-radius:10px;padding:14px 16px;overflow-x:auto;tab-size:4;white-space:pre}
+.c-kw{color:var(--code-kw)} .c-ty{color:var(--code-ty)} .c-str{color:var(--code-str)} .c-num{color:var(--code-num)} .c-com{color:var(--code-muted);font-style:italic} .c-pre{color:var(--code-pre)}
+.copy{position:absolute;top:8px;right:8px;font-family:var(--f-body);font-size:12px;font-weight:600;background:rgba(255,255,255,.08);color:var(--code-ink);border:1px solid rgba(255,255,255,.16);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{background:rgba(255,255,255,.16)}
+.codewrap.has-copy>pre.code{padding-top:38px}
+.code-tools{display:flex;align-items:center;gap:8px}
+.code-tools .copy{position:static;background:var(--surface-2);color:var(--ink);border-color:var(--line)}
+.log{max-height:260px;min-height:150px;overflow:auto}
+.log .err{color:#F28B78}
+.code-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+
+/* tracer */
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tab{font-family:var(--f-body);font-size:14.5px;font-weight:600;padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.tracer{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:860px){.tracer{grid-template-columns:minmax(0,1fr)}}
+.src{direction:ltr;background:var(--code-bg);color:var(--code-ink);border-radius:10px;font-family:var(--f-mono);font-size:13.5px;line-height:1.75;padding-block:10px;max-height:470px;overflow:auto}
+.src .ln{display:flex;white-space:pre;padding-inline:0 14px;border-left:3px solid transparent}
+.src .ln .n{flex:0 0 38px;text-align:right;padding-right:12px;color:var(--code-muted);user-select:none}
+.src .ln.active{background:var(--code-line);border-left-color:var(--code-edge)}
+.src .ln.active .n{color:var(--code-kw)}
+.state{display:grid;gap:12px}
+.step-ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.step-count{font-size:13px;color:var(--muted);margin-inline-start:auto;font-variant-numeric:tabular-nums}
+.note{background:var(--surface);border:1px solid var(--line);border-inline-start:4px solid var(--back);border-radius:10px;padding:12px 14px;font-size:15.5px;min-height:76px}
+.box-title{font-size:12px;font-weight:700;letter-spacing:.05em;color:var(--muted);margin-bottom:6px;display:block}
+.vars{display:flex;flex-wrap:wrap;gap:6px;min-height:28px;align-items:center}
+.var{font-family:var(--f-mono);font-size:13.5px;background:var(--surface-2);border-radius:7px;padding:2px 10px;direction:ltr}
+.muted{color:var(--muted);font-size:14px}
+.console{background:var(--code-bg);color:#CFE9C9;font-family:var(--f-mono);font-size:13.5px;border-radius:10px;padding:10px 14px;min-height:74px;white-space:pre-wrap;direction:ltr;text-align:left;margin:0}
+.console .cur{display:inline-block;width:8px;height:15px;background:#CFE9C9;vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* functions */
+.ref{width:100%;border-collapse:collapse;font-size:15px;min-width:560px}
+.ref th,.ref td{text-align:start;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.ref th{font-size:12.5px;color:var(--muted);font-weight:700;letter-spacing:.04em}
+.ref td:first-child,.ref td:nth-child(3){font-family:var(--f-mono);direction:ltr;text-align:right;white-space:nowrap}
+.ref td:first-child{font-weight:600;color:var(--front)}
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.fns{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:14px}
+.fn{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:10px;align-content:start;min-width:0}
+.fn-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.fn h3{font-family:var(--f-mono);font-size:19px;direction:ltr;color:var(--ink)}
+.fn .sig{font-family:var(--f-mono);font-size:13px;color:var(--muted);direction:ltr;text-align:right}
+.kind{font-size:11.5px;font-weight:700;border-radius:6px;padding:2px 8px}
+.kind.mod{background:var(--back-soft);color:var(--back)}
+.kind.read{background:var(--front-soft);color:var(--front)}
+.fn p{font-size:15px}
+.fn .warnline{font-size:14px;color:var(--danger);background:var(--danger-soft);border-radius:8px;padding:8px 10px}
+.fn .tip{font-size:14px;color:var(--muted)}
+.fn .try{justify-self:start}
+.mistakes{display:grid;gap:12px}
+.mistake{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+@media (max-width:760px){.mistake{grid-template-columns:minmax(0,1fr)}}
+.mistake h3{font-size:16.5px;margin-bottom:6px}
+.mistake p{color:var(--muted);font-size:15px}
+.mk{display:grid;gap:6px}
+.mk .lbl{font-size:12px;font-weight:700}
+.mk .lbl.bad{color:var(--danger)} .mk .lbl.good{color:var(--ok)}
+
+/* circular */
+.circ{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:860px){.circ{grid-template-columns:minmax(0,1fr)}}
+.viz{display:grid;gap:14px}
+.arr{direction:ltr;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.slot{display:grid;gap:4px;justify-items:center}
+.slot .mk-row{height:20px;display:flex;gap:3px}
+.mark{font-family:var(--f-mono);font-size:11px;font-weight:700;border-radius:5px;padding:0 6px;line-height:20px;color:var(--surface)}
+.mark.F{background:var(--front)} .mark.R{background:var(--back)}
+.mark.dim{opacity:.4}
+.slot .box{width:100%;aspect-ratio:1/1;max-width:72px;border:2px solid var(--line);border-radius:10px;display:grid;place-items:center;font-family:var(--f-mono);font-weight:600;font-size:clamp(14px,2.4vw,19px);background:var(--surface)}
+.slot.occ .box{background:var(--front-soft);border-color:var(--front)}
+.slot.stale .box{color:var(--muted);opacity:.55;text-decoration:line-through;border-style:dashed}
+.slot.flash .box{outline:3px solid var(--back);outline-offset:2px}
+.slot .idx{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.ring{display:flex;justify-content:center}
+.ring svg{width:min(100%,250px);height:auto}
+.seg{fill:var(--surface-2);stroke:var(--line);stroke-width:1.5}
+.seg.occ{fill:var(--front-soft);stroke:var(--front)}
+.seg.flash{stroke:var(--back);stroke-width:3}
+.ring text{font-family:var(--f-mono);fill:var(--ink);text-anchor:middle;dominant-baseline:central}
+.ring .ri{font-size:10px;fill:var(--muted)}
+.ring .rv{font-size:15px;font-weight:600}
+.ring .rv.stale{fill:var(--muted);opacity:.5}
+.ring .rF{fill:var(--front);font-weight:700;font-size:13px}
+.ring .rR{fill:var(--back);font-weight:700;font-size:13px}
+.ring .center{font-size:12px;fill:var(--muted)}
+.formula{font-family:var(--f-mono);direction:ltr;text-align:left;background:var(--surface-2);border-radius:10px;padding:10px 14px;font-size:14px;min-height:44px;white-space:pre-wrap}
+.formula .wrap{color:var(--back);font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:14px;height:14px;border-radius:4px;border:2px solid var(--line);display:inline-block}
+.legend .l-occ{background:var(--front-soft);border-color:var(--front)}
+.legend .l-stale{border-style:dashed;opacity:.6}
+
+/* quiz */
+.quiz-head{display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between}
+.score{font-family:var(--f-display);font-weight:800;font-size:22px;font-variant-numeric:tabular-nums}
+.score small{font-family:var(--f-body);font-weight:500;font-size:14px;color:var(--muted)}
+.qs{display:grid;gap:14px}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:12px}
+.q h3{font-size:16.5px;font-family:var(--f-body);font-weight:700}
+.q h3 .qn{color:var(--back);font-family:var(--f-mono);margin-inline-end:6px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:8px}
+.opt{font-family:var(--f-body);font-size:15px;text-align:start;padding:10px 14px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;line-height:1.5}
+.opt.mono{font-family:var(--f-mono);direction:ltr;text-align:left;font-size:14px}
+.opt:hover:not(:disabled){background:var(--surface-2)}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--danger);background:var(--danger-soft)}
+.feedback{font-size:15px;border-radius:10px;padding:10px 14px}
+.feedback.right{background:var(--ok-soft)} .feedback.wrong{background:var(--danger-soft)}
+
+.foot{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:14px;display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between}
+
+@media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+@media (max-width:520px){
+  .lane{grid-template-columns:auto minmax(0,1fr) auto;padding:6px;gap:6px}
+  .lane-end{min-width:40px;font-size:11px}
+  .lane-end svg{width:28px}
+  .panel{padding:16px}
+  .sep{display:none}
+}
+</style>
+
+<header class="top">
+  <div class="top-in" dir="rtl">
+    <div class="brand"><span class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>مختبر الطابور</div>
+    <nav class="nav" aria-label="أقسام المختبر">
+      <a href="#concept" data-go="concept">الفكرة</a>
+      <a href="#playground" data-go="playground">المختبر</a>
+      <a href="#trace" data-go="trace">تتبّع الكود</a>
+      <a href="#functions" data-go="functions">الدوال</a>
+      <a href="#mistakes" data-go="mistakes">أخطاء شائعة</a>
+      <a href="#inside" data-go="inside">من الداخل</a>
+      <a href="#quiz" data-go="quiz">اختبر نفسك</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page" dir="rtl" lang="ar">
+
+  <section class="hero">
+    <span class="eyebrow">هياكل البيانات بلغة C++</span>
+    <h1>الطابور <span class="en">Queue</span></h1>
+    <p class="lead">أول من يدخل هو أول من يخرج. في هذا المختبر ستبني طابورًا بيدك، وتتابع برامج C++ سطرًا بسطر، وتتعرّف على كل دالة في <code>std::queue</code>، ثم ترى كيف يُبنى الطابور من الداخل باستخدام مصفوفة دائرية.</p>
+    <div class="facts">
+      <span class="fact">القاعدة <b>FIFO</b></span>
+      <span class="fact">المكتبة <b>#include &lt;queue&gt;</b></span>
+      <span class="fact">زمن كل عملية <b>O(1)</b></span>
+    </div>
+  </section>
+
+  <!-- 1. concept -->
+  <section class="station" id="concept">
+    <div class="s-head">
+      <span class="s-num">01</span>
+      <h2>ما هو الطابور؟</h2>
+    </div>
+    <div class="prose">
+      <p>الطابور (Queue) هيكل بيانات خطّي يحفظ العناصر بترتيب وصولها. نُضيف العناصر من طرف واحد اسمه <strong>المؤخرة</strong> (back)، ونحذفها من الطرف الآخر واسمه <strong>المقدمة</strong> (front). لذلك يخرج دائمًا العنصر الذي انتظر أطول مدة، تمامًا كطابور المخبز أو صرّاف البنك.</p>
+      <p>هذه القاعدة اسمها <strong>FIFO</strong> أي First In, First Out: «الداخل أولًا يخرج أولًا». لا يمكنك أن تتجاوز الدور، ولا أن تصل إلى عنصر في المنتصف.</p>
+    </div>
+
+    <div class="lane" aria-label="مثال على طابور">
+      <div class="lane-end exit"><span>خروج</span><svg width="40" height="12" viewBox="0 0 40 12" aria-hidden="true"><path d="M1 6h35M30 1l6 5-6 5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"/></svg><b>pop</b></div>
+      <div class="track small" id="demo-track"></div>
+      <div class="lane-end entry"><span>دخول</span><svg width="40" height="12" viewBox="0 0 40 12" aria-hidden="true"><path d="M1 6h35M30 1l6 5-6 5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"/></svg><b>push</b></div>
+    </div>
+
+    <div class="terms">
+      <div class="term f"><span class="t-en">front</span><h3>المقدمة</h3><p>أول عنصر في الطابور، وهو الذي سيخرج في المرة القادمة. في المثال أعلاه هو 12.</p></div>
+      <div class="term b"><span class="t-en">back / rear</span><h3>المؤخرة</h3><p>آخر عنصر دخل الطابور. في المثال أعلاه هو 5.</p></div>
+      <div class="term b"><span class="t-en">push · enqueue</span><h3>الإضافة</h3><p>إدخال عنصر جديد إلى المؤخرة. يصبح هو الـ back الجديد.</p></div>
+      <div class="term f"><span class="t-en">pop · dequeue</span><h3>الحذف</h3><p>إخراج العنصر الموجود في المقدمة. يصبح العنصر الذي يليه هو الـ front.</p></div>
+    </div>
+
+    <div class="vs">
+      <div><h3>الطابور Queue · FIFO</h3><p>الداخل أولًا يخرج أولًا. نضيف من طرف ونحذف من الطرف الآخر، مثل صف الانتظار.</p></div>
+      <div><h3>المكدس Stack · LIFO</h3><p>الداخل أخيرًا يخرج أولًا. نضيف ونحذف من الطرف نفسه، مثل كومة الأطباق.</p></div>
+    </div>
+
+    <div>
+      <span class="kicker">أين يُستخدم الطابور؟</span>
+      <ul class="uses">
+        <li>طابور أوامر الطباعة في الطابعة</li>
+        <li>جدولة العمليات في نظام التشغيل</li>
+        <li>البحث بالعرض BFS في الرسوم البيانية</li>
+        <li>المخزن المؤقت (buffer) للوحة المفاتيح والشبكات</li>
+        <li>أنظمة الحجز وخدمة العملاء</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 2. playground -->
+  <section class="station" id="playground">
+    <div class="s-head">
+      <span class="s-num">02</span>
+      <h2>المختبر: جرّب العمليات بنفسك</h2>
+      <p>كل زر يستدعي دالة حقيقية من <code>queue&lt;int&gt; q</code>. شاهد ما يحدث للطابور، واقرأ الكود المكافئ الذي يُكتب تلقائيًا. جرّب أيضًا أن تستدعي <code>pop()</code> على طابور فارغ.</p>
+    </div>
+
+    <div class="lane">
+      <div class="lane-end exit"><span>المقدمة</span><svg width="40" height="12" viewBox="0 0 40 12" aria-hidden="true"><path d="M1 6h35M30 1l6 5-6 5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"/></svg><b>front</b></div>
+      <div class="track" id="pg-track"><div class="track-empty" id="pg-empty" hidden>الطابور فارغ. أضف عنصرًا بالزر <code>push(x)</code></div></div>
+      <div class="lane-end entry"><span>المؤخرة</span><svg width="40" height="12" viewBox="0 0 40 12" aria-hidden="true"><path d="M1 6h35M30 1l6 5-6 5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"/></svg><b>back</b></div>
+    </div>
+
+    <div class="panel controls">
+      <div class="field">
+        <label for="pg-val">القيمة x</label>
+        <input id="pg-val" type="number" inputmode="numeric" value="42">
+      </div>
+      <div class="btns" role="group" aria-label="دوال تعدّل الطابور">
+        <button class="btn push" id="b-push">push(x)</button>
+        <button class="btn pop" id="b-pop">pop()</button>
+      </div>
+      <span class="sep" aria-hidden="true"></span>
+      <div class="btns" role="group" aria-label="دوال تقرأ فقط">
+        <button class="btn" id="b-front">front()</button>
+        <button class="btn" id="b-back">back()</button>
+        <button class="btn" id="b-size">size()</button>
+        <button class="btn" id="b-empty">empty()</button>
+      </div>
+      <span class="sep" aria-hidden="true"></span>
+      <div class="btns">
+        <button class="btn ar ghosty" id="b-clear">تفريغ الطابور</button>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="explain" id="pg-explain" aria-live="polite"></div>
+      <div class="codewrap">
+        <div class="code-head">
+          <span class="kicker" style="margin:0">الكود المكافئ في C++</span>
+          <div class="code-tools"><span class="stat">q.size() = <b id="pg-size">0</b></span><button class="copy" id="pg-copy">نسخ البرنامج</button></div>
+        </div>
+        <pre class="code log" id="pg-log"></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. tracer -->
+  <section class="station" id="trace">
+    <div class="s-head">
+      <span class="s-num">03</span>
+      <h2>تتبّع البرنامج سطرًا بسطر</h2>
+      <p>اختر برنامجًا واضغط «التالي». السطر المضيء هو الذي نُفّذ للتو، وبجانبه ترى حالة الطابور والمتغيرات وما طُبع على الشاشة. حاول أن تتوقّع النتيجة قبل أن تضغط.</p>
+    </div>
+    <div class="tabs" role="tablist" id="tr-tabs"></div>
+    <div class="tracer">
+      <div class="src" id="tr-src" aria-label="الكود"></div>
+      <div class="state">
+        <div class="step-ctrl">
+          <button class="btn ar" id="tr-prev">السابق</button>
+          <button class="btn ar push" id="tr-next">التالي</button>
+          <button class="btn ar" id="tr-play">تشغيل تلقائي</button>
+          <button class="btn ar ghosty" id="tr-reset">من البداية</button>
+          <span class="step-count" id="tr-count"></span>
+        </div>
+        <div class="note" id="tr-note" aria-live="polite"></div>
+        <div>
+          <span class="box-title">حالة الطابور</span>
+          <div class="lane">
+            <div class="lane-end exit"><span>front</span><svg width="34" height="12" viewBox="0 0 40 12" aria-hidden="true"><path d="M1 6h35M30 1l6 5-6 5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"/></svg><span class="gone" id="tr-gone"></span></div>
+            <div class="track small" id="tr-track"></div>
+            <div class="lane-end entry"><span>back</span><svg width="34" height="12" viewBox="0 0 40 12" aria-hidden="true"><path d="M1 6h35M30 1l6 5-6 5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"/></svg><span class="gone"></span></div>
+          </div>
+        </div>
+        <div>
+          <span class="box-title">المتغيرات</span>
+          <div class="vars" id="tr-vars"></div>
+        </div>
+        <div>
+          <span class="box-title">الشاشة (Output)</span>
+          <pre class="console" id="tr-out"></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. functions -->
+  <section class="station" id="functions">
+    <div class="s-head">
+      <span class="s-num">04</span>
+      <h2>دوال <code style="font-size:.8em">std::queue</code></h2>
+      <p>هذه الدوال الأعضاء التي ستستخدمها في كل برنامج تقريبًا. جميعها تعمل في زمن ثابت O(1) مهما كان حجم الطابور. ابدأ بالتعريف:</p>
+    </div>
+
+    <div class="codewrap"><pre class="code" data-hl>#include &lt;queue&gt;        // المكتبة اللازمة
+using namespace std;
+
+queue&lt;int&gt; q;             // طابور أعداد صحيحة
+queue&lt;string&gt; names;      // طابور نصوص
+queue&lt;double&gt; prices;     // طابور أعداد عشرية</pre></div>
+
+    <div class="tablewrap">
+      <table class="ref">
+        <thead><tr><th>الدالة</th><th>ماذا تفعل</th><th>تُعيد</th><th>تعدّل الطابور؟</th></tr></thead>
+        <tbody>
+          <tr><td>push(x)</td><td>تضيف x إلى المؤخرة</td><td>void</td><td>نعم</td></tr>
+          <tr><td>pop()</td><td>تحذف العنصر الأول</td><td>void</td><td>نعم</td></tr>
+          <tr><td>front()</td><td>تقرأ العنصر الأول</td><td>T&amp;</td><td>لا</td></tr>
+          <tr><td>back()</td><td>تقرأ العنصر الأخير</td><td>T&amp;</td><td>لا</td></tr>
+          <tr><td>empty()</td><td>هل الطابور فارغ؟</td><td>bool</td><td>لا</td></tr>
+          <tr><td>size()</td><td>عدد العناصر</td><td>size_t</td><td>لا</td></tr>
+          <tr><td>emplace(args)</td><td>تبني عنصرًا في المؤخرة مباشرة</td><td>void</td><td>نعم</td></tr>
+          <tr><td>swap(other)</td><td>تبادل محتوى طابورين</td><td>void</td><td>نعم</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="fns">
+      <article class="fn">
+        <div class="fn-top"><h3>push(x)</h3><span class="kind mod">تعدّل</span></div>
+        <div class="sig">void push(const T&amp; x);</div>
+        <p>تضيف نسخة من القيمة x إلى <strong>مؤخرة</strong> الطابور، فيزيد الحجم بواحد ويصبح x هو الـ back الجديد. العنصر الأول لا يتغيّر.</p>
+        <div class="codewrap"><pre class="code" data-hl>queue&lt;int&gt; q;
+q.push(5);
+q.push(8);     // q = {5, 8}
+q.push(3);     // q = {5, 8, 3}</pre></div>
+        <button class="btn push try" data-try="push">جرّبها في المختبر</button>
+      </article>
+
+      <article class="fn">
+        <div class="fn-top"><h3>pop()</h3><span class="kind mod">تعدّل</span></div>
+        <div class="sig">void pop();</div>
+        <p>تحذف العنصر الموجود في <strong>المقدمة</strong>. انتبه: لا تُعيد أي قيمة. إذا احتجت العنصر فاقرأه أولًا بـ <code>front()</code> ثم احذفه.</p>
+        <div class="codewrap"><pre class="code" data-hl>int first = q.front();   // نقرأ أولًا
+q.pop();                 // ثم نحذف</pre></div>
+        <div class="warnline">استدعاء <code>pop()</code> على طابور فارغ سلوك غير معرّف (Undefined Behavior)، وقد يتعطّل البرنامج.</div>
+        <button class="btn pop try" data-try="pop">جرّبها في المختبر</button>
+      </article>
+
+      <article class="fn">
+        <div class="fn-top"><h3>front()</h3><span class="kind read">تقرأ</span></div>
+        <div class="sig">T&amp; front();</div>
+        <p>تُعيد <strong>مرجعًا</strong> (reference) إلى العنصر الأول دون حذفه. لأنها مرجع، يمكنك أيضًا تعديل العنصر الأول مباشرة.</p>
+        <div class="codewrap"><pre class="code" data-hl>// q = {5, 8, 3}
+cout &lt;&lt; q.front();   // 5
+q.front() = 50;      // q = {50, 8, 3}</pre></div>
+        <button class="btn try" data-try="front">جرّبها في المختبر</button>
+      </article>
+
+      <article class="fn">
+        <div class="fn-top"><h3>back()</h3><span class="kind read">تقرأ</span></div>
+        <div class="sig">T&amp; back();</div>
+        <p>تُعيد مرجعًا إلى <strong>آخر</strong> عنصر أُضيف. مفيدة عندما تريد معرفة آخر قيمة دخلت دون أن تحفظها في متغير.</p>
+        <div class="codewrap"><pre class="code" data-hl>q.push(9);
+cout &lt;&lt; q.back();    // 9</pre></div>
+        <button class="btn try" data-try="back">جرّبها في المختبر</button>
+      </article>
+
+      <article class="fn">
+        <div class="fn-top"><h3>empty()</h3><span class="kind read">تقرأ</span></div>
+        <div class="sig">bool empty() const;</div>
+        <p>تُعيد <code>true</code> إذا لم يكن في الطابور أي عنصر. هي حارس الأمان: استخدمها قبل <code>front()</code> و<code>back()</code> و<code>pop()</code>، وهي شرط الحلقة المعتاد لتفريغ الطابور.</p>
+        <div class="codewrap"><pre class="code" data-hl>while (!q.empty()) {
+    cout &lt;&lt; q.front() &lt;&lt; " ";
+    q.pop();
+}</pre></div>
+        <p class="tip">ملاحظة: <code>cout &lt;&lt; q.empty()</code> يطبع 1 أو 0، لأن cout يطبع القيم المنطقية كأرقام ما لم تستخدم <code>boolalpha</code>.</p>
+        <button class="btn try" data-try="empty">جرّبها في المختبر</button>
+      </article>
+
+      <article class="fn">
+        <div class="fn-top"><h3>size()</h3><span class="kind read">تقرأ</span></div>
+        <div class="sig">size_t size() const;</div>
+        <p>تُعيد عدد العناصر الموجودة حاليًا. النوع <code>size_t</code> عدد صحيح بلا إشارة، فلا يمكن أن يكون سالبًا.</p>
+        <div class="codewrap"><pre class="code" data-hl>// q = {5, 8, 3}
+cout &lt;&lt; q.size();    // 3</pre></div>
+        <button class="btn try" data-try="size">جرّبها في المختبر</button>
+      </article>
+
+      <article class="fn">
+        <div class="fn-top"><h3>emplace(args...)</h3><span class="kind mod">تعدّل</span></div>
+        <div class="sig">void emplace(Args&amp;&amp;... args);</div>
+        <p>مثل <code>push</code>، لكنها تبني العنصر في مكانه مباشرة من وسائط المُنشئ (constructor) بدل إنشائه ثم نسخه. تظهر فائدتها مع الأنواع المركّبة مثل <code>pair</code> والـ struct.</p>
+        <div class="codewrap"><pre class="code" data-hl>queue&lt;pair&lt;int, string&gt;&gt; tasks;
+tasks.emplace(1, "print");
+tasks.push({2, "save"});   // المكافئ بـ push</pre></div>
+      </article>
+
+      <article class="fn">
+        <div class="fn-top"><h3>swap(other)</h3><span class="kind mod">تعدّل</span></div>
+        <div class="sig">void swap(queue&amp; other);</div>
+        <p>تبادل محتويات طابورين من النوع نفسه في زمن ثابت، دون نسخ العناصر واحدًا واحدًا. طريقة سريعة أيضًا لتفريغ طابور: بادله مع طابور فارغ.</p>
+        <div class="codewrap"><pre class="code" data-hl>queue&lt;int&gt; a, b;
+a.push(1);
+a.swap(b);       // a = {}, b = {1}</pre></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- 5. mistakes -->
+  <section class="station" id="mistakes">
+    <div class="s-head">
+      <span class="s-num">05</span>
+      <h2>أخطاء شائعة</h2>
+      <p>هذه الأخطاء تتكرر كثيرًا في الواجبات والامتحانات. اقرأ الخطأ وصحّحه قبل أن تنظر إلى الحل.</p>
+    </div>
+    <div class="mistakes">
+      <div class="mistake">
+        <div><h3>توقّع أن pop() تُعيد العنصر</h3><p>في C++ الدالة <code>pop()</code> نوعها <code>void</code>. هذا السطر لا يُترجم أصلًا. القراءة والحذف خطوتان منفصلتان.</p></div>
+        <div class="mk">
+          <span class="lbl bad">خطأ</span><pre class="code" data-hl>int x = q.pop();</pre>
+          <span class="lbl good">صحيح</span><pre class="code" data-hl>int x = q.front();
+q.pop();</pre>
+        </div>
+      </div>
+      <div class="mistake">
+        <div><h3>القراءة أو الحذف من طابور فارغ</h3><p>البرنامج يُترجم بلا أخطاء، لكن عند التشغيل يكون السلوك غير معرّف: قيمة عشوائية أو تعطّل. تحقّق دائمًا بـ <code>empty()</code>.</p></div>
+        <div class="mk">
+          <span class="lbl bad">خطأ</span><pre class="code" data-hl>cout &lt;&lt; q.front();
+q.pop();</pre>
+          <span class="lbl good">صحيح</span><pre class="code" data-hl>if (!q.empty()) {
+    cout &lt;&lt; q.front();
+    q.pop();
+}</pre>
+        </div>
+      </div>
+      <div class="mistake">
+        <div><h3>محاولة الوصول بالفهرس أو المرور على العناصر</h3><p>الطابور لا يدعم <code>q[i]</code> ولا حلقة <code>for (int x : q)</code>. ترى فقط المقدمة والمؤخرة. لطباعة كل العناصر مرّر الطابور إلى دالة <strong>بالقيمة</strong> (نسخة)، ثم فرّغ النسخة فيبقى الأصل كما هو.</p></div>
+        <div class="mk">
+          <span class="lbl bad">خطأ</span><pre class="code" data-hl>cout &lt;&lt; q[1];</pre>
+          <span class="lbl good">صحيح</span><pre class="code" data-hl>void printQueue(queue&lt;int&gt; q) {   // نسخة
+    while (!q.empty()) {
+        cout &lt;&lt; q.front() &lt;&lt; " ";
+        q.pop();
+    }
+}</pre>
+        </div>
+      </div>
+      <div class="mistake">
+        <div><h3>نسيان المكتبة</h3><p>بدون <code>#include &lt;queue&gt;</code> سيقول المترجم إن <code>queue</code> غير معرّف. بعض المترجمات تقبلها صدفةً عبر مكتبات أخرى، فلا تعتمد على ذلك.</p></div>
+        <div class="mk">
+          <span class="lbl good">صحيح</span><pre class="code" data-hl>#include &lt;iostream&gt;
+#include &lt;queue&gt;
+using namespace std;</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. inside -->
+  <section class="station" id="inside">
+    <div class="s-head">
+      <span class="s-num">06</span>
+      <h2>كيف يُبنى الطابور من الداخل؟</h2>
+      <p><code>std::queue</code> في الحقيقة «مُكيِّف حاويات» (container adaptor): يلتف حول حاوية أخرى، وهي <code>deque</code> افتراضيًا، ويسمح لك فقط بعمليات الطابور. أما في المقررات فيُطلب منك غالبًا بناء طابور بنفسك باستخدام <strong>مصفوفة دائرية</strong>.</p>
+    </div>
+    <div class="prose">
+      <p><strong>لماذا دائرية؟</strong> لو استخدمنا مصفوفة عادية وحرّكنا <code>frontIdx</code> إلى الأمام مع كل حذف، ستبقى الخانات في بداية المصفوفة فارغة ولن نستخدمها مرة أخرى. الحل: عندما يصل المؤشر إلى آخر المصفوفة يعود إلى الخانة 0 باستخدام باقي القسمة: <code>(index + 1) % CAP</code>.</p>
+      <p>المختبر يبدأ بحالة مثال: أضفنا 12 و7 و31 و5 ثم حذفنا مرتين. أضف أربعة عناصر الآن وراقب <code>rearIdx</code> وهو يلتف إلى البداية.</p>
+    </div>
+
+    <div class="circ">
+      <div class="viz">
+        <div class="panel controls">
+          <div class="field">
+            <label for="c-val">القيمة x</label>
+            <input id="c-val" type="number" inputmode="numeric" value="18">
+          </div>
+          <div class="btns">
+            <button class="btn push" id="c-enq">enqueue(x)</button>
+            <button class="btn pop" id="c-deq">dequeue()</button>
+            <button class="btn" id="c-peek">peek()</button>
+            <button class="btn ar ghosty" id="c-reset">إعادة</button>
+          </div>
+        </div>
+        <div class="panel" style="display:grid;gap:14px">
+          <span class="box-title" style="margin:0">المصفوفة <code>arr[6]</code> في الذاكرة</span>
+          <div class="arr" id="c-arr"></div>
+          <div class="ring" id="c-ring" aria-hidden="true"></div>
+          <div class="legend">
+            <span><i class="l-occ"></i>داخل الطابور</span>
+            <span><i class="l-stale"></i>قيمة قديمة لم تُمسح، تُعامل كخانة فارغة</span>
+            <span><i></i>لم تُستخدم بعد</span>
+          </div>
+          <div class="stats" id="c-stats"></div>
+          <div class="formula" id="c-formula" aria-live="polite"></div>
+        </div>
+      </div>
+      <div class="src" id="c-src" style="max-height:none"></div>
+    </div>
+  </section>
+
+  <!-- 7. quiz -->
+  <section class="station" id="quiz">
+    <div class="quiz-head">
+      <div class="s-head">
+        <span class="s-num">07</span>
+        <h2>اختبر نفسك</h2>
+        <p>سبعة أسئلة قصيرة. اختر إجابة لترى التصحيح والشرح فورًا.</p>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="score" id="qz-score">0 <small>من 7</small></div>
+        <button class="btn ar ghosty" id="qz-reset">إعادة الاختبار</button>
+      </div>
+    </div>
+    <div class="qs" id="qz"></div>
+  </section>
+
+  <footer class="foot">
+    <span>تذكّر: نضيف من المؤخرة بـ push، ونقرأ المقدمة بـ front، ونحذف بـ pop، ونتحقق دائمًا بـ empty.</span>
+    <span>جميع الأمثلة مجرّبة بمترجم C++17</span>
+  </footer>
+</main>
+
+<script>
+(function(){
+document.documentElement.lang='ar';
+const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+/* ---------- C++ highlighter ---------- */
+const TOK = /(\/\/.*$)|("(?:[^"\\\n]|\\.)*")|('(?:[^'\\\n]|\\.)')|(#\s*\w+(?:\s*<[^>\n]+>)?)|\b(\d+)\b|\b(int|void|bool|char|double|float|return|using|namespace|while|for|if|else|class|struct|public|private|const|static|auto|true|false|size_t|template|typename)\b|\b(queue|string|cout|cin|endl|std|pair|deque|list|main|Queue|boolalpha)\b/gm;
+function hl(code){
+  let out='', last=0;
+  code.replace(TOK, function(m, com, str, chr, pre, num, kw, ty, off){
+    out += esc(code.slice(last, off));
+    const cls = com?'c-com':(str||chr)?'c-str':pre?'c-pre':num?'c-num':kw?'c-kw':'c-ty';
+    out += '<span class="'+cls+'">'+esc(m)+'</span>';
+    last = off + m.length; return m;
+  });
+  return out + esc(code.slice(last));
+}
+async function copyText(text, btn){
+  const old = btn.textContent;
+  try { await navigator.clipboard.writeText(text); btn.textContent='نُسخ'; }
+  catch(e){ btn.textContent='حدّد النص وانسخه'; }
+  setTimeout(()=>btn.textContent=old, 1600);
+}
+document.querySelectorAll('pre[data-hl]').forEach(pre=>{
+  const raw = pre.textContent; pre.innerHTML = hl(raw);
+  if (raw.split('\n').length > 2 && !pre.closest('.mk')) {
+    const b = document.createElement('button'); b.className='copy'; b.textContent='نسخ';
+    b.addEventListener('click', ()=>copyText(raw, b));
+    pre.parentElement.appendChild(b); pre.parentElement.classList.add('has-copy');
+  }
+});
+
+/* ---------- shared cell rendering ---------- */
+function cellHTML(v, cls){
+  return '<div class="cell '+(cls||'')+'"><span class="tag tag-f">front</span><span class="v">'+esc(v)+'</span><span class="tag tag-b">back</span></div>';
+}
+function renderStatic(track, arr, opts){
+  opts = opts || {};
+  if (!arr.length){ track.innerHTML = '<div class="track-empty">'+(opts.emptyText||'الطابور فارغ')+'</div>'; return; }
+  track.innerHTML = arr.map((v,i)=>cellHTML(v, [i===0?'is-front':'', i===arr.length-1?'is-back':'', opts.read===i?'is-read':''].join(' '))).join('');
+  if (opts.enterLast && !reduce){
+    const last = track.lastElementChild;
+    last.animate([{transform:'translateX(-36px)',opacity:0},{transform:'none',opacity:1}],{duration:300,easing:'cubic-bezier(.2,.8,.2,1)'});
+  }
+}
+renderStatic($('#demo-track'), [12,7,31,5]);
+
+/* ---------- smooth scrolling nav ---------- */
+document.querySelectorAll('[data-go]').forEach(a=>a.addEventListener('click', e=>{
+  e.preventDefault(); document.getElementById(a.dataset.go).scrollIntoView({behavior: reduce?'auto':'smooth', block:'start'});
+}));
+
+/* ---------- PLAYGROUND ---------- */
+const MAX = 8;
+const pg = { items: [], lines: [] };
+const track = $('#pg-track'), emptyMsg = $('#pg-empty'), logEl = $('#pg-log'), explainEl = $('#pg-explain'), valEl = $('#pg-val');
+const EASE = 'cubic-bezier(.2,.8,.2,1)';
+
+function cells(){ return Array.from(track.querySelectorAll('.cell:not(.ghost)')); }
+function flip(mutate){
+  const before = new Map(cells().map(c=>[c, c.getBoundingClientRect().left]));
+  mutate();
+  if (reduce) return;
+  cells().forEach(c=>{
+    if (!before.has(c)) return;
+    const dx = before.get(c) - c.getBoundingClientRect().left;
+    if (Math.abs(dx) > 0.5) c.animate([{transform:'translateX('+dx+'px)'},{transform:'none'}],{duration:320,easing:EASE});
+  });
+}
+function updateTags(){
+  const cs = cells();
+  cs.forEach((c,i)=>{ c.classList.toggle('is-front', i===0); c.classList.toggle('is-back', i===cs.length-1); });
+  emptyMsg.hidden = cs.length>0;
+  $('#pg-size').textContent = pg.items.length;
+}
+function pulse(node){
+  node.classList.add('is-read');
+  if (!reduce) node.animate([{transform:'scale(1)'},{transform:'scale(1.12)'},{transform:'scale(1)'}],{duration:420,easing:EASE});
+  setTimeout(()=>node.classList.remove('is-read'), 900);
+}
+function addLine(code, comment, isErr){
+  pg.lines.push({code, comment, isErr});
+  renderLog();
+}
+function renderLog(){
+  const pad = s => s + ' '.repeat(Math.max(1, 22 - s.length));
+  logEl.innerHTML = '<span class="c-ty">queue</span>&lt;<span class="c-kw">int</span>&gt; q;\n' + pg.lines.map(l=>{
+    if (l.isErr) return '<span class="err">'+esc('// '+l.code+'   ← خطأ: الطابور فارغ')+'</span>';
+    return hl(l.comment ? pad(l.code) + '// ' + l.comment : l.code);
+  }).join('\n');
+  logEl.scrollTop = logEl.scrollHeight;
+}
+function explain(call, html, opts){
+  opts = opts || {};
+  explainEl.className = 'explain' + (opts.warn ? ' warn' : '');
+  explainEl.innerHTML = '<div class="ex-head"><span class="ex-call">'+esc(call)+'</span>'+
+    (opts.warn ? '<span class="pill">Undefined Behavior</span>' : '<span class="pill o1">O(1)</span>')+'</div><p>'+html+'</p>';
+}
+function emptyError(fn){
+  addLine('q.'+fn+'();', '', true);
+  explain('q.'+fn+'()', 'الطابور فارغ! استدعاء <code>'+fn+'()</code> على طابور فارغ سلوك غير معرّف: البرنامج يُترجم، لكن عند التشغيل قد يطبع قيمة عشوائية أو يتعطّل. الحل أن تتحقق أولًا: <code>if (!q.empty())</code>', {warn:true});
+}
+function rand(){ return Math.floor(Math.random()*90)+10; }
+
+function doPush(v, silent){
+  if (pg.items.length >= MAX){
+    explain('q.push('+v+')', 'المختبر يعرض '+MAX+' عناصر كحد أقصى حتى يبقى واضحًا. أما <code>std::queue</code> الحقيقية فتكبر تلقائيًا بلا حد ثابت سوى ذاكرة الجهاز. أخرج عنصرًا بـ <code>pop()</code> أولًا.', {warn:false});
+    return;
+  }
+  pg.items.push(v);
+  const wrap = document.createElement('div'); wrap.innerHTML = cellHTML(v); const node = wrap.firstChild;
+  flip(()=>track.appendChild(node));
+  if (!reduce && !silent) node.animate([{transform:'translateX(-48px)',opacity:0},{transform:'none',opacity:1}],{duration:340,easing:EASE});
+  updateTags();
+  addLine('q.push('+v+');', 'q.size() = '+pg.items.length);
+  if (!silent){
+    const n = pg.items.length;
+    explain('q.push('+v+')', 'دخل العنصر <b>'+v+'</b> من المؤخرة وأصبح هو الـ <b>back</b>. '+(n===1 ? 'لأن الطابور كان فارغًا، فهو الآن الأول والأخير في الوقت نفسه.' : 'العنصر الأول ما زال <b>'+pg.items[0]+'</b> ولم يتغيّر.')+' الحجم الآن '+n+'.');
+  }
+}
+function doPop(){
+  if (!pg.items.length) return emptyError('pop');
+  const v = pg.items.shift();
+  const node = cells()[0];
+  if (!reduce){
+    const ghost = node.cloneNode(true); ghost.classList.add('ghost');
+    ghost.style.left = node.offsetLeft+'px'; ghost.style.top = node.offsetTop+'px';
+    track.appendChild(ghost);
+    ghost.animate([{transform:'none',opacity:1},{transform:'translateX(70px)',opacity:0}],{duration:380,easing:'ease-in'}).onfinish=()=>ghost.remove();
+  }
+  flip(()=>node.remove());
+  updateTags();
+  addLine('q.pop();', 'removed '+v);
+  explain('q.pop()', 'خرج العنصر <b>'+v+'</b> من المقدمة لأنه أقدم عنصر في الطابور. '+(pg.items.length ? 'أصبح <b>'+pg.items[0]+'</b> هو الـ front الجديد.' : 'الطابور فارغ الآن.')+' تذكّر أن <code>pop()</code> لا تُعيد القيمة المحذوفة.');
+}
+function doFront(){
+  if (!pg.items.length) return emptyError('front');
+  pulse(cells()[0]);
+  addLine('cout << q.front();', '→ '+pg.items[0]);
+  explain('q.front()', 'أعادت <b>'+pg.items[0]+'</b>، وهو العنصر الذي ينتظر منذ أطول وقت. القراءة لا تحذف شيئًا: الحجم ما زال '+pg.items.length+'.');
+}
+function doBack(){
+  if (!pg.items.length) return emptyError('back');
+  const cs = cells(); pulse(cs[cs.length-1]);
+  addLine('cout << q.back();', '→ '+pg.items[pg.items.length-1]);
+  explain('q.back()', 'أعادت <b>'+pg.items[pg.items.length-1]+'</b>، وهو آخر عنصر دخل الطابور. لا يمكن حذفه من هنا؛ الحذف يكون من المقدمة فقط.');
+}
+function doSize(){
+  addLine('cout << q.size();', '→ '+pg.items.length);
+  explain('q.size()', 'في الطابور الآن <b>'+pg.items.length+'</b> '+(pg.items.length===1?'عنصر':'عناصر')+'. القيمة من النوع <code>size_t</code>، أي عدد صحيح غير سالب.');
+}
+function doEmpty(){
+  const e = pg.items.length===0;
+  addLine('cout << q.empty();', '→ '+(e?1:0)+' ('+(e?'true':'false')+')');
+  explain('q.empty()', 'النتيجة <b>'+(e?'true':'false')+'</b> لأن الطابور '+(e?'لا يحتوي أي عنصر.':'يحتوي '+pg.items.length+' '+(pg.items.length===1?'عنصرًا':'عناصر')+'.')+' ستطبع cout الرقم '+(e?1:0)+'. استخدم <code>empty()</code> قبل أي <code>front()</code> أو <code>pop()</code>.');
+}
+function doClear(){
+  if (!pg.items.length){ explain('while (!q.empty()) q.pop();','الطابور فارغ أصلًا.'); return; }
+  const n = pg.items.length;
+  pg.items = []; track.querySelectorAll('.cell').forEach(c=>c.remove()); updateTags();
+  addLine('while (!q.empty()) q.pop();', 'removed '+n);
+  explain('while (!q.empty()) q.pop();', 'لا توجد دالة clear() في std::queue، لذلك نفرّغه بحلقة: ما دام غير فارغ نحذف المقدمة. حُذف '+n+' '+(n===1?'عنصر':'عناصر')+'. طريقة أخرى سريعة: <code>queue&lt;int&gt;().swap(q);</code>');
+}
+
+$('#b-push').addEventListener('click', ()=>{ let v = parseInt(valEl.value,10); if (isNaN(v)) v = rand(); doPush(v); valEl.value = rand(); });
+valEl.addEventListener('keydown', e=>{ if (e.key==='Enter'){ e.preventDefault(); $('#b-push').click(); } });
+$('#b-pop').addEventListener('click', doPop);
+$('#b-front').addEventListener('click', doFront);
+$('#b-back').addEventListener('click', doBack);
+$('#b-size').addEventListener('click', doSize);
+$('#b-empty').addEventListener('click', doEmpty);
+$('#b-clear').addEventListener('click', doClear);
+$('#pg-copy').addEventListener('click', e=>{
+  const body = pg.lines.filter(l=>!l.isErr).map(l=>{
+    const c = l.code.startsWith('cout') ? l.code.replace(/;$/,' << endl;') : l.code;
+    return '    ' + c + (l.comment ? '   // ' + l.comment : '');
+  }).join('\n');
+  const prog = '#include <iostream>\n#include <queue>\nusing namespace std;\n\nint main() {\n    queue<int> q;\n'+body+'\n    return 0;\n}\n';
+  copyText(prog, e.currentTarget);
+});
+document.querySelectorAll('[data-try]').forEach(b=>b.addEventListener('click', ()=>{
+  document.getElementById('playground').scrollIntoView({behavior: reduce?'auto':'smooth'});
+  const map = {push:'#b-push', pop:'#b-pop', front:'#b-front', back:'#b-back', size:'#b-size', empty:'#b-empty'};
+  setTimeout(()=>$(map[b.dataset.try]).click(), reduce?0:450);
+}));
+[12,7,31].forEach(v=>doPush(v,true));
+explain('queue<int> q;', 'بدأنا بطابور فيه ثلاثة عناصر: 12 ثم 7 ثم 31. العنصر 12 دخل أولًا فهو في المقدمة. اضغط <code>push(x)</code> لإضافة عنصر، أو <code>pop()</code> لإخراج الأول، أو جرّب دوال القراءة.');
+valEl.value = 42;
+
+/* ---------- TRACER ---------- */
+const PROGRAMS = [
+ { id:'basics', title:'الأساسيات',
+   code:`#include <iostream>
+#include <queue>
+using namespace std;
+
+int main() {
+    queue<int> q;
+    q.push(10);
+    q.push(20);
+    q.push(30);
+    cout << q.front() << endl;
+    cout << q.back() << endl;
+    q.pop();
+    cout << q.size() << endl;
+    while (!q.empty()) {
+        cout << q.front() << " ";
+        q.pop();
+    }
+    return 0;
+}`,
+   run(S, H){
+     S(6,'نُنشئ طابورًا فارغًا اسمه <code>q</code> يحمل أعدادًا صحيحة. حجمه الآن 0.', s=>{s.exists=true;});
+     [10,20,30].forEach((v,i)=>S(7+i, i===0 ? '<code>push(10)</code>: يدخل 10 إلى الطابور الفارغ، فيكون الأول والأخير معًا.' : '<code>push('+v+')</code>: يدخل '+v+' من المؤخرة خلف '+(v-10)+'. المقدمة ما زالت 10.', s=>H.push(s,v)));
+     S(10,'<code>q.front()</code> يقرأ العنصر الأول (10) دون حذفه، ثم يطبعه <code>cout</code>.', s=>{s.hl={kind:'read',i:0}; s.out+=s.q[0]+'\n';});
+     S(11,'<code>q.back()</code> يقرأ آخر عنصر دخل (30).', s=>{s.hl={kind:'read',i:s.q.length-1}; s.out+=s.q[s.q.length-1]+'\n';});
+     S(12,'<code>pop()</code> يحذف 10 من المقدمة لأنه دخل أولًا. أصبح 20 هو الأول.', s=>H.pop(s));
+     S(13,'<code>size()</code> يُعيد 2، فيُطبع 2.', s=>{s.out+=s.q.length+'\n';});
+     H.loop(S, 14, 15, 16, s=>s.q.length>0,
+       s=>'الشرط <code>!q.empty()</code> صحيح لأن في الطابور '+s.q.length+' '+(s.q.length===1?'عنصر':'عناصر')+'، فندخل الحلقة.',
+       s=>'نطبع المقدمة '+s.q[0]+' ثم مسافة.', s=>{s.hl={kind:'read',i:0}; s.out+=s.q[0]+' ';},
+       s=>'نحذف '+s.q[0]+' من المقدمة.',
+       'الطابور فارغ، فالشرط <code>!q.empty()</code> خطأ ونخرج من الحلقة.');
+     S(18,'انتهى البرنامج. لاحظ أن المخرجات بالترتيب نفسه الذي دخلت به العناصر: هذه هي قاعدة FIFO.', ()=>{});
+   } },
+ { id:'bank', title:'طابور البنك (string)',
+   code:`#include <iostream>
+#include <queue>
+#include <string>
+using namespace std;
+
+int main() {
+    queue<string> bank;
+    bank.push("Ali");
+    bank.push("Sara");
+    bank.push("Omar");
+    cout << "Serving " << bank.front() << endl;
+    bank.pop();
+    bank.push("Huda");   // عميلة جديدة تصل
+
+    while (!bank.empty()) {
+        cout << "Serving " << bank.front() << endl;
+        bank.pop();
+    }
+    cout << "Done, size = " << bank.size() << endl;
+    return 0;
+}`,
+   run(S, H){
+     S(7,'طابور يحمل نصوصًا (<code>string</code>)، يمثّل العملاء في البنك.', s=>{s.exists=true;});
+     ['Ali','Sara','Omar'].forEach((v,i)=>S(8+i,'وصل <b>'+v+'</b> ووقف في آخر الطابور.', s=>H.push(s,v)));
+     S(11,'الموظف يخدم أول عميل في الطابور: <b>Ali</b>.', s=>{s.hl={kind:'read',i:0}; s.out+='Serving '+s.q[0]+'\n';});
+     S(12,'انتهت خدمة Ali فيغادر الطابور.', s=>H.pop(s));
+     S(13,'وصلت <b>Huda</b> الآن، فتقف خلف Omar وليس في المقدمة، حتى لو وصلت قبل أن يُخدم أحد آخر.', s=>H.push(s,'Huda'));
+     H.loop(S, 15, 16, 17, s=>s.q.length>0,
+       s=>'ما زال في الطابور '+s.q.length+' '+(s.q.length===1?'عميل':'عملاء')+'، فنكمل.',
+       s=>'نخدم <b>'+s.q[0]+'</b>.', s=>{s.hl={kind:'read',i:0}; s.out+='Serving '+s.q[0]+'\n';},
+       s=>'<b>'+s.q[0]+'</b> يغادر.',
+       'لم يعد أحد في الطابور، فنخرج من الحلقة.');
+     S(19,'<code>size()</code> يُعيد 0 بعد خدمة الجميع.', s=>{s.out+='Done, size = '+s.q.length+'\n';});
+     S(20,'انتهى البرنامج. خُدم العملاء بترتيب وصولهم تمامًا.', ()=>{});
+   } },
+ { id:'rotate', title:'تدوير الطابور',
+   code:`#include <iostream>
+#include <queue>
+using namespace std;
+
+int main() {
+    queue<int> q;
+    for (int i = 1; i <= 4; i++)
+        q.push(i * 5);
+
+    // تدوير الطابور مرتين
+    for (int k = 0; k < 2; k++) {
+        q.push(q.front());
+        q.pop();
+    }
+    cout << "front = " << q.front() << endl;
+    cout << "back = " << q.back() << endl;
+    return 0;
+}`,
+   run(S, H){
+     S(6,'نُنشئ طابورًا فارغًا.', s=>{s.exists=true;});
+     for (let i=1;i<=4;i++){
+       S(7,'<code>i = '+i+'</code> والشرط <code>i &lt;= 4</code> صحيح.', s=>{s.vars.i=i;});
+       S(8,'<code>push('+i+' * 5)</code> يضيف '+(i*5)+' إلى المؤخرة.', s=>H.push(s,i*5));
+     }
+     S(7,'<code>i = 5</code> والشرط خطأ، فتنتهي الحلقة الأولى. الطابور {5, 10, 15, 20}.', s=>{s.vars.i=5;});
+     for (let k=0;k<2;k++){
+       S(11,'<code>k = '+k+'</code> والشرط <code>k &lt; 2</code> صحيح.', s=>{delete s.vars.i; s.vars.k=k;});
+       S(12, s=>'نقرأ المقدمة <b>'+s.q[0]+'</b> بـ <code>front()</code> ونضيف نسخة منها في المؤخرة. الآن يظهر '+s.q[0]+' مرتين.', s=>{const f=s.q[0]; H.push(s,f);});
+       S(13, s=>'نحذف النسخة الأصلية من المقدمة. النتيجة: العنصر انتقل من الأمام إلى الخلف.', s=>H.pop(s));
+     }
+     S(11,'<code>k = 2</code> والشرط خطأ، فتنتهي الحلقة.', s=>{s.vars.k=2;});
+     S(15,'المقدمة الآن 15.', s=>{s.hl={kind:'read',i:0}; s.out+='front = '+s.q[0]+'\n';});
+     S(16,'والمؤخرة 10.', s=>{s.hl={kind:'read',i:s.q.length-1}; s.out+='back = '+s.q[s.q.length-1]+'\n';});
+     S(17,'انتهى البرنامج. تقنية «push(front) ثم pop» تُستخدم كثيرًا لتدوير الطابور أو المرور على عناصره دون فقدانها.', ()=>{});
+   } }
+];
+const H = {
+  push(s,v){ s.q.push(v); s.hl={kind:'push'}; },
+  pop(s){ s.removed = s.q.shift(); s.hl={kind:'pop'}; },
+  loop(S, condLine, bodyLine, popLine, cond, noteTrue, noteBody, doBody, notePop, noteFalse){
+    let guard = 0;
+    while (guard++ < 50){
+      let ok = false;
+      S(condLine, s=>{ ok = cond(s); return ok ? noteTrue(s) : noteFalse; }, ()=>{});
+      if (!ok) break;
+      S(bodyLine, noteBody, doBody);
+      S(popLine, notePop, s=>H.pop(s));
+    }
+  }
+};
+function buildSteps(prog){
+  const steps = [{line:0, note:'اضغط «التالي» لتنفيذ أول سطر. البرنامج يبدأ من الدالة <code>main</code>.', q:[], out:'', vars:{}, exists:false, hl:null, removed:null}];
+  const st = {q:[], out:'', vars:{}, exists:false, hl:null, removed:null};
+  const S = (line, note, fn)=>{
+    st.hl=null; st.removed=null;
+    const noteText = typeof note==='function' ? note(st) : note;   // evaluated before the line runs
+    fn && fn(st);
+    steps.push({line, note:noteText, q:st.q.slice(), out:st.out, vars:Object.assign({},st.vars), exists:st.exists, hl:st.hl, removed:st.removed});
+  };
+  prog.run(S, H);
+  return steps;
+}
+let trProg, trSteps, trI = 0, trTimer = null;
+const tabsEl = $('#tr-tabs');
+PROGRAMS.forEach((p,i)=>{
+  const b = document.createElement('button'); b.className='tab'; b.role='tab'; b.textContent=p.title; b.id='tab-'+p.id;
+  b.addEventListener('click', ()=>loadProg(i)); tabsEl.appendChild(b);
+});
+function loadProg(i){
+  stopPlay();
+  trProg = PROGRAMS[i]; trSteps = buildSteps(trProg); trI = 0;
+  tabsEl.querySelectorAll('.tab').forEach((t,j)=>t.setAttribute('aria-selected', j===i?'true':'false'));
+  $('#tr-src').innerHTML = trProg.code.split('\n').map((l,j)=>'<div class="ln" data-n="'+(j+1)+'"><span class="n">'+(j+1)+'</span><span>'+(hl(l)||' ')+'</span></div>').join('');
+  renderStep();
+}
+function renderStep(){
+  const st = trSteps[trI];
+  const src = $('#tr-src');
+  src.querySelectorAll('.ln.active').forEach(l=>l.classList.remove('active'));
+  if (st.line){
+    const ln = src.querySelector('.ln[data-n="'+st.line+'"]'); ln.classList.add('active');
+    const top = ln.offsetTop - src.clientHeight/2 + ln.offsetHeight/2;
+    src.scrollTo({top: Math.max(0, top), behavior: reduce?'auto':'smooth'});
+  }
+  $('#tr-note').innerHTML = st.note;
+  const tt = $('#tr-track');
+  if (!st.exists) tt.innerHTML = '<div class="track-empty">لم يُنشأ الطابور بعد</div>';
+  else renderStatic(tt, st.q, {read: st.hl&&st.hl.kind==='read' ? st.hl.i : null, enterLast: st.hl&&st.hl.kind==='push', emptyText:'الطابور فارغ'});
+  $('#tr-gone').textContent = st.removed!=null ? String(st.removed) : '';
+  const vk = Object.keys(st.vars);
+  $('#tr-vars').innerHTML = vk.length ? vk.map(k=>'<span class="var">'+k+' = '+st.vars[k]+'</span>').join('') : '<span class="muted">لا توجد متغيرات حلقة الآن</span>';
+  $('#tr-out').innerHTML = esc(st.out) + '<span class="cur"></span>';
+  $('#tr-count').textContent = 'الخطوة '+trI+' من '+(trSteps.length-1);
+  $('#tr-prev').disabled = trI===0;
+  $('#tr-next').disabled = trI===trSteps.length-1;
+}
+function stopPlay(){ if (trTimer){ clearInterval(trTimer); trTimer=null; } $('#tr-play').textContent='تشغيل تلقائي'; }
+$('#tr-next').addEventListener('click', ()=>{ if (trI<trSteps.length-1){ trI++; renderStep(); } });
+$('#tr-prev').addEventListener('click', ()=>{ stopPlay(); if (trI>0){ trI--; renderStep(); } });
+$('#tr-reset').addEventListener('click', ()=>{ stopPlay(); trI=0; renderStep(); });
+$('#tr-play').addEventListener('click', ()=>{
+  if (trTimer){ stopPlay(); return; }
+  if (trI===trSteps.length-1){ trI=0; renderStep(); }
+  $('#tr-play').textContent='إيقاف';
+  trTimer = setInterval(()=>{ if (trI<trSteps.length-1){ trI++; renderStep(); } else stopPlay(); }, 1300);
+});
+loadProg(0);
+
+/* ---------- CIRCULAR ARRAY ---------- */
+const CCODE = `class Queue {
+    static const int CAP = 6;
+    int arr[CAP];
+    int frontIdx = 0;   // موضع أول عنصر
+    int rearIdx = -1;   // موضع آخر عنصر
+    int count = 0;      // عدد العناصر
+public:
+    bool isEmpty() { return count == 0; }
+    bool isFull()  { return count == CAP; }
+
+    void enqueue(int x) {
+        if (isFull()) { cout << "Overflow\\n"; return; }
+        rearIdx = (rearIdx + 1) % CAP;
+        arr[rearIdx] = x;
+        count++;
+    }
+
+    void dequeue() {
+        if (isEmpty()) { cout << "Underflow\\n"; return; }
+        frontIdx = (frontIdx + 1) % CAP;
+        count--;
+    }
+
+    int peek() { return arr[frontIdx]; }
+};`;
+const cSrc = $('#c-src');
+cSrc.innerHTML = CCODE.split('\n').map((l,j)=>'<div class="ln" data-n="'+(j+1)+'"><span class="n">'+(j+1)+'</span><span>'+(hl(l)||' ')+'</span></div>').join('');
+function cMark(lines){
+  cSrc.querySelectorAll('.ln.active').forEach(l=>l.classList.remove('active'));
+  lines.forEach(n=>{ const el = cSrc.querySelector('.ln[data-n="'+n+'"]'); if (el) el.classList.add('active'); });
+}
+const CAP = 6;
+let C;
+function cInit(){
+  C = {arr:Array(CAP).fill(null), f:0, r:-1, n:0, flash:null};
+  [12,7,31,5].forEach(v=>{ C.r=(C.r+1)%CAP; C.arr[C.r]=v; C.n++; });
+  C.f=2; C.n=2;
+}
+function occIdx(){ const s=new Set(); for(let k=0;k<C.n;k++) s.add((C.f+k)%CAP); return s; }
+function cRender(){
+  const occ = occIdx();
+  $('#c-arr').innerHTML = C.arr.map((v,i)=>{
+    const cls = occ.has(i) ? 'occ' : (v!==null ? 'stale' : '');
+    const marks = (i===C.f ? '<span class="mark F'+(C.n?'':' dim')+'">F</span>' : '') + (i===C.r ? '<span class="mark R'+(C.n?'':' dim')+'">R</span>' : '');
+    return '<div class="slot '+cls+(C.flash===i?' flash':'')+'"><div class="mk-row">'+marks+'</div><div class="box">'+(v===null?'':v)+'</div><span class="idx">['+i+']</span></div>';
+  }).join('');
+  // ring
+  const R1=58, R2=100, P=Math.PI/180; let svg='<svg viewBox="-135 -135 270 270" role="img">';
+  const pt=(r,a)=>[(r*Math.cos(a*P)).toFixed(2),(r*Math.sin(a*P)).toFixed(2)];
+  for(let i=0;i<CAP;i++){
+    const a0=-90+i*60+1.5, a1=-90+(i+1)*60-1.5, am=-90+i*60+30;
+    const [x0,y0]=pt(R2,a0),[x1,y1]=pt(R2,a1),[x2,y2]=pt(R1,a1),[x3,y3]=pt(R1,a0);
+    const cls = 'seg'+(occ.has(i)?' occ':'')+(C.flash===i?' flash':'');
+    svg+='<path class="'+cls+'" d="M'+x0+' '+y0+' A'+R2+' '+R2+' 0 0 1 '+x1+' '+y1+' L'+x2+' '+y2+' A'+R1+' '+R1+' 0 0 0 '+x3+' '+y3+' Z"/>';
+    const [tx,ty]=pt((R1+R2)/2+4,am); const v=C.arr[i];
+    if (v!==null) svg+='<text class="rv'+(occ.has(i)?'':' stale')+'" x="'+tx+'" y="'+ty+'">'+v+'</text>';
+    const [ix,iy]=pt(R1-11,am); svg+='<text class="ri" x="'+ix+'" y="'+iy+'">'+i+'</text>';
+    const both = (i===C.f && i===C.r);
+    if (i===C.f){ const [fx,fy]=pt(R2+16, am+(both?-10:0)); svg+='<text class="rF" x="'+fx+'" y="'+fy+'"'+(C.n?'':' opacity=".45"')+'>F</text>'; }
+    if (i===C.r){ const [rx,ry]=pt(R2+16, am+(both?10:0)); svg+='<text class="rR" x="'+rx+'" y="'+ry+'"'+(C.n?'':' opacity=".45"')+'>R</text>'; }
+  }
+  svg+='<text class="center" x="0" y="-8">count</text><text class="rv" x="0" y="12">'+C.n+' / '+CAP+'</text></svg>';
+  $('#c-ring').innerHTML = svg;
+  $('#c-stats').innerHTML = ['frontIdx = <b>'+C.f+'</b>','rearIdx = <b>'+C.r+'</b>','count = <b>'+C.n+'</b>','isEmpty() = <b>'+(C.n===0)+'</b>','isFull() = <b>'+(C.n===CAP)+'</b>'].map(s=>'<span class="stat">'+s+'</span>').join('');
+}
+function cFormula(html){ $('#c-formula').innerHTML = html; }
+$('#c-enq').addEventListener('click', ()=>{
+  let x = parseInt($('#c-val').value,10); if (isNaN(x)) x = rand();
+  if (C.n===CAP){ C.flash=null; cMark([12]); cFormula('isFull() == true  →  "Overflow"\n<span class="wrap">الطابور ممتلئ: كل الخانات الست مستخدمة. لا مكان لـ '+x+'.</span>'); cRender(); return; }
+  const old=C.r; C.r=(C.r+1)%CAP; C.arr[C.r]=x; C.n++; C.flash=C.r;
+  cMark([11,13,14,15]);
+  cFormula('rearIdx = ('+old+' + 1) % 6 = '+C.r+(C.r===0 && old===CAP-1 ? '\n<span class="wrap">التفاف! وصلنا إلى آخر المصفوفة فعدنا إلى الخانة 0.</span>' : '')+'\narr['+C.r+'] = '+x+';   count = '+C.n);
+  $('#c-val').value = rand(); cRender();
+});
+$('#c-val').addEventListener('keydown', e=>{ if (e.key==='Enter'){ e.preventDefault(); $('#c-enq').click(); } });
+$('#c-deq').addEventListener('click', ()=>{
+  if (C.n===0){ C.flash=null; cMark([19]); cFormula('isEmpty() == true  →  "Underflow"\n<span class="wrap">لا يوجد عنصر لحذفه.</span>'); cRender(); return; }
+  const old=C.f, v=C.arr[C.f]; C.f=(C.f+1)%CAP; C.n--; C.flash=old;
+  cMark([18,20,21]);
+  cFormula('frontIdx = ('+old+' + 1) % 6 = '+C.f+(C.f===0 && old===CAP-1 ? '   <span class="wrap">التفاف!</span>' : '')+'\ncount = '+C.n+'\n<span class="wrap">القيمة '+v+' ما زالت في arr['+old+'] لكنها لم تعد جزءًا من الطابور.</span>');
+  cRender();
+});
+$('#c-peek').addEventListener('click', ()=>{
+  cMark([24]);
+  if (C.n===0){ C.flash=null; cFormula('<span class="wrap">الطابور فارغ. peek() هنا لا تتحقق، فستُعيد قيمة قديمة لا معنى لها. أضف شرط isEmpty() في الكود الحقيقي.</span>'); cRender(); return; }
+  C.flash=C.f; cFormula('return arr['+C.f+'];   // '+C.arr[C.f]); cRender();
+});
+$('#c-reset').addEventListener('click', ()=>{ C={arr:Array(CAP).fill(null), f:0, r:-1, n:0, flash:null}; cMark([4,5,6]); cFormula('طابور جديد فارغ: frontIdx = 0, rearIdx = -1, count = 0'); cRender(); });
+cInit(); cMark([]);
+cFormula('حالة مثال: frontIdx = 2 و rearIdx = 3.\n<span class="wrap">الخانتان 0 و1 حُذفتا لكن قيمهما القديمة باقية في الذاكرة.</span>');
+cRender();
+
+/* ---------- QUIZ ---------- */
+const QZ = [
+ {q:'ماذا يطبع هذا الكود؟', code:'queue<int> q;\nq.push(1);\nq.push(2);\nq.push(3);\nq.pop();\ncout << q.front();', opts:['1','2','3','خطأ في الترجمة'], mono:true, a:1,
+  why:'<code>pop()</code> حذف 1 لأنه دخل أولًا، فأصبح 2 في المقدمة.'},
+ {q:'أي سطر يقرأ العنصر الأول ثم يحذفه بشكل صحيح؟', opts:['int x = q.pop();','int x = q.front(); q.pop();','int x = q[0]; q.pop();','int x = q.back(); q.pop();'], mono:true, a:1,
+  why:'<code>pop()</code> تُعيد void، والطابور لا يدعم الفهرسة، و<code>back()</code> تقرأ آخر عنصر لا أوله.'},
+ {q:'ماذا يطبع هذا الكود؟', code:'queue<int> q;\nq.push(4);\nq.push(7);\nq.push(q.front());\ncout << q.size() << " " << q.back();', opts:['2 7','3 4','3 7','2 4'], mono:true, a:1,
+  why:'<code>front()</code> قرأ 4 دون حذفه، ثم أضافت <code>push</code> نسخة منه في المؤخرة: {4, 7, 4}. الحجم 3 والأخير 4.'},
+ {q:'ماذا يطبع هذا الكود؟', code:'queue<int> q;\nfor (int i = 1; i <= 5; i++)\n    q.push(i * i);\nwhile (q.size() > 2)\n    q.pop();\ncout << q.front() << " " << q.back();', opts:['1 4','16 25','9 25','25 16'], mono:true, a:1,
+  why:'الطابور {1, 4, 9, 16, 25}. نحذف من المقدمة حتى يبقى عنصران: 16 ثم 25.'},
+ {q:'ماذا يحدث عند تنفيذ هذا الكود؟', code:'queue<int> q;\nq.pop();', opts:['يطبع 0','خطأ في الترجمة','سلوك غير معرّف أثناء التشغيل','لا شيء، فـ pop تتجاهل الطابور الفارغ'], a:2,
+  why:'الكود يُترجم بلا مشكلة، لكن <code>std::queue</code> لا تتحقق من الفراغ، فالنتيجة غير مضمونة وقد يتعطّل البرنامج.'},
+ {q:'ما الحاوية التي تستخدمها std::queue داخليًا بشكل افتراضي؟', opts:['vector','deque','list','array'], mono:true, a:1,
+  why:'الافتراضي هو <code>deque</code> لأنها تضيف في النهاية وتحذف من البداية في زمن ثابت. أما <code>vector</code> فلا تملك pop_front.'},
+ {q:'في طابور دائري سعته CAP = 6 وغير ممتلئ، إذا كان rearIdx = 5، فأين يُضاف العنصر التالي؟', opts:['في الخانة 6','في الخانة 0','في الخانة 5','لا يمكن، يحدث Overflow دائمًا'], a:1,
+  why:'<code>(5 + 1) % 6 = 0</code>، فيلتف المؤشر إلى بداية المصفوفة. هذه فكرة المصفوفة الدائرية كلها.'}
+];
+let score = 0, answered = 0;
+function renderQuiz(){
+  score = 0; answered = 0; updScore();
+  $('#qz').innerHTML = QZ.map((it,qi)=>'<div class="q" data-q="'+qi+'"><h3><span class="qn">'+(qi+1)+'.</span>'+it.q+'</h3>'+
+    (it.code ? '<pre class="code">'+hl(it.code)+'</pre>' : '')+
+    '<div class="opts">'+it.opts.map((o,oi)=>'<button class="opt'+(it.mono?' mono':'')+'" data-o="'+oi+'">'+esc(o)+'</button>').join('')+'</div>'+
+    '<div class="feedback" hidden></div></div>').join('');
+  $('#qz').querySelectorAll('.opt').forEach(b=>b.addEventListener('click', ()=>{
+    const qEl = b.closest('.q'), it = QZ[+qEl.dataset.q], oi = +b.dataset.o;
+    qEl.querySelectorAll('.opt').forEach((x,j)=>{ x.disabled=true; if (j===it.a) x.classList.add('right'); });
+    const ok = oi===it.a; if (!ok) b.classList.add('wrong');
+    if (ok) score++; answered++; updScore();
+    const fb = qEl.querySelector('.feedback'); fb.hidden=false; fb.className='feedback '+(ok?'right':'wrong');
+    fb.innerHTML = '<b>'+(ok?'إجابة صحيحة. ':'ليست الإجابة الصحيحة. ')+'</b>'+it.why;
+  }));
+}
+function updScore(){
+  $('#qz-score').innerHTML = score+' <small>من '+QZ.length+(answered===QZ.length ? (score===QZ.length?' · ممتاز!':' · راجع الأسئلة الخاطئة') : '')+'</small>';
+}
+$('#qz-reset').addEventListener('click', renderQuiz);
+renderQuiz();
+})();
+</script>
+
+</body></html>
