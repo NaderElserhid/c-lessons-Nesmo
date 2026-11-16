@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teleporters | بوابات النقل الآني</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: TweetKod lesson page — soft hero, stacked lesson cards with a cyan spine, and a two-pane lab (graph + live state). */
+:root{
+  --bg:#F3F5FB; --surface:#FFFFFF; --surface-2:#F6F8FD; --ink:#1B2738; --muted:#5D6C82; --line:#DDE4EF;
+  --navy:#0D4A70; --cyan:#0AA5E3; --cyan-soft:#E2F4FC; --orange:#F39C12; --orange-soft:#FEF2DF;
+  --ok:#15955A; --ok-soft:#E1F5EA; --bad:#D9434B; --bad-soft:#FCE8E9;
+  --topbar:#2B3646; --edge:#A9B6C8; --code-bg:#0F1B2B; --code-ink:#DCE6F2;
+  --shadow:0 12px 32px rgba(13,74,112,.08);
+  --font-display:"Tajawal","Segoe UI",Tahoma,sans-serif;
+  --font-body:"Tajawal","Segoe UI",Tahoma,sans-serif;
+  --font-code:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --scale:1;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C1522; --surface:#132133; --surface-2:#172840; --ink:#E4ECF5; --muted:#9BACC1; --line:#243650;
+    --navy:#8FD8F8; --cyan:#27B6F0; --cyan-soft:#12344A; --orange:#F7B046; --orange-soft:#3A2C14;
+    --ok:#3DCB86; --ok-soft:#123826; --bad:#F06A70; --bad-soft:#3E1C22;
+    --topbar:#08101B; --edge:#4A5D77; --code-bg:#0A1320; --code-ink:#DCE6F2;
+    --shadow:0 12px 32px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C1522; --surface:#132133; --surface-2:#172840; --ink:#E4ECF5; --muted:#9BACC1; --line:#243650;
+  --navy:#8FD8F8; --cyan:#27B6F0; --cyan-soft:#12344A; --orange:#F7B046; --orange-soft:#3A2C14;
+  --ok:#3DCB86; --ok-soft:#123826; --bad:#F06A70; --bad-soft:#3E1C22;
+  --topbar:#08101B; --edge:#4A5D77; --code-bg:#0A1320; --code-ink:#DCE6F2;
+  --shadow:0 12px 32px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html{font-size:calc(16px * var(--scale))}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);line-height:1.85;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--font-display);color:var(--navy);text-wrap:balance;line-height:1.35;margin:0}
+p{margin:0}
+a{color:var(--cyan)}
+code,.mono{font-family:var(--font-code);font-size:.9em}
+:not(pre)>code{background:var(--cyan-soft);color:var(--navy);padding:.05em .4em;border-radius:6px;direction:ltr;unicode-bidi:isolate;white-space:nowrap}
+button{font-family:inherit}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px;border-radius:8px}
+
+/* ---------- top bar & header ---------- */
+.topstrip{height:6px;background:var(--topbar)}
+.site-header{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);box-shadow:0 4px 18px rgba(13,74,112,.05)}
+.site-header .inner{max-width:1240px;margin:0 auto;padding:.8rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.brand{display:flex;align-items:center;gap:.85rem}
+.logo{width:3.6rem;height:3.6rem;border-radius:1rem;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;box-shadow:var(--shadow)}
+.logo span{font-weight:900;font-size:1.45rem;letter-spacing:-.04em;font-family:var(--font-display)}
+.logo .t{color:var(--cyan)} .logo .k{color:var(--orange)}
+.brand-name{font-weight:800;font-size:1.25rem;color:var(--ink);line-height:1.2}
+.brand-sub{color:var(--cyan);font-weight:700;font-size:.95rem}
+.tools{display:flex;gap:.55rem;align-items:center}
+.tbtn{min-width:3.4rem;height:3.4rem;padding:0 1rem;border-radius:1rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:800;font-size:1rem;cursor:pointer;display:inline-flex;align-items:center;gap:.45rem;justify-content:center;transition:.2s}
+.tbtn:hover{border-color:var(--cyan);color:var(--cyan)}
+.tbtn svg{width:1.15rem;height:1.15rem}
+
+.toc{position:fixed;inset-block-start:5.5rem;inset-inline-end:1.25rem;z-index:50;width:min(20rem,calc(100vw - 2.5rem));background:var(--surface);border:1px solid var(--line);border-radius:1.1rem;box-shadow:var(--shadow);padding:.8rem;display:none}
+.toc.open{display:block}
+.toc button{display:flex;width:100%;gap:.6rem;align-items:center;text-align:start;background:none;border:0;padding:.55rem .7rem;border-radius:.7rem;color:var(--ink);font-size:1rem;cursor:pointer}
+.toc button:hover{background:var(--cyan-soft);color:var(--navy)}
+.toc .n{font-family:var(--font-code);font-size:.8rem;color:var(--cyan);min-width:1.6rem}
+
+/* ---------- hero ---------- */
+.hero{position:relative;overflow:hidden;padding:3.5rem 1.25rem 2.5rem;text-align:center;
+  background:
+   radial-gradient(38rem 26rem at 100% 10%, color-mix(in srgb,var(--cyan) 30%,transparent), transparent 70%),
+   radial-gradient(30rem 22rem at 0% 100%, color-mix(in srgb,var(--orange) 22%,transparent), transparent 70%),
+   var(--bg)}
+.hero::before{content:"";position:absolute;inset:0;opacity:.07;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='170'><g fill='%230D4A70' font-family='monospace' font-size='34'><text x='10' y='50'>( )</text><text x='150' y='40'>→</text><text x='90' y='120'>a[i]</text><text x='200' y='150'>↻</text><text x='20' y='160'>{ }</text></g></svg>")}
+.hero>*{position:relative}
+.hero h1{font-size:clamp(2.3rem,5.5vw,3.6rem);font-weight:900}
+.hero .sub{margin-top:.6rem;font-size:clamp(1.05rem,2.2vw,1.35rem);font-weight:700;color:var(--ink)}
+.hero .sub b{color:var(--cyan)}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-top:1.4rem}
+.chip{display:inline-flex;align-items:center;gap:.35rem;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:.25rem .85rem;font-weight:700;font-size:.9rem;color:var(--muted)}
+.chip b{color:var(--navy)}
+.chip.tag{background:var(--cyan-soft);border-color:transparent;color:var(--navy)}
+.chip.tag.o{background:var(--orange-soft);color:color-mix(in srgb,var(--orange) 70%,var(--ink))}
+
+/* ---------- lesson cards ---------- */
+section[id]{scroll-margin-top:6.5rem}
+main{max-width:1240px;margin:0 auto;padding:0 1.25rem 4rem;display:grid;gap:1.6rem}
+.card{background:var(--surface);border-radius:1.6rem;border:1px solid var(--line);border-inline-start:6px solid var(--cyan);box-shadow:var(--shadow);padding:clamp(1.25rem,3vw,2.2rem)}
+.card.narrow{max-width:960px;width:100%;margin-inline:auto}
+.sec-head{display:flex;align-items:center;gap:.85rem;margin-bottom:1.2rem}
+.sec-num{width:2.6rem;height:2.6rem;border-radius:.85rem;background:var(--cyan);color:#fff;display:grid;place-items:center;font-weight:900;font-size:1.15rem;flex:none}
+.sec-head h2{font-size:clamp(1.4rem,2.6vw,1.8rem);font-weight:900}
+.sec-head .en{display:block;font-family:var(--font-code);font-size:.78rem;color:var(--muted);font-weight:400;letter-spacing:.02em}
+.prose{display:grid;gap:.9rem;max-width:68ch;font-size:1.07rem}
+.prose.wide{max-width:none}
+.callout{border-radius:1rem;padding:1rem 1.2rem;background:var(--cyan-soft);border:1px solid color-mix(in srgb,var(--cyan) 30%,transparent);display:grid;gap:.4rem}
+.callout.o{background:var(--orange-soft);border-color:color-mix(in srgb,var(--orange) 35%,transparent)}
+.callout.g{background:var(--ok-soft);border-color:color-mix(in srgb,var(--ok) 35%,transparent)}
+.callout.r{background:var(--bad-soft);border-color:color-mix(in srgb,var(--bad) 35%,transparent)}
+.callout h4{font-size:1.05rem}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+@media (max-width:860px){.grid2,.grid3{grid-template-columns:1fr}}
+
+.io{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}
+@media (max-width:560px){.io{grid-template-columns:1fr}}
+.io-box{background:var(--surface-2);border:1px solid var(--line);border-radius:1rem;overflow:hidden}
+.io-box .lbl{font-weight:800;font-size:.85rem;color:var(--muted);padding:.4rem .9rem;border-bottom:1px solid var(--line)}
+.io-box pre{margin:0;padding:.8rem .9rem;font-family:var(--font-code);font-size:.98rem;direction:ltr;text-align:left;color:var(--ink)}
+
+/* pro steps */
+.steps{counter-reset:st;display:grid;gap:1rem}
+.step{display:grid;grid-template-columns:3rem 1fr;gap:1rem;align-items:start;background:var(--surface-2);border:1px solid var(--line);border-radius:1.1rem;padding:1rem 1.1rem}
+.step::before{counter-increment:st;content:counter(st);width:3rem;height:3rem;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:2px solid var(--cyan);color:var(--cyan);font-weight:900;font-size:1.2rem}
+.step h3{font-size:1.15rem;margin-bottom:.25rem}
+.step p{color:var(--ink)}
+.step .q{color:var(--muted);font-size:.95rem;font-weight:700}
+
+.mini{background:var(--surface-2);border:1px solid var(--line);border-radius:1.1rem;padding:.9rem;display:grid;gap:.4rem}
+.mini svg{width:100%;height:auto;display:block}
+.mini h4{font-size:1.02rem}
+.mini p{font-size:.95rem;color:var(--muted)}
+
+table.t{width:100%;border-collapse:separate;border-spacing:0;font-size:1rem}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:1rem}
+table.t th,table.t td{padding:.55rem .8rem;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+table.t th{background:var(--surface-2);color:var(--muted);font-weight:800;font-size:.9rem}
+table.t tr:last-child td{border-bottom:0}
+table.t td.num{font-family:var(--font-code);font-variant-numeric:tabular-nums}
+table.t tr.win td{background:var(--ok-soft);font-weight:800}
+table.t tr.lose td{background:var(--bad-soft);font-weight:800}
+
+/* ---------- LAB ---------- */
+.lab-card{border-inline-start-color:var(--orange)}
+.lab-card .sec-num{background:var(--orange)}
+.lab-top{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-bottom:1rem}
+.lab-top .lbl{font-weight:800;color:var(--muted);margin-inline-end:.3rem}
+.pbtn{border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:999px;padding:.35rem .95rem;font-weight:700;font-size:.92rem;cursor:pointer;transition:.15s}
+.pbtn:hover{border-color:var(--cyan);color:var(--navy)}
+.pbtn.active{background:var(--navy);color:var(--surface);border-color:var(--navy)}
+.editor{display:none;gap:.6rem;margin-bottom:1rem;background:var(--surface-2);border:1px dashed var(--line);border-radius:1rem;padding:1rem}
+.editor.open{display:grid}
+.editor textarea{width:100%;min-height:5.2rem;resize:vertical;font-family:var(--font-code);font-size:1rem;direction:ltr;text-align:left;border:1px solid var(--line);border-radius:.8rem;padding:.7rem;background:var(--surface);color:var(--ink)}
+.editor .row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+.err{color:var(--bad);font-weight:700;font-size:.95rem}
+.hint{color:var(--muted);font-size:.9rem}
+
+.lab{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:1.2rem;align-items:start}
+@media (max-width:980px){.lab{grid-template-columns:1fr}}
+.stage{background:var(--surface-2);border:1px solid var(--line);border-radius:1.3rem;padding:.8rem;display:grid;gap:.8rem}
+.graph-wrap{position:relative}
+#graph{width:100%;height:auto;display:block;max-height:560px}
+.legend{display:flex;flex-wrap:wrap;gap:.4rem .9rem;font-size:.85rem;color:var(--muted);font-weight:700;padding:0 .3rem}
+.legend i{display:inline-block;width:.85rem;height:.85rem;border-radius:50%;vertical-align:-.1rem;margin-inline-end:.3rem;border:2px solid transparent}
+.lg-cur{background:var(--cyan)} .lg-vis{background:var(--cyan-soft);border-color:var(--cyan)!important}
+.lg-s{background:var(--surface);border-color:var(--orange)!important} .lg-tail{background:var(--orange)} .lg-cyc{background:var(--bad)} .lg-ok{background:var(--ok)}
+
+/* svg graph */
+.edge .ln{fill:none;stroke:var(--edge);stroke-width:2;transition:stroke .25s}
+.edge .hd{fill:var(--edge);transition:fill .25s}
+.edge.walked .ln{stroke:var(--cyan);stroke-width:3.4}
+.edge.walked .hd{fill:var(--cyan)}
+.edge.next .ln{stroke:var(--cyan);stroke-width:3;stroke-dasharray:7 7;animation:dash .9s linear infinite}
+.edge.next .hd{fill:var(--cyan)}
+.edge.okc .ln{stroke:var(--ok);stroke-width:3.8}.edge.okc .hd{fill:var(--ok)}
+.edge.tail .ln{stroke:var(--orange);stroke-width:3.8}.edge.tail .hd{fill:var(--orange)}
+.edge.cyc .ln{stroke:var(--bad);stroke-width:3.8}.edge.cyc .hd{fill:var(--bad)}
+.edge.faded{opacity:.35}
+@keyframes dash{to{stroke-dashoffset:-28}}
+.node{cursor:default}
+.node circle.c{fill:var(--surface);stroke:var(--edge);stroke-width:2.5;transition:fill .25s,stroke .25s}
+.node text.lb{font-family:var(--font-code);font-weight:600;fill:var(--ink);text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.node.vis circle.c{fill:var(--cyan-soft);stroke:var(--cyan)}
+.node.cur circle.c{fill:var(--cyan);stroke:var(--navy);stroke-width:3.5}
+.node.cur text.lb{fill:#fff}
+.node.start circle.c{stroke:var(--orange);stroke-width:4.5}
+.node.cur.start circle.c{stroke:var(--orange)}
+.node.okn circle.c{fill:var(--ok-soft);stroke:var(--ok);stroke-width:3.5}
+.node.tailn circle.c{fill:var(--orange-soft);stroke:var(--orange);stroke-width:3.5}
+.node.cycn circle.c{fill:var(--bad-soft);stroke:var(--bad);stroke-width:3.5}
+.node.rep circle.c{fill:var(--bad);stroke:var(--bad)}
+.node.rep text.lb{fill:#fff}
+.node.dim{opacity:.4}
+.node .halo{fill:none;stroke:var(--cyan);stroke-width:2;opacity:0}
+.node.cur .halo{opacity:.5;animation:pulse 1.4s ease-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pulse{from{transform:scale(1);opacity:.6}to{transform:scale(1.55);opacity:0}}
+.sbadge circle{fill:var(--orange)} .sbadge text{fill:#fff;font-family:var(--font-code);font-weight:600;text-anchor:middle;dominant-baseline:central}
+.graph-guess .node{cursor:pointer}
+.graph-guess .node:hover circle.c{stroke:var(--orange);stroke-width:4}
+.node.shake{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+#traveler{fill:var(--orange);stroke:#fff;stroke-width:3;opacity:0}
+
+.controls{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:center}
+.cbtn{height:2.8rem;padding:0 1rem;border-radius:.9rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;font-size:.98rem}
+.cbtn:hover:not(:disabled){border-color:var(--cyan);color:var(--navy)}
+.cbtn:disabled{opacity:.4;cursor:not-allowed}
+.cbtn.primary{background:var(--cyan);color:#fff;border-color:var(--cyan)}
+.cbtn.primary:hover:not(:disabled){filter:brightness(1.06);color:#fff}
+.speed{display:inline-flex;align-items:center;gap:.4rem;font-weight:700;color:var(--muted);font-size:.9rem}
+.speed input{accent-color:var(--cyan);width:6.5rem}
+.toggle{display:inline-flex;align-items:center;gap:.45rem;font-weight:800;font-size:.92rem;color:var(--ink);cursor:pointer;background:var(--orange-soft);padding:.35rem .8rem;border-radius:999px}
+.toggle input{accent-color:var(--orange);width:1.05rem;height:1.05rem}
+
+.arr{overflow-x:auto;direction:ltr}
+.arr table{border-collapse:separate;border-spacing:4px;margin:0 auto}
+.arr th{font-family:var(--font-body);font-size:.8rem;color:var(--muted);font-weight:800;padding:0 .4rem;text-align:right;white-space:nowrap}
+.arr td{min-width:2.3rem;height:2.1rem;text-align:center;font-family:var(--font-code);font-size:.95rem;border-radius:.55rem;background:var(--surface);border:1px solid var(--line);transition:.2s}
+.arr tr.idx td{background:transparent;border-color:transparent;color:var(--muted);font-size:.8rem;height:1.4rem}
+.arr td.curcol{border-color:var(--cyan);box-shadow:0 0 0 2px var(--cyan) inset}
+.arr td.on{background:var(--cyan);color:#fff;border-color:var(--cyan)}
+.arr td.off{color:var(--muted)}
+.arr td.scol{color:var(--orange);font-weight:600}
+
+.panel{display:grid;gap:.9rem}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem}
+.stat{background:var(--surface-2);border:1px solid var(--line);border-radius:1rem;padding:.6rem .8rem}
+.stat .k{font-size:.82rem;color:var(--muted);font-weight:800}
+.stat .v{font-family:var(--font-code);font-size:1.7rem;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.3}
+.stat.out .v{color:var(--muted)}
+.stat.out.ok{background:var(--ok-soft);border-color:var(--ok)} .stat.out.ok .v{color:var(--ok)}
+.stat.out.bad{background:var(--bad-soft);border-color:var(--bad)} .stat.out.bad .v{color:var(--bad)}
+.narr{min-height:5.6rem;background:var(--surface-2);border:1px solid var(--line);border-inline-start:4px solid var(--cyan);border-radius:1rem;padding:.8rem 1rem;font-size:1.04rem}
+.narr.guess{border-inline-start-color:var(--orange);background:var(--orange-soft)}
+.narr.okm{border-inline-start-color:var(--ok);background:var(--ok-soft)}
+.narr.badm{border-inline-start-color:var(--bad);background:var(--bad-soft)}
+.narr .tag{display:inline-block;font-size:.78rem;font-weight:800;color:var(--muted);margin-bottom:.15rem}
+.code-live{background:var(--code-bg);border-radius:1rem;padding:.7rem 0;direction:ltr;text-align:left;overflow-x:auto}
+.code-live .ln{display:block;font-family:var(--font-code);font-size:.86rem;line-height:1.75;color:var(--code-ink);padding:0 1rem 0 .6rem;white-space:pre;border-left:3px solid transparent;opacity:.62;transition:.2s}
+.code-live .ln .no{display:inline-block;width:1.6rem;color:#5F7390;user-select:none}
+.code-live .ln.act{background:rgba(39,182,240,.16);border-left-color:#27B6F0;opacity:1}
+.code-live .ln.act.fin-ok{background:rgba(61,203,134,.18);border-left-color:#3DCB86}
+.code-live .ln.act.fin-bad{background:rgba(240,106,112,.18);border-left-color:#F06A70}
+.prog .bar{height:.6rem;background:var(--line);border-radius:999px;overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--navy));border-radius:999px;transition:width .3s}
+.prog .lab{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted);font-weight:700;margin-bottom:.25rem}
+.path{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center;direction:ltr;justify-content:flex-start}
+.path .pc{font-family:var(--font-code);font-size:.9rem;min-width:2rem;text-align:center;padding:.1rem .45rem;border-radius:.5rem;background:var(--surface);border:1px solid var(--line)}
+.path .pc.s{border-color:var(--orange);color:color-mix(in srgb,var(--orange) 75%,var(--ink));font-weight:600}
+.path .pc.now{background:var(--cyan);border-color:var(--cyan);color:#fff}
+.path .pc.rep{background:var(--bad);border-color:var(--bad);color:#fff}
+.path .pc.back{background:var(--ok);border-color:var(--ok);color:#fff}
+.path .ar{color:var(--muted);font-size:.8rem}
+.box-title{font-weight:800;font-size:.9rem;color:var(--muted);margin-bottom:.3rem}
+.result{display:none;border-radius:1rem;padding:.9rem 1rem;font-size:1rem}
+.result.show{display:block}
+.result.ok{background:var(--ok-soft);border:1px solid var(--ok)}
+.result.bad{background:var(--bad-soft);border:1px solid var(--bad)}
+.score{font-size:.88rem;font-weight:800;color:var(--muted)}
+
+/* code tabs */
+.tabs{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.8rem}
+.tab{border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:.8rem;padding:.4rem .95rem;font-weight:800;cursor:pointer;font-size:.95rem}
+.tab[aria-selected="true"]{background:var(--navy);color:var(--surface);border-color:var(--navy)}
+.codebox{position:relative;background:var(--code-bg);border-radius:1.1rem;overflow:hidden}
+.codebox pre{margin:0;padding:1.1rem 1.2rem;overflow-x:auto;direction:ltr;text-align:left;font-family:var(--font-code);font-size:.92rem;line-height:1.75;color:var(--code-ink)}
+.codebox .copy{position:absolute;top:.6rem;left:.6rem;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:.6rem;padding:.25rem .7rem;font-weight:700;cursor:pointer;font-size:.85rem}
+.tok-k{color:#7CC7FF}.tok-t{color:#FFB65C}.tok-n{color:#B5E48C}.tok-c{color:#6F86A3;font-style:italic}.tok-s{color:#F7A8C4}.tok-p{color:#C3A6FF}
+.code-note{margin-top:.8rem;display:grid;gap:.5rem}
+.linex{display:grid;grid-template-columns:7.5rem 1fr;gap:.8rem;align-items:baseline;padding:.55rem .8rem;border-radius:.8rem;background:var(--surface-2);border:1px solid var(--line)}
+.linex code{white-space:normal}
+@media (max-width:560px){.linex{grid-template-columns:1fr}}
+
+.cx{width:100%}
+.pit{display:grid;gap:.8rem}
+.pit .item{display:grid;grid-template-columns:2.4rem 1fr;gap:.8rem;background:var(--surface-2);border:1px solid var(--line);border-radius:1rem;padding:.9rem 1rem}
+.pit .ico{width:2.4rem;height:2.4rem;border-radius:.75rem;background:var(--bad-soft);color:var(--bad);display:grid;place-items:center;font-weight:900}
+.pit h4{font-size:1.05rem;margin-bottom:.2rem}
+
+/* quiz */
+.quiz{display:grid;gap:1rem}
+.qcard{background:var(--surface-2);border:1px solid var(--line);border-radius:1.1rem;padding:1rem 1.1rem;display:grid;gap:.7rem}
+.qcard .qt{font-weight:800;font-size:1.05rem}
+.qopts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
+@media (max-width:640px){.qopts{grid-template-columns:1fr}}
+.qopt{text-align:start;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:.8rem;padding:.6rem .9rem;font-size:1rem;cursor:pointer;font-weight:600}
+.qopt:hover:not(:disabled){border-color:var(--cyan)}
+.qopt.right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.qopt.wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.qopt:disabled{cursor:default}
+.qexp{display:none;font-size:.98rem;padding:.7rem .9rem;border-radius:.8rem;background:var(--surface);border:1px dashed var(--line)}
+.qexp.show{display:block}
+.qscore{font-weight:900;color:var(--navy);font-size:1.1rem}
+
+.check{display:grid;gap:.5rem;list-style:none;padding:0;margin:0}
+.check li{display:grid;grid-template-columns:1.8rem 1fr;gap:.6rem;align-items:start}
+.check li::before{content:"✓";width:1.6rem;height:1.6rem;border-radius:.5rem;background:var(--ok-soft);color:var(--ok);display:grid;place-items:center;font-weight:900;font-size:.9rem;margin-top:.25rem}
+footer{text-align:center;color:var(--muted);font-size:.9rem;padding:1rem 1.25rem 3rem}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation:none!important;transition:none!important}
+}
+@media (max-width:560px){
+  .brand-sub{display:none}
+  .tbtn{min-width:2.8rem;height:2.8rem;padding:0 .7rem}
+  .tbtn .txt{display:none}
+  .stats .v{font-size:1.35rem}
+}
+</style>
+</head>
+<body>
+<div class="topstrip"></div>
+<header class="site-header">
+  <div class="inner">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"><span><span class="t">T</span><span class="k">K</span></span></div>
+      <div>
+        <div class="brand-name">منصة TweetKod</div>
+        <div class="brand-sub">للتعلم البرمجي التفاعلي</div>
+      </div>
+    </div>
+    <div class="tools">
+      <button class="tbtn" id="tocBtn" aria-expanded="false" aria-controls="toc">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>
+        <span class="txt">الفهرس</span>
+      </button>
+      <button class="tbtn" id="fsDown" aria-label="تصغير الخط">A-</button>
+      <button class="tbtn" id="fsUp" aria-label="تكبير الخط">A+</button>
+      <button class="tbtn" id="themeBtn" aria-label="تبديل الوضع الليلي">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+<nav class="toc" id="toc" aria-label="فهرس الدرس"></nav>
+
+<section class="hero">
+  <h1>بوابات النقل الآني</h1>
+  <p class="sub">Teleporters — <b>اتبع الطريق الوحيد واكتشف الدورة</b></p>
+  <div class="chips">
+    <span class="chip">NSMO 2026 · <b>المرحلة الثانية</b> · المسألة C</span>
+    <span class="chip">الزمن <b class="mono">0.5 s</b></span>
+    <span class="chip">الذاكرة <b class="mono">256 MB</b></span>
+    <span class="chip"><b class="mono">N ≤ 2·10⁵</b></span>
+    <span class="chip tag">محاكاة</span>
+    <span class="chip tag">Functional Graph</span>
+    <span class="chip tag o">اكتشاف الدورات</span>
+  </div>
+</section>
+
+<main>
+
+<!-- 1 statement -->
+<section class="card narrow" id="statement" data-title="نص المسألة">
+  <div class="sec-head"><div class="sec-num">1</div><h2>نص المسألة <span class="en">Problem Statement</span></h2></div>
+  <div class="prose">
+    <p>لدينا <code>N</code> بوابة نقل مرتّبة في صف ومرقّمة من <code>1</code> إلى <code>N</code>. البوابة رقم <code>i</code> ترسلك فوراً إلى البوابة <code>a[i]</code>.</p>
+    <p>لا يمكنك المشي. الشيء الوحيد الذي تستطيع فعله هو دخول البوابة التي تقف عندها، وكل دخول يُحسب <b>خطوة واحدة</b>.</p>
+    <p>تبدأ عند البوابة <code>S</code>. المطلوب: بعد كم خطوة ستعود إلى <code>S</code> <b>لأول مرة</b>؟ وإذا كان الرجوع إليها مستحيلاً فاطبع <code>-1</code>.</p>
+    <div class="grid2">
+      <div class="callout"><h4>المدخلات</h4><p>السطر الأول: <code>N S</code>.<br>السطر الثاني: <code>a[1] a[2] … a[N]</code>.</p></div>
+      <div class="callout o"><h4>القيود</h4><p><code>1 ≤ S ≤ N ≤ 2·10⁵</code><br><code>1 ≤ a[i] ≤ N</code> (يجوز أن تكون <code>a[i] = i</code>).</p></div>
+    </div>
+    <div class="grid2">
+      <div class="io">
+        <div class="io-box"><div class="lbl">مدخلات المثال 1</div><pre>8 3
+6 1 1 3 7 5 8 3</pre></div>
+        <div class="io-box"><div class="lbl">المخرج</div><pre>6</pre></div>
+      </div>
+      <div class="io">
+        <div class="io-box"><div class="lbl">مدخلات المثال 2</div><pre>5 4
+3 4 1 3 5</pre></div>
+        <div class="io-box"><div class="lbl">المخرج</div><pre>-1</pre></div>
+      </div>
+    </div>
+    <p class="hint">المصدر: <a href="https://codeforces.com/group/xp2hGtKDm6/contest/708399/problem/C">Codeforces (مجموعة NSMO)</a> · <a href="https://nsmobooklets.mawhiba.sa/en/learn/archive/2026/contest-2/teleporters.html">كتيّب موهبة</a></p>
+  </div>
+</section>
+
+<!-- 2 understanding -->
+<section class="card narrow" id="insight" data-title="الفكرة الجوهرية">
+  <div class="sec-head"><div class="sec-num">2</div><h2>الفكرة الجوهرية: شكل الحرف ρ <span class="en">The Rho Shape of a Functional Graph</span></h2></div>
+  <div class="prose wide">
+    <p style="max-width:68ch">حوّل القصة إلى رسم بياني: كل بوابة عقدة، و«البوابة <code>i</code> ترسلك إلى <code>a[i]</code>» سهم من <code>i</code> إلى <code>a[i]</code>. من كل عقدة يخرج <b>سهم واحد بالضبط</b>، ويسمّى هذا النوع <b>الرسم الدالّي</b> (Functional Graph)، لأنه رسم للدالة <code>f(i) = a[i]</code>.</p>
+    <p style="max-width:68ch">بما أن كل عقدة لها مخرج واحد، فلا يوجد أي اختيار في الطريق. المسار من <code>S</code> محدد مسبقاً، ونحن فقط نتبعه. وبما أن عدد البوابات <code>N</code> محدود، فلا بد أن نكرر بوابة خلال <code>N</code> خطوة على الأكثر (مبدأ برج الحمام). عندها يدور المسار في حلقة إلى الأبد. هكذا يأخذ المسار شكل الحرف اليوناني <b>ρ</b>: <b>ذيل</b> مستقيم ثم <b>دورة</b>.</p>
+    <div class="grid2">
+      <div class="mini">
+        <h4>الحالة 1: <code>S</code> على الدورة</h4>
+        <svg id="miniA" viewBox="0 0 380 220" role="img" aria-label="S تقع على الدورة فنعود إليها"></svg>
+        <p>طول الذيل صفر. سنعود إلى <code>S</code> بعد عدد خطوات يساوي طول الدورة. البوابات الأخرى التي تصب في الدورة لا تهمّنا لأننا لن نمر بها.</p>
+      </div>
+      <div class="mini">
+        <h4>الحالة 2: <code>S</code> على الذيل</h4>
+        <svg id="miniB" viewBox="0 0 380 220" role="img" aria-label="S تقع على الذيل فلا نعود إليها"></svg>
+        <p>نخرج من <code>S</code> وندخل الدورة ولا نخرج منها أبداً، و<code>S</code> ليست فيها. الجواب <code>-1</code>.</p>
+      </div>
+    </div>
+    <div class="callout g" style="max-width:68ch">
+      <h4>لماذا يحسم أول تكرار الجواب؟</h4>
+      <p>أثناء المشي، أول بوابة نراها للمرة الثانية هي بداية الدورة. إذا كانت هي <code>S</code> فقد عدنا والجواب عدد الخطوات. وإذا كانت بوابة أخرى <code>v</code>، فمن <code>v</code> سنعيد نفس المقطع إلى الأبد، وهذا المقطع لا يحتوي <code>S</code> (لو احتواها لكنا رجعنا إلى <code>S</code> قبل الوصول إلى <code>v</code> مرة ثانية). إذن الجواب <code>-1</code>، ولا داعي لمواصلة المشي.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 3 pro thinking -->
+<section class="card narrow" id="pro" data-title="كيف يفكر المحترف">
+  <div class="sec-head"><div class="sec-num">3</div><h2>كيف يفكر المحترف في هذه المسألة <span class="en">Contest Thinking, Step by Step</span></h2></div>
+  <div class="steps">
+    <div class="step"><div>
+      <h3>اقرأ القيود قبل أي شيء</h3>
+      <p class="q">ما حجم المدخلات؟ وما الخوارزمية التي يسمح بها الوقت؟</p>
+      <p><code>N ≤ 2·10⁵</code> والحد الزمني <code>0.5</code> ثانية. خوارزمية <code>O(N²)</code> تعني نحو <code>4·10¹⁰</code> عملية، وهذا مستحيل. المطلوب <code>O(N)</code> أو <code>O(N log N)</code>. الحد الزمني القصير يذكّرك أيضاً باستخدام الإدخال السريع.</p>
+    </div></div>
+    <div class="step"><div>
+      <h3>ترجم القصة إلى بنية معروفة</h3>
+      <p class="q">ما الذي تمثله «بوابة ترسلك إلى بوابة»؟</p>
+      <p>عقدة لها سهم خارج واحد ⇐ رسم دالّي. المحترف يتعرف على هذه العبارة فوراً: «كل عنصر يشير إلى عنصر واحد» = Functional Graph، ومعها شكل ρ وكل أدواته.</p>
+    </div></div>
+    <div class="step"><div>
+      <h3>لاحظ أنه لا يوجد اختيار</h3>
+      <p class="q">هل أحتاج BFS أو DFS؟</p>
+      <p>لا. هذه الخوارزميات تستكشف <b>عدة طرق</b>، وهنا يوجد طريق واحد فقط. يكفي أن نحاكي المشي: <code>current = a[current]</code>.</p>
+    </div></div>
+    <div class="step"><div>
+      <h3>اضمن أن المحاكاة تتوقف</h3>
+      <p class="q">ماذا لو لم نرجع إلى S أبداً؟</p>
+      <p>المشي الأعمى «حتى نعود إلى S» يدخل في حلقة لا نهائية في حالة <code>-1</code>. نحتاج شرط توقف: نعلّم كل بوابة نزورها في مصفوفة <code>visited</code>، فإذا وصلنا إلى بوابة مزارة ليست <code>S</code> نتوقف ونطبع <code>-1</code>. بديل أذكى: نمشي <code>N</code> خطوة فقط، لأن الدورة لا يمكن أن تكون أطول من <code>N</code>.</p>
+    </div></div>
+    <div class="step"><div>
+      <h3>دقّق في العدّ وترتيب الشروط</h3>
+      <p class="q">هل الخطوات = عدد العقد في المسار؟</p>
+      <p>لا. الخطوات = عدد الأسهم. المسار <code>3→1→6→5→7→8→3</code> فيه 7 عقد و6 خطوات. ويجب فحص <code>current == S</code> <b>قبل</b> فحص <code>visited</code> بعد كل انتقال، لأن <code>S</code> نفسها معلَّمة كمزارة منذ البداية.</p>
+    </div></div>
+    <div class="step"><div>
+      <h3>احسب التعقيد واختبر الحالات الحدّية ثم أرسل</h3>
+      <p class="q">ما أسوأ حالة؟ وما أصغر حالة؟</p>
+      <p>كل بوابة تُزار مرة واحدة على الأكثر ⇐ <code>O(N)</code> زمن و<code>O(N)</code> ذاكرة. جرّب: <code>a[S] = S</code> (الجواب 1)، و<code>N = 1</code>، ودورة تمر بكل البوابات (الجواب <code>N</code>)، وذيل طويل ينتهي بدورة لا تحوي <code>S</code>.</p>
+    </div></div>
+  </div>
+</section>
+
+<!-- 4 LAB -->
+<section class="card lab-card" id="lab" data-title="المختبر التفاعلي">
+  <div class="sec-head"><div class="sec-num">4</div><h2>المختبر التفاعلي <span class="en">Interactive Lab — trace the official solution line by line</span></h2></div>
+
+  <div class="lab-top">
+    <span class="lbl">جرّب:</span>
+    <button class="pbtn" data-preset="ex1">المثال 1</button>
+    <button class="pbtn" data-preset="ex2">المثال 2</button>
+    <button class="pbtn" data-preset="self">حلقة ذاتية</button>
+    <button class="pbtn" data-preset="full">دورة كاملة (أسوأ حالة)</button>
+    <button class="pbtn" data-preset="tail">ذيل طويل</button>
+    <button class="pbtn" data-preset="rand">عشوائي</button>
+    <button class="pbtn" id="editBtn" aria-expanded="false">✎ مدخلاتك</button>
+  </div>
+  <div class="editor" id="editor">
+    <label for="inputArea" class="hint">اكتب المدخلات بنفس صيغة المسألة (المختبر يعرض حتى 20 بوابة):</label>
+    <textarea id="inputArea" spellcheck="false"></textarea>
+    <div class="row"><button class="cbtn primary" id="applyBtn">تطبيق</button><span class="err" id="inputErr" role="alert"></span></div>
+  </div>
+
+  <div class="lab">
+    <div class="stage">
+      <div class="graph-wrap"><svg id="graph" viewBox="0 0 560 560" role="img" aria-label="رسم البوابات والأسهم"></svg></div>
+      <div class="legend">
+        <span><i class="lg-s"></i>البداية S</span>
+        <span><i class="lg-cur"></i>البوابة الحالية</span>
+        <span><i class="lg-vis"></i>مزارة</span>
+        <span><i class="lg-ok"></i>دورة تحوي S</span>
+        <span><i class="lg-tail"></i>ذيل</span>
+        <span><i class="lg-cyc"></i>دورة بلا S</span>
+      </div>
+      <div class="controls">
+        <button class="cbtn" id="resetBtn" title="إعادة">⟲ إعادة</button>
+        <button class="cbtn" id="prevBtn">→ السابق</button>
+        <button class="cbtn primary" id="nextBtn">التالي ←</button>
+        <button class="cbtn" id="jumpBtn" title="نفّذ دورة كاملة من الحلقة">قفزة كاملة ⇐</button>
+        <button class="cbtn" id="playBtn">▶ تشغيل</button>
+        <label class="speed" for="speed">السرعة <input type="range" id="speed" min="0.5" max="3" step="0.25" value="1.25"></label>
+      </div>
+      <div class="controls">
+        <label class="toggle"><input type="checkbox" id="predict"> وضع التوقّع: توقّع البوابة التالية قبل أن تتحرك</label>
+        <span class="score" id="score"></span>
+      </div>
+      <div class="arr" aria-label="حالة المصفوفات"><table id="arr"></table></div>
+    </div>
+
+    <div class="panel">
+      <div class="stats">
+        <div class="stat"><div class="k">current</div><div class="v" id="vCur">3</div></div>
+        <div class="stat"><div class="k">steps</div><div class="v" id="vSteps">0</div></div>
+        <div class="stat out" id="outTile"><div class="k">المخرج</div><div class="v" id="vOut">—</div></div>
+      </div>
+      <div class="narr" id="narr" aria-live="polite"></div>
+      <div class="code-live" id="codeLive"></div>
+      <div class="prog">
+        <div class="lab"><span>الخطوات حتى الآن</span><span class="mono" id="progTxt">0 / 8</span></div>
+        <div class="bar"><i id="progBar"></i></div>
+        <p class="hint" style="margin-top:.3rem">لن يتجاوز العدد <code>N</code> أبداً: بعد <code>N</code> خطوة على الأكثر إما أن نعود أو نكرر بوابة.</p>
+      </div>
+      <div>
+        <div class="box-title">المسار حتى الآن</div>
+        <div class="path" id="path"></div>
+      </div>
+      <div class="result" id="result" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 traces -->
+<section class="card narrow" id="trace" data-title="التتبع اليدوي">
+  <div class="sec-head"><div class="sec-num">5</div><h2>التتبع اليدوي للمثالين <span class="en">Dry Run</span></h2></div>
+  <div class="prose wide">
+    <p style="max-width:68ch">المحترف يتتبع الأمثلة بيده قبل أن يكتب سطراً واحداً. هذا يكشف سوء الفهم مبكراً، ويثبت أن الفكرة صحيحة على الأقل في الأمثلة.</p>
+    <div class="grid2">
+      <div>
+        <h3 style="font-size:1.1rem;margin-bottom:.5rem">المثال 1: <code>S = 3</code></h3>
+        <div class="tablewrap"><table class="t">
+          <thead><tr><th>steps</th><th>current</th><th>a[current]</th><th>ملاحظة</th></tr></thead>
+          <tbody>
+            <tr><td class="num">0</td><td class="num">3</td><td class="num">1</td><td>البداية</td></tr>
+            <tr><td class="num">1</td><td class="num">1</td><td class="num">6</td><td>جديدة</td></tr>
+            <tr><td class="num">2</td><td class="num">6</td><td class="num">5</td><td>جديدة</td></tr>
+            <tr><td class="num">3</td><td class="num">5</td><td class="num">7</td><td>جديدة</td></tr>
+            <tr><td class="num">4</td><td class="num">7</td><td class="num">8</td><td>جديدة</td></tr>
+            <tr><td class="num">5</td><td class="num">8</td><td class="num">3</td><td>جديدة</td></tr>
+            <tr class="win"><td class="num">6</td><td class="num">3</td><td>—</td><td>عدنا إلى S ⇐ 6</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div>
+        <h3 style="font-size:1.1rem;margin-bottom:.5rem">المثال 2: <code>S = 4</code></h3>
+        <div class="tablewrap"><table class="t">
+          <thead><tr><th>steps</th><th>current</th><th>a[current]</th><th>ملاحظة</th></tr></thead>
+          <tbody>
+            <tr><td class="num">0</td><td class="num">4</td><td class="num">3</td><td>البداية</td></tr>
+            <tr><td class="num">1</td><td class="num">3</td><td class="num">1</td><td>جديدة</td></tr>
+            <tr><td class="num">2</td><td class="num">1</td><td class="num">3</td><td>جديدة</td></tr>
+            <tr class="lose"><td class="num">3</td><td class="num">3</td><td>—</td><td>مزارة وليست S ⇐ -1</td></tr>
+          </tbody>
+        </table></div>
+        <p class="hint" style="margin-top:.6rem">الذيل: <code>4</code>. الدورة: <code>3 ↔ 1</code>. لاحظ أن البوابة 2 تشير إلى 4 والبوابة 5 تشير إلى نفسها، لكن طريقنا لا يمر بهما.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 code -->
+<section class="card narrow" id="code" data-title="الحل والكود">
+  <div class="sec-head"><div class="sec-num">6</div><h2>الحل والكود <span class="en">Solutions</span></h2></div>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <div class="codebox"><button class="copy" id="copyBtn">نسخ</button><pre><code id="codeView"></code></pre></div>
+  <div class="code-note" id="codeNote"></div>
+  <h3 style="font-size:1.15rem;margin:1.4rem 0 .6rem">مقارنة الأساليب</h3>
+  <div class="tablewrap"><table class="t cx">
+    <thead><tr><th>الأسلوب</th><th>الزمن</th><th>الذاكرة</th><th>ملاحظة</th></tr></thead>
+    <tbody>
+      <tr><td>المشي حتى نعود إلى S بدون شرط توقف</td><td class="num">∞</td><td class="num">O(1)</td><td>يعلق في حالة <code>-1</code> ⇐ TLE</td></tr>
+      <tr><td>المحاكاة مع <code>visited</code> (الحل الرسمي)</td><td class="num">O(N)</td><td class="num">O(N)</td><td>يتوقف عند أول تكرار</td></tr>
+      <tr><td>المشي <code>N</code> خطوة على الأكثر</td><td class="num">O(N)</td><td class="num">O(1)</td><td>أقصر كود، ويعتمد على أن طول الدورة ≤ N</td></tr>
+      <tr><td>السلحفاة والأرنب (Floyd)</td><td class="num">O(N)</td><td class="num">O(1)</td><td>أداة عامة لاكتشاف الدورات، وهي أثقل من اللازم هنا</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 7 pitfalls -->
+<section class="card narrow" id="pitfalls" data-title="أخطاء شائعة">
+  <div class="sec-head"><div class="sec-num">7</div><h2>أخطاء شائعة وحالات حدّية <span class="en">Pitfalls &amp; Edge Cases</span></h2></div>
+  <div class="pit">
+    <div class="item"><div class="ico">1</div><div><h4>ترتيب الشروط المعكوس</h4><p>إذا فحصت <code>visited[current]</code> بعد الانتقال وقبل فحص <code>current == S</code>، فعند الرجوع إلى <code>S</code> ستجدها مزارة وتطبع <code>-1</code>. هذا الكود يفشل حتى في المثال الأول.</p></div></div>
+    <div class="item"><div class="ico">2</div><div><h4>حلقة بلا شرط توقف</h4><p><code>while (current != S)</code> وحدها تعلق إلى الأبد في المثال الثاني وتعطي Time Limit Exceeded.</p></div></div>
+    <div class="item"><div class="ico">3</div><div><h4>عدّ العقد بدل الأسهم</h4><p>الجواب عدد مرات استخدام البوابات، وليس عدد البوابات في المسار. العدّ الخاطئ يعطي 7 بدل 6 في المثال الأول.</p></div></div>
+    <div class="item"><div class="ico">4</div><div><h4>الحلقة الذاتية <code>a[S] = S</code></h4><p>القيود تسمح بها. الجواب <code>1</code> وليس <code>0</code>، لأننا استخدمنا البوابة مرة واحدة ثم عدنا. الحل الصحيح يتعامل معها بدون أي حالة خاصة.</p></div></div>
+    <div class="item"><div class="ico">5</div><div><h4>الفهرسة من 0 أو من 1</h4><p>البوابات مرقّمة من 1. استخدم مصفوفة بحجم <code>N + 1</code>، أو اطرح 1 من كل قيمة عند القراءة، والتزم بخيار واحد في كل الكود.</p></div></div>
+    <div class="item"><div class="ico">6</div><div><h4>الإدخال البطيء مع حد 0.5 ثانية</h4><p>أضف <code>ios::sync_with_stdio(false); cin.tie(nullptr);</code> في C++، واقرأ دفعة واحدة بـ <code>sys.stdin.buffer</code> في Python.</p></div></div>
+  </div>
+</section>
+
+<!-- 8 quiz -->
+<section class="card narrow" id="quiz" data-title="اختبر فهمك">
+  <div class="sec-head"><div class="sec-num">8</div><h2>اختبر فهمك <span class="en">Check Yourself</span></h2></div>
+  <div class="quiz" id="quizBox"></div>
+  <p class="qscore" id="qscore" style="margin-top:1rem"></p>
+</section>
+
+<!-- 9 summary -->
+<section class="card narrow" id="summary" data-title="الخلاصة والنمط">
+  <div class="sec-head"><div class="sec-num">9</div><h2>الخلاصة: النمط الذي تأخذه معك <span class="en">Pattern Takeaway</span></h2></div>
+  <div class="grid2">
+    <div class="callout g">
+      <h4>عندما ترى «كل عنصر يشير إلى عنصر واحد»</h4>
+      <ul class="check">
+        <li>ارسمه كرسم دالّي: سهم واحد يخرج من كل عقدة.</li>
+        <li>تذكّر أن أي مسار يأخذ شكل ρ: ذيل ثم دورة.</li>
+        <li>المحاكاة مع <code>visited</code> تكتشف بداية الدورة في <code>O(N)</code>.</li>
+        <li>برج الحمام: التكرار يحدث خلال <code>N</code> خطوة على الأكثر.</li>
+      </ul>
+    </div>
+    <div class="callout">
+      <h4>مسائل للتدرب على النمط نفسه</h4>
+      <ul class="check">
+        <li><a href="https://cses.fi/problemset/task/1751">CSES · Planets Cycles</a>: نفس الفكرة لكل البوابات دفعة واحدة.</li>
+        <li><a href="https://cses.fi/problemset/task/1750">CSES · Planets Queries I</a>: أين تكون بعد <code>k</code> خطوة؟ (Binary Lifting)</li>
+        <li><a href="https://leetcode.com/problems/find-the-duplicate-number/">LeetCode 287 · Find the Duplicate Number</a>: شكل ρ مع خوارزمية Floyd.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+</main>
+<footer>منصة TweetKod · درس مسألة Teleporters من NSMO 2026</footer>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const NS="http://www.w3.org/2000/svg";
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){return null;}}
+
+/* ---------- header tools ---------- */
+const root=document.documentElement;
+let scale=parseFloat(store("tk-scale"))||1;
+function applyScale(){root.style.setProperty("--scale",scale);}
+applyScale();
+$("#fsUp").onclick=()=>{scale=Math.min(1.3,+(scale+0.08).toFixed(2));applyScale();store("tk-scale",scale);};
+$("#fsDown").onclick=()=>{scale=Math.max(0.84,+(scale-0.08).toFixed(2));applyScale();store("tk-scale",scale);};
+$("#themeBtn").onclick=()=>{
+  const cur=root.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+  root.setAttribute("data-theme",cur==="dark"?"light":"dark");
+};
+const toc=$("#toc");
+document.querySelectorAll("section[data-title]").forEach((s,i)=>{
+  const b=document.createElement("button");
+  b.innerHTML='<span class="n">'+String(i+1).padStart(2,"0")+'</span>'+esc(s.dataset.title);
+  b.onclick=()=>{s.scrollIntoView({behavior:reduced?"auto":"smooth",block:"start"});toc.classList.remove("open");$("#tocBtn").setAttribute("aria-expanded","false");};
+  toc.appendChild(b);
+});
+$("#tocBtn").onclick=e=>{e.stopPropagation();const o=toc.classList.toggle("open");$("#tocBtn").setAttribute("aria-expanded",o);};
+document.addEventListener("click",e=>{if(!toc.contains(e.target))toc.classList.remove("open");});
+
+/* ---------- geometry helpers ---------- */
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+function norm(x,y){const L=Math.hypot(x,y)||1;return[x/L,y/L];}
+function headPts(tx,ty,dx,dy,size){const[ux,uy]=norm(dx,dy);const px=-uy,py=ux;const bx=tx-ux*size,by=ty-uy*size;
+  return `${tx},${ty} ${bx+px*size*0.5},${by+py*size*0.5} ${bx-px*size*0.5},${by-py*size*0.5}`;}
+function curveEdge(p,q,r,bend){
+  const dx=q.x-p.x,dy=q.y-p.y,L=Math.hypot(dx,dy);const[ux,uy]=norm(dx,dy);const nx=-uy,ny=ux;
+  const k=Math.min(bend*L,46);const c={x:(p.x+q.x)/2+nx*k,y:(p.y+q.y)/2+ny*k};
+  const[sx,sy]=norm(c.x-p.x,c.y-p.y);const[ex,ey]=norm(c.x-q.x,c.y-q.y);
+  const s={x:p.x+sx*r,y:p.y+sy*r},e={x:q.x+ex*(r+1),y:q.y+ey*(r+1)};
+  return{d:`M${s.x.toFixed(1)},${s.y.toFixed(1)} Q${c.x.toFixed(1)},${c.y.toFixed(1)} ${e.x.toFixed(1)},${e.y.toFixed(1)}`,head:headPts(e.x,e.y,e.x-c.x,e.y-c.y,11)};
+}
+function loopEdge(p,ox,oy,r){
+  const rot=(x,y,a)=>[x*Math.cos(a)-y*Math.sin(a),x*Math.sin(a)+y*Math.cos(a)];
+  const px=-oy,py=ox;const a=0.62;
+  const[s1x,s1y]=rot(ox,oy,-a),[e1x,e1y]=rot(ox,oy,a);
+  const s={x:p.x+s1x*r,y:p.y+s1y*r},e={x:p.x+e1x*r,y:p.y+e1y*r};
+  const far=r+44,w=24;
+  const c1={x:p.x+ox*far-px*w,y:p.y+oy*far-py*w},c2={x:p.x+ox*far+px*w,y:p.y+oy*far+py*w};
+  return{d:`M${s.x.toFixed(1)},${s.y.toFixed(1)} C${c1.x.toFixed(1)},${c1.y.toFixed(1)} ${c2.x.toFixed(1)},${c2.y.toFixed(1)} ${e.x.toFixed(1)},${e.y.toFixed(1)}`,head:headPts(e.x,e.y,e.x-c2.x,e.y-c2.y,11)};
+}
+
+/* ---------- mini rho diagrams ---------- */
+function mini(svg,nodes,edges,opts){
+  const r=17;
+  edges.forEach(([i,j,cls])=>{const g=el("g",{class:"edge "+(cls||"")},svg);const ge=curveEdge(nodes[i],nodes[j],r,0.12);el("path",{class:"ln",d:ge.d},g);el("polygon",{class:"hd",points:ge.head},g);});
+  nodes.forEach((n,i)=>{const g=el("g",{class:"node "+(n.cls||"")},svg);el("circle",{class:"c",cx:n.x,cy:n.y,r},g);const t=el("text",{class:"lb",x:n.x,y:n.y,"font-size":14},g);t.textContent=n.label||"";});
+  (opts.labels||[]).forEach(l=>{const t=el("text",{x:l.x,y:l.y,"text-anchor":"middle","font-size":15,"font-weight":800,fill:l.color,"font-family":"Tajawal, sans-serif"},svg);t.textContent=l.text;});
+}
+(function(){
+  const cx=200,cy=110,R=72,A=[];
+  for(let k=0;k<5;k++){const t=-Math.PI/2+k*2*Math.PI/5;A.push({x:cx+R*Math.cos(t),y:cy+R*Math.sin(t),cls:"okn"});}
+  A[0].cls="okn start";A[0].label="S";
+  A.push({x:50,y:190,cls:"dim"});A.push({x:40,y:95,cls:"dim"});
+  mini($("#miniA"),A,[[0,1,"okc"],[1,2,"okc"],[2,3,"okc"],[3,4,"okc"],[4,0,"okc"],[5,6,"faded"],[6,4,"faded"]],
+    {labels:[{x:cx,y:cy+6,text:"دورة طولها λ",color:"var(--ok)"},{x:330,y:205,text:"الجواب = λ",color:"var(--ok)"}]});
+  const B=[{x:40,y:110,cls:"tailn start",label:"S"},{x:115,y:110,cls:"tailn"}];
+  const c2x=258,c2y=110,R2=66;[Math.PI,-Math.PI/2,0,Math.PI/2].forEach(t=>B.push({x:c2x+R2*Math.cos(t),y:c2y+R2*Math.sin(t),cls:"cycn"}));
+  B[2].cls="rep";B[2].label="v";
+  mini($("#miniB"),B,[[0,1,"tail"],[1,2,"tail"],[2,3,"cyc"],[3,4,"cyc"],[4,5,"cyc"],[5,2,"cyc"]],
+    {labels:[{x:78,y:150,text:"ذيل μ",color:"var(--orange)"},{x:c2x,y:c2y+6,text:"دورة λ",color:"var(--bad)"},{x:80,y:205,text:"الجواب = \u2066-1\u2069",color:"var(--bad)"}]});
+})();
+
+/* ---------- LAB ---------- */
+const PRESETS={
+  ex1:"8 3\n6 1 1 3 7 5 8 3",
+  ex2:"5 4\n3 4 1 3 5",
+  self:"4 2\n3 2 4 1",
+  full:"7 1\n4 6 7 2 3 5 1",
+  tail:"10 1\n2 3 4 5 6 7 8 9 10 7"
+};
+const CODE_LINES=[
+  "int current = s;",
+  "int steps = 0;",
+  "while (true) {",
+  "    if (visited[current]) {",
+  "        cout << -1; return 0;",
+  "    }",
+  "    visited[current] = true;",
+  "    current = destination[current];",
+  "    steps++;",
+  "    if (current == s) {",
+  "        cout << steps; return 0;",
+  "    }",
+  "}"
+];
+const LINE_OF={init:[1,2],check:[4],fail:[5],mark:[7],move:[8],inc:[9],eq:[10],done:[11]};
+
+let cfg=null,trace=[],idx=0,timer=null,awaiting=false,guess={ok:0,tot:0},pos=[],RN=24;
+
+function parseInput(txt){
+  const t=txt.trim().split(/\s+/).filter(Boolean);
+  if(t.length<2)return{err:"اكتب N و S في السطر الأول."};
+  if(!t.every(x=>/^-?\d+$/.test(x)))return{err:"المدخلات يجب أن تكون أعداداً صحيحة فقط."};
+  const v=t.map(Number);const n=v[0],s=v[1];
+  if(n<1||n>20)return{err:"المختبر يعرض من 1 إلى 20 بوابة. غيّر قيمة N."};
+  if(s<1||s>n)return{err:`S يجب أن تكون بين 1 و ${n}.`};
+  if(v.length-2!==n)return{err:`يجب كتابة ${n} قيمة للمصفوفة a، وكتبتَ ${v.length-2}.`};
+  const a=[0].concat(v.slice(2));
+  for(let i=1;i<=n;i++)if(a[i]<1||a[i]>n)return{err:`القيمة a[${i}] = ${a[i]} خارج المدى 1..${n}.`};
+  return{n,s,a};
+}
+function buildTrace(n,s,a){
+  const T=[],vis=Array(n+1).fill(false);let cur=s,steps=0;const path=[s],edges=[];
+  const snap=(line,msg,x)=>T.push(Object.assign({line,cur,steps,vis:vis.slice(),path:path.slice(),edges:edges.slice(),msg},x||{}));
+  snap("init",`نقف عند البوابة <b>${s}</b> (هي S)، وعدّاد الخطوات <code>steps = 0</code>. كل البوابات غير مزارة بعد.`);
+  for(let guard=0;guard<4*n+10;guard++){
+    if(vis[cur]){
+      snap("check",`هل زرنا البوابة <b>${cur}</b> من قبل؟ <b>نعم!</b> وصلنا إلى بوابة مزارة وهي ليست S.`,{hit:true});
+      const mu=path.indexOf(cur);
+      snap("fail",`دخلنا دورة لا تحتوي S، فلن نعود إليها أبداً. نطبع <code>-1</code>.`,{status:"fail",rep:cur,mu,lam:path.length-1-mu});
+      break;
+    }
+    snap("check",`هل زرنا البوابة <b>${cur}</b> من قبل؟ لا، <code>visited[${cur}] = false</code>، نكمل.`);
+    vis[cur]=true;
+    snap("mark",`نعلّم البوابة <b>${cur}</b> كمزارة: <code>visited[${cur}] = true</code>. السهم المتقطع يبيّن إلى أين ستأخذنا.`);
+    const prev=cur;cur=a[cur];edges.push([prev,cur]);path.push(cur);
+    snap("move",`ندخل البوابة <b>${prev}</b> فتنقلنا إلى <code>a[${prev}] = ${cur}</code>. أصبحنا عند <b>${cur}</b>.`,{from:prev});
+    steps++;
+    snap("inc",`استخدمنا بوابة واحدة، إذن <code>steps = ${steps}</code>.`);
+    if(cur===s){
+      snap("eq",`هل <code>${cur} == S</code>؟ <b>نعم!</b>`);
+      snap("done",`عدنا إلى البوابة <b>${s}</b> بعد <b>${steps}</b> خطوات. نطبع <code>${steps}</code>.`,{status:"ok"});
+      break;
+    }
+    snap("eq",`هل <code>${cur} == S</code> (أي ${s})؟ لا. نرجع إلى أول الحلقة.`);
+  }
+  return T;
+}
+
+function renderCode(){
+  $("#codeLive").innerHTML=CODE_LINES.map((l,i)=>`<span class="ln" data-l="${i+1}"><span class="no">${i+1}</span>${hl(l,"cpp")}</span>`).join("");
+}
+
+function layout(n){
+  const cx=280,cy=280,R=n<=3?140:n<=6?175:n<=10?200:212;
+  pos=[null];
+  for(let i=1;i<=n;i++){const t=-Math.PI/2+(i-1)*2*Math.PI/n;pos.push({x:cx+R*Math.cos(t),y:cy+R*Math.sin(t),ox:Math.cos(t),oy:Math.sin(t)});}
+  RN=n<=8?25:n<=14?21:17;
+  if(n===1){pos[1]={x:280,y:300,ox:0,oy:-1};}
+}
+function renderGraph(){
+  const svg=$("#graph");svg.innerHTML="";
+  const n=cfg.n,a=cfg.a;layout(n);
+  const ge=el("g",{},svg),gn=el("g",{},svg);
+  for(let i=1;i<=n;i++){
+    const g=el("g",{class:"edge",id:"edge-"+i},ge);
+    const geo=a[i]===i?loopEdge(pos[i],pos[i].ox,pos[i].oy,RN):curveEdge(pos[i],pos[a[i]],RN,0.14);
+    el("path",{class:"ln",d:geo.d,id:"ep-"+i},g);el("polygon",{class:"hd",points:geo.head},g);
+  }
+  for(let i=1;i<=n;i++){
+    const p=pos[i];
+    const g=el("g",{class:"node",id:"node-"+i,"data-i":i,tabindex:"-1"},gn);
+    el("circle",{class:"halo",cx:p.x,cy:p.y,r:RN},g);
+    el("circle",{class:"c",cx:p.x,cy:p.y,r:RN},g);
+    const t=el("text",{class:"lb",x:p.x,y:p.y,"font-size":Math.round(RN*0.78)},g);t.textContent=i;
+    if(i===cfg.s){
+      const b=el("g",{class:"sbadge"},g);const bx=p.x+RN*0.78,by=p.y-RN*0.78;
+      el("circle",{cx:bx,cy:by,r:10},b);const bt=el("text",{x:bx,y:by,"font-size":12},b);bt.textContent="S";
+    }
+    g.addEventListener("click",()=>onNodeClick(i,g));
+  }
+  el("circle",{id:"traveler",r:8,cx:0,cy:0},svg);
+}
+function renderArray(){
+  const n=cfg.n;let h='<tr class="idx"><th></th>';
+  for(let i=1;i<=n;i++)h+=`<td>${i}</td>`;
+  h+='</tr><tr><th>destination</th>';
+  for(let i=1;i<=n;i++)h+=`<td id="ad-${i}">${cfg.a[i]}</td>`;
+  h+='</tr><tr><th>visited</th>';
+  for(let i=1;i<=n;i++)h+=`<td id="av-${i}" class="off">·</td>`;
+  h+="</tr>";$("#arr").innerHTML=h;
+}
+
+function renderState(){
+  const st=trace[idx],n=cfg.n,s=cfg.s,fin=st.status;
+  const walked=new Set(st.edges.map(e=>e[0]));
+  let tailSet=new Set(),cycSet=new Set();
+  if(fin==="fail"){st.path.slice(0,st.mu).forEach(v=>tailSet.add(v));st.path.slice(st.mu,st.path.length-1).forEach(v=>cycSet.add(v));}
+  const onPath=new Set(st.path);
+  for(let i=1;i<=n;i++){
+    const g=document.getElementById("node-"+i);const c=["node"];
+    if(i===s)c.push("start");
+    if(fin==="ok"){if(onPath.has(i))c.push("okn");else c.push("dim");}
+    else if(fin==="fail"){if(i===st.rep)c.push("rep");else if(tailSet.has(i))c.push("tailn");else if(cycSet.has(i))c.push("cycn");else c.push("dim");}
+    else{if(st.vis[i])c.push("vis");if(i===st.cur)c.push("cur");}
+    g.setAttribute("class",c.join(" "));
+    const e=document.getElementById("edge-"+i);const ec=["edge"];
+    if(fin==="ok"){if(walked.has(i))ec.push("okc");else ec.push("faded");}
+    else if(fin==="fail"){if(tailSet.has(i))ec.push("tail");else if(cycSet.has(i))ec.push("cyc");else ec.push("faded");}
+    else{if(walked.has(i))ec.push("walked");if(i===st.cur&&(st.line==="mark"))ec.push("next");}
+    e.setAttribute("class",ec.join(" "));
+    const ad=document.getElementById("ad-"+i),av=document.getElementById("av-"+i);
+    const isCur=!fin&&i===st.cur;
+    ad.className=(isCur?"curcol ":"")+(i===s?"scol":"");
+    av.className=(st.vis[i]?"on":"off")+(isCur?" curcol":"");
+    av.textContent=st.vis[i]?"✓":"·";
+  }
+  // stats
+  $("#vCur").textContent=st.cur;$("#vSteps").textContent=st.steps;
+  const ot=$("#outTile");ot.className="stat out"+(fin==="ok"?" ok":fin==="fail"?" bad":"");
+  $("#vOut").textContent=fin==="ok"?st.steps:fin==="fail"?"-1":"—";
+  // narration
+  const nb=$("#narr");
+  if(!awaiting){
+    nb.className="narr"+(fin==="ok"?" okm":fin==="fail"?" badm":"");
+    nb.innerHTML=`<span class="tag">الخطوة ${idx+1} من ${trace.length}</span><div>${st.msg}</div>`;
+  }
+  // code lines
+  const act=LINE_OF[st.line]||[];
+  document.querySelectorAll("#codeLive .ln").forEach(l=>{const k=+l.dataset.l;const on=act.includes(k);
+    l.className="ln"+(on?" act":"")+(on&&fin==="ok"?" fin-ok":"")+(on&&fin==="fail"?" fin-bad":"")+(on&&st.hit?" fin-bad":"");});
+  // progress
+  $("#progTxt").textContent=`${st.steps} / ${n}`;$("#progBar").style.width=(100*st.steps/n)+"%";
+  // path
+  const pathEl=$("#path");
+  pathEl.innerHTML=st.path.map((v,k)=>{
+    let c="pc";if(v===s)c+=" s";const last=k===st.path.length-1;
+    if(last&&fin==="ok"&&k>0)c+=" back";else if(last&&fin==="fail")c+=" rep";else if(last&&!fin)c+=" now";
+    return (k?'<span class="ar">→</span>':"")+`<span class="${c}">${v}</span>`;
+  }).join("");
+  // result
+  const res=$("#result");
+  if(fin==="ok"){res.className="result show ok";res.innerHTML=`<b>المخرج: ${st.steps}</b><br>البوابة S = ${s} تقع على دورة طولها <b>${st.steps}</b> (الأسهم الخضراء). طول الذيل صفر.`;}
+  else if(fin==="fail"){res.className="result show bad";res.innerHTML=`<b>المخرج: -1</b><br>الذيل (برتقالي) طوله <b>${st.mu}</b> ويبدأ من S، ثم دورة (أحمر) طولها <b>${st.lam}</b> تبدأ من البوابة <b>${st.rep}</b> ولا تحتوي S.`;}
+  else{res.className="result";res.innerHTML="";}
+  // buttons
+  $("#prevBtn").disabled=idx===0;
+  const end=idx>=trace.length-1;
+  $("#nextBtn").disabled=end;$("#jumpBtn").disabled=end;$("#playBtn").disabled=end||$("#predict").checked;
+  $("#graph").parentElement.classList.toggle("graph-guess",awaiting);
+  $("#score").textContent=$("#predict").checked&&guess.tot?`توقعات صحيحة: ${guess.ok} من ${guess.tot}`:"";
+}
+
+function animateTravel(from){
+  if(reduced)return;
+  const path=document.getElementById("ep-"+from),tr=document.getElementById("traveler");if(!path||!tr)return;
+  const L=path.getTotalLength(),dur=Math.max(220,620/parseFloat($("#speed").value));const t0=performance.now();
+  tr.style.opacity=1;
+  function f(now){const k=Math.min(1,(now-t0)/dur);const e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;const pt=path.getPointAtLength(L*e);
+    tr.setAttribute("cx",pt.x);tr.setAttribute("cy",pt.y);if(k<1)requestAnimationFrame(f);else tr.style.opacity=0;}
+  requestAnimationFrame(f);
+}
+function go(k,animate){
+  idx=Math.max(0,Math.min(trace.length-1,k));
+  const st=trace[idx];if(animate&&st.line==="move")animateTravel(st.from);
+  renderState();
+}
+function askGuess(){
+  awaiting=true;const st=trace[idx];
+  const nb=$("#narr");nb.className="narr guess";
+  nb.innerHTML=`<span class="tag">وضع التوقّع</span><div>نحن عند البوابة <b>${st.cur}</b>. إلى أين ستنقلنا؟ <b>انقر على البوابة الصحيحة في الرسم.</b> (تلميح: انظر إلى صف destination)</div>`;
+  renderState();
+}
+function next(){
+  if(awaiting||idx>=trace.length-1)return false;
+  if($("#predict").checked&&trace[idx].line==="mark"){askGuess();return false;}
+  go(idx+1,true);return true;
+}
+function onNodeClick(i,g){
+  if(!awaiting)return;
+  const st=trace[idx],ans=cfg.a[st.cur];guess.tot++;
+  if(i===ans){
+    guess.ok++;awaiting=false;go(idx+1,true);
+    const nb=$("#narr");nb.className="narr okm";nb.innerHTML=`<span class="tag">توقّع صحيح</span><div>أحسنت! <code>a[${st.cur}] = ${ans}</code>. ${trace[idx].msg}</div>`;
+  }else{
+    g.classList.add("shake");setTimeout(()=>g.classList.remove("shake"),420);
+    const nb=$("#narr");nb.innerHTML=`<span class="tag">وضع التوقّع</span><div>ليست <b>${i}</b>. البوابة <b>${st.cur}</b> ترسلنا إلى <code>a[${st.cur}]</code>: ابحث عن العمود ${st.cur} في صف destination ثم حاول مرة أخرى.</div>`;
+    renderState();
+  }
+}
+function stop(){if(timer){clearInterval(timer);timer=null;}$("#playBtn").textContent="▶ تشغيل";}
+function play(){
+  if(timer){stop();return;}
+  if(idx>=trace.length-1)return;
+  $("#playBtn").textContent="⏸ إيقاف";
+  timer=setInterval(()=>{if(!next()||idx>=trace.length-1)stop();},Math.round(950/parseFloat($("#speed").value)));
+}
+function jump(){
+  stop();
+  while(idx<trace.length-1){
+    if(!next())break;
+    const l=trace[idx].line;if(l==="eq"||l==="done"||l==="fail")break;
+  }
+}
+function load(txt,markBtn){
+  const r=parseInput(txt);
+  if(r.err){$("#inputErr").textContent=r.err;return false;}
+  $("#inputErr").textContent="";stop();awaiting=false;guess={ok:0,tot:0};
+  cfg=r;trace=buildTrace(r.n,r.s,r.a);idx=0;$("#inputArea").value=txt.trim();
+  document.querySelectorAll(".pbtn[data-preset]").forEach(b=>b.classList.toggle("active",b.dataset.preset===markBtn));
+  renderGraph();renderArray();renderState();return true;
+}
+function randomInput(){
+  const n=6+Math.floor(Math.random()*7),s=1+Math.floor(Math.random()*n);let a=[];
+  if(Math.random()<0.5){a=Array.from({length:n},(_,i)=>i+1);for(let i=n-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
+  else a=Array.from({length:n},()=>1+Math.floor(Math.random()*n));
+  return `${n} ${s}\n${a.join(" ")}`;
+}
+document.querySelectorAll(".pbtn[data-preset]").forEach(b=>b.onclick=()=>{const p=b.dataset.preset;load(p==="rand"?randomInput():PRESETS[p],p);});
+$("#editBtn").onclick=()=>{const o=$("#editor").classList.toggle("open");$("#editBtn").setAttribute("aria-expanded",o);if(o)$("#inputArea").focus();};
+$("#applyBtn").onclick=()=>load($("#inputArea").value,null);
+$("#nextBtn").onclick=()=>{stop();next();};
+$("#prevBtn").onclick=()=>{stop();awaiting=false;go(idx-1,false);};
+$("#resetBtn").onclick=()=>{stop();awaiting=false;guess={ok:0,tot:0};go(0,false);};
+$("#jumpBtn").onclick=jump;
+$("#playBtn").onclick=play;
+$("#predict").onchange=()=>{stop();awaiting=false;renderState();};
+
+/* ---------- syntax highlight ---------- */
+function hl(src,lang){
+  const kw=lang==="py"?/^(def|for|in|range|if|return|import|print|int|main)$/:/^(using|namespace|return|while|for|if|true|false|break|auto|const)$/;
+  const ty=/^(int|bool|vector|void|long|std)$/;
+  const re=/(\/\/.*$|#.*$)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|\b([A-Za-z_]\w*)\b|\b(\d+)\b/gm;
+  let out="",last=0,m;
+  while((m=re.exec(src))){
+    out+=esc(src.slice(last,m.index));last=re.lastIndex;
+    if(m[1]){ if(lang==="cpp"&&m[1].startsWith("#"))out+=`<span class="tok-p">${esc(m[1])}</span>`; else out+=`<span class="tok-c">${esc(m[1])}</span>`;}
+    else if(m[2])out+=`<span class="tok-s">${esc(m[2])}</span>`;
+    else if(m[3]){ if(lang==="cpp"&&ty.test(m[3]))out+=`<span class="tok-t">${m[3]}</span>`; else if(kw.test(m[3]))out+=`<span class="tok-k">${m[3]}</span>`; else out+=esc(m[3]);}
+    else if(m[4])out+=`<span class="tok-n">${m[4]}</span>`;
+  }
+  return out+esc(src.slice(last));
+}
+renderCode();
+
+/* ---------- solution tabs ---------- */
+const SOL=[
+ {id:"official",name:"الحل الرسمي",lang:"cpp",code:
+`#include <iostream>
+#include <vector>
+using namespace std;
+
+int main() {
+    int n, s;
+    cin >> n >> s;
+
+    vector<int> destination(n + 1);
+    for (int i = 1; i <= n; i++) {
+        cin >> destination[i];
+    }
+
+    vector<bool> visited(n + 1, false);
+    int current = s;
+    int steps = 0;
+
+    while (true) {
+        if (visited[current]) {          // repeated a gate that is not s
+            cout << -1 << '\\n';
+            return 0;
+        }
+
+        visited[current] = true;
+        current = destination[current];  // use the gate: one step
+        steps++;
+
+        if (current == s) {              // back to the start
+            cout << steps << '\\n';
+            return 0;
+        }
+    }
+}`,
+ notes:[
+  ["vector(n + 1)","مصفوفة بحجم <code>n + 1</code> حتى نستخدم الفهرسة من 1 مثل نص المسألة مباشرة."],
+  ["visited","تسجّل البوابات التي مررنا بها. هي شرط التوقف الذي يمنع الحلقة اللانهائية."],
+  ["if (visited[current])","يُفحص في أول الحلقة: إذا وصلنا لبوابة مزارة (وهي حتماً ليست S، لأن S تُفحص بعد كل انتقال) فنحن في دورة بلا S."],
+  ["current = destination[current]","هذا هو «استخدام البوابة». سطر واحد يمثل المسألة كلها."],
+  ["if (current == s)","يُفحص مباشرة بعد الانتقال وقبل العودة لفحص visited. هذا الترتيب هو ما يجعل الحل صحيحاً."]
+ ]},
+ {id:"pro",name:"نسخة المسابقات",lang:"cpp",code:
+`#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);   // fast input: TL is only 0.5 s
+    cin.tie(nullptr);
+
+    int n, s;
+    cin >> n >> s;
+    vector<int> a(n + 1);
+    for (int i = 1; i <= n; i++) cin >> a[i];
+
+    vector<bool> visited(n + 1, false);
+    int cur = s, steps = 0;
+    while (!visited[cur]) {
+        visited[cur] = true;
+        cur = a[cur];
+        steps++;
+        if (cur == s) { cout << steps << '\\n'; return 0; }
+    }
+    cout << -1 << '\\n';
+}`,
+ notes:[
+  ["sync_with_stdio","يفصل cin عن stdio فيصبح الإدخال أسرع عدة مرات. عادة ثابتة عند المحترفين، خاصة مع حد 0.5 ثانية."],
+  ["while (!visited[cur])","نفس منطق الحل الرسمي بشكل أقصر: الحلقة تنتهي من تلقاء نفسها عند أول تكرار، ثم نطبع <code>-1</code>."]
+ ]},
+ {id:"o1",name:"ذاكرة O(1)",lang:"cpp",code:
+`#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, s;
+    cin >> n >> s;
+    vector<int> a(n + 1);
+    for (int i = 1; i <= n; i++) cin >> a[i];
+
+    // If s is on a cycle, that cycle has at most n gates,
+    // so we must be back within n steps.
+    int cur = s;
+    for (int steps = 1; steps <= n; steps++) {
+        cur = a[cur];
+        if (cur == s) { cout << steps << '\\n'; return 0; }
+    }
+    cout << -1 << '\\n';
+}`,
+ notes:[
+  ["steps <= n","الفكرة: إذا كانت S على دورة فطولها ≤ N، فسنعود خلال N خطوة. إذا لم نعد خلالها فلن نعود أبداً."],
+  ["بدون visited","لا نحتاج مصفوفة إضافية، فالذاكرة الإضافية O(1). هذا مثال على أن البرهان الرياضي يبسّط الكود."]
+ ]},
+ {id:"py",name:"Python",lang:"py",code:
+`import sys
+
+def main():
+    data = sys.stdin.buffer.read().split()   # fast input
+    n, s = int(data[0]), int(data[1])
+    a = [0] + [int(x) for x in data[2:2 + n]]
+
+    cur = s
+    for steps in range(1, n + 1):
+        cur = a[cur]
+        if cur == s:
+            print(steps)
+            return
+    print(-1)
+
+main()`,
+ notes:[
+  ["sys.stdin.buffer","قراءة كل المدخلات دفعة واحدة. مع N = 2·10⁵ وحد 0.5 ثانية، input() سطراً سطراً قد يكون بطيئاً."],
+  ["[0] + …","عنصر وهمي في البداية حتى تبدأ الفهرسة من 1."]
+ ]}
+];
+let curSol=0;
+const tabs=$("#tabs");
+SOL.forEach((s,i)=>{const b=document.createElement("button");b.className="tab";b.setAttribute("role","tab");b.id="tab-"+s.id;b.textContent=s.name;b.onclick=()=>showSol(i);tabs.appendChild(b);});
+function showSol(i){
+  curSol=i;const s=SOL[i];
+  tabs.querySelectorAll(".tab").forEach((b,k)=>b.setAttribute("aria-selected",k===i));
+  $("#codeView").innerHTML=hl(s.code,s.lang);
+  $("#codeNote").innerHTML=s.notes.map(([k,v])=>`<div class="linex"><code>${esc(k)}</code><div>${v}</div></div>`).join("");
+  $("#copyBtn").textContent="نسخ";
+}
+$("#copyBtn").onclick=async()=>{try{await navigator.clipboard.writeText(SOL[curSol].code);$("#copyBtn").textContent="تم النسخ ✓";}catch(e){$("#copyBtn").textContent="حدد النص وانسخه يدوياً";}};
+showSol(0);
+
+/* ---------- quiz ---------- */
+const QUIZ=[
+ {q:"N = 4، S = 2، a = [2, 3, 4, 1]. ما المخرج؟",o:["3","4","1","-1"],c:1,e:"المسار 2 → 3 → 4 → 1 → 2. استخدمنا 4 بوابات، والبوابة 2 على دورة طولها 4."},
+ {q:"N = 3، S = 1، a = [2, 3, 2]. ما المخرج؟",o:["2","3","-1","0"],c:2,e:"المسار 1 → 2 → 3 → 2. البوابة 2 تكررت وهي ليست S، فالبوابة 1 على الذيل ولن نعود إليها."},
+ {q:"إذا كانت a[S] = S، فما المخرج؟",o:["0","1","-1","N"],c:1,e:"ندخل البوابة S مرة واحدة فتعيدنا إليها. هذه خطوة واحدة."},
+ {q:"لماذا نضمن أن المحاكاة تتوقف خلال N خطوة على الأكثر؟",o:["لأن المصفوفة a مرتبة","لأن عدد البوابات المختلفة N فقط، فلا بد أن نكرر بوابة","لأن a تبديلة دائماً","لأن الحد الزمني 0.5 ثانية"],c:1,e:"مبدأ برج الحمام: N+1 زيارة لـ N بوابة تعني تكرار بوابة واحدة على الأقل. أول تكرار يحسم الجواب."},
+ {q:"طالب علّم S مزارة، ثم بعد كل انتقال فحص visited[current] قبل أن يفحص current == S. ماذا يطبع في المثال الأول؟",o:["6","7","-1","يدخل في حلقة لا نهائية"],c:2,e:"عند الرجوع إلى 3 يجدها مزارة فيطبع -1 قبل أن يلاحظ أنها S. ترتيب الشروط مهم."}
+];
+let qDone=0,qRight=0;
+const qb=$("#quizBox");
+QUIZ.forEach((it,qi)=>{
+  const card=document.createElement("div");card.className="qcard";
+  card.innerHTML=`<div class="qt">${qi+1}. ${esc(it.q)}</div><div class="qopts"></div><div class="qexp"></div>`;
+  const opts=card.querySelector(".qopts"),exp=card.querySelector(".qexp");
+  it.o.forEach((o,oi)=>{const b=document.createElement("button");b.className="qopt";b.textContent=o;
+    b.onclick=()=>{opts.querySelectorAll("button").forEach((x,k)=>{x.disabled=true;if(k===it.c)x.classList.add("right");});
+      if(oi!==it.c)b.classList.add("wrong");else qRight++;qDone++;
+      exp.innerHTML=(oi===it.c?"<b>صحيح.</b> ":"<b>ليس تماماً.</b> ")+esc(it.e);exp.classList.add("show");
+      $("#qscore").textContent=`النتيجة: ${qRight} من ${qDone}`+(qDone===QUIZ.length?(qRight===QUIZ.length?" · ممتاز، أنت جاهز لمسائل Functional Graph":" · راجع المختبر ثم أعد المحاولة"):"");};
+    opts.appendChild(b);});
+  qb.appendChild(card);
+});
+
+load(PRESETS.ex1,"ex1");
+})();
+</script>
+</body>
+</html>
