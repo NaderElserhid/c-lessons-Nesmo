@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Nasmo programming learning dashboard">
+  <title>Nasmo Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap">
+  <style>
+    :root {
+      --ink: #17213d;
+      --muted: #74809a;
+      --primary: #5b5ce2;
+      --primary-dark: #4546c7;
+      --paper: #f7f8ff;
+      --surface: #fff;
+      --line: #e8ebf5;
+      --mint: #dff8eb;
+      --yellow: #fff0c8;
+      --shadow: 0 16px 40px rgba(34, 43, 90, .08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "DM Sans", sans-serif; color: var(--ink); background: var(--paper); min-height: 100vh; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; }
+    .app { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 250px; flex: 0 0 250px; padding: 26px 18px; background: var(--surface);
+      border-right: 1px solid var(--line); display: flex; flex-direction: column;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; padding: 0 12px 34px; font: 800 1.45rem "Manrope", sans-serif; }
+    .brand-mark { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 11px; color: white; background: linear-gradient(135deg, #7778f4, #5556d9); font-size: .9rem; }
+    .brand span { color: var(--primary); }
+    .nav-label { padding: 0 12px 10px; color: #a0a8bb; text-transform: uppercase; letter-spacing: 1.3px; font-size: .67rem; font-weight: 700; }
+    .nav { display: grid; gap: 5px; }
+    .nav a { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 11px; color: var(--muted); font-weight: 600; font-size: .91rem; }
+    .nav a:hover, .nav a.active { color: var(--primary); background: #eeefff; }
+    .nav-icon { width: 22px; text-align: center; font-size: 1.05rem; }
+    .sidebar-bottom { margin-top: auto; padding: 16px; border-radius: 16px; color: #526078; background: #f2f3ff; font-size: .8rem; }
+    .sidebar-bottom strong { display: block; color: var(--ink); margin-bottom: 5px; }
+    .mini-progress { height: 6px; margin-top: 12px; overflow: hidden; border-radius: 6px; background: #dfe1f6; }
+    .mini-progress span { display: block; width: 18%; height: 100%; border-radius: inherit; background: var(--primary); }
+
+    .main { width: 100%; min-width: 0; padding: 28px clamp(20px, 4vw, 56px) 48px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 38px; }
+    .menu-button { display: none; border: 0; color: var(--ink); background: transparent; font-size: 1.35rem; }
+    .breadcrumb { color: var(--muted); font-size: .84rem; }
+    .breadcrumb strong { color: var(--ink); }
+    .top-actions { display: flex; align-items: center; gap: 14px; }
+    .icon-button { width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 11px; color: var(--muted); background: var(--surface); }
+    .icon-button:hover { color: var(--primary); border-color: #c9caff; }
+    .profile { display: flex; align-items: center; gap: 10px; font-size: .86rem; font-weight: 700; }
+    .avatar { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; color: #4e3b18; background: var(--yellow); }
+
+    .welcome { display: flex; justify-content: space-between; align-items: center; gap: 30px; padding: 30px 34px; border-radius: 22px; color: white; background: linear-gradient(115deg, #5758da, #7778ee); box-shadow: 0 16px 32px rgba(91, 92, 226, .18); overflow: hidden; }
+    .welcome h1 { font: 800 clamp(1.65rem, 3vw, 2.3rem)/1.2 "Manrope", sans-serif; margin-bottom: 8px; }
+    .welcome p { color: #e8e8ff; max-width: 570px; }
+    .welcome-art { width: 180px; height: 120px; position: relative; flex: 0 0 180px; }
+    .welcome-art::before, .welcome-art::after { content: ""; position: absolute; border: 1px solid #ffffff3d; border-radius: 50%; }
+    .welcome-art::before { width: 175px; height: 175px; top: -50px; right: -25px; }
+    .welcome-art::after { width: 95px; height: 95px; bottom: -34px; left: 8px; }
+    .welcome-code { position: absolute; z-index: 1; right: 20px; top: 28px; color: #cfd0ff; font: 700 1.65rem "DM Sans"; transform: rotate(9deg); }
+
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 22px 0 34px; }
+    .stat-card { display: flex; align-items: center; gap: 13px; padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+    .stat-icon { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 12px; font-size: 1.15rem; background: #eeefff; }
+    .stat-card:nth-child(2) .stat-icon { background: var(--mint); }
+    .stat-card:nth-child(3) .stat-icon { background: var(--yellow); }
+    .stat-card:nth-child(4) .stat-icon { background: #ffe5e5; }
+    .stat-value { display: block; font: 800 1.25rem "Manrope"; }
+    .stat-label { color: var(--muted); font-size: .76rem; }
+
+    .section-heading { display: flex; justify-content: space-between; align-items: end; gap: 14px; margin-bottom: 16px; }
+    h2 { font: 800 1.35rem "Manrope"; }
+    .section-heading p { color: var(--muted); font-size: .84rem; margin-top: 4px; }
+    .text-link { color: var(--primary); font-size: .84rem; font-weight: 700; }
+    .continue-card { display: flex; align-items: center; gap: 20px; padding: 22px; border: 1px solid var(--line); border-radius: 17px; background: var(--surface); box-shadow: var(--shadow); }
+    .lesson-icon { width: 54px; height: 54px; display: grid; place-items: center; border-radius: 15px; color: #3e46a8; background: #eeefff; font-size: 1.45rem; }
+    .continue-info { min-width: 0; flex: 1; }
+    .continue-info small { color: var(--primary); font-weight: 700; }
+    .continue-info h3 { font: 700 1.08rem "Manrope"; margin: 4px 0 7px; }
+    .continue-info p { color: var(--muted); font-size: .82rem; }
+    .progress-wrap { width: 190px; }
+    .progress-label { display: flex; justify-content: space-between; color: var(--muted); font-size: .74rem; margin-bottom: 7px; }
+    .progress { height: 8px; overflow: hidden; border-radius: 8px; background: #eceef7; }
+    .progress span { display: block; width: 72%; height: 100%; border-radius: inherit; background: var(--primary); }
+    .primary-button { border: 0; border-radius: 10px; padding: 11px 17px; color: white; background: var(--primary); font-weight: 700; }
+    .primary-button:hover { background: var(--primary-dark); }
+
+    .curriculum { margin-top: 34px; }
+    .filters { display: flex; gap: 8px; }
+    .filter { border: 1px solid var(--line); border-radius: 20px; padding: 7px 12px; color: var(--muted); background: var(--surface); font-size: .78rem; }
+    .filter.active, .filter:hover { color: var(--primary); border-color: #c9caff; background: #eeefff; }
+    .level-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .level-card { padding: 21px; border: 1px solid var(--line); border-radius: 17px; background: var(--surface); transition: transform .2s, box-shadow .2s; }
+    .level-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .level-top { display: flex; justify-content: space-between; align-items: start; margin-bottom: 23px; }
+    .level-number { color: var(--primary); font-size: .73rem; font-weight: 700; }
+    .level-emoji { font-size: 1.4rem; }
+    .level-card h3 { font: 700 1.05rem "Manrope"; margin-bottom: 6px; }
+    .level-card p { min-height: 43px; color: var(--muted); font-size: .8rem; line-height: 1.55; }
+    .level-meta { display: flex; justify-content: space-between; align-items: center; padding-top: 17px; margin-top: 17px; border-top: 1px solid var(--line); color: var(--muted); font-size: .74rem; }
+    .level-meta strong { color: var(--ink); }
+    .level-card[data-level="1"] .progress span { width: 18%; }
+    .level-card[data-level="2"] .progress span { width: 8%; background: #5bbd8c; }
+    .level-card[data-level="3"] .progress span { width: 0; background: #e5b34e; }
+
+    .empty { display: none; padding: 24px; color: var(--muted); text-align: center; border: 1px dashed var(--line); border-radius: 17px; }
+    footer { padding-top: 36px; color: var(--muted); font-size: .78rem; text-align: center; }
+
+    @media (max-width: 900px) {
+      .sidebar { width: 220px; flex-basis: 220px; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .level-grid { grid-template-columns: 1fr; }
+      .level-card p { min-height: 0; }
+    }
+    @media (max-width: 650px) {
+      .sidebar { display: none; }
+      .sidebar.open { display: flex; position: fixed; inset: 0 auto 0 0; z-index: 5; box-shadow: var(--shadow); }
+      .main { padding: 20px 16px 36px; }
+      .topbar { margin-bottom: 25px; }
+      .menu-button { display: block; }
+      .welcome { padding: 24px; }
+      .welcome-art { display: none; }
+      .continue-card { align-items: flex-start; flex-wrap: wrap; }
+      .progress-wrap { width: calc(100% - 74px); margin-left: 74px; }
+      .primary-button { width: 100%; }
+      .section-heading { align-items: start; flex-direction: column; }
+      .filters { width: 100%; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="dashboard.html"><span class="brand-mark">&lt;/&gt;</span>nasmo<span>.</span></a>
+      <div class="nav-label">Workspace</div>
+      <nav class="nav" aria-label="Main navigation">
+        <a class="active" href="dashboard.html"><span class="nav-icon">⌂</span>Dashboard</a>
+        <a href="#curriculum"><span class="nav-icon">▦</span>My curriculum</a>
+        <a href="Level-1/16-Problems/Problems.html"><span class="nav-icon">⚑</span>Challenges</a>
+        <a href="Level-1/19-Debugging/Debugging.html"><span class="nav-icon">◈</span>Resources</a>
+      </nav>
+      <div class="nav-label" style="margin-top: 30px">Account</div>
+      <nav class="nav">
+        <a href="#progress"><span class="nav-icon">◷</span>Progress</a>
+        <a href="README.md"><span class="nav-icon">?</span>Help center</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <strong>Keep your streak going!</strong>
+        Complete one lesson today to stay on track.
+        <div class="mini-progress"><span></span></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="menu-button" id="menuButton" aria-label="Open navigation">☰</button>
+          <div class="breadcrumb">Workspace / <strong>Dashboard</strong></div>
+        </div>
+        <div class="top-actions">
+          <button class="icon-button" aria-label="Notifications">♢</button>
+          <div class="profile"><span class="avatar">NE</span><span>Nader</span></div>
+        </div>
+      </header>
+
+      <section class="welcome" aria-labelledby="welcome-title">
+        <div>
+          <h1 id="welcome-title">Welcome back, Nader! 👋</h1>
+          <p>Build your problem-solving skills one lesson at a time. Your next breakthrough is closer than you think.</p>
+        </div>
+        <div class="welcome-art" aria-hidden="true"><span class="welcome-code">{ }</span></div>
+      </section>
+
+      <section class="stats" id="progress" aria-label="Learning statistics">
+        <article class="stat-card"><span class="stat-icon">◷</span><div><span class="stat-value">18%</span><span class="stat-label">Overall progress</span></div></article>
+        <article class="stat-card"><span class="stat-icon">✓</span><div><span class="stat-value">7</span><span class="stat-label">Lessons completed</span></div></article>
+        <article class="stat-card"><span class="stat-icon">⚡</span><div><span class="stat-value">3 days</span><span class="stat-label">Current streak</span></div></article>
+        <article class="stat-card"><span class="stat-icon">★</span><div><span class="stat-value">240 XP</span><span class="stat-label">Total points</span></div></article>
+      </section>
+
+      <section aria-labelledby="continue-title">
+        <div class="section-heading">
+          <div><h2 id="continue-title">Continue learning</h2><p>Pick up right where you left off.</p></div>
+          <a class="text-link" href="#curriculum">View all lessons →</a>
+        </div>
+        <article class="continue-card">
+          <div class="lesson-icon">&lt;/&gt;</div>
+          <div class="continue-info">
+            <small>LEVEL 1 · LESSON 02</small>
+            <h3>Variables and Types</h3>
+            <p>Learn how to store and work with different kinds of data in C++.</p>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-label"><span>Progress</span><strong>72%</strong></div>
+            <div class="progress"><span></span></div>
+          </div>
+          <a class="primary-button" href="Level-1/02-VariablesAndTypes/VariablesAndTypes.html">Continue</a>
+        </article>
+      </section>
+
+      <section class="curriculum" id="curriculum" aria-labelledby="curriculum-title">
+        <div class="section-heading">
+          <div><h2 id="curriculum-title">Your curriculum</h2><p>Follow the path from foundations to advanced algorithms.</p></div>
+          <div class="filters" role="group" aria-label="Filter curriculum">
+            <button class="filter active" data-filter="all">All levels</button>
+            <button class="filter" data-filter="beginner">Beginner</button>
+            <button class="filter" data-filter="intermediate">Intermediate</button>
+            <button class="filter" data-filter="advanced">Advanced</button>
+          </div>
+        </div>
+        <div class="level-grid" id="levelGrid">
+          <article class="level-card" data-category="beginner" data-level="1">
+            <div class="level-top"><span class="level-number">LEVEL 01</span><span class="level-emoji">🌱</span></div>
+            <h3>Foundations</h3><p>Master C++ syntax, logic, and the building blocks of every solution.</p>
+            <div class="level-meta"><span><strong>19</strong> lessons</span><span>18% complete</span></div>
+            <div class="progress" style="margin-top:12px"><span></span></div>
+          </article>
+          <article class="level-card" data-category="intermediate" data-level="2">
+            <div class="level-top"><span class="level-number">LEVEL 02</span><span class="level-emoji">🚀</span></div>
+            <h3>Intermediate</h3><p>Explore STL containers, complexity, sorting, and greedy techniques.</p>
+            <div class="level-meta"><span><strong>11</strong> lessons</span><span>8% complete</span></div>
+            <div class="progress" style="margin-top:12px"><span></span></div>
+          </article>
+          <article class="level-card" data-category="advanced" data-level="3">
+            <div class="level-top"><span class="level-number">LEVEL 03</span><span class="level-emoji">🏆</span></div>
+            <h3>Advanced algorithms</h3><p>Take on graphs, trees, number theory, and olympiad-level problems.</p>
+            <div class="level-meta"><span><strong>13</strong> lessons</span><span>Not started</span></div>
+            <div class="progress" style="margin-top:12px"><span></span></div>
+          </article>
+        </div>
+        <div class="empty" id="emptyState">No curriculum levels match this filter.</div>
+      </section>
+
+      <footer>Made for curious minds · <a class="text-link" href="README.md">Explore the full curriculum</a></footer>
+    </main>
+  </div>
+  <script>
+    const filterButtons = document.querySelectorAll(".filter");
+    const levelCards = document.querySelectorAll(".level-card");
+    const emptyState = document.getElementById("emptyState");
+    const sidebar = document.getElementById("sidebar");
+
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const filter = button.dataset.filter;
+        filterButtons.forEach((item) => item.classList.toggle("active", item === button));
+        let visible = 0;
+        levelCards.forEach((card) => {
+          const matches = filter === "all" || card.dataset.category === filter;
+          card.style.display = matches ? "" : "none";
+          if (matches) visible += 1;
+        });
+        emptyState.style.display = visible ? "none" : "block";
+      });
+    });
+
+    document.getElementById("menuButton").addEventListener("click", () => {
+      sidebar.classList.toggle("open");
+    });
+  </script>
+</body>
+</html>

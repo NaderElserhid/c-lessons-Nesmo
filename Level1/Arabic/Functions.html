@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TweetKod | الدوال</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --primary-blue: #00adef;
+  --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+  --primary-yellow: #f7941e;
+  --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+  --dark-navy: #0f172a;
+  --text-body: #475569;
+  --bg-main: #f4f9fd;
+  --surface: #f1f6fb;
+  --card-bg: #ffffff;
+  --border: #e2e8f0;
+  --chip-bg: #eef2f7;
+  --soft-shadow: 0 14px 34px -14px rgba(15,23,42,0.14);
+  --header-bg: rgba(255,255,255,0.82);
+  --code-size: 0.95rem;
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2300adef' fill-opacity='0.075'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+html[data-theme="dark"] {
+  --dark-navy: #e6edf7;
+  --text-body: #a9b6cc;
+  --bg-main: #0a1120;
+  --surface: #16213a;
+  --card-bg: #111a2e;
+  --border: #243049;
+  --chip-bg: #1d2a45;
+  --soft-shadow: 0 14px 34px -14px rgba(0,0,0,0.6);
+  --header-bg: rgba(10,17,32,0.82);
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2338bdf8' fill-opacity='0.06'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+body {
+  font-family: 'Tajawal', 'Segoe UI', sans-serif;
+  background-color: var(--bg-main);
+  margin: 0; padding: 0; color: var(--dark-navy);
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color .3s, color .3s;
+  position: relative;
+}
+/* decorative background */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.20), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.17), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.06), transparent 70%);
+}
+html[data-theme="dark"] body::before {
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.22), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.12), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.10), transparent 70%);
+}
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: var(--pattern); background-size: 260px 260px;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+          mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+}
+.bg-deco { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .35; animation: floaty 18s ease-in-out infinite; }
+.b1 { width: 340px; height: 340px; background: #00adef; top: 12%; right: -90px; }
+.b2 { width: 280px; height: 280px; background: #f7941e; bottom: 6%; left: -80px; animation-delay: -6s; }
+.b3 { width: 220px; height: 220px; background: #8b5cf6; top: 55%; right: 18%; opacity: .16; animation-delay: -11s; }
+html[data-theme="dark"] .blob { opacity: .2; }
+@keyframes floaty { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(26px,-34px) scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .blob { animation: none; } html { scroll-behavior: auto; } }
+
+/* header */
+header {
+  background: var(--header-bg); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  padding: 10px 4%; display: flex; justify-content: space-between; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 1000;
+  border-bottom: 1px solid rgba(0,173,239,0.16); box-shadow: 0 8px 28px -18px rgba(15,23,42,0.45);
+}
+.hdr-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.logo-img { width: 52px; height: 52px; border-radius: 15px; object-fit: contain; padding: 6px; background: #fff;
+  box-shadow: 0 6px 18px -6px rgba(0,173,239,0.45), 0 0 0 1px rgba(0,173,239,0.16); }
+.brand-info h3 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); line-height: 1.3; }
+.brand-info p { margin: 0; font-size: 0.78rem; color: var(--primary-blue); font-weight: 700; }
+.hdr-tools { display: flex; align-items: center; gap: 8px; position: relative; }
+.tool-btn { height: 38px; min-width: 38px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy);
+  cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: .85rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: .2s; }
+.tool-btn:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+.toc-panel { position: absolute; top: 48px; left: 0; width: 290px; max-height: 60vh; overflow-y: auto; background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 16px; box-shadow: var(--soft-shadow); padding: 8px; display: none; }
+.toc-panel.open { display: block; }
+.toc-panel a { display: flex; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 10px; color: var(--dark-navy); text-decoration: none; font-weight: 700; font-size: .88rem; }
+.toc-panel a:hover { background: var(--surface); color: var(--primary-blue); }
+.toc-panel a span { width: 22px; height: 22px; border-radius: 50%; background: var(--chip-bg); color: var(--text-body); font-size: .72rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.read-progress { position: absolute; bottom: -1px; right: 0; left: 0; height: 3px; background: transparent; }
+.read-progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #00adef, #f7941e); transition: width .1s; }
+.to-top { position: fixed; bottom: 22px; left: 22px; z-index: 900; width: 46px; height: 46px; border-radius: 50%; border: none; background: var(--blue-gradient); color: #fff;
+  cursor: pointer; box-shadow: 0 10px 24px -8px rgba(0,173,239,.7); font-size: 1.1rem; opacity: 0; pointer-events: none; transition: .25s; }
+.to-top.show { opacity: 1; pointer-events: auto; }
+@media (max-width: 980px) { .brand-info p { display: none; } }
+@media (max-width: 720px) { .brand-info h3 { font-size: 1rem; } }
+
+.container { max-width: 900px; margin: 44px auto; padding: 0 25px; }
+.title-section { text-align: center; margin-bottom: 40px; }
+.title-section h1 { font-size: 2.7rem; font-weight: 800; margin: 12px 0 6px; background: linear-gradient(135deg, var(--dark-navy), #007bb5 80%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+html[data-theme="dark"] .title-section h1 { background: linear-gradient(135deg, #fff, #38bdf8 80%); -webkit-background-clip: text; background-clip: text; }
+.attribution { color: var(--primary-blue); font-size: 1.15rem; font-weight: 600; }
+.lesson-chip { display: inline-block; background: var(--yellow-gradient); color: #fff; padding: 6px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; box-shadow: 0 8px 18px -8px rgba(247,148,30,.8); }
+
+.card { background: var(--card-bg); border-radius: 25px; padding: 40px; margin-bottom: 30px; box-shadow: var(--soft-shadow); border-right: 8px solid var(--primary-blue);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); transition: background-color .3s; }
+.steps-card { border-right-color: var(--primary-yellow); }
+.card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+.card-header i { font-size: 1.8rem; }
+.card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+h4 { margin: 18px 0 8px; font-size: 1.05rem; color: var(--dark-navy); }
+p { color: var(--text-body); margin: 0 0 14px; }
+a { color: var(--primary-blue); }
+strong { color: var(--dark-navy); }
+
+.en { direction: ltr; unicode-bidi: isolate; font-weight: 700; color: var(--dark-navy); }
+/* every code chip is an isolated LTR island: fixes ; ( ) = placement inside Arabic text */
+code, code.inline { background: var(--chip-bg); padding: 2px 8px; border-radius: 6px; direction: ltr; unicode-bidi: isolate; display: inline-block; text-align: left;
+  color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; line-height: 1.6; }
+html[data-theme="dark"] code, html[data-theme="dark"] code.inline { color: #f9a8d4; }
+
+.obj-list { list-style: none; padding: 0; margin: 0; }
+.obj-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.obj-list i { color: #22c55e; margin-top: 6px; }
+
+/* code */
+.code-box { background: #1e293b; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.35); margin: 20px 0; border: 1px solid rgba(255,255,255,.04); }
+.code-head { background: #0f172a; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+.code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; direction: ltr; }
+.copy-btn { color: #38bdf8; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; font-family: 'Tajawal'; }
+pre { padding: 26px 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: var(--code-size); tab-size: 8; }
+.cmt { color: #79c36a; font-style: italic; }
+.kw { color: #7dd3fc; }
+.str { color: #fbbf77; }
+.num { color: #c4b5fd; }
+.pp { color: #f9a8d4; }
+.code-line, .code-plain { display: block; border-radius: 6px; padding: 0 6px; margin: 0 -6px; }
+.code-line { cursor: pointer; transition: 0.2s; background: rgba(0,173,239,0.07); }
+.code-line:hover { background: rgba(0,173,239,0.22); }
+.code-line.active { background: rgba(247,148,30,0.28); outline: 1px dashed var(--primary-yellow); }
+.explain-box { margin-top: 14px; background: var(--surface); border: 2px dashed var(--border); border-radius: 16px; padding: 16px 22px; font-weight: 600; color: var(--dark-navy); min-height: 30px; }
+.explain-box .hint { color: #94a3b8; font-weight: 500; }
+.output-box, .input-box { font-family: 'Consolas', monospace; padding: 16px 22px; border-radius: 14px; margin: 10px 0 18px; direction: ltr; text-align: left; white-space: pre-wrap; tab-size: 8; font-size: var(--code-size); }
+.output-box { background: #0f172a; color: #4ade80; }
+.input-box { background: #0c2233; color: #7dd3fc; margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.input-box + .output-box { margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; border-top: 1px dashed #1e3a52; }
+.output-box::before, .input-box::before { display: block; font-size: 0.72rem; letter-spacing: 0.08em; margin-bottom: 6px; text-transform: uppercase; color: #64748b; }
+.output-box::before { content: 'Output'; }
+.input-box::before { content: 'Input (typed by the user)'; }
+.error-box { background: #1f1317; border: 1px solid #7f1d1d; border-radius: 14px; margin: 10px 0 18px; overflow: hidden; }
+.error-head { background: #450a0a; color: #fca5a5; padding: 8px 18px; font-weight: 700; font-size: 0.85rem; }
+.error-box pre { color: #fecaca; font-size: 0.8rem; padding: 14px 20px; line-height: 1.7; }
+
+/* steps */
+.step-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 14px; padding: 18px 20px; background: var(--card-bg); border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+.step-number { background: var(--yellow-gradient); color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+.step-item h4 { margin: 0 0 4px; font-size: 1rem; }
+.step-item p { margin: 0; font-size: 0.92rem; }
+
+/* tables */
+.table-wrap { overflow-x: auto; margin: 15px 0; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+table.data-table { width: 100%; border-collapse: collapse; background: var(--card-bg); }
+table.data-table th { background: var(--blue-gradient); color: #fff; padding: 12px 18px; font-size: 0.85rem; text-align: right; white-space: nowrap; }
+table.data-table td { padding: 12px 18px; font-size: 0.9rem; border-bottom: 1px solid var(--border); color: var(--text-body); }
+table.data-table tr:last-child td { border-bottom: none; }
+
+/* comparison / rules */
+.compare-grid, .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+@media (max-width: 700px) { .compare-grid, .rule-grid { grid-template-columns: 1fr; } .card { padding: 24px; } .title-section h1 { font-size: 2rem; } }
+.compare-card { border-radius: 16px; overflow: hidden; background: #1e293b; }
+.compare-title { padding: 10px 18px; font-weight: 800; font-size: 0.9rem; }
+.good .compare-title { background: #dcfce7; color: #15803d; }
+.bad .compare-title { background: #fee2e2; color: #b91c1c; }
+.compare-card pre { padding: 18px 20px; font-size: 0.83rem; }
+.rule-list { background: var(--surface); border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
+.rule-list h5 { margin: 0 0 12px; font-size: 0.95rem; }
+.rule-list.yes h5 { color: #16a34a; } .rule-list.no h5 { color: #dc2626; }
+.rule-list ul { list-style: none; padding: 0; margin: 0; }
+.rule-list li { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 0.9rem; color: var(--text-body); }
+.rule-list.yes li i { color: #22c55e; } .rule-list.no li i { color: #ef4444; }
+
+.tip-box { background: rgba(247,148,30,0.09); border: 2px dashed var(--primary-yellow); border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 4px; }
+.tip-box p { margin: 0; font-size: 0.93rem; }
+
+/* project */
+.project-banner { background: var(--blue-gradient); color: #fff; border-radius: 18px; padding: 16px 22px; margin-bottom: 18px; display: flex; gap: 14px; align-items: center; }
+.project-banner i { font-size: 1.6rem; }
+.project-banner strong { font-size: 1.05rem; color: #fff; }
+.project-banner p { color: #e0f4ff; margin: 0; font-size: 0.9rem; }
+.brief { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 18px 22px; margin: 14px 0; }
+.brief h5 { margin: 0 0 8px; font-size: 1rem; color: var(--primary-blue); display: flex; align-items: center; gap: 8px; }
+.brief ul, .brief ol { margin: 0; padding-right: 22px; color: var(--text-body); }
+.brief li { margin-bottom: 6px; }
+details.reveal { border: 2px dashed var(--border); border-radius: 16px; padding: 4px 16px; margin: 14px 0; background: var(--card-bg); }
+details.reveal > summary { cursor: pointer; font-weight: 800; padding: 10px 0; color: var(--primary-blue); list-style: none; display: flex; align-items: center; gap: 8px; }
+details.reveal > summary::-webkit-details-marker { display: none; }
+details.reveal[open] { border-style: solid; border-color: var(--primary-blue); }
+
+/* challenges */
+.challenge-card { border-right-color: #8b5cf6; }
+.challenge-card .card-header { color: #8b5cf6; }
+.challenge { border: 1px solid var(--border); border-radius: 20px; padding: 22px 24px; margin-bottom: 20px; background: var(--surface); }
+.ch-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+.ch-head h4 { margin: 0; flex: 1; }
+.ch-num { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
+.badge { font-size: .75rem; font-weight: 800; padding: 4px 12px; border-radius: 50px; }
+.badge.easy { background: #dcfce7; color: #15803d; }
+.badge.medium { background: #fef3c7; color: #b45309; }
+.challenge h5 { margin: 14px 0 6px; font-size: .9rem; color: var(--dark-navy); }
+.challenge ul { margin: 0 0 6px; padding-right: 22px; color: var(--text-body); }
+.challenge li { margin-bottom: 4px; }
+
+/* simulators */
+.sim-box { background: var(--surface); border: 3px dashed var(--border); border-radius: 20px; padding: 28px; text-align: center; margin-top: 15px; }
+.sim-inputs { display: flex; justify-content: center; gap: 18px; margin-bottom: 18px; flex-wrap: wrap; }
+.sim-inputs .field { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.sim-inputs label { font-size: 0.82rem; color: var(--text-body); font-weight: 700; }
+.sim-inputs input[type=text], .sim-inputs input[type=number] { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1.05rem; text-align: center; font-family: 'Consolas', monospace; outline: none; direction: ltr; }
+.sim-inputs input[type=number] { width: 110px; }
+.sim-inputs input:focus { border-color: var(--primary-blue); }
+.btn-run { background: var(--yellow-gradient); color: #fff; border: none; padding: 13px 32px; border-radius: 18px; cursor: pointer; font-weight: 800; font-family: 'Tajawal'; font-size: 0.95rem; box-shadow: 0 10px 20px -10px rgba(247,148,30,.9); }
+.sim-console { margin-top: 18px; background: #0f172a; border-radius: 14px; padding: 18px 20px; text-align: left; direction: ltr; font-family: 'Consolas', monospace; color: #4ade80; min-height: 26px; white-space: pre-wrap; font-size: 0.92rem; }
+.sim-console .line { color: #94a3b8; }
+.result-line { margin-top: 14px; font-weight: 700; color: var(--dark-navy); }
+.reorder-list { max-width: 460px; margin: 0 auto 10px; direction: ltr; }
+.reorder-item { display: flex; align-items: center; gap: 10px; background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 8px 12px; margin-bottom: 8px; font-family: 'Consolas', monospace; font-size: 0.88rem; text-align: left; }
+.reorder-item code { flex: 1; background: transparent; padding: 0; }
+.rbtn { border: none; background: #e0f2fe; color: #0369a1; border-radius: 8px; width: 30px; height: 30px; cursor: pointer; font-weight: 800; }
+.rbtn:disabled { opacity: 0.35; cursor: default; }
+.bug-list { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.bug-btn { background: var(--card-bg); color: var(--dark-navy); border: 2px solid var(--border); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Tajawal'; font-weight: 700; }
+.bug-btn.found { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.hidden { display: none; }
+.op-table { width: 100%; border-collapse: collapse; margin-top: 16px; direction: ltr; font-family: 'Consolas', monospace; font-size: .88rem; }
+.op-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--dark-navy); text-align: left; }
+.op-table td:last-child { color: var(--primary-blue); font-weight: 800; }
+
+/* glossary */
+.glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+.term-card { background: var(--surface); border-radius: 16px; padding: 18px; border: 1px solid var(--border); }
+.term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+.term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+.term-desc { font-size: 0.85rem; color: var(--text-body); margin: 0; }
+
+/* tf + quiz */
+.tf-item { border: 2px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 14px; background: var(--surface); }
+.tf-item .stmt { font-weight: 700; margin-bottom: 12px; color: var(--dark-navy); }
+.tf-btns { display: flex; gap: 10px; }
+.tf-btn { flex: 1; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 10px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: 0.95rem; }
+.tf-btn:hover { border-color: var(--primary-blue); }
+.tf-btn.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.tf-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.feedback { margin-top: 10px; font-size: 0.9rem; font-weight: 600; }
+.feedback.ok { color: #16a34a; } .feedback.no { color: #dc2626; }
+.quiz-q { margin-bottom: 26px; padding-bottom: 8px; }
+.quiz-q h4 { margin-bottom: 12px; line-height: 1.9; }
+.qnum { display: inline-flex; align-items: center; justify-content: center; background: var(--yellow-gradient); color: #fff; width: 28px; height: 28px; border-radius: 50%; font-size: 0.85rem; margin-left: 8px; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-opt { background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 12px 18px; cursor: pointer; font-weight: 600; text-align: right; font-family: 'Tajawal'; font-size: 0.95rem; transition: 0.2s; color: var(--dark-navy); }
+.quiz-opt:hover { border-color: var(--primary-blue); }
+.quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.quiz-opt:disabled { cursor: default; }
+.quiz-opt.correct code, .quiz-opt.wrong code { background: rgba(255,255,255,.7); }
+.progress { height: 10px; background: var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 22px; }
+.progress-bar { height: 100%; width: 0; background: var(--yellow-gradient); transition: width 0.3s; }
+.score-box { text-align: center; background: var(--surface); border: 2px solid var(--border); border-radius: 18px; padding: 22px; margin-top: 10px; }
+.score-box .big { font-size: 2.2rem; font-weight: 800; color: var(--primary-blue); }
+.retry-btn { margin-top: 10px; background: var(--blue-gradient); color: #fff; border: none; border-radius: 14px; padding: 10px 26px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; }
+
+.refs-card { border-right-color: #94a3b8; }
+.ref-list { margin: 0; padding-right: 22px; }
+.ref-list li { margin-bottom: 6px; font-size: 0.9rem; }
+footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+
+/* ---------- tracer ---------- */
+.tracer { background: var(--surface); border: 2px solid var(--border); border-radius: 20px; padding: 18px; margin: 22px 0; }
+.tr-head { font-weight: 800; color: var(--primary-blue); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.tr-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .tr-grid { grid-template-columns: 1fr; } }
+.tr-code { background: #1e293b; border-radius: 14px; padding: 12px 0; direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: var(--code-size); overflow-x: auto; }
+.tr-line { display: flex; gap: 12px; padding: 1px 14px; color: #e2e8f0; white-space: pre; border-left: 4px solid transparent; transition: .15s; }
+.tr-line .ln { color: #64748b; min-width: 22px; text-align: right; user-select: none; }
+.tr-line.active { background: rgba(247,148,30,.28); border-left-color: var(--primary-yellow); }
+.tr-side { display: flex; flex-direction: column; gap: 12px; }
+.tr-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; flex: 1; }
+.tr-title { font-size: .78rem; font-weight: 800; color: var(--text-body); margin-bottom: 6px; }
+.tr-vars { direction: ltr; font-family: 'Consolas', monospace; font-size: .9rem; min-height: 28px; }
+.tr-var { display: flex; justify-content: space-between; padding: 3px 8px; border-radius: 8px; color: var(--dark-navy); }
+.tr-var b { color: var(--primary-blue); }
+.tr-var.changed { background: rgba(247,148,30,.22); }
+.tr-out { direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: .88rem; background: #0f172a; color: #4ade80; border-radius: 10px; padding: 8px 12px; min-height: 40px; white-space: pre-wrap; }
+.tr-note { margin-top: 12px; background: var(--card-bg); border: 1px dashed var(--primary-blue); border-radius: 12px; padding: 10px 16px; font-weight: 600; color: var(--dark-navy); min-height: 24px; }
+.tr-ctrl { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.tr-btn { border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 14px; cursor: pointer; font-family: 'Tajawal'; font-weight: 800; font-size: .85rem; }
+.tr-btn.primary { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.tr-btn:disabled { opacity: .4; cursor: default; }
+.tr-count { margin-right: auto; font-size: .8rem; color: var(--text-body); font-weight: 700; }
+
+/* ---------- predict ---------- */
+.predict { border: 2px solid #8b5cf6; border-radius: 20px; padding: 16px 18px; margin: 22px 0; background: var(--surface); }
+.predict-head { font-weight: 800; color: #8b5cf6; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+.predict .code-box { margin: 12px 0; }
+.pd-q { font-weight: 700; color: var(--dark-navy); margin-bottom: 10px; }
+.pd-opts { display: flex; flex-wrap: wrap; gap: 10px; }
+.pd-opt { background: var(--card-bg); border: 2px solid var(--border); color: var(--dark-navy); border-radius: 12px; padding: 9px 16px; cursor: pointer; font-family: 'Tajawal'; font-weight: 700; font-size: .92rem; }
+.pd-opt:hover { border-color: #8b5cf6; }
+.pd-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.pd-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.pd-opt:disabled { cursor: default; }
+.pd-result { margin-top: 12px; }
+.pd-msg { font-weight: 800; margin-bottom: 8px; }
+.pd-why { margin: 8px 0 0; font-size: .93rem; }
+
+/* ---------- misc ---------- */
+.summary-card { border-right-color: #22c55e; }
+.summary-card .card-header { color: #16a34a; }
+.sum-list { list-style: none; padding: 0; margin: 0; }
+.sum-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.sum-list i { color: #22c55e; margin-top: 6px; }
+.warn-box { background: rgba(239,68,68,.08); border: 2px dashed #ef4444; border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 4px; }
+.warn-box p { margin: 0; font-size: .93rem; }
+.analogy { background: linear-gradient(135deg, rgba(0,173,239,.1), rgba(139,92,246,.1)); border-radius: 18px; padding: 16px 22px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; border: 1px solid var(--border); }
+.analogy i { color: var(--primary-blue); font-size: 1.5rem; margin-top: 4px; }
+.analogy p { margin: 0; }
+.flow { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin: 18px 0; direction: rtl; }
+.flow-node { background: var(--card-bg); border: 2px solid var(--primary-blue); border-radius: 14px; padding: 10px 18px; font-weight: 800; color: var(--dark-navy); text-align: center; }
+.flow-node.decision { border-color: var(--primary-yellow); border-radius: 30px; }
+.flow-node.end { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.flow-arrow { color: var(--primary-blue); font-size: 1.2rem; }
+.flow-branch { display: flex; flex-direction: column; gap: 8px; }
+.cell-row { display: flex; direction: ltr; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 12px 0; }
+.cell { min-width: 54px; text-align: center; border: 2px solid var(--primary-blue); border-radius: 10px; background: var(--card-bg); font-family: 'Consolas', monospace; font-weight: 800; color: var(--dark-navy); padding: 6px 4px; cursor: pointer; }
+.cell small { display: block; font-size: .68rem; color: var(--text-body); font-weight: 700; }
+.cell.sel { background: rgba(247,148,30,.25); border-color: var(--primary-yellow); }
+.vis-line { display: block; padding: 0 6px; margin: 0 -6px; border-radius: 6px; opacity: .35; transition: .15s; }
+.vis-line.on { opacity: 1; background: rgba(34,197,94,.22); }
+.vis-btns { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+.vis-btn { border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Consolas', monospace; font-weight: 800; }
+.vis-btn.on { border-color: #22c55e; background: #dcfce7; color: #15803d; }
+
+.cell.ghost { opacity: .55; border-style: dashed; background: transparent; }
+
+</style>
+</head>
+<body>
+<div class="bg-deco"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+<header>
+  <div class="hdr-brand">
+    <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    <div class="brand-info"><h3>منصة TweetKod</h3><p>للتعلم البرمجي التفاعلي</p></div>
+  </div>
+  <div class="hdr-tools">
+    <button class="tool-btn" id="tocBtn" title="فهرس الدرس"><i class="fas fa-list-ul"></i> الفهرس</button>
+    <button class="tool-btn" id="fontDec" title="تصغير خط الكود">A-</button>
+    <button class="tool-btn" id="fontInc" title="تكبير خط الكود">A+</button>
+    <button class="tool-btn" id="themeBtn" title="الوضع الليلي"><i class="fas fa-moon"></i></button>
+    <div class="toc-panel" id="tocPanel"></div>
+  </div>
+  <div class="read-progress"><span id="readBar"></span></div>
+</header>
+<div class="container">
+  <div class="title-section">
+    <span class="lesson-chip">الدرس 11</span>
+    <h1>الدوال</h1>
+    <p class="attribution"><span class="en">Functions</span> &mdash; اكتب مرة واحدة واستخدم كثيرًا</p>
+  </div>
+  <div class="card goals-card">
+    <div class="card-header"><i class="fas fa-bullseye"></i><h3>ماذا ستتعلم في هذا الدرس؟</h3></div>
+    <ul class="obj-list"><li><i class="fas fa-check-circle"></i><span>تفهم فائدة الدوال وتكتب دالة بنوع إرجاع واسم ومعاملات وجسم</span></li><li><i class="fas fa-check-circle"></i><span>تفرّق بين المعامل والوسيط، وتستخدم <code class="inline">return</code> و<code class="inline">void</code></span></li><li><i class="fas fa-check-circle"></i><span>تعرّف الدوال بالترتيب الصحيح أو بتصريح مسبق</span></li><li><i class="fas fa-check-circle"></i><span>تفهم الفرق بين التمرير بالقيمة والتمرير بالمرجع</span></li><li><i class="fas fa-check-circle"></i><span>تقسّم مسألة إلى دوال صغيرة وتبني برنامجًا منها</span></li></ul>
+  </div>
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-vial"></i><h3>اكتب مرة واحدة، استخدم كثيرًا</h3></div>
+  <p>انظر إلى هذا الكود الذي يطبع بطاقتين لاسمين:</p>
+  <div class="code-box"><div class="code-head"><span>repeated_code.cpp</span><button class="copy-btn" onclick="copyCode('code_repeat')">نسخ الكود</button></div><pre id="code_repeat">cout &lt;&lt; <span class="str">"+--------+"</span> &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"| Sara   |"</span> &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"+--------+"</span> &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"+--------+"</span> &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"| Omar   |"</span> &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"+--------+"</span> &lt;&lt; endl;</pre></div>
+  <div class="output-box">+--------+
+| Sara   |
++--------+
++--------+
+| Omar   |
++--------+</div>
+  <p>الأسطر تكررت تقريبًا بالشكل نفسه. تخيّل أن لدينا مئة اسم، أو أننا أردنا تغيير شكل الإطار! الحل هو <strong>الدالة</strong> (<span class="en">function</span>): مجموعة تعليمات نعطيها اسمًا، ثم نستدعيها كلما احتجنا إليها.</p>
+  <div class="analogy"><i class="fas fa-store"></i><p>الدالة كآلة بيع الوجبات: تضع فيها شيئًا (مثل المبلغ)، فتؤدي عملها داخليًا دون أن تعرف أنت كيف، وتعطيك شيئًا (الوجبة). أنت تستخدم الآلة بالاسم وبالمدخلات، ولا يهمك ما بداخلها.</p></div>
+  <div class="flow">
+    <div class="flow-node">مدخلات (parameters)</div><span class="flow-arrow"><i class="fas fa-arrow-left"></i></span>
+    <div class="flow-node decision">الدالة</div><span class="flow-arrow"><i class="fas fa-arrow-left"></i></span>
+    <div class="flow-node end">نتيجة (return)</div>
+  </div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-hand-point-up"></i><h3>أول دالة لك</h3></div>
+  <p>لقد كتبت دالة بالفعل منذ أول درس: <code>main</code>! الآن سنكتب دوالنا الخاصة. هذه دالة بلا مدخلات وبلا نتيجة، تطبع جملة فقط:</p>
+  <div class="code-box"><div class="code-head"><span>say_hello.cpp</span><button class="copy-btn" onclick="copyCode('code_hello')">نسخ الكود</button></div><pre id="code_hello"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">void</span> sayHello() {
+    cout &lt;&lt; <span class="str">"Hello from a function!"</span> &lt;&lt; endl;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    sayHello();
+    sayHello();
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="output-box">Hello from a function!
+Hello from a function!</div>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>الجزء</th><th>في المثال</th><th>معناه</th></tr>
+    <tr><td>نوع الإرجاع (<span class="en">return type</span>)</td><td><code>void</code></td><td>نوع ما تعيده الدالة، و<code>void</code> تعني «لا تعيد شيئًا»</td></tr>
+    <tr><td>الاسم (<span class="en">name</span>)</td><td><code>sayHello</code></td><td>اسم يصف ما تفعله</td></tr>
+    <tr><td>المعاملات (<span class="en">parameters</span>)</td><td><code>()</code></td><td>مدخلات الدالة، وهنا لا يوجد</td></tr>
+    <tr><td>الجسم (<span class="en">body</span>)</td><td><code>{ ... }</code></td><td>التعليمات التي تُنفَّذ عند الاستدعاء</td></tr>
+  </table></div>
+  <p>لاحظ أن التعريف وحده لا ينفّذ شيئًا؛ الدالة تعمل فقط عندما <strong>تستدعيها</strong> بكتابة اسمها وقوسين: <code>sayHello();</code></p>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-right-to-bracket"></i><h3>المعاملات: مدخلات الدالة</h3></div>
+  <p>لكي تتصرف الدالة بحسب الحالة، نعطيها <strong>معاملات</strong> تستقبل بها قيمًا. ولكل معامل نوع واسم، تمامًا كالمتغير:</p>
+  <div class="code-box"><div class="code-head"><span>greet.cpp</span><button class="copy-btn" onclick="copyCode('code_param')">نسخ الكود</button></div><pre id="code_param"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;string&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">void</span> greet(<span class="kw">string</span> name, <span class="kw">int</span> level) {
+    cout &lt;&lt; <span class="str">"Welcome "</span> &lt;&lt; name &lt;&lt; <span class="str">", you are level "</span> &lt;&lt; level &lt;&lt; endl;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    greet(<span class="str">"Sara"</span>, <span class="num">3</span>);
+    greet(<span class="str">"Omar"</span>, <span class="num">10</span>);
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="output-box">Welcome Sara, you are level 3
+Welcome Omar, you are level 10</div>
+  <div class="warn-box"><i class="fas fa-lightbulb" style="color:#ef4444"></i><p><strong>مصطلحان يخلط بينهما الناس:</strong> ما نكتبه في تعريف الدالة (<code>string name, int level</code>) يسمى <strong>معاملات</strong> (<span class="en">parameters</span>)، وما نمرره عند الاستدعاء (<code>"Sara", 3</code>) يسمى <strong>وسائط</strong> (<span class="en">arguments</span>). الوسائط تُنسخ إلى المعاملات بالترتيب نفسه.</p></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-right-from-bracket"></i><h3>القيمة المُرجعة: return</h3></div>
+  <p>كثير من الدوال تحسب شيئًا وتعطينا النتيجة. نكتب نوع النتيجة بدل <code>void</code>، ونستخدم <code>return</code> لإرسالها. هذا التتبع يوضح ما يحدث بالضبط عند استدعاء <code>add(2, 3)</code>:</p>
+  <div class="tracer" data-trace="add"><div class="tr-head"><i class="fas fa-bug-slash"></i> تتبّع التنفيذ خطوة بخطوة</div><div class="tr-grid"><div class="tr-code"><div class="tr-line" data-i="0"><span class="ln">1</span><span class="src"><span class="pp">#include &lt;iostream&gt;</span></span></div><div class="tr-line" data-i="1"><span class="ln">2</span><span class="src"><span class="kw">using</span> <span class="kw">namespace</span> std;</span></div><div class="tr-line" data-i="2"><span class="ln">3</span><span class="src"> </span></div><div class="tr-line" data-i="3"><span class="ln">4</span><span class="src"><span class="kw">int</span> add(<span class="kw">int</span> a, <span class="kw">int</span> b) {</span></div><div class="tr-line" data-i="4"><span class="ln">5</span><span class="src">    <span class="kw">return</span> a + b;</span></div><div class="tr-line" data-i="5"><span class="ln">6</span><span class="src">}</span></div><div class="tr-line" data-i="6"><span class="ln">7</span><span class="src"> </span></div><div class="tr-line" data-i="7"><span class="ln">8</span><span class="src"><span class="kw">int</span> <span class="kw">main</span>() {</span></div><div class="tr-line" data-i="8"><span class="ln">9</span><span class="src">    <span class="kw">int</span> x = add(<span class="num">2</span>, <span class="num">3</span>);</span></div><div class="tr-line" data-i="9"><span class="ln">10</span><span class="src">    cout &lt;&lt; x &lt;&lt; endl;</span></div><div class="tr-line" data-i="10"><span class="ln">11</span><span class="src">    <span class="kw">return</span> <span class="num">0</span>;</span></div><div class="tr-line" data-i="11"><span class="ln">12</span><span class="src">}</span></div></div><div class="tr-side"><div class="tr-box"><div class="tr-title">المتغيرات</div><div class="tr-vars"></div></div><div class="tr-box"><div class="tr-title">الناتج حتى الآن</div><div class="tr-out"></div></div></div></div><div class="tr-note"></div><div class="tr-ctrl"><button class="tr-btn" data-a="reset" title="من البداية"><i class="fas fa-backward-fast"></i></button><button class="tr-btn" data-a="prev"><i class="fas fa-backward-step"></i> السابق</button><button class="tr-btn primary" data-a="next">التالي <i class="fas fa-forward-step"></i></button><button class="tr-btn" data-a="play"><i class="fas fa-play"></i> تشغيل تلقائي</button><span class="tr-count"></span></div></div>
+  <p>ما أجمل هذه الفكرة: الاستدعاء <code>add(2, 3)</code> يصير <strong>قيمة</strong> (هنا 5) ويمكن استخدامه في أي مكان تصلح فيه القيمة. تأمل:</p>
+  <div class="code-box"><div class="code-head"><span>returns.cpp</span><button class="copy-btn" onclick="copyCode('code_returns')">نسخ الكود</button></div><pre id="code_returns"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> square(<span class="kw">int</span> x) {
+    <span class="kw">return</span> x * x;
+}
+
+<span class="kw">double</span> average(<span class="kw">double</span> a, <span class="kw">double</span> b) {
+    <span class="kw">return</span> (a + b) / <span class="num">2</span>;
+}
+
+<span class="kw">bool</span> isEven(<span class="kw">int</span> n) {
+    <span class="kw">return</span> n % <span class="num">2</span> == <span class="num">0</span>;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    cout &lt;&lt; square(<span class="num">7</span>) &lt;&lt; endl;
+    cout &lt;&lt; average(<span class="num">3</span>, <span class="num">8</span>) &lt;&lt; endl;
+    cout &lt;&lt; boolalpha &lt;&lt; isEven(<span class="num">10</span>) &lt;&lt; <span class="str">" "</span> &lt;&lt; isEven(<span class="num">7</span>) &lt;&lt; endl;
+    cout &lt;&lt; square(square(<span class="num">2</span>)) + <span class="num">1</span> &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="output-box">49
+5.5
+true false
+17</div>
+  <p>الدالة <code>isEven</code> تعيد <code>bool</code>، وآخر سطر يستدعي دالة داخل دالة: <code>square(square(2)) + 1</code> = <code>square(4) + 1</code> = 17.</p>
+  <div class="predict"><div class="predict-head"><i class="fas fa-brain"></i> توقّع قبل أن تشغّل</div><div class="code-box"><div class="code-head"><span>triple.cpp</span><button class="copy-btn" onclick="copyCode('code_p_triple')">نسخ الكود</button></div><pre id="code_p_triple"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> triple(<span class="kw">int</span> x) {
+    <span class="kw">return</span> x * <span class="num">3</span>;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    cout &lt;&lt; triple(<span class="num">2</span>) + triple(<span class="num">3</span>) &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div><p class="pd-q">ما الذي سيطبعه البرنامج؟</p><div class="pd-opts"><button class="pd-opt" data-ok="0">6</button><button class="pd-opt" data-ok="0">23</button><button class="pd-opt" data-ok="1">15</button><button class="pd-opt" data-ok="0">5</button></div><div class="pd-result hidden"><div class="pd-msg"></div><div class="output-box">15</div><p class="pd-why">الاستدعاء الأول triple(2) يعيد 6، والثاني triple(3) يعيد 9. ثم يُجمعان: 6 + 9 = 15. نستطيع التعامل مع استدعاء الدالة كأنه قيمته.</p></div></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p>عند تنفيذ <code>return</code> تنتهي الدالة فورًا حتى لو كانت هناك أسطر بعدها. ويمكنك كتابة أكثر من <code>return</code> في الدالة الواحدة داخل <code>if</code> مختلفة، كما فعلنا في <code>isPrime</code> والحل أدناه.</p></div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-list-ol"></i><h3>الترتيب: لا تستدعِ ما لم يُعرَّف بعد</h3></div>
+  <p>يقرأ المترجم الملف من الأعلى إلى الأسفل. فإذا استدعيت دالة قبل أن يراها فسيحتج:</p>
+  <div class="code-box"><div class="code-head"><span>order_error.cpp</span><button class="copy-btn" onclick="copyCode('code_err_order')">نسخ الكود</button></div><pre id="code_err_order"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    cout &lt;&lt; twice(<span class="num">4</span>) &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}
+
+<span class="kw">int</span> twice(<span class="kw">int</span> x) {
+    <span class="kw">return</span> x * <span class="num">2</span>;
+}</pre></div>
+  <div class="error-box"><div class="error-head"><i class="fas fa-bug"></i> ما يعرضه المترجم (<span class="en">g++</span>)</div><pre>main.cpp: In function ‘int main()’:
+main.cpp:5:13: error: ‘twice’ was not declared in this scope
+    5 |     cout &lt;&lt; twice(4) &lt;&lt; endl;
+      |             ^~~~~</pre></div>
+  <p>لدينا حلان: إما أن تضع الدالة <strong>قبل</strong> <code>main</code>، أو تضع في الأعلى <strong>تصريحًا مسبقًا</strong> (<span class="en">prototype</span>) يعرّف المترجم باسم الدالة ومعاملاتها ونوعها، وتكتب تعريفها كاملًا بعد <code>main</code>:</p>
+  <div class="code-box"><div class="code-head"><span>prototype.cpp</span><button class="copy-btn" onclick="copyCode('code_proto')">نسخ الكود</button></div><pre id="code_proto"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> twice(<span class="kw">int</span> x);
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    cout &lt;&lt; twice(<span class="num">4</span>) &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}
+
+<span class="kw">int</span> twice(<span class="kw">int</span> x) {
+    <span class="kw">return</span> x * <span class="num">2</span>;
+}</pre></div>
+  <div class="output-box">8</div>
+  <p>التصريح المسبق سطر واحد ينتهي بفاصلة منقوطة، ولا جسم له: <code>int twice(int x);</code></p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-copy"></i><h3>النسخ أم الأصل؟ التمرير بالقيمة والمرجع</h3></div>
+  <p>هذه من أهم الأفكار في الدرس. عندما نمرر متغيرًا إلى دالة بالطريقة العادية، تحصل الدالة على <strong>نسخة</strong> منه. فإذا غيّرت النسخة، لا يتأثر الأصل:</p>
+  <div class="code-box"><div class="code-head"><span>by_value.cpp</span><button class="copy-btn" onclick="copyCode('code_byvalue')">نسخ الكود</button></div><pre id="code_byvalue"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">void</span> addBonus(<span class="kw">int</span> score) {
+    score = score + <span class="num">100</span>;
+    cout &lt;&lt; <span class="str">"Inside: "</span> &lt;&lt; score &lt;&lt; endl;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> myScore = <span class="num">50</span>;
+    addBonus(myScore);
+    cout &lt;&lt; <span class="str">"Outside: "</span> &lt;&lt; myScore &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="output-box">Inside: 150
+Outside: 50</div>
+  <p>زادت النسخة داخل الدالة إلى 150، لكن المتغير الأصلي في <code>main</code> بقي 50. وهذا يسمى <strong>التمرير بالقيمة</strong> (<span class="en">pass by value</span>).</p>
+  <p>لو أردنا أن تعدّل الدالة <strong>الأصل</strong> نفسه، نضيف الرمز <code>&amp;</code> بعد النوع في المعامل، فيصير <strong>مرجعًا</strong> (<span class="en">reference</span>) أي اسمًا ثانيًا للمتغير الأصلي:</p>
+  <div class="code-box"><div class="code-head"><span>by_reference.cpp</span><button class="copy-btn" onclick="copyCode('code_byref')">نسخ الكود</button></div><pre id="code_byref"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">void</span> addBonus(<span class="kw">int</span>&amp; score) {
+    score = score + <span class="num">100</span>;
+    cout &lt;&lt; <span class="str">"Inside: "</span> &lt;&lt; score &lt;&lt; endl;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> myScore = <span class="num">50</span>;
+    addBonus(myScore);
+    cout &lt;&lt; <span class="str">"Outside: "</span> &lt;&lt; myScore &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="output-box">Inside: 150
+Outside: 150</div>
+  <p>الآن تغيّر الأصل أيضًا. تتذكر مسألة تبديل القيمتين في درس الجمل؟ بالمرجع نستطيع أن نكتب الحل مرة واحدة ونعيد استخدامه:</p>
+  <div class="code-box"><div class="code-head"><span>swap_function.cpp</span><button class="copy-btn" onclick="copyCode('code_swapref')">نسخ الكود</button></div><pre id="code_swapref"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">void</span> swapValues(<span class="kw">int</span>&amp; a, <span class="kw">int</span>&amp; b) {
+    <span class="kw">int</span> temp = a;
+    a = b;
+    b = temp;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> x = <span class="num">7</span>, y = <span class="num">12</span>;
+    swapValues(x, y);
+    cout &lt;&lt; <span class="str">"x = "</span> &lt;&lt; x &lt;&lt; <span class="str">", y = "</span> &lt;&lt; y &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="output-box">x = 12, y = 7</div>
+  <div class="table-wrap"><table class="data-table">
+    <tr><th>الصيغة</th><th>ماذا تستلم الدالة؟</th><th>هل يتغير الأصل؟</th></tr>
+    <tr><td><code>void f(int x)</code></td><td>نسخة</td><td>لا</td></tr>
+    <tr><td><code>void f(int&amp; x)</code></td><td>مرجع إلى الأصل</td><td>نعم</td></tr>
+  </table></div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-bug"></i><h3>أخطاء شائعة مع الدوال</h3></div>
+  <h4>1) عدد الوسائط لا يطابق عدد المعاملات</h4>
+  <div class="code-box"><div class="code-head"><span>arguments_error.cpp</span><button class="copy-btn" onclick="copyCode('code_err_args')">نسخ الكود</button></div><pre id="code_err_args"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> add(<span class="kw">int</span> a, <span class="kw">int</span> b) {
+    <span class="kw">return</span> a + b;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    cout &lt;&lt; add(<span class="num">2</span>) &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="error-box"><div class="error-head"><i class="fas fa-bug"></i> ما يعرضه المترجم (<span class="en">g++</span>)</div><pre>main.cpp: In function ‘int main()’:
+main.cpp:9:16: error: too few arguments to function ‘int add(int, int)’
+    9 |     cout &lt;&lt; add(2) &lt;&lt; endl;
+      |             ~~~^~~
+main.cpp:4:5: note: declared here
+    4 | int add(int a, int b) {
+      |     ^~~</pre></div>
+  <h4>2) نسيان return في دالة تعيد قيمة</h4>
+  <div class="warn-box"><i class="fas fa-triangle-exclamation"></i><p>إذا كتبت دالة من النوع <code>int</code> ثم وصل التنفيذ إلى نهايتها دون <code>return</code>، فالنتيجة غير معرّفة (قد تحصل على قيمة عشوائية). شغّل المترجم بالخيار <code>-Wall</code> فهو يحذّرك من ذلك.</p></div>
+  <h4>3) فاصلة منقوطة بعد رأس التعريف</h4>
+  <div class="warn-box"><i class="fas fa-triangle-exclamation"></i><p>الكتابة <code>int twice(int x); { ... }</code> بفاصلة بعد القوس تحوّل التعريف إلى تصريح مسبق، وتصبح الكتلة التي بعده كتلة مستقلة بلا معنى. لا تضع فاصلة بعد رأس التعريف الكامل.</p></div>
+  <h4>4) اسم لا يصف الوظيفة</h4>
+  <p>الدالة <code>doIt</code> لا تخبر القارئ بشيء، أما <code>calculateTotalPrice</code> فتشرح نفسها. اختر اسمًا فعليًا (فعل + مفعول) بالإنجليزية.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-flask"></i><h3>مختبر تفاعلي: آلة الدوال</h3></div>
+  <p>اختر دالة وأعطها مدخلات، وشاهد كيف يُكتب الاستدعاء وما الذي تعيده:</p>
+  <div class="sim-box">
+    <div class="sim-inputs">
+      <div class="field"><label>الدالة</label><select id="fmFn" onchange="runFm()" style="padding:11px;border-radius:14px;border:2px solid var(--border);background:var(--card-bg);color:var(--dark-navy);font-family:Consolas,monospace;font-size:1rem"><option value="square">square(n)</option><option value="isEven">isEven(n)</option><option value="absValue">absValue(n)</option><option value="maxOf">maxOf(a, b)</option></select></div>
+      <div class="field"><label>a (أو n)</label><input type="number" id="fmA" value="7"></div>
+      <div class="field"><label>b</label><input type="number" id="fmB" value="3"></div>
+    </div>
+    <button class="btn-run" onclick="runFm()"><i class="fas fa-play"></i> استدعِ الدالة</button>
+    <div class="sim-console" id="fmOut"></div>
+  </div>
+</div>
+
+
+<div class="card">
+  <div class="project-banner"><i class="fas fa-shield-halved"></i><div><strong>مشروع الدرس: معركة الوحش</strong><p>نبني لعبة قتال صغيرة من دالتين ومن حلقة.</p></div></div>
+  <div class="brief"><h5><i class="fas fa-lightbulb"></i> الفكرة</h5>
+    <p style="margin:0">وحش في لعبة صحته 50 ودرعه 5. يهاجمه اللاعب ثلاث مرات على الأكثر، ويكتب قوة كل هجمة. الضرر الحقيقي هو قوة الهجمة مطروحًا منها درع الوحش، لكن أقل ضرر ممكن هو 1 (حتى لو كانت الهجمة أضعف من الدرع). تنتهي المعركة إذا هُزم الوحش.</p></div>
+  <div class="brief"><h5><i class="fas fa-list-check"></i> المطلوب منك</h5>
+    <ol>
+      <li>اكتب دالة <code>damage(attack, armor)</code> تعيد <code>attack - armor</code> إن كانت الهجمة أكبر من الدرع، وإلا تعيد 1.</li>
+      <li>اكتب دالة <code>isAlive(hp)</code> تعيد <code>true</code> إذا كانت الصحة أكبر من صفر.</li>
+      <li>في <code>main</code>: كرّر ثلاث جولات بحلقة <code>for</code>؛ اقرأ قوة الهجمة، واحسب الضرر، وأنقص الصحة (ولا تدعها تنزل تحت الصفر)، واطبع تقرير الجولة.</li>
+      <li>إذا مات الوحش اطبع <code>Monster defeated!</code> وانهِ البرنامج. وإن انتهت الجولات الثلاث وهو حي اطبع <code>The monster survived.</code></li>
+    </ol></div>
+  <div class="brief"><h5><i class="fas fa-bullseye"></i> أمثلة على التشغيل</h5>
+    <p style="margin:0 0 6px"><strong>هجمات قوية:</strong></p><div class="input-box">30 25 10</div><div class="output-box">Round 1: damage 25, monster HP 25
+Round 2: damage 20, monster HP 5
+Round 3: damage 5, monster HP 0
+Monster defeated!</div>
+    <p style="margin:12px 0 6px"><strong>هجمات ضعيفة:</strong></p><div class="input-box">3 4 20</div><div class="output-box">Round 1: damage 1, monster HP 49
+Round 2: damage 1, monster HP 48
+Round 3: damage 15, monster HP 33
+The monster survived.</div></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p><strong>فكّر قبل أن تكتب:</strong> اكتب الدالتين وجرّبهما وحدهما أولًا في <code>main</code> بأرقام ثابتة، ثم اربطهما بالحلقة. تقسيم المسألة إلى أجزاء صغيرة هو سر المبرمجين المحترفين.</p></div>
+  <details class="reveal"><summary><i class="fas fa-eye"></i> بعد أن تجرّب بنفسك: اعرض الحل</summary>
+    <div class="code-box"><div class="code-head"><span>monster_fight.cpp</span><button class="copy-btn" onclick="copyCode('code_project')">نسخ الكود</button></div><pre id="code_project"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> damage(<span class="kw">int</span> attack, <span class="kw">int</span> armor) {
+    <span class="kw">if</span> (attack &gt; armor) {
+        <span class="kw">return</span> attack - armor;
+    }
+    <span class="kw">return</span> <span class="num">1</span>;
+}
+
+<span class="kw">bool</span> isAlive(<span class="kw">int</span> hp) {
+    <span class="kw">return</span> hp &gt; <span class="num">0</span>;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> monsterHp = <span class="num">50</span>;
+    <span class="kw">int</span> armor = <span class="num">5</span>;
+
+    <span class="kw">for</span> (<span class="kw">int</span> round = <span class="num">1</span>; round &lt;= <span class="num">3</span>; round++) {
+        <span class="kw">int</span> attack;
+        cin &gt;&gt; attack;
+
+        <span class="kw">int</span> dmg = damage(attack, armor);
+        monsterHp = monsterHp - dmg;
+        <span class="kw">if</span> (monsterHp &lt; <span class="num">0</span>) {
+            monsterHp = <span class="num">0</span>;
+        }
+        cout &lt;&lt; <span class="str">"Round "</span> &lt;&lt; round &lt;&lt; <span class="str">": damage "</span> &lt;&lt; dmg &lt;&lt; <span class="str">", monster HP "</span> &lt;&lt; monsterHp &lt;&lt; endl;
+
+        <span class="kw">if</span> (!isAlive(monsterHp)) {
+            cout &lt;&lt; <span class="str">"Monster defeated!"</span> &lt;&lt; endl;
+            <span class="kw">return</span> <span class="num">0</span>;
+        }
+    }
+    cout &lt;&lt; <span class="str">"The monster survived."</span> &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  </details>
+</div>
+
+
+<div class="card challenge-card"><div class="card-header"><i class="fas fa-dumbbell"></i><h3>واجبات بعد الدرس</h3></div><p>تحديان بسيطان تحلّهما بنفسك بعد انتهاء الدرس. اكتب الحل في ملف <code>.cpp</code>، ثم ترجمه وشغّله وقارن ناتجك بالناتج المتوقع. جرّب أولًا، ثم افتح التلميح إن علقت، ولا تفتح نموذج الحل إلا بعد المحاولة الجادة.</p><div class="challenge"><div class="ch-head"><span class="ch-num">1</span><h4>جدول تحويل الحرارة</h4><span class="badge easy">سهل</span></div><p>اكتب دالة <code>toFahrenheit</code> تحوّل درجة الحرارة من مئوية إلى فهرنهايت بالقانون <code>F = C × 9 / 5 + 32</code>، ثم استخدمها داخل حلقة لطباعة جدول للدرجات من 0 إلى 40 بخطوة 10.</p><h5>المطلوب</h5><ul><li>اكتب الدالة بمعامل <code>double</code> وتعيد <code>double</code>.</li><li>في <code>main</code> استخدم حلقة <code>for</code> تعدّ من 0 إلى 40 بخطوة 10.</li><li>اطبع كل سطر بالصيغة الموضحة في الناتج المتوقع.</li></ul><h5>الناتج المتوقع</h5><div class="output-box">0C = 32F
+10C = 50F
+20C = 68F
+30C = 86F
+40C = 104F</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> تلميحات</summary><ul><li><code>return celsius * 9 / 5 + 32;</code> لأن <code>celsius</code> عشري فلا تُحذف الكسور.</li><li>مرر العدّاد الصحيح <code>c</code> إلى الدالة مباشرة، وستحوّله <span class="en">C++</span> إلى <code>double</code> تلقائيًا.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> نموذج الحل (بعد المحاولة)</summary><div class="code-box"><div class="code-head"><span>temperature.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_temp')">نسخ الكود</button></div><pre id="code_ch_temp"><span class="cmt">// Challenge 1: temperature table</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">double</span> toFahrenheit(<span class="kw">double</span> celsius) {
+    <span class="kw">return</span> celsius * <span class="num">9</span> / <span class="num">5</span> + <span class="num">32</span>;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">for</span> (<span class="kw">int</span> c = <span class="num">0</span>; c &lt;= <span class="num">40</span>; c += <span class="num">10</span>) {
+        cout &lt;&lt; c &lt;&lt; <span class="str">"C = "</span> &lt;&lt; toFahrenheit(c) &lt;&lt; <span class="str">"F"</span> &lt;&lt; endl;
+    }
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div><div class="challenge"><div class="ch-head"><span class="ch-num">2</span><h4>دالة العدد الأولي</h4><span class="badge medium">متوسط</span></div><p>العدد الأولي هو عدد أكبر من 1 لا يقبل القسمة إلا على نفسه وعلى 1، مثل 2 و3 و5 و7. اكتب دالة <code>isPrime(n)</code> تعيد <code>true</code> للأعداد الأولية، ثم اطبع كل الأعداد الأولية من 1 إلى 30.</p><h5>المطلوب</h5><ul><li>اكتب <code>bool isPrime(int n)</code>.</li><li>الأعداد الأصغر من 2 ليست أولية، فأعد <code>false</code> فورًا.</li><li>جرّب القسمة على كل عدد من 2 حتى <code>n - 1</code>؛ وإذا وجدت قاسمًا أعد <code>false</code> فورًا.</li><li>إن لم تجد قاسمًا فأعد <code>true</code>. واطبع الأعداد الأولية في سطر واحد تفصل بينها مسافات.</li></ul><h5>الناتج المتوقع</h5><div class="output-box">2 3 5 7 11 13 17 19 23 29 </div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> تلميحات</summary><ul><li>استخدم حلقة <code>for</code> داخل الدالة، و<code>return false</code> داخل <code>if</code> في الحلقة.</li><li><code>return true</code> تُكتب بعد الحلقة، لأنها تصل إليها إذا لم يوجد أي قاسم.</li><li>الأعداد الأولية حتى 30: 2 3 5 7 11 13 17 19 23 29.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> نموذج الحل (بعد المحاولة)</summary><div class="code-box"><div class="code-head"><span>primes.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_prime')">نسخ الكود</button></div><pre id="code_ch_prime"><span class="cmt">// Challenge 2: primes</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">bool</span> isPrime(<span class="kw">int</span> n) {
+    <span class="kw">if</span> (n &lt; <span class="num">2</span>) {
+        <span class="kw">return</span> <span class="kw">false</span>;
+    }
+    <span class="kw">for</span> (<span class="kw">int</span> d = <span class="num">2</span>; d &lt; n; d++) {
+        <span class="kw">if</span> (n % d == <span class="num">0</span>) {
+            <span class="kw">return</span> <span class="kw">false</span>;
+        }
+    }
+    <span class="kw">return</span> <span class="kw">true</span>;
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">1</span>; i &lt;= <span class="num">30</span>; i++) {
+        <span class="kw">if</span> (isPrime(i)) {
+            cout &lt;&lt; i &lt;&lt; <span class="str">" "</span>;
+        }
+    }
+    cout &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div></div>
+
+<div class="card summary-card"><div class="card-header"><i class="fas fa-clipboard-list"></i><h3>ملخص سريع</h3></div><ul class="sum-list"><li><i class="fas fa-circle-check"></i><span>الدالة مجموعة تعليمات لها اسم، نكتبها مرة ونستدعيها كثيرًا.</span></li><li><i class="fas fa-circle-check"></i><span>تعريف الدالة: نوع الإرجاع، ثم الاسم، ثم المعاملات بين قوسين، ثم الجسم بين قوسين مجموعين.</span></li><li><i class="fas fa-circle-check"></i><span>المعاملات تُكتب في التعريف، والوسائط تُمرَّر عند الاستدعاء، وتُنسخ بالترتيب.</span></li><li><i class="fas fa-circle-check"></i><span><code class="inline">return</code> تُنهي الدالة وتعيد قيمة، والدالة <code class="inline">void</code> لا تعيد شيئًا.</span></li><li><i class="fas fa-circle-check"></i><span>يجب أن يرى المترجم الدالة قبل استدعائها: عرّفها قبل <code class="inline">main</code> أو اكتب تصريحًا مسبقًا.</span></li><li><i class="fas fa-circle-check"></i><span>التمرير العادي ينسخ القيمة، والمرجع <code class="inline">&amp;</code> يجعل الدالة تعدّل الأصل.</span></li></ul></div>
+  <div class="card steps-card" id="tfCard">
+    <div class="card-header"><i class="fas fa-clipboard-check"></i><h3>تحقق من فهمك</h3></div>
+    <p>اقرأ كل عبارة ثم اختر <strong>صحيح</strong> أو <strong>خطأ</strong>. سيظهر التفسير مباشرة بعد إجابتك.</p>
+    <div id="tfList"></div>
+    <div class="score-box" id="tfScore" style="display:none"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><i class="fas fa-book"></i><h3>قاموس المصطلحات</h3></div>
+    <p>المصطلحات الإنجليزية الأهم في هذا الدرس ومقابلها بالعربية:</p>
+    <div class="glossary-grid"><div class="term-card"><span class="term-en">Function</span><span class="term-ar">دالة</span><p class="term-desc">مجموعة تعليمات لها اسم تؤدي مهمة محددة.</p></div><div class="term-card"><span class="term-en">Call</span><span class="term-ar">استدعاء</span><p class="term-desc">طلب تنفيذ الدالة بكتابة اسمها ووسائطها.</p></div><div class="term-card"><span class="term-en">Parameter</span><span class="term-ar">معامل</span><p class="term-desc">متغير في تعريف الدالة يستقبل قيمة.</p></div><div class="term-card"><span class="term-en">Argument</span><span class="term-ar">وسيط</span><p class="term-desc">القيمة التي نمررها عند الاستدعاء.</p></div><div class="term-card"><span class="term-en">Return value</span><span class="term-ar">قيمة مُرجعة</span><p class="term-desc">النتيجة التي تعيدها الدالة لمن استدعاها.</p></div><div class="term-card"><span class="term-en">void</span><span class="term-ar">لا شيء</span><p class="term-desc">نوع إرجاع يعني أن الدالة لا تعيد قيمة.</p></div><div class="term-card"><span class="term-en">Function body</span><span class="term-ar">جسم الدالة</span><p class="term-desc">التعليمات بين <code class="inline">{</code> و<code class="inline">}</code> داخل الدالة.</p></div><div class="term-card"><span class="term-en">Prototype</span><span class="term-ar">تصريح مسبق</span><p class="term-desc">سطر يعرّف المترجم باسم الدالة ونوعها قبل تعريفها الكامل.</p></div><div class="term-card"><span class="term-en">Pass by value</span><span class="term-ar">تمرير بالقيمة</span><p class="term-desc">إعطاء الدالة نسخة من المتغير.</p></div><div class="term-card"><span class="term-en">Reference</span><span class="term-ar">مرجع</span><p class="term-desc">اسم ثانٍ للمتغير الأصلي، يُكتب بالرمز <code class="inline">&amp;</code>.</p></div><div class="term-card"><span class="term-en">Return type</span><span class="term-ar">نوع الإرجاع</span><p class="term-desc">نوع القيمة التي تعيدها الدالة.</p></div><div class="term-card"><span class="term-en">Decomposition</span><span class="term-ar">تجزئة المسألة</span><p class="term-desc">تقسيم مسألة كبيرة إلى دوال صغيرة.</p></div></div>
+  </div>
+  <div class="card steps-card" id="quizCard">
+    <div class="card-header"><i class="fas fa-circle-question"></i><h3>الاختبار النهائي</h3></div>
+    <p>عشرة أسئلة بين السهلة والمتوسطة. اختر إجابة واحدة لكل سؤال.</p>
+    <div class="progress"><div class="progress-bar" id="quizBar"></div></div>
+    <div id="quizList"></div>
+    <div class="score-box" id="quizScore" style="display:none"></div>
+  </div>
+  <div class="card refs-card">
+    <div class="card-header"><i class="fas fa-link"></i><h3>للاستزادة</h3></div>
+    <p>الحقائق التقنية في هذا الدرس موثّقة في المراجع التالية، أما الشرح والأمثلة والتمارين فمكتوبة خصيصًا لمنصة TweetKod:</p>
+    <ul class="ref-list"><li><a href="https://github.com/federico-busato/Modern-CPP-Programming" target="_blank" rel="noopener"><span class="en">Modern C++ Programming &mdash; Federico Busato (CC BY 4.0)</span></a></li><li><a href="https://www.learn-cpp.org/" target="_blank" rel="noopener"><span class="en">Learn C++ (Apache 2.0)</span></a></li><li><a href="https://en.cppreference.com/w/cpp/language/functions" target="_blank" rel="noopener"><span class="en">Functions &mdash; cppreference</span></a></li></ul>
+  </div>
+</div>
+<button class="to-top" id="toTop" title="إلى الأعلى"><i class="fas fa-arrow-up"></i></button>
+<footer class="page-footer">منصة TweetKod</footer>
+<script>
+const LESSON_NUM = 11;
+const TF = [{"s": "الدالة من النوع <code class=\"inline\">void</code> تعيد قيمة صحيحة دائمًا.", "a": false, "why": "<code class=\"inline\">void</code> تعني أنها لا تعيد شيئًا."}, {"s": "الوسائط في الاستدعاء تُنسخ إلى المعاملات بالترتيب نفسه.", "a": true, "why": "الوسيط الأول للمعامل الأول، وهكذا."}, {"s": "تعريف الدالة وحده يجعلها تعمل تلقائيًا.", "a": false, "why": "لا تعمل إلا عندما نستدعيها (عدا <code class=\"inline\">main</code> التي يستدعيها نظام التشغيل)."}, {"s": "عند تنفيذ <code class=\"inline\">return</code> تنتهي الدالة فورًا.", "a": true, "why": "أي أسطر بعدها داخل الدالة لن تُنفَّذ."}, {"s": "إذا غيّرت معاملًا عاديًا داخل الدالة فإن المتغير الأصلي يتغير.", "a": false, "why": "المعامل العادي نسخة. لتعديل الأصل نستخدم المرجع <code class=\"inline\">&amp;</code>."}, {"s": "يمكن استدعاء دالة معرَّفة بعد <code class=\"inline\">main</code> إذا كتبنا لها تصريحًا مسبقًا في الأعلى.", "a": true, "why": "التصريح المسبق يعرّف المترجم بها قبل أن يصل إلى الاستدعاء."}, {"s": "يمكن استخدام استدعاء دالة داخل تعبير حسابي مثل <code class=\"inline\">square(3) + 1</code>.", "a": true, "why": "استدعاء الدالة يصير قيمتها المُرجعة."}, {"s": "يجوز استدعاء <code class=\"inline\">add(2)</code> للدالة <code class=\"inline\">int add(int a, int b)</code>.", "a": false, "why": "عدد الوسائط يجب أن يطابق عدد المعاملات."}];
+const QUIZ = [{"q": "ما الدالة في البرمجة؟", "o": ["ملف ترويسة", "متغير يخزّن رقمًا", "تعليق في الكود", "مجموعة تعليمات لها اسم يمكن استدعاؤها"], "a": 3, "why": "نكتبها مرة ونستدعيها حين نحتاجها."}, {"q": "ما نوع الإرجاع لدالة لا تعيد أي قيمة؟", "o": ["<code class=\"inline\">void</code>", "<code class=\"inline\">null</code>", "<code class=\"inline\">bool</code>", "<code class=\"inline\">int</code>"], "a": 0, "why": "<code class=\"inline\">void</code> تعني «لا شيء»."}, {"q": "في <code class=\"inline\">int add(int a, int b)</code> ما اسم <code class=\"inline\">a</code> و<code class=\"inline\">b</code> ؟", "o": ["ثوابت", "دوال", "وسائط", "معاملات"], "a": 3, "why": "الأسماء المكتوبة في التعريف تسمى معاملات."}, {"q": "في الاستدعاء <code class=\"inline\">add(2, 3)</code> ما اسم <code class=\"inline\">2</code> و<code class=\"inline\">3</code> ؟", "o": ["وسائط", "معاملات", "نوع الإرجاع", "متغيرات"], "a": 0, "why": "القيم الممرَّرة عند الاستدعاء تسمى وسائط."}, {"q": "ما ناتج <code class=\"inline\">int sq(int x){ return x * x; }  cout &lt;&lt; sq(4);</code> ؟", "o": ["8", "44", "4", "16"], "a": 3, "why": "4 × 4 = 16."}, {"q": "ماذا يحدث عند تنفيذ <code class=\"inline\">return</code> داخل دالة؟", "o": ["تنتهي الدالة ويعود التنفيذ إلى مكان الاستدعاء", "يستمر تنفيذ الدالة", "يُحذف المتغير الأصلي", "يُغلق البرنامج دائمًا"], "a": 0, "why": "<code class=\"inline\">return</code> تُنهي الدالة وتعيد القيمة إلى المستدعي."}, {"q": "ما الذي يحدث لمتغير يُمرَّر بالقيمة إذا غيّرته الدالة؟", "o": ["يتغير الأصل", "يتغير النسخة فقط", "يحدث خطأ ترجمة", "لا يتغير شيء"], "a": 1, "why": "الدالة تعمل على نسخة، والأصل يبقى كما هو."}, {"q": "ماذا يعني <code class=\"inline\">void f(int&amp; x)</code> ؟", "o": ["<code class=\"inline\">x</code> مرجع إلى المتغير الأصلي", "<code class=\"inline\">x</code> عنوان الدالة", "<code class=\"inline\">x</code> ثابت", "<code class=\"inline\">x</code> نص"], "a": 0, "why": "الرمز <code class=\"inline\">&amp;</code> يجعل <code class=\"inline\">x</code> اسمًا ثانيًا للأصل."}, {"q": "ماذا يحدث إذا استدعينا دالة قبل أن يراها المترجم ولا يوجد تصريح مسبق؟", "o": ["تعمل بشكل طبيعي", "تتحول الدالة إلى <code class=\"inline\">void</code>", "خطأ ترجمة: الاسم غير معروف", "يتجاهل المترجم الاستدعاء"], "a": 2, "why": "يقرأ المترجم الملف من الأعلى إلى الأسفل."}, {"q": "أي اسم من الأسماء التالية هو الأنسب لدالة تحسب مجموع الأسعار؟", "o": ["<code class=\"inline\">f</code>", "<code class=\"inline\">x1</code>", "<code class=\"inline\">doIt</code>", "<code class=\"inline\">calculateTotalPrice</code>"], "a": 3, "why": "الاسم الواضح يشرح الوظيفة دون الحاجة لقراءة الجسم."}];
+const EXPL = {};
+const TRACES = {"add": [{"line": -1, "vars": {}, "out": "", "note": "نقطة البداية: لم يُنفَّذ أي سطر بعد."}, {"line": 7, "vars": {}, "out": "", "note": "يبدأ تنفيذ البرنامج دائمًا من main، لا من الدالة التي كُتبت قبلها."}, {"line": 8, "vars": {}, "out": "", "note": "نصل إلى استدعاء add(2, 3). يتوقف سطر main مؤقتًا، ويقفز التنفيذ إلى الدالة."}, {"line": 3, "vars": {"a (in add)": "2", "b (in add)": "3"}, "out": "", "note": "دخلنا الدالة: القيمتان 2 و3 نُسختا إلى المعاملين a وb."}, {"line": 4, "vars": {"a (in add)": "2", "b (in add)": "3"}, "out": "", "note": "نحسب a + b = 5 ونعيد النتيجة إلى المكان الذي استُدعيت منه."}, {"line": 8, "vars": {"x (in main)": "5"}, "out": "", "note": "عدنا إلى main والمتغيران a وb اختفيا. النتيجة 5 حلّت مكان الاستدعاء، فخُزّنت في x."}, {"line": 9, "vars": {"x (in main)": "5"}, "out": "5\n", "note": "طبعنا x."}, {"line": 10, "vars": {"x (in main)": "5"}, "out": "5\n", "note": "تنتهي main وينتهي البرنامج."}]};
+function copyCode(id) {
+  const el = document.getElementById(id);
+  const text = el.innerText.replace(/ /g, ' ');
+  const done = () => { const b = el.parentElement.querySelector('.copy-btn'); const t = b.textContent; b.textContent = 'تم النسخ ✓'; setTimeout(() => b.textContent = t, 1400); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(done); else done();
+}
+
+/* click-to-explain code lines */
+document.querySelectorAll('.code-box[data-expl]').forEach(box => {
+  const id = box.getAttribute('data-expl');
+  const out = document.querySelector('.explain-box[data-for="' + id + '"]');
+  box.querySelectorAll('.code-line').forEach(line => {
+    line.addEventListener('click', () => {
+      box.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+      line.classList.add('active');
+      out.innerHTML = EXPL[id][line.getAttribute('data-i')];
+    });
+  });
+});
+
+/* true / false check */
+(function () {
+  const list = document.getElementById('tfList');
+  let answered = 0, right = 0;
+  TF.forEach((it, i) => {
+    const d = document.createElement('div');
+    d.className = 'tf-item';
+    d.innerHTML = '<div class="stmt">' + (i + 1) + '. ' + it.s + '</div>' +
+      '<div class="tf-btns"><button class="tf-btn" data-v="true"><i class="fas fa-check"></i> صحيح</button>' +
+      '<button class="tf-btn" data-v="false"><i class="fas fa-xmark"></i> خطأ</button></div><div class="feedback"></div>';
+    d.querySelectorAll('.tf-btn').forEach(b => b.addEventListener('click', () => {
+      const pick = b.getAttribute('data-v') === 'true';
+      const ok = pick === it.a;
+      d.querySelectorAll('.tf-btn').forEach(x => { x.disabled = true; });
+      b.classList.add(ok ? 'correct' : 'wrong');
+      const fb = d.querySelector('.feedback');
+      fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+      fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> إجابة صحيحة. ' : '<i class="fas fa-circle-xmark"></i> الإجابة الصحيحة: ' + (it.a ? 'صحيح' : 'خطأ') + '. ') + it.why;
+      answered++; if (ok) right++;
+      if (answered === TF.length) {
+        const s = document.getElementById('tfScore');
+        s.style.display = 'block';
+        s.innerHTML = '<div class="big">' + right + ' / ' + TF.length + '</div><div>' + (right === TF.length ? 'ممتاز! فهمت الدرس جيدًا.' : right >= TF.length - 2 ? 'نتيجة جيدة، راجع العبارات التي أخطأت فيها.' : 'أعد قراءة الدرس ثم جرّب مرة أخرى.') + '</div>';
+      }
+    }));
+    list.appendChild(d);
+  });
+})();
+
+/* final quiz */
+(function () {
+  const list = document.getElementById('quizList');
+  const bar = document.getElementById('quizBar');
+  let answered = 0, right = 0;
+  QUIZ.forEach((q, qi) => {
+    const d = document.createElement('div');
+    d.className = 'quiz-q';
+    d.innerHTML = '<h4><span class="qnum">' + (qi + 1) + '</span>' + q.q + '</h4><div class="quiz-options"></div><div class="feedback"></div>';
+    const box = d.querySelector('.quiz-options');
+    q.o.forEach((txt, oi) => {
+      const b = document.createElement('button');
+      b.className = 'quiz-opt'; b.innerHTML = txt;
+      b.addEventListener('click', () => {
+        box.querySelectorAll('.quiz-opt').forEach(x => x.disabled = true);
+        const ok = oi === q.a;
+        b.classList.add(ok ? 'correct' : 'wrong');
+        if (!ok) box.children[q.a].classList.add('correct');
+        const fb = d.querySelector('.feedback');
+        fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+        fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> صحيح! ' : '<i class="fas fa-circle-xmark"></i> ليست الإجابة الصحيحة. ') + q.why;
+        answered++; if (ok) right++;
+        bar.style.width = (answered / QUIZ.length * 100) + '%';
+        if (answered === QUIZ.length) showScore();
+      });
+      box.appendChild(b);
+    });
+    list.appendChild(d);
+  });
+  function showScore() {
+    const s = document.getElementById('quizScore');
+    const pct = right / QUIZ.length;
+    s.style.display = 'block';
+    s.innerHTML = '<div class="big">' + right + ' / ' + QUIZ.length + '</div><div>' +
+      (pct === 1 ? 'نتيجة كاملة! أنت جاهز للدرس التالي.' : pct >= 0.7 ? 'أداء جيد جدًا، راجع الأسئلة التي أخطأت فيها.' : 'راجع الدرس مرة أخرى ثم أعد المحاولة.') +
+      '</div><button class="retry-btn" onclick="location.hash=\'quizCard\';location.reload();">إعادة الاختبار</button>';
+  }
+})();
+
+
+/* ---------------- header tools ---------------- */
+(function () {
+  const root = document.documentElement;
+  const safeGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const safeSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+  /* theme */
+  const themeBtn = document.getElementById('themeBtn');
+  function applyTheme(t) { root.setAttribute('data-theme', t); if (themeBtn) themeBtn.innerHTML = t === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; }
+  applyTheme(safeGet('tk_theme') || 'light');
+  if (themeBtn) themeBtn.addEventListener('click', () => { const t = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; applyTheme(t); safeSet('tk_theme', t); });
+
+  /* code size */
+  let size = parseFloat(safeGet('tk_codesize') || '0.95');
+  function applySize() { root.style.setProperty('--code-size', size + 'rem'); }
+  applySize();
+  const dec = document.getElementById('fontDec'), inc = document.getElementById('fontInc');
+  if (dec) dec.addEventListener('click', () => { size = Math.max(0.75, +(size - 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+  if (inc) inc.addEventListener('click', () => { size = Math.min(1.3, +(size + 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+
+  /* table of contents */
+  const panel = document.getElementById('tocPanel'), tocBtn = document.getElementById('tocBtn');
+  if (panel && tocBtn) {
+    const cards = document.querySelectorAll('.container > .card');
+    let n = 0;
+    cards.forEach((c, i) => {
+      const h = c.querySelector('.card-header h3, .project-banner strong');
+      if (!h) return;
+      n++;
+      c.id = c.id || 'sec-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + c.id;
+      a.innerHTML = '<span>' + n + '</span><bdi>' + h.innerHTML + '</bdi>';
+      a.addEventListener('click', () => panel.classList.remove('open'));
+      panel.appendChild(a);
+    });
+    tocBtn.addEventListener('click', (e) => { e.stopPropagation(); panel.classList.toggle('open'); });
+    document.addEventListener('click', (e) => { if (!panel.contains(e.target)) panel.classList.remove('open'); });
+  }
+
+  /* reading progress + back to top */
+  const bar = document.getElementById('readBar'), top = document.getElementById('toTop');
+  function onScroll() {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+    if (bar) bar.style.width = pct + '%';
+    if (top) top.classList.toggle('show', h.scrollTop > 600);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  if (top) top.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+})();
+
+/* ---------------- step tracer ---------------- */
+document.querySelectorAll('.tracer').forEach(el => {
+  const steps = TRACES[el.getAttribute('data-trace')];
+  const lines = el.querySelectorAll('.tr-line');
+  const varsEl = el.querySelector('.tr-vars'), outEl = el.querySelector('.tr-out'), noteEl = el.querySelector('.tr-note'), cnt = el.querySelector('.tr-count');
+  const btn = (a) => el.querySelector('[data-a="' + a + '"]');
+  let i = 0, timer = null;
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  function draw() {
+    const s = steps[i], prev = i > 0 ? steps[i - 1].vars : {};
+    lines.forEach((l, k) => l.classList.toggle('active', k === s.line));
+    const names = Object.keys(s.vars);
+    varsEl.innerHTML = names.length ? names.map(n => '<div class="tr-var' + (prev[n] !== s.vars[n] ? ' changed' : '') + '"><span>' + esc(n) + '</span><b>' + esc(s.vars[n]) + '</b></div>').join('') : '<span style="color:#94a3b8">لا توجد متغيرات بعد</span>';
+    outEl.textContent = s.out || ' ';
+    noteEl.textContent = s.note || ' ';
+    cnt.textContent = 'الخطوة ' + i + ' من ' + (steps.length - 1);
+    btn('prev').disabled = i === 0; btn('next').disabled = i === steps.length - 1;
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; btn('play').innerHTML = '<i class="fas fa-play"></i> تشغيل تلقائي'; } }
+  btn('next').onclick = () => { stop(); if (i < steps.length - 1) i++; draw(); };
+  btn('prev').onclick = () => { stop(); if (i > 0) i--; draw(); };
+  btn('reset').onclick = () => { stop(); i = 0; draw(); };
+  btn('play').onclick = () => {
+    if (timer) { stop(); return; }
+    if (i >= steps.length - 1) i = 0;
+    btn('play').innerHTML = '<i class="fas fa-pause"></i> إيقاف';
+    timer = setInterval(() => { if (i < steps.length - 1) { i++; draw(); } else stop(); }, 1100);
+    draw();
+  };
+  draw();
+});
+
+/* ---------------- predict the output ---------------- */
+document.querySelectorAll('.predict').forEach(p => {
+  const opts = p.querySelectorAll('.pd-opt');
+  opts.forEach(o => o.addEventListener('click', () => {
+    const ok = o.getAttribute('data-ok') === '1';
+    opts.forEach(x => { x.disabled = true; if (x.getAttribute('data-ok') === '1') x.classList.add('correct'); });
+    if (!ok) o.classList.add('wrong');
+    const res = p.querySelector('.pd-result');
+    res.classList.remove('hidden');
+    const msg = p.querySelector('.pd-msg');
+    msg.innerHTML = ok ? '<span style="color:#16a34a"><i class="fas fa-check-circle"></i> توقّعك صحيح! هذا هو الناتج الحقيقي:</span>' : '<span style="color:#dc2626"><i class="fas fa-circle-xmark"></i> ليس تمامًا. هذا هو الناتج الحقيقي، وتابع التفسير:</span>';
+  }));
+});
+
+
+function runFm() {
+  const fn = document.getElementById('fmFn').value;
+  const a = parseInt(document.getElementById('fmA').value, 10);
+  const b = parseInt(document.getElementById('fmB').value, 10);
+  const out = document.getElementById('fmOut');
+  if (isNaN(a) || (fn === 'maxOf' && isNaN(b))) { out.innerHTML = '<span class="line">// أدخل أعدادًا صحيحة</span>'; return; }
+  const defs = {
+    square: ['int square(int n) {\n    return n * n;\n}', 'square(' + a + ')', a * a],
+    isEven: ['bool isEven(int n) {\n    return n % 2 == 0;\n}', 'isEven(' + a + ')', (a % 2 === 0)],
+    absValue: ['int absValue(int n) {\n    if (n < 0) {\n        return -n;\n    }\n    return n;\n}', 'absValue(' + a + ')', Math.abs(a)],
+    maxOf: ['int maxOf(int a, int b) {\n    if (a > b) {\n        return a;\n    }\n    return b;\n}', 'maxOf(' + a + ', ' + b + ')', Math.max(a, b)]
+  };
+  const d = defs[fn];
+  out.innerHTML = '<span class="line">// تعريف الدالة:</span>\n' + d[0] + '\n\n<span class="line">// الاستدعاء:</span>\n' + d[1] + '\n\n<span class="line">// القيمة المُرجعة:</span>\n' + d[2];
+}
+runFm();
+
+</script>
+</body>
+</html>

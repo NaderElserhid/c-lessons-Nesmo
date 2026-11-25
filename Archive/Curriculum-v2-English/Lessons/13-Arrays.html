@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TweetKod | Arrays</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --primary-blue: #00adef;
+  --blue-gradient: linear-gradient(135deg, #00adef, #007bb5);
+  --primary-yellow: #f7941e;
+  --yellow-gradient: linear-gradient(135deg, #f7941e, #d67d00);
+  --dark-navy: #0f172a;
+  --text-body: #475569;
+  --bg-main: #f4f9fd;
+  --surface: #f1f6fb;
+  --card-bg: #ffffff;
+  --border: #e2e8f0;
+  --chip-bg: #eef2f7;
+  --soft-shadow: 0 14px 34px -14px rgba(15,23,42,0.14);
+  --header-bg: rgba(255,255,255,0.82);
+  --code-size: 0.95rem;
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2300adef' fill-opacity='0.075'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+html[data-theme="dark"] {
+  --dark-navy: #e6edf7;
+  --text-body: #a9b6cc;
+  --bg-main: #0a1120;
+  --surface: #16213a;
+  --card-bg: #111a2e;
+  --border: #243049;
+  --chip-bg: #1d2a45;
+  --soft-shadow: 0 14px 34px -14px rgba(0,0,0,0.6);
+  --header-bg: rgba(10,17,32,0.82);
+  --pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2338bdf8' fill-opacity='0.06'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+body {
+  font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+  background-color: var(--bg-main);
+  margin: 0; padding: 0; color: var(--dark-navy);
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color .3s, color .3s;
+  position: relative;
+}
+/* decorative background */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.20), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.17), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.06), transparent 70%);
+}
+html[data-theme="dark"] body::before {
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(0,173,239,0.22), transparent 60%),
+    radial-gradient(900px 560px at -10% 105%, rgba(247,148,30,0.12), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(124,92,255,0.10), transparent 70%);
+}
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: var(--pattern); background-size: 260px 260px;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+          mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35));
+}
+.bg-deco { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .35; animation: floaty 18s ease-in-out infinite; }
+.b1 { width: 340px; height: 340px; background: #00adef; top: 12%; right: -90px; }
+.b2 { width: 280px; height: 280px; background: #f7941e; bottom: 6%; left: -80px; animation-delay: -6s; }
+.b3 { width: 220px; height: 220px; background: #8b5cf6; top: 55%; right: 18%; opacity: .16; animation-delay: -11s; }
+html[data-theme="dark"] .blob { opacity: .2; }
+@keyframes floaty { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(26px,-34px) scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .blob { animation: none; } html { scroll-behavior: auto; } }
+
+/* header */
+header {
+  background: var(--header-bg); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  padding: 10px 4%; display: flex; justify-content: space-between; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 1000;
+  border-bottom: 1px solid rgba(0,173,239,0.16); box-shadow: 0 8px 28px -18px rgba(15,23,42,0.45);
+}
+.hdr-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.logo-img { width: 52px; height: 52px; border-radius: 15px; object-fit: contain; padding: 6px; background: #fff;
+  box-shadow: 0 6px 18px -6px rgba(0,173,239,0.45), 0 0 0 1px rgba(0,173,239,0.16); }
+.brand-info h3 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--dark-navy); line-height: 1.3; }
+.brand-info p { margin: 0; font-size: 0.78rem; color: var(--primary-blue); font-weight: 700; }
+.hdr-tools { display: flex; align-items: center; gap: 8px; position: relative; }
+.tool-btn { height: 38px; min-width: 38px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy);
+  cursor: pointer; font-family: 'Nunito'; font-weight: 800; font-size: .85rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: .2s; }
+.tool-btn:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+.toc-panel { position: absolute; top: 48px; right: 0; width: 290px; max-height: 60vh; overflow-y: auto; background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 16px; box-shadow: var(--soft-shadow); padding: 8px; display: none; }
+.toc-panel.open { display: block; }
+.toc-panel a { display: flex; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 10px; color: var(--dark-navy); text-decoration: none; font-weight: 700; font-size: .88rem; }
+.toc-panel a:hover { background: var(--surface); color: var(--primary-blue); }
+.toc-panel a span { width: 22px; height: 22px; border-radius: 50%; background: var(--chip-bg); color: var(--text-body); font-size: .72rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.read-progress { position: absolute; bottom: -1px; right: 0; left: 0; height: 3px; background: transparent; }
+.read-progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #00adef, #f7941e); transition: width .1s; }
+.to-top { position: fixed; bottom: 22px; right: 22px; z-index: 900; width: 46px; height: 46px; border-radius: 50%; border: none; background: var(--blue-gradient); color: #fff;
+  cursor: pointer; box-shadow: 0 10px 24px -8px rgba(0,173,239,.7); font-size: 1.1rem; opacity: 0; pointer-events: none; transition: .25s; }
+.to-top.show { opacity: 1; pointer-events: auto; }
+@media (max-width: 980px) { .brand-info p { display: none; } }
+@media (max-width: 720px) { .brand-info h3 { font-size: 1rem; } }
+
+.container { max-width: 900px; margin: 44px auto; padding: 0 25px; }
+.title-section { text-align: center; margin-bottom: 40px; }
+.title-section h1 { font-size: 2.7rem; font-weight: 800; margin: 12px 0 6px; background: linear-gradient(135deg, var(--dark-navy), #007bb5 80%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+html[data-theme="dark"] .title-section h1 { background: linear-gradient(135deg, #fff, #38bdf8 80%); -webkit-background-clip: text; background-clip: text; }
+.attribution { color: var(--primary-blue); font-size: 1.15rem; font-weight: 600; }
+.lesson-chip { display: inline-block; background: var(--yellow-gradient); color: #fff; padding: 6px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; box-shadow: 0 8px 18px -8px rgba(247,148,30,.8); }
+
+.card { background: var(--card-bg); border-radius: 25px; padding: 40px; margin-bottom: 30px; box-shadow: var(--soft-shadow); border-left: 8px solid var(--primary-blue);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); transition: background-color .3s; }
+.steps-card { border-left-color: var(--primary-yellow); }
+.card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--primary-blue); }
+.card-header i { font-size: 1.8rem; }
+.card-header h3 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark-navy); }
+h4 { margin: 18px 0 8px; font-size: 1.05rem; color: var(--dark-navy); }
+p { color: var(--text-body); margin: 0 0 14px; }
+a { color: var(--primary-blue); }
+strong { color: var(--dark-navy); }
+
+.en { direction: ltr; unicode-bidi: isolate; font-weight: 700; color: var(--dark-navy); }
+/* every code chip is an isolated LTR island: fixes ; ( ) = placement inside Arabic text */
+code, code.inline { background: var(--chip-bg); padding: 2px 8px; border-radius: 6px; direction: ltr; unicode-bidi: isolate; display: inline-block; text-align: left;
+  color: #d6336c; font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.9rem; line-height: 1.6; }
+html[data-theme="dark"] code, html[data-theme="dark"] code.inline { color: #f9a8d4; }
+
+.obj-list { list-style: none; padding: 0; margin: 0; }
+.obj-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.obj-list i { color: #22c55e; margin-top: 6px; }
+
+/* code */
+.code-box { background: #1e293b; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.35); margin: 20px 0; border: 1px solid rgba(255,255,255,.04); }
+.code-head { background: #0f172a; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+.code-head span { color: #94a3b8; font-family: monospace; font-size: 0.85rem; direction: ltr; }
+.copy-btn { color: #38bdf8; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; font-family: 'Nunito'; }
+pre { padding: 26px 30px; margin: 0; color: #e2e8f0; font-family: 'Consolas', monospace; line-height: 1.9; direction: ltr; text-align: left; overflow-x: auto; font-size: var(--code-size); tab-size: 8; }
+.cmt { color: #79c36a; font-style: italic; }
+.kw { color: #7dd3fc; }
+.str { color: #fbbf77; }
+.num { color: #c4b5fd; }
+.pp { color: #f9a8d4; }
+.code-line, .code-plain { display: block; border-radius: 6px; padding: 0 6px; margin: 0 -6px; }
+.code-line { cursor: pointer; transition: 0.2s; background: rgba(0,173,239,0.07); }
+.code-line:hover { background: rgba(0,173,239,0.22); }
+.code-line.active { background: rgba(247,148,30,0.28); outline: 1px dashed var(--primary-yellow); }
+.explain-box { margin-top: 14px; background: var(--surface); border: 2px dashed var(--border); border-radius: 16px; padding: 16px 22px; font-weight: 600; color: var(--dark-navy); min-height: 30px; }
+.explain-box .hint { color: #94a3b8; font-weight: 500; }
+.output-box, .input-box { font-family: 'Consolas', monospace; padding: 16px 22px; border-radius: 14px; margin: 10px 0 18px; direction: ltr; text-align: left; white-space: pre-wrap; tab-size: 8; font-size: var(--code-size); }
+.output-box { background: #0f172a; color: #4ade80; }
+.input-box { background: #0c2233; color: #7dd3fc; margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.input-box + .output-box { margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; border-top: 1px dashed #1e3a52; }
+.output-box::before, .input-box::before { display: block; font-size: 0.72rem; letter-spacing: 0.08em; margin-bottom: 6px; text-transform: uppercase; color: #64748b; }
+.output-box::before { content: 'Output'; }
+.input-box::before { content: 'Input (typed by the user)'; }
+.error-box { background: #1f1317; border: 1px solid #7f1d1d; border-radius: 14px; margin: 10px 0 18px; overflow: hidden; }
+.error-head { background: #450a0a; color: #fca5a5; padding: 8px 18px; font-weight: 700; font-size: 0.85rem; }
+.error-box pre { color: #fecaca; font-size: 0.8rem; padding: 14px 20px; line-height: 1.7; }
+
+/* steps */
+.step-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 14px; padding: 18px 20px; background: var(--card-bg); border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+.step-number { background: var(--yellow-gradient); color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+.step-item h4 { margin: 0 0 4px; font-size: 1rem; }
+.step-item p { margin: 0; font-size: 0.92rem; }
+
+/* tables */
+.table-wrap { overflow-x: auto; margin: 15px 0; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+table.data-table { width: 100%; border-collapse: collapse; background: var(--card-bg); }
+table.data-table th { background: var(--blue-gradient); color: #fff; padding: 12px 18px; font-size: 0.85rem; text-align: left; white-space: nowrap; }
+table.data-table td { padding: 12px 18px; font-size: 0.9rem; border-bottom: 1px solid var(--border); color: var(--text-body); }
+table.data-table tr:last-child td { border-bottom: none; }
+
+/* comparison / rules */
+.compare-grid, .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+@media (max-width: 700px) { .compare-grid, .rule-grid { grid-template-columns: 1fr; } .card { padding: 24px; } .title-section h1 { font-size: 2rem; } }
+.compare-card { border-radius: 16px; overflow: hidden; background: #1e293b; }
+.compare-title { padding: 10px 18px; font-weight: 800; font-size: 0.9rem; }
+.good .compare-title { background: #dcfce7; color: #15803d; }
+.bad .compare-title { background: #fee2e2; color: #b91c1c; }
+.compare-card pre { padding: 18px 20px; font-size: 0.83rem; }
+.rule-list { background: var(--surface); border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
+.rule-list h5 { margin: 0 0 12px; font-size: 0.95rem; }
+.rule-list.yes h5 { color: #16a34a; } .rule-list.no h5 { color: #dc2626; }
+.rule-list ul { list-style: none; padding: 0; margin: 0; }
+.rule-list li { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 0.9rem; color: var(--text-body); }
+.rule-list.yes li i { color: #22c55e; } .rule-list.no li i { color: #ef4444; }
+
+.tip-box { background: rgba(247,148,30,0.09); border: 2px dashed var(--primary-yellow); border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.tip-box i { color: var(--primary-yellow); font-size: 1.4rem; margin-top: 4px; }
+.tip-box p { margin: 0; font-size: 0.93rem; }
+
+/* project */
+.project-banner { background: var(--blue-gradient); color: #fff; border-radius: 18px; padding: 16px 22px; margin-bottom: 18px; display: flex; gap: 14px; align-items: center; }
+.project-banner i { font-size: 1.6rem; }
+.project-banner strong { font-size: 1.05rem; color: #fff; }
+.project-banner p { color: #e0f4ff; margin: 0; font-size: 0.9rem; }
+.brief { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 18px 22px; margin: 14px 0; }
+.brief h5 { margin: 0 0 8px; font-size: 1rem; color: var(--primary-blue); display: flex; align-items: center; gap: 8px; }
+.brief ul, .brief ol { margin: 0; padding-left: 22px; color: var(--text-body); }
+.brief li { margin-bottom: 6px; }
+details.reveal { border: 2px dashed var(--border); border-radius: 16px; padding: 4px 16px; margin: 14px 0; background: var(--card-bg); }
+details.reveal > summary { cursor: pointer; font-weight: 800; padding: 10px 0; color: var(--primary-blue); list-style: none; display: flex; align-items: center; gap: 8px; }
+details.reveal > summary::-webkit-details-marker { display: none; }
+details.reveal[open] { border-style: solid; border-color: var(--primary-blue); }
+
+/* challenges */
+.challenge-card { border-left-color: #8b5cf6; }
+.challenge-card .card-header { color: #8b5cf6; }
+.challenge { border: 1px solid var(--border); border-radius: 20px; padding: 22px 24px; margin-bottom: 20px; background: var(--surface); }
+.ch-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+.ch-head h4 { margin: 0; flex: 1; }
+.ch-num { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
+.badge { font-size: .75rem; font-weight: 800; padding: 4px 12px; border-radius: 50px; }
+.badge.easy { background: #dcfce7; color: #15803d; }
+.badge.medium { background: #fef3c7; color: #b45309; }
+.challenge h5 { margin: 14px 0 6px; font-size: .9rem; color: var(--dark-navy); }
+.challenge ul { margin: 0 0 6px; padding-left: 22px; color: var(--text-body); }
+.challenge li { margin-bottom: 4px; }
+
+/* simulators */
+.sim-box { background: var(--surface); border: 3px dashed var(--border); border-radius: 20px; padding: 28px; text-align: center; margin-top: 15px; }
+.sim-inputs { display: flex; justify-content: center; gap: 18px; margin-bottom: 18px; flex-wrap: wrap; }
+.sim-inputs .field { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.sim-inputs label { font-size: 0.82rem; color: var(--text-body); font-weight: 700; }
+.sim-inputs input[type=text], .sim-inputs input[type=number] { padding: 11px; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 14px; font-size: 1.05rem; text-align: center; font-family: 'Consolas', monospace; outline: none; direction: ltr; }
+.sim-inputs input[type=number] { width: 110px; }
+.sim-inputs input:focus { border-color: var(--primary-blue); }
+.btn-run { background: var(--yellow-gradient); color: #fff; border: none; padding: 13px 32px; border-radius: 18px; cursor: pointer; font-weight: 800; font-family: 'Nunito'; font-size: 0.95rem; box-shadow: 0 10px 20px -10px rgba(247,148,30,.9); }
+.sim-console { margin-top: 18px; background: #0f172a; border-radius: 14px; padding: 18px 20px; text-align: left; direction: ltr; font-family: 'Consolas', monospace; color: #4ade80; min-height: 26px; white-space: pre-wrap; font-size: 0.92rem; }
+.sim-console .line { color: #94a3b8; }
+.result-line { margin-top: 14px; font-weight: 700; color: var(--dark-navy); }
+.reorder-list { max-width: 460px; margin: 0 auto 10px; direction: ltr; }
+.reorder-item { display: flex; align-items: center; gap: 10px; background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 8px 12px; margin-bottom: 8px; font-family: 'Consolas', monospace; font-size: 0.88rem; text-align: left; }
+.reorder-item code { flex: 1; background: transparent; padding: 0; }
+.rbtn { border: none; background: #e0f2fe; color: #0369a1; border-radius: 8px; width: 30px; height: 30px; cursor: pointer; font-weight: 800; }
+.rbtn:disabled { opacity: 0.35; cursor: default; }
+.bug-list { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.bug-btn { background: var(--card-bg); color: var(--dark-navy); border: 2px solid var(--border); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Nunito'; font-weight: 700; }
+.bug-btn.found { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.hidden { display: none; }
+.op-table { width: 100%; border-collapse: collapse; margin-top: 16px; direction: ltr; font-family: 'Consolas', monospace; font-size: .88rem; }
+.op-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--dark-navy); text-align: left; }
+.op-table td:last-child { color: var(--primary-blue); font-weight: 800; }
+
+/* glossary */
+.glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+.term-card { background: var(--surface); border-radius: 16px; padding: 18px; border: 1px solid var(--border); }
+.term-en { font-family: 'Consolas', monospace; direction: ltr; text-align: left; font-weight: 800; color: var(--primary-blue); font-size: 1rem; display: block; margin-bottom: 4px; }
+.term-ar { font-weight: 800; color: var(--dark-navy); font-size: 0.95rem; display: block; margin-bottom: 6px; }
+.term-desc { font-size: 0.85rem; color: var(--text-body); margin: 0; }
+
+/* tf + quiz */
+.tf-item { border: 2px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 14px; background: var(--surface); }
+.tf-item .stmt { font-weight: 700; margin-bottom: 12px; color: var(--dark-navy); }
+.tf-btns { display: flex; gap: 10px; }
+.tf-btn { flex: 1; border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 10px; cursor: pointer; font-family: 'Nunito'; font-weight: 800; font-size: 0.95rem; }
+.tf-btn:hover { border-color: var(--primary-blue); }
+.tf-btn.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.tf-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.feedback { margin-top: 10px; font-size: 0.9rem; font-weight: 600; }
+.feedback.ok { color: #16a34a; } .feedback.no { color: #dc2626; }
+.quiz-q { margin-bottom: 26px; padding-bottom: 8px; }
+.quiz-q h4 { margin-bottom: 12px; line-height: 1.9; }
+.qnum { display: inline-flex; align-items: center; justify-content: center; background: var(--yellow-gradient); color: #fff; width: 28px; height: 28px; border-radius: 50%; font-size: 0.85rem; margin-right: 8px; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-opt { background: var(--card-bg); border: 2px solid var(--border); border-radius: 14px; padding: 12px 18px; cursor: pointer; font-weight: 600; text-align: left; font-family: 'Nunito'; font-size: 0.95rem; transition: 0.2s; color: var(--dark-navy); }
+.quiz-opt:hover { border-color: var(--primary-blue); }
+.quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.quiz-opt:disabled { cursor: default; }
+.quiz-opt.correct code, .quiz-opt.wrong code { background: rgba(255,255,255,.7); }
+.progress { height: 10px; background: var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 22px; }
+.progress-bar { height: 100%; width: 0; background: var(--yellow-gradient); transition: width 0.3s; }
+.score-box { text-align: center; background: var(--surface); border: 2px solid var(--border); border-radius: 18px; padding: 22px; margin-top: 10px; }
+.score-box .big { font-size: 2.2rem; font-weight: 800; color: var(--primary-blue); }
+.retry-btn { margin-top: 10px; background: var(--blue-gradient); color: #fff; border: none; border-radius: 14px; padding: 10px 26px; cursor: pointer; font-family: 'Nunito'; font-weight: 800; }
+
+.refs-card { border-left-color: #94a3b8; }
+.ref-list { margin: 0; padding-left: 22px; }
+.ref-list li { margin-bottom: 6px; font-size: 0.9rem; }
+footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.85rem; }
+
+/* ---------- tracer ---------- */
+.tracer { background: var(--surface); border: 2px solid var(--border); border-radius: 20px; padding: 18px; margin: 22px 0; }
+.tr-head { font-weight: 800; color: var(--primary-blue); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.tr-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .tr-grid { grid-template-columns: 1fr; } }
+.tr-code { background: #1e293b; border-radius: 14px; padding: 12px 0; direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: var(--code-size); overflow-x: auto; }
+.tr-line { display: flex; gap: 12px; padding: 1px 14px; color: #e2e8f0; white-space: pre; border-left: 4px solid transparent; transition: .15s; }
+.tr-line .ln { color: #64748b; min-width: 22px; text-align: right; user-select: none; }
+.tr-line.active { background: rgba(247,148,30,.28); border-left-color: var(--primary-yellow); }
+.tr-side { display: flex; flex-direction: column; gap: 12px; }
+.tr-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; flex: 1; }
+.tr-title { font-size: .78rem; font-weight: 800; color: var(--text-body); margin-bottom: 6px; }
+.tr-vars { direction: ltr; font-family: 'Consolas', monospace; font-size: .9rem; min-height: 28px; }
+.tr-var { display: flex; justify-content: space-between; padding: 3px 8px; border-radius: 8px; color: var(--dark-navy); }
+.tr-var b { color: var(--primary-blue); }
+.tr-var.changed { background: rgba(247,148,30,.22); }
+.tr-out { direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: .88rem; background: #0f172a; color: #4ade80; border-radius: 10px; padding: 8px 12px; min-height: 40px; white-space: pre-wrap; }
+.tr-note { margin-top: 12px; background: var(--card-bg); border: 1px dashed var(--primary-blue); border-radius: 12px; padding: 10px 16px; font-weight: 600; color: var(--dark-navy); min-height: 24px; }
+.tr-ctrl { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.tr-btn { border: 1px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 14px; cursor: pointer; font-family: 'Nunito'; font-weight: 800; font-size: .85rem; }
+.tr-btn.primary { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.tr-btn:disabled { opacity: .4; cursor: default; }
+.tr-count { margin-left: auto; font-size: .8rem; color: var(--text-body); font-weight: 700; }
+
+/* ---------- predict ---------- */
+.predict { border: 2px solid #8b5cf6; border-radius: 20px; padding: 16px 18px; margin: 22px 0; background: var(--surface); }
+.predict-head { font-weight: 800; color: #8b5cf6; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+.predict .code-box { margin: 12px 0; }
+.pd-q { font-weight: 700; color: var(--dark-navy); margin-bottom: 10px; }
+.pd-opts { display: flex; flex-wrap: wrap; gap: 10px; }
+.pd-opt { background: var(--card-bg); border: 2px solid var(--border); color: var(--dark-navy); border-radius: 12px; padding: 9px 16px; cursor: pointer; font-family: 'Nunito'; font-weight: 700; font-size: .92rem; }
+.pd-opt:hover { border-color: #8b5cf6; }
+.pd-opt.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+.pd-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.pd-opt:disabled { cursor: default; }
+.pd-result { margin-top: 12px; }
+.pd-msg { font-weight: 800; margin-bottom: 8px; }
+.pd-why { margin: 8px 0 0; font-size: .93rem; }
+
+/* ---------- misc ---------- */
+.summary-card { border-left-color: #22c55e; }
+.summary-card .card-header { color: #16a34a; }
+.sum-list { list-style: none; padding: 0; margin: 0; }
+.sum-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; color: var(--text-body); }
+.sum-list i { color: #22c55e; margin-top: 6px; }
+.warn-box { background: rgba(239,68,68,.08); border: 2px dashed #ef4444; border-radius: 16px; padding: 16px 22px; margin: 18px 0; display: flex; gap: 14px; align-items: flex-start; }
+.warn-box i { color: #ef4444; font-size: 1.4rem; margin-top: 4px; }
+.warn-box p { margin: 0; font-size: .93rem; }
+.analogy { background: linear-gradient(135deg, rgba(0,173,239,.1), rgba(139,92,246,.1)); border-radius: 18px; padding: 16px 22px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; border: 1px solid var(--border); }
+.analogy i { color: var(--primary-blue); font-size: 1.5rem; margin-top: 4px; }
+.analogy p { margin: 0; }
+.flow { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin: 18px 0; direction: ltr; }
+.flow-node { background: var(--card-bg); border: 2px solid var(--primary-blue); border-radius: 14px; padding: 10px 18px; font-weight: 800; color: var(--dark-navy); text-align: center; }
+.flow-node.decision { border-color: var(--primary-yellow); border-radius: 30px; }
+.flow-node.end { background: var(--blue-gradient); color: #fff; border-color: transparent; }
+.flow-arrow { color: var(--primary-blue); font-size: 1.2rem; }
+.flow-branch { display: flex; flex-direction: column; gap: 8px; }
+.cell-row { display: flex; direction: ltr; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 12px 0; }
+.cell { min-width: 54px; text-align: center; border: 2px solid var(--primary-blue); border-radius: 10px; background: var(--card-bg); font-family: 'Consolas', monospace; font-weight: 800; color: var(--dark-navy); padding: 6px 4px; cursor: pointer; }
+.cell small { display: block; font-size: .68rem; color: var(--text-body); font-weight: 700; }
+.cell.sel { background: rgba(247,148,30,.25); border-color: var(--primary-yellow); }
+.vis-line { display: block; padding: 0 6px; margin: 0 -6px; border-radius: 6px; opacity: .35; transition: .15s; }
+.vis-line.on { opacity: 1; background: rgba(34,197,94,.22); }
+.vis-btns { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+.vis-btn { border: 2px solid var(--border); background: var(--card-bg); color: var(--dark-navy); border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: 'Consolas', monospace; font-weight: 800; }
+.vis-btn.on { border-color: #22c55e; background: #dcfce7; color: #15803d; }
+
+.cell.ghost { opacity: .55; border-style: dashed; background: transparent; }
+
+</style>
+</head>
+<body>
+<div class="bg-deco"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+<header>
+  <div class="hdr-brand">
+    <img src="https://tweetkod.com/wp-content/uploads/2024/05/Tweetkod.png" alt="TweetKod Logo" class="logo-img">
+    <div class="brand-info"><h3>TweetKod Platform</h3><p>Interactive Programming Learning</p></div>
+  </div>
+  <div class="hdr-tools">
+    <button class="tool-btn" id="tocBtn" title="Lesson contents"><i class="fas fa-list-ul"></i> Contents</button>
+    <button class="tool-btn" id="fontDec" title="Smaller code font">A-</button>
+    <button class="tool-btn" id="fontInc" title="Larger code font">A+</button>
+    <button class="tool-btn" id="themeBtn" title="Dark mode"><i class="fas fa-moon"></i></button>
+    <div class="toc-panel" id="tocPanel"></div>
+  </div>
+  <div class="read-progress"><span id="readBar"></span></div>
+</header>
+<div class="container">
+  <div class="title-section">
+    <span class="lesson-chip">Lesson 13</span>
+    <h1>Arrays</h1>
+    <p class="attribution">Arrays &mdash; a row of slots under one name</p>
+  </div>
+  <div class="card goals-card">
+    <div class="card-header"><i class="fas fa-bullseye"></i><h3>What will you learn in this lesson?</h3></div>
+    <ul class="obj-list"><li><i class="fas fa-check-circle"></i><span>Understand why we need arrays, define them and reach their elements by index</span></li><li><i class="fas fa-check-circle"></i><span>Remember that the index starts from 0 and avoid going out of bounds</span></li><li><i class="fas fa-check-circle"></i><span>Go through an array with a <code class="inline">for</code> loop and calculate the total, the average, the biggest and the smallest</span></li><li><i class="fas fa-check-circle"></i><span>Read an array from the user and pass it to functions together with its size</span></li><li><i class="fas fa-check-circle"></i><span>Recognize two-dimensional arrays and the indexing of texts</span></li></ul>
+  </div>
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-table-cells"></i><h3>Five Grades... Do We Make Five Variables?</h3></div>
+  <p>Your teacher wanted to calculate the total of the grades of five students. With the way we know, we would make a variable for every grade:</p>
+  <div class="code-box"><div class="code-head"><span>five_variables.cpp</span><button class="copy-btn" onclick="copyCode('code_many')">Copy code</button></div><pre id="code_many"><span class="kw">int</span> score1 = <span class="num">80</span>;
+<span class="kw">int</span> score2 = <span class="num">95</span>;
+<span class="kw">int</span> score3 = <span class="num">70</span>;
+<span class="kw">int</span> score4 = <span class="num">88</span>;
+<span class="kw">int</span> score5 = <span class="num">100</span>;
+cout &lt;&lt; score1 + score2 + score3 + score4 + score5 &lt;&lt; endl;</pre></div>
+  <div class="output-box">433</div>
+  <p>What if there were thirty students in the class? We would write thirty variables and add them one by one, and we could not use a loop because every variable has a different name! The solution is the <strong>array</strong>.</p>
+  <div class="analogy"><i class="fas fa-box-archive"></i><p>Imagine a row of neighboring lockers at school, all of the same kind, and every locker has a <strong>number</strong> that starts from <strong>zero</strong>. An array is a row of similar slots under a single name, and you reach every slot by its number.</p></div>
+  <div class="cell-row"><div class="cell">80<small>[0]</small></div><div class="cell">95<small>[1]</small></div><div class="cell">70<small>[2]</small></div><div class="cell">88<small>[3]</small></div><div class="cell">100<small>[4]</small></div></div>
+  <p style="text-align:center;font-size:.9rem">An array of five slots called <code>scores</code>. The small numbers under every slot are the <strong>index</strong>.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-pen-to-square"></i><h3>Defining an Array and Reaching Its Elements</h3></div>
+  <p>The form: <code>type name[size] = { values };</code>, so we write the type, then the name, then the number of slots between <code>[ ]</code>, then the initial values between <code>{ }</code>. To reach a slot we write the name and then its index between square brackets:</p>
+  <div class="code-box"><div class="code-head"><span>array_basics.cpp</span><button class="copy-btn" onclick="copyCode('code_basic')">Copy code</button></div><pre id="code_basic"><span class="kw">int</span> scores[<span class="num">5</span>] = {<span class="num">80</span>, <span class="num">95</span>, <span class="num">70</span>, <span class="num">88</span>, <span class="num">100</span>};
+
+cout &lt;&lt; <span class="str">"First: "</span> &lt;&lt; scores[<span class="num">0</span>] &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"Third: "</span> &lt;&lt; scores[<span class="num">2</span>] &lt;&lt; endl;
+cout &lt;&lt; <span class="str">"Last:  "</span> &lt;&lt; scores[<span class="num">4</span>] &lt;&lt; endl;
+
+scores[<span class="num">2</span>] = <span class="num">75</span>;
+cout &lt;&lt; <span class="str">"Third after update: "</span> &lt;&lt; scores[<span class="num">2</span>] &lt;&lt; endl;</pre></div>
+  <div class="output-box">First: 80
+Third: 70
+Last:  100
+Third after update: 75</div>
+  <div class="warn-box"><i class="fas fa-triangle-exclamation"></i><p><strong>The index starts from zero!</strong> In an array of 5 slots the indexes are <code>0 1 2 3 4</code>, which means the last valid index is <code>size - 1</code> and not <code>size</code>. The first slot is <code>scores[0]</code>.</p></div>
+  <div class="predict"><div class="predict-head"><i class="fas fa-brain"></i> Predict before you run</div><div class="code-box"><div class="code-head"><span>index_quiz.cpp</span><button class="copy-btn" onclick="copyCode('code_p_arr')">Copy code</button></div><pre id="code_p_arr"><span class="kw">int</span> a[<span class="num">5</span>] = {<span class="num">2</span>, <span class="num">4</span>, <span class="num">6</span>, <span class="num">8</span>, <span class="num">10</span>};
+cout &lt;&lt; a[<span class="num">1</span>] + a[<span class="num">3</span>] &lt;&lt; endl;</pre></div><p class="pd-q">What will this code print? (Remember that the index starts from 0)</p><div class="pd-opts"><button class="pd-opt" data-ok="0">10</button><button class="pd-opt" data-ok="0">8</button><button class="pd-opt" data-ok="1">12</button><button class="pd-opt" data-ok="0">14</button></div><div class="pd-result hidden"><div class="pd-msg"></div><div class="output-box">12</div><p class="pd-why">Index 1 is the second element (4), and index 3 is the fourth element (8). So the output is 4 + 8 = 12. Whoever gets confused thinks a[1] is the first element.</p></div></div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-flask"></i><h3>Interactive Lab: The Array Lockers</h3></div>
+  <p>This is an array <code>int arr[5]</code>. Type an index and then read or write. Try indexes such as 5 or -1 to see why programmers warn against going out of bounds:</p>
+  <div class="cell-row" id="arrCells"></div>
+  <div class="sim-box">
+    <div class="sim-inputs">
+      <div class="field"><label>Index i</label><input type="number" id="arrIdx" value="2"></div>
+      <div class="field"><label>New value</label><input type="number" id="arrVal" value="50"></div>
+    </div>
+    <button class="btn-run" onclick="arrRead()" style="margin-right:8px"><i class="fas fa-eye"></i> Read arr[i]</button>
+    <button class="btn-run" onclick="arrWrite()"><i class="fas fa-pen"></i> Write arr[i] = value</button>
+    <div class="sim-console" id="arrOut"></div>
+    <div class="result-line" id="arrNote"></div>
+  </div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-repeat"></i><h3>Arrays and Loops: An Inseparable Pair</h3></div>
+  <p>The real power of an array shows with <code>for</code>: the counter <code>i</code> becomes the index, so we walk through all the slots with just two lines. Trace this code, which adds up the elements of an array:</p>
+  <div class="tracer" data-trace="arrsum"><div class="tr-head"><i class="fas fa-bug-slash"></i> Step-by-step execution</div><div class="tr-grid"><div class="tr-code"><div class="tr-line" data-i="0"><span class="ln">1</span><span class="src"><span class="kw">int</span> a[<span class="num">4</span>] = {<span class="num">5</span>, <span class="num">3</span>, <span class="num">8</span>, <span class="num">2</span>};</span></div><div class="tr-line" data-i="1"><span class="ln">2</span><span class="src"><span class="kw">int</span> sum = <span class="num">0</span>;</span></div><div class="tr-line" data-i="2"><span class="ln">3</span><span class="src"><span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">4</span>; i++) {</span></div><div class="tr-line" data-i="3"><span class="ln">4</span><span class="src">    sum = sum + a[i];</span></div><div class="tr-line" data-i="4"><span class="ln">5</span><span class="src">}</span></div><div class="tr-line" data-i="5"><span class="ln">6</span><span class="src">cout &lt;&lt; <span class="str">"Sum: "</span> &lt;&lt; sum &lt;&lt; endl;</span></div></div><div class="tr-side"><div class="tr-box"><div class="tr-title">Variables</div><div class="tr-vars"></div></div><div class="tr-box"><div class="tr-title">Output so far</div><div class="tr-out"></div></div></div></div><div class="tr-note"></div><div class="tr-ctrl"><button class="tr-btn" data-a="reset" title="Restart"><i class="fas fa-backward-fast"></i></button><button class="tr-btn" data-a="prev"><i class="fas fa-backward-step"></i> Previous</button><button class="tr-btn primary" data-a="next">Next <i class="fas fa-forward-step"></i></button><button class="tr-btn" data-a="play"><i class="fas fa-play"></i> Auto-play</button><span class="tr-count"></span></div></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p>Always write the loop condition as <code>i &lt; size</code> and not <code>i &lt;= size</code>. An array of 4 slots does not contain <code>a[4]</code>.</p></div>
+  <h4>If you give fewer values than the size</h4>
+  <p>The slots that were not given a value in the initializer list are filled with <strong>zeros</strong> automatically:</p>
+  <div class="code-box"><div class="code-head"><span>partial_init.cpp</span><button class="copy-btn" onclick="copyCode('code_partial')">Copy code</button></div><pre id="code_partial"><span class="kw">int</span> a[<span class="num">5</span>] = {<span class="num">1</span>, <span class="num">2</span>};
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">5</span>; i++) {
+    cout &lt;&lt; a[i] &lt;&lt; <span class="str">" "</span>;
+}
+cout &lt;&lt; endl;</pre></div>
+  <div class="output-box">1 2 0 0 0 </div>
+  <div class="warn-box"><i class="fas fa-triangle-exclamation"></i><p>But if you declare a local array with no list at all (<code>int a[5];</code>), its slots hold random values, just like ordinary local variables.</p></div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-temperature-high"></i><h3>The Highest and Lowest Pattern</h3></div>
+  <p>One of the most famous problems: finding the biggest and the smallest value. The idea: we assume that the first element is both the biggest and the smallest, then we go through the rest and update whenever we find something better. We have the temperatures of a whole week:</p>
+  <div class="code-box"><div class="code-head"><span>max_min.cpp</span><button class="copy-btn" onclick="copyCode('code_maxmin')">Copy code</button></div><pre id="code_maxmin"><span class="kw">constexpr</span> <span class="kw">int</span> DAYS = <span class="num">7</span>;
+<span class="kw">int</span> temps[DAYS] = {<span class="num">31</span>, <span class="num">28</span>, <span class="num">35</span>, <span class="num">30</span>, <span class="num">27</span>, <span class="num">33</span>, <span class="num">29</span>};
+
+<span class="kw">int</span> hottest = temps[<span class="num">0</span>];
+<span class="kw">int</span> coldest = temps[<span class="num">0</span>];
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">1</span>; i &lt; DAYS; i++) {
+    <span class="kw">if</span> (temps[i] &gt; hottest) {
+        hottest = temps[i];
+    }
+    <span class="kw">if</span> (temps[i] &lt; coldest) {
+        coldest = temps[i];
+    }
+}
+cout &lt;&lt; <span class="str">"Hottest: "</span> &lt;&lt; hottest &lt;&lt; <span class="str">", Coldest: "</span> &lt;&lt; coldest &lt;&lt; endl;</pre></div>
+  <div class="output-box">Hottest: 35, Coldest: 27</div>
+  <p>Notice that the loop started from <code>i = 1</code> because index 0 was used as the starting value. We also used <code>constexpr</code> for the size <code>DAYS</code> so it is easy to change in one place (remember the lesson about constants).</p>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p>Why don't we start <code>hottest</code> at zero? Because the temperature may be negative in a cold country, and we would be wrong. Starting with the first element works with any values.</p></div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-keyboard"></i><h3>Reading an Array from the User</h3></div>
+  <p>We fill the array with a loop that reads every slot with <code>cin &gt;&gt; nums[i]</code>, and we print it reversed with a loop that goes down from the last index to zero:</p>
+  <div class="code-box"><div class="code-head"><span>read_reverse.cpp</span><button class="copy-btn" onclick="copyCode('code_readrev')">Copy code</button></div><pre id="code_readrev"><span class="kw">constexpr</span> <span class="kw">int</span> N = <span class="num">5</span>;
+<span class="kw">int</span> nums[N];
+
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; i++) {
+    cin &gt;&gt; nums[i];
+}
+<span class="kw">for</span> (<span class="kw">int</span> i = N - <span class="num">1</span>; i &gt;= <span class="num">0</span>; i--) {
+    cout &lt;&lt; nums[i] &lt;&lt; <span class="str">" "</span>;
+}
+cout &lt;&lt; endl;</pre></div>
+  <div class="input-box">10 20 30 40 50</div>
+  <div class="output-box">50 40 30 20 10 </div>
+  <div class="warn-box"><i class="fas fa-triangle-exclamation"></i><p><strong>The size of the array must be known at compile time</strong> (a written number or a <code>constexpr</code> constant). Do not write <code>int a[n];</code> with a variable <code>n</code> that is read from the user; this is not allowed in the standard even if some compilers accept it. We will learn the flexible solution in the next lesson (vectors).</p></div>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-skull-crossbones"></i><h3>Going Out of the Bounds of an Array</h3></div>
+  <p>This is one of the most dangerous mistakes in C++. If you write <code>scores[10]</code> for an array of 5 slots, the compiler will not stop you and the program will not stop at that moment. Instead you will read or write in <strong>memory that does not belong to the array</strong>. The result: strange values, or a program that crashes after a while, or data that is corrupted without your knowledge. We call this <strong>undefined behavior</strong>.</p>
+  <div class="rule-grid">
+    <div class="rule-list no"><h5><i class="fas fa-circle-xmark"></i> Frequent mistakes</h5><ul>
+      <li><i class="fas fa-xmark"></i> A loop <code>i &lt;= size</code> instead of <code>i &lt; size</code></li>
+      <li><i class="fas fa-xmark"></i> Using <code>a[size]</code> as the last slot</li>
+      <li><i class="fas fa-xmark"></i> A negative index that comes from a wrong calculation</li>
+    </ul></div>
+    <div class="rule-list yes"><h5><i class="fas fa-circle-check"></i> Habits that protect you</h5><ul>
+      <li><i class="fas fa-check"></i> Define the size in one constant and use it everywhere</li>
+      <li><i class="fas fa-check"></i> Always make the loop condition <code>i &lt; SIZE</code></li>
+      <li><i class="fas fa-check"></i> Test your program with the first element and the last element</li>
+    </ul></div>
+  </div>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-share-nodes"></i><h3>Arrays with Functions</h3></div>
+  <p>Remember that functions copy their ordinary parameters. An array, on the other hand, is not copied whole; the function receives access to <strong>the original array itself</strong>. That is why it can change it. And since the function does not know its length, we must <strong>always pass the size along with it</strong>:</p>
+  <div class="code-box"><div class="code-head"><span>arrays_and_functions.cpp</span><button class="copy-btn" onclick="copyCode('code_func')">Copy code</button></div><pre id="code_func"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> sumArray(<span class="kw">int</span> arr[], <span class="kw">int</span> size) {
+    <span class="kw">int</span> total = <span class="num">0</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; size; i++) {
+        total = total + arr[i];
+    }
+    <span class="kw">return</span> total;
+}
+
+<span class="kw">void</span> doubleAll(<span class="kw">int</span> arr[], <span class="kw">int</span> size) {
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; size; i++) {
+        arr[i] = arr[i] * <span class="num">2</span>;
+    }
+}
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> data[<span class="num">4</span>] = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>};
+    cout &lt;&lt; <span class="str">"Sum: "</span> &lt;&lt; sumArray(data, <span class="num">4</span>) &lt;&lt; endl;
+
+    doubleAll(data, <span class="num">4</span>);
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">4</span>; i++) {
+        cout &lt;&lt; data[i] &lt;&lt; <span class="str">" "</span>;
+    }
+    cout &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="output-box">Sum: 10
+2 4 6 8 </div>
+  <p>The function <code>doubleAll</code> changed the original elements of <code>data</code> (1 2 3 4 became 2 4 6 8) without any reference <code>&amp;</code>, because an array is always passed this way.</p>
+  <h4>How many elements are in the array?</h4>
+  <p>In the place where the array was defined, you can calculate the number of its elements by dividing its total size by the size of one element:</p>
+  <div class="code-box"><div class="code-head"><span>count_elements.cpp</span><button class="copy-btn" onclick="copyCode('code_count')">Copy code</button></div><pre id="code_count"><span class="kw">int</span> primes[] = {<span class="num">2</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">7</span>, <span class="num">11</span>, <span class="num">13</span>};
+<span class="kw">int</span> count = <span class="kw">sizeof</span>(primes) / <span class="kw">sizeof</span>(primes[<span class="num">0</span>]);
+cout &lt;&lt; <span class="str">"Elements: "</span> &lt;&lt; count &lt;&lt; endl;</pre></div>
+  <div class="output-box">Elements: 6</div>
+  <p>But this trick does not work inside a function that received the array, because there the function does not know its length, which is why we passed <code>size</code> by hand.</p>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-table"></i><h3>A Two-Dimensional Array: A Whole Table</h3></div>
+  <p>Sometimes the data is a table: rows and columns, like the seats of a cinema hall or a chessboard. We create an array with two pairs of square brackets: the first for the rows and the second for the columns, and we walk through it with two nested loops:</p>
+  <div class="code-box"><div class="code-head"><span>grid.cpp</span><button class="copy-btn" onclick="copyCode('code_grid')">Copy code</button></div><pre id="code_grid"><span class="kw">int</span> seats[<span class="num">2</span>][<span class="num">3</span>] = {
+    {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>},
+    {<span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>}
+};
+
+<span class="kw">for</span> (<span class="kw">int</span> row = <span class="num">0</span>; row &lt; <span class="num">2</span>; row++) {
+    <span class="kw">for</span> (<span class="kw">int</span> col = <span class="num">0</span>; col &lt; <span class="num">3</span>; col++) {
+        cout &lt;&lt; seats[row][col] &lt;&lt; <span class="str">" "</span>;
+    }
+    cout &lt;&lt; endl;
+}
+cout &lt;&lt; <span class="str">"seats[1][2] = "</span> &lt;&lt; seats[<span class="num">1</span>][<span class="num">2</span>] &lt;&lt; endl;</pre></div>
+  <div class="output-box">1 2 3 
+4 5 6 
+seats[1][2] = 6</div>
+  <p>The element <code>seats[1][2]</code> is in the second row (index 1) and the third column (index 2), and its value is 6. The number of elements = rows &times; columns = 2 &times; 3 = 6.</p>
+  <h4>A fact: texts are indexed too</h4>
+  <div class="code-box"><div class="code-head"><span>string_index.cpp</span><button class="copy-btn" onclick="copyCode('code_stridx')">Copy code</button></div><pre id="code_stridx"><span class="kw">string</span> name = <span class="str">"Sara"</span>;
+cout &lt;&lt; name[<span class="num">0</span>] &lt;&lt; name[<span class="num">3</span>] &lt;&lt; endl;
+name[<span class="num">0</span>] = <span class="str">'M'</span>;
+cout &lt;&lt; name &lt;&lt; endl;</pre></div>
+  <div class="output-box">Sa
+Mara</div>
+  <p>A text is like a row of characters, so you can read a character from it or change it using the same index.</p>
+</div>
+
+
+<div class="card steps-card">
+  <div class="card-header"><i class="fas fa-bug"></i><h3>A Mistake: Copying an Array by Assignment</h3></div>
+  <p>You cannot copy an array into another array with the <code>=</code> sign:</p>
+  <div class="code-box"><div class="code-head"><span>copy_error.cpp</span><button class="copy-btn" onclick="copyCode('code_err_copy')">Copy code</button></div><pre id="code_err_copy"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> a[<span class="num">3</span>] = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>};
+    <span class="kw">int</span> b[<span class="num">3</span>];
+    b = a;
+    cout &lt;&lt; b[<span class="num">0</span>] &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  <div class="error-box"><div class="error-head"><i class="fas fa-bug"></i> What the compiler (g++) says</div><pre>main.cpp: In function ‘int main()’:
+main.cpp:7:7: error: invalid array assignment
+    7 |     b = a;
+      |     ~~^~~</pre></div>
+  <p>To copy an array you have to copy its elements one by one with a loop. (You will find in the next lesson that the <code>vector</code> allows copying by assignment directly.) Likewise, comparing two arrays with <code>==</code> does not compare their contents.</p>
+</div>
+
+
+<div class="card">
+  <div class="project-banner"><i class="fas fa-chart-column"></i><div><strong>Lesson Project: The Test Score Analyzer</strong><p>A program that reads five scores and analyzes them statistically.</p></div></div>
+  <div class="brief"><h5><i class="fas fa-lightbulb"></i> The idea</h5>
+    <p style="margin:0">Your teacher wants a simple program that helps him analyze the scores of a short test for five students. He types the five scores, and the program shows the total, the average, the highest score and the lowest score, and how many students scored above the average.</p></div>
+  <div class="brief"><h5><i class="fas fa-list-check"></i> What you need to do</h5>
+    <ol>
+      <li>Define a constant <code>N</code> with the value 5 and an array <code>scores</code> of size <code>N</code>, and fill it with a loop that reads from <code>cin</code>.</li>
+      <li>In a single loop, calculate the total, the highest score and the lowest score.</li>
+      <li>Calculate the average as a decimal number (remember the conversion before the division!).</li>
+      <li>With a second loop, count the scores that are greater than the average.</li>
+      <li>Print the five lines as in the example, with the average to one decimal place.</li>
+    </ol></div>
+  <div class="brief"><h5><i class="fas fa-bullseye"></i> An example run</h5>
+    <div class="input-box">70 85 90 60 95</div><div class="output-box">Total: 400
+Average: 80.0
+Highest: 95
+Lowest: 60
+Above average: 3</div></div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p><strong>Check in your head:</strong> the total 70 + 85 + 90 + 60 + 95 = 400, so the average is 80. And the scores greater than 80 are 85, 90 and 95, which is three scores.</p></div>
+  <details class="reveal"><summary><i class="fas fa-eye"></i> After you have tried it yourself: show the solution</summary>
+    <div class="code-box"><div class="code-head"><span>score_analyzer.cpp</span><button class="copy-btn" onclick="copyCode('code_project')">Copy code</button></div><pre id="code_project"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="pp">#include &lt;iomanip&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">constexpr</span> <span class="kw">int</span> N = <span class="num">5</span>;
+    <span class="kw">int</span> scores[N];
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; i++) {
+        cin &gt;&gt; scores[i];
+    }
+
+    <span class="kw">int</span> sum = <span class="num">0</span>;
+    <span class="kw">int</span> highest = scores[<span class="num">0</span>];
+    <span class="kw">int</span> lowest = scores[<span class="num">0</span>];
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; i++) {
+        sum = sum + scores[i];
+        <span class="kw">if</span> (scores[i] &gt; highest) {
+            highest = scores[i];
+        }
+        <span class="kw">if</span> (scores[i] &lt; lowest) {
+            lowest = scores[i];
+        }
+    }
+    <span class="kw">double</span> average = <span class="kw">static_cast</span>&lt;<span class="kw">double</span>&gt;(sum) / N;
+
+    <span class="kw">int</span> above = <span class="num">0</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; i++) {
+        <span class="kw">if</span> (scores[i] &gt; average) {
+            above++;
+        }
+    }
+
+    cout &lt;&lt; fixed &lt;&lt; setprecision(<span class="num">1</span>);
+    cout &lt;&lt; <span class="str">"Total: "</span> &lt;&lt; sum &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Average: "</span> &lt;&lt; average &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Highest: "</span> &lt;&lt; highest &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Lowest: "</span> &lt;&lt; lowest &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"Above average: "</span> &lt;&lt; above &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div>
+  </details>
+</div>
+
+
+<div class="card challenge-card"><div class="card-header"><i class="fas fa-dumbbell"></i><h3>Homework challenges</h3></div><p>Two short challenges to solve on your own after the lesson. Write your solution in a <code>.cpp</code> file, compile and run it, and compare your output with the expected output. Try first, open a hint only if you get stuck, and look at the sample solution only after a serious attempt.</p><div class="challenge"><div class="ch-head"><span class="ch-num">1</span><h4>Print It Backwards</h4><span class="badge easy">Easy</span></div><p>Write a program that reads six integers from the user and stores them in an array, and then prints them in reverse order on a single line.</p><h5>Requirements</h5><ul><li>Define a constant <code>N</code> with the value 6 and an array of that size.</li><li>Fill the array with a <code>for</code> loop that reads with <code>cin</code>.</li><li>Print the elements with a second loop that starts from the last index and goes down to zero.</li></ul><h5>Example input and expected output</h5><div class="input-box">3 1 4 1 5 9</div><div class="output-box">9 5 1 4 1 3 </div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> Hints</summary><ul><li>The last valid index is <code>N - 1</code>.</li><li>The counting-down loop: <code>for (int i = N - 1; i &gt;= 0; i--)</code>.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> Sample solution (after you try)</summary><div class="code-box"><div class="code-head"><span>reverse.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_rev')">Copy code</button></div><pre id="code_ch_rev"><span class="cmt">// Challenge 1: reverse</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">constexpr</span> <span class="kw">int</span> N = <span class="num">6</span>;
+    <span class="kw">int</span> nums[N];
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; i++) {
+        cin &gt;&gt; nums[i];
+    }
+    <span class="kw">for</span> (<span class="kw">int</span> i = N - <span class="num">1</span>; i &gt;= <span class="num">0</span>; i--) {
+        cout &lt;&lt; nums[i] &lt;&lt; <span class="str">" "</span>;
+    }
+    cout &lt;&lt; endl;
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div><div class="challenge"><div class="ch-head"><span class="ch-num">2</span><h4>Search for a Number</h4><span class="badge medium">Medium</span></div><p>We have the array <code>{12, 7, 25, 3, 18}</code>. Read a number from the user and search for it in the array element by element. If you find it, print its index, otherwise print that it was not found.</p><h5>Requirements</h5><ul><li>Use a variable <code>found</code> that starts with the value <code>-1</code> (meaning "not found yet").</li><li>Go through the array with a loop, and if an element equals the required one, store its index in <code>found</code> and stop the loop.</li><li>After the loop, print <code>Found at index N</code> or <code>Not found</code> according to the value of <code>found</code>.</li></ul><h5>Example input and expected output</h5><div class="input-box">25</div><div class="output-box">Found at index 2</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> Hints</summary><ul><li>-1 is a smart choice because it is never a valid index.</li><li>Use <code>break</code> after finding the element to save the remaining iterations.</li><li>Test your program with a value that does not exist, such as 99, and with the first element 12 and the last element 18.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> Sample solution (after you try)</summary><div class="code-box"><div class="code-head"><span>search.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_search')">Copy code</button></div><pre id="code_ch_search"><span class="cmt">// Challenge 2: linear search</span>
+<span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using</span> <span class="kw">namespace</span> std;
+
+<span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">int</span> data[<span class="num">5</span>] = {<span class="num">12</span>, <span class="num">7</span>, <span class="num">25</span>, <span class="num">3</span>, <span class="num">18</span>};
+    <span class="kw">int</span> target;
+    cin &gt;&gt; target;
+
+    <span class="kw">int</span> found = -<span class="num">1</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">5</span>; i++) {
+        <span class="kw">if</span> (data[i] == target) {
+            found = i;
+            <span class="kw">break</span>;
+        }
+    }
+
+    <span class="kw">if</span> (found == -<span class="num">1</span>) {
+        cout &lt;&lt; <span class="str">"Not found"</span> &lt;&lt; endl;
+    } <span class="kw">else</span> {
+        cout &lt;&lt; <span class="str">"Found at index "</span> &lt;&lt; found &lt;&lt; endl;
+    }
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre></div></details></div></div>
+
+<div class="card summary-card"><div class="card-header"><i class="fas fa-clipboard-list"></i><h3>Quick summary</h3></div><ul class="sum-list"><li><i class="fas fa-circle-check"></i><span>An array is a row of slots of the same type under one name, and each slot is reached by its index.</span></li><li><i class="fas fa-circle-check"></i><span>The index starts from 0, and the last index is <code class="inline">size - 1</code>.</span></li><li><i class="fas fa-circle-check"></i><span>The counter of <code class="inline">for</code> is usually the index, and the right loop condition is <code class="inline">i &lt; size</code>.</span></li><li><i class="fas fa-circle-check"></i><span>Slots that have no value in the initializer list are filled with zeros.</span></li><li><i class="fas fa-circle-check"></i><span>Going out of the bounds of an array is undefined behavior, and the compiler does not prevent it.</span></li><li><i class="fas fa-circle-check"></i><span>An array is passed to a function without copying (so it changes the original), and its size must be passed along with it.</span></li><li><i class="fas fa-circle-check"></i><span>A two-dimensional array is a table with rows and columns: <code class="inline">arr[row][col]</code>.</span></li></ul></div>
+  <div class="card steps-card" id="tfCard">
+    <div class="card-header"><i class="fas fa-clipboard-check"></i><h3>Check your understanding</h3></div>
+    <p>Read each statement and choose <strong>True</strong> or <strong>False</strong>. The explanation appears right after you answer.</p>
+    <div id="tfList"></div>
+    <div class="score-box" id="tfScore" style="display:none"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><i class="fas fa-book"></i><h3>Glossary</h3></div>
+    <p>The most important terms in this lesson:</p>
+    <div class="glossary-grid"><div class="term-card"><span class="term-en">Array</span><p class="term-desc">A group of elements of the same type stored under one name.</p></div><div class="term-card"><span class="term-en">Element</span><p class="term-desc">A single slot inside the array.</p></div><div class="term-card"><span class="term-en">Index</span><p class="term-desc">The number of the slot inside the array, which starts from 0.</p></div><div class="term-card"><span class="term-en">Size</span><p class="term-desc">The number of slots in the array.</p></div><div class="term-card"><span class="term-en">Zero-based</span><p class="term-desc">Numbering the indexes starting from 0.</p></div><div class="term-card"><span class="term-en">Out of bounds</span><p class="term-desc">Using an index that the array does not have.</p></div><div class="term-card"><span class="term-en">Undefined behavior</span><p class="term-desc">A situation in which the standard guarantees no result, and which may cause a crash.</p></div><div class="term-card"><span class="term-en">Traversal</span><p class="term-desc">Visiting the elements of an array one by one.</p></div><div class="term-card"><span class="term-en">2D array</span><p class="term-desc">An array with rows and columns, <code class="inline">arr[row][col]</code>.</p></div><div class="term-card"><span class="term-en">Initializer list</span><p class="term-desc">The initial values between <code class="inline">{ }</code>.</p></div><div class="term-card"><span class="term-en">Linear search</span><p class="term-desc">Checking the elements one by one until the required one is found.</p></div><div class="term-card"><span class="term-en">Maximum / Minimum</span><p class="term-desc">The highest value and the lowest value in a group.</p></div></div>
+  </div>
+  <div class="card steps-card" id="quizCard">
+    <div class="card-header"><i class="fas fa-circle-question"></i><h3>Final quiz</h3></div>
+    <p>Ten questions, from easy to medium. Choose one answer for each question.</p>
+    <div class="progress"><div class="progress-bar" id="quizBar"></div></div>
+    <div id="quizList"></div>
+    <div class="score-box" id="quizScore" style="display:none"></div>
+  </div>
+  <div class="card refs-card">
+    <div class="card-header"><i class="fas fa-link"></i><h3>Further reading</h3></div>
+    <p>The technical facts in this lesson are documented in the references below. The explanations, examples and exercises were written specially for the TweetKod platform:</p>
+    <ul class="ref-list"><li><a href="https://github.com/federico-busato/Modern-CPP-Programming" target="_blank" rel="noopener">Modern C++ Programming &mdash; Federico Busato (CC BY 4.0)</a></li><li><a href="https://www.learn-cpp.org/" target="_blank" rel="noopener">Learn C++ (Apache 2.0)</a></li><li><a href="https://en.cppreference.com/w/cpp/language/array" target="_blank" rel="noopener">Array declaration &mdash; cppreference</a></li></ul>
+  </div>
+</div>
+<button class="to-top" id="toTop" title="Back to top"><i class="fas fa-arrow-up"></i></button>
+<footer class="page-footer">TweetKod Platform</footer>
+<script>
+const LESSON_NUM = 13;
+const TF = [{"s": "The first index in an array is 1.", "a": false, "why": "The first index is 0."}, {"s": "The array <code class=\"inline\">int a[5]</code> has the valid indexes from 0 to 4.", "a": true, "why": "The last index is the size of the array minus one."}, {"s": "C++ automatically prevents you from reaching an index outside the bounds of the array.", "a": false, "why": "There is no automatic check, and the result is undefined behavior."}, {"s": "In <code class=\"inline\">int a[5] = {1, 2};</code> the value of <code class=\"inline\">a[4]</code> equals 0.", "a": true, "why": "The slots that are not mentioned are filled with zeros."}, {"s": "An array can be copied into another one with the command <code class=\"inline\">b = a;</code>.", "a": false, "why": "Assignment is not allowed for arrays, and we copy the elements with a loop."}, {"s": "When an array is passed to a function, the function can change its original elements.", "a": true, "why": "The array is not copied; the function reaches the original."}, {"s": "A function that receives an array knows its length automatically without passing the size.", "a": false, "why": "We have to pass the size as a separate parameter."}, {"s": "The array <code class=\"inline\">int g[3][4]</code> contains 12 elements.", "a": true, "why": "3 rows x 4 columns = 12."}];
+const QUIZ = [{"q": "What is the index of the first element in any array?", "o": ["-1", "1", "It changes with the type", "0"], "a": 3, "why": "The numbering of indexes in C++ starts from zero."}, {"q": "Which are the valid indexes of the array <code class=\"inline\">int a[5]</code>?", "o": ["From 1 to 5", "From 0 to 5", "From 0 to 4", "From 1 to 4"], "a": 2, "why": "Five slots with the indexes 0, 1, 2, 3 and 4."}, {"q": "If <code class=\"inline\">int a[] = {4, 7, 9};</code> then what is the value of <code class=\"inline\">a[2]</code>?", "o": ["9", "4", "An error", "7"], "a": 0, "why": "Index 2 is the third element."}, {"q": "What happens when you reach <code class=\"inline\">a[10]</code> in an array of 5 slots?", "o": ["The compiler creates new slots", "Undefined behavior that may cause strange errors", "The value 0 is always returned", "The program always stops with a warning message"], "a": 1, "why": "There is no automatic check of the bounds."}, {"q": "In <code class=\"inline\">int a[5] = {1, 2};</code> what is the value of <code class=\"inline\">a[4]</code>?", "o": ["Random", "2", "0", "1"], "a": 2, "why": "The slots that were not mentioned are filled with zeros."}, {"q": "Which condition is suitable for a loop that goes through all the elements of <code class=\"inline\">int a[N]</code>?", "o": ["<code class=\"inline\">i &lt; N</code>", "<code class=\"inline\">i == N</code>", "<code class=\"inline\">i &gt; N</code>", "<code class=\"inline\">i &lt;= N</code>"], "a": 0, "why": "The last index is <code class=\"inline\">N - 1</code>, so we stop before <code class=\"inline\">N</code>."}, {"q": "If a function changes the elements of an array it received, what happens to the original array?", "o": ["It is deleted", "It does not change", "It changes", "A compile error occurs"], "a": 2, "why": "The array is passed without copying."}, {"q": "Why do we pass the size of the array to the function?", "o": ["To speed up the program", "To change the type", "Because the compiler requires it", "Because the function does not know its length"], "a": 3, "why": "The function receives access to the elements only, without the information of the length."}, {"q": "How many elements are in <code class=\"inline\">int g[3][4]</code>?", "o": ["7", "12", "34", "3"], "a": 1, "why": "The number of rows x the number of columns."}, {"q": "What does <code class=\"inline\">sizeof(a) / sizeof(a[0])</code> give in the place where the array is defined?", "o": ["The size of the memory in bytes", "The last index", "The number of elements", "The value of the first element"], "a": 2, "why": "The total size of the array divided by the size of one element."}];
+const EXPL = {};
+const TRACES = {"arrsum": [{"line": -1, "vars": {}, "out": "", "note": "Starting point: no line has run yet."}, {"line": 0, "vars": {"a": "[5, 3, 8, 2]"}, "out": "", "note": "We created an array of four slots: a[0]=5, a[1]=3, a[2]=8 and a[3]=2."}, {"line": 1, "vars": {"a": "[5, 3, 8, 2]", "sum": "0"}, "out": "", "note": "We created the accumulator sum and its start is zero."}, {"line": 2, "vars": {"a": "[5, 3, 8, 2]", "sum": "0", "i": "0"}, "out": "", "note": "The start of the loop: i equals 0."}, {"line": 3, "vars": {"a": "[5, 3, 8, 2]", "sum": "5", "i": "0"}, "out": "", "note": "We added a[0], which is 5, to the total, so it became 5."}, {"line": 2, "vars": {"a": "[5, 3, 8, 2]", "sum": "5", "i": "1"}, "out": "", "note": "The update i++ and then the condition check (i < 4): i became 1."}, {"line": 3, "vars": {"a": "[5, 3, 8, 2]", "sum": "8", "i": "1"}, "out": "", "note": "We added a[1], which is 3, to the total, so it became 8."}, {"line": 2, "vars": {"a": "[5, 3, 8, 2]", "sum": "8", "i": "2"}, "out": "", "note": "The update i++ and then the condition check (i < 4): i became 2."}, {"line": 3, "vars": {"a": "[5, 3, 8, 2]", "sum": "16", "i": "2"}, "out": "", "note": "We added a[2], which is 8, to the total, so it became 16."}, {"line": 2, "vars": {"a": "[5, 3, 8, 2]", "sum": "16", "i": "3"}, "out": "", "note": "The update i++ and then the condition check (i < 4): i became 3."}, {"line": 3, "vars": {"a": "[5, 3, 8, 2]", "sum": "18", "i": "3"}, "out": "", "note": "We added a[3], which is 2, to the total, so it became 18."}, {"line": 2, "vars": {"a": "[5, 3, 8, 2]", "sum": "18", "i": "4"}, "out": "", "note": "The update i++ and then the condition check: i became 4 and (4 < 4) is false. The loop is over (there is no slot a[4])."}, {"line": 5, "vars": {"a": "[5, 3, 8, 2]", "sum": "18", "i": "4"}, "out": "Sum: 18\n", "note": "We printed the total. The program is finished."}]};
+function copyCode(id) {
+  const el = document.getElementById(id);
+  const text = el.innerText.replace(/ /g, ' ');
+  const done = () => { const b = el.parentElement.querySelector('.copy-btn'); const t = b.textContent; b.textContent = 'Copied ✓'; setTimeout(() => b.textContent = t, 1400); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(done); else done();
+}
+
+/* click-to-explain code lines */
+document.querySelectorAll('.code-box[data-expl]').forEach(box => {
+  const id = box.getAttribute('data-expl');
+  const out = document.querySelector('.explain-box[data-for="' + id + '"]');
+  box.querySelectorAll('.code-line').forEach(line => {
+    line.addEventListener('click', () => {
+      box.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+      line.classList.add('active');
+      out.innerHTML = EXPL[id][line.getAttribute('data-i')];
+    });
+  });
+});
+
+/* true / false check */
+(function () {
+  const list = document.getElementById('tfList');
+  let answered = 0, right = 0;
+  TF.forEach((it, i) => {
+    const d = document.createElement('div');
+    d.className = 'tf-item';
+    d.innerHTML = '<div class="stmt">' + (i + 1) + '. ' + it.s + '</div>' +
+      '<div class="tf-btns"><button class="tf-btn" data-v="true"><i class="fas fa-check"></i> True</button>' +
+      '<button class="tf-btn" data-v="false"><i class="fas fa-xmark"></i> False</button></div><div class="feedback"></div>';
+    d.querySelectorAll('.tf-btn').forEach(b => b.addEventListener('click', () => {
+      const pick = b.getAttribute('data-v') === 'true';
+      const ok = pick === it.a;
+      d.querySelectorAll('.tf-btn').forEach(x => { x.disabled = true; });
+      b.classList.add(ok ? 'correct' : 'wrong');
+      const fb = d.querySelector('.feedback');
+      fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+      fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> Correct. ' : '<i class="fas fa-circle-xmark"></i> The correct answer is ' + (it.a ? 'True' : 'False') + '. ') + it.why;
+      answered++; if (ok) right++;
+      if (answered === TF.length) {
+        const s = document.getElementById('tfScore');
+        s.style.display = 'block';
+        s.innerHTML = '<div class="big">' + right + ' / ' + TF.length + '</div><div>' + (right === TF.length ? 'Excellent! You understood the lesson well.' : right >= TF.length - 2 ? 'A good result. Review the statements you missed.' : 'Re-read the lesson and try again.') + '</div>';
+      }
+    }));
+    list.appendChild(d);
+  });
+})();
+
+/* final quiz */
+(function () {
+  const list = document.getElementById('quizList');
+  const bar = document.getElementById('quizBar');
+  let answered = 0, right = 0;
+  QUIZ.forEach((q, qi) => {
+    const d = document.createElement('div');
+    d.className = 'quiz-q';
+    d.innerHTML = '<h4><span class="qnum">' + (qi + 1) + '</span>' + q.q + '</h4><div class="quiz-options"></div><div class="feedback"></div>';
+    const box = d.querySelector('.quiz-options');
+    q.o.forEach((txt, oi) => {
+      const b = document.createElement('button');
+      b.className = 'quiz-opt'; b.innerHTML = txt;
+      b.addEventListener('click', () => {
+        box.querySelectorAll('.quiz-opt').forEach(x => x.disabled = true);
+        const ok = oi === q.a;
+        b.classList.add(ok ? 'correct' : 'wrong');
+        if (!ok) box.children[q.a].classList.add('correct');
+        const fb = d.querySelector('.feedback');
+        fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+        fb.innerHTML = (ok ? '<i class="fas fa-check-circle"></i> Correct! ' : '<i class="fas fa-circle-xmark"></i> That is not the right answer. ') + q.why;
+        answered++; if (ok) right++;
+        bar.style.width = (answered / QUIZ.length * 100) + '%';
+        if (answered === QUIZ.length) showScore();
+      });
+      box.appendChild(b);
+    });
+    list.appendChild(d);
+  });
+  function showScore() {
+    const s = document.getElementById('quizScore');
+    const pct = right / QUIZ.length;
+    s.style.display = 'block';
+    s.innerHTML = '<div class="big">' + right + ' / ' + QUIZ.length + '</div><div>' +
+      (pct === 1 ? 'Perfect score! You are ready for the next lesson.' : pct >= 0.7 ? 'Very good. Review the questions you missed.' : 'Review the lesson again, then try once more.') +
+      '</div><button class="retry-btn" onclick="location.hash=\'quizCard\';location.reload();">Retake the quiz</button>';
+  }
+})();
+
+
+/* ---------------- header tools ---------------- */
+(function () {
+  const root = document.documentElement;
+  const safeGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const safeSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+  /* theme */
+  const themeBtn = document.getElementById('themeBtn');
+  function applyTheme(t) { root.setAttribute('data-theme', t); if (themeBtn) themeBtn.innerHTML = t === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; }
+  applyTheme(safeGet('tk_theme') || 'light');
+  if (themeBtn) themeBtn.addEventListener('click', () => { const t = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; applyTheme(t); safeSet('tk_theme', t); });
+
+  /* code size */
+  let size = parseFloat(safeGet('tk_codesize') || '0.95');
+  function applySize() { root.style.setProperty('--code-size', size + 'rem'); }
+  applySize();
+  const dec = document.getElementById('fontDec'), inc = document.getElementById('fontInc');
+  if (dec) dec.addEventListener('click', () => { size = Math.max(0.75, +(size - 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+  if (inc) inc.addEventListener('click', () => { size = Math.min(1.3, +(size + 0.1).toFixed(2)); applySize(); safeSet('tk_codesize', size); });
+
+  /* table of contents */
+  const panel = document.getElementById('tocPanel'), tocBtn = document.getElementById('tocBtn');
+  if (panel && tocBtn) {
+    const cards = document.querySelectorAll('.container > .card');
+    let n = 0;
+    cards.forEach((c, i) => {
+      const h = c.querySelector('.card-header h3, .project-banner strong');
+      if (!h) return;
+      n++;
+      c.id = c.id || 'sec-' + i;
+      const a = document.createElement('a');
+      a.href = '#' + c.id;
+      a.innerHTML = '<span>' + n + '</span><bdi>' + h.innerHTML + '</bdi>';
+      a.addEventListener('click', () => panel.classList.remove('open'));
+      panel.appendChild(a);
+    });
+    tocBtn.addEventListener('click', (e) => { e.stopPropagation(); panel.classList.toggle('open'); });
+    document.addEventListener('click', (e) => { if (!panel.contains(e.target)) panel.classList.remove('open'); });
+  }
+
+  /* reading progress + back to top */
+  const bar = document.getElementById('readBar'), top = document.getElementById('toTop');
+  function onScroll() {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+    if (bar) bar.style.width = pct + '%';
+    if (top) top.classList.toggle('show', h.scrollTop > 600);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  if (top) top.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+})();
+
+/* ---------------- step tracer ---------------- */
+document.querySelectorAll('.tracer').forEach(el => {
+  const steps = TRACES[el.getAttribute('data-trace')];
+  const lines = el.querySelectorAll('.tr-line');
+  const varsEl = el.querySelector('.tr-vars'), outEl = el.querySelector('.tr-out'), noteEl = el.querySelector('.tr-note'), cnt = el.querySelector('.tr-count');
+  const btn = (a) => el.querySelector('[data-a="' + a + '"]');
+  let i = 0, timer = null;
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  function draw() {
+    const s = steps[i], prev = i > 0 ? steps[i - 1].vars : {};
+    lines.forEach((l, k) => l.classList.toggle('active', k === s.line));
+    const names = Object.keys(s.vars);
+    varsEl.innerHTML = names.length ? names.map(n => '<div class="tr-var' + (prev[n] !== s.vars[n] ? ' changed' : '') + '"><span>' + esc(n) + '</span><b>' + esc(s.vars[n]) + '</b></div>').join('') : '<span style="color:#94a3b8">No variables yet</span>';
+    outEl.textContent = s.out || ' ';
+    noteEl.textContent = s.note || ' ';
+    cnt.textContent = 'Step ' + i + ' of ' + (steps.length - 1);
+    btn('prev').disabled = i === 0; btn('next').disabled = i === steps.length - 1;
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; btn('play').innerHTML = '<i class="fas fa-play"></i> Auto-play'; } }
+  btn('next').onclick = () => { stop(); if (i < steps.length - 1) i++; draw(); };
+  btn('prev').onclick = () => { stop(); if (i > 0) i--; draw(); };
+  btn('reset').onclick = () => { stop(); i = 0; draw(); };
+  btn('play').onclick = () => {
+    if (timer) { stop(); return; }
+    if (i >= steps.length - 1) i = 0;
+    btn('play').innerHTML = '<i class="fas fa-pause"></i> Pause';
+    timer = setInterval(() => { if (i < steps.length - 1) { i++; draw(); } else stop(); }, 1100);
+    draw();
+  };
+  draw();
+});
+
+/* ---------------- predict the output ---------------- */
+document.querySelectorAll('.predict').forEach(p => {
+  const opts = p.querySelectorAll('.pd-opt');
+  opts.forEach(o => o.addEventListener('click', () => {
+    const ok = o.getAttribute('data-ok') === '1';
+    opts.forEach(x => { x.disabled = true; if (x.getAttribute('data-ok') === '1') x.classList.add('correct'); });
+    if (!ok) o.classList.add('wrong');
+    const res = p.querySelector('.pd-result');
+    res.classList.remove('hidden');
+    const msg = p.querySelector('.pd-msg');
+    msg.innerHTML = ok ? '<span style="color:#16a34a"><i class="fas fa-check-circle"></i> Your prediction is right! Here is the real output:</span>' : '<span style="color:#dc2626"><i class="fas fa-circle-xmark"></i> Not quite. Here is the real output, and read the explanation below:</span>';
+  }));
+});
+
+
+const ARR = [80, 95, 70, 88, 100];
+function drawArr(hl, bad) {
+  const row = document.getElementById('arrCells');
+  row.innerHTML = ARR.map((v, i) => '<div class="cell' + (i === hl ? ' sel' : '') + '">' + v + '<small>[' + i + ']</small></div>').join('');
+}
+function arrIdxVal() { const i = parseInt(document.getElementById('arrIdx').value, 10); return isNaN(i) ? null : i; }
+function arrRead() {
+  const i = arrIdxVal(), out = document.getElementById('arrOut'), note = document.getElementById('arrNote');
+  if (i === null) { out.textContent = '// Enter an index'; return; }
+  if (i < 0 || i >= ARR.length) {
+    drawArr(-1);
+    out.innerHTML = '<span class="line">// arr[' + i + ']</span>\n???';
+    note.textContent = 'Out of bounds! The valid indexes are only 0 to 4. In real C++ you would not get a warning, but a random value from memory that does not belong to the array (undefined behavior).';
+    return;
+  }
+  drawArr(i);
+  out.innerHTML = '<span class="line">// cout << arr[' + i + '];</span>\n' + ARR[i];
+  note.textContent = 'We read slot number ' + i + '.';
+}
+function arrWrite() {
+  const i = arrIdxVal(), v = parseInt(document.getElementById('arrVal').value, 10);
+  const out = document.getElementById('arrOut'), note = document.getElementById('arrNote');
+  if (i === null || isNaN(v)) { out.textContent = '// Enter an index and a value'; return; }
+  if (i < 0 || i >= ARR.length) {
+    drawArr(-1);
+    out.innerHTML = '<span class="line">// arr[' + i + '] = ' + v + ';</span>\n(nothing was changed in the simulator)';
+    note.textContent = 'Writing out of bounds is more dangerous than reading: it may corrupt other variables in your program without you noticing! That is why the simulator refused the write.';
+    return;
+  }
+  ARR[i] = v;
+  drawArr(i);
+  out.innerHTML = '<span class="line">// arr[' + i + '] = ' + v + ';</span>\nStored.';
+  note.textContent = 'The value of slot number ' + i + ' changed.';
+}
+drawArr(-1);
+
+</script>
+</body>
+</html>
