@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TweetKod | الكرات والصناديق</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: TweetKod lesson, friendly teacher on a whiteboard
+   IDEA: three real crates of marbles you can rearrange
+   PICTURE: the live crates lab, marbles flying to their boxes
+   COLOUR and TYPE: TweetKod blue + orange, purple as third marble; Tajawal
+   LAYOUT: stacked lesson cards, matrix LTR, prose RTL */
+:root{
+  --primary-blue:#00adef;--blue-gradient:linear-gradient(135deg,#00adef,#007bb5);
+  --primary-yellow:#f7941e;--yellow-gradient:linear-gradient(135deg,#f7941e,#d67d00);
+  --dark-navy:#0f172a;--text-body:#475569;--bg-main:#f4f9fd;--surface:#f1f6fb;--card-bg:#fff;
+  --border:#e2e8f0;--chip-bg:#eef2f7;--soft-shadow:0 14px 34px -14px rgba(15,23,42,.14);
+  --header-bg:rgba(255,255,255,.85);--code-size:.95rem;
+  --c0:#00adef;--c1:#f7941e;--c2:#8b5cf6;
+  --pattern:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2300adef' fill-opacity='0.075'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+html[data-theme="dark"]{
+  --dark-navy:#e6edf7;--text-body:#a9b6cc;--bg-main:#0a1120;--surface:#16213a;--card-bg:#111a2e;
+  --border:#243049;--chip-bg:#1d2a45;--soft-shadow:0 14px 34px -14px rgba(0,0,0,.6);--header-bg:rgba(10,17,32,.85);
+  --pattern:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g font-family='Consolas,monospace' font-size='26' font-weight='700' fill='%2338bdf8' fill-opacity='0.06'><text x='18' y='48' transform='rotate(-12 18 48)'>{ }</text><text x='150' y='40' transform='rotate(8 150 40)'>;</text><text x='84' y='130' transform='rotate(-6 84 130)'>( )</text><text x='198' y='150' transform='rotate(14 198 150)'>[ ]</text><text x='30' y='210' transform='rotate(10 30 210)'>+ =</text><text x='140' y='236' transform='rotate(-10 140 236)'>* %</text></g></svg>");
+}
+*{box-sizing:border-box;min-width:0}
+html{scroll-behavior:smooth;scroll-padding-top:96px}
+body{font-family:'Tajawal','Segoe UI',sans-serif;background:var(--bg-main);margin:0;color:var(--dark-navy);line-height:1.85;-webkit-font-smoothing:antialiased;transition:background-color .3s,color .3s;overflow-x:clip;font-size:16.5px}
+body::before{content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;background:radial-gradient(1100px 600px at 100% -10%,rgba(0,173,239,.2),transparent 60%),radial-gradient(900px 560px at -10% 105%,rgba(247,148,30,.17),transparent 60%),radial-gradient(700px 500px at 50% 50%,rgba(124,92,255,.06),transparent 70%)}
+body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:var(--pattern);background-size:260px 260px;-webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.35));mask-image:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.35))}
+button{font-family:inherit}
+button:focus-visible,input:focus-visible{outline:3px solid var(--primary-yellow);outline-offset:2px}
+
+header{background:var(--header-bg);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);padding:10px 4%;display:flex;justify-content:space-between;align-items:center;gap:14px;position:sticky;top:0;z-index:1000;border-bottom:1px solid rgba(0,173,239,.16);box-shadow:0 8px 28px -18px rgba(15,23,42,.45)}
+.hdr-brand{display:flex;align-items:center;gap:12px}
+.logo{width:48px;height:48px;border-radius:15px;background:var(--blue-gradient);color:#fff;display:grid;place-items:center;font-weight:800;font-size:1.05rem;direction:ltr;box-shadow:0 6px 18px -6px rgba(0,173,239,.6)}
+.brand-info h3{margin:0;font-size:1.1rem;font-weight:800;line-height:1.3}
+.brand-info p{margin:0;font-size:.78rem;color:var(--primary-blue);font-weight:700}
+.hdr-tools{display:flex;align-items:center;gap:8px;position:relative}
+.tool-btn{height:40px;min-width:40px;padding:0 12px;border-radius:12px;border:1px solid var(--border);background:var(--card-bg);color:var(--dark-navy);cursor:pointer;font-weight:800;font-size:.85rem}
+.tool-btn:hover{border-color:var(--primary-blue);color:var(--primary-blue)}
+.toc-panel{position:absolute;top:50px;left:0;width:290px;max-height:60vh;overflow-y:auto;background:var(--card-bg);border:1px solid var(--border);border-radius:16px;box-shadow:var(--soft-shadow);padding:8px;display:none}
+.toc-panel.open{display:block}
+.toc-panel a{display:flex;gap:10px;align-items:center;padding:9px 12px;border-radius:10px;color:var(--dark-navy);text-decoration:none;font-weight:700;font-size:.88rem}
+.toc-panel a:hover{background:var(--surface);color:var(--primary-blue)}
+.toc-panel a span{width:22px;height:22px;border-radius:50%;background:var(--chip-bg);font-size:.72rem;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.read-progress{position:absolute;bottom:-1px;right:0;left:0;height:3px}
+.read-progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#00adef,#f7941e)}
+.to-top{position:fixed;bottom:22px;left:22px;z-index:900;width:46px;height:46px;border-radius:50%;border:none;background:var(--blue-gradient);color:#fff;cursor:pointer;font-size:1.2rem;opacity:0;pointer-events:none;transition:.25s}
+.to-top.show{opacity:1;pointer-events:auto}
+@media(max-width:720px){.brand-info p{display:none}.brand-info h3{font-size:.95rem}.tool-btn{padding:0 9px}}
+@media(max-width:420px){.brand-info{display:none}}
+
+.container{max-width:940px;margin:40px auto;padding:0 18px}
+.title-section{text-align:center;margin-bottom:36px}
+.title-section h1{font-size:clamp(2rem,6vw,2.9rem);font-weight:800;margin:14px 0 2px;line-height:1.2;background:linear-gradient(135deg,var(--dark-navy),#007bb5 80%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+html[data-theme="dark"] .title-section h1{background:linear-gradient(135deg,#fff,#38bdf8 80%);-webkit-background-clip:text;background-clip:text}
+.attribution{color:var(--primary-blue);font-size:1.15rem;font-weight:700;margin:0 0 14px}
+.lesson-chip{display:inline-block;background:var(--yellow-gradient);color:#fff;padding:6px 20px;border-radius:50px;font-weight:800;font-size:.85rem;box-shadow:0 8px 18px -8px rgba(247,148,30,.8)}
+.meta{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.meta span{background:var(--card-bg);border:1px solid var(--border);border-radius:50px;padding:5px 16px;font-weight:700;font-size:.88rem;color:var(--text-body)}
+.meta b{color:var(--dark-navy)}
+
+.card{background:var(--card-bg);border-radius:25px;padding:clamp(22px,4vw,40px);margin-bottom:30px;box-shadow:var(--soft-shadow);border:1px solid var(--border);border-right:8px solid var(--primary-blue)}
+.steps-card{border-right-color:var(--primary-yellow)}
+.challenge-card{border-right-color:#8b5cf6}
+.summary-card{border-right-color:#22c55e}
+.refs-card{border-right-color:#94a3b8}
+.card-header{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.ico{width:44px;height:44px;border-radius:14px;flex-shrink:0;display:grid;place-items:center;font-weight:800;font-size:1.05rem;color:#fff;background:var(--blue-gradient);font-family:Consolas,monospace;direction:ltr}
+.steps-card .ico{background:var(--yellow-gradient)}
+.challenge-card .ico{background:linear-gradient(135deg,#8b5cf6,#6d28d9)}
+.summary-card .ico{background:linear-gradient(135deg,#22c55e,#15803d)}
+.refs-card .ico{background:linear-gradient(135deg,#94a3b8,#64748b)}
+.card-header h3{margin:0;font-size:1.4rem;font-weight:800;line-height:1.35}
+h4{margin:20px 0 8px;font-size:1.08rem}
+p{color:var(--text-body);margin:0 0 14px}
+a{color:var(--primary-blue)}
+strong{color:var(--dark-navy)}
+.en{direction:ltr;unicode-bidi:isolate;font-weight:700;color:var(--dark-navy)}
+code{background:var(--chip-bg);padding:2px 8px;border-radius:6px;direction:ltr;unicode-bidi:isolate;display:inline-block;color:#d6336c;font-weight:700;font-family:Consolas,monospace;font-size:.9rem;line-height:1.6;overflow-wrap:anywhere}
+html[data-theme="dark"] code{color:#f9a8d4}
+.obj-list,.sum-list,.rule-ul{list-style:none;padding:0;margin:0}
+.obj-list li,.sum-list li,.rule-ul li{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;color:var(--text-body)}
+.obj-list li::before,.sum-list li::before{content:'✓';color:#22c55e;font-weight:800;flex-shrink:0}
+.rule-ul li::before{content:'◆';color:var(--primary-yellow);flex-shrink:0;font-size:.8rem;margin-top:4px}
+
+.code-box{background:#1e293b;border-radius:20px;overflow:hidden;box-shadow:0 20px 40px -15px rgba(0,0,0,.35);margin:18px 0}
+.code-head{background:#0f172a;padding:10px 22px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #334155;gap:10px}
+.code-head span{color:#94a3b8;font-family:monospace;font-size:.85rem;direction:ltr}
+.copy-btn{color:#38bdf8;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.3);padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:800;font-size:.8rem}
+pre{padding:22px 26px;margin:0;color:#e2e8f0;font-family:Consolas,monospace;line-height:1.85;direction:ltr;text-align:left;overflow-x:auto;font-size:var(--code-size);tab-size:4}
+.kw{color:#7dd3fc}.str{color:#fbbf77}.num{color:#c4b5fd}.pp{color:#f9a8d4}.cmt{color:#79c36a;font-style:italic}
+.code-line,.code-plain{display:block;border-radius:6px;padding:0 6px;margin:0 -6px;white-space:pre}
+.code-line{cursor:pointer;background:rgba(0,173,239,.08)}
+.code-line:hover{background:rgba(0,173,239,.22)}
+.code-line.active{background:rgba(247,148,30,.28);outline:1px dashed var(--primary-yellow)}
+.explain-box{margin-top:12px;background:var(--surface);border:2px dashed var(--border);border-radius:16px;padding:14px 20px;font-weight:600;min-height:30px}
+.explain-box .hint{color:#94a3b8;font-weight:500}
+.output-box,.input-box{font-family:Consolas,monospace;padding:14px 20px;border-radius:14px;margin:10px 0 16px;direction:ltr;text-align:left;white-space:pre-wrap;font-size:var(--code-size)}
+.output-box{background:#0f172a;color:#4ade80}
+.input-box{background:#0c2233;color:#7dd3fc;margin-bottom:0;border-bottom-left-radius:0;border-bottom-right-radius:0}
+.input-box+.output-box{margin-top:0;border-top-left-radius:0;border-top-right-radius:0;border-top:1px dashed #1e3a52}
+.output-box::before,.input-box::before{display:block;font-size:.72rem;letter-spacing:.08em;margin-bottom:6px;color:#64748b}
+.output-box::before{content:'Output'}
+.input-box::before{content:'Input'}
+
+.tip-box,.warn-box,.analogy{border-radius:16px;padding:14px 20px;margin:18px 0;display:flex;gap:14px;align-items:flex-start}
+.tip-box{background:rgba(247,148,30,.09);border:2px dashed var(--primary-yellow)}
+.warn-box{background:rgba(239,68,68,.08);border:2px dashed #ef4444}
+.analogy{background:linear-gradient(135deg,rgba(0,173,239,.1),rgba(139,92,246,.1));border:1px solid var(--border)}
+.tip-box>b,.warn-box>b,.analogy>b{font-size:1.3rem;line-height:1.4;flex-shrink:0}
+.tip-box>b{color:var(--primary-yellow)}.warn-box>b{color:#ef4444}.analogy>b{color:var(--primary-blue)}
+.tip-box p,.warn-box p,.analogy p{margin:0;font-size:.95rem}
+
+.table-wrap{overflow-x:auto;margin:14px 0;border-radius:16px;border:1px solid var(--border)}
+table.data-table{width:100%;border-collapse:collapse;background:var(--card-bg)}
+table.data-table th{background:var(--blue-gradient);color:#fff;padding:11px 16px;font-size:.86rem;text-align:right;white-space:nowrap}
+table.data-table td{padding:11px 16px;font-size:.92rem;border-bottom:1px solid var(--border);color:var(--text-body)}
+table.data-table tr:last-child td{border-bottom:none}
+
+/* marbles */
+.mb{display:inline-block;width:20px;height:20px;border-radius:50%;flex-shrink:0;background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.85) 0 14%,transparent 16%),radial-gradient(circle at 50% 50%,var(--c) 55%,color-mix(in srgb,var(--c) 70%,#000) 100%);box-shadow:0 2px 4px rgba(0,0,0,.25)}
+.mb.sm{width:14px;height:14px}
+.c0{--c:var(--c0)}.c1{--c:var(--c1)}.c2{--c:var(--c2)}
+.mb.go{outline:2px dashed #ef4444;outline-offset:2px}
+.mb.land{outline:2px solid #22c55e;outline-offset:2px}
+.more{font-family:Consolas,monospace;font-size:.75rem;font-weight:800;padding:0 6px;border-radius:50px;color:#fff;background:var(--c);line-height:20px;height:20px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin:6px 0 14px;font-weight:700;font-size:.9rem;color:var(--text-body)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+
+.stage{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;direction:ltr;margin:14px 0}
+.bx{background:var(--card-bg);border:2px solid var(--border);border-radius:18px;padding:10px;display:flex;flex-direction:column;gap:8px;box-shadow:0 10px 22px -16px rgba(15,23,42,.5)}
+.bx-h{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;direction:rtl;font-weight:800;font-size:.92rem}
+.chips{display:flex;gap:4px;direction:ltr}
+.chips em{font-style:normal;color:#94a3b8;font-weight:600;font-size:.8rem}
+.cnt{font-family:Consolas,monospace;font-size:.78rem;color:#fff;background:var(--c);border-radius:50px;padding:0 8px;line-height:20px}
+.bx-body{flex:1;min-height:150px;display:flex;flex-wrap:wrap;align-content:flex-end;gap:6px;padding:12px;border-radius:12px;background:linear-gradient(180deg,var(--surface),color-mix(in srgb,var(--surface) 80%,var(--primary-blue)));border:2px solid color-mix(in srgb,var(--border) 60%,var(--primary-blue));border-top-style:dashed}
+.bx-f{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;direction:rtl;font-size:.8rem;font-weight:700;color:var(--text-body)}
+.pks{display:flex;gap:6px;direction:ltr}
+.pk{width:30px;height:30px;border-radius:50%;border:3px solid transparent;background:var(--c);cursor:pointer;opacity:.35;transition:.15s;padding:0}
+.pk.on{opacity:1;border-color:var(--dark-navy);transform:scale(1.08)}
+.pk:hover{opacity:.8}
+@media(max-width:600px){.stage{gap:6px}.bx{padding:6px;border-radius:14px}.mb{width:14px;height:14px}.bx-body{padding:6px;gap:4px;min-height:120px}.pk{width:26px;height:26px}.bx-f>span{display:none}.pks{width:100%;justify-content:center}}
+
+.lab-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;margin:10px 0}
+.btn-run{background:var(--yellow-gradient);color:#fff;border:none;min-height:44px;padding:9px 20px;border-radius:14px;cursor:pointer;font-weight:800;font-size:.92rem;box-shadow:0 10px 20px -10px rgba(247,148,30,.9)}
+.btn-run.blue{background:var(--blue-gradient);box-shadow:0 10px 20px -10px rgba(0,173,239,.9)}
+.btn-ghost{background:var(--card-bg);color:var(--dark-navy);border:2px solid var(--border);min-height:44px;padding:7px 16px;border-radius:14px;cursor:pointer;font-weight:800;font-size:.88rem}
+.btn-ghost:hover,.btn-ghost.on{border-color:var(--primary-blue);color:var(--primary-blue)}
+.sim-box{background:var(--surface);border:3px dashed var(--border);border-radius:20px;padding:clamp(12px,3vw,24px);margin-top:12px}
+.editor{display:flex;justify-content:center;margin:8px 0 4px}
+.mtx{border-collapse:separate;border-spacing:6px;direction:ltr}
+.mtx th{font-size:.8rem;color:var(--text-body);font-weight:800;padding:0 4px}
+.mtx th.rowh{text-align:left;white-space:nowrap}
+.mtx th.rowh .mb{vertical-align:middle;margin-right:6px}
+.mtx input{width:64px;height:44px;border:2px solid var(--border);background:var(--card-bg);color:var(--dark-navy);border-radius:12px;font-size:16px;text-align:center;font-family:Consolas,monospace;font-weight:800}
+.mtx input:focus{border-color:var(--primary-blue);outline:none}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}
+.stat{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:10px;text-align:center}
+.stat small{display:block;font-weight:700;color:var(--text-body);font-size:.82rem}
+.stat b{font-size:clamp(1.5rem,5vw,2.1rem);font-family:Consolas,monospace;color:var(--dark-navy)}
+.stat.hot b{color:var(--primary-yellow)}
+.moves{list-style:none;padding:0;margin:6px 0 0;font-size:.93rem}
+.moves li{padding:6px 12px;border-radius:10px;background:var(--card-bg);border:1px solid var(--border);margin-bottom:6px;display:flex;gap:8px;align-items:center;color:var(--text-body)}
+.moves li b{color:var(--dark-navy)}
+.say{margin-top:10px;font-weight:800;min-height:28px;text-align:center}
+.say.ok{color:#16a34a}.say.bad{color:#dc2626}
+.ps-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:6px}
+
+/* rule illustrations */
+.rule-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
+@media(max-width:700px){.rule-grid{grid-template-columns:1fr}}
+.rule{border-radius:16px;border:2px solid var(--border);background:var(--surface);overflow:hidden}
+.rule h5{margin:0;padding:8px 14px;font-size:.9rem}
+.rule.bad h5{background:#fee2e2;color:#b91c1c}.rule.good h5{background:#dcfce7;color:#15803d}
+.mini{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:12px;direction:ltr}
+.mini div{min-height:52px;border:2px solid var(--border);border-top-style:dashed;border-radius:10px;background:var(--card-bg);display:flex;flex-wrap:wrap;align-content:flex-end;gap:3px;padding:5px}
+.rule p{font-size:.85rem;padding:0 14px 12px;margin:0}
+
+/* examples */
+.ex-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media(max-width:760px){.ex-grid{grid-template-columns:1fr}}
+.ex{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:14px}
+.ex h5{margin:0 0 4px;font-size:1rem;color:var(--primary-blue)}
+.ex p{font-size:.88rem;margin:8px 0}
+.ex .btn-ghost{width:100%}
+.fmt{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:center}
+@media(max-width:700px){.fmt{grid-template-columns:1fr}}
+.fmt-mtx{display:grid;grid-template-columns:auto repeat(3,52px);gap:6px;direction:ltr;justify-content:center;font-family:Consolas,monospace;font-weight:800}
+.fmt-mtx span{display:grid;place-items:center;height:42px;border-radius:10px}
+.fmt-mtx .hd{font-family:Tajawal;font-size:.78rem;color:var(--text-body);height:auto}
+.fmt-mtx .rw{font-family:Tajawal;font-size:.8rem;justify-content:end;display:flex;align-items:center;gap:6px;padding-right:4px}
+.fmt-mtx .v{background:var(--card-bg);border:2px solid var(--c)}
+
+/* board + perms */
+.perm-wrap{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:18px;align-items:start}
+@media(max-width:760px){.perm-wrap{grid-template-columns:1fr}}
+.board{display:grid;grid-template-columns:auto repeat(3,minmax(0,64px));gap:6px;direction:ltr;justify-content:center}
+.board .hd{font-size:.78rem;color:var(--text-body);font-weight:800;text-align:center}
+.board .rw{display:flex;align-items:center;justify-content:flex-end;gap:6px;font-size:.8rem;font-weight:800;color:var(--text-body)}
+.cellb{height:58px;border-radius:12px;border:2px solid var(--border);background:var(--card-bg);font-family:Consolas,monospace;font-weight:800;font-size:1.2rem;color:var(--dark-navy);cursor:pointer;transition:.15s;position:relative}
+.cellb.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 22%,var(--card-bg));box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 35%,transparent)}
+.cellb.on::after{content:'✓';position:absolute;top:2px;right:6px;font-size:.7rem;color:var(--c)}
+.board-sum{text-align:center;font-weight:800;margin-top:10px;direction:ltr;font-family:Consolas,monospace}
+.ptab{width:100%;border-collapse:collapse;font-size:.9rem}
+.ptab th{background:var(--chip-bg);padding:8px;font-size:.8rem;color:var(--text-body)}
+.ptab td{padding:7px 8px;border-bottom:1px solid var(--border);text-align:center;font-family:Consolas,monospace;font-weight:700;white-space:nowrap}
+.ptab td:nth-child(n+3){direction:ltr}
+.ptab tr{cursor:pointer}
+.ptab tbody tr:hover td{background:var(--surface)}
+.ptab tr.sel td{background:rgba(247,148,30,.2)}
+.ptab tr.best td:last-child{color:#16a34a}
+.ptab .asg{display:inline-flex;gap:4px;direction:ltr;align-items:center}
+.ptab .asg i{font-style:normal;display:inline-flex;align-items:center;gap:2px}
+.star{color:#16a34a;font-family:Tajawal}
+
+/* tracer */
+.tracer{background:var(--surface);border:2px solid var(--border);border-radius:20px;padding:16px;margin:18px 0}
+.tr-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:14px}
+@media(max-width:760px){.tr-grid{grid-template-columns:1fr}}
+.tr-code{background:#1e293b;border-radius:14px;padding:10px 0;direction:ltr;text-align:left;font-family:Consolas,monospace;font-size:calc(var(--code-size) * .92);overflow-x:auto}
+.tr-line{display:flex;gap:12px;padding:0 12px;color:#e2e8f0;white-space:pre;border-left:4px solid transparent;line-height:1.7}
+.tr-line .ln{color:#64748b;min-width:22px;text-align:right;user-select:none}
+.tr-line.active{background:rgba(247,148,30,.28);border-left-color:var(--primary-yellow)}
+.tr-side{display:flex;flex-direction:column;gap:12px}
+.tr-box{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:10px 14px}
+.tr-title{font-size:.8rem;font-weight:800;color:var(--text-body);margin-bottom:6px}
+.tr-vars{direction:ltr;font-family:Consolas,monospace;font-size:.92rem;min-height:28px}
+.tr-var{display:flex;justify-content:space-between;padding:2px 8px;border-radius:8px}
+.tr-var b{color:var(--primary-blue)}
+.tr-var.changed{background:rgba(247,148,30,.22)}
+.tr-out{direction:ltr;text-align:left;font-family:Consolas,monospace;background:#0f172a;color:#4ade80;border-radius:10px;padding:8px 12px;min-height:38px;white-space:pre-wrap}
+.mm{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;direction:ltr}
+.mm span{height:34px;border-radius:8px;display:grid;place-items:center;font-family:Consolas,monospace;font-weight:800;border:2px solid var(--border);background:var(--surface);color:var(--text-body)}
+.mm span.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 25%,var(--card-bg));color:var(--dark-navy)}
+.tr-note{margin-top:12px;background:var(--card-bg);border:1px dashed var(--primary-blue);border-radius:12px;padding:10px 16px;font-weight:600;min-height:52px}
+.tr-ctrl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.tr-btn{border:1px solid var(--border);background:var(--card-bg);color:var(--dark-navy);border-radius:12px;min-height:44px;padding:8px 14px;cursor:pointer;font-weight:800;font-size:.88rem}
+.tr-btn.primary{background:var(--blue-gradient);color:#fff;border-color:transparent}
+.tr-btn:disabled{opacity:.4;cursor:default}
+.tr-count{margin-right:auto;font-size:.82rem;color:var(--text-body);font-weight:700}
+
+/* predict */
+.predict{border:2px solid #8b5cf6;border-radius:20px;padding:16px 18px;margin:20px 0;background:var(--surface)}
+.predict-head{font-weight:800;color:#8b5cf6;margin-bottom:4px}
+.pd-q{font-weight:700;margin-bottom:10px}
+.pd-opts{display:flex;flex-wrap:wrap;gap:10px}
+.pd-opt{background:var(--card-bg);border:2px solid var(--border);color:var(--dark-navy);border-radius:12px;min-height:44px;padding:8px 18px;cursor:pointer;font-weight:800;font-size:.95rem;font-family:Consolas,monospace}
+.pd-opt:hover{border-color:#8b5cf6}
+.pd-opt.correct{background:#dcfce7;border-color:#22c55e;color:#15803d}
+.pd-opt.wrong{background:#fee2e2;border-color:#ef4444;color:#b91c1c}
+.pd-result{margin-top:12px}
+.pd-msg{font-weight:800;margin-bottom:6px}
+.hidden{display:none}
+
+.flow{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;margin:18px 0}
+.flow-node{background:var(--card-bg);border:2px solid var(--primary-blue);border-radius:14px;padding:10px 16px;font-weight:800;text-align:center}
+.flow-node.end{background:var(--blue-gradient);color:#fff;border-color:transparent}
+.flow-arrow{color:var(--primary-blue);font-size:1.3rem;font-weight:800}
+
+.glossary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.term-card{background:var(--surface);border-radius:16px;padding:16px;border:1px solid var(--border)}
+.term-en{font-family:Consolas,monospace;direction:ltr;text-align:left;font-weight:800;color:var(--primary-blue);display:block}
+.term-ar{font-weight:800;display:block;margin-bottom:4px}
+.term-desc{font-size:.87rem;margin:0}
+
+.quiz-q{margin-bottom:24px}
+.quiz-q h4{margin-bottom:12px;line-height:1.9}
+.qnum{display:inline-flex;align-items:center;justify-content:center;background:var(--yellow-gradient);color:#fff;width:28px;height:28px;border-radius:50%;font-size:.85rem;margin-left:8px}
+.quiz-options{display:flex;flex-direction:column;gap:10px}
+.quiz-opt{background:var(--card-bg);border:2px solid var(--border);border-radius:14px;min-height:44px;padding:10px 18px;cursor:pointer;font-weight:600;text-align:right;font-size:.95rem;color:var(--dark-navy)}
+.quiz-opt:hover{border-color:var(--primary-blue)}
+.quiz-opt.correct{background:#dcfce7;border-color:#22c55e;color:#15803d}
+.quiz-opt.wrong{background:#fee2e2;border-color:#ef4444;color:#b91c1c}
+.feedback{margin-top:10px;font-size:.92rem;font-weight:600}
+.feedback.ok{color:#16a34a}.feedback.no{color:#dc2626}
+.progress{height:10px;background:var(--border);border-radius:10px;overflow:hidden;margin-bottom:22px}
+.progress-bar{height:100%;width:0;background:var(--yellow-gradient);transition:width .3s}
+.score-box{text-align:center;background:var(--surface);border:2px solid var(--border);border-radius:18px;padding:20px}
+.score-box .big{font-size:2.2rem;font-weight:800;color:var(--primary-blue);direction:ltr}
+.ref-list{margin:0;padding-right:22px}
+.ref-list li{margin-bottom:6px;font-size:.92rem}
+footer{text-align:center;padding:30px 20px 50px;color:#94a3b8;font-size:.85rem}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hdr-brand">
+    <div class="logo" aria-hidden="true">TK</div>
+    <div class="brand-info"><h3>منصة TweetKod</h3><p>للتعلم البرمجي التفاعلي</p></div>
+  </div>
+  <div class="hdr-tools">
+    <button class="tool-btn" id="tocBtn">☰ الفهرس</button>
+    <button class="tool-btn" id="fontDec" title="تصغير خط الكود">A-</button>
+    <button class="tool-btn" id="fontInc" title="تكبير خط الكود">A+</button>
+    <button class="tool-btn" id="themeBtn" title="الوضع الليلي">☾</button>
+    <div class="toc-panel" id="tocPanel"></div>
+  </div>
+  <div class="read-progress"><span id="readBar"></span></div>
+</header>
+
+<div class="container">
+  <div class="title-section">
+    <span class="lesson-chip">NSMO 2026 · المرحلة الثالثة · المسألة A</span>
+    <h1>الكرات والصناديق</h1>
+    <p class="attribution"><span class="en">Marbles and Boxes</span></p>
+    <div class="meta"><span>حد الزمن: <b class="en">0.5 s</b></span><span>حد الذاكرة: <b class="en">256 MB</b></span><span>الفكرة: <b>بحث شامل على التباديل</b></span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="ico">◎</span><h3>ماذا سنتعلم من هذه المسألة؟</h3></div>
+    <ul class="obj-list">
+      <li><span>نحوّل قصة الكرات إلى مصفوفة <code>3 × 3</code> ونقرأها بشكل صحيح.</span></li>
+      <li><span>نقلب السؤال: بدل أن نعدّ الكرات التي تتحرك، نعدّ الكرات التي <strong>تبقى مكانها</strong>.</span></li>
+      <li><span>نكتشف أن عدد الاحتمالات صغير جدًا (6 فقط)، فنجربها كلها.</span></li>
+      <li><span>نستعمل <code>next_permutation</code> مع <code>do-while</code>، ونفهم لماذا يفشل الحل الجشع.</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="ico">?</span><h3>نص المسألة</h3></div>
+    <p>لدينا <strong>ثلاثة صناديق</strong> فيها كرات من <strong>ثلاثة ألوان</strong> مختلفة، ونعرف لكل صندوق عدد الكرات من كل لون فيه.</p>
+    <p>هدفك أن تنقل <strong>أقل عدد ممكن</strong> من الكرات من صندوق إلى آخر، بحيث يتحقق بعد انتهاء كل النقلات شرطان:</p>
+    <ul class="rule-ul">
+      <li><span>لا يوجد في <strong>الصندوق الواحد</strong> كرتان بلونين مختلفين.</span></li>
+      <li><span>لا يوجد في <strong>صندوقين مختلفين</strong> كرتان باللون نفسه.</span></li>
+    </ul>
+    <p style="margin-top:12px">بعبارة أبسط: في النهاية يجب أن يصبح <strong>كل لون في صندوق خاص به وحده</strong>. اطبع أقل عدد من الكرات يجب نقله.</p>
+    <div class="legend"><span><i class="mb sm c0"></i> اللون 1</span><span><i class="mb sm c1"></i> اللون 2</span><span><i class="mb sm c2"></i> اللون 3</span></div>
+    <div class="rule-grid">
+      <div class="rule bad"><h5>✗ صندوق فيه لونان</h5><div class="mini"><div><i class="mb sm c0"></i><i class="mb sm c1"></i><i class="mb sm c0"></i></div><div><i class="mb sm c2"></i><i class="mb sm c2"></i></div><div></div></div><p>الصندوق الأول يخلط اللون 1 مع اللون 2.</p></div>
+      <div class="rule bad"><h5>✗ لون في صندوقين</h5><div class="mini"><div><i class="mb sm c0"></i><i class="mb sm c0"></i></div><div><i class="mb sm c1"></i></div><div><i class="mb sm c0"></i></div></div><p>اللون 1 موزع على الصندوقين 1 و3.</p></div>
+      <div class="rule good"><h5>✓ ترتيب صحيح</h5><div class="mini"><div><i class="mb sm c1"></i><i class="mb sm c1"></i></div><div><i class="mb sm c0"></i><i class="mb sm c0"></i><i class="mb sm c0"></i></div><div><i class="mb sm c2"></i></div></div><p>كل لون في صندوق واحد. لا يهم أي صندوق يأخذ أي لون.</p></div>
+    </div>
+    <div class="tip-box"><b>!</b><p>لاحظ أن المسألة <strong>لا تحدد</strong> أي لون يذهب إلى أي صندوق. هذا الاختيار هو بالضبط ما علينا أن نقرره بذكاء.</p></div>
+  </div>
+
+  <div class="card" id="lab">
+    <div class="card-header"><span class="ico">▶</span><h3>الرسم التفاعلي: جرّب بنفسك</h3></div>
+    <p>اختر لكل صندوق <strong>لونه النهائي</strong> بالضغط على الدوائر أسفله، وراقب عدد الكرات التي ستتحرك. الكرات ذات الإطار الأحمر المتقطع هي التي يجب نقلها. ثم اضغط «نفّذ النقل».</p>
+    <div class="sim-box">
+      <div class="ps-row">
+        <button class="btn-ghost ps" data-p="ex1">المثال 1</button>
+        <button class="btn-ghost ps" data-p="ex2">المثال 2</button>
+        <button class="btn-ghost ps" data-p="ex3">المثال 3</button>
+        <button class="btn-ghost ps" data-p="trap">فخ الجشع</button>
+        <button class="btn-ghost ps" data-p="rand">عشوائي</button>
+      </div>
+      <div class="editor"><table class="mtx" id="editor"></table></div>
+      <p style="text-align:center;font-size:.85rem;margin:0">الصف = اللون، والعمود = الصندوق (بنفس ترتيب الإدخال). عدّل أي رقم وسيتغير الرسم.</p>
+      <div class="stage" id="stage"></div>
+      <div class="lab-row">
+        <button class="btn-run" id="goBtn">▶ نفّذ النقل</button>
+        <button class="btn-ghost" id="backBtn">↺ الوضع الأولي</button>
+        <button class="btn-run blue" id="bestBtn">★ اعرض التوزيع الأمثل</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><small>كل الكرات</small><b id="stTot">0</b></div>
+        <div class="stat"><small>تبقى مكانها</small><b id="stKeep">0</b></div>
+        <div class="stat hot"><small>يجب نقلها</small><b id="stMove">0</b></div>
+      </div>
+      <ul class="moves" id="moves"></ul>
+      <div class="say" id="verdict"></div>
+    </div>
+  </div>
+
+  <div class="card steps-card">
+    <div class="card-header"><span class="ico">⇄</span><h3>الإدخال والإخراج والأمثلة</h3></div>
+    <div class="fmt">
+      <div>
+        <h4 style="margin-top:0">الإدخال</h4>
+        <p>ثلاثة أسطر، في كل سطر ثلاثة أعداد. <strong>السطر رقم i يخص اللون i</strong>، والعدد رقم j فيه هو عدد كرات هذا اللون في <strong>الصندوق j</strong>.</p>
+        <h4>الإخراج</h4>
+        <p>عدد صحيح واحد: أقل عدد من الكرات يجب نقله.</p>
+      </div>
+      <div class="fmt-mtx" id="fmtMtx"></div>
+    </div>
+    <div class="warn-box"><b>!</b><p>انتبه لهذا الترتيب: الأسطر ألوان والأعمدة صناديق. نعرف ذلك من شرح المثال الأول: «في الصندوق الأول كرتان من اللون الأول و3 من اللون الثاني»، أي أن العمود الأول هو الصندوق الأول.</p></div>
+    <div class="ex-grid">
+      <div class="ex"><h5>المثال 1</h5><div class="input-box">2 0 0
+3 0 0
+0 0 0</div><div class="output-box">2</div><p>كل الكرات في الصندوق 1: كرتان من اللون 1 و3 من اللون 2. ننقل الكرتين من اللون 1 إلى الصندوق 2، فتبقى الثلاث مكانها.</p><button class="btn-ghost ps" data-p="ex1" data-go="lab">افتحه في الرسم</button></div>
+      <div class="ex"><h5>المثال 2</h5><div class="input-box">3 1 0
+9 5 0
+0 0 0</div><div class="output-box">8</div><p>نجعل الصندوق 1 للون 2 والصندوق 2 للون 1: ننقل 3 كرات من اللون 1 إلى الصندوق 2، و5 كرات من اللون 2 إلى الصندوق 1. المجموع 8.</p><button class="btn-ghost ps" data-p="ex2" data-go="lab">افتحه في الرسم</button></div>
+      <div class="ex"><h5>المثال 3</h5><div class="input-box">3 1 7
+6 6 8
+2 4 5</div><div class="output-box">25</div><p>42 كرة في المجموع. أفضل توزيع يُبقي 17 كرة مكانها، فننقل <code>42 − 17 = 25</code>. سنرى كيف وصلنا إلى 17 بعد قليل.</p><button class="btn-ghost ps" data-p="ex3" data-go="lab">افتحه في الرسم</button></div>
+    </div>
+    <h4>طريقة التقييم</h4>
+    <p>تُقيَّم كل حالة اختبار وحدها، ونتيجتك هي مجموع نقاط كل الحالات:</p>
+    <div class="table-wrap"><table class="data-table"><thead><tr><th>نسبة الحالات</th><th>القيد الإضافي</th></tr></thead><tbody>
+      <tr><td>30%</td><td>الصندوق 3 فارغ</td></tr>
+      <tr><td>30% أخرى</td><td>الصندوقان 2 و3 فارغان</td></tr>
+      <tr><td>40% الباقية</td><td>بلا قيود إضافية</td></tr>
+    </tbody></table></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="ico">↻</span><h3>الفكرة الأولى: اقلب السؤال</h3></div>
+    <p>تخيّل أننا قررنا مسبقًا أي لون يذهب إلى أي صندوق. كم كرة يجب نقلها عندها؟</p>
+    <ul class="rule-ul">
+      <li><span>كل كرة موجودة <strong>في صندوق لونها</strong> لا داعي لتحريكها أبدًا.</span></li>
+      <li><span>كل كرة في صندوق آخر <strong>يجب</strong> أن تتحرك مرة واحدة على الأقل.</span></li>
+      <li><span>ونقلة واحدة تكفيها: ننقلها <strong>مباشرة</strong> إلى صندوق لونها، فلا فائدة من المرور بصندوق ثالث.</span></li>
+    </ul>
+    <div class="flow"><div class="flow-node">عدد المنقولة</div><div class="flow-arrow">=</div><div class="flow-node">كل الكرات</div><div class="flow-arrow">−</div><div class="flow-node end">الكرات الباقية مكانها</div></div>
+    <div class="analogy"><b>◉</b><p>مثل ترتيب غرفة: لا تسأل «ماذا سأنقل؟» بل «ماذا أستطيع أن أترك في مكانه؟». كلما تركت أكثر نقلت أقل. لذلك هدفنا الآن أن نجعل <strong>الكرات الباقية أكثر ما يمكن</strong>.</p></div>
+  </div>
+
+  <div class="card steps-card" id="perms">
+    <div class="card-header"><span class="ico">3!</span><h3>الفكرة الثانية: ستة احتمالات فقط</h3></div>
+    <p>للّون 1 ثلاثة صناديق يختار منها، ثم يبقى للّون 2 صندوقان، ثم يبقى للّون 3 صندوق واحد. إذن عدد التوزيعات <code>3 × 2 × 1 = 3! = 6</code>. هذا عدد صغير جدًا، فنجرّب الستة كلها ونأخذ الأفضل.</p>
+    <p>على المصفوفة، كل توزيع يعني أن نختار <strong>خانة واحدة من كل صف</strong> دون أن تتكرر الأعمدة (مثل وضع ثلاثة قلاع شطرنج لا يهاجم بعضها بعضًا). مجموع الخانات المختارة هو عدد الكرات الباقية. اضغط على أي صف في الجدول أو على أي خانة:</p>
+    <div class="ps-row">
+      <button class="btn-ghost ps" data-p="ex1">المثال 1</button><button class="btn-ghost ps" data-p="ex2">المثال 2</button><button class="btn-ghost ps" data-p="ex3">المثال 3</button><button class="btn-ghost ps" data-p="rand">عشوائي</button>
+    </div>
+    <div class="perm-wrap">
+      <div><div class="board" id="board"></div><div class="board-sum" id="boardSum"></div></div>
+      <div class="table-wrap" style="margin:0"><table class="ptab" id="ptab"></table></div>
+    </div>
+    <div class="tip-box"><b>★</b><p>الأرقام هنا تتبع المصفوفة الحالية في الرسم التفاعلي، فأي تعديل هناك يظهر هنا وفي التتبع خطوة بخطوة أيضًا.</p></div>
+  </div>
+
+  <div class="card challenge-card">
+    <div class="card-header"><span class="ico">✗</span><h3>لماذا لا ينفع الحل الجشع؟</h3></div>
+    <p>فكرة تخطر على البال: نمر على الألوان بالترتيب، ونعطي كل لون الصندوق المتاح الذي فيه أكثر كراته. يبدو هذا منطقيًا، لكن انظر:</p>
+    <div class="predict" id="pdGreedy">
+      <div class="predict-head">توقّع قبل أن تشغّل</div>
+      <div class="input-box">9 8 0
+8 0 0
+0 0 0</div>
+      <div class="code-box"><div class="code-head"><span>greedy_wrong.cpp</span></div><pre data-code="greedy"></pre></div>
+      <p class="pd-q">كم كرة سينقل الحل الجشع؟ (الجواب الصحيح للمسألة هو 9)</p>
+      <div class="pd-opts"><button class="pd-opt" data-ok="0">9</button><button class="pd-opt" data-ok="1">16</button><button class="pd-opt" data-ok="0">8</button><button class="pd-opt" data-ok="0">25</button></div>
+      <div class="pd-result hidden"><div class="pd-msg"></div><div class="output-box">16</div>
+        <p>اللون 1 يأخذ الصندوق 1 لأن فيه 9 كرات منه. عندها يخسر اللون 2 صندوقه الوحيد ويبقى له صندوق فارغ منه، فتبقى 9 كرات فقط ونحرك <code>25 − 9 = 16</code>. أما الأمثل فيعطي اللون 1 الصندوق 2 (يبقى 8) واللون 2 الصندوق 1 (يبقى 8): تبقى 16 ونحرك 9 فقط.</p>
+        <button class="btn-ghost ps" data-p="trap" data-go="lab">شاهده في الرسم</button></div>
+    </div>
+    <p>الدرس: قرار اللون الأول يؤثر على خيارات الألوان الأخرى. وحين تكون الاحتمالات قليلة، <strong>جرّبها كلها</strong> بدل أن تخمّن.</p>
+  </div>
+
+  <div class="card steps-card">
+    <div class="card-header"><span class="ico">{ }</span><h3>الكود الكامل</h3></div>
+    <p>نمثّل التوزيع بمصفوفة <code>boxes</code>: الخانة <code>boxes[colour]</code> هي رقم الصندوق المخصص للون. ثم نمر على كل ترتيبات <code>{0, 1, 2}</code>. اضغط على أي سطر مضيء لتقرأ شرحه:</p>
+    <div class="code-box"><div class="code-head"><span>marbles.cpp</span><button class="copy-btn" data-copy="sol">نسخ الكود</button></div><pre id="solCode"></pre></div>
+    <div class="explain-box" id="solExpl"><span class="hint">اضغط على أي سطر مضيء من الكود لقراءة شرحه هنا...</span></div>
+    <div class="tip-box"><b>i</b><p>في الكود نرقّم الألوان والصناديق من <code>0</code>، أما في الشرح فنرقّمها من 1. فالقيمة <code>boxes[0] = 2</code> تعني: «اللون 1 يذهب إلى الصندوق 3».</p></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="ico">≫</span><h3>تتبّع التنفيذ خطوة بخطوة</h3></div>
+    <p>هذا التتبع يعمل على المصفوفة الحالية في الرسم التفاعلي (<span id="trMtxName">المثال 3</span>). اضغط «التالي» وراقب الخانات المختارة في كل ترتيب:</p>
+    <div class="tracer" id="tracer">
+      <div class="tr-grid">
+        <div class="tr-code" id="trCode"></div>
+        <div class="tr-side">
+          <div class="tr-box"><div class="tr-title">المتغيرات</div><div class="tr-vars" id="trVars"></div></div>
+          <div class="tr-box"><div class="tr-title">المصفوفة a والخانات المأخوذة</div><div class="mm" id="trMm"></div></div>
+          <div class="tr-box"><div class="tr-title">الناتج</div><div class="tr-out" id="trOut"></div></div>
+        </div>
+      </div>
+      <div class="tr-note" id="trNote"></div>
+      <div class="tr-ctrl">
+        <button class="tr-btn" data-a="reset" title="من البداية">⏮</button>
+        <button class="tr-btn" data-a="prev">‹ السابق</button>
+        <button class="tr-btn primary" data-a="next">التالي ›</button>
+        <button class="tr-btn" data-a="play">▶ تشغيل تلقائي</button>
+        <span class="tr-count" id="trCount"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card challenge-card">
+    <div class="card-header"><span class="ico">⚠</span><h3>تفصيلة صغيرة: لماذا <span class="en">do-while</span>؟</h3></div>
+    <p>الدالة <code>next_permutation</code> تحوّل المصفوفة إلى <strong>الترتيب التالي</strong> قاموسيًا وترجع <code>true</code>، فإن كانت المصفوفة على آخر ترتيب <code>{2, 1, 0}</code> أعادتها إلى <code>{0, 1, 2}</code> ورجعت <code>false</code>. لهذا نبدأ من مصفوفة مرتبة تصاعديًا، ونستعمل <code>do-while</code> حتى ننفّذ الجسم مرة قبل أول تغيير. فماذا لو استعملنا <code>while</code> عادية؟</p>
+    <div class="predict" id="pdWhile">
+      <div class="predict-head">توقّع قبل أن تشغّل</div>
+      <div class="input-box">5 0 0
+0 5 0
+0 0 5</div>
+      <div class="code-box"><div class="code-head"><span>while_bug.cpp</span></div><pre data-code="bug"></pre></div>
+      <p class="pd-q">ماذا يطبع هذا الكود الخاطئ؟ (الجواب الصحيح 0، فكل لون في صندوق خاص به أصلًا)</p>
+      <div class="pd-opts"><button class="pd-opt" data-ok="0">0</button><button class="pd-opt" data-ok="0">5</button><button class="pd-opt" data-ok="1">10</button><button class="pd-opt" data-ok="0">15</button></div>
+      <div class="pd-result hidden"><div class="pd-msg"></div><div class="output-box">10</div>
+        <p>الشرط يُفحص أولًا، فيتحول <code>{0, 1, 2}</code> إلى <code>{0, 2, 1}</code> قبل أن نجرّبه. والترتيب الضائع هو الوحيد الذي يُبقي الكرات الـ15 كلها. أفضل الخمسة الباقية يُبقي 5، فيطبع <code>15 − 5 = 10</code>.</p></div>
+    </div>
+    <p>ترتيب زيارة الترتيبات الستة: <code>{0,1,2}</code> ثم <code>{0,2,1}</code> ثم <code>{1,0,2}</code> ثم <code>{1,2,0}</code> ثم <code>{2,0,1}</code> ثم <code>{2,1,0}</code>.</p>
+  </div>
+
+  <div class="card steps-card">
+    <div class="card-header"><span class="ico">%</span><h3>حلول الجزئيات والتعقيد</h3></div>
+    <p>إن كنت في المسابقة ولم تخطر لك الفكرة الكاملة، فالجزئيات تعطيك نقاطًا بأفكار أبسط:</p>
+    <div class="table-wrap"><table class="data-table"><thead><tr><th>الجزئية</th><th>الفكرة</th></tr></thead><tbody>
+      <tr><td>الصندوقان 2 و3 فارغان (30%)</td><td>كل الكرات في الصندوق 1، فنُبقي فيه أكبر لون وننقل الباقي: <code>total − max(a[0][0], a[1][0], a[2][0])</code>.</td></tr>
+      <tr><td>الصندوق 3 فارغ (30%)</td><td>نختار لونًا للصندوق 1 ولونًا مختلفًا للصندوق 2، واللون الثالث يذهب للصندوق 3 الفارغ: <code>total − max(a[c1][0] + a[c2][1])</code> حيث <code>c1 ≠ c2</code>.</td></tr>
+      <tr><td>الحالة العامة (100%)</td><td>نجرب التباديل الستة كلها كما في الكود أعلاه، وهو يغطي الجزئيتين أيضًا.</td></tr>
+    </tbody></table></div>
+    <h4>التعقيد</h4>
+    <p>6 ترتيبات × 3 ألوان = 18 عملية جمع فقط، مهما كانت أعداد الكرات. أي أن الزمن ثابت <code>O(1)</code>، وحد الزمن 0.5 ثانية أكثر من كافٍ. وبشكل عام، مع k لون وk صندوق يصبح التعقيد <code>O(k! · k)</code>.</p>
+    <div class="tip-box"><b>!</b><p>إن كانت أعداد الكرات قد تصل إلى قيم كبيرة (قريبة من مليار)، فاستعمل <code>long long</code> للمتغيرين <code>total</code> و<code>kept</code> تجنبًا لتجاوز سعة <code>int</code>.</p></div>
+  </div>
+
+  <div class="card summary-card">
+    <div class="card-header"><span class="ico">✓</span><h3>ملخص سريع</h3></div>
+    <ul class="sum-list">
+      <li><span>في النهاية كل لون في صندوق خاص به، أي أن الحل هو <strong>تعيين</strong> الألوان على الصناديق.</span></li>
+      <li><span>لتعيين ثابت: المنقولة = كل الكرات − الكرات التي في صندوق لونها أصلًا.</span></li>
+      <li><span>عدد التعيينات <code>3! = 6</code>، فنجربها كلها ونأخذ أكبر عدد باقٍ.</span></li>
+      <li><span><code>next_permutation</code> مع مصفوفة مرتبة و<code>do-while</code> يمر على كل الترتيبات دون أن يفوّت الأول.</span></li>
+      <li><span>الجشع يفشل لأن اختيار لون يحجز صندوقًا قد يحتاجه لون آخر أكثر.</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="ico">Aa</span><h3>قاموس المصطلحات</h3></div>
+    <div class="glossary-grid">
+      <div class="term-card"><span class="term-en">Assignment</span><span class="term-ar">تعيين</span><p class="term-desc">ربط كل لون بصندوق مختلف.</p></div>
+      <div class="term-card"><span class="term-en">Permutation</span><span class="term-ar">تبديلة / ترتيب</span><p class="term-desc">ترتيب العناصر بطريقة معينة. لثلاثة عناصر 6 تباديل.</p></div>
+      <div class="term-card"><span class="term-en">Complete search</span><span class="term-ar">البحث الشامل</span><p class="term-desc">تجربة كل الاحتمالات واختيار الأفضل، وينفع حين تكون الاحتمالات قليلة.</p></div>
+      <div class="term-card"><span class="term-en">Greedy</span><span class="term-ar">الجشع</span><p class="term-desc">أخذ أفضل خيار محلي في كل خطوة دون النظر إلى العواقب.</p></div>
+      <div class="term-card"><span class="term-en">next_permutation</span><span class="term-ar">الترتيب التالي</span><p class="term-desc">دالة من المكتبة <code>algorithm</code> تنتقل إلى الترتيب التالي قاموسيًا.</p></div>
+      <div class="term-card"><span class="term-en">Subtask</span><span class="term-ar">جزئية</span><p class="term-desc">مجموعة حالات اختبار بقيود أسهل تمنح جزءًا من النقاط.</p></div>
+    </div>
+  </div>
+
+  <div class="card steps-card" id="quizCard">
+    <div class="card-header"><span class="ico">?!</span><h3>اختبر فهمك</h3></div>
+    <p>ثمانية أسئلة قصيرة. اختر إجابة واحدة لكل سؤال.</p>
+    <div class="progress"><div class="progress-bar" id="quizBar"></div></div>
+    <div id="quizList"></div>
+    <div class="score-box hidden" id="quizScore"></div>
+  </div>
+
+  <div class="card refs-card">
+    <div class="card-header"><span class="ico">↗</span><h3>للاستزادة</h3></div>
+    <ul class="ref-list">
+      <li><a href="https://codeforces.com/group/xp2hGtKDm6/contest/708402/problem/A" target="_blank" rel="noopener"><span class="en">Marbles and Boxes &mdash; NSMO 2026 Stage 3 (Codeforces)</span></a></li>
+      <li><a href="https://nsmobooklets.mawhiba.sa/en/learn/archive/2026/contest-3/" target="_blank" rel="noopener"><span class="en">NSMO 2026 &mdash; Stage 3 booklet</span></a></li>
+      <li><a href="https://en.cppreference.com/w/cpp/algorithm/next_permutation" target="_blank" rel="noopener"><span class="en">std::next_permutation &mdash; cppreference</span></a></li>
+      <li><a href="https://en.cppreference.com/w/cpp/language/do" target="_blank" rel="noopener"><span class="en">do-while loop &mdash; cppreference</span></a></li>
+    </ul>
+  </div>
+</div>
+<button class="to-top" id="toTop" title="إلى الأعلى">↑</button>
+<footer>منصة TweetKod</footer>
+
+<script>
+{
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const COLPL = ['من اللون 1', 'من اللون 2', 'من اللون 3'];
+const PERMS = [[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]];
+const PRESETS = {
+  ex1: [[2,0,0],[3,0,0],[0,0,0]],
+  ex2: [[3,1,0],[9,5,0],[0,0,0]],
+  ex3: [[3,1,7],[6,6,8],[2,4,5]],
+  trap: [[9,8,0],[8,0,0],[0,0,0]]
+};
+const PNAME = { ex1: 'المثال 1', ex2: 'المثال 2', ex3: 'المثال 3', trap: 'فخ الجشع', rand: 'مصفوفة عشوائية', custom: 'مصفوفتك' };
+const CAP = 12;
+let M = PRESETS.ex3.map(r => r.slice()), P = [0,1,2], fin = false, S = 0, mname = 'ex3';
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const total = () => M.flat().reduce((a, b) => a + b, 0);
+const keptOf = p => p.reduce((s, b, c) => s + M[c][b], 0);
+const bestIdx = () => { let bi = 0; PERMS.forEach((p, i) => { if (keptOf(p) > keptOf(PERMS[bi])) bi = i; }); return bi; };
+const fmtB = p => '{' + p.join(', ') + '}';
+
+/* ---------- C++ highlighter ---------- */
+const KW = new Set(['int','for','do','while','using','namespace','return','bool','true','false','main','if']);
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+function hl(s) {
+  if (s.trim().startsWith('#')) return '<span class="pp">' + esc(s) + '</span>';
+  return s.replace(/('(?:\\.|[^'\\])*')|("[^"]*")|(\b\d+\b)|(\b[A-Za-z_]\w*\b)|([\s\S])/g, (m, ch, st, num, id) => {
+    if (ch || st) return '<span class="str">' + esc(m) + '</span>';
+    if (num) return '<span class="num">' + m + '</span>';
+    if (id) return KW.has(id) ? '<span class="kw">' + id + '</span>' : id;
+    return esc(m);
+  });
+}
+const CODES = {
+  sol: [
+    '#include <algorithm>', '#include <iostream>', 'using namespace std;', '',
+    'int main() {', '    int a[3][3];', '    int total = 0;', '',
+    '    for (int colour = 0; colour < 3; colour++) {',
+    '        for (int box = 0; box < 3; box++) {',
+    '            cin >> a[colour][box];',
+    '            total += a[colour][box];',
+    '        }', '    }', '',
+    '    int boxes[3] = {0, 1, 2};', '    int mostKept = 0;', '',
+    '    do {', '        int kept = 0;',
+    '        for (int colour = 0; colour < 3; colour++) {',
+    '            kept += a[colour][boxes[colour]];',
+    '        }',
+    '        mostKept = max(mostKept, kept);',
+    '    } while (next_permutation(boxes, boxes + 3));', '',
+    "    cout << total - mostKept << '\\n';", '}'
+  ],
+  greedy: [
+    'bool used[3] = {false, false, false};', 'int kept = 0;',
+    'for (int colour = 0; colour < 3; colour++) {', '    int pick = -1;',
+    '    for (int box = 0; box < 3; box++)',
+    '        if (!used[box] && (pick == -1 || a[colour][box] > a[colour][pick]))',
+    '            pick = box;',
+    '    used[pick] = true;', '    kept += a[colour][pick];', '}',
+    "cout << total - kept << '\\n';"
+  ],
+  bug: [
+    'int boxes[3] = {0, 1, 2};', 'int mostKept = 0;',
+    'while (next_permutation(boxes, boxes + 3)) {', '    int kept = 0;',
+    '    for (int colour = 0; colour < 3; colour++)',
+    '        kept += a[colour][boxes[colour]];',
+    '    mostKept = max(mostKept, kept);', '}',
+    "cout << total - mostKept << '\\n';"
+  ]
+};
+const EXPL = {
+  6: 'المصفوفة <code>a[colour][box]</code>: الصف لون والعمود صندوق، تمامًا كما في الإدخال.',
+  11: 'نقرأ سطرًا لكل لون، وفي كل سطر عدد كراته في الصناديق الثلاثة.',
+  12: 'نجمع كل الكرات في <code>total</code>، لأن الجواب سيكون <code>total</code> ناقص الكرات الباقية.',
+  16: '<code>boxes[colour]</code> هو الصندوق المخصص لهذا اللون. نبدأ بالترتيب التصاعدي <code>{0, 1, 2}</code> لأن <code>next_permutation</code> يزور فقط الترتيبات التي تأتي بعد الحالي.',
+  17: 'أفضل عدد من الكرات الباقية رأيناه حتى الآن.',
+  19: '<code>do</code> ينفّذ الجسم أولًا ثم يفحص الشرط، فنجرّب الترتيب الأول <code>{0, 1, 2}</code> قبل أن يتغير.',
+  22: 'كرات هذا اللون الموجودة في صندوقه المخصص <strong>لا تتحرك</strong>، فنضيفها إلى الباقية.',
+  24: 'نحتفظ بأكبر عدد باقٍ بين كل الترتيبات.',
+  25: 'ننتقل إلى الترتيب التالي. بعد الترتيب السادس <code>{2, 1, 0}</code> ترجع الدالة <code>false</code> فنخرج.',
+  27: 'أقل عدد من النقلات = كل الكرات − أكبر عدد يبقى مكانه.'
+};
+$('#solCode').innerHTML = CODES.sol.map((l, i) => '<span class="' + (EXPL[i + 1] ? 'code-line' : 'code-plain') + '" data-i="' + (i + 1) + '">' + (hl(l) || ' ') + '</span>').join('');
+$$('pre[data-code]').forEach(pre => { pre.innerHTML = CODES[pre.dataset.code].map(hl).join('\n'); });
+$('#solCode').addEventListener('click', e => {
+  const line = e.target.closest('.code-line'); if (!line) return;
+  $$('#solCode .code-line').forEach(l => l.classList.remove('active'));
+  line.classList.add('active');
+  $('#solExpl').innerHTML = EXPL[line.dataset.i];
+});
+$$('.copy-btn[data-copy]').forEach(b => b.addEventListener('click', () => {
+  const t = b.textContent;
+  const done = () => { b.textContent = 'تم النسخ ✓'; setTimeout(() => b.textContent = t, 1400); };
+  try { navigator.clipboard.writeText(CODES[b.dataset.copy].join('\n')).then(done, () => { b.textContent = 'تعذّر النسخ'; setTimeout(() => b.textContent = t, 1400); }); } catch (e) {}
+}));
+
+/* ---------- input-format figure ---------- */
+(function () {
+  const ex = PRESETS.ex1; let h = '<span class="hd"></span>';
+  for (let b = 0; b < 3; b++) h += '<span class="hd">صندوق ' + (b + 1) + '</span>';
+  for (let c = 0; c < 3; c++) {
+    h += '<span class="rw">لون ' + (c + 1) + ' <i class="mb sm c' + c + '"></i></span>';
+    for (let b = 0; b < 3; b++) h += '<span class="v c' + c + '">' + ex[c][b] + '</span>';
+  }
+  $('#fmtMtx').innerHTML = h;
+})();
+
+/* ---------- editor ---------- */
+(function () {
+  let h = '<tr><th></th><th>صندوق 1</th><th>صندوق 2</th><th>صندوق 3</th></tr>';
+  for (let c = 0; c < 3; c++) {
+    h += '<tr><th class="rowh"><i class="mb sm c' + c + '"></i>لون ' + (c + 1) + '</th>';
+    for (let b = 0; b < 3; b++) h += '<td><input type="number" min="0" max="999" inputmode="numeric" id="in' + c + b + '" aria-label="عدد كرات اللون ' + (c + 1) + ' في الصندوق ' + (b + 1) + '"></td>';
+    h += '</tr>';
+  }
+  $('#editor').innerHTML = h;
+  $('#editor').addEventListener('input', e => {
+    const id = e.target.id; if (!id) return;
+    const c = +id[2], b = +id[3];
+    let v = parseInt(e.target.value, 10); if (!Number.isFinite(v) || v < 0) v = 0; if (v > 999) v = 999;
+    M[c][b] = v; fin = false; mname = 'custom'; refresh(false);
+  });
+})();
+function fillEditor() { for (let c = 0; c < 3; c++) for (let b = 0; b < 3; b++) $('#in' + c + b).value = M[c][b]; }
+
+/* ---------- stage ---------- */
+function dots(c, o, n, go) {
+  let h = '';
+  for (let k = 0; k < Math.min(n, CAP); k++) h += '<i class="mb c' + c + (go ? ' go' : '') + '" data-id="' + c + '-' + o + '-' + k + '"></i>';
+  if (n > CAP) h += '<b class="more c' + c + '">+' + (n - CAP) + '</b>';
+  return h;
+}
+function drawStage() {
+  let h = '';
+  for (let b = 0; b < 3; b++) {
+    let body = '', chips = '';
+    if (!fin) {
+      for (let c = 0; c < 3; c++) { body += dots(c, b, M[c][b], P[c] !== b); if (M[c][b]) chips += '<span class="cnt c' + c + '">' + M[c][b] + '</span>'; }
+    } else {
+      const c = P.indexOf(b); let n = 0;
+      [b, ...[0,1,2].filter(x => x !== b)].forEach(o => { body += dots(c, o, M[c][o], false); n += M[c][o]; });
+      if (n) chips = '<span class="cnt c' + c + '">' + n + '</span>';
+    }
+    let picks = '';
+    for (let c = 0; c < 3; c++) picks += '<button class="pk c' + c + (P[c] === b ? ' on' : '') + '" data-b="' + b + '" data-c="' + c + '" aria-label="اجعل الصندوق ' + (b + 1) + ' للون ' + (c + 1) + '"></button>';
+    h += '<div class="bx"><div class="bx-h"><span>صندوق ' + (b + 1) + '</span><span class="chips">' + (chips || '<em>فارغ</em>') + '</span></div><div class="bx-body">' + body + '</div><div class="bx-f"><span>لونه النهائي</span><div class="pks">' + picks + '</div></div></div>';
+  }
+  $('#stage').innerHTML = h;
+  drawStats();
+}
+function drawStats() {
+  const t = total(), k = keptOf(P), mv = t - k, best = t - keptOf(PERMS[bestIdx()]);
+  $('#stTot').textContent = t; $('#stKeep').textContent = k; $('#stMove').textContent = mv;
+  let li = '';
+  for (let c = 0; c < 3; c++) for (let o = 0; o < 3; o++) {
+    if (o !== P[c] && M[c][o] > 0) li += '<li><i class="mb sm c' + c + '"></i><span>انقل <b>' + M[c][o] + '</b> ' + COLPL[c] + ' من الصندوق ' + (o + 1) + ' إلى الصندوق ' + (P[c] + 1) + '</span></li>';
+  }
+  $('#moves').innerHTML = li;
+  const v = $('#verdict');
+  if (t === 0) { v.className = 'say'; v.textContent = 'كل الصناديق فارغة، فالجواب 0.'; }
+  else if (mv === best) { v.className = 'say ok'; v.textContent = '✓ ممتاز! هذا أقل عدد ممكن من النقلات: ' + mv; }
+  else { v.className = 'say bad'; v.textContent = 'يوجد توزيع آخر ينقل كرات أقل. جرّب تغيير الألوان!'; }
+}
+function flip(update) {
+  const first = {};
+  $$('#stage .mb').forEach(m => { first[m.dataset.id] = m.getBoundingClientRect(); });
+  update();
+  if (reduce) return;
+  $$('#stage .mb').forEach(m => {
+    const f = first[m.dataset.id]; if (!f) return;
+    const l = m.getBoundingClientRect(), dx = f.left - l.left, dy = f.top - l.top;
+    if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+    if (fin) m.classList.add('land');
+    m.animate([{ transform: 'translate(' + dx + 'px,' + dy + 'px) scale(1.15)' }, { transform: 'translate(' + dx * .5 + 'px,' + (dy * .5 - 40) + 'px) scale(1.3)', offset: .5 }, { transform: 'none' }],
+      { duration: 900 + Math.random() * 500, easing: 'cubic-bezier(.45,0,.2,1)' });
+  });
+}
+$('#stage').addEventListener('click', e => {
+  const pk = e.target.closest('.pk'); if (!pk) return;
+  const c = +pk.dataset.c, b = +pk.dataset.b;
+  const c2 = P.indexOf(b), b2 = P[c];
+  P[c] = b; P[c2] = b2;
+  if (fin) flip(() => { fin = false; drawStage(); }); else drawStage();
+});
+$('#goBtn').addEventListener('click', () => { if (!fin) flip(() => { fin = true; drawStage(); }); });
+$('#backBtn').addEventListener('click', () => { if (fin) flip(() => { fin = false; drawStage(); }); });
+$('#bestBtn').addEventListener('click', () => {
+  const nb = PERMS[bestIdx()].slice();
+  const go = () => { P = nb; fin = false; drawStage(); };
+  if (fin) flip(go); else go();
+});
+
+/* ---------- permutations board + table ---------- */
+function drawPerms() {
+  const p = PERMS[S], t = total(), bi = bestIdx();
+  let h = '<span></span>';
+  for (let b = 0; b < 3; b++) h += '<span class="hd">صندوق ' + (b + 1) + '</span>';
+  for (let c = 0; c < 3; c++) {
+    h += '<span class="rw">لون ' + (c + 1) + ' <i class="mb sm c' + c + '"></i></span>';
+    for (let b = 0; b < 3; b++) h += '<button class="cellb c' + c + (p[c] === b ? ' on' : '') + '" data-c="' + c + '" data-b="' + b + '" aria-label="اللون ' + (c + 1) + ' إلى الصندوق ' + (b + 1) + '">' + M[c][b] + '</button>';
+  }
+  $('#board').innerHTML = h;
+  const k = keptOf(p);
+  $('#boardSum').innerHTML = esc(p.map((b, c) => M[c][b]).join(' + ') + ' = ' + k) + ' &nbsp;→&nbsp; ' + esc(t + ' − ' + k + ' = ' + (t - k));
+  let th = '<thead><tr><th>#</th><th>اللون 1، 2، 3 ← الصناديق</th><th>تبقى</th><th>تُنقل</th></tr></thead><tbody>';
+  PERMS.forEach((q, i) => {
+    const kk = keptOf(q);
+    const asg = q.map((b, c) => '<i><span class="mb sm c' + c + '"></span>' + (b + 1) + '</i>').join('');
+    th += '<tr class="' + (i === S ? 'sel ' : '') + (i === bi ? 'best' : '') + '" data-i="' + i + '"><td>' + (i + 1) + '</td><td><span class="asg">' + asg + '</span></td><td>' + q.map((b, c) => M[c][b]).join('+') + '=' + kk + '</td><td>' + (t - kk) + (i === bi ? ' <span class="star">★</span>' : '') + '</td></tr>';
+  });
+  $('#ptab').innerHTML = th + '</tbody>';
+}
+$('#ptab').addEventListener('click', e => { const tr = e.target.closest('tr[data-i]'); if (!tr) return; S = +tr.dataset.i; drawPerms(); });
+$('#board').addEventListener('click', e => {
+  const cb = e.target.closest('.cellb'); if (!cb) return;
+  const c = +cb.dataset.c, b = +cb.dataset.b, p = PERMS[S].slice();
+  const c2 = p.indexOf(b), b2 = p[c]; p[c] = b; p[c2] = b2;
+  S = PERMS.findIndex(q => q.join() === p.join()); drawPerms();
+});
+
+/* ---------- tracer ---------- */
+$('#trCode').innerHTML = CODES.sol.map((l, i) => '<div class="tr-line"><span class="ln">' + (i + 1) + '</span><span class="src">' + (hl(l) || ' ') + '</span></div>').join('');
+const trLines = $$('#trCode .tr-line');
+let steps = [], ti = 0, timer = null;
+function buildSteps() {
+  const t = total(); let best = 0; steps = [];
+  steps.push({ line: -1, vars: {}, note: 'نقطة البداية: لم يُنفَّذ أي سطر بعد.' });
+  steps.push({ line: 11, vars: { total: t }, note: 'قرأنا الأعداد التسعة، وجمعناها: <code>total = ' + t + '</code>.' });
+  steps.push({ line: 15, vars: { total: t, boxes: '{0, 1, 2}', mostKept: 0 }, cells: [0,1,2], note: 'نبدأ بالترتيب التصاعدي: اللون 1 ← الصندوق 1، اللون 2 ← الصندوق 2، اللون 3 ← الصندوق 3.' });
+  PERMS.forEach((p, k) => {
+    const vals = p.map((b, c) => M[c][b]), kept = vals.reduce((a, b) => a + b, 0);
+    steps.push({ line: 21, vars: { total: t, boxes: fmtB(p), kept: kept, mostKept: best }, cells: p,
+      note: 'الترتيب ' + (k + 1) + ' من 6: ' + p.map((b, c) => 'اللون ' + (c + 1) + ' ← صندوق ' + (b + 1)).join('، ') + '. الباقية: <code>' + vals.join(' + ') + ' = ' + kept + '</code>.' });
+    const nb = Math.max(best, kept);
+    steps.push({ line: 23, vars: { total: t, boxes: fmtB(p), kept: kept, mostKept: nb }, cells: p,
+      note: kept > best ? 'أفضل مما سبق! صار <code>mostKept = ' + nb + '</code>.' : 'ليس أفضل من <code>' + best + '</code>، فلا يتغير <code>mostKept</code>.' });
+    best = nb;
+    if (k < 5) steps.push({ line: 24, vars: { total: t, boxes: fmtB(PERMS[k + 1]), mostKept: best }, cells: PERMS[k + 1],
+      note: '<code>next_permutation</code> يغيّر المصفوفة إلى <code>' + fmtB(PERMS[k + 1]) + '</code> ويرجع <code>true</code>، فنعود إلى بداية الحلقة.' });
+    else steps.push({ line: 24, vars: { total: t, boxes: '{0, 1, 2}', mostKept: best }, cells: null,
+      note: 'لا يوجد ترتيب بعد <code>{2, 1, 0}</code>: الدالة تعيد المصفوفة إلى <code>{0, 1, 2}</code> وترجع <code>false</code>، فنخرج من الحلقة.' });
+  });
+  steps.push({ line: 26, vars: { total: t, mostKept: best }, out: (t - best) + '\n', note: 'الجواب: <code>' + t + ' − ' + best + ' = ' + (t - best) + '</code> كرة يجب نقلها.' });
+}
+const tbtn = a => $('#tracer [data-a="' + a + '"]');
+function tDraw() {
+  const s = steps[ti], prev = ti > 0 ? steps[ti - 1].vars : {};
+  trLines.forEach((l, k) => l.classList.toggle('active', k === s.line));
+  const names = Object.keys(s.vars);
+  $('#trVars').innerHTML = names.length ? names.map(n => '<div class="tr-var' + (prev[n] !== s.vars[n] ? ' changed' : '') + '"><span>' + esc(n) + '</span><b>' + esc(s.vars[n]) + '</b></div>').join('') : '<span style="color:#94a3b8">لا توجد متغيرات بعد</span>';
+  let mm = '';
+  for (let c = 0; c < 3; c++) for (let b = 0; b < 3; b++) mm += '<span class="c' + c + (s.cells && s.cells[c] === b ? ' on' : '') + '">' + (ti > 0 ? M[c][b] : '?') + '</span>';
+  $('#trMm').innerHTML = mm;
+  $('#trOut').textContent = s.out || ' ';
+  $('#trNote').innerHTML = s.note;
+  $('#trCount').textContent = 'الخطوة ' + ti + ' من ' + (steps.length - 1);
+  tbtn('prev').disabled = ti === 0; tbtn('next').disabled = ti === steps.length - 1;
+}
+function tStop() { if (timer) { clearInterval(timer); timer = null; tbtn('play').textContent = '▶ تشغيل تلقائي'; } }
+tbtn('next').onclick = () => { tStop(); if (ti < steps.length - 1) ti++; tDraw(); };
+tbtn('prev').onclick = () => { tStop(); if (ti > 0) ti--; tDraw(); };
+tbtn('reset').onclick = () => { tStop(); ti = 0; tDraw(); };
+tbtn('play').onclick = () => {
+  if (timer) { tStop(); return; }
+  if (ti >= steps.length - 1) ti = 0;
+  tbtn('play').textContent = '❚❚ إيقاف';
+  timer = setInterval(() => { if (ti < steps.length - 1) { ti++; tDraw(); } else tStop(); }, 1300);
+  tDraw();
+};
+
+/* ---------- shared refresh + presets ---------- */
+function refresh(editor) {
+  if (editor) fillEditor();
+  drawStage(); S = bestIdx(); drawPerms();
+  tStop(); buildSteps(); ti = 0; tDraw();
+  $('#trMtxName').textContent = PNAME[mname];
+  $$('.ps').forEach(b => b.classList.toggle('on', b.dataset.p === mname && mname !== 'rand'));
+}
+function loadPreset(name) {
+  if (name === 'rand') M = [0,1,2].map(() => [0,1,2].map(() => Math.floor(Math.random() * 10)));
+  else M = PRESETS[name].map(r => r.slice());
+  P = [0,1,2]; fin = false; mname = name; refresh(true);
+}
+$$('.ps').forEach(b => b.addEventListener('click', () => {
+  loadPreset(b.dataset.p);
+  if (b.dataset.go) document.getElementById(b.dataset.go).scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+}));
+
+/* ---------- predict ---------- */
+$$('.predict').forEach(p => {
+  const opts = p.querySelectorAll('.pd-opt');
+  opts.forEach(o => o.addEventListener('click', () => {
+    const ok = o.dataset.ok === '1';
+    opts.forEach(x => { x.disabled = true; if (x.dataset.ok === '1') x.classList.add('correct'); });
+    if (!ok) o.classList.add('wrong');
+    p.querySelector('.pd-result').classList.remove('hidden');
+    p.querySelector('.pd-msg').innerHTML = ok ? '<span style="color:#16a34a">✓ توقّعك صحيح! هذا هو الناتج:</span>' : '<span style="color:#dc2626">✗ ليس تمامًا. هذا هو الناتج الحقيقي، وتابع التفسير:</span>';
+  }));
+});
+
+/* ---------- quiz ---------- */
+const QUIZ = [
+  { q: 'لماذا يوجد 6 توزيعات فقط للألوان على الصناديق؟', o: ['لأن في المصفوفة 6 خانات غير صفرية دائمًا', 'لأن للّون الأول 3 خيارات، ثم 2 للثاني، ثم 1 للثالث: <code>3! = 6</code>', 'لأن <code>3 + 3 = 6</code>', 'لأن كل لون يمكن أن يذهب لأي صندوق دون قيود'], a: 1, why: 'كل لون يأخذ صندوقًا مختلفًا، فعدد الطرق <code>3 × 2 × 1 = 6</code>.' },
+  { q: 'إذا كان <code>total = 42</code> و<code>mostKept = 17</code> فما الجواب؟', o: ['17', '59', '25', '42'], a: 2, why: 'الجواب = كل الكرات − أكبر عدد باقٍ = <code>42 − 17 = 25</code>.' },
+  { q: 'في الكود، ماذا تعني القيمة <code>a[1][2]</code>؟', o: ['عدد كرات اللون 2 في الصندوق 3', 'عدد كرات اللون 3 في الصندوق 2', 'عدد كرات اللون 1 في الصندوق 2', 'رقم الصندوق المخصص للون 2'], a: 0, why: 'الفهرس الأول لون والثاني صندوق، والترقيم من 0: اللون رقم 1 هو الثاني، والصندوق رقم 2 هو الثالث.' },
+  { q: 'لماذا تكفي نقلة واحدة لكل كرة ليست في صندوق لونها؟', o: ['لأن للصناديق سعة محدودة', 'لأن عدد الكرات قليل', 'لأننا نستطيع نقلها مباشرة إلى صندوق لونها', 'لأن ترتيب النقلات يغيّر الجواب'], a: 2, why: 'لا فائدة من المرور بصندوق وسيط؛ ننقل الكرة مرة واحدة مباشرة إلى صندوقها النهائي.' },
+  { q: 'ما الجواب للمدخل <code>0 0 0 / 0 0 0 / 4 0 0</code>؟', o: ['0', '4', '8', '12'], a: 0, why: 'الكرات الأربع كلها من اللون 3 في الصندوق 1. نجعل الصندوق 1 للون 3، فلا ننقل شيئًا.' },
+  { q: 'ما الذي يحدث لو استعملنا <code>while (next_permutation(...))</code> بدل <code>do-while</code>؟', o: ['يصبح البرنامج أسرع ولا يتغير الجواب', 'نفوّت الترتيب الأول <code>{0, 1, 2}</code>', 'ندخل في حلقة لا تنتهي', 'نجرب كل ترتيب مرتين'], a: 1, why: 'الشرط يُنفَّذ أولًا فيغيّر المصفوفة قبل أن نجرّب الترتيب الأول.' },
+  { q: 'في الجزئية التي يكون فيها الصندوقان 2 و3 فارغين، ما الجواب؟', o: ['<code>total − min</code> للعمود الأول', 'دائمًا 0', '<code>total − max(a[0][0], a[1][0], a[2][0])</code>', 'مجموع العمود الأول'], a: 2, why: 'نُبقي في الصندوق 1 اللون الأكثر عددًا فيه، وننقل كل ما عداه.' },
+  { q: 'ما تعقيد الحل؟', o: ['<code>O(total)</code> لأننا نعدّ الكرات', 'ثابت <code>O(1)</code>: نحو 18 عملية', '<code>O(n²)</code>', '<code>O(2ⁿ)</code>'], a: 1, why: '6 ترتيبات × 3 ألوان = 18 عملية، مهما كانت أعداد الكرات.' }
+];
+(function () {
+  const list = $('#quizList'), bar = $('#quizBar');
+  let answered = 0, right = 0;
+  QUIZ.forEach((q, qi) => {
+    const d = document.createElement('div'); d.className = 'quiz-q';
+    d.innerHTML = '<h4><span class="qnum">' + (qi + 1) + '</span>' + q.q + '</h4><div class="quiz-options"></div><div class="feedback"></div>';
+    const box = d.querySelector('.quiz-options');
+    q.o.forEach((txt, oi) => {
+      const b = document.createElement('button'); b.className = 'quiz-opt'; b.innerHTML = txt;
+      b.addEventListener('click', () => {
+        box.querySelectorAll('.quiz-opt').forEach(x => x.disabled = true);
+        const ok = oi === q.a;
+        b.classList.add(ok ? 'correct' : 'wrong');
+        if (!ok) box.children[q.a].classList.add('correct');
+        const fb = d.querySelector('.feedback');
+        fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+        fb.innerHTML = (ok ? '✓ صحيح! ' : '✗ ليست الإجابة الصحيحة. ') + q.why;
+        answered++; if (ok) right++;
+        bar.style.width = (answered / QUIZ.length * 100) + '%';
+        if (answered === QUIZ.length) {
+          const s = $('#quizScore'), pct = right / QUIZ.length;
+          s.classList.remove('hidden');
+          s.innerHTML = '<div class="big">' + right + ' / ' + QUIZ.length + '</div><div>' + (pct === 1 ? 'نتيجة كاملة! فهمت المسألة تمامًا.' : pct >= .7 ? 'أداء جيد جدًا، راجع الأسئلة التي أخطأت فيها.' : 'راجع الشرح مرة أخرى ثم أعد المحاولة.') + '</div>';
+        }
+      });
+      box.appendChild(b);
+    });
+    list.appendChild(d);
+  });
+})();
+
+/* ---------- header tools ---------- */
+(function () {
+  const root = document.documentElement;
+  const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const set = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  const themeBtn = $('#themeBtn');
+  const apply = t => { root.setAttribute('data-theme', t); themeBtn.textContent = t === 'dark' ? '☀' : '☾'; };
+  const saved = get('tk_theme');
+  if (saved) apply(saved); else if (!root.getAttribute('data-theme')) apply('light'); else apply(root.getAttribute('data-theme'));
+  themeBtn.addEventListener('click', () => { const t = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; apply(t); set('tk_theme', t); });
+  let size = parseFloat(get('tk_codesize') || '0.95');
+  const applySize = () => root.style.setProperty('--code-size', size + 'rem');
+  applySize();
+  $('#fontDec').addEventListener('click', () => { size = Math.max(.75, +(size - .1).toFixed(2)); applySize(); set('tk_codesize', size); });
+  $('#fontInc').addEventListener('click', () => { size = Math.min(1.3, +(size + .1).toFixed(2)); applySize(); set('tk_codesize', size); });
+  const panel = $('#tocPanel'); let n = 0;
+  $$('.container > .card').forEach((c, i) => {
+    const h = c.querySelector('.card-header h3'); if (!h) return;
+    n++; c.id = c.id || 'sec-' + i;
+    const a = document.createElement('a'); a.href = '#' + c.id;
+    a.innerHTML = '<span>' + n + '</span><bdi>' + h.innerHTML + '</bdi>';
+    a.addEventListener('click', () => panel.classList.remove('open'));
+    panel.appendChild(a);
+  });
+  $('#tocBtn').addEventListener('click', e => { e.stopPropagation(); panel.classList.toggle('open'); });
+  document.addEventListener('click', e => { if (!panel.contains(e.target)) panel.classList.remove('open'); });
+  const bar = $('#readBar'), top = $('#toTop');
+  const onScroll = () => { const h = document.documentElement, max = h.scrollHeight - h.clientHeight; bar.style.width = (max > 0 ? h.scrollTop / max * 100 : 0) + '%'; top.classList.toggle('show', h.scrollTop > 600); };
+  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  top.addEventListener('click', () => window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }));
+})();
+
+refresh(true);
+}
+</script>
+</body>
+</html>

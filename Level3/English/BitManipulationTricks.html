@@ -405,6 +405,7 @@ footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; fon
 .stu-table { width: 100%; border-collapse: collapse; direction: ltr; font-size: .92rem; margin: 8px 0; }
 .stu-table th, .stu-table td { border: 1px solid var(--border); padding: 7px 12px; text-align: center; }
 .stu-table th { background: var(--chip-bg); }
+.btn-run.active { outline: 3px solid var(--primary-yellow); }
 
 </style>
 </head>
@@ -431,7 +432,7 @@ footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; fon
   </div>
   <div class="card goals-card">
     <div class="card-header"><i class="fas fa-bullseye"></i><h3>What will you learn in this lesson?</h3></div>
-    <ul class="obj-list"><li><i class="fas fa-check-circle"></i><span>Understand the idea of the mask <code class="inline">1 &lt;&lt; k</code> and use it to check, set, clear and toggle</span></li><li><i class="fas fa-check-circle"></i><span>Use <code class="inline">x &amp; (x - 1)</code> and <code class="inline">x &amp; -x</code> and know why they work</span></li><li><i class="fas fa-check-circle"></i><span>Test for powers of 2 correctly and avoid the zero trap</span></li><li><i class="fas fa-check-circle"></i><span>Count lit cells with Kernighan's trick</span></li><li><i class="fas fa-check-circle"></i><span>Store several options in one number using flags</span></li></ul>
+    <ul class="obj-list"><li><i class="fas fa-check-circle"></i><span>Understand how the left and right shifts move the cells and how the number changes</span></li><li><i class="fas fa-check-circle"></i><span>Understand the idea of the mask <code class="inline">1 &lt;&lt; k</code> and use it to check, set, clear and toggle</span></li><li><i class="fas fa-check-circle"></i><span>See each of the four tasks carried out step by step</span></li><li><i class="fas fa-check-circle"></i><span>Follow how the cells of a number change after a series of tasks</span></li></ul>
   </div>
 
 <div class="card steps-card">
@@ -457,6 +458,26 @@ footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; fon
 
 
 <div class="card">
+  <div class="card-header"><i class="fas fa-arrows-left-right"></i><h3>Interactive lab: how do the cells move in a shift?</h3></div>
+  <p>Type a number from 0 to 255, then press a shift button <strong>again and again</strong>. On each press every cell moves one place, and you will see the new cell that appears (in yellow) and the cell that falls off the edge.</p>
+  <div class="sim-box">
+    <div class="sim-inputs"><div class="field"><label>Starting number (0 to 255)</label><input type="number" id="shNum" min="0" max="255" value="13" oninput="shFromInput()"></div></div>
+    <div class="bit-label">weight of each cell</div><div class="bit-row" id="shW"></div>
+    <div class="bit-label">the cells now</div><div class="bit-row" id="shRow"></div>
+    <div class="lab-row">
+      <button class="btn-run" onclick="shStep('l')"><i class="fas fa-arrow-left"></i> x &lt;&lt; 1 (shift left)</button>
+      <button class="btn-run" onclick="shStep('r')">x &gt;&gt; 1 (shift right) <i class="fas fa-arrow-right"></i></button>
+      <button class="btn-run" onclick="shReset()"><i class="fas fa-rotate-left"></i> From the start</button>
+      <button class="btn-run" onclick="shRandom()"><i class="fas fa-dice"></i> Random number</button>
+    </div>
+    <div class="sim-console" id="shOut"></div>
+    <div class="lab-say" id="shNote"></div>
+  </div>
+  <div class="tip-box"><i class="fas fa-lightbulb"></i><p>A left shift by <code>k</code> equals multiplying by <code>2<sup>k</sup></code>, and a right shift by <code>k</code> equals dividing by <code>2<sup>k</sup></code> and dropping the remainder. Every lit cell that leaves the edge of the number is lost for good.</p></div>
+</div>
+
+
+<div class="card">
   <div class="card-header"><i class="fas fa-screwdriver-wrench"></i><h3>A toolbox for bits</h3></div>
   <p>In this lesson we use the bit operators to do useful things. Almost every trick in this lesson is built on one idea called the mask: a small number we make with <code>1 &lt;&lt; k</code>, which has a single lit cell, cell number <code>k</code>, and then combine with the original number using the right operator.</p>
   <div class="analogy"><i class="fas fa-mask"></i><p>A mask is like a sheet of paper with a single hole laid over a panel of lamps: you can only see and touch the lamp under the hole. And <code>1 &lt;&lt; k</code> is the sheet whose hole sits above lamp number <code>k</code>.</p></div>
@@ -468,6 +489,34 @@ footer.page-footer { text-align: center; padding: 40px 20px; color: #94a3b8; fon
     <tr><td>Flip cell <code>k</code></td><td><code>x ^= (1 &lt;&lt; k)</code></td><td><code>^</code> flips</td></tr>
   </table></div>
   <p>Remember that <code>k</code> starts at 0, and that the number 1 has type <code>int</code>: for large numbers (more than 31 cells) write <code>1LL &lt;&lt; k</code>.</p>
+</div>
+
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-diagram-project"></i><h3>Interactive diagram: how does each task work, step by step?</h3></div>
+  <p>Choose one of the four tasks, type the number <code>x</code> and the cell number <code>k</code>, then press "Next step" to see the result built row by row. The cells colored yellow are the cells that changed.</p>
+  <div class="sim-box">
+    <div class="lab-row">
+      <button class="btn-run" id="tsB_check" onclick="tsOp('check')">Check</button>
+      <button class="btn-run" id="tsB_set" onclick="tsOp('set')">Set (light)</button>
+      <button class="btn-run" id="tsB_clear" onclick="tsOp('clear')">Clear (switch off)</button>
+      <button class="btn-run" id="tsB_toggle" onclick="tsOp('toggle')">Toggle</button>
+    </div>
+    <div class="sim-inputs">
+      <div class="field"><label>number x (0 to 255)</label><input type="number" id="tsXin" min="0" max="255" value="13" oninput="tsInput()"></div>
+      <div class="field"><label>cell number k (0 to 7)</label><input type="number" id="tsKin" min="0" max="7" value="2" oninput="tsInput()"></div>
+    </div>
+    <div id="tsRows"></div>
+    <div class="lab-say" id="tsNote"></div>
+    <div class="lab-row">
+      <button class="btn-run" id="tsPrev" onclick="tsPrev()"><i class="fas fa-backward-step"></i> Previous</button>
+      <button class="btn-run" id="tsNext" onclick="tsNext()">Next step <i class="fas fa-forward-step"></i></button>
+      <button class="btn-run" onclick="tsPlay()"><i class="fas fa-play"></i> Auto play</button>
+      <button class="btn-run" onclick="tsReset()"><i class="fas fa-rotate-left"></i> From the start</button>
+      <button class="btn-run" onclick="tsRandom()"><i class="fas fa-dice"></i> Random number</button>
+      <span class="tr-count" id="tsCount" style="align-self:center;font-weight:800"></span>
+    </div>
+  </div>
 </div>
 
 
@@ -496,12 +545,17 @@ cout &lt;&lt; (x &amp; (<span class="num">1</span> &lt;&lt; <span class="num">3<
 00000011  3
 00000111  7</div>
   <div class="tip-box"><i class="fas fa-lightbulb"></i><p>Shorten the rule like this: <code>|</code> to light, <code>&amp; ~</code> to switch off, and <code>^</code> to flip. If you want several cells at once, combine masks with <code>|</code>: for example <code>x |= (1 &lt;&lt; 0) | (1 &lt;&lt; 4)</code>.</p></div>
+  <div class="predict"><div class="predict-head"><i class="fas fa-brain"></i> Predict before you run</div><div class="code-box"><div class="code-head"><span>predict_moves.cpp</span><button class="copy-btn" onclick="copyCode('code_p_moves')">Copy code</button></div><pre id="code_p_moves"><span class="kw">int</span> x = <span class="num">9</span>;
+x |= (<span class="num">1</span> &lt;&lt; <span class="num">1</span>);
+x &amp;= ~(<span class="num">1</span> &lt;&lt; <span class="num">0</span>);
+x ^= (<span class="num">1</span> &lt;&lt; <span class="num">3</span>);
+cout &lt;&lt; x &lt;&lt; endl;</pre></div><p class="pd-q">What will the program print? (The number 9 is <code class="inline">1001</code>; follow each line on its own)</p><div class="pd-opts"><button class="pd-opt" data-ok="0">11</button><button class="pd-opt" data-ok="0">10</button><button class="pd-opt" data-ok="0">3</button><button class="pd-opt" data-ok="1">2</button></div><div class="pd-result hidden"><div class="pd-msg"></div><div class="output-box">2</div><p class="pd-why">We follow the number step by step: <code class="inline">1001</code> (9). Setting with <code class="inline">|= (1 &lt;&lt; 1)</code> lights cell 1, giving <code class="inline">1011</code> (11). Clearing with <code class="inline">&amp;= ~(1 &lt;&lt; 0)</code> switches off cell 0, giving <code class="inline">1010</code> (10). Toggling with <code class="inline">^= (1 &lt;&lt; 3)</code> switches off cell 3 because it was lit, giving <code class="inline">0010</code>. The output is 2.</p></div></div>
 </div>
 
 
 <div class="card">
   <div class="card-header"><i class="fas fa-flask"></i><h3>Interactive lab: the trick box</h3></div>
-  <p>Click the cells to build a number, then choose the cell number <code>k</code> and try the tricks. For the operations that change the number, the changed cells are highlighted in yellow.</p>
+  <p>Click the cells to build a number, then choose the cell number <code>k</code> and try the four tasks freely. For the operations that change the number, the changed cells are highlighted in yellow.</p>
   <div class="sim-box">
     <div class="sim-inputs"><div class="field"><label>cell number k (0 to 7)</label><input type="number" id="btK" min="0" max="7" value="2" oninput="btDraw()"></div></div>
     <div class="bit-label">weight of each cell</div><div class="bit-row" id="btW"></div>
@@ -513,87 +567,12 @@ cout &lt;&lt; (x &amp; (<span class="num">1</span> &lt;&lt; <span class="num">3<
       <button class="btn-run" onclick="btOp('toggle')">x ^= 1&lt;&lt;k</button>
     </div>
     <div class="lab-row">
-      <button class="btn-run" onclick="btOp('rmlow')">x &amp;= x - 1</button>
-      <button class="btn-run" onclick="btOp('low')">x &amp; -x</button>
-      <button class="btn-run" onclick="btOp('pow2')">power of 2?</button>
       <button class="btn-run" onclick="btOp('pop')">count lit cells</button>
       <button class="btn-run" onclick="btReset()"><i class="fas fa-rotate-left"></i></button>
     </div>
     <div class="sim-console" id="btOut"></div>
     <div class="lab-say" id="btNote"></div>
   </div>
-</div>
-
-
-<div class="card steps-card">
-  <div class="card-header"><i class="fas fa-minimize"></i><h3>The lowest lit cell</h3></div>
-  <p>Here are the two most famous tricks. The whole secret is that subtracting 1 flips the cells from the lowest lit cell downward:</p>
-  <div class="code-box" data-expl="lowbit"><div class="code-head"><span>lowest_bit.cpp</span><button class="copy-btn" onclick="copyCode('code_lowbit')">Copy code</button></div><pre id="code_lowbit"><span class="code-plain"><span class="kw">int</span> x = <span class="num">12</span>;</span><span class="code-line" data-i="1">cout &lt;&lt; bitset&lt;<span class="num">8</span>&gt;(x) &lt;&lt; <span class="str">" "</span> &lt;&lt; x &lt;&lt; endl;</span><span class="code-line" data-i="2">cout &lt;&lt; bitset&lt;<span class="num">8</span>&gt;(x - <span class="num">1</span>) &lt;&lt; <span class="str">" "</span> &lt;&lt; (x - <span class="num">1</span>) &lt;&lt; endl;</span><span class="code-line" data-i="3">cout &lt;&lt; bitset&lt;<span class="num">8</span>&gt;(x &amp; (x - <span class="num">1</span>)) &lt;&lt; <span class="str">" "</span> &lt;&lt; (x &amp; (x - <span class="num">1</span>)) &lt;&lt; endl;</span><span class="code-line" data-i="4">cout &lt;&lt; bitset&lt;<span class="num">8</span>&gt;(x &amp; -x) &lt;&lt; <span class="str">" "</span> &lt;&lt; (x &amp; -x) &lt;&lt; endl;</span></pre></div><div class="explain-box" data-for="lowbit"><span class="hint">Click any highlighted line of code to read its explanation here...</span></div>
-  <div class="output-box">00001100 12
-00001011 11
-00001000 8
-00000100 4</div>
-  <div class="cell-row"><div class="cell">x<small>...1 0 0 0</small></div><div class="cell">x - 1<small>...0 1 1 1</small></div><div class="cell sel">x &amp; (x-1)<small>...0 0 0 0</small></div><div class="cell sel">x &amp; -x<small>0 0 0 1 0 0 0</small></div></div>
-  <ul>
-    <li><code>x &amp; (x - 1)</code> removes the lowest lit cell and leaves the rest.</li>
-    <li><code>x &amp; -x</code> keeps the lowest lit cell and removes the rest.</li>
-  </ul>
-  <h4>Testing for powers of 2</h4>
-  <p>A number that is a power of 2 (1, 2, 4, 8, ...) has exactly one lit cell. So if we remove the lowest lit cell, nothing is left:</p>
-  <div class="code-box"><div class="code-head"><span>power_of_two.cpp</span><button class="copy-btn" onclick="copyCode('code_pow2')">Copy code</button></div><pre id="code_pow2"><span class="kw">for</span> (<span class="kw">int</span> x : {<span class="num">1</span>, <span class="num">6</span>, <span class="num">8</span>, <span class="num">12</span>, <span class="num">64</span>, <span class="num">0</span>}) {
-    <span class="kw">bool</span> naive = (x &amp; (x - <span class="num">1</span>)) == <span class="num">0</span>;
-    <span class="kw">bool</span> safe = x &gt; <span class="num">0</span> &amp;&amp; (x &amp; (x - <span class="num">1</span>)) == <span class="num">0</span>;
-    cout &lt;&lt; x &lt;&lt; <span class="str">": "</span> &lt;&lt; naive &lt;&lt; <span class="str">" "</span> &lt;&lt; safe &lt;&lt; endl;
-}</pre></div>
-  <div class="output-box">1: 1 1
-6: 0 0
-8: 1 1
-12: 0 0
-64: 1 1
-0: 1 0</div>
-  <div class="warn-box"><i class="fas fa-triangle-exclamation"></i><p>Zero is a trap! The number 0 has no lit cells, so it passes the first test even though it is not a power of 2. Always add the condition <code>x &gt; 0</code>.</p></div>
-</div>
-
-
-<div class="card steps-card">
-  <div class="card-header"><i class="fas fa-shoe-prints"></i><h3>Trace: counting lit cells with Kernighan's trick</h3></div>
-  <p>Instead of checking every cell one by one, we remove <strong>only the lowest lit cell</strong> in each round. So the loop runs as many times as there are lit cells, not as many as the length of the number. Press "Next":</p>
-  <div class="tracer" data-trace="trace"><div class="tr-head"><i class="fas fa-bug-slash"></i> Step-by-step execution</div><div class="tr-grid"><div class="tr-code"><div class="tr-line" data-i="0"><span class="ln">1</span><span class="src"><span class="kw">int</span> x = <span class="num">13</span>;</span></div><div class="tr-line" data-i="1"><span class="ln">2</span><span class="src"><span class="kw">int</span> count = <span class="num">0</span>;</span></div><div class="tr-line" data-i="2"><span class="ln">3</span><span class="src"><span class="kw">while</span> (x &gt; <span class="num">0</span>) {</span></div><div class="tr-line" data-i="3"><span class="ln">4</span><span class="src">    x &amp;= x - <span class="num">1</span>;</span></div><div class="tr-line" data-i="4"><span class="ln">5</span><span class="src">    count++;</span></div><div class="tr-line" data-i="5"><span class="ln">6</span><span class="src">}</span></div><div class="tr-line" data-i="6"><span class="ln">7</span><span class="src">cout &lt;&lt; count &lt;&lt; endl;</span></div></div><div class="tr-side"><div class="tr-box"><div class="tr-title">Variables</div><div class="tr-vars"></div></div><div class="tr-box"><div class="tr-title">Output so far</div><div class="tr-out"></div></div></div></div><div class="tr-note"></div><div class="tr-ctrl"><button class="tr-btn" data-a="reset" title="Restart"><i class="fas fa-backward-fast"></i></button><button class="tr-btn" data-a="prev"><i class="fas fa-backward-step"></i> Previous</button><button class="tr-btn primary" data-a="next">Next <i class="fas fa-forward-step"></i></button><button class="tr-btn" data-a="play"><i class="fas fa-play"></i> Auto-play</button><span class="tr-count"></span></div></div>
-  <div class="predict"><div class="predict-head"><i class="fas fa-brain"></i> Predict before you run</div><div class="code-box"><div class="code-head"><span>predict_trick.cpp</span><button class="copy-btn" onclick="copyCode('code_p_trick')">Copy code</button></div><pre id="code_p_trick"><span class="kw">int</span> x = <span class="num">40</span>;
-cout &lt;&lt; (x &amp; -x) &lt;&lt; <span class="str">" "</span>;
-x &amp;= x - <span class="num">1</span>;
-cout &lt;&lt; x &lt;&lt; endl;</pre></div><p class="pd-q">What will the program print? (The number 40 is <code class="inline">101000</code>)</p><div class="pd-opts"><button class="pd-opt" data-ok="0">32 8</button><button class="pd-opt" data-ok="0">40 8</button><button class="pd-opt" data-ok="0">8 8</button><button class="pd-opt" data-ok="1">8 32</button></div><div class="pd-result hidden"><div class="pd-msg"></div><div class="output-box">8 32</div><p class="pd-why">The lowest lit cell of 40 is worth 8, so <code class="inline">x &amp; -x</code> gives 8. Then <code class="inline">x &amp;= x - 1</code> removes that cell, leaving <code class="inline">100000</code>, that is 32. The output is <code class="inline">8 32</code>.</p></div></div>
-</div>
-
-
-<div class="card steps-card">
-  <div class="card-header"><i class="fas fa-flag"></i><h3>Option flags in one number</h3></div>
-  <p>One of the most famous uses of masks is storing several options (yes or no) inside a single number. This is how file permissions work in operating systems: read, write and execute in three cells:</p>
-  <div class="code-box"><div class="code-head"><span>flags.cpp</span><button class="copy-btn" onclick="copyCode('code_flags')">Copy code</button></div><pre id="code_flags"><span class="kw">const</span> <span class="kw">int</span> READ = <span class="num">1</span> &lt;&lt; <span class="num">0</span>;
-<span class="kw">const</span> <span class="kw">int</span> WRITE = <span class="num">1</span> &lt;&lt; <span class="num">1</span>;
-<span class="kw">const</span> <span class="kw">int</span> EXEC = <span class="num">1</span> &lt;&lt; <span class="num">2</span>;
-
-<span class="kw">int</span> perm = READ | EXEC;
-cout &lt;&lt; bitset&lt;<span class="num">3</span>&gt;(perm) &lt;&lt; endl;
-cout &lt;&lt; ((perm &amp; WRITE) != <span class="num">0</span>) &lt;&lt; ((perm &amp; EXEC) != <span class="num">0</span>) &lt;&lt; endl;
-perm |= WRITE;
-perm &amp;= ~EXEC;
-cout &lt;&lt; bitset&lt;<span class="num">3</span>&gt;(perm) &lt;&lt; endl;</pre></div>
-  <div class="output-box">101
-01
-011</div>
-  <p>Each permission has a named mask, and we combine options with <code>|</code>, check them with <code>&amp;</code>, and remove them with <code>&amp; ~</code>. The same idea lets us represent a whole set of items with one number.</p>
-  <h4>The mask of the low cells</h4>
-  <p>The expression <code>(1 &lt;&lt; k) - 1</code> gives <code>k</code> consecutive lit cells starting from the lowest. So it cuts out the last <code>k</code> cells of any number, and it equals the remainder of division by <code>2<sup>k</sup></code>:</p>
-  <div class="code-box"><div class="code-head"><span>low_bits.cpp</span><button class="copy-btn" onclick="copyCode('code_lowmask')">Copy code</button></div><pre id="code_lowmask"><span class="kw">int</span> x = <span class="num">53</span>;
-<span class="kw">int</span> k = <span class="num">3</span>;
-<span class="kw">int</span> mask = (<span class="num">1</span> &lt;&lt; k) - <span class="num">1</span>;
-cout &lt;&lt; bitset&lt;<span class="num">8</span>&gt;(mask) &lt;&lt; endl;
-cout &lt;&lt; bitset&lt;<span class="num">8</span>&gt;(x &amp; mask) &lt;&lt; <span class="str">" "</span> &lt;&lt; (x &amp; mask) &lt;&lt; endl;
-cout &lt;&lt; (x &gt;&gt; k) &lt;&lt; endl;</pre></div>
-  <div class="output-box">00000111
-00000101 5
-6</div>
 </div>
 
 
@@ -606,7 +585,7 @@ cout &lt;&lt; (x &gt;&gt; k) &lt;&lt; endl;</pre></div>
       <li>Read <code>q</code> (the number of commands). All lamps start off.</li>
       <li>The command <code>ON k</code> lights lamp <code>k</code>, <code>OFF k</code> switches it off, and <code>FLIP k</code> flips its state.</li>
       <li>The command <code>ASK k</code> prints <code>ON</code> or <code>OFF</code> according to the state of lamp <code>k</code>.</li>
-      <li>At the end print the complete state as sixteen bits, then a line in the form <code>Lamps on: count</code> that shows how many lamps are on. Write a function <code>countBits</code> for this, using Kernighan's trick.</li>
+      <li>At the end print the complete state as sixteen bits, then a line in the form <code>Lamps on: count</code> that shows how many lamps are on. Write a function <code>countBits</code> for this that goes through the sixteen cells and checks each one with <code>(x &gt;&gt; k) &amp; 1</code>.</li>
     </ol></div>
   <div class="brief"><h5><i class="fas fa-bullseye"></i> Two sample runs</h5>
     <p><strong>First run:</strong></p>
@@ -638,9 +617,10 @@ Lamps on: 1</div></div>
 
 <span class="kw">int</span> countBits(<span class="kw">unsigned</span> <span class="kw">int</span> x) {
     <span class="kw">int</span> count = <span class="num">0</span>;
-    <span class="kw">while</span> (x &gt; <span class="num">0</span>) {
-        x &amp;= x - <span class="num">1</span>;
-        count++;
+    <span class="kw">for</span> (<span class="kw">int</span> k = <span class="num">0</span>; k &lt; <span class="num">16</span>; k++) {
+        <span class="kw">if</span> ((x &gt;&gt; k) &amp; <span class="num">1</span>) {
+            count++;
+        }
     }
     <span class="kw">return</span> count;
 }
@@ -673,33 +653,30 @@ Lamps on: 1</div></div>
 </div>
 
 
-<div class="card challenge-card"><div class="card-header"><i class="fas fa-dumbbell"></i><h3>Homework challenges</h3></div><p>Two short challenges to solve on your own after the lesson. Write your solution in a <code>.cpp</code> file, compile and run it, and compare your output with the expected output. Try first, open a hint only if you get stuck, and look at the sample solution only after a serious attempt.</p><div class="challenge"><div class="ch-head"><span class="ch-num">1</span><h4>Is it a power of 2?</h4><span class="badge easy">Easy</span></div><p>Read <code>q</code> and then <code>q</code> positive integers. For each number print <code>YES</code> if it is a power of 2, otherwise print <code>NO</code>.</p><h5>Requirements</h5><ul><li>Use <code>long long</code> to read the numbers.</li><li>Use the <code>x &amp; (x - 1)</code> trick and not repeated division.</li><li>Print each answer on its own line.</li></ul><h5>Example input and expected output</h5><div class="input-box">5
+<div class="card challenge-card"><div class="card-header"><i class="fas fa-dumbbell"></i><h3>Homework challenges</h3></div><p>Two short challenges to solve on your own after the lesson. Write your solution in a <code>.cpp</code> file, compile and run it, and compare your output with the expected output. Try first, open a hint only if you get stuck, and look at the sample solution only after a serious attempt.</p><div class="challenge"><div class="ch-head"><span class="ch-num">1</span><h4>Is the cell lit?</h4><span class="badge easy">Easy</span></div><p>Read a positive number <code>x</code> and the number of queries <code>q</code>, then <code>q</code> cell numbers. For each <code>k</code> print <code>1</code> if cell <code>k</code> of <code>x</code> is lit, otherwise print <code>0</code>.</p><h5>Requirements</h5><ul><li>Read <code>x</code> as an <code>unsigned int</code>.</li><li>Use <code>(x &gt;&gt; k) &amp; 1</code> for each query.</li><li>Print each answer on its own line.</li></ul><h5>Example input and expected output</h5><div class="input-box">22 5
+0
 1
-6
-8
-12
-1024</div><div class="output-box">YES
-NO
-YES
-NO
-YES</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> Hints</summary><ul><li>The numbers 1, 2, 4, 8, 16 ... are the ones with a single lit cell.</li><li>Do not forget the parentheses: <code>(x &amp; (x - 1)) == 0</code>.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> Sample solution (after you try)</summary><div class="code-box"><div class="code-head"><span>power_check.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_pow')">Copy code</button></div><pre id="code_ch_pow"><span class="cmt">// Challenge 1: powers of two</span>
+2
+3
+4</div><div class="output-box">0
+1
+1
+0
+1</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> Hints</summary><ul><li>Cell 0 is the first one from the right.</li><li>With <code>x = 22</code>, that is <code>10110</code>: cell 1 is lit and cell 3 is off.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> Sample solution (after you try)</summary><div class="code-box"><div class="code-head"><span>cell_query.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_bit')">Copy code</button></div><pre id="code_ch_bit"><span class="cmt">// Challenge 1: is the cell lit?</span>
 <span class="pp">#include &lt;iostream&gt;</span>
 <span class="kw">using</span> <span class="kw">namespace</span> std;
 
 <span class="kw">int</span> <span class="kw">main</span>() {
+    <span class="kw">unsigned</span> <span class="kw">int</span> x;
     <span class="kw">int</span> q;
-    cin &gt;&gt; q;
+    cin &gt;&gt; x &gt;&gt; q;
     <span class="kw">while</span> (q--) {
-        <span class="kw">long</span> <span class="kw">long</span> x;
-        cin &gt;&gt; x;
-        <span class="kw">if</span> (x &gt; <span class="num">0</span> &amp;&amp; (x &amp; (x - <span class="num">1</span>)) == <span class="num">0</span>) {
-            cout &lt;&lt; <span class="str">"YES"</span> &lt;&lt; endl;
-        } <span class="kw">else</span> {
-            cout &lt;&lt; <span class="str">"NO"</span> &lt;&lt; endl;
-        }
+        <span class="kw">int</span> k;
+        cin &gt;&gt; k;
+        cout &lt;&lt; ((x &gt;&gt; k) &amp; <span class="num">1</span>) &lt;&lt; endl;
     }
     <span class="kw">return</span> <span class="num">0</span>;
-}</pre></div></details></div><div class="challenge"><div class="ch-head"><span class="ch-num">2</span><h4>How many cells differ?</h4><span class="badge medium">Medium</span></div><p>Read two numbers <code>a</code> and <code>b</code>. Print the number of cells in which their binary forms differ (that is, the number of positions with bit 0 in one and 1 in the other).</p><h5>Requirements</h5><ul><li>Read the two numbers as <code>unsigned int</code>.</li><li>Compute <code>d = a ^ b</code>, whose lit cells are the positions of difference.</li><li>Count the lit cells of <code>d</code> with Kernighan's loop.</li><li>Print the count only.</li></ul><h5>Example input and expected output</h5><div class="input-box">29 15</div><div class="output-box">2</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> Hints</summary><ul><li>Exclusive or lights a cell only where the two numbers differ.</li><li>With <code>29</code> and <code>15</code>, <code>29 ^ 15 = 18</code>, which is <code>10010</code> and has two lit cells, so the answer is 2.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> Sample solution (after you try)</summary><div class="code-box"><div class="code-head"><span>hamming.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_ham')">Copy code</button></div><pre id="code_ch_ham"><span class="cmt">// Challenge 2: different bits</span>
+}</pre></div></details></div><div class="challenge"><div class="ch-head"><span class="ch-num">2</span><h4>How many cells differ?</h4><span class="badge medium">Medium</span></div><p>Read two numbers <code>a</code> and <code>b</code>. Print the number of cells in which their binary forms differ (that is, the number of positions with bit 0 in one and 1 in the other).</p><h5>Requirements</h5><ul><li>Read the two numbers as <code>unsigned int</code>.</li><li>Compute <code>d = a ^ b</code>, whose lit cells are the positions of difference.</li><li>Go through the thirty-two cells and count the lit ones with <code>(d &gt;&gt; k) &amp; 1</code>.</li><li>Print the count only.</li></ul><h5>Example input and expected output</h5><div class="input-box">29 15</div><div class="output-box">2</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> Hints</summary><ul><li>Exclusive or lights a cell only where the two numbers differ.</li><li>With <code>29</code> and <code>15</code>, <code>29 ^ 15 = 18</code>, which is <code>10010</code> and has two lit cells, so the answer is 2.</li></ul></details><details class="reveal"><summary><i class="fas fa-eye"></i> Sample solution (after you try)</summary><div class="code-box"><div class="code-head"><span>hamming.cpp</span><button class="copy-btn" onclick="copyCode('code_ch_ham')">Copy code</button></div><pre id="code_ch_ham"><span class="cmt">// Challenge 2: different bits</span>
 <span class="pp">#include &lt;iostream&gt;</span>
 <span class="kw">using</span> <span class="kw">namespace</span> std;
 
@@ -708,15 +685,16 @@ YES</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> Hints
     cin &gt;&gt; a &gt;&gt; b;
     <span class="kw">unsigned</span> <span class="kw">int</span> d = a ^ b;
     <span class="kw">int</span> count = <span class="num">0</span>;
-    <span class="kw">while</span> (d &gt; <span class="num">0</span>) {
-        d &amp;= d - <span class="num">1</span>;
-        count++;
+    <span class="kw">for</span> (<span class="kw">int</span> k = <span class="num">0</span>; k &lt; <span class="num">32</span>; k++) {
+        <span class="kw">if</span> ((d &gt;&gt; k) &amp; <span class="num">1</span>) {
+            count++;
+        }
     }
     cout &lt;&lt; count &lt;&lt; endl;
     <span class="kw">return</span> <span class="num">0</span>;
 }</pre></div></details></div></div>
 
-<div class="card summary-card"><div class="card-header"><i class="fas fa-clipboard-list"></i><h3>Quick summary</h3></div><ul class="sum-list"><li><i class="fas fa-circle-check"></i><span>The mask <code class="inline">1 &lt;&lt; k</code> has a single lit cell; we combine it with a number to control cell <code class="inline">k</code> alone.</span></li><li><i class="fas fa-circle-check"></i><span>Check <code class="inline">(x &gt;&gt; k) &amp; 1</code>, set <code class="inline">x |= (1 &lt;&lt; k)</code>, clear <code class="inline">x &amp;= ~(1 &lt;&lt; k)</code>, toggle <code class="inline">x ^= (1 &lt;&lt; k)</code>.</span></li><li><i class="fas fa-circle-check"></i><span><code class="inline">x &amp; (x - 1)</code> removes the lowest lit cell, and <code class="inline">x &amp; -x</code> keeps it alone.</span></li><li><i class="fas fa-circle-check"></i><span>A positive number is a power of 2 if <code class="inline">x &gt; 0 &amp;&amp; (x &amp; (x - 1)) == 0</code>. Do not forget the condition <code class="inline">x &gt; 0</code>.</span></li><li><i class="fas fa-circle-check"></i><span>Kernighan's trick: repeat <code class="inline">x &amp;= x - 1</code> and count the rounds to get the number of lit cells.</span></li><li><i class="fas fa-circle-check"></i><span>We store several options (flags) in one number: combine them with <code class="inline">|</code> and check them with <code class="inline">&amp;</code>.</span></li></ul></div>
+<div class="card summary-card"><div class="card-header"><i class="fas fa-clipboard-list"></i><h3>Quick summary</h3></div><ul class="sum-list"><li><i class="fas fa-circle-check"></i><span>A left shift <code class="inline">x &lt;&lt; k</code> multiplies the number by <code class="inline">2^k</code>, and a right shift <code class="inline">x &gt;&gt; k</code> divides it and drops the remainder. Whatever leaves the edge of the number is lost.</span></li><li><i class="fas fa-circle-check"></i><span>The mask <code class="inline">1 &lt;&lt; k</code> has a single lit cell; we combine it with a number to control cell <code class="inline">k</code> alone.</span></li><li><i class="fas fa-circle-check"></i><span>Check <code class="inline">(x &gt;&gt; k) &amp; 1</code>, set <code class="inline">x |= (1 &lt;&lt; k)</code>, clear <code class="inline">x &amp;= ~(1 &lt;&lt; k)</code>, toggle <code class="inline">x ^= (1 &lt;&lt; k)</code>.</span></li><li><i class="fas fa-circle-check"></i><span>The result of <code class="inline">x &amp; (1 &lt;&lt; k)</code> is 0 or the mask value itself, so we use it as a condition, not as a 0-or-1 value.</span></li><li><i class="fas fa-circle-check"></i><span>Toggling a cell twice with <code class="inline">^=</code> brings it back to how it was.</span></li></ul></div>
   <div class="card steps-card" id="tfCard">
     <div class="card-header"><i class="fas fa-clipboard-check"></i><h3>Check your understanding</h3></div>
     <p>Read each statement and choose <strong>True</strong> or <strong>False</strong>. The explanation appears right after you answer.</p>
@@ -726,7 +704,7 @@ YES</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> Hints
   <div class="card">
     <div class="card-header"><i class="fas fa-book"></i><h3>Glossary</h3></div>
     <p>The most important terms in this lesson:</p>
-    <div class="glossary-grid"><div class="term-card"><span class="term-en">Bit</span><p class="term-desc">The smallest unit of storage: one cell whose value is 0 or 1.</p></div><div class="term-card"><span class="term-en">Mask</span><p class="term-desc">A number we build to control particular cells, such as <code class="inline">1 &lt;&lt; k</code>.</p></div><div class="term-card"><span class="term-en">Set a bit</span><p class="term-desc">Making the cell 1.</p></div><div class="term-card"><span class="term-en">Clear a bit</span><p class="term-desc">Making the cell 0.</p></div><div class="term-card"><span class="term-en">Toggle</span><p class="term-desc">Turning the cell into the opposite of its state.</p></div><div class="term-card"><span class="term-en">Lowest set bit</span><p class="term-desc">The smallest cell whose value is 1 in the number.</p></div><div class="term-card"><span class="term-en">Power of two</span><p class="term-desc">A number such as 1, 2, 4 or 8, which has a single lit cell.</p></div><div class="term-card"><span class="term-en">Counting set bits</span><p class="term-desc">Finding how many cells of a number have the value 1.</p></div><div class="term-card"><span class="term-en">Flag</span><p class="term-desc">A cell that stands for a single option (yes or no).</p></div><div class="term-card"><span class="term-en">Bit index</span><p class="term-desc">The position of a cell, starting from 0 at the low end of the number.</p></div></div>
+    <div class="glossary-grid"><div class="term-card"><span class="term-en">Bit</span><p class="term-desc">The smallest unit of storage: one cell whose value is 0 or 1.</p></div><div class="term-card"><span class="term-en">Mask</span><p class="term-desc">A number we build to control particular cells, such as <code class="inline">1 &lt;&lt; k</code>.</p></div><div class="term-card"><span class="term-en">Set a bit</span><p class="term-desc">Making the cell 1.</p></div><div class="term-card"><span class="term-en">Clear a bit</span><p class="term-desc">Making the cell 0.</p></div><div class="term-card"><span class="term-en">Toggle</span><p class="term-desc">Turning the cell into the opposite of its state.</p></div><div class="term-card"><span class="term-en">Shift</span><p class="term-desc">Moving all the cells of a number one place or more to the left or to the right.</p></div><div class="term-card"><span class="term-en">Bit index</span><p class="term-desc">The position of a cell, starting from 0 at the low end of the number.</p></div></div>
   </div>
   <div class="card steps-card" id="quizCard">
     <div class="card-header"><i class="fas fa-circle-question"></i><h3>Final quiz</h3></div>
@@ -744,10 +722,10 @@ YES</div><details class="reveal"><summary><i class="fas fa-lightbulb"></i> Hints
 <button class="to-top" id="toTop" title="Back to top"><i class="fas fa-arrow-up"></i></button>
 <footer class="page-footer">TweetKod Platform</footer>
 <script>
-const TF = [{"s": "The expression <code class=\"inline\">x |= (1 &lt;&lt; k)</code> lights cell <code class=\"inline\">k</code> whether or not it was lit before.", "a": true, "why": "If it was lit it stays that way, and if it was off it lights up. That is the property of setting."}, {"s": "The result of <code class=\"inline\">x &amp; (1 &lt;&lt; k)</code> is always 0 or 1.", "a": false, "why": "The result is 0 or the mask value itself, <code class=\"inline\">2^k</code>. To get 0 or 1 we use <code class=\"inline\">(x &gt;&gt; k) &amp; 1</code>."}, {"s": "The expression <code class=\"inline\">x &amp; (x - 1)</code> removes the lowest lit cell of <code class=\"inline\">x</code>.", "a": true, "why": "Subtracting 1 flips the cells down to the lowest lit one, and combining with <code class=\"inline\">&amp;</code> switches off that region."}, {"s": "The condition <code class=\"inline\">(x &amp; (x - 1)) == 0</code> alone is enough to test for powers of 2 and is correct for all numbers including zero.", "a": false, "why": "Zero passes the test although it is not a power of 2; that is why we add <code class=\"inline\">x &gt; 0</code>."}, {"s": "The expression <code class=\"inline\">x &amp; -x</code> gives the lowest lit cell alone.", "a": true, "why": "Two's complement flips everything above the lowest lit cell and keeps that cell, so the combination keeps nothing else."}, {"s": "Kernighan's loop <code class=\"inline\">while (x) { x &amp;= x - 1; c++; }</code> runs once per lit cell of <code class=\"inline\">x</code>, not once per cell of the whole number.", "a": true, "why": "Each round removes only the lowest lit cell, so a number like <code class=\"inline\">1000000</code> needs just one round."}, {"s": "Flipping the same cell twice in a row with <code class=\"inline\">^=</code> returns the number to its original value.", "a": true, "why": "<code class=\"inline\">b ^ 1 ^ 1 = b</code>, because <code class=\"inline\">1 ^ 1 = 0</code>."}];
-const QUIZ = [{"q": "Which line makes cell <code class=\"inline\">k</code> of <code class=\"inline\">x</code> equal to 1 without changing the others?", "o": ["<code class=\"inline\">x ^= (1 &lt;&lt; k);</code>", "<code class=\"inline\">x = 1 &lt;&lt; k;</code>", "<code class=\"inline\">x &amp;= (1 &lt;&lt; k);</code>", "<code class=\"inline\">x |= (1 &lt;&lt; k);</code>"], "a": 3, "why": "The mask <code class=\"inline\">1 &lt;&lt; k</code> has one lit cell. The operator <code class=\"inline\">|</code> gives 1 whenever one of the bits is 1, so it lights cell <code class=\"inline\">k</code> and leaves every other cell as it was. By contrast <code class=\"inline\">x &amp;= (1 &lt;&lt; k)</code> would erase all the other cells, and <code class=\"inline\">x = 1 &lt;&lt; k</code> would erase the whole number."}, {"q": "Which line switches off cell <code class=\"inline\">k</code> without changing the others?", "o": ["<code class=\"inline\">x &amp;= (1 &lt;&lt; k);</code>", "<code class=\"inline\">x &amp;= ~(1 &lt;&lt; k);</code>", "<code class=\"inline\">x |= ~(1 &lt;&lt; k);</code>", "<code class=\"inline\">x ^= ~(1 &lt;&lt; k);</code>"], "a": 1, "why": "The inverted mask <code class=\"inline\">~(1 &lt;&lt; k)</code> has 0 at cell <code class=\"inline\">k</code> alone and 1 in all its other cells. The operator <code class=\"inline\">&amp;</code> with 0 gives 0, and with 1 it keeps the cell as it is, so only cell <code class=\"inline\">k</code> goes off."}, {"q": "Which line flips cell <code class=\"inline\">k</code> ?", "o": ["<code class=\"inline\">x ^= (1 &lt;&lt; k);</code>", "<code class=\"inline\">x &amp;= ~(1 &lt;&lt; k);</code>", "<code class=\"inline\">x |= (1 &lt;&lt; k);</code>", "<code class=\"inline\">x &gt;&gt;= k;</code>"], "a": 0, "why": "The operator <code class=\"inline\">^</code> flips the cell that faces a 1 in the mask and leaves the rest. Our mask has a 1 at cell <code class=\"inline\">k</code> alone, so only that cell flips."}, {"q": "How do we get the value of cell <code class=\"inline\">k</code> as 0 or 1?", "o": ["<code class=\"inline\">x &amp; k</code>", "<code class=\"inline\">x | (1 &lt;&lt; k)</code>", "<code class=\"inline\">x ^ k</code>", "<code class=\"inline\">(x &gt;&gt; k) &amp; 1</code>"], "a": 3, "why": "The shift <code class=\"inline\">x &gt;&gt; k</code> moves cell <code class=\"inline\">k</code> to the far right, and then <code class=\"inline\">&amp; 1</code> keeps that cell alone, so we get exactly 0 or 1."}, {"q": "What is the value of <code class=\"inline\">12 &amp; (12 - 1)</code> ?", "o": ["8", "4", "0", "11"], "a": 0, "why": "The number 12 is <code class=\"inline\">1100</code> and 11 is <code class=\"inline\">1011</code>. The operator <code class=\"inline\">&amp;</code> keeps a 1 only where both bits are 1, so the result is <code class=\"inline\">1000</code>, that is 8. In other words the lowest lit cell of 12 (the one worth 4) has been removed."}, {"q": "What is the value of <code class=\"inline\">12 &amp; -12</code> ?", "o": ["12", "4", "1", "8"], "a": 1, "why": "The expression <code class=\"inline\">x &amp; -x</code> keeps the lowest lit cell alone. In <code class=\"inline\">1100</code> the lowest lit cell is the one worth 4, so the result is <code class=\"inline\">0100</code>, that is 4."}, {"q": "Which condition tests that <code class=\"inline\">x</code> is a positive power of 2?", "o": ["<code class=\"inline\">x &gt; 0 &amp;&amp; (x &amp; (x - 1)) == 0</code>", "<code class=\"inline\">x &amp; (x - 1) == 0</code>", "<code class=\"inline\">x &amp; 1 == 0</code>", "<code class=\"inline\">x % 2 == 0</code>"], "a": 0, "why": "The number 0 passes the test <code class=\"inline\">(x &amp; (x - 1)) == 0</code> even though it is not a power of 2, so we need <code class=\"inline\">x &gt; 0</code>. The parentheses around <code class=\"inline\">x &amp; (x - 1)</code> are needed because <code class=\"inline\">==</code> has higher precedence than <code class=\"inline\">&amp;</code>."}, {"q": "What does the loop <code class=\"inline\">while (x) { x &amp;= x - 1; c++; }</code> compute?", "o": ["the length of the number", "the number of lit cells", "the sum of the cells", "the index of the highest cell"], "a": 1, "why": "In every round <code class=\"inline\">x &amp;= x - 1</code> removes the lowest lit cell and the counter <code class=\"inline\">c</code> grows by one. So the loop ends when no lit cells are left, and <code class=\"inline\">c</code> is their number."}, {"q": "What does the expression <code class=\"inline\">(1 &lt;&lt; k) - 1</code> give?", "o": ["the number 2k", "a single lit cell at index k", "the value k itself", "k consecutive lit cells from the lowest"], "a": 3, "why": "The number <code class=\"inline\">1 &lt;&lt; k</code> has a single lit cell at position <code class=\"inline\">k</code>, and subtracting 1 turns everything below it into 1. For example, <code class=\"inline\">k = 3</code> gives <code class=\"inline\">1000 - 1 = 0111</code>, that is three lit cells from the lowest."}, {"q": "How many rounds does the loop <code class=\"inline\">while (x) { x &amp;= x - 1; }</code> run when <code class=\"inline\">x = 40</code>? (The number 40 is <code class=\"inline\">101000</code>)", "o": ["3", "6", "2", "1"], "a": 2, "why": "Each round removes one lit cell, and 40 has two lit cells, so the loop ends after two rounds."}];
-const EXPL = {"check": {"0": "The number 10 is <code class=\"inline\">1010</code> in binary.", "2": "First method: we slide the number <code class=\"inline\">k</code> places so the wanted cell lands at the far right, then cut it out with <code class=\"inline\">&amp; 1</code>.", "4": "Second method: we build a **mask** <code class=\"inline\">1 &lt;&lt; 3</code> with a single lit cell, and keep that cell alone from <code class=\"inline\">x</code>. The result is 0 or the mask value, which is why we convert it to <code class=\"inline\">bool</code>."}, "moves": {"5": "We start with 13, that is <code class=\"inline\">00001101</code>.", "8": "**Set:** <code class=\"inline\">x |= mask</code> lights cell 1 whatever its state was, and touches nothing else. The number became <code class=\"inline\">1111</code>, that is 15.", "11": "**Clear:** <code class=\"inline\">~mask</code> is a mask with every cell 1 except cell 3. Combining it with <code class=\"inline\">&amp;</code> switches off cell 3 alone. The number became 7.", "14": "**Toggle:** <code class=\"inline\">x ^= mask</code> flips cell 2: it was lit, so it went off. The number became 3.", "17": "We flip the same cell a second time and it returns to how it was. Toggling twice takes you back to where you started."}, "lowbit": {"1": "The number 12 is <code class=\"inline\">1100</code>, and its lowest lit cell is the one worth 4.", "2": "Subtracting 1 switches off the lowest lit cell and lights every cell to its right: <code class=\"inline\">1100</code> becomes <code class=\"inline\">1011</code>.", "3": "Combining with <code class=\"inline\">&amp;</code> switches off the lowest lit cell and leaves the cells to its left unchanged: <code class=\"inline\">1000</code>, that is 8.", "4": "And <code class=\"inline\">x &amp; -x</code> keeps the lowest lit cell **alone**: <code class=\"inline\">0100</code>, that is 4."}, "refresh": {"0": "The number 12 is <code class=\"inline\">1100</code> in binary.", "1": "And the number 10 is <code class=\"inline\">1010</code> in binary.", "2": "<code class=\"inline\">&amp;</code> gives 1 only where both cells are 1: <code class=\"inline\">1100 &amp; 1010 = 1000</code>, that is 8.", "3": "<code class=\"inline\">|</code> gives 1 where at least one cell is 1: <code class=\"inline\">1110</code>, that is 14.", "4": "<code class=\"inline\">^</code> gives 1 where the two cells differ: <code class=\"inline\">0110</code>, that is 6.", "5": "<code class=\"inline\">a &lt;&lt; 1</code> slides the cells one place to the left, which doubles the number: <code class=\"inline\">11000</code>, that is 24.", "6": "<code class=\"inline\">a &gt;&gt; 2</code> slides the cells two places to the right and drops what falls off: <code class=\"inline\">11</code>, that is 3."}};
-const TRACES = {"trace": [{"line": -1, "vars": {}, "out": "", "note": "Starting point: no line has run yet."}, {"line": 0, "vars": {"x": "13"}, "out": "", "note": "13 in binary is `1101`."}, {"line": 1, "vars": {"x": "13", "count": "0"}, "out": "", "note": "The counter starts at zero."}, {"line": 2, "vars": {"x": "13", "count": "0"}, "out": "", "note": "x is greater than zero."}, {"line": 3, "vars": {"x": "12", "count": "0"}, "out": "", "note": "`1101 & 1100 = 1100`: the lowest lit cell went off. Now x = 12."}, {"line": 4, "vars": {"x": "12", "count": "1"}, "out": "", "note": "We removed one lit cell: the counter is 1."}, {"line": 2, "vars": {"x": "12", "count": "1"}, "out": "", "note": "x is still greater than zero."}, {"line": 3, "vars": {"x": "8", "count": "1"}, "out": "", "note": "`1100 & 1011 = 1000`: now x = 8."}, {"line": 4, "vars": {"x": "8", "count": "2"}, "out": "", "note": "The counter is 2."}, {"line": 2, "vars": {"x": "8", "count": "2"}, "out": "", "note": "x is still greater than zero."}, {"line": 3, "vars": {"x": "0", "count": "2"}, "out": "", "note": "`1000 & 0111 = 0000`: no lit cells remain. x = 0."}, {"line": 4, "vars": {"x": "0", "count": "3"}, "out": "", "note": "The counter is 3."}, {"line": 2, "vars": {"x": "0", "count": "3"}, "out": "", "note": "x equals zero: the loop ends after only three rounds."}, {"line": 6, "vars": {"x": "0", "count": "3"}, "out": "3\n", "note": "We printed 3: the number of lit cells in 13."}]};
+const TF = [{"s": "The expression <code class=\"inline\">x |= (1 &lt;&lt; k)</code> lights cell <code class=\"inline\">k</code> whether or not it was lit before.", "a": true, "why": "If it was lit it stays that way, and if it was off it lights up. That is the property of setting."}, {"s": "The result of <code class=\"inline\">x &amp; (1 &lt;&lt; k)</code> is always 0 or 1.", "a": false, "why": "The result is 0 or the mask value itself, <code class=\"inline\">2^k</code>. To get 0 or 1 we use <code class=\"inline\">(x &gt;&gt; k) &amp; 1</code>."}, {"s": "The shift <code class=\"inline\">x &lt;&lt; 3</code> multiplies <code class=\"inline\">x</code> by 8 as long as no lit cell leaves the edge of the type.", "a": true, "why": "A shift by <code class=\"inline\">k</code> equals multiplying by <code class=\"inline\">2^k</code>, and <code class=\"inline\">2^3 = 8</code>. If a lit cell leaves the edge it is lost and the result is spoiled."}, {"s": "The shift <code class=\"inline\">x &gt;&gt; 1</code> divides <code class=\"inline\">x</code> by 2 and drops the remainder.", "a": true, "why": "Every cell moves one place to the right, and the last cell (the remainder) falls off. For example <code class=\"inline\">13 &gt;&gt; 1</code> gives 6."}, {"s": "The expression <code class=\"inline\">x &amp;= (1 &lt;&lt; k)</code> switches off cell <code class=\"inline\">k</code> and leaves the other cells unchanged.", "a": false, "why": "This is the opposite of what is wanted: it keeps cell <code class=\"inline\">k</code> alone and zeroes everything else. To clear we use <code class=\"inline\">x &amp;= ~(1 &lt;&lt; k)</code>."}, {"s": "The mask <code class=\"inline\">~(1 &lt;&lt; k)</code> has a 0 at cell <code class=\"inline\">k</code> alone, and 1 in all its other cells.", "a": true, "why": "The sign <code class=\"inline\">~</code> flips every cell of the mask <code class=\"inline\">1 &lt;&lt; k</code>, so its single lit cell becomes 0 and the rest become 1. That is why it works for clearing with <code class=\"inline\">&amp;</code>."}, {"s": "Flipping the same cell twice in a row with <code class=\"inline\">^=</code> returns the number to its original value.", "a": true, "why": "<code class=\"inline\">b ^ 1 ^ 1 = b</code>, because <code class=\"inline\">1 ^ 1 = 0</code>."}];
+const QUIZ = [{"q": "Which line makes cell <code class=\"inline\">k</code> of <code class=\"inline\">x</code> equal to 1 without changing the others?", "o": ["<code class=\"inline\">x ^= (1 &lt;&lt; k);</code>", "<code class=\"inline\">x = 1 &lt;&lt; k;</code>", "<code class=\"inline\">x &amp;= (1 &lt;&lt; k);</code>", "<code class=\"inline\">x |= (1 &lt;&lt; k);</code>"], "a": 3, "why": "The mask <code class=\"inline\">1 &lt;&lt; k</code> has one lit cell. The operator <code class=\"inline\">|</code> gives 1 whenever one of the bits is 1, so it lights cell <code class=\"inline\">k</code> and leaves every other cell as it was. By contrast <code class=\"inline\">x &amp;= (1 &lt;&lt; k)</code> would erase all the other cells, and <code class=\"inline\">x = 1 &lt;&lt; k</code> would erase the whole number."}, {"q": "Which line switches off cell <code class=\"inline\">k</code> without changing the others?", "o": ["<code class=\"inline\">x &amp;= (1 &lt;&lt; k);</code>", "<code class=\"inline\">x &amp;= ~(1 &lt;&lt; k);</code>", "<code class=\"inline\">x |= ~(1 &lt;&lt; k);</code>", "<code class=\"inline\">x ^= ~(1 &lt;&lt; k);</code>"], "a": 1, "why": "The inverted mask <code class=\"inline\">~(1 &lt;&lt; k)</code> has 0 at cell <code class=\"inline\">k</code> alone and 1 in all its other cells. The operator <code class=\"inline\">&amp;</code> with 0 gives 0, and with 1 it keeps the cell as it is, so only cell <code class=\"inline\">k</code> goes off."}, {"q": "Which line flips cell <code class=\"inline\">k</code> ?", "o": ["<code class=\"inline\">x ^= (1 &lt;&lt; k);</code>", "<code class=\"inline\">x &amp;= ~(1 &lt;&lt; k);</code>", "<code class=\"inline\">x |= (1 &lt;&lt; k);</code>", "<code class=\"inline\">x &gt;&gt;= k;</code>"], "a": 0, "why": "The operator <code class=\"inline\">^</code> flips the cell that faces a 1 in the mask and leaves the rest. Our mask has a 1 at cell <code class=\"inline\">k</code> alone, so only that cell flips."}, {"q": "How do we get the value of cell <code class=\"inline\">k</code> as 0 or 1?", "o": ["<code class=\"inline\">x &amp; k</code>", "<code class=\"inline\">x | (1 &lt;&lt; k)</code>", "<code class=\"inline\">x ^ k</code>", "<code class=\"inline\">(x &gt;&gt; k) &amp; 1</code>"], "a": 3, "why": "The shift <code class=\"inline\">x &gt;&gt; k</code> moves cell <code class=\"inline\">k</code> to the far right, and then <code class=\"inline\">&amp; 1</code> keeps that cell alone, so we get exactly 0 or 1."}, {"q": "What is the value of <code class=\"inline\">3 &lt;&lt; 4</code> ?", "o": ["48", "12", "34", "7"], "a": 0, "why": "A left shift by 4 doubles the number four times, which means multiplying by 16. The number 3 is <code class=\"inline\">11</code>, which becomes <code class=\"inline\">110000</code>, that is 3 x 16 = 48."}, {"q": "What is the value of <code class=\"inline\">100 &gt;&gt; 2</code> ?", "o": ["50", "200", "10", "25"], "a": 3, "why": "A right shift by 2 divides the number by 4 and drops the remainder. So the result is 100 / 4 = 25."}, {"q": "What is the value of the mask <code class=\"inline\">1 &lt;&lt; 5</code> ?", "o": ["32", "5", "25", "10"], "a": 0, "why": "The number 1 is <code class=\"inline\">00000001</code>, and shifting it 5 places to the left gives <code class=\"inline\">00100000</code>, that is 2^5 = 32. The mask value is <code class=\"inline\">2^k</code>, not <code class=\"inline\">k</code>."}, {"q": "What does the program print: <code class=\"inline\">int x = 10; x ^= (1 &lt;&lt; 1); cout &lt;&lt; x;</code> ?", "o": ["10", "12", "11", "8"], "a": 3, "why": "The number 10 is <code class=\"inline\">1010</code>, and the mask <code class=\"inline\">1 &lt;&lt; 1</code> is <code class=\"inline\">0010</code>. Cell 1 is lit, so it flips and goes off, and the number becomes <code class=\"inline\">1000</code>, that is 8."}, {"q": "What is <code class=\"inline\">x</code> after <code class=\"inline\">int x = 13; x &amp;= ~(1 &lt;&lt; 2);</code> ?", "o": ["9", "5", "13", "17"], "a": 0, "why": "The number 13 is <code class=\"inline\">1101</code>. The inverted mask <code class=\"inline\">~(1 &lt;&lt; 2)</code> has a 0 at cell 2 only, so that cell goes off and the number becomes <code class=\"inline\">1001</code>, that is 9."}, {"q": "What is the value of <code class=\"inline\">13 &amp; (1 &lt;&lt; 3)</code> ? (The number 13 is <code class=\"inline\">1101</code>)", "o": ["0", "3", "8", "1"], "a": 2, "why": "Cell 3 is lit in 13, and the mask <code class=\"inline\">1 &lt;&lt; 3</code> is <code class=\"inline\">1000</code>. Combining with <code class=\"inline\">&amp;</code> gives <code class=\"inline\">1000</code>, that is 8 and not 1. This is why we use this expression as a condition (<code class=\"inline\">!= 0</code>) and do not expect 0 or 1 from it."}];
+const EXPL = {"check": {"0": "The number 10 is <code class=\"inline\">1010</code> in binary.", "2": "First method: we slide the number <code class=\"inline\">k</code> places so the wanted cell lands at the far right, then cut it out with <code class=\"inline\">&amp; 1</code>.", "4": "Second method: we build a **mask** <code class=\"inline\">1 &lt;&lt; 3</code> with a single lit cell, and keep that cell alone from <code class=\"inline\">x</code>. The result is 0 or the mask value, which is why we convert it to <code class=\"inline\">bool</code>."}, "moves": {"5": "We start with 13, that is <code class=\"inline\">00001101</code>.", "8": "**Set:** <code class=\"inline\">x |= mask</code> lights cell 1 whatever its state was, and touches nothing else. The number became <code class=\"inline\">1111</code>, that is 15.", "11": "**Clear:** <code class=\"inline\">~mask</code> is a mask with every cell 1 except cell 3. Combining it with <code class=\"inline\">&amp;</code> switches off cell 3 alone. The number became 7.", "14": "**Toggle:** <code class=\"inline\">x ^= mask</code> flips cell 2: it was lit, so it went off. The number became 3.", "17": "We flip the same cell a second time and it returns to how it was. Toggling twice takes you back to where you started."}, "refresh": {"0": "The number 12 is <code class=\"inline\">1100</code> in binary.", "1": "And the number 10 is <code class=\"inline\">1010</code> in binary.", "2": "<code class=\"inline\">&amp;</code> gives 1 only where both cells are 1: <code class=\"inline\">1100 &amp; 1010 = 1000</code>, that is 8.", "3": "<code class=\"inline\">|</code> gives 1 where at least one cell is 1: <code class=\"inline\">1110</code>, that is 14.", "4": "<code class=\"inline\">^</code> gives 1 where the two cells differ: <code class=\"inline\">0110</code>, that is 6.", "5": "<code class=\"inline\">a &lt;&lt; 1</code> slides the cells one place to the left, which doubles the number: <code class=\"inline\">11000</code>, that is 24.", "6": "<code class=\"inline\">a &gt;&gt; 2</code> slides the cells two places to the right and drops what falls off: <code class=\"inline\">11</code>, that is 3."}};
+const TRACES = {};
 function copyCode(id) {
   const el = document.getElementById(id);
   const text = el.innerText.replace(/ /g, ' ');
@@ -939,47 +917,138 @@ document.querySelectorAll('.predict').forEach(p => {
 });
 
 
-let BTX = 13, BTLAST = null, BTFLASH = {};
+const TXT = {"shNow": "Now: {b}  =  {d}", "shFell": "fell off: {b}", "shLeft": "Every cell moved one place to the left and a new zero appeared at the far right (the colored cell). The number doubled: {a} became {b}.", "shLeftLost": "Every cell moved one place to the left, but a lit cell fell off the left edge and was lost! So the number did not double: {a} became {b}.", "shRight": "Every cell moved one place to the right and a new zero appeared at the far left (the colored cell). The number was halved: {a} became {b}.", "shRightLost": "Every cell moved one place to the right and the last lit cell fell off; that is the remainder of the division. The number was halved and the remainder dropped: {a} became {b}.", "shHint": "Press one of the two shift buttons and watch the cells move one place on each press.", "tsX": "x  =  {x}", "tsStart": "This is the number x. The cell we work on is cell number {k}, outlined in yellow.", "tsShift": "We slide the number {k} places to the right, so the wanted cell lands at the far right (cell 0). The cells that were to its right fell off.", "tsOne": "The mask 1 has only the last cell lit.", "tsCheckOn": "We keep the last cell alone by combining with 1 using &: the result is 1, so cell {k} is lit.", "tsCheckOff": "We keep the last cell alone by combining with 1 using &: the result is 0, so cell {k} is off.", "tsMask": "mask = 1 &lt;&lt; {k}", "tsBuild": "We build the mask: we start with the number 1 and slide it {k} places to the left, so its single lit cell lands at position {k}.", "tsSet": "The operator | gives 1 if either bit is 1. The mask has a 1 at cell {k}, so that cell lit up; every other mask cell is 0, so the rest of x stayed as it was.", "tsSetSame": "The operator | gives 1 if either bit is 1. Cell {k} was already lit, so nothing changed. Setting is safe even if we repeat it.", "tsInv": "We invert the mask with ~: every cell becomes 1 except cell {k}, which is 0.", "tsClear": "The operator & gives 1 only if both bits are 1. The inverted mask has a 0 at cell {k}, so that cell went off; every other mask cell is 1, so the rest of x stayed as it was.", "tsClearSame": "Cell {k} was already off, so nothing changed. The other cells are never affected.", "tsToggle": "The operator ^ gives 1 if the bits differ. At cell {k} the mask has a 1 against the bit of x, so it flipped; every other mask cell is 0, so the other cells did not change.", "tsCount": "Step {i} of {n}", "btBit": "cell {k} = {b}", "btPop": "lit cells = {n}", "btPopExpr": "count the lit cells", "btChanged": "Only the cells colored yellow changed.", "btSame": "The number x did not change; this was a read-only operation."};
+function f(s, o) { return s.replace(/\{(\w+)\}/g, (m, k) => (k in o ? o[k] : m)); }
+function bin8(v) { let s = ''; for (let i = 7; i >= 0; i--) s += (v >> i) & 1; return s; }
+function cells(v, o) {
+  o = o || {}; let h = '';
+  for (let i = 7; i >= 0; i--) {
+    const b = (v >> i) & 1;
+    h += '<div class="bit res' + (b ? ' on' : '') + ((o.flash && ((o.flash >> i) & 1)) ? ' flash' : '') + ((o.k === i) ? ' pick' : '') + '">' + b + '<small>' + i + '</small></div>';
+  }
+  return '<div class="bit-row">' + h + '</div>';
+}
+
+// ---------- shift lab ----------
+let SH = { v: 13, start: 13, log: [] };
+function shDraw(flash) {
+  document.getElementById('shW').innerHTML = [128, 64, 32, 16, 8, 4, 2, 1].map(w => '<div class="bit w">' + w + '</div>').join('');
+  document.getElementById('shRow').innerHTML = [7, 6, 5, 4, 3, 2, 1, 0].map(i => {
+    const b = (SH.v >> i) & 1;
+    return '<div class="bit res' + (b ? ' on' : '') + (flash === i ? ' flash' : '') + '">' + b + '<small>' + i + '</small></div>';
+  }).join('');
+  document.getElementById('shNum').value = SH.start;
+  const lines = SH.log.slice(-6).map(l => '<span class="line">' + l + '</span>').join('\n');
+  document.getElementById('shOut').innerHTML = '<span class="line">// ' + f(TXT.shNow, { b: bin8(SH.v), d: SH.v }) + '</span>' + (lines ? '\n' + lines : '');
+}
+function shStep(dir) {
+  const before = SH.v; let lost, nv, flash;
+  if (dir === 'l') { lost = (before >> 7) & 1; nv = (before << 1) & 255; flash = 0; }
+  else { lost = before & 1; nv = before >> 1; flash = 7; }
+  SH.v = nv;
+  SH.log.push((dir === 'l' ? '&lt;&lt; 1' : '&gt;&gt; 1') + ':  ' + bin8(before) + ' (' + before + ')  →  ' + bin8(nv) + ' (' + nv + ')   ' + f(TXT.shFell, { b: lost }));
+  shDraw(flash);
+  const n = document.getElementById('shNote');
+  let t;
+  if (dir === 'l') t = lost ? f(TXT.shLeftLost, { a: before, b: nv }) : f(TXT.shLeft, { a: before, b: nv });
+  else t = lost ? f(TXT.shRightLost, { a: before, b: nv }) : f(TXT.shRight, { a: before, b: nv });
+  n.className = 'lab-say ' + (lost ? 'bad' : 'ok'); n.textContent = t;
+}
+function shReset() { SH.v = SH.start; SH.log = []; shDraw(-1); const n = document.getElementById('shNote'); n.className = 'lab-say'; n.textContent = TXT.shHint; }
+function shFromInput() { let a = parseInt(document.getElementById('shNum').value, 10); if (isNaN(a)) a = 0; SH.start = Math.max(0, Math.min(255, a)); shReset(); }
+function shRandom() { SH.start = Math.floor(Math.random() * 256); shReset(); }
+shReset();
+
+// ---------- four tasks stepper ----------
+let TS = { op: 'set', i: 0, x: 13, k: 2, timer: null };
+function tsSteps() {
+  const x = TS.x, k = TS.k, m = (1 << k) & 255, S = [], op = TS.op;
+  S.push({ label: f(TXT.tsX, { x: x }), v: x, k: k, note: f(TXT.tsStart, { k: k }) });
+  if (op === 'check') {
+    S.push({ label: 'x &gt;&gt; ' + k + '  =  ' + (x >> k), v: x >> k, k: 0, note: f(TXT.tsShift, { k: k }) });
+    S.push({ label: '1', v: 1, k: 0, note: TXT.tsOne });
+    const r = (x >> k) & 1;
+    S.push({ label: '(x &gt;&gt; ' + k + ') &amp; 1  =  ' + r, v: r, k: 0, flash: 1, note: f(r ? TXT.tsCheckOn : TXT.tsCheckOff, { k: k }) });
+    return S;
+  }
+  S.push({ label: f(TXT.tsMask, { k: k }) + '  =  ' + m, v: m, k: k, note: f(TXT.tsBuild, { k: k }) });
+  if (op === 'set') {
+    const r = (x | m) & 255;
+    S.push({ label: 'x | mask  =  ' + r, v: r, k: k, flash: x ^ r, note: ((x >> k) & 1) ? f(TXT.tsSetSame, { k: k }) : f(TXT.tsSet, { k: k }) });
+  } else if (op === 'clear') {
+    const inv = (~m) & 255, r = x & inv;
+    S.push({ label: '~mask  =  ' + inv, v: inv, k: k, note: f(TXT.tsInv, { k: k }) });
+    S.push({ label: 'x &amp; ~mask  =  ' + r, v: r, k: k, flash: x ^ r, note: ((x >> k) & 1) ? f(TXT.tsClear, { k: k }) : f(TXT.tsClearSame, { k: k }) });
+  } else {
+    const r = x ^ m;
+    S.push({ label: 'x ^ mask  =  ' + r, v: r, k: k, flash: x ^ r, note: f(TXT.tsToggle, { k: k }) });
+  }
+  return S;
+}
+function tsDraw() {
+  const S = tsSteps(); if (TS.i > S.length - 1) TS.i = S.length - 1;
+  let h = '';
+  for (let j = 0; j <= TS.i; j++) h += '<div class="bit-label" style="' + (j === TS.i ? '' : 'opacity:.55') + '">' + S[j].label + '</div>' + cells(S[j].v, S[j]);
+  document.getElementById('tsRows').innerHTML = h;
+  const n = document.getElementById('tsNote'); n.className = 'lab-say ok'; n.textContent = S[TS.i].note;
+  document.getElementById('tsCount').textContent = f(TXT.tsCount, { i: TS.i + 1, n: S.length });
+  ['check', 'set', 'clear', 'toggle'].forEach(o => document.getElementById('tsB_' + o).classList.toggle('active', o === TS.op));
+  document.getElementById('tsNext').disabled = TS.i >= S.length - 1;
+  document.getElementById('tsPrev').disabled = TS.i <= 0;
+}
+function tsStop() { if (TS.timer) { clearInterval(TS.timer); TS.timer = null; } }
+function tsOp(o) { tsStop(); TS.op = o; TS.i = 0; tsDraw(); }
+function tsNext() { tsStop(); const n = tsSteps().length; if (TS.i < n - 1) TS.i++; tsDraw(); }
+function tsPrev() { tsStop(); if (TS.i > 0) TS.i--; tsDraw(); }
+function tsReset() { tsStop(); TS.i = 0; tsDraw(); }
+function tsPlay() {
+  tsStop(); TS.i = 0; tsDraw();
+  TS.timer = setInterval(() => { const n = tsSteps().length; if (TS.i >= n - 1) { tsStop(); return; } TS.i++; tsDraw(); }, 1600);
+}
+function tsInput() {
+  tsStop();
+  let a = parseInt(document.getElementById('tsXin').value, 10); if (isNaN(a)) a = 0; TS.x = Math.max(0, Math.min(255, a));
+  let k = parseInt(document.getElementById('tsKin').value, 10); if (isNaN(k)) k = 0; TS.k = Math.max(0, Math.min(7, k));
+  TS.i = 0; tsDraw();
+}
+function tsRandom() { document.getElementById('tsXin').value = Math.floor(Math.random() * 256); tsInput(); }
+tsDraw();
+
+// ---------- toolbox lab ----------
+let BTX = 13, BTFLASH = {};
 function btK() { let k = parseInt(document.getElementById('btK').value, 10); if (isNaN(k)) k = 0; return Math.max(0, Math.min(7, k)); }
-function btPop(v) { let c = 0; while (v) { v &= v - 1; c++; } return c; }
-function btBin(v) { let s = ''; for (let i = 7; i >= 0; i--) s += (v >> i) & 1; return s; }
+function btPop(v) { let c = 0; for (let i = 0; i < 8; i++) c += (v >> i) & 1; return c; }
 function btApply(op, x, k) {
   switch (op) {
-    case 'check': return { v: x, info: 'bit ' + k + ' = ' + ((x >> k) & 1), expr: '(x >> ' + k + ') & 1', mut: false };
+    case 'check': return { v: x, info: f(TXT.btBit, { k: k, b: (x >> k) & 1 }), expr: '(x >> ' + k + ') & 1', mut: false };
     case 'set': return { v: (x | (1 << k)) & 255, expr: 'x |= (1 << ' + k + ')', mut: true };
     case 'clear': return { v: (x & ~(1 << k)) & 255, expr: 'x &= ~(1 << ' + k + ')', mut: true };
     case 'toggle': return { v: (x ^ (1 << k)) & 255, expr: 'x ^= (1 << ' + k + ')', mut: true };
-    case 'rmlow': return { v: x === 0 ? 0 : (x & (x - 1)), expr: 'x &= x - 1', mut: true };
-    case 'low': return { v: x, info: 'x & -x = ' + (x & -x) + '  (' + btBin(x & -x) + ')', expr: 'x & -x', mut: false };
-    case 'pow2': return { v: x, info: (x > 0 && (x & (x - 1)) === 0) ? 'Yes, a power of 2' : 'No, not a power of 2' + (x === 0 ? ' (zero is a trap!)' : ''), expr: 'x > 0 && (x & (x - 1)) == 0', mut: false };
-    case 'pop': return { v: x, info: 'number of lit cells = ' + btPop(x), expr: 'countBits(x)', mut: false };
+    case 'pop': return { v: x, info: f(TXT.btPop, { n: btPop(x) }), expr: TXT.btPopExpr, mut: false };
   }
   return null;
 }
-function btDraw() {
+function btDraw(first) {
   document.getElementById('btW').innerHTML = [128, 64, 32, 16, 8, 4, 2, 1].map(w => '<div class="bit w">' + w + '</div>').join('');
   const k = btK();
   document.getElementById('btX').innerHTML = [7, 6, 5, 4, 3, 2, 1, 0].map(i => {
     const b = (BTX >> i) & 1;
     return '<div class="bit' + (b ? ' on' : '') + (BTFLASH[i] ? ' flash' : '') + (i === k ? ' pick' : '') + '" onclick="btFlip(' + i + ')">' + b + '<small>' + i + '</small></div>';
   }).join('');
-  if (BTLAST === null) {
-    document.getElementById('btOut').innerHTML = '<span class="line">// x = ' + BTX + '  (' + btBin(BTX) + ')</span>';
-  }
+  if (first) document.getElementById('btOut').innerHTML = '<span class="line">// x = ' + BTX + '  (' + bin8(BTX) + ')</span>';
 }
-function btFlip(i) { BTX ^= (1 << i); BTFLASH = {}; BTLAST = null; btDraw(); document.getElementById('btNote').textContent = ''; }
+function btFlip(i) { BTX ^= (1 << i); BTFLASH = {}; btDraw(true); document.getElementById('btNote').textContent = ''; }
 function btOp(op) {
   const k = btK(); const before = BTX; const r = btApply(op, BTX, k);
   BTFLASH = {};
   if (r.mut) { BTX = r.v; for (let i = 0; i < 8; i++) if (((before >> i) & 1) !== ((BTX >> i) & 1)) BTFLASH[i] = true; }
-  BTLAST = op;
-  btDraw();
-  document.getElementById('btOut').innerHTML = '<span class="line">// ' + r.expr + '</span>\n' + (r.mut ? btBin(before) + '  (' + before + ')  →  ' + btBin(BTX) + '  (' + BTX + ')' : (r.info || ''));
+  btDraw(false);
+  document.getElementById('btOut').innerHTML = '<span class="line">// ' + r.expr + '</span>\n' + (r.mut ? bin8(before) + '  (' + before + ')  →  ' + bin8(BTX) + '  (' + BTX + ')' : (r.info || ''));
   const n = document.getElementById('btNote'); n.className = 'lab-say ok';
-  n.textContent = r.mut ? 'Only the cells highlighted in yellow changed.' : 'The number x did not change; this was a read-only operation.';
+  n.textContent = r.mut ? TXT.btChanged : TXT.btSame;
 }
-function btReset() { BTX = 13; BTFLASH = {}; BTLAST = null; btDraw(); document.getElementById('btNote').textContent = ''; }
-btDraw();
+function btReset() { BTX = 13; BTFLASH = {}; btDraw(true); document.getElementById('btNote').textContent = ''; }
+btDraw(true);
 
 </script>
 </body>
